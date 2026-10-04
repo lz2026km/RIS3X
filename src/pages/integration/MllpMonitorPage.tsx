@@ -7,13 +7,14 @@ import { usePagination } from '../../hooks/usePagination';
 import { hl7Api } from '../../services/api/integrationApi';
 import { ConnectionLogEntry, Hl7ArchiveRecord, MllpStatus } from '../../services/api/integrationApi'
 import {
-  Card, Space, Tag, Button, Row, Col, Statistic, Table, Alert, Spin, Tabs, Select, Empty, message, Badge,
+  Card, Space, Tag, Button, Row, Col, Table, Alert, Spin, Tabs, Select, Empty, message, Badge,
 } from 'antd';
 import { Activity, Server, BookOpen, Cpu, Network, Play, Square, RefreshCw } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BellOff } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
 
 const POLL_MS = 30_000;
 
@@ -91,7 +92,7 @@ const MllpMonitorPage: React.FC = () => {
   const uptimeText = status ? `${Math.floor((status.uptimeMs ?? 0) / 3600000)}h ${Math.floor(((status.uptimeMs ?? 0) % 3600000) / 60000)}m` : '-';
 
   return (
-    <div style={{ padding: 24, background: '#f5f7fa', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Card size="small" className="shadow-sm" style={{ marginBottom: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
           <Space>
@@ -132,15 +133,15 @@ const MllpMonitorPage: React.FC = () => {
           >
             {loading ? <Spin /> : (
               <Space direction="vertical" size={8} style={{ width: '100%' }}>
-                <Row gutter={8}>
-                  <Col span={8}><Statistic title={t('mllpMon.stat.port')} value={status?.port ?? '-'} valueStyle={{ fontSize: 18 }} /></Col>
-                  <Col span={8}><Statistic title={t('mllpMon.stat.connections')} value={status?.totalConnections ?? 0} valueStyle={{ fontSize: 18 }} /></Col>
-                  <Col span={8}><Statistic title={t('mllpMon.stat.messages')} value={status?.totalMessages ?? 0} valueStyle={{ fontSize: 18 }} /></Col>
-                </Row>
-                <Row gutter={8}>
-                  <Col span={12}><Statistic title={t('mllpMon.stat.uptime')} value={uptimeText} valueStyle={{ fontSize: 16 }} /></Col>
-                  <Col span={12}><Statistic title="TLS" value={status?.tlsEnabled ? t('mllpMon.on') : t('mllpMon.off')} valueStyle={{ fontSize: 16, color: status?.tlsEnabled ? '#52c41a' : '#999' }} /></Col>
-                </Row>
+                <StatCardGrid minWidth={200} gap={8}>
+                  <StatCard title={t('mllpMon.stat.port')} value={status?.port ?? '-'} color="primary" />
+                  <StatCard title={t('mllpMon.stat.connections')} value={status?.totalConnections ?? 0} color="primary" />
+                  <StatCard title={t('mllpMon.stat.messages')} value={status?.totalMessages ?? 0} color="primary" />
+                </StatCardGrid>
+                <StatCardGrid minWidth={200} gap={8}>
+                  <StatCard title={t('mllpMon.stat.uptime')} value={uptimeText} color="primary" />
+                  <StatCard title="TLS" value={status?.tlsEnabled ? t('mllpMon.on') : t('mllpMon.off')} color={status?.tlsEnabled ? 'success' : '#999'} />
+                </StatCardGrid>
                 <DividerCustom label={t('mllpMon.whitelist')} />
                 {status?.whitelist?.length ? (
                   <Space size={4} wrap>
@@ -215,7 +216,7 @@ const MllpMonitorPage: React.FC = () => {
           />
         </Col>
       </Row>
-    </div>
+    </PageContainer>
   );
 };
 

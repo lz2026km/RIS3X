@@ -1,9 +1,10 @@
 // [v3.0.6.8-37] PR 4: 8 亚专科纵深
 // 对标: Medisoft mediSIGHT 8 亚专科模块
 // 5 专科量表 + 接触镜 + 低视力
-import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message, Empty, Statistic, Alert, InputNumber, Radio, Table } from 'antd';
+import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message, Empty, Alert, InputNumber, Radio, Table } from 'antd';
 import { Eye, Activity, Compass, Layers, Zap, Glasses, Accessibility, Save, History } from 'lucide-react';
 import { Inbox } from 'lucide-react'
+import { StatCard, StatCardGrid } from '../../../components/common'
 // [v3.0.6.11-88 Round10] 接触镜验配走 API 层 (后端 POST /eye/contact-lens/fitting)
 import { eyeApi } from '../../../services/api/eyeApi'
 import { t } from '../../../i18n/appI18n'
@@ -133,27 +134,19 @@ export const StrabismusPage: React.FC = () => {
         <Col span={14}>
           <Card title={t('eyeSub.resultsTitle')} size="small">
             {result ? (
-              <Row gutter={[16, 16]}>
-                <Col span={8}>
-                  <Statistic title={t('eyeSub.horizontal')} value={`${result.result.horizontal.value} ${result.result.horizontal.unit}`}
-                    styles={{ content: {  color: Math.abs(result.result.horizontal.value) > 10 ? '#ff4d4f' : '#52c41a'  } }} />
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{result.result.horizontal.type}</div>
-                </Col>
-                <Col span={8}>
-                  <Statistic title={t('eyeSub.vertical')} value={`${result.result.vertical.value} ${result.result.vertical.unit}`} />
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{result.result.vertical.type}</div>
-                </Col>
-                <Col span={8}>
-                  <Statistic title={t('eyeSub.torsion')} value={`${result.result.torsion.value}${result.result.torsion.unit}`} />
-                </Col>
-                <Col span={24}>
-                  <Divider style={{ margin: '4px 0' }} />
-                  <Alert title={result.diagnosis} type={result.diagnosis === '正常' ? 'success' : 'warning'} showIcon />
-                </Col>
-                <Col span={24}>
-                  <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('eyeSub.method')}: {result.method}</div>
-                </Col>
-              </Row>
+              <>
+                <StatCardGrid minWidth={200} gap={16}>
+                  <StatCard title={t('eyeSub.horizontal')} value={`${result.result.horizontal.value} ${result.result.horizontal.unit}`}
+                    color={Math.abs(result.result.horizontal.value) > 10 ? 'error' : 'success'}
+                    sub={result.result.horizontal.type} />
+                  <StatCard title={t('eyeSub.vertical')} value={`${result.result.vertical.value} ${result.result.vertical.unit}`}
+                    sub={result.result.vertical.type} />
+                  <StatCard title={t('eyeSub.torsion')} value={`${result.result.torsion.value}${result.result.torsion.unit}`} />
+                </StatCardGrid>
+                <Divider style={{ margin: '8px 0' }} />
+                <Alert title={result.diagnosis} type={result.diagnosis === '正常' ? 'success' : 'warning'} showIcon />
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 8 }}>{t('eyeSub.method')}: {result.method}</div>
+              </>
             ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('eyeSub.clickSave')} />}
           </Card>
         </Col>
@@ -234,11 +227,13 @@ export const NeuroOphthalmologyPage: React.FC = () => {
               result.type === 'color' ? (
                 <Alert title={result.diagnosis} description={`${result.method} | ${t('eyeSub.errors')}: ${result.errors}`} type={result.diagnosis.includes('异常') ? 'warning' : 'success'} showIcon />
               ) : (
-                <Row gutter={[16, 16]}>
-                  <Col span={12}><Statistic title={t('eyeSub.p100LatencyShort')} value={`${result.p100Latency.value} ${result.p100Latency.unit}`} styles={{ content: {  color: result.p100Latency.normal ? '#52c41a' : '#ff4d4f'  } }} /></Col>
-                  <Col span={12}><Statistic title={t('eyeSub.p100AmplitudeShort')} value={`${result.p100Amplitude.value} ${result.p100Amplitude.unit}`} /></Col>
-                  <Col span={24}><Alert title={result.diagnosis} type={result.diagnosis.includes('正常') ? 'success' : 'warning'} showIcon /></Col>
-                </Row>
+                <>
+                  <StatCardGrid minWidth={200} gap={16}>
+                    <StatCard title={t('eyeSub.p100LatencyShort')} value={`${result.p100Latency.value} ${result.p100Latency.unit}`} color={result.p100Latency.normal ? 'success' : 'error'} />
+                    <StatCard title={t('eyeSub.p100AmplitudeShort')} value={`${result.p100Amplitude.value} ${result.p100Amplitude.unit}`} />
+                  </StatCardGrid>
+                  <Alert style={{ marginTop: 16 }} title={result.diagnosis} type={result.diagnosis.includes('正常') ? 'success' : 'warning'} showIcon />
+                </>
               )
             ) : <Empty description={t('eyeSub.noData')} image={<Inbox size={48} style={{opacity:0.4}}/>} />}
           </Card>
@@ -289,12 +284,14 @@ export const OcularOncologyPage: React.FC = () => {
         <Col span={14}>
           <Card title={t('eyeSub.resultCard')} size="small">
             {result ? (
-              <Row gutter={[16, 16]}>
-                <Col span={8}><Statistic title="OD" value={result.od.value} suffix="mm" /></Col>
-                <Col span={8}><Statistic title="OS" value={result.os.value} suffix="mm" /></Col>
-                <Col span={8}><Statistic title={t('eyeSub.difference')} value={result.difference} suffix="mm" styles={{ content: {  color: result.difference > 2 ? '#ff4d4f' : '#52c41a'  } }} /></Col>
-                <Col span={24}><Alert title={result.diagnosis} type={result.diagnosis === '双眼对称' ? 'success' : 'warning'} showIcon /></Col>
-              </Row>
+              <>
+                <StatCardGrid minWidth={200} gap={16}>
+                  <StatCard title="OD" value={result.od.value} suffix="mm" />
+                  <StatCard title="OS" value={result.os.value} suffix="mm" />
+                  <StatCard title={t('eyeSub.difference')} value={result.difference} suffix="mm" color={result.difference > 2 ? 'error' : 'success'} />
+                </StatCardGrid>
+                <Alert style={{ marginTop: 16 }} title={result.diagnosis} type={result.diagnosis === '双眼对称' ? 'success' : 'warning'} showIcon />
+              </>
             ) : <Empty description={t('eyeSub.noData')} image={<Inbox size={48} style={{opacity:0.4}}/>} />}
           </Card>
         </Col>
@@ -344,12 +341,14 @@ export const CorneaPage: React.FC = () => {
         <Col span={14}>
           <Card title={t('eyeSub.resultCard')} size="small">
             {result ? (
-              <Row gutter={[16, 16]}>
-                <Col span={8}><Statistic title={t('eyeSub.maxK')} value={result.kmax.value} suffix="D" styles={{ content: {  color: result.kmax.value > 47 ? '#ff4d4f' : '#52c41a'  } }} /></Col>
-                <Col span={8}><Statistic title={t('eyeSub.thinnestPoint')} value={result.thinnestPachy.value} suffix="μm" styles={{ content: {  color: result.thinnestPachy.value < 480 ? '#ff4d4f' : '#52c41a'  } }} /></Col>
-                <Col span={8}><Statistic title={t('eyeSub.badScore')} value={result.badScore} styles={{ content: {  color: result.badScore >= 2 ? '#ff4d4f' : '#52c41a'  } }} /></Col>
-                <Col span={24}><Alert title={result.diagnosis} type={result.isKeratoconus ? 'error' : 'success'} showIcon /></Col>
-              </Row>
+              <>
+                <StatCardGrid minWidth={200} gap={16}>
+                  <StatCard title={t('eyeSub.maxK')} value={result.kmax.value} suffix="D" color={result.kmax.value > 47 ? 'error' : 'success'} />
+                  <StatCard title={t('eyeSub.thinnestPoint')} value={result.thinnestPachy.value} suffix="μm" color={result.thinnestPachy.value < 480 ? 'error' : 'success'} />
+                  <StatCard title={t('eyeSub.badScore')} value={result.badScore} color={result.badScore >= 2 ? 'error' : 'success'} />
+                </StatCardGrid>
+                <Alert style={{ marginTop: 16 }} title={result.diagnosis} type={result.isKeratoconus ? 'error' : 'success'} showIcon />
+              </>
             ) : <Empty description={t('eyeSub.noData')} image={<Inbox size={48} style={{opacity:0.4}}/>} />}
           </Card>
         </Col>
@@ -408,14 +407,16 @@ export const ContactLensFittingPage: React.FC = () => {
         <Col span={14}>
           <Card title={t('eyeSub.fittingResult')} size="small">
             {result ? (
-              <Row gutter={[16, 16]}>
-                <Col span={12}><Statistic title={t('eyeSub.fittingId')} value={result.fittingId} /></Col>
-                <Col span={12}><Statistic title={t('eyeSub.type')} value={result.lensType} /></Col>
-                <Col span={8}><Statistic title={t('eyeSub.bc')} value={result.bc} suffix="mm" /></Col>
-                <Col span={8}><Statistic title={t('eyeSub.dia')} value={result.dia} suffix="mm" /></Col>
-                <Col span={8}><Statistic title={t('eyeSub.powerShort')} value={result.power} suffix="D" /></Col>
-                <Col span={24}><Alert title={`${t('eyeSub.fit')}: ${result.fit}`} type="success" showIcon /></Col>
-              </Row>
+              <>
+                <StatCardGrid minWidth={200} gap={16}>
+                  <StatCard title={t('eyeSub.fittingId')} value={result.fittingId} />
+                  <StatCard title={t('eyeSub.type')} value={result.lensType} />
+                  <StatCard title={t('eyeSub.bc')} value={result.bc} suffix="mm" />
+                  <StatCard title={t('eyeSub.dia')} value={result.dia} suffix="mm" />
+                  <StatCard title={t('eyeSub.powerShort')} value={result.power} suffix="D" />
+                </StatCardGrid>
+                <Alert style={{ marginTop: 16 }} title={`${t('eyeSub.fit')}: ${result.fit}`} type="success" showIcon />
+              </>
             ) : <Empty description={t('eyeSub.noData')} image={<Inbox size={48} style={{opacity:0.4}}/>} />}
           </Card>
         </Col>
@@ -548,13 +549,15 @@ export const CataractPage: React.FC = () => {
         <Col span={14}>
           <Card title={t('eyeSub.resultCard')} size="small">
             {result ? (
-              <Row gutter={[16, 16]}>
-                <Col span={8}><Statistic title={t('eyeSub.nuclearShort')} value={result.nuclearGrade} styles={{ content: {  color: gradeColor(result.nuclearGrade)  } }} /></Col>
-                <Col span={8}><Statistic title={t('eyeSub.corticalShort')} value={result.corticalGrade} styles={{ content: {  color: gradeColor(result.corticalGrade)  } }} /></Col>
-                <Col span={8}><Statistic title={t('eyeSub.pscShort')} value={result.pscGrade} styles={{ content: {  color: gradeColor(result.pscGrade)  } }} /></Col>
-                <Col span={24}><Statistic title={t('eyeSub.totalGrade')} value={result.totalScore} styles={{ content: {  color: result.totalScore >= 4 ? '#ff4d4f' : '#52c41a'  } }} /></Col>
-                <Col span={24}><Alert title={result.diagnosis} description={`${t('eyeSub.suggestion')}: ${result.recommendation}`} type={result.needsSurgery ? 'warning' : 'success'} showIcon /></Col>
-              </Row>
+              <>
+                <StatCardGrid minWidth={200} gap={16}>
+                  <StatCard title={t('eyeSub.nuclearShort')} value={result.nuclearGrade} color={gradeColor(result.nuclearGrade)} />
+                  <StatCard title={t('eyeSub.corticalShort')} value={result.corticalGrade} color={gradeColor(result.corticalGrade)} />
+                  <StatCard title={t('eyeSub.pscShort')} value={result.pscGrade} color={gradeColor(result.pscGrade)} />
+                  <StatCard title={t('eyeSub.totalGrade')} value={result.totalScore} color={result.totalScore >= 4 ? 'error' : 'success'} />
+                </StatCardGrid>
+                <Alert style={{ marginTop: 16 }} title={result.diagnosis} description={`${t('eyeSub.suggestion')}: ${result.recommendation}`} type={result.needsSurgery ? 'warning' : 'success'} showIcon />
+              </>
             ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('eyeSub.clickEvaluate')} />}
           </Card>
         </Col>

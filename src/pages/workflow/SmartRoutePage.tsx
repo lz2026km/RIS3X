@@ -1,6 +1,7 @@
 import { usePagination } from '../../hooks/usePagination'
 import { smartRouteApi, type SmartRouteRule, type SmartRouteAssignment, type SmartRouteStats, type DoctorRecommendation } from '../../services/api/smartRouteApi'
-import { Card, Table, Button, Space, Switch, InputNumber, Input, Modal, Form, Select, Row, Col, Statistic, message, Tabs, Alert, Tag, Progress } from 'antd'
+import { Card, Table, Button, Space, Switch, InputNumber, Input, Modal, Form, Select, Row, Col, message, Tabs, Alert, Tag, Progress } from 'antd'
+import { StatCard, StatCardGrid } from '../../components/common'
 import { GitBranch, Edit3, BarChart3, History } from 'lucide-react'
 import { RefreshCw } from 'lucide-react'
 import { UserCheck, Zap } from 'lucide-react'
@@ -182,13 +183,13 @@ const SmartRoutePage: React.FC = () => {
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('smartRoute.title')}</span>
       </Space>
       {error && <Alert type="warning" showIcon message={t('smartRoute.loadFailed')} description={error} action={<Button size="small" onClick={fetchAll}><RefreshCw size={14} /> {t('smartRoute.retry')}</Button>} style={{ marginBottom: 16 }} />}
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card><Statistic title={t('smartRoute.statTotalAssign')} value={totalAssign} prefix={<History size={16} />} loading={loading} /></Card></Col>
-        <Col span={6}><Card><Statistic title={t('smartRoute.statRuleCount')} value={rules.length} prefix={<GitBranch size={16} />} loading={loading} /></Card></Col>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('smartRoute.statTotalAssign')} value={totalAssign} icon={<History size={16} />} loading={loading} />
+        <StatCard title={t('smartRoute.statRuleCount')} value={rules.length} icon={<GitBranch size={16} />} loading={loading} />
         {Object.entries(byModality).slice(0, 2).map(([k, v]) => (
-          <Col span={4} key={k}><Card><Statistic title={t('smartRoute.modalityAssign', { modality: k })} value={v} suffix={t('smartRoute.unitTimes')} loading={loading} /></Card></Col>
+          <StatCard key={k} title={t('smartRoute.modalityAssign', { modality: k })} value={v} suffix={t('smartRoute.unitTimes')} loading={loading} />
         ))}
-      </Row>
+      </StatCardGrid>
       <Tabs items={[
         { key: 'recommend', label: <span><UserCheck size={14} /> {t('smartRoute.tabRecommend')}</span>, children: (
           <Card>
@@ -246,7 +247,7 @@ const SmartRoutePage: React.FC = () => {
         ) },
         { key: 'rules', label: <span><GitBranch size={14} /> {t('smartRoute.tabRules')}</span>, children: <Card><Table rowKey="id" dataSource={rules} columns={ruleColumns} pagination={false} size="small" loading={loading} scroll={{ x: 'max-content' }}/></Card> },
         { key: 'history', label: <span><History size={14} /> {t('smartRoute.tabHistory')}</span>, children: <Card><Table rowKey="id" dataSource={historyPagination.pageData} columns={historyColumns} pagination={historyPagination.pagination} size="small" loading={loading} scroll={{ x: 'max-content' }}/></Card> },
-        { key: 'stats', label: <span><BarChart3 size={14} /> {t('smartRoute.tabStats')}</span>, children: <Card><Row gutter={16}>{Object.entries(byDoctor).map(([k, v]) => <Col key={k} span={6}><Card><Statistic title={k} value={v} suffix={t('smartRoute.unitTimes')} loading={loading} /></Card></Col>)}</Row></Card> },
+        { key: 'stats', label: <span><BarChart3 size={14} /> {t('smartRoute.tabStats')}</span>, children: <Card><StatCardGrid minWidth={200} gap={16}>{Object.entries(byDoctor).map(([k, v]) => <StatCard key={k} title={k} value={v} suffix={t('smartRoute.unitTimes')} loading={loading} />)}</StatCardGrid></Card> },
       ]} />
       <Modal title={t('smartRoute.editRuleTitle')} open={editOpen} onOk={handleSave} onCancel={() => setEditOpen(false)}>
         <Form form={form} layout="vertical">

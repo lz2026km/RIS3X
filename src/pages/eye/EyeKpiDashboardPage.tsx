@@ -1,8 +1,8 @@
-import { PageContainer, PageHeader } from '@/components/common'
+import { PageContainer, PageHeader, StatCard, StatCardGrid } from '@/components/common'
 import { usePagination } from '@/hooks/usePagination'
 import { eyeApi } from '@/services/api/eyeApi'
 import type { ApiResponse } from '@/services/api/types'
-import { Card, Row, Col, Tag, Statistic, Table, Progress, Tabs, Badge, Alert, Button, Spin, Empty, Space } from 'antd'
+import { Card, Row, Col, Tag, Table, Progress, Tabs, Badge, Alert, Button, Spin, Empty, Space } from 'antd'
 import { BarChart3, TrendingUp, TrendingDown, Activity, Users, DollarSign, Smile, AlertTriangle, RefreshCw } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { t } from '../../i18n/appI18n'
@@ -111,14 +111,14 @@ const EyeKpiDashboardPage: React.FC = () => {
         <div style={{ textAlign: 'center', padding: 60 }}><Spin size="large" /></div>
       ) : (
         <>
-          <div data-testid="eye-kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 12 }}>
-            <Card size="small"><Statistic title={t('eyeKpi.dailyExams')} value={kpiData.dailyExams} suffix={t('eyeKpi.unitVisits')} prefix={<Activity size={16} />} /></Card>
-            <Card size="small"><Statistic title={t('eyeKpi.aiAdoption')} value={kpiData.aiAdoption} suffix="%" prefix={<BarChart3 size={16} />} styles={{ content: { color: '#22c55e' } }} /></Card>
-            <Card size="small"><Statistic title={t('eyeKpi.monthlySurgery')} value={kpiData.surgeryCount ?? 0} suffix={t('eyeKpi.unitCases')} prefix={<Users size={16} color="#f59e0b" />} /></Card>
-            <Card size="small"><Statistic title={t('eyeKpi.satisfaction')} value={avgSat.toFixed(1)} suffix={t('eyeKpi.unitPoints')} prefix={<Smile size={16} color="#8b5cf6" />} /></Card>
-            <Card size="small"><Statistic title={t('eyeKpi.avgWait')} value={kpiData.avgWait} suffix="min" prefix={<AlertTriangle size={16} color="#f59e0b" />} /></Card>
-            <Card size="small"><Statistic title={t('eyeKpi.monthlyRevenue')} value={kpiData.revenue ?? 0} suffix={t('eyeKpi.unitTenThousand')} prefix={<DollarSign size={16} color="#10b981" />} /></Card>
-          </div>
+          <StatCardGrid minWidth={200} gap={12} testId="eye-kpi-grid" style={{ marginBottom: 12 }}>
+            <StatCard title={t('eyeKpi.dailyExams')} value={kpiData.dailyExams} suffix={t('eyeKpi.unitVisits')} icon={<Activity size={16} />} />
+            <StatCard title={t('eyeKpi.aiAdoption')} value={kpiData.aiAdoption} suffix="%" icon={<BarChart3 size={16} />} color="#22c55e" />
+            <StatCard title={t('eyeKpi.monthlySurgery')} value={kpiData.surgeryCount ?? 0} suffix={t('eyeKpi.unitCases')} icon={<Users size={16} color="#f59e0b" />} />
+            <StatCard title={t('eyeKpi.satisfaction')} value={avgSat.toFixed(1)} suffix={t('eyeKpi.unitPoints')} icon={<Smile size={16} color="#8b5cf6" />} />
+            <StatCard title={t('eyeKpi.avgWait')} value={kpiData.avgWait} suffix="min" icon={<AlertTriangle size={16} color="#f59e0b" />} />
+            <StatCard title={t('eyeKpi.monthlyRevenue')} value={kpiData.revenue ?? 0} suffix={t('eyeKpi.unitTenThousand')} icon={<DollarSign size={16} color="#10b981" />} />
+          </StatCardGrid>
 
           <Card size="small">
             <Tabs

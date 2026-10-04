@@ -4,14 +4,14 @@
  * [W3-A] 影像设备状态接入 deviceApi 真实数据; 数据库副本 REPLICAS 仍为静态演示 (failover.ts)
  */
 import { useEffect, useState } from "react";
-import { Card, Col, Row, Table, Tag, Statistic, Space, Typography, Timeline, Badge, Alert } from 'antd';
+import { Card, Col, Row, Table, Tag, Space, Typography, Timeline, Badge, Alert } from 'antd';
 import { Shield, Database, Activity, RefreshCw, CheckCircle, AlertTriangle, XCircle, Monitor } from 'lucide-react';
 import { syncEngine, type SyncQueueItem, type ConflictResolution } from "../services/offline";
 import { REPLICAS, type DbReplica } from "../services/failover";
 import { deviceApi, type DeviceDto } from "./../services/api/deviceApi";
 import { usePagination } from "../hooks/usePagination";
 import { LoadingBanner } from "../components/feedback";
-import { ActionButton, ExportButton } from "../components/common";
+import { ActionButton, ExportButton, StatCard, StatCardGrid } from "../components/common";
 import { t } from "../i18n/appI18n";
 
 const {  Text } = Typography;
@@ -149,14 +149,14 @@ export default function BusinessContinuityPage() {
 
       {loading && <LoadingBanner message={t("w9.states.loading")} />}
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card><Statistic title={t("businessContinuity.syncQueue")} value={status?.total ?? 0} prefix={<RefreshCw size={16} />} styles={{ content: {  color: "#0ea5e9"  } }} /></Card></Col>
-        <Col span={4}><Card><Statistic title={t("businessContinuity.qPending")} value={status?.pending ?? 0} styles={{ content: {  color: "#f59e0b"  } }} /></Card></Col>
-        <Col span={4}><Card><Statistic title={t("businessContinuity.qCompleted")} value={status?.completed ?? 0} prefix={<CheckCircle size={16} />} styles={{ content: {  color: "#10b981"  } }} /></Card></Col>
-        <Col span={4}><Card><Statistic title={t("businessContinuity.qFailed")} value={status?.failed ?? 0} prefix={<XCircle size={16} />} styles={{ content: {  color: "#dc2626"  } }} /></Card></Col>
-        <Col span={4}><Card><Statistic title={t("businessContinuity.qConflict")} value={status?.conflicts ?? 0} prefix={<AlertTriangle size={16} />} styles={{ content: {  color: "#7c3aed"  } }} /></Card></Col>
-        <Col span={4}><Card><Statistic title={t("businessContinuity.avgLag")} value={(replicas.reduce((s, r) => s + r.lagMs, 0) / replicas.length).toFixed(0)} suffix="ms" styles={{ content: {  color: "#1e40af"  } }} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t("businessContinuity.syncQueue")} value={status?.total ?? 0} icon={<RefreshCw size={18} />} color="#0ea5e9" />
+        <StatCard title={t("businessContinuity.qPending")} value={status?.pending ?? 0} color="#f59e0b" />
+        <StatCard title={t("businessContinuity.qCompleted")} value={status?.completed ?? 0} icon={<CheckCircle size={18} />} color="#10b981" />
+        <StatCard title={t("businessContinuity.qFailed")} value={status?.failed ?? 0} icon={<XCircle size={18} />} color="error" />
+        <StatCard title={t("businessContinuity.qConflict")} value={status?.conflicts ?? 0} icon={<AlertTriangle size={18} />} color="#7c3aed" />
+        <StatCard title={t("businessContinuity.avgLag")} value={(replicas.reduce((s, r) => s + r.lagMs, 0) / replicas.length).toFixed(0)} suffix="ms" color="#1e40af" />
+      </StatCardGrid>
 
       {deviceError && <Alert type="warning" showIcon message={t("businessContinuity.deviceLoadFailedAlert")} description={deviceError} style={{ marginBottom: 16 }} />}
 
@@ -210,13 +210,13 @@ export default function BusinessContinuityPage() {
         </Col>
       </Row>
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={5}><Card><Statistic title={t("businessContinuity.deviceTotal")} value={deviceStats?.total ?? 0} prefix={<Monitor size={16} />} styles={{ content: {  color: "#1e40af"  } }} /></Card></Col>
-        <Col span={5}><Card><Statistic title={t("businessContinuity.devRunning")} value={deviceStats?.inUse ?? 0} prefix={<CheckCircle size={16} />} styles={{ content: {  color: "#10b981"  } }} /></Card></Col>
-        <Col span={5}><Card><Statistic title={t("businessContinuity.devIdle")} value={deviceStats?.idle ?? 0} styles={{ content: {  color: "var(--text-secondary)"  } }} /></Card></Col>
-        <Col span={5}><Card><Statistic title={t("businessContinuity.devMaintenance")} value={deviceStats?.maintenance ?? 0} prefix={<AlertTriangle size={16} />} styles={{ content: {  color: "#f59e0b"  } }} /></Card></Col>
-        <Col span={4}><Card><Statistic title={t("businessContinuity.devFault")} value={deviceStats?.broken ?? 0} prefix={<XCircle size={16} />} styles={{ content: {  color: "#dc2626"  } }} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t("businessContinuity.deviceTotal")} value={deviceStats?.total ?? 0} icon={<Monitor size={18} />} color="#1e40af" />
+        <StatCard title={t("businessContinuity.devRunning")} value={deviceStats?.inUse ?? 0} icon={<CheckCircle size={18} />} color="#10b981" />
+        <StatCard title={t("businessContinuity.devIdle")} value={deviceStats?.idle ?? 0} color="var(--text-secondary)" />
+        <StatCard title={t("businessContinuity.devMaintenance")} value={deviceStats?.maintenance ?? 0} icon={<AlertTriangle size={18} />} color="#f59e0b" />
+        <StatCard title={t("businessContinuity.devFault")} value={deviceStats?.broken ?? 0} icon={<XCircle size={18} />} color="error" />
+      </StatCardGrid>
 
       <Card title={<Space><Monitor size={16} />{t("businessContinuity.imagingDeviceStatus")} ({devices.length})<Tag color="green">{t("businessContinuity.realDataSource")}</Tag></Space>} style={{ marginBottom: 16 }}>
         <Table scroll={{ x: 'max-content' }}

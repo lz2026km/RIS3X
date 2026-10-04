@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Card, Space, Tag, Button, Select, Row, Col, Statistic, Tabs, message, Alert, Descriptions } from 'antd'
+import { Card, Space, Tag, Button, Select, Tabs, message, Alert, Descriptions } from 'antd'
 import { Activity, RefreshCw, RotateCcw, AlertTriangle, Send, Server, Radio } from 'lucide-react'
+import { StatCard, StatCardGrid } from '../../components/common'
 import {
   interopApi,
   type InterfaceMessageRecord,
@@ -187,20 +188,23 @@ export const InterfaceMonitorPage: React.FC = () => {
   )
 
   const byInterfaceTab = (
-    <Row gutter={16}>
+    <StatCardGrid minWidth={200} gap={16}>
       {stats.byInterface.map((b) => (
-        <Col xs={24} sm={12} md={8} lg={6} key={b.interfaceType} style={{ marginBottom: 12 }}>
-          <Card size="small">
-            <Statistic title={<Space><Tag color={IFACE_COLOR[b.interfaceType]}>{b.interfaceType}</Tag></Space>} value={b.total} />
+        <StatCard
+          key={b.interfaceType}
+          title={<Space><Tag color={IFACE_COLOR[b.interfaceType]}>{b.interfaceType}</Tag></Space>}
+          value={b.total}
+          color="primary"
+          sub={
             <Descriptions column={1} size="small" style={{ marginTop: 8 }}>
               <Descriptions.Item label={t('w10Interop.stat.success')}><Tag color="green">{b.success}</Tag></Descriptions.Item>
               <Descriptions.Item label={t('w10Interop.stat.fail')}><Tag color="red">{b.fail}</Tag></Descriptions.Item>
               <Descriptions.Item label={t('w10Interop.stat.retry')}><Tag color="orange">{b.retry}</Tag></Descriptions.Item>
             </Descriptions>
-          </Card>
-        </Col>
+          }
+        />
       ))}
-    </Row>
+    </StatCardGrid>
   )
 
   return (
@@ -220,12 +224,12 @@ export const InterfaceMonitorPage: React.FC = () => {
 
       {loadError && <Alert type="warning" showIcon message={loadError} style={{ marginBottom: 12 }} />}
 
-      <Row gutter={16} style={{ marginBottom: 12 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('w10Interop.stat.total')} value={stats.totalMessages} prefix={<Server size={14} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w10Interop.stat.successRate')} value={stats.successRate} suffix="%" valueStyle={{ color: '#16a34a' }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w10Interop.stat.fail')} value={stats.fail} valueStyle={{ color: '#dc2626' }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w10Interop.stat.deadLetter')} value={stats.queue.deadLetter} valueStyle={{ color: '#ea580c' }} prefix={<AlertTriangle size={14} />} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 12 }}>
+        <StatCard title={t('w10Interop.stat.total')} value={stats.totalMessages} color="primary" icon={<Server size={18} />} />
+        <StatCard title={t('w10Interop.stat.successRate')} value={stats.successRate} suffix="%" color="success" />
+        <StatCard title={t('w10Interop.stat.fail')} value={stats.fail} color="error" />
+        <StatCard title={t('w10Interop.stat.deadLetter')} value={stats.queue.deadLetter} color="#ea580c" icon={<AlertTriangle size={18} />} />
+      </StatCardGrid>
 
       <Tabs
         activeKey={tab}

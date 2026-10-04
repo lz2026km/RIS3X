@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import dayjs, { type Dayjs } from 'dayjs'
-import { Card, Row, Col, Statistic, DatePicker, Spin, Space } from 'antd'
+import { Card, Row, Col, DatePicker, Spin, Space } from 'antd'
 import { Cpu, TrendingUp, Download } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
 import { aiDiagnosisApi } from '../../services/api/aiDiagnosisApi'
 import { seededInt, seededUnit } from '../../utils/seededRandom'
 import { DataTable } from '../../components/common/DataTable'
 import { ActionButton } from '../../components/common/ActionButton'
+import { StatCard, StatCardGrid } from '../../components/common'
 
 const { RangePicker } = DatePicker
 
@@ -182,38 +183,14 @@ export default function BenchmarkAiDiagnosisPage() {
       <Spin spinning={loading}>
         {accuracy && (
           <>
-            <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
-              <Col span={4}>
-                <Card size="small" style={{ borderRadius: 8, textAlign: 'center' }}>
-                  <Statistic title={t('benchmarkAi.totalCases')} value={accuracy.totalCases} suffix={t('benchmarkAi.caseUnit')} styles={{ content: {  color: '#8b5cf6', fontSize: 20  } }} />
-                </Card>
-              </Col>
-              <Col span={4}>
-                <Card size="small" style={{ borderRadius: 8, textAlign: 'center' }}>
-                  <Statistic title={t('benchmarkAi.aiPositive')} value={accuracy.aiPositive} suffix={t('benchmarkAi.caseUnit')} />
-                </Card>
-              </Col>
-              <Col span={4}>
-                <Card size="small" style={{ borderRadius: 8, textAlign: 'center' }}>
-                  <Statistic title={t('benchmarkAi.aiNegative')} value={accuracy.aiNegative} suffix={t('benchmarkAi.caseUnit')} />
-                </Card>
-              </Col>
-              <Col span={4}>
-                <Card size="small" style={{ borderRadius: 8, textAlign: 'center' }}>
-                  <Statistic title={t('benchmarkAi.physicianPositive')} value={accuracy.physicianPositive} suffix={t('benchmarkAi.caseUnit')} />
-                </Card>
-              </Col>
-              <Col span={4}>
-                <Card size="small" style={{ borderRadius: 8, textAlign: 'center' }}>
-                  <Statistic title={t('benchmarkAi.physicianNegative')} value={accuracy.physicianNegative} suffix={t('benchmarkAi.caseUnit')} />
-                </Card>
-              </Col>
-              <Col span={4}>
-                <Card size="small" style={{ borderRadius: 8, textAlign: 'center' }}>
-                  <Statistic title={t('benchmarkAi.overallAccuracy')} value={accuracy.accuracy} suffix="%" styles={{ content: {  color: '#10b981', fontSize: 20  } }} />
-                </Card>
-              </Col>
-            </Row>
+            <StatCardGrid style={{ marginBottom: 16 }}>
+              <StatCard title={t('benchmarkAi.totalCases')} value={accuracy.totalCases} suffix={t('benchmarkAi.caseUnit')} color="#8b5cf6" />
+              <StatCard title={t('benchmarkAi.aiPositive')} value={accuracy.aiPositive} suffix={t('benchmarkAi.caseUnit')} />
+              <StatCard title={t('benchmarkAi.aiNegative')} value={accuracy.aiNegative} suffix={t('benchmarkAi.caseUnit')} />
+              <StatCard title={t('benchmarkAi.physicianPositive')} value={accuracy.physicianPositive} suffix={t('benchmarkAi.caseUnit')} />
+              <StatCard title={t('benchmarkAi.physicianNegative')} value={accuracy.physicianNegative} suffix={t('benchmarkAi.caseUnit')} />
+              <StatCard title={t('benchmarkAi.overallAccuracy')} value={accuracy.accuracy} suffix="%" color="#10b981" />
+            </StatCardGrid>
 
             <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
               <Col span={6}><AccuracyGauge label={t('benchmarkAi.sensitivity')} value={accuracy.sensitivity} color="#3b82f6" /></Col>

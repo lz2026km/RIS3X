@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import { t as appT } from '../../i18n/appI18n';
 import { orchestratorApi, type OrchestratorFlow, type FlowExecution, type FlowStepDefinition, type SlaConfigDto, type SlaStats } from '../../services/api/orchestratorApi';
 import { usePagination } from '../../hooks/usePagination';
+import { StatCard, StatCardGrid } from '../../components/common';
 
 type StepTypeColor = { key: string; color: string };
 
@@ -781,54 +782,28 @@ export default function OrchestratorPage() {
 
   const renderExecutions = () => (
     <div>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}>
-          <Card size="small">
-            <Statistic
-              title={t("totalExecutions")}
-              value={slaStats?.totalExecutions ?? 0}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card size="small">
-            <Statistic
-              title={t("slaComplianceRate")}
-              value={slaStats?.slaComplianceRate ?? 100}
-              suffix="%"
-              styles={{ content: { 
-                color:
-                  (slaStats?.slaComplianceRate ?? 100) >= 90
-                    ? "#22c55e"
-                    : "#f59e0b",
-               } }}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card size="small">
-            <Statistic
-              title={t("avgCompletionMin")}
-              value={slaStats?.avgCompletionMin != null ? slaStats.avgCompletionMin.toFixed(1) : "-"}
-              suffix="min"
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card size="small">
-            <Statistic
-              title={t("breachedExecutions")}
-              value={slaStats?.breachedExecutions ?? 0}
-              styles={{ content: { 
-                color:
-                  (slaStats?.breachedExecutions ?? 0) > 0
-                    ? "#ef4444"
-                    : undefined,
-               } }}
-            />
-          </Card>
-        </Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard
+          title={t("totalExecutions")}
+          value={slaStats?.totalExecutions ?? 0}
+        />
+        <StatCard
+          title={t("slaComplianceRate")}
+          value={slaStats?.slaComplianceRate ?? 100}
+          suffix="%"
+          color={(slaStats?.slaComplianceRate ?? 100) >= 90 ? "success" : "warning"}
+        />
+        <StatCard
+          title={t("avgCompletionMin")}
+          value={slaStats?.avgCompletionMin != null ? slaStats.avgCompletionMin.toFixed(1) : "-"}
+          suffix="min"
+        />
+        <StatCard
+          title={t("breachedExecutions")}
+          value={slaStats?.breachedExecutions ?? 0}
+          color={(slaStats?.breachedExecutions ?? 0) > 0 ? "error" : "primary"}
+        />
+      </StatCardGrid>
       <Card
         size="small"
         title={t("executions")}

@@ -22,6 +22,8 @@ export interface StatCardTrend {
   direction?: "up" | "down" | "flat";
   /** 兼容旧字段 */
   isUp?: boolean;
+  /** [K-0] 下降为利好 (true 时 down=绿 / up=红), 兼容 dashboard/KpiCard */
+  goodWhenDown?: boolean;
 }
 
 export interface StatCardProps {
@@ -29,8 +31,16 @@ export interface StatCardProps {
   /** 兼容旧字段 (等价 title) */
   label?: ReactNode;
   value: ReactNode;
+  /** [K-0] 数值前缀 (如 ¥ / $), 兼容 antd Statistic.prefix */
+  prefix?: ReactNode;
+  /** [K-0] 数值小数位 (number 时生效), 兼容 antd Statistic.precision */
+  precision?: number;
+  /** [K-0] 自定义数值格式化, 兼容 antd Statistic.formatter */
+  formatter?: (value: ReactNode) => ReactNode;
   /** 数值后缀 (如 % / 例 / 次) */
   suffix?: ReactNode;
+  /** [K-0] 迷你趋势图数据点 (>=2 时渲染 sparkline) */
+  sparkline?: number[];
   /** 加载中 (骨架占位) */
   loading?: boolean;
   icon?: ReactNode;
@@ -98,11 +108,37 @@ function withAlpha(hex: string, alpha: number): string {
   return hex;
 }
 
+/** [K-0] 迷你趋势折线 (统一 KPI 卡视觉) */
+function Sparkline({ data, color, width = 120, height, testId }: { data: number[]; color: string; width?: number; height: number; testId?: string }) {
+  if (!data || data.length < 2) return null;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const pts = data
+    .map((v, i) => {
+      const x = (i / (data.length - 1)) * width;
+      const y = height - 4 - ((v - min) / range) * (height - 8);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+  const last = pts.split(" ").at(-1)?.split(",") ?? [String(width), String(height / 2)];
+  return (
+    <svg data-testid={testId} width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{ display: "block", overflow: "visible" }} aria-hidden>
+      <polyline fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" opacity={0.85} points={pts} />
+      <circle cx={last[0]} cy={last[1]} r={2.4} fill={color} />
+    </svg>
+  );
+}
+
 export function StatCard({
   title,
   label,
   value,
+  prefix,
+  precision,
+  formatter,
   suffix,
+  sparkline,
   loading,
   icon,
   color = "primary",
@@ -133,13 +169,21 @@ export function StatCard({
   const trendCfg: StatCardTrend | undefined =
     typeof trend === "string" ? { value: trendValue ?? 0, direction: trend } : trend;
 
+  const formattedValue = formatter
+    ? formatter(value)
+    : precision !== undefined && typeof value === "number"
+      ? value.toFixed(precision)
+      : value;
+
   const isFlat = trendCfg?.direction === "flat";
-  const isUp = trendCfg?.direction !== "down" && trendCfg?.direction !== "flat" && trendCfg?.isUp !== false;
-  const trendColor = isFlat
+  const isUp = trendCfg
+    ? trendCfg.direction === "up" || (trendCfg.direction === undefined && trendCfg.isUp !== false)
+    : false;
+  const trendColor = !trendCfg || isFlat
     ? "var(--text-muted, #94a3b8)"
-    : trendCfg && (trendCfg.direction === "down" || trendCfg.isUp === false)
-      ? "var(--color-error-600, #dc2626)"
-      : "var(--color-success-600, #059669)";
+    : (trendCfg.goodWhenDown ? !isUp : isUp)
+      ? "var(--color-success-600, #059669)"
+      : "var(--color-error-600, #dc2626)";
 
   const baseStyle: CSSProperties = {
     background: "var(--bg-card)",
@@ -241,9 +285,22 @@ export function StatCard({
                 overflow: "hidden",
                 textOverflow: "ellipsis",
               }}
-            >
-              {value}
-              {suffix !== undefined && (
+              >
+                {prefix !== undefined && (
+                  <span
+                    style={{
+                      fontSize: Math.round(sizeCfg.valueFont * 0.6),
+                      fontWeight: 600,
+                      marginRight: 2,
+                      color: fgColor,
+                      opacity: 0.75,
+                    }}
+                  >
+                    {prefix}
+                  </span>
+                )}
+                {formattedValue}
+                {suffix !== undefined && (
                 <span style={{ fontSize: 13, fontWeight: 600, marginLeft: 2, color: "var(--text-secondary)" }}>
                   {suffix}
                 </span>
@@ -275,6 +332,11 @@ export function StatCard({
             >
               <span>{isFlat ? "→" : isUp ? "↑" : "↓"}</span>
               <span>{Math.abs(Number(trendCfg.value))}{typeof trendCfg.value === "number" ? "%" : ""}</span>
+            </div>
+          )}
+          {sparkline && sparkline.length >= 2 && (
+            <div style={{ marginTop: 8 }}>
+              <Sparkline data={sparkline} color={fgColor} height={size === "lg" ? 48 : size === "sm" ? 34 : 40} testId={testId ? `${testId}-spark` : undefined} />
             </div>
           )}
         </div>

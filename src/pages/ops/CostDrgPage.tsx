@@ -5,12 +5,12 @@
  */
 import { useCallback, useEffect, useState } from 'react'
 import {
-  Alert, Button, Card, Col, Input, message, Row, Space, Statistic, Table, Tabs, Tag, Typography,
+  Alert, Button, Card, Col, Input, message, Row, Space, Table, Tabs, Tag, Typography,
 } from 'antd'
 import { BarChart, Bar, CartesianGrid, Tooltip as RTooltip, XAxis, YAxis } from 'recharts'
 import { BarChart3, DollarSign, FileText, RefreshCw, TrendingUp } from 'lucide-react'
 import { ChartContainer, chartDefaults } from '../../components/charts'
-import { ExportButton } from '../../components/common'
+import { ExportButton, StatCard, StatCardGrid } from '../../components/common'
 import { deviceOpsApi } from '../../services/api/deviceOpsApi'
 import type { CostByExamRow, CostSummary, DrgGroups, ReportDefinition, ReportInstance } from '../../services/api/deviceOpsApi'
 import { t } from '../../i18n/appI18n'
@@ -80,12 +80,12 @@ export default function CostDrgPage() {
 
   const overviewTab = (
     <>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('w11Device.cost.totalRevenue')} value={costSummary?.totalRevenue ?? 0} prefix="¥" styles={{ content: { color: '#2563eb' } }} loading={loading} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w11Device.cost.totalCost')} value={costSummary?.totalCost ?? 0} prefix="¥" styles={{ content: { color: '#d97706' } }} loading={loading} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w11Device.cost.totalMargin')} value={costSummary?.margin.margin ?? 0} prefix="¥" styles={{ content: { color: '#16a34a' } }} loading={loading} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w11Device.cost.marginPct')} value={costSummary?.margin.marginPct ?? 0} suffix="%" loading={loading} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('w11Device.cost.totalRevenue')} value={costSummary?.totalRevenue ?? 0} prefix="¥" color="primary" loading={loading} />
+        <StatCard title={t('w11Device.cost.totalCost')} value={costSummary?.totalCost ?? 0} prefix="¥" color="warning" loading={loading} />
+        <StatCard title={t('w11Device.cost.totalMargin')} value={costSummary?.margin.margin ?? 0} prefix="¥" color="success" loading={loading} />
+        <StatCard title={t('w11Device.cost.marginPct')} value={costSummary?.margin.marginPct ?? 0} suffix="%" loading={loading} />
+      </StatCardGrid>
       <Row gutter={16}>
         <Col span={12}>
           <Card size="small" title={t('w11Device.cost.byModality')}>
@@ -150,12 +150,12 @@ export default function CostDrgPage() {
           {diagResult && <Tag color="blue">{diagResult.code} · {diagResult.name} · {t('w11Device.drg.weight')} {diagResult.weight} · {fmtMoney(diagResult.payment)}</Tag>}
         </Space>
       </Card>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('w11Device.drg.title')} value={drg?.totals.cases ?? 0} suffix="例" loading={loading} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w11Device.drg.totalWeight')} value={drg?.totals.totalWeight ?? 0} loading={loading} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w11Device.cost.revenue')} value={drg?.totals.revenue ?? 0} prefix="¥" styles={{ content: { color: '#2563eb' } }} loading={loading} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w11Device.cost.totalMargin')} value={drg?.totals.margin.margin ?? 0} prefix="¥" styles={{ content: { color: '#16a34a' } }} loading={loading} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('w11Device.drg.title')} value={drg?.totals.cases ?? 0} suffix="例" loading={loading} />
+        <StatCard title={t('w11Device.drg.totalWeight')} value={drg?.totals.totalWeight ?? 0} loading={loading} />
+        <StatCard title={t('w11Device.cost.revenue')} value={drg?.totals.revenue ?? 0} prefix="¥" color="primary" loading={loading} />
+        <StatCard title={t('w11Device.cost.totalMargin')} value={drg?.totals.margin.margin ?? 0} prefix="¥" color="success" loading={loading} />
+      </StatCardGrid>
       <Card size="small" title={t('w11Device.drg.title')} extra={<Text type="secondary">{t('w11Device.drg.baseRate')}: ¥{drg?.baseRate ?? 0}</Text>}>
         <Table
           rowKey="drgCode" size="small" loading={loading} scroll={{ x: 'max-content' }} pagination={false}

@@ -2,11 +2,12 @@
 // 对标: Planmeca Romexis + Sirona Galileos 3D
 // [G005 Wave1B] 3 处裸 fetch → dentalApi (后端 /dental/volume/*)
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, Space, Tag, Button, Select, Row, Col, Statistic, Form, Slider, Tabs, Badge, Progress, InputNumber } from 'antd';
+import { Card, Space, Tag, Button, Select, Row, Col, Form, Slider, Tabs, Badge, Progress, InputNumber } from 'antd';
 import { Eye, RotateCcw, Layers, Crosshair, Download, Box } from 'lucide-react';
 import { dentalApi } from '../../services/api/dentalApi';
 import { ErrorBanner } from '../../components/feedback';
 import { t } from '../../i18n/appI18n';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 
 export const DentalVolumeViewerPage: React.FC = () => {
   const [studies, setStudies] = useState<any[]>([]);
@@ -115,7 +116,7 @@ export const DentalVolumeViewerPage: React.FC = () => {
 
   if (mode === 'list') {
     return (
-      <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+      <PageContainer padding={24}>
         <Space style={{ marginBottom: 16 }}>
           <Box size={20} color="#2563eb" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dvv.title')}</span>
@@ -126,10 +127,10 @@ export const DentalVolumeViewerPage: React.FC = () => {
           <Tag>apply=POST</Tag>
         </Space>
         {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
-        <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={4}><Card size="small"><Statistic title={t('dvv.totalCbct')} value={studies.length} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title={t('dvv.presets')} value={presets.length} /></Card></Col>
-        </Row>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+          <StatCard title={t('dvv.totalCbct')} value={studies.length} icon={<Box size={16} />} />
+          <StatCard title={t('dvv.presets')} value={presets.length} icon={<Layers size={16} />} />
+        </StatCardGrid>
         <Row gutter={[12,12]}>
           {studies.map((s: any) => (
             <Col span={6} key={s.id}>
@@ -142,12 +143,12 @@ export const DentalVolumeViewerPage: React.FC = () => {
             </Col>
           ))}
         </Row>
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div style={{ padding: 16, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <PageContainer padding={16}>
       <Space style={{ marginBottom: 12 }}>
         <Button icon={<RotateCcw size={14}/>} onClick={()=>setMode('list')}>{t('dvv.back')}</Button>
         <span style={{fontSize:16,fontWeight:600}}>{t('dvv.viewerTitle')} - {current?.patientName}</span>
@@ -250,7 +251,7 @@ export const DentalVolumeViewerPage: React.FC = () => {
           ]} />
         </Col>
       </Row>
-    </div>
+    </PageContainer>
   );
 };
 export default DentalVolumeViewerPage;

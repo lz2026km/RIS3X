@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Card, Space, Tag, Row, Col, Form, Input, Select, Button, Table, Result, message } from 'antd';
 import { Calculator, Beaker, Activity, Heart, ArrowRight, Download } from 'lucide-react';
 import { t } from '../../i18n/appI18n';
+import { PageContainer } from '../../components/common';
 
 type Calc = { id:string; name:string; category:string; icon:string; description:string; inputs:string[]; calculate:(vals:any)=>any };
 
@@ -135,7 +136,7 @@ export const ClinicalCalculatorHubPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <Calculator size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('clinicalCalc.title')}</span>
@@ -199,7 +200,7 @@ export const ClinicalCalculatorHubPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
-    </div>
+    </PageContainer>
   );
 };
 export default ClinicalCalculatorHubPage;

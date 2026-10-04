@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Card, Row, Col, Input, Button, Select, Table, Descriptions, Checkbox, InputNumber,
-  Tag, Space, message, Alert, Divider, Typography, Empty, Statistic, List,
+  Tag, Space, message, Alert, Divider, Typography, Empty, List,
 } from 'antd'
 import {
   ScanLine, UserCheck, CreditCard, ShieldAlert, Siren, ClipboardCheck, FileSignature, RefreshCw,
 } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
 import {
   registrationApi,
   type ScanResultDto, type PrepItemDto, type PrepConfirmResultDto,
@@ -284,7 +285,7 @@ const RegistrationWorkstationPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, minHeight: '100vh', background: '#f5f5f5' }} data-testid="registration-page">
+    <PageContainer padding={24} data-testid="registration-page">
       <Card style={{ marginBottom: 16 }}>
         <Space align="center" style={{ marginBottom: 4 }}>
           <ClipboardCheck size={24} color="#1e40af" />
@@ -304,7 +305,7 @@ const RegistrationWorkstationPage: React.FC = () => {
       </Card>
 
       <Row gutter={16}>
-        <Col span={7}>
+        <Col xs={24} lg={8}>
           <Card
             title={<Space><ScanLine size={16} />{t('w6Reg.scan.title')}</Space>}
             style={{ marginBottom: 16 }}
@@ -373,7 +374,7 @@ const RegistrationWorkstationPage: React.FC = () => {
           </Card>
         </Col>
 
-        <Col span={17}>
+        <Col xs={24} lg={16}>
           {!patient ? (
             <Card><Empty description={t('w6Reg.identity.empty')} /></Card>
           ) : (
@@ -506,7 +507,7 @@ const RegistrationWorkstationPage: React.FC = () => {
                   </Col>
                   <Col span={8}>
                     <Space direction="vertical" size={2}>
-                      <Statistic title={t('w6Reg.safety.egfr')} value={egfrValue ?? '-'} suffix="mL/min" styles={{ content: { fontSize: 20, color: renalHighRisk ? '#cf1322' : renalCaution ? '#fa8c16' : '#52c41a' } }} />
+                      <StatCard title={t('w6Reg.safety.egfr')} value={egfrValue ?? '-'} suffix="mL/min" size="sm" variant="compact" bordered={false} color={renalHighRisk ? 'error' : renalCaution ? 'warning' : 'success'} />
                       <Text type="secondary" style={{ fontSize: 12 }}>
                         {t('w6Reg.safety.creatinine')}: {profile?.renalFunction?.creatinine ?? '-'} μm ol/L · {t('w6Reg.safety.egfrSource')}: {profile?.renalFunction?.egfrSource ?? '-'}
                       </Text>
@@ -547,13 +548,13 @@ const RegistrationWorkstationPage: React.FC = () => {
                       columns={chargeColumns}
                       pagination={false}
                     />
-                    <Row gutter={16} style={{ marginTop: 12 }}>
-                      <Col span={5}><Statistic title={t('w6Reg.charge.total')} value={charge.totalAmount} prefix="¥" /></Col>
-                      <Col span={5}><Statistic title={t('w6Reg.charge.insurance')} value={charge.insuranceAmount} prefix="¥" /></Col>
-                      <Col span={5}><Statistic title={t('w6Reg.charge.selfPay')} value={charge.selfPayAmount} prefix="¥" /></Col>
-                      <Col span={4}><Statistic title={t('w6Reg.charge.paid')} value={charge.paidAmount} prefix="¥" /></Col>
-                      <Col span={5}><Statistic title={t('w6Reg.charge.balance')} value={charge.balance} prefix="¥" styles={{ content: { color: charge.balance > 0 ? '#cf1322' : '#52c41a' } }} /></Col>
-                    </Row>
+                    <StatCardGrid minWidth={150} gap={16} style={{ marginTop: 12 }}>
+                      <StatCard title={t('w6Reg.charge.total')} value={charge.totalAmount} prefix="¥" size="sm" />
+                      <StatCard title={t('w6Reg.charge.insurance')} value={charge.insuranceAmount} prefix="¥" size="sm" />
+                      <StatCard title={t('w6Reg.charge.selfPay')} value={charge.selfPayAmount} prefix="¥" size="sm" />
+                      <StatCard title={t('w6Reg.charge.paid')} value={charge.paidAmount} prefix="¥" size="sm" color="success" />
+                      <StatCard title={t('w6Reg.charge.balance')} value={charge.balance} prefix="¥" size="sm" color={charge.balance > 0 ? 'error' : 'success'} />
+                    </StatCardGrid>
                     <Space style={{ marginTop: 12 }}>
                       <Select
                         value={payMethod}
@@ -647,7 +648,7 @@ const RegistrationWorkstationPage: React.FC = () => {
           )}
         </Col>
       </Row>
-    </div>
+    </PageContainer>
   )
 }
 

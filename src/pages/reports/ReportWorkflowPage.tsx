@@ -4,6 +4,7 @@
 import { reportApi } from "@/services/api/reportApi";
 import { ErrorBanner } from "@/components/feedback";
 import { REPORT_STATUS_MAP } from "@/utils/statusMaps";
+import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
 import {
   Card,
   Space,
@@ -17,7 +18,6 @@ import {
   Tabs,
   List,
   Empty,
-  Statistic,
   Alert,
   InputNumber,
   Modal,
@@ -179,7 +179,7 @@ export const ReportWorkflowPage: React.FC = () => {
   }, {});
 
   return (
-    <div style={{ padding: 24, background: "var(--bg-primary)", minHeight: "100vh" }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <GitBranch size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('reportWf.title')}</span>
@@ -190,27 +190,23 @@ export const ReportWorkflowPage: React.FC = () => {
 
       {loadError && <ErrorBanner message={loadError} onRetry={() => void loadReports()} retryLabel={t('w9.states.retry')} />}
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
         {Object.entries(stateStats).map(([s, n]) => (
-          <Col span={3} key={s}>
-            <Card size="small" hoverable>
-              <Statistic
-                title={STATE_LABELS[s]}
-                value={n as number}
-                styles={{ content: { 
-                  color:
-                    STATE_COLORS[s] === "green"
-                      ? "#52c41a"
-                      : STATE_COLORS[s] === "red"
-                        ? "#ff4d4f"
-                        : "#2563eb",
-                  fontSize: 20,
-                 } }}
-              />
-            </Card>
-          </Col>
+          <StatCard
+            key={s}
+            size="sm"
+            title={STATE_LABELS[s]}
+            value={n as number}
+            color={
+              STATE_COLORS[s] === "green"
+                ? "success"
+                : STATE_COLORS[s] === "red"
+                  ? "error"
+                  : "primary"
+            }
+          />
         ))}
-      </Row>
+      </StatCardGrid>
 
       <Tabs activeKey={activeTab} onChange={setActiveTab} type="card">
         {/* 工作流操?*/}
@@ -651,7 +647,7 @@ export const ReportWorkflowPage: React.FC = () => {
           />
         )}
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 

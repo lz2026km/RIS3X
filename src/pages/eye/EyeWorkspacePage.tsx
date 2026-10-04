@@ -16,7 +16,7 @@ import {
   Box,
   Package,
 } from 'lucide-react';
-import { PageContainer, PageHeader, ActionButton, ExportButton } from '@/components/common';
+import { PageContainer, PageHeader, ActionButton, ExportButton, StatCard, StatCardGrid } from '@/components/common';
 import { useAuth } from '@/hooks/useAuth';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { eyeApi } from '@/services/api/eyeApi';
@@ -69,16 +69,6 @@ const EyeWorkspacePage: React.FC = () => {
   );
 
   // Responsive grid: fewer columns on small screens
-  const kpiColSpan = useMemo(() => {
-    switch (breakpoint) {
-      case 'xs': return 12;
-      case 'sm': return 12;
-      case 'md': return 12;
-      case 'lg': return 6;
-      default: return 6;
-    }
-  }, [breakpoint]);
-
   const linkColSpan = useMemo(() => {
     switch (breakpoint) {
       case 'xs': return 24;
@@ -231,28 +221,18 @@ const EyeWorkspacePage: React.FC = () => {
       {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
 
       <Spin spinning={loading}>
-        <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
+        <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 16 }}>
           {KPI_CARDS.map((k) => (
-            <Col xs={12} sm={12} md={kpiColSpan} key={k.key}>
-              <Card
-                size="small"
-                hoverable
-                onClick={() => navigate(k.href)}
-                style={{ cursor: 'pointer' }}
-                styles={{ body: { padding: 12 } }}
-              >
-                <Statistic
-                  title={
-                    <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t(k.title)}</span>
-                  }
-                  value={kpiValues[k.key as keyof typeof kpiValues]}
-                  prefix={<k.Icon className="v4-icon" style={{ color: k.color }} />}
-                  styles={{ content: {  fontSize: 22, color: k.color  } }}
-                />
-              </Card>
-            </Col>
+            <StatCard
+              key={k.key}
+              title={t(k.title)}
+              value={kpiValues[k.key as keyof typeof kpiValues]}
+              icon={<k.Icon className="v4-icon" style={{ color: k.color }} />}
+              color={k.color}
+              onClick={() => navigate(k.href)}
+            />
           ))}
-        </Row>
+        </StatCardGrid>
       </Spin>
 
       <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>

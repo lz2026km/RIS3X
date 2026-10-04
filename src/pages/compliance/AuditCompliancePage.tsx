@@ -1,9 +1,10 @@
 // [v3.0.6.11-54] Phase 2: 审计合规中心 (真实审计事件 + 筛选 + 详情抽屉)
 import { auditApi, type AuditEventDto, type AuditAggregationDto } from '../../services/api/auditApi';
 import {
-  Card, Space, Tag, Table, Button, Row, Col, Statistic, Badge, Drawer,
+  Card, Space, Tag, Table, Button, Badge, Drawer,
   Form, Select, Input, message, Descriptions, Alert, Spin, Typography,
 } from 'antd';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 import {
   Shield,
   FileSearch,
@@ -104,7 +105,7 @@ export const AuditCompliancePage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <Shield size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('auditComp.title')}</span>
@@ -117,19 +118,19 @@ export const AuditCompliancePage: React.FC = () => {
           action={<Button size="small" onClick={() => void load(page)}><RefreshCw size={14} /> {t('auditComp.retry')}</Button>} />
       )}
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title={t('auditComp.statTotal')} value={agg?.total ?? total} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('auditComp.stat24h')} value={agg?.last24h ?? '-'} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('auditComp.statDenied')} value={agg?.byAction?.['DENIED'] ?? (events.filter(e => e.status === 'DENIED').length)} styles={{ content: { color: '#ff4d4f' } }} /></Card></Col>
-        <Col span={6}><Card size="small" title={t('auditComp.topActions')}>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('auditComp.statTotal')} value={agg?.total ?? total} />
+        <StatCard title={t('auditComp.stat24h')} value={agg?.last24h ?? '-'} color="primary" />
+        <StatCard title={t('auditComp.statDenied')} value={agg?.byAction?.['DENIED'] ?? (events.filter(e => e.status === 'DENIED').length)} color="error" />
+        <Card size="small" title={t('auditComp.topActions')}>
           {topActions.length === 0 ? <span style={{ fontSize: 12, color: '#999' }}>{t('auditComp.none')}</span> :
             <Space wrap>{topActions.map(([k, v]) => <Tag key={k}>{k} {v}</Tag>)}</Space>}
-        </Card></Col>
-        <Col span={6}><Card size="small" title={t('auditComp.activeUsers')}>
+        </Card>
+        <Card size="small" title={t('auditComp.activeUsers')}>
           {topUsers.length === 0 ? <span style={{ fontSize: 12, color: '#999' }}>{t('auditComp.none')}</span> :
             <Space wrap>{topUsers.map(u => <Tag key={u.userId} color="blue">{u.userId} ({u.count})</Tag>)}</Space>}
-        </Card></Col>
-      </Row>
+        </Card>
+      </StatCardGrid>
 
       <Card
         size="small"
@@ -210,7 +211,7 @@ export const AuditCompliancePage: React.FC = () => {
           </Descriptions>
         )}
       </Drawer>
-    </div>
+    </PageContainer>
   );
 };
 export default AuditCompliancePage;

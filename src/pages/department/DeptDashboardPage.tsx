@@ -38,6 +38,7 @@ import {
 } from 'recharts'
 import { biApi } from '../../services/api/biApi'
 import { t } from '../../i18n/appI18n'
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
 import { ChartContainer } from '../../components/charts'
 import { autoInterval } from '../../utils/chartUtils'
 import type {
@@ -274,7 +275,7 @@ export default function DeptDashboardPage() {
   )
 
   return (
-    <div style={{ padding: 24 }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16, justifyContent: 'space-between', width: '100%' }}>
         <Space>
           <BarChart3 size={20} color="#2563eb" />
@@ -309,72 +310,16 @@ export default function DeptDashboardPage() {
       )}
 
       <Spin spinning={loading} description={t('deptDash.loading')}>
-        <Row gutter={[16, 16]}>
-          <Col xs={12} sm={8} lg={4}>
-            <Card>
-              <Statistic
-                title={t('deptDash.todayExam')}
-                value={state.kpi?.examCount ?? 0}
-                prefix={<Activity size={16} />}
-              />
-            </Card>
-          </Col>
-          <Col xs={12} sm={8} lg={4}>
-            <Card>
-              <Statistic
-                title={t('deptDash.todayReport')}
-                value={state.kpi?.reportCount ?? 0}
-                prefix={<FileText size={16} />}
-              />
-            </Card>
-          </Col>
-          <Col xs={12} sm={8} lg={4}>
-            <Card>
-              <Statistic
-                title={t('deptDash.completionRate')}
-                value={state.kpi?.completionRate ?? 0}
-                suffix="%"
-                precision={1}
-                prefix={<TrendingUp size={16} />}
-              />
-            </Card>
-          </Col>
-          <Col xs={12} sm={8} lg={4}>
-            <Card>
-              <Statistic
-                title={t('deptDash.avgReportDuration')}
-                value={state.kpi?.avgReportMinutes ?? 0}
-                suffix={t('deptDash.minutesShort')}
-                precision={0}
-                prefix={<Clock size={16} />}
-              />
-            </Card>
-          </Col>
-          <Col xs={12} sm={8} lg={4}>
-            <Card>
-              <Statistic
-                title={t('deptDash.overtimeRate')}
-                value={state.kpi?.overtimeRate ?? 0}
-                suffix="%"
-                precision={1}
-                styles={{ content: { color: (state.kpi?.overtimeRate ?? 0) > 8 ? '#cf1322' : '#3f8600' } }}
-                prefix={<AlertTriangle size={16} />}
-              />
-            </Card>
-          </Col>
-          <Col xs={12} sm={8} lg={4}>
-            <Card>
-              <Statistic
-                title={t('deptDash.criticalSlaRate')}
-                value={state.kpi?.criticalSlaRate ?? 0}
-                suffix="%"
-                precision={1}
-                styles={{ content: { color: (state.kpi?.criticalSlaRate ?? 0) >= 90 ? '#3f8600' : '#cf1322' } }}
-                prefix={<Gauge size={16} />}
-              />
-            </Card>
-          </Col>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+          <StatCard title={t('deptDash.todayExam')} value={state.kpi?.examCount ?? 0} icon={<Activity size={16} />} />
+          <StatCard title={t('deptDash.todayReport')} value={state.kpi?.reportCount ?? 0} icon={<FileText size={16} />} />
+          <StatCard title={t('deptDash.completionRate')} value={state.kpi?.completionRate ?? 0} suffix="%" precision={1} icon={<TrendingUp size={16} />} />
+          <StatCard title={t('deptDash.avgReportDuration')} value={state.kpi?.avgReportMinutes ?? 0} suffix={t('deptDash.minutesShort')} precision={0} icon={<Clock size={16} />} />
+          <StatCard title={t('deptDash.overtimeRate')} value={state.kpi?.overtimeRate ?? 0} suffix="%" precision={1} color={(state.kpi?.overtimeRate ?? 0) > 8 ? 'error' : 'success'} icon={<AlertTriangle size={16} />} />
+          <StatCard title={t('deptDash.criticalSlaRate')} value={state.kpi?.criticalSlaRate ?? 0} suffix="%" precision={1} color={(state.kpi?.criticalSlaRate ?? 0) >= 90 ? 'success' : 'error'} icon={<Gauge size={16} />} />
+        </StatCardGrid>
 
+        <Row gutter={[16, 16]}>
           <Col xs={24} lg={10}>
             <Card
               title={t('deptDash.timelinessDist')}
@@ -588,6 +533,6 @@ export default function DeptDashboardPage() {
           </Col>
         </Row>
       </Spin>
-    </div>
+    </PageContainer>
   )
 }

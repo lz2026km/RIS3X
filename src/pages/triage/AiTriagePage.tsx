@@ -3,6 +3,7 @@ import { usePagination } from '../../hooks/usePagination'
 import { aiTriageApi, type AiTriageResult } from '../../services/api/aiTriageApi'
 import { Card, Table, Button, Tag, Space, Row, Col, Statistic, Modal, Progress, message, Alert, Empty, Tooltip, Segmented } from 'antd'
 import { Bot, AlertTriangle, CheckCircle, Clock, RefreshCw, FileText, Zap, UserCheck, Search } from 'lucide-react'
+import { StatCard, StatCardGrid } from '../../components/common'
 import React, { useState, useEffect, useCallback } from 'react'
 import { t } from '../../i18n/appI18n'
 
@@ -149,12 +150,12 @@ const AiTriagePage: React.FC = () => {
         <Bot size={20} color="#722ed1" /><h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{t('aiTriage.title')}</h1><Tag color="purple">{t('aiTriage.tag')}</Tag>
       </div>
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void fetchPending()}><RefreshCw size={14} /> {t('aiTriage.retry')}</Button>} />}
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col xs={12} md={6}><Card size="small" loading={statsLoading}><Statistic title={t('aiTriage.statTotal')} value={stats.total ?? items.length} prefix={<FileText size={16} />} /></Card></Col>
-        <Col xs={12} md={6}><Card size="small" loading={statsLoading}><Statistic title={t('aiTriage.levelCritical')} value={stats.byLevel?.CRITICAL ?? items.filter(i => i.level === 'CRITICAL').length} styles={{ content: { color: '#cf1322' } }} prefix={<AlertTriangle size={16} />} /></Card></Col>
-        <Col xs={12} md={6}><Card size="small" loading={statsLoading}><Statistic title={t('aiTriage.statAccuracy')} value={stats.accuracy ?? 95} suffix="%" prefix={<CheckCircle size={16} />} /></Card></Col>
-        <Col xs={12} md={6}><Card size="small" loading={statsLoading}><Statistic title={t('aiTriage.statAvgScore')} value={stats.avgScore ?? '-'} prefix={<Clock size={16} />} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('aiTriage.statTotal')} value={stats.total ?? items.length} icon={<FileText size={16} />} loading={statsLoading} />
+        <StatCard title={t('aiTriage.levelCritical')} value={stats.byLevel?.CRITICAL ?? items.filter(i => i.level === 'CRITICAL').length} color="error" icon={<AlertTriangle size={16} />} loading={statsLoading} />
+        <StatCard title={t('aiTriage.statAccuracy')} value={stats.accuracy ?? 95} suffix="%" icon={<CheckCircle size={16} />} loading={statsLoading} />
+        <StatCard title={t('aiTriage.statAvgScore')} value={stats.avgScore ?? '-'} icon={<Clock size={16} />} loading={statsLoading} />
+      </StatCardGrid>
       <Card
         title={t('aiTriage.taskList')}
         extra={

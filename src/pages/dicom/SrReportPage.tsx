@@ -8,9 +8,6 @@ import {
   Table,
   Tag,
   Space,
-  Row,
-  Col,
-  Statistic,
   Button,
   Modal,
   Typography,
@@ -25,6 +22,7 @@ import {
   Divider,
   message,
 } from "antd";
+import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
 import {
   FileText,
   RefreshCw,
@@ -361,7 +359,7 @@ const SrReportPage: React.FC = () => {
   );
 
   return (
-    <div style={{ padding: 24 }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
         <FileText size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t("srReport.title")}</span>
@@ -380,29 +378,19 @@ const SrReportPage: React.FC = () => {
           {t("srReport.generateFromReport")}
         </Button>
       </Space>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}>
-          <Card>
-            <Statistic title={t("srReport.statDocs")} value={documents.length} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title={t("srReport.statFinalized")}
-              value={documents.filter((d) => d.status === "finalized").length}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title={t("srReport.statPushed")}
-              value={documents.filter((d) => d.status === "pushed").length}
-            />
-          </Card>
-        </Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t("srReport.statDocs")} value={documents.length} icon={<FileText size={16} />} />
+        <StatCard
+          title={t("srReport.statFinalized")}
+          value={documents.filter((d) => d.status === "finalized").length}
+          icon={<FileCheck2 size={16} />}
+        />
+        <StatCard
+          title={t("srReport.statPushed")}
+          value={documents.filter((d) => d.status === "pushed").length}
+          icon={<Send size={16} />}
+        />
+      </StatCardGrid>
       {error && (
         <Alert
           type="error"
@@ -669,7 +657,7 @@ const SrReportPage: React.FC = () => {
           )}
         </Spin>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 

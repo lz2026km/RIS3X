@@ -6,7 +6,8 @@ import {
   type XdsDocumentEntry,
   type XdsDocumentDetail,
 } from '../../services/api/integrationApi'
-import { Card, Tabs, Button, Space, Tag, message, Descriptions, Empty, Row, Col, Statistic, Drawer, Form, Input, Alert, Popconfirm, Table, Select, Modal, Spin, Typography } from 'antd'
+import { Card, Tabs, Button, Space, Tag, message, Descriptions, Empty, Row, Col, Drawer, Form, Input, Alert, Popconfirm, Table, Select, Modal, Spin, Typography } from 'antd'
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
 import { Network, Activity, Users, Fingerprint, Globe, Edit3, RotateCcw, Save, RefreshCw, Send, Search, UploadCloud, Database, Download, Eye } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
 import { Inbox } from 'lucide-react'
@@ -379,10 +380,14 @@ export const IheManagerPage: React.FC = () => {
           >
             {status ? (
               <Row gutter={16}>
-                <Col span={6}><Card><Statistic title={t('iheManager.pixRecords')} value={status.metrics.pixRecords} /></Card></Col>
-                <Col span={6}><Card><Statistic title={t('iheManager.pdqCache')} value={status.metrics.pdqCache} /></Card></Col>
-                <Col span={6}><Card><Statistic title={t('iheManager.pamLog')} value={status.metrics.pamLogSize} /></Card></Col>
-                <Col span={6}><Card><Statistic title={t('iheManager.transactions')} value={status.transactions.length} suffix={t('iheManager.unitTypes')} /></Card></Col>
+                <Col span={24}>
+                  <StatCardGrid minWidth={200} gap={16}>
+                    <StatCard title={t('iheManager.pixRecords')} value={status.metrics.pixRecords} icon={<Fingerprint size={14} />} />
+                    <StatCard title={t('iheManager.pdqCache')} value={status.metrics.pdqCache} icon={<Database size={14} />} />
+                    <StatCard title={t('iheManager.pamLog')} value={status.metrics.pamLogSize} icon={<Activity size={14} />} />
+                    <StatCard title={t('iheManager.transactions')} value={status.transactions.length} suffix={t('iheManager.unitTypes')} icon={<Network size={14} />} />
+                  </StatCardGrid>
+                </Col>
                 <Col span={24} style={{ marginTop: 16 }}>
                   <Card size="small" title={t('iheManager.supportedTransactions')}>
                     <Space wrap>
@@ -634,7 +639,7 @@ export const IheManagerPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Network size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('iheManager.title')}</span>
@@ -722,7 +727,7 @@ export const IheManagerPage: React.FC = () => {
           )}
         </Spin>
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

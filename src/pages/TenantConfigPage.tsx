@@ -5,6 +5,7 @@ import {
   Badge, Progress, Switch, Form, Input, InputNumber, Modal, message, Popconfirm, List,
 } from 'antd'
 import { useState, useEffect, useCallback } from 'react'
+import { StatCard, StatCardGrid, PageContainer } from '../components/common'
 import { RefreshCw, ShieldCheck, Settings, Users, LayoutDashboard, Zap, Plus, Power, PlayCircle, ClipboardList } from 'lucide-react'
 import { usePagination } from '../hooks/usePagination'
 import { t } from '../i18n/appI18n'
@@ -215,7 +216,7 @@ export default function TenantConfigPage() {
   ]
 
   return (
-    <div style={{ padding: 24 }}>
+    <PageContainer padding={24}>
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         <Row justify="space-between" align="middle">
           <h2 style={{ margin: 0 }}><ShieldCheck /> {t('tenantConfig.pageTitle')}</h2>
@@ -284,21 +285,15 @@ export default function TenantConfigPage() {
               key: 'usage',
               label: <span><LayoutDashboard /> {t('tenantConfig.tabUsage')}</span>,
               children: usage ? (
-                <Row gutter={16}>
-                  <Col span={6}><Card size="small"><Statistic title={t('tenantConfig.statUsers')} value={usage.users} /></Card></Col>
-                  <Col span={6}><Card size="small"><Statistic title={t('tenantConfig.statPatients')} value={usage.patients} /></Card></Col>
-                  <Col span={6}><Card size="small"><Statistic title={t('tenantConfig.statExams')} value={usage.exams} /></Card></Col>
-                  <Col span={6}><Card size="small"><Statistic title={t('tenantConfig.statReports')} value={usage.reports} /></Card></Col>
-                  <Col span={8} style={{ marginTop: 16 }}>
-                    <Card size="small"><Statistic title={t('tenantConfig.statStorageUsage')} value={formatBytes(usage.storageBytes)} /></Card>
-                  </Col>
-                  <Col span={8} style={{ marginTop: 16 }}>
-                    <Card size="small"><Statistic title={t('tenantConfig.statStorageQuota')} value={formatBytes(usage.storageLimitBytes)} /></Card>
-                  </Col>
-                  <Col span={8} style={{ marginTop: 16 }}>
-                    <Card size="small"><Statistic title={t('tenantConfig.statExamQuota')} value={usage.examLimit} suffix={`${t('tenantConfig.usedSuffix')} ${Math.round((usage.exams / Math.max(1, usage.examLimit)) * 100)}%`} /></Card>
-                  </Col>
-                </Row>
+                <StatCardGrid minWidth={200} gap={16}>
+                  <StatCard title={t('tenantConfig.statUsers')} value={usage.users} />
+                  <StatCard title={t('tenantConfig.statPatients')} value={usage.patients} />
+                  <StatCard title={t('tenantConfig.statExams')} value={usage.exams} />
+                  <StatCard title={t('tenantConfig.statReports')} value={usage.reports} />
+                  <StatCard title={t('tenantConfig.statStorageUsage')} value={formatBytes(usage.storageBytes)} />
+                  <StatCard title={t('tenantConfig.statStorageQuota')} value={formatBytes(usage.storageLimitBytes)} />
+                  <StatCard title={t('tenantConfig.statExamQuota')} value={usage.examLimit} suffix={`${t('tenantConfig.usedSuffix')} ${Math.round((usage.exams / Math.max(1, usage.examLimit)) * 100)}%`} />
+                </StatCardGrid>
               ) : <Spin />,
             },
             {
@@ -459,6 +454,6 @@ export default function TenantConfigPage() {
           })()}
         </Spin>
       </Modal>
-    </div>
+    </PageContainer>
   )
 }

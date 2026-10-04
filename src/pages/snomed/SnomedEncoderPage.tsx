@@ -1,6 +1,7 @@
 // @deprecated [v3.0.6.11-104 Wave 5C] 已嵌入 SnomedPage (/snomed/encode 宿主) 作为 Tab; 旧路由 /snomed/encoder redirect 兼容。文件保留供回滚参考。
 import { snomedApi, type SnomedCode } from '../../services/api/snomedApi'
-import { Card, Input, Button, Table, Tag, Space, Typography, Tooltip, message, Row, Col, Statistic, Empty } from 'antd'
+import { Card, Input, Button, Table, Tag, Space, Typography, Tooltip, message, Row, Col, Empty } from 'antd'
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
 import { Code, Search, CheckCircle, AlertTriangle, FileText, BookOpen, ThumbsUp, Clipboard } from 'lucide-react'
 import React, { useState, useCallback } from 'react'
 import { SearchX } from 'lucide-react'
@@ -154,7 +155,7 @@ const SnomedEncoderPage: React.FC = () => {
     : 0
 
   return (
-    <div style={{ padding: 24, minHeight: '100vh', background: '#f5f5f5' }}>
+    <PageContainer padding={24}>
       <Card style={{ marginBottom: 16 }}>
         <Space style={{ marginBottom: 16 }}>
           <Code size={24} color="#3b82f6" />
@@ -163,28 +164,12 @@ const SnomedEncoderPage: React.FC = () => {
         <Text type="secondary">{t('snomedEncoder.subtitle')}</Text>
       </Card>
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}>
-          <Card>
-            <Statistic title={t('snomedEncoder.statMatched')} value={codes.length} styles={{ content: {  color: '#2563eb'  } }} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic title={t('snomedEncoder.statExact')} value={exactCount} styles={{ content: {  color: '#52c41a'  } }} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic title={t('snomedEncoder.statPartial')} value={partialCount} styles={{ content: {  color: '#fa8c16'  } }} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic title={t('snomedEncoder.statAvgConfidence')} value={avgConfidence > 0 ? `${(avgConfidence * 100).toFixed(0)}%` : '-'} />
-          </Card>
-        </Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('snomedEncoder.statMatched')} value={codes.length} color="primary" />
+        <StatCard title={t('snomedEncoder.statExact')} value={exactCount} color="success" />
+        <StatCard title={t('snomedEncoder.statPartial')} value={partialCount} color="warning" />
+        <StatCard title={t('snomedEncoder.statAvgConfidence')} value={avgConfidence > 0 ? `${(avgConfidence * 100).toFixed(0)}%` : '-'} />
+      </StatCardGrid>
 
       <Row gutter={16}>
         <Col span={12}>
@@ -308,7 +293,7 @@ const SnomedEncoderPage: React.FC = () => {
           <Empty image={<SearchX size={48} style={{opacity:0.4}}/>} description={t('snomedEncoder.noMatch')} />
         </Card>
       )}
-    </div>
+    </PageContainer>
   )
 }
 

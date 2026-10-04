@@ -12,9 +12,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-  Card, Button, Select, Modal, Form, message, Tag, Space, Row, Col, Statistic, Empty, Spin, Alert, DatePicker, Input, TimePicker,
+  Card, Button, Select, Modal, Form, message, Tag, Space, Empty, Spin, Alert, DatePicker, Input, TimePicker,
 } from 'antd'
 import { CalendarDays, ChevronLeft, ChevronRight, AlertTriangle, Wrench, Plus, RefreshCw, GripVertical, Clock } from 'lucide-react'
+import { StatCard, StatCardGrid } from '../../components/common'
 import dayjs from 'dayjs'
 import {
   deviceScheduleApi,
@@ -249,21 +250,17 @@ export default function DeviceScheduleGanttPage() {
 
       {/* 统计条 */}
       {stats && (
-        <Row gutter={[12, 12]} style={{ marginBottom: 12 }}>
+        <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 12 }}>
           {[
             { label: t('statBlocks', '排程块'), value: stats.totalBlocks, color: '#1677ff' },
-            { label: t('statExams', '检查块'), value: stats.examBlocks, color: '#1d4ed8' },
+            { label: t('statExams', '检查块'), value: stats.examBlocks, color: 'primary' },
             { label: t('statMaint', '维护块'), value: stats.maintenanceBlocks, color: '#b45309' },
-            { label: t('statConflicts', '冲突'), value: stats.conflicts, color: '#f5222d' },
+            { label: t('statConflicts', '冲突'), value: stats.conflicts, color: 'error' },
             { label: t('statIdle', '空闲小时'), value: stats.idleHours, color: '#15803d' },
           ].map((s) => (
-            <Col xs={12} md={4} key={s.label}>
-              <Card size="small" styles={{ body: { padding: '10px 14px' } }}>
-                <Statistic title={s.label} value={s.value} valueStyle={{ fontSize: 18, color: s.color }} />
-              </Card>
-            </Col>
+            <StatCard key={s.label} title={s.label} value={s.value} color={s.color} />
           ))}
-        </Row>
+        </StatCardGrid>
       )}
 
       {/* 周导航 */}

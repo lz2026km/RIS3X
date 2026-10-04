@@ -3,7 +3,8 @@
 import { usePagination } from '../../hooks/usePagination';
 import { consentEducationApi, type ConsentRecord, type EducationMaterialDto } from '../../services/api/consentEducationApi';
 import { getEducationService, type EducationMaterial } from '../../services/education/EducationService';
-import { Card, Space, Tag, Row, Col, Table, Button, Tabs, Badge, Modal, Form, Input, Select, message, Statistic, Upload, Spin, Alert, Empty, Descriptions } from 'antd';
+import { Card, Space, Tag, Row, Col, Table, Button, Tabs, Badge, Modal, Form, Input, Select, message, Upload, Spin, Alert, Empty, Descriptions } from 'antd';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 import { FileSignature, BookOpen, CheckCircle2, Clock, Download, Send, Eye, Upload as UploadIcon, Plus, RefreshCw, Inbox } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { t } from '../../i18n/appI18n';
@@ -259,7 +260,7 @@ export const ConsentEducationPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
         <FileSignature size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('consentEdu.title')}</span>
@@ -270,13 +271,13 @@ export const ConsentEducationPage: React.FC = () => {
 
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('consentEdu.retry')}</Button>} />}
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title={t('consentEdu.pending')} value={stats.pending} styles={{ content: { color: '#faad14' } }} prefix={<Clock size={14} />} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('consentEdu.signed')} value={stats.signed} styles={{ content: { color: '#52c41a' } }} prefix={<CheckCircle2 size={14} />} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('consentEdu.refused')} value={stats.refused} styles={{ content: { color: '#ff4d4f' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('consentEdu.materials')} value={materials.length} prefix={<BookOpen size={14} />} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('consentEdu.totalViews')} value={materials.reduce((s, m) => s + (m.views ?? 0), 0)} prefix={<Eye size={14} />} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('consentEdu.pending')} value={stats.pending} color="warning" icon={<Clock size={14} />} />
+        <StatCard title={t('consentEdu.signed')} value={stats.signed} color="success" icon={<CheckCircle2 size={14} />} />
+        <StatCard title={t('consentEdu.refused')} value={stats.refused} color="error" />
+        <StatCard title={t('consentEdu.materials')} value={materials.length} icon={<BookOpen size={14} />} />
+        <StatCard title={t('consentEdu.totalViews')} value={materials.reduce((s, m) => s + (m.views ?? 0), 0)} icon={<Eye size={14} />} />
+      </StatCardGrid>
 
       <Card
         size="small"
@@ -511,7 +512,7 @@ export const ConsentEducationPage: React.FC = () => {
           </>
         )}
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 export default ConsentEducationPage;

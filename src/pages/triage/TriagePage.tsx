@@ -6,16 +6,16 @@ import {
   Modal,
   Select,
   message,
-  Card,
   Row,
   Col,
-  Statistic,
   Space,
   Descriptions,
   InputNumber,
   Alert,
 } from "antd";
+import { Clock, AlertTriangle, Siren, UserCheck } from "lucide-react";
 import { api } from "../../services/api/client";
+import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
 import { t } from "../../i18n/appI18n";
 import { usePagination } from "../../hooks/usePagination";
 
@@ -277,29 +277,13 @@ const TriagePage: React.FC = () => {
   const pendingCount = items.filter(i => i.status === "PENDING").length;
 
   return (
-    <div style={{ padding: 24 }}>
-      <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col span={6}>
-          <Card>
-            <Statistic title={t("triage.totalPending")} value={items.length} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic title={t("triage.critical")} value={criticalCount} styles={{ content: {  color: "#cf1322"  } }} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic title={t("triage.urgent")} value={urgentCount} styles={{ content: {  color: "#fa8c16"  } }} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic title={t("triage.unassigned")} value={pendingCount} />
-          </Card>
-        </Col>
-      </Row>
+    <PageContainer padding={24} data-testid="triage-worklist-page">
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 24 }}>
+        <StatCard title={t("triage.totalPending")} value={items.length} icon={<Clock size={18} />} color="primary" />
+        <StatCard title={t("triage.critical")} value={criticalCount} icon={<Siren size={18} />} color="error" />
+        <StatCard title={t("triage.urgent")} value={urgentCount} icon={<AlertTriangle size={18} />} color="warning" />
+        <StatCard title={t("triage.unassigned")} value={pendingCount} icon={<UserCheck size={18} />} color="info" />
+      </StatCardGrid>
 
       <Table
         dataSource={listPagination.pageData}
@@ -405,7 +389,7 @@ const TriagePage: React.FC = () => {
           </div>
         )}
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 

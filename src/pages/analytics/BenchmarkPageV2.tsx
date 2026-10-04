@@ -1,12 +1,13 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import dayjs, { type Dayjs } from 'dayjs'
-import { Card, Row, Col, Select, DatePicker, Table, Button, Space, Statistic, Tag, message, Spin } from 'antd'
+import { Card, Select, DatePicker, Table, Button, Space, Tag, message, Spin } from 'antd'
 import { BarChart3, Download, Activity } from 'lucide-react'
 import BenchmarkV2, { type CompareMode, type MetricCode, type Dimension, type ChartType, type BenchmarkCompareData } from '../../components/analytics/BenchmarkV2'
 import type { ColumnsType } from 'antd/es/table'
 import { benchmarkApi } from '../../services/api'
 import { t } from '../../i18n/appI18n'
 import { seededInt, seededUnit } from '../../utils/seededRandom'
+import { StatCard, StatCardGrid } from '../../components/common'
 
 const { RangePicker } = DatePicker
 
@@ -320,33 +321,13 @@ export default function BenchmarkPageV2() {
       )}
 
       <Spin spinning={loading}>
-        <Row gutter={[12, 12]}>
-          <Col span={4}>
-            <Card size="small" style={{ borderRadius: 8 }}>
-              <Statistic title="总检查量" value={stats.totalExams ?? '--'} suffix="例" styles={{ content: { fontSize: 20, color: '#3b82f6' } }} />
-            </Card>
-          </Col>
-          <Col span={5}>
-            <Card size="small" style={{ borderRadius: 8 }}>
-              <Statistic title="阳性率" value={stats.positiveRate ?? '--'} suffix="%" styles={{ content: { fontSize: 20, color: '#f59e0b' } }} />
-            </Card>
-          </Col>
-          <Col span={5}>
-            <Card size="small" style={{ borderRadius: 8 }}>
-              <Statistic title="甲级片率" value={stats.gradeARate ?? '--'} suffix="%" styles={{ content: { fontSize: 20, color: '#10b981' } }} />
-            </Card>
-          </Col>
-          <Col span={5}>
-            <Card size="small" style={{ borderRadius: 8 }}>
-              <Statistic title="报告及时率" value={stats.reportOnTimeRate ?? '--'} suffix="%" styles={{ content: { fontSize: 20, color: '#6366f1' } }} />
-            </Card>
-          </Col>
-          <Col span={5}>
-            <Card size="small" style={{ borderRadius: 8 }}>
-              <Statistic title="危急值闭环率" value={stats.criticalClosedRate ?? '--'} suffix="%" styles={{ content: { fontSize: 20, color: '#ec4899' } }} />
-            </Card>
-          </Col>
-        </Row>
+        <StatCardGrid>
+          <StatCard title="总检查量" value={stats.totalExams ?? '--'} suffix="例" color="#3b82f6" />
+          <StatCard title="阳性率" value={stats.positiveRate ?? '--'} suffix="%" color="#f59e0b" />
+          <StatCard title="甲级片率" value={stats.gradeARate ?? '--'} suffix="%" color="#10b981" />
+          <StatCard title="报告及时率" value={stats.reportOnTimeRate ?? '--'} suffix="%" color="#6366f1" />
+          <StatCard title="危急值闭环率" value={stats.criticalClosedRate ?? '--'} suffix="%" color="#ec4899" />
+        </StatCardGrid>
 
         <div style={{ marginTop: 16, marginBottom: 16, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
           <span style={{ fontSize: 13, fontWeight: 600, color: '#475569' }}>院区选择:</span>

@@ -2,9 +2,10 @@
 // [W3-2] 报告模板管理: templatesApi 真实 CRUD (列表/新建/编辑/删除) + 分类筛选 + 使用统计 + 智能片段
 import { usePagination } from '@/hooks/usePagination';
 import { templatesApi } from '@/services/api/templatesApi';
-import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Badge, Typography, Modal, Form, Input, Select, Switch, Popconfirm, message, Alert, Empty, Spin, Segmented, Progress } from 'antd';
+import { Card, Space, Tag, Table, Button, Row, Col, Badge, Typography, Modal, Form, Input, Select, Switch, Popconfirm, message, Alert, Empty, Spin, Segmented, Progress } from 'antd';
 import { FileText, Copy, Plus, Edit3, Layout, Layers, RefreshCw, Trash2, BarChart3 } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 import { t } from '../../i18n/appI18n';
 
 const { TextArea } = Input;
@@ -227,7 +228,7 @@ export const ReportTemplateManagerPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Layout size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('reportTpl.title')}</span>
@@ -236,12 +237,12 @@ export const ReportTemplateManagerPage: React.FC = () => {
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => { void load(); void loadSnippets(); }}>{t('reportTpl.refresh')}</Button>
       </Space>
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('reportTpl.retry')}</Button>} />}
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('reportTpl.statTemplates')} value={templates.length} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('reportTpl.statSnippets')} value={snippets.length} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('reportTpl.statPublished')} value={publishedCount} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('reportTpl.statTotalUsage')} value={totalUsage} prefix={<BarChart3 size={14} />} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('reportTpl.statTemplates')} value={templates.length} icon={<FileText size={18} />} />
+        <StatCard title={t('reportTpl.statSnippets')} value={snippets.length} icon={<Layers size={18} />} />
+        <StatCard title={t('reportTpl.statPublished')} value={publishedCount} color="success" />
+        <StatCard title={t('reportTpl.statTotalUsage')} value={totalUsage} icon={<BarChart3 size={18} />} />
+      </StatCardGrid>
       <Card
         size="small"
         extra={
@@ -350,7 +351,7 @@ export const ReportTemplateManagerPage: React.FC = () => {
           </Row>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 export default ReportTemplateManagerPage;

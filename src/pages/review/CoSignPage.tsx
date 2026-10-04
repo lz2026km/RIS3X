@@ -7,7 +7,6 @@ import {
   Space,
   Row,
   Col,
-  Statistic,
   Modal,
   Input,
   message,
@@ -42,6 +41,7 @@ import {
   type CoSignHistoryEntry,
 } from "../../services/api/cosignApi";
 import { useTranslation } from "react-i18next";
+import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
 import { t } from "../../i18n/appI18n";
 
 const statusColor: Record<string, string> = {
@@ -313,7 +313,7 @@ const CoSignPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
+    <PageContainer padding={24}>
       <div
         style={{
           marginBottom: 16,
@@ -326,51 +326,35 @@ const CoSignPage: React.FC = () => {
         <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{t('coSign.title')}</h1>
         <Tag color="purple">{t('coSign.subtitle')}</Tag>
       </div>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}>
-          <Card size="small">
-            <Statistic
-              title={t('coSign.statPending')}
-              value={
-                stats?.pending ??
-                items.filter((i) => i.status === "pending").length
-              }
-              styles={{ content: {  color: "#faad14"  } }}
-              prefix={<Clock size={16} />}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card size="small">
-            <Statistic
-              title={t('coSign.statusApproved')}
-              value={stats?.approved ?? 0}
-              styles={{ content: {  color: "#52c41a"  } }}
-              prefix={<CheckCircle2 size={16} />}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card size="small">
-            <Statistic
-              title={t('coSign.statusRejected')}
-              value={stats?.rejected ?? 0}
-              styles={{ content: {  color: "#ff4d4f"  } }}
-              prefix={<XCircle size={16} />}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card size="small">
-            <Statistic
-              title={t('coSign.statSla')}
-              value={stats?.onTimeRate ?? 0}
-              suffix="%"
-              prefix={<BarChart3 size={16} />}
-            />
-          </Card>
-        </Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard
+          title={t('coSign.statPending')}
+          value={
+            stats?.pending ??
+            items.filter((i) => i.status === "pending").length
+          }
+          color="warning"
+          icon={<Clock size={16} />}
+        />
+        <StatCard
+          title={t('coSign.statusApproved')}
+          value={stats?.approved ?? 0}
+          color="success"
+          icon={<CheckCircle2 size={16} />}
+        />
+        <StatCard
+          title={t('coSign.statusRejected')}
+          value={stats?.rejected ?? 0}
+          color="error"
+          icon={<XCircle size={16} />}
+        />
+        <StatCard
+          title={t('coSign.statSla')}
+          value={stats?.onTimeRate ?? 0}
+          suffix="%"
+          icon={<BarChart3 size={16} />}
+        />
+      </StatCardGrid>
       <Card
         extra={
           <Space>
@@ -673,7 +657,7 @@ const CoSignPage: React.FC = () => {
           {ruleError && <Alert type="error" showIcon message={ruleError} style={{ marginBottom: 8 }} />}
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 

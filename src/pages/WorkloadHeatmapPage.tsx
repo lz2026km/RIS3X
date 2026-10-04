@@ -10,7 +10,7 @@ import { WorkloadBalancer } from '../services/worklist/WorkloadBalancer'
 import { HeatmapBuilder } from '../services/worklist/HeatmapBuilder'
 import { workflowApi } from '../services/api/workflowApi'
 import { statsApi, type WorkloadDto } from '../services/api/statsApi'
-import { ExportButton } from '../components/common'
+import { ExportButton, StatCard } from '../components/common'
 import { t } from '../i18n/appI18n'
 
 const FALLBACK_SITES = [
@@ -68,15 +68,15 @@ function intensityColor(intensity: number): string {
   return '#dc2626'
 }
 
-const KpiCard: React.FC<{ label: string; value: string; unit: string; color: string }> = ({ label, value, unit, color }) => (
-  <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
-    <div style={{ width: 8, height: 36, background: color, borderRadius: 4 }} />
-    <div>
-      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</div>
-      <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)' }}>{value} <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>{unit}</span></div>
-    </div>
-  </div>
-)
+const KpiCard: React.FC<{ label: string; value: string; unit: string; color: string }> = ({ label, value, unit, color }) => {
+  const c = ({
+    '#dc2626': 'error', '#ef4444': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
+    '#f59e0b': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
+    '#16a34a': 'success', '#22c55e': 'success', '#52c41a': 'success', '#10b981': 'success',
+    '#2563eb': 'primary', '#1890ff': 'primary', '#1d4ed8': 'primary',
+  } as Record<string, string>)[color] ?? color;
+  return <StatCard title={label} value={value} suffix={unit} color={c} />;
+}
 
 export default function WorkloadHeatmapPage() {
   const balancer = useMemo(() => new WorkloadBalancer(), [])

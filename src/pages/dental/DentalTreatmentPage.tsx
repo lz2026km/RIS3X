@@ -1,7 +1,7 @@
 // [v3.0.6.11-54] Phase 2: 口腔治疗中心 (治疗计划列表 + 新建治疗)
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  Row, Col, Card, Statistic, Button, Space, Modal, Form, Input, Select,
+  Row, Col, Card, Button, Space, Modal, Form, Input, Select,
   InputNumber, message, Spin, Tag, Table, Empty, Popconfirm, Descriptions,
 } from 'antd';
 import { Plus, RefreshCw, Stethoscope, Activity, CheckCircle2 } from 'lucide-react';
@@ -9,6 +9,7 @@ import { DentalPageLayout } from './DentalShared';
 import { dentalApi } from '../../services/api/dentalApi';
 import { usePagination } from '../../hooks/usePagination';
 import { t } from '../../i18n/appI18n';
+import { StatCard, StatCardGrid } from '../../components/common';
 
 const STATUS_COLOR: Record<string, string> = {
   completed: 'green', Completed: 'green', InProgress: 'orange', in_progress: 'orange',
@@ -183,12 +184,12 @@ export const DentalTreatmentPage: React.FC = () => {
       }}
       alert={error ? { message: error, type: 'error' } : undefined}
     >
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('dentalTreatment.statTotal')} value={stats.total} prefix={<Activity size={14} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('dentalTreatment.statActive')} value={stats.active} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('dentalTreatment.statCompleted')} value={stats.completed} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('dentalTreatment.statCost')} prefix="¥" value={stats.totalCost} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('dentalTreatment.statTotal')} value={stats.total} icon={<Activity size={14} />} />
+        <StatCard title={t('dentalTreatment.statActive')} value={stats.active} color="warning" />
+        <StatCard title={t('dentalTreatment.statCompleted')} value={stats.completed} icon={<CheckCircle2 size={14} />} color="success" />
+        <StatCard title={t('dentalTreatment.statCost')} prefix="¥" value={stats.totalCost} color="primary" />
+      </StatCardGrid>
 
       <Card size="small">
         <Spin spinning={loading}>

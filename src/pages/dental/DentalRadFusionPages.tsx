@@ -1,10 +1,11 @@
 // [W3-2] Phase C: 口腔-放射融合 (转诊 CRUD + 统一报告 + 融合查看器) — 真实 API (dentalApi)
 import { usePagination } from '@/hooks/usePagination';
 import { dentalApi } from '@/services/api/dentalApi';
-import { Card, Space, Tag, Button, Table, Row, Col, Statistic, Tabs, Timeline, Modal, Form, Select, Input, message, Empty, Spin, Alert, Popconfirm, Descriptions } from 'antd';
+import { Card, Space, Tag, Button, Table, Row, Col, Tabs, Timeline, Modal, Form, Select, Input, message, Empty, Spin, Alert, Popconfirm, Descriptions } from 'antd';
 import { Plus, Send, FileText, Activity as ActivityIcon, RefreshCw, CheckCircle2 } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { t } from '../../i18n/appI18n';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 
 const { TextArea } = Input;
 
@@ -156,7 +157,7 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <Send size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalRadFusion.referralTitle')}</span>
@@ -165,12 +166,12 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>{t('dentalRadFusion.refresh')}</Button>
       </Space>
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('dentalRadFusion.retry')}</Button>} />}
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card><Statistic title={t('dentalRadFusion.statTotalReferrals')} value={referrals.length} /></Card></Col>
-        <Col span={6}><Card><Statistic title={t('dentalRadFusion.statPending')} value={referrals.filter(r => r.status === 'pending').length} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col span={6}><Card><Statistic title={t('dentalRadFusion.statAccepted')} value={referrals.filter(r => r.status === 'accepted').length} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-        <Col span={6}><Card><Statistic title={t('dentalRadFusion.statCompleted')} value={referrals.filter(r => r.status === 'completed').length} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('dentalRadFusion.statTotalReferrals')} value={referrals.length} icon={<Send size={16} />} />
+        <StatCard title={t('dentalRadFusion.statPending')} value={referrals.filter(r => r.status === 'pending').length} color="warning" />
+        <StatCard title={t('dentalRadFusion.statAccepted')} value={referrals.filter(r => r.status === 'accepted').length} color="success" />
+        <StatCard title={t('dentalRadFusion.statCompleted')} value={referrals.filter(r => r.status === 'completed').length} color="primary" />
+      </StatCardGrid>
       <Card extra={<Button type="primary" icon={<Plus size={12} />} onClick={() => setCreateModal(true)}>{t('dentalRadFusion.createReferral')}</Button>} size="small" title={t('dentalRadFusion.referralList')}>
         <Spin spinning={loading}>
           <Table
@@ -234,7 +235,7 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
           </div>
         )}
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 
@@ -270,7 +271,7 @@ export const CBCTUnifiedReportPage: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <FileText size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalRadFusion.cbctReportTitle')}</span>
@@ -346,7 +347,7 @@ export const CBCTUnifiedReportPage: React.FC = () => {
           )}
         </Col>
       </Row>
-    </div>
+    </PageContainer>
   );
 };
 
@@ -383,7 +384,7 @@ export const DentalRadFusionPage: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <ActivityIcon size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalRadFusion.fusionViewerTitle')}</span>
@@ -454,6 +455,6 @@ export const DentalRadFusionPage: React.FC = () => {
           </Card>
         },
       ]} />
-    </div>
+    </PageContainer>
   );
 };

@@ -1,10 +1,11 @@
 import { autoCollectionApi, type AutoCollectionRule, type AutoCollectionTask, type AutoCollectionConfig, type AutoCollectionStats, type AutoCollectionLog } from '../../services/api/autoCollectionApi'
-import { Card, Table, Switch, Space, Row, Col, Statistic, Button, Tag, message, Modal, Form, Input, Select, Alert, Popconfirm, Descriptions, Spin, Timeline } from 'antd'
+import { Card, Table, Switch, Space, Button, Tag, message, Modal, Form, Input, Select, Alert, Popconfirm, Descriptions, Spin, Timeline } from 'antd'
 import { Settings, Play, Edit3, Trash2, RefreshCw, Eye, History, Square, Zap, ScrollText } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
 // [G005 2B] 受控分页: 规则/任务/配置 3 表 (数据可增长)
 import { usePagination } from '../../hooks/usePagination'
 import { t } from '../../i18n/appI18n'
+import { StatCard, StatCardGrid } from '../../components/common'
 
 // 数据来源说明: [G005 Wave1A W9] 后端已实现 /auto-collection (rules/tasks/config/logs/stats), MSW 仅 mock 兜底。
 
@@ -354,15 +355,15 @@ const AutoCollectionPage: React.FC = () => {
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('autoCollection.title')}</span>
       </Space>
       {error && <Alert type="warning" showIcon message={t('autoCollection.loadFailed')} description={error} action={<Button size="small" onClick={fetchRules}><RefreshCw size={14} /> {t('autoCollection.retry')}</Button>} style={{ marginBottom: 16 }} />}
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card><Statistic title={t('autoCollection.statTotalRules')} value={rules.length} loading={loading} /></Card></Col>
-        <Col span={4}><Card><Statistic title={t('autoCollection.statEnabled')} value={rules.filter(r => r.enabled).length} styles={{ content: { color: '#52c41a' } }} loading={loading} /></Card></Col>
-        <Col span={4}><Card><Statistic title={t('autoCollection.statDisabled')} value={rules.filter(r => !r.enabled).length} loading={loading} /></Card></Col>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('autoCollection.statTotalRules')} value={rules.length} loading={loading} />
+        <StatCard title={t('autoCollection.statEnabled')} value={rules.filter(r => r.enabled).length} color="success" loading={loading} />
+        <StatCard title={t('autoCollection.statDisabled')} value={rules.filter(r => !r.enabled).length} loading={loading} />
         {/* [G005 Wave1B] 统计卡: autoCollectionApi.getStats */}
-        <Col span={4}><Card><Statistic title={t('autoCollection.statTotalTasks')} value={stats?.totalTasks ?? tasks.length} loading={loading} /></Card></Col>
-        <Col span={4}><Card><Statistic title={t('autoCollection.statCompleted')} value={stats?.completedTasks ?? 0} styles={{ content: { color: '#52c41a' } }} loading={loading} /></Card></Col>
-        <Col span={4}><Card><Statistic title={t('autoCollection.statFailed')} value={stats?.failedTasks ?? 0} styles={{ content: { color: '#ff4d4f' } }} loading={loading} /></Card></Col>
-      </Row>
+        <StatCard title={t('autoCollection.statTotalTasks')} value={stats?.totalTasks ?? tasks.length} loading={loading} />
+        <StatCard title={t('autoCollection.statCompleted')} value={stats?.completedTasks ?? 0} color="success" loading={loading} />
+        <StatCard title={t('autoCollection.statFailed')} value={stats?.failedTasks ?? 0} color="error" loading={loading} />
+      </StatCardGrid>
       <Card extra={<Button type="primary" icon={<Play size={14} />} onClick={() => { setEditingRule(null); form.resetFields(); setCreateOpen(true); }}>{t('autoCollection.createRule')}</Button>}>
         <Table rowKey="id" dataSource={rulePage.pageData} columns={columns} pagination={rulePage.pagination} size="small" loading={loading} scroll={{ x: 'max-content' }}/>
       </Card>

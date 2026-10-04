@@ -4,16 +4,13 @@ import { deviceApi } from '../../services/api/deviceApi';
 import { notificationsApi, type NotificationDto } from '../../services/api/notificationsApi';
 import { statsApi } from '../../services/api/statsApi';
 import {
-  Card, Space, Tag, Button, Row, Col, Statistic, List, Alert, Badge,
+  Card, Space, Tag, Button, Row, Col, List, Alert, Badge,
   Progress, Spin, Empty, Typography,
 } from 'antd';
 import {
   Activity,
   Bell,
-  AlertTriangle,
   TrendingUp,
-  Users,
-  Camera,
   Monitor,
   CheckCircle2,
   BarChart3,
@@ -21,6 +18,7 @@ import {
 } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { t } from '../../i18n/appI18n';
+import { StatCard, StatCardGrid } from '../../components/common';
 
 const { Text } = Typography;
 
@@ -118,27 +116,37 @@ export const CommandCenterPage: React.FC = () => {
       )}
 
       <Spin spinning={loading && !dash}>
-        <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={6}><Card size="small" title={<Space><Camera size={14} />{t('commandCenter.todayExams')}</Space>}>
-            <Statistic value={dash?.today?.exams ?? 0} prefix={<Activity size={14} />} styles={{ content: { color: '#2563eb' } }} />
-            <Text type="secondary" style={{ fontSize: 12 }}>{t('commandCenter.reportsCount', { count: dash?.today?.reports ?? 0 })}</Text>
-          </Card></Col>
-          <Col span={6}><Card size="small" title={<Space><AlertTriangle size={14} />{t('commandCenter.criticalValues')}</Space>}>
-            <Statistic value={dash?.alerts?.openCritical ?? dash?.totals?.criticalEvents ?? 0}
-              prefix={<Bell size={14} />} styles={{ content: { color: '#ff4d4f' } }} />
-            <Text type="secondary" style={{ fontSize: 12 }}>{t('commandCenter.unclosedCritical')}</Text>
-          </Card></Col>
-          <Col span={6}><Card size="small" title={<Space><Users size={14} />{t('commandCenter.onlineDoctors')}</Space>}>
-            <Statistic value={dash?.alerts?.doctorsActive ?? 0} prefix={<CheckCircle2 size={14} />} styles={{ content: { color: '#52c41a' } }} />
-            <Text type="secondary" style={{ fontSize: 12 }}>{t('commandCenter.activeDoctors')}</Text>
-          </Card></Col>
-          <Col span={6}><Card size="small" title={<Space><Monitor size={14} />{t('commandCenter.deviceStatus')}</Space>}>
-            <Statistic value={deviceStats?.inUse ?? 0} suffix={`/ ${deviceStats?.total ?? 0}`} styles={{ content: { color: '#52c41a' } }} />
-            <div style={{ marginTop: 4 }}>
-              <Progress percent={deviceStats?.total ? Math.round((deviceStats.inUse / deviceStats.total) * 100) : 0} size="small" strokeColor="#52c41a" />
-            </div>
-          </Card></Col>
-        </Row>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+          <StatCard
+            title={t('commandCenter.todayExams')}
+            value={dash?.today?.exams ?? 0}
+            icon={<Activity size={18} />}
+            color="primary"
+            sub={t('commandCenter.reportsCount', { count: dash?.today?.reports ?? 0 })}
+          />
+          <StatCard
+            title={t('commandCenter.criticalValues')}
+            value={dash?.alerts?.openCritical ?? dash?.totals?.criticalEvents ?? 0}
+            icon={<Bell size={18} />}
+            color="error"
+            sub={t('commandCenter.unclosedCritical')}
+          />
+          <StatCard
+            title={t('commandCenter.onlineDoctors')}
+            value={dash?.alerts?.doctorsActive ?? 0}
+            icon={<CheckCircle2 size={18} />}
+            color="success"
+            sub={t('commandCenter.activeDoctors')}
+          />
+          <StatCard
+            title={t('commandCenter.deviceStatus')}
+            value={deviceStats?.inUse ?? 0}
+            suffix={`/ ${deviceStats?.total ?? 0}`}
+            icon={<Monitor size={18} />}
+            color="success"
+            sub={<Progress percent={deviceStats?.total ? Math.round((deviceStats.inUse / deviceStats.total) * 100) : 0} size="small" strokeColor="#52c41a" />}
+          />
+        </StatCardGrid>
 
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={12}><Card size="small" title={<Space><Bell size={14} />{t('commandCenter.recentEvents')}</Space>}>
@@ -180,14 +188,11 @@ export const CommandCenterPage: React.FC = () => {
           </Card></Col>
         </Row>
 
-        <Row gutter={16}>
-          <Col span={8}><Card size="small" title={t('commandCenter.radiology')}><Statistic title={t('commandCenter.totalExams')} value={dash?.totals?.exams ?? 0} /></Card></Col>
-          <Col span={8}><Card size="small" title={t('commandCenter.totalPatients')}><Statistic title={t('commandCenter.registeredPatients')} value={dash?.totals?.patients ?? 0} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
-          <Col span={8}><Card size="small" title={t('commandCenter.systemHealth')}>
-            <Statistic title={t('commandCenter.onlineDevices')} value={deviceStats?.inUse ?? 0} suffix={`/ ${deviceStats?.total ?? 0}`} />
-            <Progress percent={deviceStats?.total ? Math.round((deviceStats.inUse / deviceStats.total) * 100) : 0} size="small" strokeColor="#52c41a" />
-          </Card></Col>
-        </Row>
+        <StatCardGrid minWidth={200} gap={16}>
+          <StatCard title={t('commandCenter.totalExams')} value={dash?.totals?.exams ?? 0} sub={t('commandCenter.radiology')} />
+          <StatCard title={t('commandCenter.registeredPatients')} value={dash?.totals?.patients ?? 0} color="primary" sub={t('commandCenter.totalPatients')} />
+          <StatCard title={t('commandCenter.onlineDevices')} value={deviceStats?.inUse ?? 0} suffix={`/ ${deviceStats?.total ?? 0}`} sub={<Progress percent={deviceStats?.total ? Math.round((deviceStats.inUse / deviceStats.total) * 100) : 0} size="small" strokeColor="#52c41a" />} />
+        </StatCardGrid>
       </Spin>
     </div>
   );

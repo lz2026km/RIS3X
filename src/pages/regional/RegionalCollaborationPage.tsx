@@ -8,7 +8,7 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import {
   Card, Col, Row, Tag, Space, Button, Select, Input, Table, Spin,
-  Modal, Form, message, Timeline, Badge, Empty, Statistic, List, Typography,
+  Modal, Form, message, Timeline, Badge, Empty, List, Typography,
 } from "antd";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip,
@@ -19,6 +19,7 @@ import {
   Search, BookOpenCheck, ShieldCheck, RefreshCw, Video, PhoneIncoming, CheckCircle2,
 } from "lucide-react";
 import { regionalApi, type InstitutionDto, type CrossInstitutionStudyDto, type AccessRecordDto, type ConsultationRequestDto, type RegionalSiteDto, type RegionalSiteSyncEventDto, type RegionalSiteRoutingRuleDto } from "@/services/api/regionalApi";
+import { StatCard, StatCardGrid } from "../../components/common";
 import { t } from "../../i18n/appI18n";
 
 const { Text } = Typography;
@@ -321,12 +322,12 @@ const RegionalCollaborationPage: React.FC = () => {
       </div>
 
       {/* KPI */}
-      <Row gutter={12} style={{ marginBottom: 12 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('regionalCollab.statInstitutions')} value={institutions.length} suffix={t('regionalCollab.unitInstitutions')} prefix={<Building2 size={15} color="#1e40af" />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('regionalCollab.statSharedStudies')} value={totalShared} suffix={t('regionalCollab.unitItems')} prefix={<Share2 size={15} color="#0891b2" />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('regionalCollab.statTotalAccess')} value={totalAccess} suffix={t('regionalCollab.unitTimes')} prefix={<BookOpenCheck size={15} color="#7c3aed" />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('regionalCollab.statOnlineInstitutions')} value={institutions.filter((i) => i.status === "online").length} suffix={`/ ${institutions.length}`} prefix={<CheckCircle2 size={15} color="#10b981" />} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 12 }}>
+        <StatCard title={t('regionalCollab.statInstitutions')} value={institutions.length} suffix={t('regionalCollab.unitInstitutions')} icon={<Building2 size={15} color="#1e40af" />} />
+        <StatCard title={t('regionalCollab.statSharedStudies')} value={totalShared} suffix={t('regionalCollab.unitItems')} icon={<Share2 size={15} color="#0891b2" />} />
+        <StatCard title={t('regionalCollab.statTotalAccess')} value={totalAccess} suffix={t('regionalCollab.unitTimes')} icon={<BookOpenCheck size={15} color="#7c3aed" />} />
+        <StatCard title={t('regionalCollab.statOnlineInstitutions')} value={institutions.filter((i) => i.status === "online").length} suffix={`/ ${institutions.length}`} icon={<CheckCircle2 size={15} color="#10b981" />} />
+      </StatCardGrid>
 
       {loading ? (
         <div style={{ display: "flex", justifyContent: "center", padding: 80 }}><Spin description={t('regionalCollab.loading')} /></div>

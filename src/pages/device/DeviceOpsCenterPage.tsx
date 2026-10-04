@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, Tooltip as RTooltip, XAxis, YAxis } from 'recharts'
 import { ChartContainer, chartDefaults } from '../../components/charts'
-import { ExportButton } from '../../components/common'
+import { ExportButton, StatCard, StatCardGrid } from '../../components/common'
 import { deviceOpsApi } from '../../services/api/deviceOpsApi'
 import type {
   Asset, CalibrationRecord, CalibrationStats, CostSummary, DepreciationResult, DrgGroups,
@@ -261,14 +261,14 @@ export default function DeviceOpsCenterPage() {
 
   const workOrderTab = (
     <>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title={t('w11Device.wo.total')} value={woStats?.total ?? 0} loading={loading} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('w11Device.wo.active')} value={woStats?.active ?? 0} styles={{ content: { color: '#2563eb' } }} loading={loading} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('w11Device.wo.overdue')} value={woStats?.overdue ?? 0} styles={{ content: { color: '#dc2626' } }} loading={loading} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('w11Device.wo.slaCompliance')} value={woStats?.slaCompliancePct ?? 0} suffix="%" styles={{ content: { color: '#16a34a' } }} loading={loading} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('w11Device.wo.avgResolution')} value={woStats?.avgResolutionHours ?? 0} suffix="h" loading={loading} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('w11Device.wo.partsCost')} value={woStats?.partsCost ?? 0} prefix="¥" styles={{ content: { color: '#d97706' } }} loading={loading} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('w11Device.wo.total')} value={woStats?.total ?? 0} loading={loading} color="primary" icon={<ClipboardList size={18} />} />
+        <StatCard title={t('w11Device.wo.active')} value={woStats?.active ?? 0} loading={loading} color="primary" icon={<Activity size={18} />} />
+        <StatCard title={t('w11Device.wo.overdue')} value={woStats?.overdue ?? 0} loading={loading} color="error" icon={<AlertTriangle size={18} />} />
+        <StatCard title={t('w11Device.wo.slaCompliance')} value={woStats?.slaCompliancePct ?? 0} suffix="%" loading={loading} color="success" icon={<CheckCircle size={18} />} />
+        <StatCard title={t('w11Device.wo.avgResolution')} value={woStats?.avgResolutionHours ?? 0} suffix="h" loading={loading} color="primary" />
+        <StatCard title={t('w11Device.wo.partsCost')} value={woStats?.partsCost ?? 0} prefix="¥" loading={loading} color="warning" icon={<DollarSign size={18} />} />
+      </StatCardGrid>
       <div style={{ marginBottom: 12 }}>
         <Button type="primary" icon={<ClipboardList size={14} />} onClick={() => setCreateOpen(true)}>{t('w11Device.wo.newWorkOrder')}</Button>
       </div>
@@ -294,13 +294,13 @@ export default function DeviceOpsCenterPage() {
 
   const calibrationTab = (
     <>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={5}><Card size="small"><Statistic title={t('w11Device.cal.total')} value={calStats?.total ?? 0} loading={loading} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title={t('w11Device.cal.overdue')} value={calStats?.overdue ?? 0} styles={{ content: { color: '#dc2626' } }} loading={loading} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title={t('w11Device.cal.dueSoon')} value={calStats?.dueSoon ?? 0} styles={{ content: { color: '#d97706' } }} loading={loading} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title={t('w11Device.cal.failureRate')} value={calStats?.failureRatePct ?? 0} suffix="%" loading={loading} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('w11Device.cal.due')} value={calDue.length} loading={loading} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('w11Device.cal.total')} value={calStats?.total ?? 0} loading={loading} color="primary" icon={<ShieldCheck size={18} />} />
+        <StatCard title={t('w11Device.cal.overdue')} value={calStats?.overdue ?? 0} loading={loading} color="error" icon={<AlertTriangle size={18} />} />
+        <StatCard title={t('w11Device.cal.dueSoon')} value={calStats?.dueSoon ?? 0} loading={loading} color="warning" />
+        <StatCard title={t('w11Device.cal.failureRate')} value={calStats?.failureRatePct ?? 0} suffix="%" loading={loading} color="primary" icon={<Gauge size={18} />} />
+        <StatCard title={t('w11Device.cal.due')} value={calDue.length} loading={loading} color="primary" />
+      </StatCardGrid>
       {calDue.length > 0 && (
         <Alert
           type="warning" showIcon style={{ marginBottom: 12 }}
@@ -314,27 +314,27 @@ export default function DeviceOpsCenterPage() {
 
   const assetTab = (
     <>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={5}><Card size="small"><Statistic title={t('w11Device.asset.total')} value={assets.length} loading={loading} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title={t('w11Device.asset.procurement')} value={assets.reduce((s, a) => s + a.procurementCost, 0)} prefix="¥" loading={loading} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title={t('w11Device.asset.bookValue')} value={assets.reduce((s, a) => s + a.bookValue, 0)} prefix="¥" styles={{ content: { color: '#16a34a' } }} loading={loading} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title={t('w11Device.asset.accumulated')} value={assets.reduce((s, a) => s + a.accumulatedDepreciation, 0)} prefix="¥" styles={{ content: { color: '#d97706' } }} loading={loading} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('w11Device.asset.warrantyExpiring')} value={assets.filter((a) => a.warrantyDaysRemaining >= 0 && a.warrantyDaysRemaining <= 90).length} styles={{ content: { color: '#dc2626' } }} loading={loading} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('w11Device.asset.total')} value={assets.length} loading={loading} color="primary" icon={<Package size={18} />} />
+        <StatCard title={t('w11Device.asset.procurement')} value={assets.reduce((s, a) => s + a.procurementCost, 0)} prefix="¥" loading={loading} color="primary" icon={<DollarSign size={18} />} />
+        <StatCard title={t('w11Device.asset.bookValue')} value={assets.reduce((s, a) => s + a.bookValue, 0)} prefix="¥" loading={loading} color="success" icon={<DollarSign size={18} />} />
+        <StatCard title={t('w11Device.asset.accumulated')} value={assets.reduce((s, a) => s + a.accumulatedDepreciation, 0)} prefix="¥" loading={loading} color="warning" icon={<DollarSign size={18} />} />
+        <StatCard title={t('w11Device.asset.warrantyExpiring')} value={assets.filter((a) => a.warrantyDaysRemaining >= 0 && a.warrantyDaysRemaining <= 90).length} loading={loading} color="error" icon={<AlertTriangle size={18} />} />
+      </StatCardGrid>
       <Table rowKey="id" size="small" loading={loading} dataSource={assets} columns={assetColumns} scroll={{ x: 'max-content' }} pagination={{ pageSize: 10, showSizeChanger: false }} />
     </>
   )
 
   const oeeTab = (
     <>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title={t('w11Device.oee.avgOee')} value={oeeOverview?.avgOee ?? 0} suffix="%" styles={{ content: { color: '#2563eb' } }} loading={loading} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('w11Device.oee.availability')} value={oeeOverview?.avgAvailability ?? 0} suffix="%" loading={loading} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('w11Device.oee.performance')} value={oeeOverview?.avgPerformance ?? 0} suffix="%" loading={loading} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('w11Device.oee.quality')} value={oeeOverview?.avgQuality ?? 0} suffix="%" loading={loading} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('w11Device.oee.downtimeHours')} value={oeeOverview?.totalDowntimeHours ?? 0} suffix="h" styles={{ content: { color: '#dc2626' } }} loading={loading} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('w11Device.oee.best')} value={oeeOverview?.bestDevice?.name ?? t('w11Device.dash')} styles={{ content: { fontSize: 13, color: '#16a34a' } }} loading={loading} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('w11Device.oee.avgOee')} value={oeeOverview?.avgOee ?? 0} suffix="%" loading={loading} color="primary" icon={<Gauge size={18} />} />
+        <StatCard title={t('w11Device.oee.availability')} value={oeeOverview?.avgAvailability ?? 0} suffix="%" loading={loading} color="primary" icon={<Activity size={18} />} />
+        <StatCard title={t('w11Device.oee.performance')} value={oeeOverview?.avgPerformance ?? 0} suffix="%" loading={loading} color="primary" icon={<Gauge size={18} />} />
+        <StatCard title={t('w11Device.oee.quality')} value={oeeOverview?.avgQuality ?? 0} suffix="%" loading={loading} color="success" icon={<CheckCircle size={18} />} />
+        <StatCard title={t('w11Device.oee.downtimeHours')} value={oeeOverview?.totalDowntimeHours ?? 0} suffix="h" loading={loading} color="error" icon={<AlertTriangle size={18} />} />
+        <StatCard title={t('w11Device.oee.best')} value={oeeOverview?.bestDevice?.name ?? t('w11Device.dash')} loading={loading} color="success" />
+      </StatCardGrid>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={12}>
           <Card size="small" title={t('w11Device.oee.trend')}>
@@ -382,12 +382,12 @@ export default function DeviceOpsCenterPage() {
 
   const costTab = (
     <>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('w11Device.cost.totalRevenue')} value={costSummary?.totalRevenue ?? 0} prefix="¥" styles={{ content: { color: '#2563eb' } }} loading={loading} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w11Device.cost.totalCost')} value={costSummary?.totalCost ?? 0} prefix="¥" styles={{ content: { color: '#d97706' } }} loading={loading} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w11Device.cost.totalMargin')} value={costSummary?.margin.margin ?? 0} prefix="¥" styles={{ content: { color: '#16a34a' } }} loading={loading} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w11Device.cost.marginPct')} value={costSummary?.margin.marginPct ?? 0} suffix="%" loading={loading} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('w11Device.cost.totalRevenue')} value={costSummary?.totalRevenue ?? 0} prefix="¥" loading={loading} color="primary" icon={<DollarSign size={18} />} />
+        <StatCard title={t('w11Device.cost.totalCost')} value={costSummary?.totalCost ?? 0} prefix="¥" loading={loading} color="warning" icon={<DollarSign size={18} />} />
+        <StatCard title={t('w11Device.cost.totalMargin')} value={costSummary?.margin.margin ?? 0} prefix="¥" loading={loading} color="success" icon={<DollarSign size={18} />} />
+        <StatCard title={t('w11Device.cost.marginPct')} value={costSummary?.margin.marginPct ?? 0} suffix="%" loading={loading} color="primary" icon={<Gauge size={18} />} />
+      </StatCardGrid>
       <Card size="small" title={t('w11Device.cost.byModality')} style={{ marginBottom: 16 }}>
         <Table rowKey="modality" size="small" loading={loading} dataSource={costSummary?.byModality ?? []} columns={costColumns} pagination={false} scroll={{ x: 'max-content' }} />
       </Card>

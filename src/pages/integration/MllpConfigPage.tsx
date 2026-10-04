@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Card, Space, Tag, Button, Table, Switch, message, Statistic, Row, Col, Popconfirm, Modal, Input } from 'antd';
+import { Card, Space, Tag, Button, Table, Switch, message, Row, Col, Popconfirm, Modal, Input } from 'antd';
+import { StatCard, StatCardGrid } from '../../components/common';
 import {
   Server, Shield, Plus, Trash2, Activity, Wifi, Clock, Terminal,
 } from "lucide-react";
@@ -225,18 +226,10 @@ export const MllpConfigPage: React.FC = () => {
         </Col>
 
         <Col span={8}>
-          <Row gutter={[8, 8]}>
-            <Col span={12}>
-              <Card size="small">
-                <Statistic title={t('mllp.totalConnections')} value={status?.totalConnections ?? 0} prefix={<Wifi className="w-3 h-3" />} styles={{ content: {  fontSize: 16  } }} />
-              </Card>
-            </Col>
-            <Col span={12}>
-              <Card size="small">
-                <Statistic title={t('mllp.totalMessages')} value={status?.totalMessages ?? 0} prefix={<Terminal className="w-3 h-3" />} styles={{ content: {  fontSize: 16  } }} />
-              </Card>
-            </Col>
-          </Row>
+          <StatCardGrid minWidth={200} gap={8}>
+            <StatCard title={t('mllp.totalConnections')} value={status?.totalConnections ?? 0} color="info" icon={<Wifi size={18} />} />
+            <StatCard title={t('mllp.totalMessages')} value={status?.totalMessages ?? 0} color="primary" icon={<Terminal size={18} />} />
+          </StatCardGrid>
         </Col>
       </Row>
 

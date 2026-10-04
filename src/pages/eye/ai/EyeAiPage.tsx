@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Card, Row, Col, Tag, Table, Tabs, Statistic, Space, Progress, Badge, Button, Input, Modal, message } from 'antd';
+import { Card, Row, Col, Tag, Table, Tabs, Space, Progress, Badge, Button, Input, Modal, message } from 'antd';
 import {
   LineChart,
   Line,
@@ -12,7 +12,7 @@ import {
 import { Brain, Activity, AlertTriangle, CheckCircle, Clock, PlayCircle } from 'lucide-react';
 import AiDiagnosisCard from "@/components/eye/AiDiagnosisCard";
 import ChartContainer from "@/components/charts/ChartContainer";
-import { PageContainer, PageHeader, ActionButton, ExportButton } from "@/components/common";
+import { PageContainer, PageHeader, ActionButton, ExportButton, StatCard, StatCardGrid } from "@/components/common";
 import { AppEmpty, ErrorBanner } from "@/components/feedback";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { usePagination } from "@/hooks/usePagination";
@@ -235,47 +235,31 @@ const EyeAiPage: React.FC = () => {
 
       {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
 
-      <Row gutter={12} style={{ marginBottom: 12 }}>
-        <Col span={6}>
-          <Card size="small">
-            <Statistic
-              title={t('eyeAi.modelCount')}
-              value={aiModels.length}
-              prefix={<Brain size={18} color="#8b5cf6" />}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card size="small">
-            <Statistic
-              title={t('eyeAi.diagnosedStudies')}
-              value={totalDiag}
-              prefix={<Activity size={18} color="#2563eb" />}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card size="small">
-            <Statistic
-              title={t('eyeAi.positiveFindings')}
-              value={
-                aiDiagnoses.filter((d) => d.severity !== "none").length
-              }
-              prefix={<AlertTriangle size={18} color="#ef4444" />}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card size="small">
-            <Statistic
-              title={t('eyeAi.acceptanceRate')}
-              value={acceptanceRate}
-              suffix="%"
-              prefix={<CheckCircle size={18} color="#22c55e" />}
-            />
-          </Card>
-        </Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 12 }}>
+        <StatCard
+          title={t('eyeAi.modelCount')}
+          value={aiModels.length}
+          icon={<Brain size={18} color="#8b5cf6" />}
+        />
+        <StatCard
+          title={t('eyeAi.diagnosedStudies')}
+          value={totalDiag}
+          icon={<Activity size={18} color="#2563eb" />}
+        />
+        <StatCard
+          title={t('eyeAi.positiveFindings')}
+          value={
+            aiDiagnoses.filter((d) => d.severity !== "none").length
+          }
+          icon={<AlertTriangle size={18} color="#ef4444" />}
+        />
+        <StatCard
+          title={t('eyeAi.acceptanceRate')}
+          value={acceptanceRate}
+          suffix="%"
+          icon={<CheckCircle size={18} color="#22c55e" />}
+        />
+      </StatCardGrid>
 
       <Row gutter={12}>
         <Col span={24}>

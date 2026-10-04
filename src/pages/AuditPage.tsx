@@ -5,6 +5,7 @@ import { auditChainApi, type AuditChainVerificationDto, type RetentionPolicyDto 
 import type { ColdArchiveResultDto } from '../services/api/w13SecurityApi'
 import { Card, Tag, Statistic, Row, Col, Space, Select, Button, Tabs, Descriptions, Tooltip, message, Drawer, Spin, Progress, List, Alert, Checkbox } from 'antd'
 import { ProTable, type ProColumn } from '../components/data/ProTable'
+import { StatCard, StatCardGrid, PageContainer } from '../components/common'
 import { PageHeader } from '../components/common/PageHeader'
 import { Search, ClipboardList, BarChart3, RefreshCw, Download, Filter, User, Eye, AlertTriangle, LineChart, ShieldCheck, CheckCircle2, XCircle } from 'lucide-react'
 import { t } from '../i18n/appI18n'
@@ -192,7 +193,7 @@ export default function AuditPage() {
   }
 
   return (
-    <div style={{ padding: 24 }}>
+    <PageContainer padding={24}>
       <Card>
         <Space orientation="vertical" style={{ width: '100%' }}>
 {loadError && !loading && <ErrorBanner message={loadError} />}
@@ -209,36 +210,36 @@ export default function AuditPage() {
               label: <span><BarChart3 /> {t('auditPage.tabOverview')}</span>,
               children: stats ? (
                 <>
-                  <Row gutter={16}>
-                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statTotalLogs')} value={stats.total} prefix={<ClipboardList />} /></Card></Col>
-                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statLast24h')} value={stats.last24h} prefix={<BarChart3 />} /></Card></Col>
+                  <StatCardGrid minWidth={200} gap={16}>
+                    <StatCard title={t('auditPage.statTotalLogs')} value={stats.total} icon={<ClipboardList size={18} />} />
+                    <StatCard title={t('auditPage.statLast24h')} value={stats.last24h} icon={<BarChart3 size={18} />} />
                     {/* [Wave 4B] 后端 GET /audit/overview 真实数据 */}
-                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statTodayOps')} value={overview?.todayOperations ?? '-'} prefix={<LineChart />} /></Card></Col>
-                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statActiveUsers')} value={overview?.activeUsers ?? '-'} prefix={<User />} /></Card></Col>
-                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statHighRisk')} value={overview?.highRiskCount ?? '-'} prefix={<AlertTriangle />} styles={{ content: { color: (overview?.highRiskCount ?? 0) > 0 ? '#fa8c16' : '#52c41a' } }} /></Card></Col>
-                    <Col span={4}><Card size="small"><Statistic title={t('auditPage.statSuccessRate')} value={overview ? `${overview.successRate}%` : '-'} prefix={<ShieldCheck />} styles={{ content: { color: (overview?.successRate ?? 0) >= 90 ? '#52c41a' : '#fa8c16' } }} /></Card></Col>
-                    {overview?.seeded === true && (
-                      <Col span={24} style={{ marginTop: 4 }}>
-                        <Tag color="gold" style={{ fontSize: 11 }}>{t('auditPage.seededTag')}</Tag>
-                      </Col>
-                    )}
-                    {byAction && Object.keys(byAction).length > 0 && (
-                      <Col span={24} style={{ marginTop: 12 }}>
-                        <Card size="small" title={t('auditPage.byActionTitle')}>
-                          <Space wrap size={[8, 8]}>
-                            {Object.entries(byAction)
-                              .sort((a, b) => b[1] - a[1])
-                              .slice(0, 8)
-                              .map(([action, count]) => (
-                                <Tag key={action} color={action === 'LOGIN' || action === 'EXPORT' || action === 'PRINT' ? 'blue' : 'default'} style={{ fontSize: 12, padding: '2px 10px' }}>
-                                  {action}: <b>{count}</b>
-                                </Tag>
-                              ))}
-                          </Space>
-                        </Card>
-                      </Col>
-                    )}
-                  </Row>
+                    <StatCard title={t('auditPage.statTodayOps')} value={overview?.todayOperations ?? '-'} icon={<LineChart size={18} />} />
+                    <StatCard title={t('auditPage.statActiveUsers')} value={overview?.activeUsers ?? '-'} icon={<User size={18} />} />
+                    <StatCard title={t('auditPage.statHighRisk')} value={overview?.highRiskCount ?? '-'} icon={<AlertTriangle size={18} />} color={(overview?.highRiskCount ?? 0) > 0 ? 'warning' : 'success'} />
+                    <StatCard title={t('auditPage.statSuccessRate')} value={overview ? `${overview.successRate}%` : '-'} icon={<ShieldCheck size={18} />} color={(overview?.successRate ?? 0) >= 90 ? 'success' : 'warning'} />
+                  </StatCardGrid>
+                  {overview?.seeded === true && (
+                    <div style={{ marginTop: 4 }}>
+                      <Tag color="gold" style={{ fontSize: 11 }}>{t('auditPage.seededTag')}</Tag>
+                    </div>
+                  )}
+                  {byAction && Object.keys(byAction).length > 0 && (
+                    <div style={{ marginTop: 12 }}>
+                      <Card size="small" title={t('auditPage.byActionTitle')}>
+                        <Space wrap size={[8, 8]}>
+                          {Object.entries(byAction)
+                            .sort((a, b) => b[1] - a[1])
+                            .slice(0, 8)
+                            .map(([action, count]) => (
+                              <Tag key={action} color={action === 'LOGIN' || action === 'EXPORT' || action === 'PRINT' ? 'blue' : 'default'} style={{ fontSize: 12, padding: '2px 10px' }}>
+                                {action}: <b>{count}</b>
+                              </Tag>
+                            ))}
+                        </Space>
+                      </Card>
+                    </div>
+                  )}
                   {/* [Wave 4B] 近 30 日操作趋势 (GET /audit/action-trend) */}
                   {trend.length > 0 && (
                     <Card size="small" title={<span><LineChart /> {t('auditPage.trendTitle')}</span>} style={{ marginTop: 12 }}>
@@ -314,7 +315,7 @@ export default function AuditPage() {
                     </Col>
                   </Row>
                 </>
-              ) : <Card size="small"><Statistic title={t('auditPage.loading')} value="-" /></Card>,
+              ) : <StatCard title={t('auditPage.loading')} value="-" />,
             },
             {
               key: 'logs',
@@ -490,6 +491,6 @@ export default function AuditPage() {
           </Descriptions>
         ) : null}
       </Drawer>
-    </div>
+    </PageContainer>
   )
 }

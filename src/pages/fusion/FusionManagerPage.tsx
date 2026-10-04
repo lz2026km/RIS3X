@@ -9,6 +9,7 @@ import { Layers, Play, Search } from 'lucide-react'
 import { Inbox } from 'lucide-react'
 import { useState } from 'react'
 import { t } from '../../i18n/appI18n'
+import { PageContainer } from '../../components/common'
 
 export const FusionManagerPage: React.FC = () => {
   const [patientId, setPatientId] = useState('')
@@ -100,7 +101,7 @@ export const FusionManagerPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <Layers size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fusionMgr.title')}</span>
@@ -213,7 +214,7 @@ export const FusionManagerPage: React.FC = () => {
           <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('fusionMgr.emptyHint')} />
         </Card>
       )}
-    </div>
+    </PageContainer>
   )
 }
 

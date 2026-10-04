@@ -4,6 +4,7 @@
 import { dentalApi } from "../../services/api/dentalApi";
 import { ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
+import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
 import {
   Card,
   Space,
@@ -12,7 +13,6 @@ import {
   Select,
   Row,
   Col,
-  Statistic,
   message,
   Empty,
   Badge,
@@ -325,7 +325,7 @@ export const DentalCephPage: React.FC = () => {
 
   if (mode === "list") {
     return (
-      <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "100vh" }}>
+      <PageContainer padding={24}>
         <Space style={{ marginBottom: 16 }}>
           <Crosshair size={20} color="#2563eb" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>
@@ -340,40 +340,12 @@ export const DentalCephPage: React.FC = () => {
           <Button size="small" type="primary" onClick={() => setCreateModal(true)}>{t("w3b.cephCreate")}</Button>
         </Space>
         {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
-        <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={4}>
-            <Card size="small">
-              <Statistic title={t("ceph.totalStudies")} value={studies.length} />
-            </Card>
-          </Col>
-          <Col span={4}>
-            <Card size="small">
-              <Statistic
-                title={t("ceph.analyzed")}
-                value={
-                  studies.filter((s: any) => s.status === "analyzed").length
-                }
-                styles={{ content: {  color: "#52c41a"  } }}
-              />
-            </Card>
-          </Col>
-          <Col span={4}>
-            <Card size="small">
-              <Statistic
-                title={t("ceph.pending")}
-                value={
-                  studies.filter((s: any) => s.status === "pending").length
-                }
-                styles={{ content: {  color: "#faad14"  } }}
-              />
-            </Card>
-          </Col>
-          <Col span={4}>
-            <Card size="small">
-              <Statistic title={t("ceph.analysisTypes")} value={analysisTypes.length} />
-            </Card>
-          </Col>
-        </Row>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+          <StatCard title={t("ceph.totalStudies")} value={studies.length} icon={<Crosshair size={16} />} />
+          <StatCard title={t("ceph.analyzed")} value={studies.filter((s: any) => s.status === "analyzed").length} color="success" />
+          <StatCard title={t("ceph.pending")} value={studies.filter((s: any) => s.status === "pending").length} color="warning" />
+          <StatCard title={t("ceph.analysisTypes")} value={analysisTypes.length} />
+        </StatCardGrid>
         <Row gutter={12}>
           {studies.map((s: any) => (
             <Col span={6} key={s.id}>
@@ -441,12 +413,12 @@ export const DentalCephPage: React.FC = () => {
             </Col>
           </Row>
         </Modal>
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div style={{ padding: 16, background: "var(--bg-card)", minHeight: "100vh" }}>
+    <PageContainer padding={16}>
       <Space style={{ marginBottom: 12 }}>
         <Button icon={<RotateCcw size={14} />} onClick={() => setMode("list")}>
           {t("ceph.back")}
@@ -720,7 +692,7 @@ export const DentalCephPage: React.FC = () => {
           </div>
         </Spin>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 export default DentalCephPage;

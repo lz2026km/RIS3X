@@ -1,7 +1,8 @@
 // [W3-2] 跨科室治疗计划中心: treatmentPlanApi 真实 CRUD + 状态流转 + 时间线
 import { usePagination } from '../../hooks/usePagination';
 import { treatmentPlanApi, type TreatmentPlan, type PlanStatus } from '../../services/api/treatmentPlanApi';
-import { Card, Space, Tag, Button, Table, Select, Input, Row, Col, Statistic, message, Tabs, Modal, Form, Badge, Steps, Popconfirm, Alert, Empty, Spin, Descriptions } from 'antd';
+import { Card, Space, Tag, Button, Table, Select, Input, message, Tabs, Modal, Form, Badge, Steps, Popconfirm, Alert, Empty, Spin, Descriptions } from 'antd';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 import { Plus, ClipboardList, RefreshCw, PlayCircle, CheckCircle2, Trash2 } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { t } from '../../i18n/appI18n';
@@ -218,7 +219,7 @@ export const TreatmentPlanCenterPage: React.FC = () => {
   const nextStatus = detail?.status === 'planned' ? 'in_progress' : detail?.status === 'in_progress' ? 'completed' : null;
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <ClipboardList size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('treatmentPlan.pageTitle')}</span>
@@ -226,12 +227,12 @@ export const TreatmentPlanCenterPage: React.FC = () => {
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>{t('treatmentPlan.refresh')}</Button>
       </Space>
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('treatmentPlan.retry')}</Button>} />}
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card><Statistic title={t('treatmentPlan.statTotal')} value={stats.total} /></Card></Col>
-        <Col span={6}><Card><Statistic title={t('treatmentPlan.statPlanned')} value={stats.planned} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col span={6}><Card><Statistic title={t('treatmentPlan.statActive')} value={stats.active} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
-        <Col span={6}><Card><Statistic title={t('treatmentPlan.statCompleted')} value={stats.completed} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('treatmentPlan.statTotal')} value={stats.total} />
+        <StatCard title={t('treatmentPlan.statPlanned')} value={stats.planned} color="warning" />
+        <StatCard title={t('treatmentPlan.statActive')} value={stats.active} color="primary" />
+        <StatCard title={t('treatmentPlan.statCompleted')} value={stats.completed} color="success" />
+      </StatCardGrid>
       <Tabs activeKey={tab} onChange={setTab} items={[
         { key: 'plans', label: t('treatmentPlan.tabPlans'), children:
           <Card extra={<Space><Button type="primary" icon={<Plus size={12} />} onClick={() => setCreateModal(true)}>{t('treatmentPlan.newPlan')}</Button><Button icon={<RefreshCw size={12} />} onClick={() => void load()}>{t('treatmentPlan.refresh')}</Button></Space>} size="small" title={`${plans.length} ${t('treatmentPlan.itemsUnit')}`}>
@@ -351,7 +352,7 @@ export const TreatmentPlanCenterPage: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 export default TreatmentPlanCenterPage;

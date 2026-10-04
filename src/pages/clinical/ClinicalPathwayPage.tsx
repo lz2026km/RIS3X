@@ -1,8 +1,9 @@
 // [v3.0.6.8-70] 临床路径管理
 // [v3.0.6.11-60] Batch 3: clinicalPathwayApi 真实数据 + 启用/暂停 + 步骤时间线
 import { clinicalPathwayApi, type ClinicalPathway, type PathwayPatient, type PathwayStats, type PathwayDefinition } from '../../services/api/clinicalPathwayApi';
-import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Progress, Steps, Badge, Modal, Form, Input, message, Timeline, Spin, Alert, Empty } from 'antd';
+import { Card, Space, Tag, Table, Button, Progress, Steps, Badge, Modal, Form, Input, message, Timeline, Spin, Alert, Empty } from 'antd';
 import { Popconfirm } from 'antd'
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 import { Route, CheckCircle2, Clock, Users, Activity, Play, PauseCircle, RefreshCw, Plus, Eye } from 'lucide-react';
 import { Forward, LogOut } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react';
@@ -116,7 +117,7 @@ export const ClinicalPathwayPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Route size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('clinicalPathway.title')}</span>
@@ -128,14 +129,14 @@ export const ClinicalPathwayPage: React.FC = () => {
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('clinicalPathway.retry')}</Button>} />}
 
       <Spin spinning={loading}>
-        <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col xs={12} md={4}><Card size="small"><Statistic title={t('clinicalPathway.statActive')} value={stats?.active ?? pathways.filter((p) => p.status === 'active').length} prefix={<Play size={14} color="#52c41a" />} /></Card></Col>
-          <Col xs={12} md={4}><Card size="small"><Statistic title={t('clinicalPathway.statPaused')} value={stats?.paused ?? pathways.filter((p) => p.status === 'paused').length} prefix={<PauseCircle size={14} color="#faad14" />} /></Card></Col>
-          <Col xs={12} md={4}><Card size="small"><Statistic title={t('clinicalPathway.statPatients')} value={stats?.totalPatients ?? patients.length} prefix={<Users size={14} />} /></Card></Col>
-          <Col xs={12} md={4}><Card size="small"><Statistic title={t('clinicalPathway.statOnTrack')} value={stats?.onTrack ?? 0} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-          <Col xs={12} md={4}><Card size="small"><Statistic title={t('clinicalPathway.statDelayed')} value={stats?.delayed ?? 0} styles={{ content: { color: '#ff4d4f' } }} /></Card></Col>
-          <Col xs={12} md={4}><Card size="small"><Statistic title={t('clinicalPathway.statPathways')} value={pathways.length} prefix={<Route size={14} />} /></Card></Col>
-        </Row>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+          <StatCard title={t('clinicalPathway.statActive')} value={stats?.active ?? pathways.filter((p) => p.status === 'active').length} icon={<Play size={14} color="#52c41a" />} />
+          <StatCard title={t('clinicalPathway.statPaused')} value={stats?.paused ?? pathways.filter((p) => p.status === 'paused').length} icon={<PauseCircle size={14} color="#faad14" />} />
+          <StatCard title={t('clinicalPathway.statPatients')} value={stats?.totalPatients ?? patients.length} icon={<Users size={14} />} />
+          <StatCard title={t('clinicalPathway.statOnTrack')} value={stats?.onTrack ?? 0} color="success" />
+          <StatCard title={t('clinicalPathway.statDelayed')} value={stats?.delayed ?? 0} color="error" />
+          <StatCard title={t('clinicalPathway.statPathways')} value={pathways.length} icon={<Route size={14} />} />
+        </StatCardGrid>
       </Spin>
 
       <Card size="small" title={t('clinicalPathway.pathwayDef')} style={{ marginBottom: 16 }}>
@@ -332,7 +333,7 @@ export const ClinicalPathwayPage: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 export default ClinicalPathwayPage;

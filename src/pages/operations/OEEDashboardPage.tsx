@@ -3,11 +3,12 @@ import { ChartContainer } from '../../components/charts'
 import { oeeApi } from '../../services/api';
 import { OeeDeviceDetail, OeeDeviceMetric, OeePoint, OeeStats } from '../../services/api'
 import OeeOverviewSection from './OeeOverviewSection';
-import { Card, Row, Col, Statistic, Table, Tag, Button, Space, Spin, Empty, Alert, Select } from 'antd';
+import { Card, Row, Col, Table, Tag, Button, Space, Spin, Empty, Alert, Select } from 'antd';
 import { TrendingUp, TrendingDown, Minus, Gauge, Activity, Zap, ShieldCheck, BarChart3, Clock, Inbox, RefreshCw } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import { t } from '../../i18n/appI18n';
+import { StatCard, StatCardGrid } from '../../components/common';
 
 const COLORS = { red: '#ff4d4f', yellow: '#faad14', green: '#52c41a', blue: '#2563eb' };
 
@@ -98,9 +99,7 @@ export const OEEDashboardPage: React.FC = () => {
   ];
 
   const KpiCard = ({ title, value, icon, color, suffix }: { title: string; value: number; icon: React.ReactNode; color: string; suffix?: string }) => (
-    <Card size="small" hoverable style={{ borderLeft: `4px solid ${color}` }}>
-      <Statistic title={<Space><span style={{ color }}>{icon}</span>{title}</Space>} value={value} suffix={suffix || '%'} styles={{ content: { color } }} precision={1} />
-    </Card>
+    <StatCard title={title} value={value} icon={icon} color={color} suffix={suffix ?? '%'} precision={1} style={{ borderLeft: `4px solid ${color}` }} />
   );
 
   if (loading && devices.length === 0) {
@@ -170,12 +169,12 @@ export const OEEDashboardPage: React.FC = () => {
 
       <OeeOverviewSection />
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><KpiCard title={t('oeePage.kpiOee')} value={avgOEE} icon={<Gauge size={16} />} color={oeeColor(avgOEE)} /></Col>
-        <Col span={6}><KpiCard title={t('oeePage.kpiAvailability')} value={avgAvail} icon={<Clock size={16} />} color={COLORS.blue} /></Col>
-        <Col span={6}><KpiCard title={t('oeePage.kpiPerformance')} value={avgPerf} icon={<Zap size={16} />} color={COLORS.blue} /></Col>
-        <Col span={6}><KpiCard title={t('oeePage.kpiQuality')} value={avgQual} icon={<ShieldCheck size={16} />} color={COLORS.blue} /></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <KpiCard title={t('oeePage.kpiOee')} value={avgOEE} icon={<Gauge size={16} />} color={oeeColor(avgOEE)} />
+        <KpiCard title={t('oeePage.kpiAvailability')} value={avgAvail} icon={<Clock size={16} />} color={COLORS.blue} />
+        <KpiCard title={t('oeePage.kpiPerformance')} value={avgPerf} icon={<Zap size={16} />} color={COLORS.blue} />
+        <KpiCard title={t('oeePage.kpiQuality')} value={avgQual} icon={<ShieldCheck size={16} />} color={COLORS.blue} />
+      </StatCardGrid>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={16}>

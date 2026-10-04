@@ -8,9 +8,6 @@ import {
   Tag,
   Space,
   Typography,
-  Row,
-  Col,
-  Statistic,
   Modal,
   Spin,
   Alert,
@@ -30,6 +27,7 @@ import {
 import React, { useState, useEffect, useCallback } from "react";
 import { usePagination } from "../../hooks/usePagination";
 import { t } from "../../i18n/appI18n";
+import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
 
 const { Text } = Typography;
 
@@ -178,7 +176,7 @@ const LungCadPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <Crosshair size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t("lungCad.title")}</span>
@@ -221,54 +219,41 @@ const LungCadPage: React.FC = () => {
           </>
         )}
       </Space>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title={t("lungCad.statTotal")}
-              value={results.length}
-              prefix={<Activity size={16} />}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title={t("lungCad.statHighRisk")}
-              value={
-                results.filter(
-                  (r) =>
-                    r.overallRisk === "high" || r.overallRisk === "very_high",
-                ).length
-              }
-              prefix={<AlertTriangle size={16} />}
-              styles={{ content: {  color: "#ff4d4f"  } }}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title={t("lungCad.statReviewed")}
-              value={
-                results.filter(
-                  (r) => r.status === "reviewed" || r.status === "confirmed",
-                ).length
-              }
-              prefix={<CheckCircle size={16} />}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title={t("lungCad.statTotalNodules")}
-              value={results.reduce((s, r) => s + (r.noduleCount ?? 0), 0)}
-              prefix={<Crosshair size={16} />}
-            />
-          </Card>
-        </Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard
+          title={t("lungCad.statTotal")}
+          value={results.length}
+          icon={<Activity size={18} />}
+          color="primary"
+        />
+        <StatCard
+          title={t("lungCad.statHighRisk")}
+          value={
+            results.filter(
+              (r) =>
+                r.overallRisk === "high" || r.overallRisk === "very_high",
+            ).length
+          }
+          icon={<AlertTriangle size={18} />}
+          color="error"
+        />
+        <StatCard
+          title={t("lungCad.statReviewed")}
+          value={
+            results.filter(
+              (r) => r.status === "reviewed" || r.status === "confirmed",
+            ).length
+          }
+          icon={<CheckCircle size={18} />}
+          color="success"
+        />
+        <StatCard
+          title={t("lungCad.statTotalNodules")}
+          value={results.reduce((s, r) => s + (r.noduleCount ?? 0), 0)}
+          icon={<Crosshair size={18} />}
+          color="primary"
+        />
+      </StatCardGrid>
       {error && (
         <Alert
           type="error"
@@ -344,7 +329,7 @@ const LungCadPage: React.FC = () => {
           </>
         )}
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 

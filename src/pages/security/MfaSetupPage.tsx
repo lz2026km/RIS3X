@@ -13,15 +13,13 @@ import {
   List,
   Switch,
   Steps,
-  Row,
-  Col,
-  Statistic,
   Modal,
 } from "antd";
 import { Shield, Smartphone, Key, QrCode, CheckCircle, Copy, Mail, MessageSquare, Eye, EyeOff, Clock, AlertTriangle } from 'lucide-react';
 import { mfaApi } from "../../services/api/mfaApi";
 import { message as antdMessage } from "antd";
 import { t } from "../../i18n/appI18n";
+import { StatCard, StatCardGrid } from "../../components/common";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -133,39 +131,25 @@ export default function MfaSetupPage() {
         <Shield size={22} /> {t("mfaSetup.title")}
       </Title>
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={8}>
-          <Card size="small">
-            <Statistic
-              title={t("mfaSetup.currentStatus")}
-              value={enabled ? t("mfaSetup.enabledTag") : t("mfaSetup.disabledTag")}
-              styles={{ content: {  color: enabled ? "#059669" : "#dc2626"  } }}
-              prefix={
-                enabled ? <Shield size={14} /> : <AlertTriangle size={14} />
-              }
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card size="small">
-            <Statistic
-              title={t("mfaSetup.authMethod")}
-              value={enabled ? 1 : 0}
-              suffix={t("mfaSetup.methodUnit")}
-              prefix={<Key size={14} />}
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card size="small">
-            <Statistic
-              title={t("mfaSetup.lastUsed")}
-              value={enabled ? t("mfaSetup.recent") : t("mfaSetup.never")}
-              prefix={<Clock size={14} />}
-            />
-          </Card>
-        </Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard
+          title={t("mfaSetup.currentStatus")}
+          value={enabled ? t("mfaSetup.enabledTag") : t("mfaSetup.disabledTag")}
+          color={enabled ? "success" : "error"}
+          icon={enabled ? <Shield size={14} /> : <AlertTriangle size={14} />}
+        />
+        <StatCard
+          title={t("mfaSetup.authMethod")}
+          value={enabled ? 1 : 0}
+          suffix={t("mfaSetup.methodUnit")}
+          icon={<Key size={14} />}
+        />
+        <StatCard
+          title={t("mfaSetup.lastUsed")}
+          value={enabled ? t("mfaSetup.recent") : t("mfaSetup.never")}
+          icon={<Clock size={14} />}
+        />
+      </StatCardGrid>
 
       <Card style={{ borderRadius: 8, marginBottom: 16 }}>
         <div

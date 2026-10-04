@@ -4,7 +4,8 @@ import dayjs from 'dayjs';
 import { dentalApi } from '@/services/api/dentalApi';
 import { ErrorBanner } from '@/components/feedback';
 import { t } from '@/i18n/appI18n';
-import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Table, Modal, Form, Input, InputNumber, DatePicker, Badge, Empty, Segmented, Descriptions, Spin } from 'antd';
+import { Card, Space, Tag, Button, Select, Row, Col, message, Tabs, Table, Modal, Form, Input, InputNumber, DatePicker, Badge, Empty, Segmented, Descriptions, Spin } from 'antd';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 import { Calendar, User, Armchair, Plus, CheckCircle2, Eye } from 'lucide-react';
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect } from 'react';
@@ -156,7 +157,7 @@ export const DentalSchedulePage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <Calendar size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalSchedule.pageTitle')}</span>
@@ -164,15 +165,17 @@ export const DentalSchedulePage: React.FC = () => {
         <Tag color="blue">{t('dentalSchedule.benchmarkTag')}</Tag>
       </Space>
       {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={3}><Card size="small"><Statistic title={t('dentalSchedule.statToday')} value={stats?.todayAppointments || 0} /></Card></Col>
-        <Col span={3}><Card size="small"><Statistic title={t('dentalSchedule.statCompleted')} value={stats?.completed || 0} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
-        <Col span={3}><Card size="small"><Statistic title={t('dentalSchedule.statInProgress')} value={stats?.inProgress || 0} styles={{ content: { color:'#faad14' } }} /></Card></Col>
-        <Col span={3}><Card size="small"><Statistic title={t('dentalSchedule.statNoShow')} value={stats?.noShow || 0} styles={{ content: { color:'#ff4d4f' } }} /></Card></Col>
-        <Col span={3}><Card size="small"><Statistic title={t('dentalSchedule.statChairUsage')} value={Math.round((stats?.chairUtilization||0)*100)} suffix="%" /></Card></Col>
-        <Col span={3}><Card size="small"><Statistic title={t('dentalSchedule.statAvgWait')} value={stats?.avgWaitTime || 0} suffix="min" /></Card></Col>
-        <Col span={6}><DatePicker value={dayjs(selectedDate)} placeholder={t('dentalSchedule.selectDate')} onChange={d => d && setSelectedDate(d.format('YYYY-MM-DD'))} style={{width:'100%'}} /></Col>
-      </Row>
+      <StatCardGrid minWidth={180} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('dentalSchedule.statToday')} value={stats?.todayAppointments || 0} icon={<Calendar size={16} />} />
+        <StatCard title={t('dentalSchedule.statCompleted')} value={stats?.completed || 0} color="success" />
+        <StatCard title={t('dentalSchedule.statInProgress')} value={stats?.inProgress || 0} color="warning" />
+        <StatCard title={t('dentalSchedule.statNoShow')} value={stats?.noShow || 0} color="error" />
+        <StatCard title={t('dentalSchedule.statChairUsage')} value={Math.round((stats?.chairUtilization||0)*100)} suffix="%" />
+        <StatCard title={t('dentalSchedule.statAvgWait')} value={stats?.avgWaitTime || 0} suffix="min" />
+      </StatCardGrid>
+      <div style={{ marginBottom: 16 }}>
+        <DatePicker value={dayjs(selectedDate)} placeholder={t('dentalSchedule.selectDate')} onChange={d => d && setSelectedDate(d.format('YYYY-MM-DD'))} style={{width: 200}} />
+      </div>
       <Row gutter={12} style={{ marginBottom: 12 }}>
         {chairs.map((c: any) => (
           <Col span={4} key={c.id}>
@@ -327,7 +330,7 @@ export const DentalSchedulePage: React.FC = () => {
           )}
         </Spin>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 export default DentalSchedulePage;

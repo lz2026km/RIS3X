@@ -15,6 +15,7 @@ import {
   type ConsultationV2Stats,
   type ExportRecord,
 } from '../../services/api/consultationV2Api'
+import { StatCard, StatCardGrid } from '../../components/common'
 import { useAuth } from '../../hooks/useAuth'
 import { t } from '../../i18n/appI18n'
 
@@ -237,14 +238,14 @@ const ConsultationV2Panel: React.FC = () => {
         extra={<Button type="primary" icon={<PlusCircle size={14} />} onClick={() => setCreateOpen(true)}>{t('consultationV2.createRoom')}</Button>}
       >
         {error && !loading && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
-        <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={4}><Card size="small"><Statistic title={t('consultationV2.statRooms')} value={stats?.totalRooms ?? 0} prefix={<Users size={14} />} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title={t('consultationV2.statusInProgress')} value={stats?.byStatus.in_progress ?? 0} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title={t('consultationV2.statusVoting')} value={stats?.byStatus.voting ?? 0} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title={t('consultationV2.statusConcluded')} value={stats?.concludedCount ?? 0} prefix={<Award size={14} />} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title={t('consultationV2.statMessages')} value={stats?.totalMessages ?? 0} prefix={<MessageSquareText size={14} />} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title={t('consultationV2.statVotes')} value={stats?.totalVotes ?? 0} prefix={<Vote size={14} />} /></Card></Col>
-        </Row>
+        <StatCardGrid minWidth={160} gap={16} style={{ marginBottom: 16 }}>
+          <StatCard title={t('consultationV2.statRooms')} value={stats?.totalRooms ?? 0} icon={<Users size={14} />} />
+          <StatCard title={t('consultationV2.statusInProgress')} value={stats?.byStatus.in_progress ?? 0} />
+          <StatCard title={t('consultationV2.statusVoting')} value={stats?.byStatus.voting ?? 0} />
+          <StatCard title={t('consultationV2.statusConcluded')} value={stats?.concludedCount ?? 0} icon={<Award size={14} />} />
+          <StatCard title={t('consultationV2.statMessages')} value={stats?.totalMessages ?? 0} icon={<MessageSquareText size={14} />} />
+          <StatCard title={t('consultationV2.statVotes')} value={stats?.totalVotes ?? 0} icon={<Vote size={14} />} />
+        </StatCardGrid>
         <Row gutter={16}>
           <Col span={10}>
             <List

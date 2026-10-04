@@ -6,9 +6,6 @@ import {
   Table,
   Tag,
   Space,
-  Row,
-  Col,
-  Statistic,
   Button,
   Input,
   Spin,
@@ -18,7 +15,8 @@ import {
   Modal,
   List,
 } from "antd";
-import { Globe, Search, Download, RefreshCw, Loader2 } from "lucide-react";
+import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
+import { Globe, Search, Download, RefreshCw, Loader2, Database } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import { t } from "../../i18n/appI18n";
 
@@ -157,7 +155,7 @@ const WadoRsPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <Globe size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t("wadoRs.title")}</span>
@@ -170,21 +168,14 @@ const WadoRsPage: React.FC = () => {
           {t("wadoRs.refresh")}
         </Button>
       </Space>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}>
-          <Card>
-            <Statistic title={t("wadoRs.totalStudies")} value={studies.length} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title={t("wadoRs.totalInstances")}
-              value={studies.reduce((s, r) => s + r.instanceCount, 0)}
-            />
-          </Card>
-        </Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t("wadoRs.totalStudies")} value={studies.length} icon={<Globe size={16} />} />
+        <StatCard
+          title={t("wadoRs.totalInstances")}
+          value={studies.reduce((s, r) => s + r.instanceCount, 0)}
+          icon={<Database size={16} />}
+        />
+      </StatCardGrid>
       <Card style={{ marginBottom: 16 }}>
         <Space>
           <Input
@@ -258,7 +249,7 @@ const WadoRsPage: React.FC = () => {
           )}
         </Spin>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 

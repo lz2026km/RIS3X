@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { Inbox } from 'lucide-react'
 import { LoadingBanner } from '../../components/feedback'
 import { t } from '../../i18n/appI18n'
+import { PageContainer } from '../../components/common'
 
 const { TextArea } = Input;
 
@@ -109,7 +110,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
   });
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <User size={20} color="#2563eb" />
         <Box size={20} color="#52c41a" />
@@ -382,7 +383,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
         <Alert title={t('patientDevice.maintenanceAlert')} type="info" showIcon style={{ marginBottom: 8 }} />
         <p>{t('patientDevice.device')}: {deviceModal.data.name} ({deviceModal.data.id})</p>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 

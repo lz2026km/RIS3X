@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next'
 import dayjs from 'dayjs'
 import {
   Card, Button, Input, Select, DatePicker, Checkbox, Radio, Tag, message,
-  Statistic, Space, Row, Col, Modal, Empty, Spin, Progress, Divider,
+  Space, Row, Col, Modal, Empty, Spin, Progress, Divider,
 } from 'antd'
 import { Database, Download, FileJson, FileSpreadsheet, FileText, History, RefreshCw, Settings2, BarChart3 } from 'lucide-react'
 import {
@@ -28,6 +28,7 @@ import {
   type ExportTaskContentDto,
 } from '../../services/api/researchExportApi'
 import { DataTable } from '../../components/common/DataTable'
+import { StatCard, StatCardGrid } from '../../components/common'
 
 const { RangePicker } = DatePicker
 
@@ -488,32 +489,16 @@ export default function ResearchExportCenterPage() {
         {/* ═══ 统计 ═══ */}
         {activeTab === 'stats' && (
           <div>
-            <Row gutter={[12, 12]} style={{ marginBottom: 12 }}>
+            <StatCardGrid style={{ marginBottom: 12 }}>
               {stats && (
                 <>
-                  <Col xs={12} md={6}>
-                    <Card size="small">
-                      <Statistic title={t('statTotal', '导出任务')} value={stats.totalTasks} />
-                    </Card>
-                  </Col>
-                  <Col xs={12} md={6}>
-                    <Card size="small">
-                      <Statistic title={t('statDone', '已完成')} value={stats.doneTasks} />
-                    </Card>
-                  </Col>
-                  <Col xs={12} md={6}>
-                    <Card size="small">
-                      <Statistic title={t('statRecords', '累计导出记录')} value={stats.totalRecords} />
-                    </Card>
-                  </Col>
-                  <Col xs={12} md={6}>
-                    <Card size="small">
-                      <Statistic title={t('statRunning', '生成中')} value={stats.byStatus.running} />
-                    </Card>
-                  </Col>
+                  <StatCard title={t('statTotal', '导出任务')} value={stats.totalTasks} />
+                  <StatCard title={t('statDone', '已完成')} value={stats.doneTasks} />
+                  <StatCard title={t('statRecords', '累计导出记录')} value={stats.totalRecords} />
+                  <StatCard title={t('statRunning', '生成中')} value={stats.byStatus.running} />
                 </>
               )}
-            </Row>
+            </StatCardGrid>
             <Row gutter={[12, 12]}>
               <Col xs={24} md={10}>
                 <Card size="small" title={<span style={{ fontSize: 13 }}>{t('formatDistribution', '格式分布')}</span>}>

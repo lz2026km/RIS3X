@@ -1,3 +1,21 @@
+## v3.0.6.12-9 (2026-10-04) — 全站 KPI 统计块统一（图表比例失衡整改）
+
+> **目标**: 消除全站 KPI/统计块"比例失衡、显示不协调/不均匀"——统一为唯一样式组件 + 自适应等高网格
+> **范围**: KPI 组件收敛 + ~130 页迁移 + 页面外壳令牌化；前端 tsc **0** / vitest **47 文件 831 测试** 0 失败 / vite build 成功；后端 tsc 0 / **357 suites 3770 tests**
+
+### K-0 组件收敛（唯一权威）
+- `common/StatCard` 扩展 `prefix`/`precision`/`formatter`/`sparkline`/`trend.goodWhenDown`，对齐 antd `Statistic` 语义，迁移零改写
+- `StatCardGrid` 自适应网格（auto-fit `minmax`）：任意数量 KPI → **等宽等高**（根治不均匀/不协调）
+- `dashboard/KpiCard` 收敛为 `common/StatCard` 别名，消除双 KPI 组件并存
+
+### K-1 三页直改（用户反馈）
+- `/triage/worklist`、`/triage/dashboard`、`/registration`：裸 `<Statistic>` 卡 → `StatCardGrid`+`StatCard`；修复 7:17 / 5/5/5/4/5 / 6/6/12 失衡列宽；去硬编码 `#f5f5f5`+`100vh` → `PageContainer`
+
+### K-2/K-4/K-5 全站迁移
+- ~130 个页面独立 KPI 行 → `StatCardGrid`+`StatCard`（内联于 Descriptions/表单/弹窗的 `Statistic` 按设计保留）
+- 硬编码浅色页壳 → `PageContainer`（令牌背景，自动适配深浅色）
+- ~11 处页面本地 `KpiCard` 助手 → 委托共享 `StatCard`
+
 ## v3.0.6.12-8 (2026-09-28) — 图表专业级整改（重叠/尺寸/数据准确性）
 
 > **目标**: 严格审查全部图表 —— 重叠、比例失衡、数据不准确/逻辑不严谨

@@ -3,10 +3,11 @@
 import { usePagination } from '../../hooks/usePagination';
 import { aiFusionWorkspaceApi, type FusionStudy, type AiInsight } from '../../services/api/aiFusionWorkspaceApi';
 import { fusionApi } from '../../services/api/fusionApi';
-import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Badge, Progress, List, Tooltip, Segmented, message, Spin, Empty, Alert, Modal, Descriptions, Timeline } from 'antd';
+import { Card, Space, Tag, Table, Button, Row, Col, Badge, Progress, List, Tooltip, Segmented, message, Spin, Empty, Alert, Modal, Descriptions, Timeline } from 'antd';
 import { Brain, Eye, Activity, Layers, BarChart3, Crosshair, FileText, Image, Share2, Download, Sparkles, RefreshCw, PlayCircle, CheckCircle2, Clock } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { t } from '../../i18n/appI18n';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 
 function downloadBlob(content: string, filename: string, mime = 'text/csv;charset=utf-8'): void {
   const blob = new Blob(['\uFEFF' + content], { type: mime });
@@ -103,7 +104,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
   const avgScore = studies.length > 0 ? Math.round((studies.reduce((a, s) => a + s.fusionScore, 0) / studies.length) * 100) : 0
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Brain size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('aiFusion.title')}</span>
@@ -118,13 +119,13 @@ export const AiFusionWorkspacePage: React.FC = () => {
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void fetchData()}><RefreshCw size={14} /> {t('aiFusion.retry')}</Button>} />}
 
       <Spin spinning={initialLoading}>
-        <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col xs={12} md={4}><Card size="small"><Statistic title={t('aiFusion.statStudies')} value={studies.length} prefix={<Layers size={14} />} /></Card></Col>
-          <Col xs={12} md={4}><Card size="small"><Statistic title={t('aiFusion.statInsights')} value={aiInsights.length} prefix={<Sparkles size={14} />} /></Card></Col>
-          <Col xs={12} md={4}><Card size="small"><Statistic title={t('aiFusion.statActionable')} value={actionableInsights} styles={{ content: { color: '#ff4d4f' } }} /></Card></Col>
-          <Col xs={12} md={4}><Card size="small"><Statistic title={t('aiFusion.statAvgScore')} value={studies.length > 0 ? avgScore : '0'} suffix="%" /></Card></Col>
-          <Col xs={12} md={4}><Card size="small"><Statistic title={t('aiFusion.statPending')} value={studies.filter((s) => s.status === 'pending').length} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        </Row>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+          <StatCard title={t('aiFusion.statStudies')} value={studies.length} icon={<Layers size={18} />} color="primary" />
+          <StatCard title={t('aiFusion.statInsights')} value={aiInsights.length} icon={<Sparkles size={18} />} color="primary" />
+          <StatCard title={t('aiFusion.statActionable')} value={actionableInsights} color="error" />
+          <StatCard title={t('aiFusion.statAvgScore')} value={studies.length > 0 ? avgScore : '0'} suffix="%" color="primary" />
+          <StatCard title={t('aiFusion.statPending')} value={studies.filter((s) => s.status === 'pending').length} color="warning" icon={<Clock size={18} />} />
+        </StatCardGrid>
       </Spin>
 
       <Segmented
@@ -253,7 +254,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
           </>
         )}
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 export default AiFusionWorkspacePage;

@@ -9,6 +9,7 @@ import { aiDiagnosisApi, type AiDiagnosisAccuracyResult, type AiDiagnosisTrendPo
 import { cadApi } from '../../services/api/cadApi'
 import { CadResult } from '../../services/api/cadApi'
 import { EmptyState } from '../../components/common/EmptyState'
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
 import AiCaseLibrarySection from './AiCaseLibrarySection'
 import { Space, Tag, Row, Col, Statistic, Tabs, Spin, Alert, Button, Progress, Card,
   Input, Table,
@@ -126,59 +127,43 @@ const AccuracyPanel: React.FC = () => {
       )}
 
       <Spin spinning={loading && !overall && trend.length === 0}>
-        <Row gutter={16} style={{ marginBottom: 12 }}>
-          <Col span={6}>
-            <Card size="small">
-              <Statistic
-                title={<Space><Target size={12} color="#2563eb" />{t('aiCad.overallAccuracy')}</Space>}
-                value={overall?.accuracy ?? '-'} suffix="%" precision={overall ? 1 : 0}
-                styles={{ content: { color: '#2563eb' } }}
-              />
-              <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
-                {t('aiCad.sample')} {totalCases ? `${totalCases} ${t('aiCad.cases')}` : '-'} · {t('aiCad.aiPositive')} {overall?.aiPositive ?? '-'}
-              </div>
-            </Card>
-          </Col>
-          <Col span={6}>
-            <Card size="small" title={t('aiCad.sensitivitySpecificity')}>
-              <Space size={16}>
-                <Statistic value={overall?.sensitivity ?? '-'} suffix="%" />
-                <Statistic value={overall?.specificity ?? '-'} suffix="%" />
-              </Space>
-            </Card>
-          </Col>
-          <Col span={6}>
-            <Card size="small" title={t('aiCad.ppv')}>
-              <Statistic value={overall?.ppv ?? '-'} suffix="%" />
-            </Card>
-          </Col>
-          <Col span={6}>
-            <Card size="small" title={t('aiCad.npv')}>
-              <Statistic value={overall?.npv ?? '-'} suffix="%" />
-            </Card>
-          </Col>
-        </Row>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 12 }}>
+          <StatCard
+            title={t('aiCad.overallAccuracy')}
+            value={overall?.accuracy ?? '-'}
+            suffix="%"
+            precision={overall ? 1 : 0}
+            color="primary"
+            icon={<Target size={18} />}
+            sub={`${t('aiCad.sample')} ${totalCases ? `${totalCases} ${t('aiCad.cases')}` : '-'} · ${t('aiCad.aiPositive')} ${overall?.aiPositive ?? '-'}`}
+          />
+          <StatCard title={t('aiCad.sensitivity')} value={overall?.sensitivity ?? '-'} suffix="%" />
+          <StatCard title={t('aiCad.specificity')} value={overall?.specificity ?? '-'} suffix="%" />
+          <StatCard title={t('aiCad.ppv')} value={overall?.ppv ?? '-'} suffix="%" />
+          <StatCard title={t('aiCad.npv')} value={overall?.npv ?? '-'} suffix="%" />
+        </StatCardGrid>
 
-        <Row gutter={16} style={{ marginBottom: 12 }}>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 12 }}>
           {MODEL_ACCURACY_QUERY.map((m) => {
             const acc = byModel[m.key]
             return (
-              <Col span={6} key={m.key}>
-                <Card size="small" loading={loading && !acc}>
-                  <Statistic
-                    title={<Space><Activity size={12} color={m.color} />{t(m.title)} ({m.modality})</Space>}
-                    value={acc ? acc.accuracy : '-'} suffix="%" precision={acc ? 1 : 0}
-                    styles={{ content: { color: m.color } }}
-                  />
-                  <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
-                    {t('aiCad.sensitivity')} {acc ? fmt(acc.sensitivity) : '-'} · {t('aiCad.specificity')} {acc ? fmt(acc.specificity) : '-'}
-                    <div>{t('aiCad.sample')} {acc?.totalCases ?? '-'} {t('aiCad.cases')}</div>
-                  </div>
-                </Card>
-              </Col>
+              <StatCard
+                key={m.key}
+                title={`${t(m.title)} (${m.modality})`}
+                value={acc ? acc.accuracy : '-'}
+                suffix="%"
+                precision={acc ? 1 : 0}
+                color={m.color}
+                icon={<Activity size={18} />}
+                loading={loading && !acc}
+                sub={<>
+                  {t('aiCad.sensitivity')} {acc ? fmt(acc.sensitivity) : '-'} · {t('aiCad.specificity')} {acc ? fmt(acc.specificity) : '-'}
+                  <div>{t('aiCad.sample')} {acc?.totalCases ?? '-'} {t('aiCad.cases')}</div>
+                </>}
+              />
             )
           })}
-        </Row>
+        </StatCardGrid>
 
         <Card size="small" title={t('aiCad.trendTitle')}>
           {trend.length === 0 && !loading ? (
@@ -228,7 +213,7 @@ const AiCadPage: React.FC = () => {
   }, [loadStats])
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <Cpu size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('aiCad.title')}</span>
@@ -254,30 +239,26 @@ const AiCadPage: React.FC = () => {
       )}
 
       <Spin spinning={loading && !stats}>
-        <Row gutter={16} style={{ marginBottom: 16 }}>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
           {MODULE_META.map((m) => {
             const s = (stats?.[m.key] ?? undefined) as CadModuleStats | undefined
             const confirmed = s?.statuses?.find((x: { status: string; count: number }) => x.status === 'confirmed')?.count ?? 0
             return (
-              <Col span={6} key={m.key}>
-                <Card size="small">
-                  <Statistic
-                    title={<Space><Activity size={12} color={m.color} />{t(m.title)}</Space>}
-                    value={s?.total ?? '-'}
-                    suffix={t('aiCad.cases')}
-                    styles={{ content: { color: m.color } }}
-                  />
-                  <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
-                    <Space size={8}>
-                      <span><CheckCircle2 size={10} color="#52c41a" /> {t('aiCad.confirmed')} {confirmed}</span>
-                      <span><Target size={10} color="#ff4d4f" /> {t('aiCad.highRisk')} {s?.highRisk ?? 0}</span>
-                    </Space>
-                  </div>
-                </Card>
-              </Col>
+              <StatCard
+                key={m.key}
+                title={t(m.title)}
+                value={s?.total ?? '-'}
+                suffix={t('aiCad.cases')}
+                color={m.color}
+                icon={<Activity size={18} />}
+                sub={<Space size={8}>
+                  <span><CheckCircle2 size={10} color="#52c41a" /> {t('aiCad.confirmed')} {confirmed}</span>
+                  <span><Target size={10} color="#ff4d4f" /> {t('aiCad.highRisk')} {s?.highRisk ?? 0}</span>
+                </Space>}
+              />
             )
           })}
-        </Row>
+        </StatCardGrid>
       </Spin>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
@@ -322,7 +303,7 @@ const AiCadPage: React.FC = () => {
           ]}
         />
       </Card>
-    </div>
+    </PageContainer>
   )
 }
 

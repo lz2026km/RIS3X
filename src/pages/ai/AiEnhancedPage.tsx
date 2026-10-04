@@ -21,6 +21,7 @@ import {
   type HangingApplication,
 } from '../../services/api/aiV2Api'
 import { t } from '../../i18n/appI18n'
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
 
 const { Text, Title } = Typography
 const { TextArea } = Input
@@ -159,17 +160,11 @@ const OrganDetectionPanel: React.FC = () => {
 
       {result && (
         <>
-          <Row gutter={12} style={{ marginBottom: 12 }}>
-            <Col span={8}>
-              <Statistic title={t('aiEnhanced.organsDetected')} value={result.organsDetected} suffix={`/ ${result.organs.length}`} />
-            </Col>
-            <Col span={8}>
-              <Statistic title={t('aiEnhanced.avgConfidence')} value={Math.round(result.avgConfidence * 100)} suffix="%" />
-            </Col>
-            <Col span={8}>
-              <Statistic title={t('aiEnhanced.primaryOrgan')} value={result.primaryOrgan ? result.organs.find((o) => o.code === result.primaryOrgan)?.label ?? '-' : '-'} />
-            </Col>
-          </Row>
+          <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 12 }}>
+            <StatCard title={t('aiEnhanced.organsDetected')} value={result.organsDetected} suffix={`/ ${result.organs.length}`} color="primary" icon={<Activity size={18} />} />
+            <StatCard title={t('aiEnhanced.avgConfidence')} value={Math.round(result.avgConfidence * 100)} suffix="%" color="info" icon={<Gauge size={18} />} />
+            <StatCard title={t('aiEnhanced.primaryOrgan')} value={result.primaryOrgan ? result.organs.find((o) => o.code === result.primaryOrgan)?.label ?? '-' : '-'} color="primary" />
+          </StatCardGrid>
 
           <List
             size="small"
@@ -578,7 +573,7 @@ const HangingPanel: React.FC = () => {
 
 const AiEnhancedPage: React.FC = () => {
   return (
-    <div style={{ padding: 24, minHeight: '100vh', background: '#f5f5f5' }}>
+    <PageContainer padding={24}>
       <Card style={{ marginBottom: 16 }}>
         <Space wrap align="center" style={{ marginBottom: 8 }}>
           <Brain size={26} color="#2563eb" />
@@ -631,7 +626,7 @@ const AiEnhancedPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
-    </div>
+    </PageContainer>
   )
 }
 

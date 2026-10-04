@@ -37,6 +37,7 @@ import React, { useState, useEffect } from "react";
 import { usePagination } from "../../../hooks/usePagination";
 import { eyeApi } from "../../../services/api/eyeApi";
 import { LoadingBanner, ErrorBanner } from "../../../components/feedback";
+import { StatCard, StatCardGrid } from "../../../components/common";
 import { t } from "../../../i18n/appI18n";
 
 export const OptometryClosedLoopPage: React.FC = () => {
@@ -276,41 +277,25 @@ export const OptometryClosedLoopPage: React.FC = () => {
       {loadError && !loading && <ErrorBanner message={loadError} />}
 
       {stats && (
-        <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={6}>
-            <Card size="small">
-              <Statistic title={t("eye.optometry.totalPatients")} value={stats.totalPatients} />
-            </Card>
-          </Col>
-          <Col span={6}>
-            <Card size="small">
-              <Statistic
-                title={t("eye.optometry.okLensPatients")}
-                value={stats.okLensPatients}
-                styles={{ content: {  color: "#2563eb"  } }}
-              />
-            </Card>
-          </Col>
-          <Col span={6}>
-            <Card size="small">
-              <Statistic
-                title={t("eye.optometry.defocusLensPatients")}
-                value={stats.defocusLensPatients}
-                styles={{ content: {  color: "#722ed1"  } }}
-              />
-            </Card>
-          </Col>
-          <Col span={6}>
-            <Card size="small">
-              <Statistic
-                title={t("eye.optometry.progressionRate")}
-                value={stats.progressionRate}
-                suffix={t("eye.optometry.perYearD")}
-                styles={{ content: {  color: "#52c41a"  } }}
-              />
-            </Card>
-          </Col>
-        </Row>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+          <StatCard title={t("eye.optometry.totalPatients")} value={stats.totalPatients} />
+          <StatCard
+            title={t("eye.optometry.okLensPatients")}
+            value={stats.okLensPatients}
+            color="primary"
+          />
+          <StatCard
+            title={t("eye.optometry.defocusLensPatients")}
+            value={stats.defocusLensPatients}
+            color="#722ed1"
+          />
+          <StatCard
+            title={t("eye.optometry.progressionRate")}
+            value={stats.progressionRate}
+            suffix={t("eye.optometry.perYearD")}
+            color="success"
+          />
+        </StatCardGrid>
       )}
 
       <Tabs

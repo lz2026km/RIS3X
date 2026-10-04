@@ -3,8 +3,9 @@
 import { snomedApi, type SnomedCode } from '../../services/api/snomedApi';
 import { terminologyApi, type TerminologyMapping, type TerminologySystemStatus, type TerminologyStats } from '../../services/api/terminologyApi';
 import { usePagination } from '../../hooks/usePagination';
-import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Input, Badge, Alert, Spin, Popconfirm, Modal, Form, message, Empty } from 'antd';
+import { Card, Space, Tag, Table, Button, Row, Col, Input, Badge, Alert, Spin, Popconfirm, Modal, Form, message, Empty } from 'antd';
 import { EmptyState } from '../../components/common/EmptyState';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 import { BookOpen, Search, Globe, Code, Layers, BookMarked, RefreshCw, Plus, Trash2, Stethoscope } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 // [v3.0.6.11-99 W10C] 本地征象词典（离线兜底检索）: radiologyTerminology.ts
@@ -106,7 +107,7 @@ export const TerminologyServerPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
         <BookOpen size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('terminology.title')}</span>
@@ -121,14 +122,14 @@ export const TerminologyServerPage: React.FC = () => {
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void loadMeta()}><RefreshCw size={14} /> {t('terminology.retry')}</Button>} />}
 
       <Spin spinning={loading}>
-        <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col xs={12} md={4}><Card size="small"><Statistic title={t('terminology.statTotalConcepts')} value={stats?.totalConcepts?.toLocaleString() ?? '-'} prefix={<Code size={14} />} /></Card></Col>
-          <Col xs={12} md={4}><Card size="small"><Statistic title={t('terminology.statMappings')} value={stats?.totalMappings ?? mappings.length} prefix={<Layers size={14} />} /></Card></Col>
-          <Col xs={12} md={4}><Card size="small"><Statistic title={t('terminology.statSystems')} value={stats?.systems ?? systems.length} prefix={<Globe size={14} />} /></Card></Col>
-          <Col xs={12} md={4}><Card size="small"><Statistic title={t('terminology.statActiveMappings')} value={stats?.activeMappings ?? 0} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-          <Col xs={12} md={4}><Card size="small"><Statistic title={t('terminology.statOnlineSystems')} value={stats?.onlineSystems ?? 0} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
-          <Col xs={12} md={4}><Card size="small"><Statistic title={t('terminology.statResults')} value={results.length} prefix={<Search size={14} />} /></Card></Col>
-        </Row>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+          <StatCard title={t('terminology.statTotalConcepts')} value={stats?.totalConcepts?.toLocaleString() ?? '-'} icon={<Code size={14} />} />
+          <StatCard title={t('terminology.statMappings')} value={stats?.totalMappings ?? mappings.length} icon={<Layers size={14} />} />
+          <StatCard title={t('terminology.statSystems')} value={stats?.systems ?? systems.length} icon={<Globe size={14} />} />
+          <StatCard title={t('terminology.statActiveMappings')} value={stats?.activeMappings ?? 0} color="success" />
+          <StatCard title={t('terminology.statOnlineSystems')} value={stats?.onlineSystems ?? 0} color="primary" />
+          <StatCard title={t('terminology.statResults')} value={results.length} icon={<Search size={14} />} />
+        </StatCardGrid>
       </Spin>
 
       <Card size="small" title={<Space><Search size={14} />{t('terminology.searchCardTitle')}</Space>} style={{ marginBottom: 16 }}>
@@ -260,7 +261,7 @@ export const TerminologyServerPage: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 export default TerminologyServerPage;

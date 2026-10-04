@@ -3,6 +3,7 @@
 // [G005 Wave1B] 收敛 7 处裸 fetch 双通道 → 仅走 dentalApi (后端 /dental/billing/* 真实), 失败走现有回退标注
 import React, { useState, useEffect } from 'react';
 import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Table, InputNumber, Modal, List, Badge, Progress, Divider, Form, Input } from 'antd';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 import { DollarSign, FileText, XCircle, Printer, Calculator, Plus } from 'lucide-react';
 import { wechatPay } from '../../services/wechatPay';
 import { dentalApi } from '../../services/api/dentalApi';
@@ -212,7 +213,7 @@ export const DentalBillingPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <DollarSign size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalBilling.title')}</span>
@@ -227,16 +228,16 @@ export const DentalBillingPage: React.FC = () => {
         <Button size="small" type="primary" icon={<DollarSign size={14} />} onClick={() => { invoiceForm.resetFields(); setInvoiceModal({ open: true, saving: false }); }}>{t('dentalBilling.createInvoice')}</Button>
       </Space>
       {loadError && <ErrorBanner message={loadError} onRetry={() => { void loadCatalog(); void loadPayMethods(); void loadInvoices(); }} retryLabel={t('w9.states.retry')} />}
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title={t('dentalBilling.todayIncome')} prefix="¥" value={invoices.filter(i=>i.status==='paid').reduce((s,i)=>s+i.total,0)} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('dentalBilling.pendingPayment')} prefix="¥" value={totalPending} styles={{ content: { color:totalPending>0?'#faad14':'#52c41a' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('dentalBilling.insuranceExpense')} prefix="¥" value={invoices.reduce((s,i)=>s+i.insuranceCover,0)} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('dentalBilling.collectionRate')} value={(totalPaid/(totalPaid+totalPending+1)*100).toFixed(0)} suffix="%" /></Card></Col>
-        <Col span={4}>
-          <Select value={selectedPatient} onChange={v => setSelectedPatient(v)} style={{ width: '100%' }}
-            options={[{value:'P100001',label:'张伟'},{value:'P100002',label:'李娜'},{value:'P100003',label:'王芳'}]} />
-        </Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('dentalBilling.todayIncome')} prefix="¥" value={invoices.filter(i=>i.status==='paid').reduce((s,i)=>s+i.total,0)} icon={<DollarSign size={16} />} />
+        <StatCard title={t('dentalBilling.pendingPayment')} prefix="¥" value={totalPending} color={totalPending>0?'warning':'success'} />
+        <StatCard title={t('dentalBilling.insuranceExpense')} prefix="¥" value={invoices.reduce((s,i)=>s+i.insuranceCover,0)} />
+        <StatCard title={t('dentalBilling.collectionRate')} value={(totalPaid/(totalPaid+totalPending+1)*100).toFixed(0)} suffix="%" />
+      </StatCardGrid>
+      <div style={{ marginBottom: 16 }}>
+        <Select value={selectedPatient} onChange={v => setSelectedPatient(v)} style={{ width: 200 }}
+          options={[{value:'P100001',label:'张伟'},{value:'P100002',label:'李娜'},{value:'P100003',label:'王芳'}]} />
+      </div>
       <Card size="small" title={<Space><FileText size={14}/>{t('dentalBilling.patientBill')}</Space>}>
         <Tabs activeKey={tab} onChange={setTab} items={[
           {key:'charge', label:t('dentalBilling.tabCharge'), children:<>
@@ -344,7 +345,7 @@ export const DentalBillingPage: React.FC = () => {
           </Row>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 export default DentalBillingPage;

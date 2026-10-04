@@ -1,9 +1,10 @@
 // [v3.0.6.8-49] PR5: CA 签名 + 修订综合页面
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, message, Tabs, Statistic, Alert, Modal, Timeline, Table } from 'antd';
+import { Card, Space, Tag, Button, Select, Input, Form, message, Tabs, Alert, Modal, Timeline, Table } from 'antd';
 import { Shield, FileSignature, Link2, Edit3, History, Plus, Lock, Stamp, Send } from 'lucide-react';
 import { signApi, amendApi } from '@/services/api/signAmendApi';
 import { LoadingBanner, ErrorBanner, AppEmpty } from '../../components/feedback';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 import { t } from '../../i18n/appI18n';
 
 const { TextArea } = Input;
@@ -191,7 +192,7 @@ export const SignAmendPage: React.FC = () => {
   const filteredAmends = amends.filter((a: any) => !amendFilter.status || a.status === amendFilter.status);
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <Shield size={20} color="#2563eb" />
         <Edit3 size={20} color="#52c41a" />
@@ -204,12 +205,12 @@ export const SignAmendPage: React.FC = () => {
       {certsLoading && amendsLoading && <LoadingBanner message={t('w9.states.loading')} />}
       {loadError && !certsLoading && !amendsLoading && <ErrorBanner message={loadError} />}
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('signAmend.statValid')} value={certs.filter(c => c.status === 'valid').length} styles={{ content: {  color: '#52c41a'  } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('signAmend.statExpired')} value={certs.filter(c => c.status === 'expired').length} styles={{ content: {  color: '#faad14'  } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('signAmend.statRevoked')} value={certs.filter(c => c.status === 'revoked').length} styles={{ content: {  color: '#ff4d4f'  } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('signAmend.statAmending')} value={amends.filter(a => a.status === 'in_progress').length} styles={{ content: {  color: '#2563eb'  } }} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('signAmend.statValid')} value={certs.filter(c => c.status === 'valid').length} color="success" />
+        <StatCard title={t('signAmend.statExpired')} value={certs.filter(c => c.status === 'expired').length} color="warning" />
+        <StatCard title={t('signAmend.statRevoked')} value={certs.filter(c => c.status === 'revoked').length} color="error" />
+        <StatCard title={t('signAmend.statAmending')} value={amends.filter(a => a.status === 'in_progress').length} color="primary" />
+      </StatCardGrid>
 
       <Tabs activeKey={activeTab} onChange={setActiveTab} type="card">
         {/* CA 证书管理 */}
@@ -504,7 +505,7 @@ export const SignAmendPage: React.FC = () => {
           <Button type="primary" block icon={<Send size={14} />} onClick={() => void handleCreateSupplement()}>{t('w4a.supplement.submit')}</Button>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 

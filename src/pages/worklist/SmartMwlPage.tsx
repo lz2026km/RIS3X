@@ -12,6 +12,7 @@ import { Card, Table, Button, Tag, Space, Input, Row, Col, Statistic, Slider, Fo
 import { Search, ArrowUpDown, Settings, RefreshCw, Clock, AlertTriangle, FileText, BarChart3, Eye, Info } from 'lucide-react'
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { StatCard, StatCardGrid } from '../../components/common'
 import { t } from '../../i18n/appI18n'
 
 const levelMeta: Record<string, { labelKey: string; color: string }> = {
@@ -21,10 +22,10 @@ const levelMeta: Record<string, { labelKey: string; color: string }> = {
   low: { labelKey: 'smartMwl.levelLow', color: 'green' },
 }
 const groupMeta: Record<keyof SmartPriorityCounts, { labelKey: string; color: string }> = {
-  critical: { labelKey: 'smartMwl.levelCritical', color: '#cf1322' },
-  high: { labelKey: 'smartMwl.groupHigh', color: '#fa8c16' },
+  critical: { labelKey: 'smartMwl.levelCritical', color: 'error' },
+  high: { labelKey: 'smartMwl.groupHigh', color: 'warning' },
   medium: { labelKey: 'smartMwl.groupMedium', color: '#d4b106' },
-  low: { labelKey: 'smartMwl.groupLow', color: '#52c41a' },
+  low: { labelKey: 'smartMwl.groupLow', color: 'success' },
 }
 
 interface SmartRow {
@@ -268,21 +269,18 @@ const SmartMwlPage: React.FC = () => {
 
       {error && <Alert type="error" showIcon message={t('smartMwl.loadFailed')} description={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={fetchAll}><RefreshCw size={14} /> {t('smartMwl.retry')}</Button>} />}
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title={t('smartMwl.statTotal')} value={total} prefix={<FileText size={16} />} /></Card></Col>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('smartMwl.statTotal')} value={total} icon={<FileText size={16} />} />
         {(Object.keys(groupMeta) as Array<keyof SmartPriorityCounts>).map((k) => (
-          <Col span={5} key={k}>
-            <Card size="small">
-              <Statistic
-                title={t(groupMeta[k].labelKey)}
-                value={priorities[k]}
-                styles={{ content: { color: groupMeta[k].color } }}
-                prefix={k === 'critical' ? <AlertTriangle size={16} /> : k === 'high' ? <Clock size={16} /> : undefined}
-              />
-            </Card>
-          </Col>
+          <StatCard
+            key={k}
+            title={t(groupMeta[k].labelKey)}
+            value={priorities[k]}
+            color={groupMeta[k].color}
+            icon={k === 'critical' ? <AlertTriangle size={16} /> : k === 'high' ? <Clock size={16} /> : undefined}
+          />
         ))}
-      </Row>
+      </StatCardGrid>
 
       <Card
         title={t('smartMwl.listTitle')}

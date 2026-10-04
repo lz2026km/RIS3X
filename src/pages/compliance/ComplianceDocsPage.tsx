@@ -10,8 +10,9 @@ import {
 } from '../../services/api/complianceDocsApi';
 import {
   Alert, Button, Card, Col, DatePicker, Descriptions, Drawer, Form, Input, Modal,
-  Popconfirm, Row, Select, Space, Spin, Statistic, Table, Tag, Typography, message,
+  Popconfirm, Row, Select, Space, Spin, Table, Tag, Typography, message,
 } from 'antd';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 import { Search, FilePlus2, RefreshCw, FileText, ScrollText, Send, Archive, Eye, Pencil, Trash2 } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { t } from '../../i18n/appI18n';
@@ -240,7 +241,7 @@ export const ComplianceDocsPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} align="center">
         <ScrollText size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('complianceDocs.title')}</span>
@@ -254,12 +255,12 @@ export const ComplianceDocsPage: React.FC = () => {
         />
       )}
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('complianceDocs.statTotal')} value={counts.total} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('complianceDocs.statusCurrent')} value={counts.current} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('complianceDocs.statusDraft')} value={counts.draft} styles={{ content: { color: '#fa8c16' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('complianceDocs.statusArchived')} value={counts.archived} styles={{ content: { color: '#8c8c8c' } }} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('complianceDocs.statTotal')} value={counts.total} />
+        <StatCard title={t('complianceDocs.statusCurrent')} value={counts.current} color="success" />
+        <StatCard title={t('complianceDocs.statusDraft')} value={counts.draft} color="warning" />
+        <StatCard title={t('complianceDocs.statusArchived')} value={counts.archived} color="#8c8c8c" />
+      </StatCardGrid>
 
       <Card size="small" style={{ marginBottom: 16 }}>
         <Space wrap>
@@ -427,7 +428,7 @@ export const ComplianceDocsPage: React.FC = () => {
           )}
         </Spin>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 

@@ -8,7 +8,6 @@ import {
   Input,
   Row,
   Col,
-  Statistic,
   Modal,
   Descriptions,
 } from "antd";
@@ -29,6 +28,7 @@ import {
 } from "../../services/api/radpathApi";
 import { message } from "antd";
 import { ErrorBanner } from "../../components/feedback";
+import { StatCard, StatCardGrid } from "../../components/common";
 import { t } from "../../i18n/appI18n";
 
 const consistencyColor: Record<string, string> = {
@@ -177,47 +177,12 @@ const RadPathPage: React.FC = () => {
         <Tag color="purple">{t('radPath.radPathTag')}</Tag>
       </div>
       {loadError && !loading && <ErrorBanner message={loadError} />}
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}>
-          <Card size="small">
-            <Statistic
-              title={t('radPath.totalComparisons')}
-              value={stats?.total ?? records.length}
-              prefix={<FileText size={16} />}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card size="small">
-            <Statistic
-              title={t('radPath.concordant')}
-              value={stats?.concordant ?? 0}
-              styles={{ content: {  color: "#52c41a"  } }}
-              prefix={<CheckCircle2 size={16} />}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card size="small">
-            <Statistic
-              title={t('radPath.discordant')}
-              value={stats?.discordant ?? 0}
-              styles={{ content: {  color: "#ff4d4f"  } }}
-              prefix={<XCircle size={16} />}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card size="small">
-            <Statistic
-              title={t('radPath.consistencyRate')}
-              value={stats?.positiveConsistency ?? 0}
-              suffix="%"
-              prefix={<TrendingUp size={16} />}
-            />
-          </Card>
-        </Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('radPath.totalComparisons')} value={stats?.total ?? records.length} icon={<FileText size={16} />} />
+        <StatCard title={t('radPath.concordant')} value={stats?.concordant ?? 0} color="success" icon={<CheckCircle2 size={16} />} />
+        <StatCard title={t('radPath.discordant')} value={stats?.discordant ?? 0} color="error" icon={<XCircle size={16} />} />
+        <StatCard title={t('radPath.consistencyRate')} value={stats?.positiveConsistency ?? 0} suffix="%" icon={<TrendingUp size={16} />} />
+      </StatCardGrid>
       <Card
         extra={
           <Space>

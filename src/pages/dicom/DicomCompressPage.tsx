@@ -1,4 +1,12 @@
 import { usePagination } from "../../hooks/usePagination";
+const STAT_COLOR_MAP: Record<string, string> = {
+  '#cf1322': 'error', '#dc2626': 'error', '#f5222d': 'error', '#ff4d4f': 'error',
+  '#fa8c16': 'warning', '#faad14': 'warning', '#d97706': 'warning', '#ff7a45': 'warning',
+  '#52c41a': 'success', '#16a34a': 'success', '#059669': 'success',
+  '#1890ff': 'primary', '#2563eb': 'primary', '#1d4ed8': 'primary',
+  '#13c2c2': 'info',
+};
+const mapColor = (c?: string): string | undefined => (c ? STAT_COLOR_MAP[c.toLowerCase()] ?? c : c);
 import type {
   CompressInstance,
   DicomCompressTask,
@@ -14,7 +22,6 @@ import {
   Button,
   Progress,
   Table,
-  Statistic,
   Row,
   Col,
   Typography,
@@ -32,6 +39,7 @@ import {
 } from "antd";
 import { BarChart3, File, FlaskConical, Inbox, Maximize2, RotateCw, Repeat2, Shrink, Trash2, Upload, Zap } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from "react";
+import { PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import { t } from "../../i18n/appI18n";
 
 const { Title, Text } = Typography;
@@ -704,7 +712,7 @@ export default function DicomCompressPage() {
       : null;
 
   return (
-    <div style={{ padding: 24 }}>
+    <PageContainer padding={24}>
       {contextHolder}
       <Title level={3}>
         <Shrink size={16} style={{ marginRight: 8 }} />
@@ -949,27 +957,17 @@ export default function DicomCompressPage() {
       >
         {currentTask ? (
           <div>
-            <Row gutter={16}>
-              <Col span={6}>
-                <Statistic title={t("compressV2.thTaskId")} value={currentTask.id} styles={{ content: { fontSize: 14 } }} />
-              </Col>
-              <Col span={6}>
-                <Statistic
-                  title={t("compressV2.thStatus")}
-                  value={currentTask.status === "done" ? t("compressV2.statusDone") : currentTask.status === "processing" ? t("compressV2.statusProcessing") : currentTask.status}
-                  valueStyle={{ color: currentTask.status === "done" ? "#52c41a" : undefined }}
-                />
-              </Col>
-              <Col span={6}>
-                <Statistic title={t("compressV2.thAlgorithm")} value={currentTask.algorithmName ?? currentTask.transferSyntax} styles={{ content: { fontSize: 13 } }} />
-              </Col>
-              <Col span={6}>
-                <Statistic
-                  title={t("compressV2.thModality")}
-                  value={currentTask.modality ?? "-"}
-                />
-              </Col>
-            </Row>
+            <StatCardGrid minWidth={200} gap={16}>
+              <StatCard title={t("compressV2.thTaskId")} value={currentTask.id} size="sm" />
+              <StatCard
+                title={t("compressV2.thStatus")}
+                value={currentTask.status === "done" ? t("compressV2.statusDone") : currentTask.status === "processing" ? t("compressV2.statusProcessing") : currentTask.status}
+                color={currentTask.status === "done" ? "success" : undefined}
+                size="sm"
+              />
+              <StatCard title={t("compressV2.thAlgorithm")} value={currentTask.algorithmName ?? currentTask.transferSyntax} size="sm" />
+              <StatCard title={t("compressV2.thModality")} value={currentTask.modality ?? "-"} size="sm" />
+            </StatCardGrid>
             {(currentTask.status === "pending" || currentTask.status === "processing") && (
               <div style={{ marginTop: 16 }}>
                 <Text>{t("compressV2.progressing")}</Text>
@@ -978,49 +976,43 @@ export default function DicomCompressPage() {
             )}
             {currentTask.status === "done" && currentTask.compressedSize !== null && (
               <div>
-                <Row gutter={16} style={{ marginTop: 12 }}>
-                  <Col span={4}>
-                    <Statistic
-                      title={t("compressV2.thOriginalSize")}
-                      value={formatBytes(currentTask.originalSize)}
-                      prefix={<File size={14} />}
-                    />
-                  </Col>
-                  <Col span={4}>
-                    <Statistic
-                      title={t("compressV2.thCompressed")}
-                      value={formatBytes(currentTask.compressedSize)}
-                      prefix={<File size={14} />}
-                    />
-                  </Col>
-                  <Col span={4}>
-                    <Statistic
-                      title={t("compressV2.thRealRatio")}
-                      value={currentTask.ratio ? `${currentTask.ratio.toFixed(2)}×` : "-"}
-                      valueStyle={{ color: "#2563eb", fontWeight: 600 }}
-                    />
-                  </Col>
-                  <Col span={4}>
-                    <Statistic
-                      title={t("compressV2.thSavedPct")}
-                      value={savedPercent !== null ? `${savedPercent}%` : "-"}
-                      valueStyle={{ color: savedPercent !== null && savedPercent > 0 ? "#52c41a" : undefined }}
-                    />
-                  </Col>
-                  <Col span={4}>
-                    <Statistic
-                      title={t("compressV2.thElapsed")}
-                      value={currentTask.elapsedMs !== undefined ? `${currentTask.elapsedMs} ms` : "-"}
-                    />
-                  </Col>
-                  <Col span={4}>
-                    <Statistic
-                      title={t("compressV2.thType")}
-                      value={currentTask.lossless ? t("compressV2.lossless") : t("compressV2.lossy")}
-                      valueStyle={{ color: currentTask.lossless ? "#52c41a" : "#fa541c" }}
-                    />
-                  </Col>
-                </Row>
+                <StatCardGrid minWidth={200} gap={16} style={{ marginTop: 12 }}>
+                  <StatCard
+                    title={t("compressV2.thOriginalSize")}
+                    value={formatBytes(currentTask.originalSize)}
+                    icon={<File size={14} />}
+                    size="sm"
+                  />
+                  <StatCard
+                    title={t("compressV2.thCompressed")}
+                    value={formatBytes(currentTask.compressedSize)}
+                    icon={<File size={14} />}
+                    size="sm"
+                  />
+                  <StatCard
+                    title={t("compressV2.thRealRatio")}
+                    value={currentTask.ratio ? `${currentTask.ratio.toFixed(2)}×` : "-"}
+                    color="primary"
+                    size="sm"
+                  />
+                  <StatCard
+                    title={t("compressV2.thSavedPct")}
+                    value={savedPercent !== null ? `${savedPercent}%` : "-"}
+                    color={savedPercent !== null && savedPercent > 0 ? "success" : undefined}
+                    size="sm"
+                  />
+                  <StatCard
+                    title={t("compressV2.thElapsed")}
+                    value={currentTask.elapsedMs !== undefined ? `${currentTask.elapsedMs} ms` : "-"}
+                    size="sm"
+                  />
+                  <StatCard
+                    title={t("compressV2.thType")}
+                    value={currentTask.lossless ? t("compressV2.lossless") : t("compressV2.lossy")}
+                    color={mapColor(currentTask.lossless ? "#52c41a" : "#fa541c")}
+                    size="sm"
+                  />
+                </StatCardGrid>
                 <Alert
                   type={currentTask.lossless ? "success" : "warning"}
                   showIcon
@@ -1067,13 +1059,13 @@ export default function DicomCompressPage() {
         variant="outlined"
       >
         {taskStats && (
-          <Row gutter={16} style={{ marginBottom: 12 }}>
-            <Col span={5}><Statistic title={t("compressV2.kpiTotalTasks")} value={taskStats.totalTasks} styles={{ content: { fontSize: 18 } }} /></Col>
-            <Col span={5}><Statistic title={t("compressV2.kpiCompleted")} value={taskStats.completedTasks} valueStyle={{ color: "#52c41a" }} styles={{ content: { fontSize: 18 } }} /></Col>
-            <Col span={5}><Statistic title={t("compressV2.kpiFailed")} value={taskStats.failedTasks} valueStyle={{ color: "#ff4d4f" }} styles={{ content: { fontSize: 18 } }} /></Col>
-            <Col span={5}><Statistic title={t("compressV2.kpiSavedBytes")} value={formatBytes(taskStats.totalSavedBytes)} styles={{ content: { fontSize: 18 } }} /></Col>
-            <Col span={4}><Statistic title={t("compressV2.kpiAvgRatio")} value={taskStats.avgRatio ? `${taskStats.avgRatio.toFixed(2)}×` : "-"} styles={{ content: { fontSize: 18 } }} /></Col>
-          </Row>
+          <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 12 }}>
+            <StatCard title={t("compressV2.kpiTotalTasks")} value={taskStats.totalTasks} size="sm" />
+            <StatCard title={t("compressV2.kpiCompleted")} value={taskStats.completedTasks} color="success" size="sm" />
+            <StatCard title={t("compressV2.kpiFailed")} value={taskStats.failedTasks} color="error" size="sm" />
+            <StatCard title={t("compressV2.kpiSavedBytes")} value={formatBytes(taskStats.totalSavedBytes)} size="sm" />
+            <StatCard title={t("compressV2.kpiAvgRatio")} value={taskStats.avgRatio ? `${taskStats.avgRatio.toFixed(2)}×` : "-"} size="sm" />
+          </StatCardGrid>
         )}
         {tasks.length > 0 ? (
           <Table
@@ -1190,6 +1182,6 @@ export default function DicomCompressPage() {
           <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("compressV2.loading")} />
         )}
       </Modal>
-    </div>
+    </PageContainer>
   );
 }

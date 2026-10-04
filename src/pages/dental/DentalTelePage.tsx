@@ -2,11 +2,12 @@
 // [W3-C] 上传照片→文件选择+本地预览; AI 预筛→功能标注; 详情→Modal
 import { DentalPageLayout } from './DentalShared';
 import { dentalApi } from '@/services/api/dentalApi';
-import { Card, Button, Row, Col, Select, List, Empty, message, Modal, Form, Input, Tag, Space, Alert, Spin, Statistic, Badge, Popconfirm, Image, Descriptions } from 'antd';
+import { Card, Button, Row, Col, Select, List, Empty, message, Modal, Form, Input, Tag, Space, Alert, Spin, Badge, Popconfirm, Image, Descriptions } from 'antd';
 import { Plus, Upload, Globe, Video, RefreshCw, PhoneIncoming, AlertTriangle } from 'lucide-react';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Inbox } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
+import { StatCard, StatCardGrid } from '../../components/common';
 
 const { TextArea } = Input;
 
@@ -213,12 +214,12 @@ export const DentalTelePage: React.FC = () => {
   return (
     <DentalPageLayout header={{ title: t('dentalTele.title'), icon: <Video size={20} color="#2563eb" /> }}>
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('dentalTele.retry')}</Button>} />}
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('dentalTele.total')} value={sessions.length} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('dentalTele.inProgress')} value={activeCount} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('dentalTele.waiting')} value={waitingCount} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('dentalTele.completed')} value={sessions.filter(s => s.status === 'completed').length} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('dentalTele.total')} value={sessions.length} icon={<Video size={16} />} />
+        <StatCard title={t('dentalTele.inProgress')} value={activeCount} color="primary" />
+        <StatCard title={t('dentalTele.waiting')} value={waitingCount} color="warning" />
+        <StatCard title={t('dentalTele.completed')} value={sessions.filter(s => s.status === 'completed').length} color="success" />
+      </StatCardGrid>
       <Row gutter={16}>
         <Col span={6}><Card size="small"><Button type="primary" block onClick={() => setCreateModal(true)} icon={<Plus size={14} />}>{t('dentalTele.create')}</Button></Card></Col>
         <Col span={6}><Card size="small"><Button block icon={<Upload size={14} />} onClick={openPhotoModal}>{t('dentalTele.uploadPhotos')}</Button></Card></Col>

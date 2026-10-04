@@ -9,7 +9,6 @@ import {
   Select,
   Row,
   Col,
-  Statistic,
   Form,
   message,
   Tabs,
@@ -22,6 +21,7 @@ import { CheckCircle2, Download, Eye, Layers, Save } from "lucide-react";
 import { dentalApi } from "../../services/api/dentalApi";
 import { ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
+import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
 
 const guideTypes = () => [
   { value: "fully-guided", label: t('dentalGuide.typeFullyGuided') },
@@ -161,7 +161,7 @@ export const DentalGuidePage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "100vh" }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <Layers size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>
@@ -171,36 +171,12 @@ export const DentalGuidePage: React.FC = () => {
         <Tag color="purple">{t('dentalGuide.guideModuleTag')}</Tag>
       </Space>
       {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}>
-          <Card size="small">
-            <Statistic title={t('dentalGuide.totalGuides')} value={guides.length} />
-          </Card>
-        </Col>
-        <Col span={4}>
-          <Card size="small">
-            <Statistic
-              title={t('dentalGuide.designing')}
-              value={guides.filter((g: any) => g.status === "designing").length}
-              styles={{ content: {  color: "#faad14"  } }}
-            />
-          </Card>
-        </Col>
-        <Col span={4}>
-          <Card size="small">
-            <Statistic
-              title={t('dentalGuide.exportedStl')}
-              value={guides.filter((g: any) => g.guideFile).length}
-              styles={{ content: {  color: "#52c41a"  } }}
-            />
-          </Card>
-        </Col>
-        <Col span={4}>
-          <Card size="small">
-            <Statistic title={t('dentalGuide.abutmentOptions')} value={abutments.length} />
-          </Card>
-        </Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('dentalGuide.totalGuides')} value={guides.length} icon={<Layers size={16} />} />
+        <StatCard title={t('dentalGuide.designing')} value={guides.filter((g: any) => g.status === "designing").length} color="warning" />
+        <StatCard title={t('dentalGuide.exportedStl')} value={guides.filter((g: any) => g.guideFile).length} color="success" />
+        <StatCard title={t('dentalGuide.abutmentOptions')} value={abutments.length} />
+      </StatCardGrid>
       <Tabs
         activeKey={tab}
         onChange={setTab}
@@ -501,7 +477,7 @@ export const DentalGuidePage: React.FC = () => {
           </div>
         )}
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 export default DentalGuidePage;

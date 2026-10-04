@@ -7,7 +7,8 @@ import {
   v3QualityReportApi, v3PacsApi, v3AnalyticsApi,
 } from '@/services/api/v3Api';
 import type { ReportDto } from '@/types/dto';
-import { Card, Space, Tag, Button, Row, Col, message, Tabs, List, Empty, Statistic, Table } from 'antd';
+import { Card, Space, Tag, Button, Row, Col, message, Tabs, List, Empty, Table } from 'antd';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 import {
   Edit3,
   Send,
@@ -106,7 +107,7 @@ export const V3ReportHubPage: React.FC = () => {
   useEffect(() => { void loadReports(reportPage); }, [loadReports, reportPage]);
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <Layers size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('v3Hub.title')}</span>
@@ -115,14 +116,14 @@ export const V3ReportHubPage: React.FC = () => {
         <Tag color="green">{t('v3Hub.tagClients')}</Tag>
       </Space>
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title={t('v3Hub.statTemplates')} value={templates.length} styles={{ content: {  color: '#2563eb'  } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('v3Hub.statTasks')} value={tasks.length} styles={{ content: {  color: '#52c41a'  } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('v3Hub.statFhir')} value={fhirList.length} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('v3Hub.statAiDrafts')} value={aiDrafts.length} styles={{ content: {  color: '#722ed1'  } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('v3Hub.statWebhooks')} value={webhooks.length} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('v3Hub.statQcReports')} value={qcReports.length} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('v3Hub.statTemplates')} value={templates.length} color="primary" />
+        <StatCard title={t('v3Hub.statTasks')} value={tasks.length} color="success" />
+        <StatCard title={t('v3Hub.statFhir')} value={fhirList.length} />
+        <StatCard title={t('v3Hub.statAiDrafts')} value={aiDrafts.length} color="#722ed1" />
+        <StatCard title={t('v3Hub.statWebhooks')} value={webhooks.length} />
+        <StatCard title={t('v3Hub.statQcReports')} value={qcReports.length} />
+      </StatCardGrid>
 
       <Tabs
         activeKey={activeTab}
@@ -136,14 +137,14 @@ export const V3ReportHubPage: React.FC = () => {
               <>
                 <Card title={t('v3Hub.analyticsDash')} size="small">
                   {dash ? (
-                    <Row gutter={[16, 16]}>
-                      <Col span={8}><Statistic title={t('v3Hub.statTotalReports')} value={dash.totalReports || 0} /></Col>
-                      <Col span={8}><Statistic title={t('v3Hub.statReviewed')} value={dash.reviewed || 0} styles={{ content: {  color: '#52c41a'  } }} /></Col>
-                      <Col span={8}><Statistic title={t('v3Hub.statAvgTat')} value={dash.avgTAT || 0} suffix="h" /></Col>
-                      <Col span={8}><Statistic title={t('v3Hub.statSignedRate')} value={dash.signedRate || 0} suffix="%" /></Col>
-                      <Col span={8}><Statistic title={t('v3Hub.statAiAdoption')} value={dash.aiAdoption || 0} suffix="%" styles={{ content: {  color: '#722ed1'  } }} /></Col>
-                      <Col span={8}><Statistic title={t('v3Hub.statDistSuccess')} value={dash.distSuccess || 0} suffix="%" /></Col>
-                    </Row>
+                    <StatCardGrid minWidth={200} gap={16}>
+                      <StatCard title={t('v3Hub.statTotalReports')} value={dash.totalReports || 0} />
+                      <StatCard title={t('v3Hub.statReviewed')} value={dash.reviewed || 0} color="success" />
+                      <StatCard title={t('v3Hub.statAvgTat')} value={dash.avgTAT || 0} suffix="h" />
+                      <StatCard title={t('v3Hub.statSignedRate')} value={dash.signedRate || 0} suffix="%" />
+                      <StatCard title={t('v3Hub.statAiAdoption')} value={dash.aiAdoption || 0} suffix="%" color="#722ed1" />
+                      <StatCard title={t('v3Hub.statDistSuccess')} value={dash.distSuccess || 0} suffix="%" />
+                    </StatCardGrid>
                   ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('v3Hub.loading')} />}
                 </Card>
                 <Card
@@ -351,7 +352,7 @@ export const V3ReportHubPage: React.FC = () => {
           },
         ]}
       />
-    </div>
+    </PageContainer>
   );
 };
 

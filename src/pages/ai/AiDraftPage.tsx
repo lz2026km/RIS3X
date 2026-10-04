@@ -5,6 +5,7 @@ import { v3AiDraftApi, type AiDraftMeta, type AiDraftParagraph, type AiDraftResu
 import { patientExamApi, type PatientInfo, type ExamInfo } from '../../services/api/patientExamApi'
 import { reportApi } from '../../services/api/reportApi'
 import { t } from '../../i18n/appI18n'
+import { PageContainer } from '../../components/common'
 
 const { Text, Title } = Typography
 const { TextArea } = Input
@@ -195,7 +196,7 @@ const AiDraftPage: React.FC = () => {
   }, [draftResult, selectedExam, selectedPatient, currentExam])
 
   return (
-    <div style={{ padding: 24, minHeight: '100vh', background: '#f5f5f5' }}>
+    <PageContainer padding={24}>
       <Card style={{ marginBottom: 16 }}>
         <Space style={{ marginBottom: 16 }}>
           <Brain size={24} color="#7c3aed" />
@@ -340,7 +341,7 @@ const AiDraftPage: React.FC = () => {
           </Button>
         </div>
       )}
-    </div>
+    </PageContainer>
   )
 }
 

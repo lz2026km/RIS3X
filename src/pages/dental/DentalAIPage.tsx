@@ -1,11 +1,12 @@
 // [v3.0.6.8-53] 口腔 AI 辅助诊断页面
 // [v3.0.6.11-60] Batch 3: dentalApi 检测 + AI 检测记录列表 + 结果卡片
 import React, { useCallback, useEffect, useState } from 'react';
-import { Card, Space, Tag, Button, Row, Col, Statistic, message, Divider, Alert, Tabs, Empty, Modal, Table, Spin, Progress, Badge, Descriptions } from 'antd';
+import { Card, Space, Tag, Button, Row, Col, message, Divider, Alert, Tabs, Empty, Modal, Table, Spin, Progress, Badge, Descriptions } from 'antd';
 import { Brain, CheckCircle2, Scan, Eye, RefreshCw, History, Sparkles } from 'lucide-react';
 import { dentalApi } from '../../services/api/dentalApi';
 import { usePagination } from '../../hooks/usePagination';
 import { t } from '../../i18n/appI18n';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 
 interface AiFindingRecord {
   id: string;
@@ -153,7 +154,7 @@ export const DentalAIPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Brain size={20} color="#722ed1" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalAi.title')}</span>
@@ -164,12 +165,12 @@ export const DentalAIPage: React.FC = () => {
 
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} />}
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalAi.records')} value={findings.length} prefix={<History size={14} />} /></Card></Col>
-        <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalAi.confirmed')} value={confirmedCount} styles={{ content: { color: '#52c41a' } }} prefix={<CheckCircle2 size={14} />} /></Card></Col>
-        <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalAi.pendingReview')} value={findings.filter((f) => f.status !== 'confirmed').length} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalAi.avgConfidence')} value={findings.length ? `${Math.round((findings.reduce((s, f) => s + (f.confidence ?? 0), 0) / findings.length) * 100)}%` : '-'} prefix={<Sparkles size={14} />} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('dentalAi.records')} value={findings.length} icon={<History size={14} />} />
+        <StatCard title={t('dentalAi.confirmed')} value={confirmedCount} icon={<CheckCircle2 size={14} />} color="success" />
+        <StatCard title={t('dentalAi.pendingReview')} value={findings.filter((f) => f.status !== 'confirmed').length} color="warning" />
+        <StatCard title={t('dentalAi.avgConfidence')} value={findings.length ? `${Math.round((findings.reduce((s, f) => s + (f.confidence ?? 0), 0) / findings.length) * 100)}%` : '-'} icon={<Sparkles size={14} />} />
+      </StatCardGrid>
 
       <Tabs
         activeKey={activeTab}
@@ -254,7 +255,7 @@ export const DentalAIPage: React.FC = () => {
           </>
         )}
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 export default DentalAIPage;

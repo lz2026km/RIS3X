@@ -1,7 +1,7 @@
 import { v3AiPlatformApi } from '../../services/api/v3Api'
-import { ExportButton } from '../../components/common'
+import { ExportButton, StatCard, StatCardGrid, PageContainer } from '../../components/common'
 import { t } from '../../i18n/appI18n'
-import { Card, Table, Tag, Space, Typography, Button, message, Row, Col, Statistic, Empty, Badge } from 'antd'
+import { Card, Table, Tag, Space, Typography, Button, message, Empty, Badge } from 'antd'
 import { Cpu, RefreshCw, Settings } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 import { Inbox } from 'lucide-react'
@@ -106,7 +106,7 @@ const AiProvidersPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, minHeight: '100vh', background: '#f5f5f5' }}>
+    <PageContainer padding={24}>
       <Card style={{ marginBottom: 16 }}>
         <Space style={{ marginBottom: 16 }}>
           <Cpu size={24} color="#7c3aed" />
@@ -116,39 +116,25 @@ const AiProvidersPage: React.FC = () => {
         <Text type="secondary">{t('aiProviders.subtitle')}</Text>
       </Card>
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}>
-          <Card>
-            <Statistic title={t('aiProviders.totalProviders')} value={providers?.providers.length ?? 0} styles={{ content: {  color: '#2563eb'  } }} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic title={t('aiProviders.activeProviders')} value={providers ? 1 : 0} styles={{ content: {  color: '#52c41a'  } }} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic title={t('aiProviders.currentProvider')} value={providers?.active ?? '-'} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Space style={{ width: '100%' }} styles={{ item: { flex: 1 } }}>
-              <Button icon={<RefreshCw size={14} />} onClick={fetchProviders} loading={loading} block>
-                {t('aiProviders.refresh')}
-              </Button>
-              <ExportButton
-                data={() => providerDetails}
-                filename="ai-providers"
-                label={t('w45.actions.export')}
-                size="small"
-                formats={["csv", "json"]}
-              />
-            </Space>
-          </Card>
-        </Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('aiProviders.totalProviders')} value={providers?.providers.length ?? 0} color="primary" icon={<Cpu size={18} />} />
+        <StatCard title={t('aiProviders.activeProviders')} value={providers ? 1 : 0} color="success" />
+        <StatCard title={t('aiProviders.currentProvider')} value={providers?.active ?? '-'} color="info" />
+        <Card>
+          <Space style={{ width: '100%' }} styles={{ item: { flex: 1 } }}>
+            <Button icon={<RefreshCw size={14} />} onClick={fetchProviders} loading={loading} block>
+              {t('aiProviders.refresh')}
+            </Button>
+            <ExportButton
+              data={() => providerDetails}
+              filename="ai-providers"
+              label={t('w45.actions.export')}
+              size="small"
+              formats={["csv", "json"]}
+            />
+          </Space>
+        </Card>
+      </StatCardGrid>
 
       <Card
         title={<Space><Settings size={14} color="#7c3aed" />{t('aiProviders.list')}</Space>}
@@ -163,7 +149,7 @@ const AiProvidersPage: React.FC = () => {
         scroll={{ x: 'max-content' }}
         />
       </Card>
-    </div>
+    </PageContainer>
   )
 }
 

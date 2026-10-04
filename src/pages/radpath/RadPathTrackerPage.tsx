@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, Activity, CheckCircle2, XCircle, Clock, TrendingUp, PieChart, FileText, Microscope, AlertTriangle } from 'lucide-react';
 import { radpathApi, type RadPathRecord, type RadPathStats } from '../../services/api/radpathApi';
+import { StatCard } from '../../components/common';
 import { t } from '../../i18n/appI18n';
 
 const consistencyColor: Record<string, string> = {
@@ -189,12 +190,12 @@ export default function RadPathTrackerPage() {
   );
 }
 
-const KpiCard: React.FC<{ icon: any; label: string; value: string | number; color: string }> = ({ icon: Icon, label, value, color }) => (
-  <div style={{ background: 'var(--bg-card)', padding: 14, borderRadius: 8, border: '1px solid var(--border-color)', textAlign: 'center' }}>
-    <div style={{ width: 36, height: 36, borderRadius: 8, background: `${color}15`, color, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 6px' }}>
-      <Icon size={18} />
-    </div>
-    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{label}</div>
-    <div><span style={{ fontSize: 24, fontWeight: 700, color }}>{value}</span></div>
-  </div>
-);
+const KpiCard: React.FC<{ icon: any; label: string; value: string | number; color: string }> = ({ icon: Icon, label, value, color }) => {
+  const c = ({
+    '#dc2626': 'error', '#ef4444': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
+    '#f59e0b': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
+    '#16a34a': 'success', '#22c55e': 'success', '#52c41a': 'success', '#10b981': 'success',
+    '#2563eb': 'primary', '#1890ff': 'primary', '#1d4ed8': 'primary',
+  } as Record<string, string>)[color] ?? color;
+  return <StatCard title={label} value={value} icon={<Icon size={18} />} color={c} />;
+};

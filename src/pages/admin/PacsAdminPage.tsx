@@ -13,13 +13,14 @@ import {
   type PacsConfig,
   type PacsRoute,
 } from '../../services/api/pacsAdminApi'
-import { Card, Table, Button, Tag, Space, Typography, Row, Col, Statistic, message, Modal, Input, Form, Popconfirm, Alert, Spin, Progress, Tabs, Drawer, Descriptions } from 'antd'
+import { Card, Table, Button, Tag, Space, Typography, message, Modal, Input, Form, Popconfirm, Alert, Spin, Progress, Tabs, Drawer, Descriptions } from 'antd'
 import { Server, Wifi, WifiOff, Database, Activity, Plus, RefreshCw, Link2, Trash2, Zap, HardDrive, ListChecks, Archive, FileText, Route, Settings2, Eraser, Edit3, Eye } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 // [G005 2B] 受控分页: 8 张可增长表 (logs 服务端截断 100 条 → 前端分页)
 import { usePagination } from '../../hooks/usePagination'
 import { displayExamStatus } from '../../utils/statusMaps'
 import { t } from '../../i18n/appI18n'
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
 
 const formatBytes = (bytes: number) => {
   if (bytes >= 1024 ** 4) return `${(bytes / 1024 ** 4).toFixed(1)} TB`
@@ -345,7 +346,7 @@ const PacsAdminPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       {/* [G005 Wave1A P0-1] 后端已实现 pacs-admin.controller, 数据由后端派生, 无数据时演示回退 (MSW) */}
       <Alert
         type="info"
@@ -366,14 +367,14 @@ const PacsAdminPage: React.FC = () => {
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void fetchData()}><RefreshCw size={14} /> {t('pacsAdmin.retry')}</Button>} />}
 
       <Spin spinning={loading && servers.length === 0}>
-        <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={4}><Card size="small"><Statistic title={t('pacsAdmin.tabServers')} value={stats?.totalServers ?? servers.length} prefix={<Server size={16} />} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title={t('pacsAdmin.online')} value={stats?.onlineServers ?? servers.filter((s) => s.status === 'online').length} prefix={<Wifi size={16} />} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title={t('pacsAdmin.statTotalStudies')} value={(stats?.totalStudies ?? 0).toLocaleString()} prefix={<Activity size={16} />} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title={t('pacsAdmin.statTotalStorage')} value={formatBytes(stats?.totalStorageBytes ?? 0)} prefix={<Database size={16} />} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title={t('pacsAdmin.statAssociations')} value={stats?.totalAssociations ?? associations.length} prefix={<Link2 size={16} />} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title={t('pacsAdmin.statDailyTransfer')} value={formatBytes(stats?.dailyTransferBytes ?? 0)} prefix={<Activity size={16} />} /></Card></Col>
-        </Row>
+        <StatCardGrid style={{ marginBottom: 16 }}>
+          <StatCard title={t('pacsAdmin.tabServers')} value={stats?.totalServers ?? servers.length} icon={<Server size={16} />} />
+          <StatCard title={t('pacsAdmin.online')} value={stats?.onlineServers ?? servers.filter((s) => s.status === 'online').length} icon={<Wifi size={16} />} color="success" />
+          <StatCard title={t('pacsAdmin.statTotalStudies')} value={(stats?.totalStudies ?? 0).toLocaleString()} icon={<Activity size={16} />} />
+          <StatCard title={t('pacsAdmin.statTotalStorage')} value={formatBytes(stats?.totalStorageBytes ?? 0)} icon={<Database size={16} />} />
+          <StatCard title={t('pacsAdmin.statAssociations')} value={stats?.totalAssociations ?? associations.length} icon={<Link2 size={16} />} />
+          <StatCard title={t('pacsAdmin.statDailyTransfer')} value={formatBytes(stats?.dailyTransferBytes ?? 0)} icon={<Activity size={16} />} />
+        </StatCardGrid>
 
         <Tabs
           type="card"
@@ -545,7 +546,7 @@ const PacsAdminPage: React.FC = () => {
           <Alert type="error" showIcon message={t('pacsAdmin.detailFailed')} />
         )}
       </Drawer>
-    </div>
+    </PageContainer>
   )
 }
 

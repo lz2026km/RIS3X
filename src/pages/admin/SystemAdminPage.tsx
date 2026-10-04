@@ -1,12 +1,13 @@
 // [v3.0.6.8-64] 系统管理后台 (用户+角色+配置)
 // [G005 Wave1A P0-2] 用户创建/删除改走真实 userApi (/users, 后端 users.module), 替代不存在的 /system/admin/users 写端点
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Button, Table, Row, Col, Statistic, message, Tabs, Form, Input, Select, Modal, List, Badge, Spin } from 'antd';
+import { Card, Space, Tag, Button, Table, message, Tabs, Form, Input, Select, Modal, List, Badge, Spin } from 'antd';
 import { Plus, Edit3, Trash2, Settings, Save } from 'lucide-react';
 import { systemAdminApi, type SystemUserDto, type SystemRoleDto, type SystemConfigDto } from '../../services/api/systemAdminApi';
 import { userApi } from '../../services/api/userApi';
 import { usePagination } from '../../hooks/usePagination';
 import { t } from '../../i18n/appI18n';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 
 // [G005 Wave1A P0-2] 中文角色 → userApi 英文枚举
 const ROLE_TO_ENUM: Record<string, 'DOCTOR' | 'TECHNICIAN' | 'NURSE' | 'ADMIN' | 'DIRECTOR'> = {
@@ -170,18 +171,18 @@ export const SystemAdminPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <Settings size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('sysAdmin.title')}</span>
         <Tag color="cyan">v3.0.6.11-35</Tag>
       </Space>
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card><Statistic title={t('sysAdmin.statUsers')} value={users.length} /></Card></Col>
-        <Col span={4}><Card><Statistic title={t('sysAdmin.statRoles')} value={roles.length} /></Card></Col>
-        <Col span={4}><Card><Statistic title={t('sysAdmin.statOnline')} value="2" styles={{ content: { color:'#52c41a' } }} /></Card></Col>
-      </Row>
+      <StatCardGrid style={{ marginBottom: 16 }}>
+        <StatCard title={t('sysAdmin.statUsers')} value={users.length} />
+        <StatCard title={t('sysAdmin.statRoles')} value={roles.length} />
+        <StatCard title={t('sysAdmin.statOnline')} value="2" color="success" />
+      </StatCardGrid>
 
       {loading ? (
         <Card><div style={{ textAlign: 'center', padding: 40 }}><Spin tip={t('sysAdmin.loading')} /></div></Card>
@@ -254,7 +255,7 @@ export const SystemAdminPage: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 export default SystemAdminPage;

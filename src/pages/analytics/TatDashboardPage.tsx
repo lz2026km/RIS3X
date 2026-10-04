@@ -5,7 +5,6 @@ import {
   Col,
   Select,
   Table,
-  Statistic,
   Tag,
   Spin,
   Progress,
@@ -32,6 +31,7 @@ import {
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Inbox } from 'lucide-react'
 import { t } from "../../i18n/appI18n";
+import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
 
 interface ModalityTatRow {
   modality: string;
@@ -380,8 +380,10 @@ export default function TatDashboardPage() {
   ];
 
   return (
-    <div
-      style={{ padding: "0 0 24px", background: "#f0f2f5", minHeight: "100vh" }}
+    <PageContainer
+      maxWidth="fluid"
+      padding={0}
+      style={{ paddingBottom: 24 }}
     >
       <div
         style={{
@@ -463,89 +465,35 @@ export default function TatDashboardPage() {
           />
         )}
         <Spin spinning={loading}>
-          <Row gutter={16} style={{ marginBottom: 20 }}>
-            <Col span={6}>
-              <Card size="small" style={{ borderRadius: 8 }}>
-                <Statistic
-                  title={t('tatDashboard.avgTat')}
-                  value={stats.avgTat}
-                  suffix="min"
-                  styles={{ content: { 
-                    color:
-                      stats.avgTat <= 30
-                        ? "#059669"
-                        : stats.avgTat <= 60
-                          ? "#d97706"
-                          : "#dc2626",
-                    fontSize: 28,
-                    fontWeight: 800,
-                   } }}
-                  prefix={
-                    stats.avgTat <= 30 ? (
-                      <TrendingUp size={18} />
-                    ) : (
-                      <TrendingDown size={18} />
-                    )
-                  }
-                />
-              </Card>
-            </Col>
-            <Col span={6}>
-              <Card size="small" style={{ borderRadius: 8 }}>
-                <Statistic
-                  title={t('tatDashboard.onTimeRate')}
-                  value={stats.onTimeRate}
-                  suffix="%"
-                  styles={{ content: { 
-                    color:
-                      stats.onTimeRate >= 80
-                        ? "#059669"
-                        : stats.onTimeRate >= 60
-                          ? "#d97706"
-                          : "#dc2626",
-                    fontSize: 28,
-                    fontWeight: 800,
-                   } }}
-                  prefix={
-                    stats.onTimeRate >= 80 ? (
-                      <CheckCircle size={18} />
-                    ) : (
-                      <AlertTriangle size={18} />
-                    )
-                  }
-                />
-              </Card>
-            </Col>
-            <Col span={6}>
-              <Card size="small" style={{ borderRadius: 8 }}>
-                <Statistic
-                  title={t('tatDashboard.completionRate')}
-                  value={stats.completionRate}
-                  suffix="%"
-                  styles={{ content: { 
-                    color: "#1e40af",
-                    fontSize: 28,
-                    fontWeight: 800,
-                   } }}
-                  prefix={<Activity size={18} />}
-                />
-              </Card>
-            </Col>
-            <Col span={6}>
-              <Card size="small" style={{ borderRadius: 8 }}>
-                <Statistic
-                  title={t('tatDashboard.totalExams')}
-                  value={stats.total}
-                  styles={{ content: { 
-                    color: "#1e40af",
-                    fontSize: 28,
-                    fontWeight: 800,
-                   } }}
-                  prefix={<BarChart3 size={18} />}
-                />
-              </Card>
-            </Col>
-          </Row>
+          <StatCardGrid style={{ marginBottom: 20 }}>
+            <StatCard
+              title={t('tatDashboard.avgTat')}
+              value={stats.avgTat}
+              suffix="min"
+              icon={stats.avgTat <= 30 ? <TrendingUp size={18} /> : <TrendingDown size={18} />}
+              color={stats.avgTat <= 30 ? "success" : stats.avgTat <= 60 ? "warning" : "error"}
+            />
+            <StatCard
+              title={t('tatDashboard.onTimeRate')}
+              value={stats.onTimeRate}
+              suffix="%"
+              icon={stats.onTimeRate >= 80 ? <CheckCircle size={18} /> : <AlertTriangle size={18} />}
+              color={stats.onTimeRate >= 80 ? "success" : stats.onTimeRate >= 60 ? "warning" : "error"}
+            />
+            <StatCard
+              title={t('tatDashboard.completionRate')}
+              value={stats.completionRate}
+              suffix="%"
+              icon={<Activity size={18} />}
+              color="#1e40af"
+            />
+            <StatCard
+              title={t('tatDashboard.totalExams')}
+              value={stats.total}
+              icon={<BarChart3 size={18} />}
+              color="#1e40af"
+            />
+          </StatCardGrid>
 
           <Row gutter={16} style={{ marginBottom: 20 }}>
             <Col span={12}>
@@ -823,6 +771,6 @@ export default function TatDashboardPage() {
           </Card>
         </Spin>
       </div>
-    </div>
+    </PageContainer>
   );
 }

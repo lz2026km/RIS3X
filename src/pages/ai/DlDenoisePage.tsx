@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { Card, Row, Col, Statistic, Slider, Tag, Button, message, List } from 'antd'
+import { Card, Slider, Tag, Button, message, List } from 'antd'
 import { Sparkles, Zap, Save, RefreshCw, PlayCircle, Contrast, History, Trash2 } from 'lucide-react'
 import {
   aiPlatformApi,
@@ -10,6 +10,7 @@ import {
   type AiPlatformNoiseEstimate,
 } from '../../services/api/aiPlatformApi'
 import { t } from '../../i18n/appI18n'
+import { StatCard, StatCardGrid } from '../../components/common'
 
 const BLUE = '#3b82f6'
 const CARD_BG = '#0f172a'
@@ -342,12 +343,12 @@ const DlDenoisePage: React.FC = () => {
         <Button size="small" type="primary" icon={<PlayCircle size={12} />} loading={executing} onClick={() => void handleExecute()}>{t('dlDenoisePage.execute')}</Button>
         <button onClick={handleSaveResult} style={btnStyle}><Save size={12} /> {t('dlDenoisePage.saveResult')}</button>
       </div>
-      <Row gutter={16} style={{ marginBottom: 12 }}>
-        <Col span={6}><Card><Statistic title="PSNR (dB)" value={displayPsnr} prefix={<Zap size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title="SSIM" value={displaySsim} prefix={<Sparkles size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title={t('dlDenoisePage.processSpeed')} value={displaySpeed} prefix={<RefreshCw size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title={t('dlDenoisePage.denoiseRate')} value={`${serverResult ? Math.round((serverResult.noiseReduction ?? 0) * 100) : Math.round((1 - noiseLevel / 100) * 100)}%`} prefix={<Save size={16} />} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 12 }}>
+        <StatCard title="PSNR (dB)" value={displayPsnr} icon={<Zap size={18} />} color="primary" />
+        <StatCard title="SSIM" value={displaySsim} icon={<Sparkles size={18} />} color="info" />
+        <StatCard title={t('dlDenoisePage.processSpeed')} value={displaySpeed} icon={<RefreshCw size={18} />} color="primary" />
+        <StatCard title={t('dlDenoisePage.denoiseRate')} value={`${serverResult ? Math.round((serverResult.noiseReduction ?? 0) * 100) : Math.round((1 - noiseLevel / 100) * 100)}%`} icon={<Save size={18} />} color="success" />
+      </StatCardGrid>
       <div style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'center', flexWrap: 'wrap' }}>
         <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('dlDenoisePage.model')}</span>
         {(Object.keys(MODELS) as ModelType[]).map(m => (

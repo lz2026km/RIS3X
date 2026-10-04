@@ -1,10 +1,10 @@
 // [v3.0.6.11-54] Phase 2: 口腔工作台 (今日预约/检查概览 + 快捷入口)
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  Row, Col, Card, Statistic, Alert, Spin, Button, Space, Tag, Typography,
+  Row, Col, Card, Alert, Spin, Button, Space, Tag, Typography,
 } from 'antd';
 import { EmptyState } from '../../components/common/EmptyState';
-import { ExportButton } from '../../components/common';
+import { ExportButton, StatCard, StatCardGrid } from '../../components/common';
 import {
   Calendar, ScanLine, Activity, ArrowRight, RefreshCw, Stethoscope, Microscope, Layers,
 } from 'lucide-react';
@@ -87,12 +87,12 @@ export const DentalWorkspacePage: React.FC = () => {
       alert={error ? { message: error, type: 'error' } : undefined}
     >
       <Spin spinning={loading}>
-        <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={6}><Card hoverable><Statistic title={t('dental.stat.todayPatients')} value={stats?.todayPatients ?? 0} prefix={<Calendar size={14} />} /></Card></Col>
-          <Col span={6}><Card hoverable><Statistic title={t('dental.stat.weekPatients')} value={stats?.thisWeek ?? 0} prefix={<Activity size={14} />} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
-          <Col span={6}><Card hoverable><Statistic title={t('dental.stat.todayRevenue')} prefix="¥" value={stats?.revenueToday ?? 0} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-          <Col span={6}><Card hoverable><Statistic title={t('dental.stat.pendingAppointments')} value={appointments.length} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        </Row>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+          <StatCard title={t('dental.stat.todayPatients')} value={stats?.todayPatients ?? 0} icon={<Calendar size={14} />} />
+          <StatCard title={t('dental.stat.weekPatients')} value={stats?.thisWeek ?? 0} icon={<Activity size={14} />} color="primary" />
+          <StatCard title={t('dental.stat.todayRevenue')} prefix="¥" value={stats?.revenueToday ?? 0} color="success" />
+          <StatCard title={t('dental.stat.pendingAppointments')} value={appointments.length} color="warning" />
+        </StatCardGrid>
 
         <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
           {QUICK_LINKS.map((q) => (

@@ -18,6 +18,7 @@ import { PermissionGate } from '../components/common/PermissionGate';
 import { DataTable } from '../components/common/DataTable';
 import { StatusTag } from '../components/common/StatusTag';
 import { ActionButton } from '../components/common/ActionButton';
+import { StatCard } from '../components/common';
 import { t } from '../i18n/appI18n';
 
 type CertificateStatus = 'valid' | 'expiring' | 'expired' | 'revoked';
@@ -826,17 +827,15 @@ const fieldLabelStyle: React.CSSProperties = {
   fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4,
 };
 
-const KpiCard: React.FC<{ icon: any; label: string; value: number | string; color: string; alert?: boolean }> = ({ icon: Icon, label, value, color, alert }) => (
-  <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 10 }}>
-    <div style={{ width: 36, height: 36, borderRadius: 8, background: `${color}15`, color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <Icon size={18} />
-    </div>
-    <div>
-      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</div>
-      <div style={{ fontSize: 18, fontWeight: 700, color: alert ? '#dc2626' : 'var(--text-primary)' }}>{value}</div>
-    </div>
-  </div>
-);
+const KpiCard: React.FC<{ icon: any; label: string; value: number | string; color: string; alert?: boolean }> = ({ icon: Icon, label, value, color, alert }) => {
+  const c = ({
+    '#dc2626': 'error', '#ef4444': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
+    '#f59e0b': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
+    '#16a34a': 'success', '#22c55e': 'success', '#52c41a': 'success', '#10b981': 'success',
+    '#2563eb': 'primary', '#1890ff': 'primary', '#1d4ed8': 'primary',
+  } as Record<string, string>)[color] ?? color;
+  return <StatCard title={label} value={alert ? <span style={{ color: '#dc2626' }}>{value}</span> : value} icon={<Icon size={18} />} color={c} />;
+};
 
 const InfoCell: React.FC<{ label: string; value: string; color?: string }> = ({ label, value, color }) => (
   <div>

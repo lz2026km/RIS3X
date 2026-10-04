@@ -37,6 +37,7 @@ import {
 import { dentalApi } from "../../services/api/dentalApi";
 import { ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
+import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
 
 const STATUS_META: Record<string, { color: string; labelKey: string }> = {
   planning: { color: "default", labelKey: "dentalImplant3d.statusPlanning" },
@@ -413,7 +414,7 @@ export const DentalImplant3DPage: React.FC = () => {
 
   if (mode === "list") {
     return (
-      <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "100vh" }}>
+      <PageContainer padding={24}>
         <Space style={{ marginBottom: 16 }}>
           <Box size={20} color="#2563eb" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>
@@ -423,39 +424,12 @@ export const DentalImplant3DPage: React.FC = () => {
           <Tag color="blue">{t('dentalImplant3d.benchmark')}</Tag>
         </Space>
         {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
-        <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={4}>
-            <Card size="small">
-              <Statistic title={t('dentalImplant3d.statTotalPlans')} value={plans.length} />
-            </Card>
-          </Col>
-          <Col span={4}>
-            <Card size="small">
-              <Statistic
-                title={t('dentalImplant3d.statPendingApproval')}
-                value={plans.filter((p: any) => p.status === "planning").length}
-                styles={{ content: {  color: "#faad14"  } }}
-              />
-            </Card>
-          </Col>
-          <Col span={4}>
-            <Card size="small">
-              <Statistic
-                title={t('dentalImplant3d.statApproved')}
-                value={plans.filter((p: any) => p.status === "approved").length}
-                styles={{ content: {  color: "#52c41a"  } }}
-              />
-            </Card>
-          </Col>
-          <Col span={4}>
-            <Card size="small">
-              <Statistic
-                title={t('dentalImplant3d.statHasGuide')}
-                value={plans.filter((p: any) => p.guideDesigned).length}
-              />
-            </Card>
-          </Col>
-        </Row>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+          <StatCard title={t('dentalImplant3d.statTotalPlans')} value={plans.length} icon={<Box size={16} />} />
+          <StatCard title={t('dentalImplant3d.statPendingApproval')} value={plans.filter((p: any) => p.status === "planning").length} color="warning" />
+          <StatCard title={t('dentalImplant3d.statApproved')} value={plans.filter((p: any) => p.status === "approved").length} icon={<CheckCircle2 size={16} />} color="success" />
+          <StatCard title={t('dentalImplant3d.statHasGuide')} value={plans.filter((p: any) => p.guideDesigned).length} icon={<Layers size={16} />} />
+        </StatCardGrid>
         <Row gutter={16}>
           <Col span={8}>
             <Card title={t('dentalImplant3d.newDesign')} size="small">
@@ -651,12 +625,12 @@ export const DentalImplant3DPage: React.FC = () => {
             </Form.Item>
           </Form>
         </Modal>
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div style={{ padding: 16, background: "var(--bg-card)", minHeight: "100vh" }}>
+    <PageContainer padding={16}>
       <Space style={{ marginBottom: 12 }}>
         <Button icon={<RotateCcw size={14} />} onClick={() => setMode("list")}>
           {t('dentalImplant3d.backToList')}
@@ -1029,7 +1003,7 @@ export const DentalImplant3DPage: React.FC = () => {
           )}
         </Col>
       </Row>
-    </div>
+    </PageContainer>
   );
 };
 export default DentalImplant3DPage;

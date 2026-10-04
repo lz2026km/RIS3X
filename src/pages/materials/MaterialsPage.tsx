@@ -1,6 +1,7 @@
 // [v3.0.6.8-51] PR7: 眼料 (IOL 库存 + 接触镜库) 综合页面
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, message, Tabs, Statistic, Alert, InputNumber, Modal, Table, Switch } from 'antd';
+import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, message, Tabs, Alert, InputNumber, Modal, Table, Switch } from 'antd';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 import { Box, Eye, AlertTriangle, Calendar, Plus, Edit3, Trash2 } from 'lucide-react';
 import { iolApi, contactLensApi } from '@/services/api/materialsApi';
 // [G005 Wave1B] 单条 IOL 库存详情 (getIolInventoryById, GET /eye/iol/inventory/:id)
@@ -193,7 +194,7 @@ export const MaterialsPage: React.FC = () => {
   const lensPagination = usePagination(filteredLenses, 10);
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <Box size={20} color="#2563eb" />
         <Eye size={20} color="#52c41a" />
@@ -203,12 +204,12 @@ export const MaterialsPage: React.FC = () => {
         <Tag color="green">{t('materialsPage.clientsEndpoints')}</Tag>
       </Space>
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('materialsPage.iolTotal')} value={iols.length} styles={{ content: {  color: '#2563eb'  } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('materialsPage.lowStock')} value={lowStock.length} styles={{ content: {  color: '#faad14'  } }} prefix={<AlertTriangle size={14} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('materialsPage.expiringSoon')} value={expiring.length} styles={{ content: {  color: '#ff4d4f'  } }} prefix={<Calendar size={14} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('materialsPage.lensSku')} value={lenses.length} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('materialsPage.iolTotal')} value={iols.length} color="primary" />
+        <StatCard title={t('materialsPage.lowStock')} value={lowStock.length} icon={<AlertTriangle size={14} />} color="warning" />
+        <StatCard title={t('materialsPage.expiringSoon')} value={expiring.length} icon={<Calendar size={14} />} color="error" />
+        <StatCard title={t('materialsPage.lensSku')} value={lenses.length} />
+      </StatCardGrid>
 
       <Tabs activeKey={activeTab} onChange={setActiveTab} type="card">
         {/* IOL 库存 */}
@@ -492,7 +493,7 @@ export const MaterialsPage: React.FC = () => {
           </Row>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 

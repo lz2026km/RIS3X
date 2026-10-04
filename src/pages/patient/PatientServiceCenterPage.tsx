@@ -7,10 +7,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Alert, Button, Card, Col, Descriptions, Empty, Input, InputNumber, List, message,
-  Modal, Row, Select, Space, Statistic, Table, Tabs, Tag, Typography,
+  Modal, Row, Select, Space, Table, Tabs, Tag, Typography,
 } from 'antd'
 import { RefreshCw } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
+import { PageContainer, StatCard, StatCardGrid } from '../../components/common'
 import {
   wechatApi, paymentApi, notificationChannelApi, satisfactionApi, selfRegistrationApi,
 } from '../../services/api/w12PatientApi'
@@ -475,12 +476,12 @@ export default function PatientServiceCenterPage() {
 
   const paymentTab = useMemo(() => (
     <div>
-      <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('w12Patient.payment.totalOrders')} value={payStats?.totalOrders ?? 0} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w12Patient.payment.paidAmount')} value={payStats?.paidAmount ?? 0} prefix="¥" /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w12Patient.payment.netAmount')} value={payStats?.netAmount ?? 0} prefix="¥" /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w12Patient.payment.refundRate')} value={payStats?.refundRate ?? 0} suffix="%" /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('w12Patient.payment.totalOrders')} value={payStats?.totalOrders ?? 0} />
+        <StatCard title={t('w12Patient.payment.paidAmount')} value={payStats?.paidAmount ?? 0} prefix="¥" />
+        <StatCard title={t('w12Patient.payment.netAmount')} value={payStats?.netAmount ?? 0} prefix="¥" />
+        <StatCard title={t('w12Patient.payment.refundRate')} value={payStats?.refundRate ?? 0} suffix="%" />
+      </StatCardGrid>
 
       <Card size="small" title={t('w12Patient.payment.createTitle')} style={{ marginBottom: 16 }}>
         <Space wrap>
@@ -564,11 +565,11 @@ export default function PatientServiceCenterPage() {
           </Space>
         </Card>
         <Card size="small" title={t('w12Patient.nc.stats')}>
-          <Row gutter={8}>
-            <Col span={8}><Statistic title={t('w12Patient.nc.total')} value={ncStats?.total ?? 0} /></Col>
-            <Col span={8}><Statistic title={t('w12Patient.nc.templateCount')} value={ncStats?.templateCount ?? 0} /></Col>
-            <Col span={8}><Statistic title={t('w12Patient.nc.successRate')} value={ncStats?.successRate ?? 0} suffix="%" /></Col>
-          </Row>
+          <StatCardGrid minWidth={120} gap={8}>
+            <StatCard title={t('w12Patient.nc.total')} value={ncStats?.total ?? 0} />
+            <StatCard title={t('w12Patient.nc.templateCount')} value={ncStats?.templateCount ?? 0} />
+            <StatCard title={t('w12Patient.nc.successRate')} value={ncStats?.successRate ?? 0} suffix="%" />
+          </StatCardGrid>
         </Card>
       </Col>
       <Col xs={24} lg={14}>
@@ -603,12 +604,12 @@ export default function PatientServiceCenterPage() {
 
   const satisfactionTab = useMemo(() => (
     <div>
-      <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('w12Patient.sat.nps')} value={satAnalytics?.overall.nps ?? 0} valueStyle={{ color: satNpsLevel(satAnalytics?.overall.nps ?? 0) }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w12Patient.sat.avgRating')} value={satAnalytics?.overall.avgRating ?? 0} suffix="/5" /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w12Patient.sat.totalResponses')} value={satAnalytics?.overall.totalResponses ?? 0} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w12Patient.sat.responseRate')} value={satAnalytics?.overall.responseRate ?? 0} suffix="%" /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('w12Patient.sat.nps')} value={satAnalytics?.overall.nps ?? 0} color={satNpsLevel(satAnalytics?.overall.nps ?? 0)} />
+        <StatCard title={t('w12Patient.sat.avgRating')} value={satAnalytics?.overall.avgRating ?? 0} suffix="/5" />
+        <StatCard title={t('w12Patient.sat.totalResponses')} value={satAnalytics?.overall.totalResponses ?? 0} />
+        <StatCard title={t('w12Patient.sat.responseRate')} value={satAnalytics?.overall.responseRate ?? 0} suffix="%" />
+      </StatCardGrid>
 
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
         <Col xs={24} lg={8}><Card size="small" title={t('w12Patient.sat.byDepartment')}>
@@ -782,7 +783,7 @@ export default function PatientServiceCenterPage() {
   ), [srIdCard, srPhone, srEmpi, srName, srResult, srSelected, srCheckIn, srQuestionnaire, srStatus, srQueue, srAllergies, srPregnant, srFasting, srImplants, srClaustrophobia, srSignature, srModality, srPriority, srBusy])
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('w12Patient.title')}</span>
         <Tag color="cyan">W12</Tag>
@@ -798,6 +799,6 @@ export default function PatientServiceCenterPage() {
         { key: 'satisfaction', label: t('w12Patient.tab.satisfaction'), children: satisfactionTab },
         { key: 'selfReg', label: t('w12Patient.tab.selfReg'), children: selfRegTab },
       ]} />
-    </div>
+    </PageContainer>
   )
 }

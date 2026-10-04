@@ -1,12 +1,13 @@
 // [v3.0.6.8-94] Phase 4: 口腔 360° 患者视图
 // 对标: 领健·牙医管家 患者档案
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Select, Row, Col, Statistic, Tabs, Table, List, Timeline, Badge, Descriptions, Avatar, Spin, Button, Modal, Form, Input, message } from 'antd';
+import { Card, Space, Tag, Select, Row, Col, Tabs, Table, List, Timeline, Badge, Descriptions, Avatar, Spin, Button, Modal, Form, Input, message } from 'antd';
 import { Activity, Phone, Calendar, Clock, DollarSign, FileText, Pill, AlertTriangle, History, Eye, Plus } from 'lucide-react';
 import { dentalApi } from '../../services/api/dentalApi';
 import { ErrorBanner } from '../../components/feedback';
 import { t } from '../../i18n/appI18n';
 import { usePagination } from '../../hooks/usePagination';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 
 export const DentalEmrPage: React.FC = () => {
   const [patients, setPatients] = useState([
@@ -183,7 +184,7 @@ export const DentalEmrPage: React.FC = () => {
   useEffect(() => { loadPatient(selectedId); }, []);
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       {loadError && <ErrorBanner message={loadError} onRetry={() => void loadPatient(selectedId)} retryLabel={t('w9.states.retry')} />}
       <Space style={{ marginBottom: 16 }}>
         <Activity size={20} color="#2563eb" />
@@ -211,10 +212,14 @@ export const DentalEmrPage: React.FC = () => {
                 </Space>
               </Card>
             </Col>
-            <Col span={3}><Card size="small"><Statistic title={t('dentalEmr.statVisits')} value={overview.totalVisits} prefix={<Calendar size={12}/>} /></Card></Col>
-            <Col span={3}><Card size="small"><Statistic title={t('dentalEmr.statSpent')} prefix="¥" value={overview.totalSpent} /></Card></Col>
-            <Col span={3}><Card size="small"><Statistic title={t('dentalEmr.statUnpaid')} prefix="¥" value={overview.summary?.unpaid || 0} styles={{ content: {  color: (overview.summary?.unpaid || 0) > 0 ? '#ff4d4f' : '#52c41a'  } }} /></Card></Col>
-            <Col span={3}><Card size="small"><Statistic title={t('dentalEmr.statToRevisit')} value={overview.summary?.appointments || 0} styles={{ content: {  color: (overview.summary?.appointments || 0) > 0 ? '#faad14' : '#52c41a'  } }} /></Card></Col>
+            <Col span={12}>
+              <StatCardGrid minWidth={120} gap={16}>
+                <StatCard title={t('dentalEmr.statVisits')} value={overview.totalVisits} icon={<Calendar size={12}/>} />
+                <StatCard title={t('dentalEmr.statSpent')} prefix="¥" value={overview.totalSpent} />
+                <StatCard title={t('dentalEmr.statUnpaid')} prefix="¥" value={overview.summary?.unpaid || 0} color={(overview.summary?.unpaid || 0) > 0 ? 'error' : 'success'} />
+                <StatCard title={t('dentalEmr.statToRevisit')} value={overview.summary?.appointments || 0} color={(overview.summary?.appointments || 0) > 0 ? 'warning' : 'success'} />
+              </StatCardGrid>
+            </Col>
             <Col span={6}>
               <Card size="small">
                 <Space wrap>
@@ -324,7 +329,7 @@ export const DentalEmrPage: React.FC = () => {
           </Modal>
         </>
       )}
-    </div>
+    </PageContainer>
   );
 };
 export default DentalEmrPage;

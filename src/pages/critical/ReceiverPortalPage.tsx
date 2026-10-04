@@ -5,7 +5,8 @@
  * 展示待确认危急值通知, 支持 确认接收 (PATCH /criticals/:id state=ACKNOWLEDGED) 与 临床回执 (POST /criticals/:id/clinical-receipt)
  */
 import { useState, useEffect, useCallback } from 'react'
-import { Card, Table, Tag, Button, Modal, Input, message, Spin, Alert, Statistic, Row, Col, Empty } from 'antd'
+import { Card, Table, Tag, Button, Modal, Input, message, Spin, Alert, Empty } from 'antd'
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
 import { ShieldAlert, Bell, CheckCircle, FileCheck, RefreshCw, Inbox } from 'lucide-react'
 import { criticalExtApi } from '../../services/api/criticalExtApi'
 import { criticalApi } from '../../services/api/criticalApi'
@@ -212,7 +213,7 @@ export default function ReceiverPortalPage() {
   const listPagination = usePagination(items, 10)
 
   return (
-    <div style={{ padding: 24 }}>
+    <PageContainer padding={24}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <ShieldAlert size={22} style={{ color: '#dc2626' }} />
@@ -222,21 +223,15 @@ export default function ReceiverPortalPage() {
         <Button icon={<RefreshCw size={14} />} onClick={() => void refresh()} loading={loading}>{t('receiverPortal.refresh')}</Button>
       </div>
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}>
-          <Card size="small"><Statistic title={t('receiverPortal.pendingNotifications')} value={pendingCount} valueStyle={{ color: '#dc2626' }} prefix={<Bell size={14} />} /></Card>
-        </Col>
-        <Col span={6}>
-          <Card size="small"><Statistic title={t('receiverPortal.todayNotifications')} value={items.length} prefix={<ShieldAlert size={14} />} /></Card>
-        </Col>
-        <Col span={12}>
-          <Card size="small">
-            <div style={{ fontSize: 12, color: '#64748b' }}>
-              {t('receiverPortal.sourceHint')}
-            </div>
-          </Card>
-        </Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('receiverPortal.pendingNotifications')} value={pendingCount} color="error" icon={<Bell size={14} />} />
+        <StatCard title={t('receiverPortal.todayNotifications')} value={items.length} icon={<ShieldAlert size={14} />} />
+        <Card size="small">
+          <div style={{ fontSize: 12, color: '#64748b' }}>
+            {t('receiverPortal.sourceHint')}
+          </div>
+        </Card>
+      </StatCardGrid>
 
       {loadError && <Alert type="error" showIcon message={loadError} style={{ marginBottom: 16 }} />}
 
@@ -277,6 +272,6 @@ export default function ReceiverPortalPage() {
           </div>
         )}
       </Modal>
-    </div>
+    </PageContainer>
   )
 }

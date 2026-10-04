@@ -1,13 +1,14 @@
 // [G005 W8-Report] 签名与证书中心 — 证书注册表 / CRL / 报告验签
 // 数据源: certificateApi (后端 /report-signing/*, MSW 确定性回退)
 import React, { useCallback, useEffect, useState } from 'react'
-import { Alert, Button, Card, Descriptions, Input, message, Modal, Row, Col, Select, Space, Statistic, Table, Tag, Typography } from 'antd'
+import { Alert, Button, Card, Descriptions, Input, message, Modal, Row, Col, Select, Space, Table, Tag, Typography } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { ShieldCheck, Ban, RefreshCw, BadgeCheck, FileSearch, KeyRound, RotateCw, Search } from 'lucide-react'
 import { certificateApi, type CrlViewDto, type SignatureStatsDto } from '../../services/api/certificateApi'
 import { hsmApi, ocspApi, type OcspResponseDto } from '../../services/api/w13SecurityApi'
 import type { ReportCertificateDto, ReportSignatureVerificationDto } from '../../services/api/reportApi'
 import { LoadingBanner, ErrorBanner } from '../../components/feedback'
+import { StatCard, StatCardGrid } from '../../components/common'
 import { t } from '../../i18n/appI18n'
 
 const { Text } = Typography
@@ -175,12 +176,12 @@ export const CertificateCenterPage: React.FC = () => {
 
       {error && <ErrorBanner message={error} />}
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('w8Report.stat.total')} value={stats?.total ?? 0} prefix={<KeyRound size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w8Report.stat.valid')} value={stats?.valid ?? 0} valueStyle={{ color: '#16a34a' }} prefix={<BadgeCheck size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w8Report.stat.superseded')} value={stats?.superseded ?? 0} valueStyle={{ color: '#d97706' }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w8Report.stat.revoked')} value={stats?.revoked ?? 0} valueStyle={{ color: '#dc2626' }} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('w8Report.stat.total')} value={stats?.total ?? 0} icon={<KeyRound size={16} />} />
+        <StatCard title={t('w8Report.stat.valid')} value={stats?.valid ?? 0} color="success" icon={<BadgeCheck size={16} />} />
+        <StatCard title={t('w8Report.stat.superseded')} value={stats?.superseded ?? 0} color="warning" icon={<RotateCw size={16} />} />
+        <StatCard title={t('w8Report.stat.revoked')} value={stats?.revoked ?? 0} color="error" icon={<Ban size={16} />} />
+      </StatCardGrid>
 
       <Row gutter={16}>
         <Col span={16}>

@@ -16,6 +16,7 @@ import { EmptyState } from '../../components/common/EmptyState'
 import { AppText } from '../../components/common/AppText'
 import { VirtualTable } from '../../components/common/VirtualTable'
 import { t } from '../../i18n/appI18n'
+import { PageContainer } from '../../components/common'
 
 const STATUS_META: Record<string, { color: string; label: string }> = {
   sent: { color: 'blue', label: 'sent' },
@@ -182,7 +183,7 @@ const DicomSharePage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: '#f5f7fa', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <PageHeader
         icon={<Share2 size={20} color="#2563eb" />}
         title={t('dicomShare.pageTitle')}
@@ -268,7 +269,7 @@ const DicomSharePage: React.FC = () => {
           <EmptyState description={t('dicomShare.noDetail')} />
         )}
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

@@ -10,7 +10,7 @@ import { Card, Col, Row, Table, Tag, Statistic, Tabs, Progress, Badge, Space, Ty
 import { Building2, MapPin, Activity, Database, Globe, Network, CheckCircle, AlertTriangle, XCircle, RefreshCw, Shield, Plus } from "lucide-react";
 import { useMemo, useEffect, useState, useCallback } from "react";
 import { AppEmpty } from "../components/feedback";
-import { ActionButton, ExportButton } from "../components/common";
+import { ActionButton, ExportButton, StatCard, StatCardGrid } from "../components/common";
 import { t } from "../i18n/appI18n";
 
 const {  Text } = Typography;
@@ -211,14 +211,14 @@ export default function MultiSiteDashboardPage() {
       {!error && usingFallback && <Alert type="info" showIcon message={t('multiSiteDashboard.dataSourceDemo')} style={{ marginBottom: 16 }} />}
       {!error && !usingFallback && !loading && <Alert type="success" showIcon message={t('multiSiteDashboard.dataSourceReal')} style={{ marginBottom: 16 }} />}
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card><Statistic title={t('multiSiteDashboard.statTotalSites')} value={sites.length} prefix={<Building2 size={16} />} styles={{ content: {  color: "#1e40af"  } }} loading={loading} /></Card></Col>
-        <Col span={4}><Card><Statistic title={t('multiSiteDashboard.statOnline')} value={activeCount} prefix={<CheckCircle size={16} color="#10b981" />} styles={{ content: {  color: "#10b981"  } }} suffix={`/ ${sites.length}`} loading={loading} /></Card></Col>
-        <Col span={4}><Card><Statistic title={t('multiSiteDashboard.statTotalStudies')} value={totalStudies} styles={{ content: {  color: "#0891b2"  } }} loading={loading} /></Card></Col>
-        <Col span={4}><Card><Statistic title={t('multiSiteDashboard.statTotalPatients')} value={totalPatients} styles={{ content: {  color: "#7c3aed"  } }} loading={loading} /></Card></Col>
-        <Col span={4}><Card><Statistic title={t('multiSiteDashboard.statTotalUsers')} value={totalUsers} styles={{ content: {  color: "#d97706"  } }} loading={loading} /></Card></Col>
-        <Col span={4}><Card><Statistic title={t('multiSiteDashboard.statTotalStorage')} value={totalStorage.toLocaleString()} prefix={<Database size={16} />} styles={{ content: {  color: "#dc2626"  } }} loading={loading} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('multiSiteDashboard.statTotalSites')} value={sites.length} icon={<Building2 size={18} />} color="#1e40af" loading={loading} />
+        <StatCard title={t('multiSiteDashboard.statOnline')} value={activeCount} icon={<CheckCircle size={18} />} color="#10b981" suffix={`/ ${sites.length}`} loading={loading} />
+        <StatCard title={t('multiSiteDashboard.statTotalStudies')} value={totalStudies} color="#0891b2" loading={loading} />
+        <StatCard title={t('multiSiteDashboard.statTotalPatients')} value={totalPatients} color="#7c3aed" loading={loading} />
+        <StatCard title={t('multiSiteDashboard.statTotalUsers')} value={totalUsers} color="warning" loading={loading} />
+        <StatCard title={t('multiSiteDashboard.statTotalStorage')} value={totalStorage.toLocaleString()} icon={<Database size={18} />} color="error" loading={loading} />
+      </StatCardGrid>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={16}>

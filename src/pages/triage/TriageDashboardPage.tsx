@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import {
-  Table, Button, Tag, Modal, Select, message, Card, Row, Col, Statistic,
+  Table, Button, Tag, Modal, Select, message, Card, Row, Col,
   Space, Descriptions, Progress, Typography, Tooltip, Badge, Input, InputNumber, Alert,
 } from 'antd'
 import { Siren, UserCheck, Clock, AlertTriangle, RefreshCw, Filter, Activity } from 'lucide-react'
 import { triageApi, type TriagePendingItem, type TriageScoreResult, type TriageFactor, type VitalSigns } from '../../services/api/triageApi'
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
 import { usePagination } from '../../hooks/usePagination'
 import { t } from '../../i18n/appI18n'
 
@@ -185,6 +186,7 @@ const TriageDashboardPage: React.FC = () => {
     if (score >= 6) return 'gold'
     return 'green'
   }
+  const statColor = (c: string) => (c === 'red' ? 'error' : c === 'orange' || c === 'gold' ? 'warning' : 'success')
 
   const columns = [
     {
@@ -306,7 +308,7 @@ const TriageDashboardPage: React.FC = () => {
   const completedCount = items.filter(i => i.status === 'COMPLETED').length
 
   return (
-    <div style={{ padding: 24, minHeight: '100vh', background: '#f5f5f5' }}>
+    <PageContainer padding={24} data-testid="triage-dashboard-page">
       <Card style={{ marginBottom: 16 }}>
         <Space style={{ marginBottom: 16 }}>
           <Siren size={24} color="#ef4444" />
@@ -316,28 +318,12 @@ const TriageDashboardPage: React.FC = () => {
         <Text type="secondary">{t('triage.subtitle')}</Text>
       </Card>
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}>
-          <Card>
-            <Statistic title={t('triage.statPending')} value={pendingCount} styles={{ content: {  color: '#2563eb'  } }} prefix={<Clock size={16} />} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic title={t('triage.levelCritical')} value={criticalCount} styles={{ content: {  color: '#cf1322'  } }} prefix={<AlertTriangle size={16} />} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic title={t('triage.levelUrgent')} value={urgentCount} styles={{ content: {  color: '#fa8c16'  } }} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic title={t('triage.statusCompleted')} value={completedCount} styles={{ content: {  color: '#52c41a'  } }} />
-          </Card>
-        </Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('triage.statPending')} value={pendingCount} icon={<Clock size={18} />} color="primary" />
+        <StatCard title={t('triage.levelCritical')} value={criticalCount} icon={<AlertTriangle size={18} />} color="error" />
+        <StatCard title={t('triage.levelUrgent')} value={urgentCount} icon={<Siren size={18} />} color="warning" />
+        <StatCard title={t('triage.statusCompleted')} value={completedCount} icon={<UserCheck size={18} />} color="success" />
+      </StatCardGrid>
 
       <Card
         title={
@@ -387,24 +373,18 @@ const TriageDashboardPage: React.FC = () => {
 
       {scoreResult && (
         <Card title={t('triage.scoreResultTitle')} style={{ marginTop: 16 }}>
-          <Row gutter={16}>
-            <Col span={6}>
-              <Statistic title={t('triage.totalScore')} value={scoreResult.score} styles={{ content: {  color: scoreColor(scoreResult.score)  } }} />
-            </Col>
-            <Col span={6}>
-              <Statistic title={t('triage.grade')} value={t(levelLabel[scoreResult.level] ?? scoreResult.level)} styles={{ content: {  color: levelColor[scoreResult.level]  } }} />
-            </Col>
-            <Col span={12}>
-              <Text strong>{t('triage.scoreFactors')}</Text>
-              {scoreResult.factors.map((f: TriageFactor) => (
-                <div key={f.name} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-                  <Text style={{ width: 100, fontSize: 13 }}>{f.name}</Text>
-                  <Progress percent={Math.min((f.contribution / 10) * 100, 100)} size="small" style={{ flex: 1 }} />
-                  <Tag color={scoreColor(f.contribution)}>{f.contribution}</Tag>
-                </div>
-              ))}
-            </Col>
-          </Row>
+          <StatCardGrid minWidth={180} gap={16} style={{ marginBottom: 12 }}>
+            <StatCard title={t('triage.totalScore')} value={scoreResult.score} color={statColor(scoreColor(scoreResult.score))} />
+            <StatCard title={t('triage.grade')} value={t(levelLabel[scoreResult.level] ?? scoreResult.level)} color={statColor(levelColor[scoreResult.level] ?? 'green')} />
+          </StatCardGrid>
+          <Text strong>{t('triage.scoreFactors')}</Text>
+          {scoreResult.factors.map((f: TriageFactor) => (
+            <div key={f.name} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+              <Text style={{ width: 100, fontSize: 13 }}>{f.name}</Text>
+              <Progress percent={Math.min((f.contribution / 10) * 100, 100)} size="small" style={{ flex: 1, margin: 0 }} />
+              <Tag color={scoreColor(f.contribution)}>{f.contribution}</Tag>
+            </div>
+          ))}
         </Card>
       )}
 
@@ -507,7 +487,7 @@ const TriageDashboardPage: React.FC = () => {
           </div>
         )}
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

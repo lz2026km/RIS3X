@@ -5,9 +5,6 @@ import {
   Table,
   Tag,
   Space,
-  Row,
-  Col,
-  Statistic,
   Button,
   Upload,
   message,
@@ -15,6 +12,7 @@ import {
   Alert,
   Typography,
 } from "antd";
+import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
 import { UploadCloud, CheckCircle, Database, RefreshCw } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import { t } from "../../i18n/appI18n";
@@ -100,7 +98,7 @@ const StowRsPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <UploadCloud size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t("w9d.stowRs.title")}</span>
@@ -113,27 +111,19 @@ const StowRsPage: React.FC = () => {
           {t("w9d.stowRs.refresh")}
         </Button>
       </Space>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title={t("w9d.stowRs.statStored")}
-              value={instances.length}
-              prefix={<Database size={16} />}
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title={t("w9d.stowRs.statSuccess")}
-              value={instances.length}
-              prefix={<CheckCircle size={16} />}
-              styles={{ content: {  color: "#52c41a"  } }}
-            />
-          </Card>
-        </Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard
+          title={t("w9d.stowRs.statStored")}
+          value={instances.length}
+          icon={<Database size={16} />}
+        />
+        <StatCard
+          title={t("w9d.stowRs.statSuccess")}
+          value={instances.length}
+          icon={<CheckCircle size={16} />}
+          color="success"
+        />
+      </StatCardGrid>
       {error && (
         <Alert
           type="error"
@@ -174,7 +164,7 @@ const StowRsPage: React.FC = () => {
           />
         </Spin>
       </Card>
-    </div>
+    </PageContainer>
   );
 };
 

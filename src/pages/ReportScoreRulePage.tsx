@@ -21,6 +21,7 @@ import { reportQualityApi } from '../services/api';
 import { LoadingBanner, ErrorBanner, AppEmpty } from '../components/feedback';
 import { t } from '../i18n/appI18n';
 import ReportReEvaluateSection from './ReportReEvaluateSection';
+import { StatCard } from '../components/common';
 import { message } from 'antd';
 
 // ============================================================
@@ -325,21 +326,12 @@ export default function ReportScoreRulePage() {
 // ============================================================
 // KPI 卡片
 // ============================================================
-const KpiCard: React.FC<{ icon: any; label: string; value: number | string; color: string }> = ({ icon: Icon, label, value, color }) => (
-  <div style={{
-    background: 'var(--bg-card)', padding: 10, borderRadius: 8, border: '1px solid var(--border-color)',
-    display: 'flex', alignItems: 'center', gap: 8,
-  }}>
-    <div style={{
-      width: 32, height: 32, borderRadius: 6,
-      background: `${color}15`, color: color,
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-    }}>
-      <Icon size={16} />
-    </div>
-    <div>
-      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</div>
-      <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>{value}</div>
-    </div>
-  </div>
-);
+const KpiCard: React.FC<{ icon: any; label: string; value: number | string; color: string }> = ({ icon: Icon, label, value, color }) => {
+  const c = ({
+    '#dc2626': 'error', '#ef4444': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
+    '#f59e0b': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
+    '#16a34a': 'success', '#22c55e': 'success', '#52c41a': 'success', '#10b981': 'success',
+    '#2563eb': 'primary', '#1890ff': 'primary', '#1d4ed8': 'primary',
+  } as Record<string, string>)[color] ?? color;
+  return <StatCard title={label} value={value} icon={<Icon size={16} />} color={c} />;
+};

@@ -1,10 +1,11 @@
 ﻿// [W3-2] DIMSE 上传: 真实文件读取 + dicomDimseApi.upload 调用 + 分阶段进度 + 结果列表
 // [W3-C] 刷新按钮: 真实刷新 — 上传记录持久化到 localStorage, 刷新时从存储重新加载
 import React, { useEffect, useState } from 'react';
-import { Card, Upload, Button, message, Table, Tag, Space, Alert, Typography, Progress, Select, Popconfirm, Empty, Statistic, Row, Col } from 'antd';
+import { Card, Upload, Button, message, Table, Tag, Space, Alert, Typography, Progress, Select, Popconfirm, Empty } from 'antd';
 import { RefreshCw, Upload as UploadIcon, Trash2 } from 'lucide-react';
 import { dicomDimseApi } from '../../services/api/dicomApi';
 import { t } from '../../i18n/appI18n';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 
 const destOptions = () => [
   { value: 's3', label: t('dimseUpload.destS3') },
@@ -147,7 +148,7 @@ export const DimseUploadPage: React.FC = () => {
   const failCount = records.filter(r => r.status === 'FAIL').length;
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <UploadIcon style={{ fontSize: 20, color: '#2563eb' }} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dimseUpload.title')}</span>
@@ -159,12 +160,12 @@ export const DimseUploadPage: React.FC = () => {
         showIcon
         style={{ marginBottom: 16 }}
       />
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('dimseUpload.statTotal')} value={records.length} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('dimseUpload.statSuccess')} value={successCount} valueStyle={{ color: '#52c41a' }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('dimseUpload.statFail')} value={failCount} valueStyle={{ color: '#ff4d4f' }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('dimseUpload.statDataVolume')} value={records.reduce((s, r) => s + r.sizeBytes, 0) / 1024} precision={1} suffix="KB" /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('dimseUpload.statTotal')} value={records.length} color="primary" />
+        <StatCard title={t('dimseUpload.statSuccess')} value={successCount} color="success" />
+        <StatCard title={t('dimseUpload.statFail')} value={failCount} color="error" />
+        <StatCard title={t('dimseUpload.statDataVolume')} value={records.reduce((s, r) => s + r.sizeBytes, 0) / 1024} precision={1} suffix="KB" color="primary" />
+      </StatCardGrid>
       <Card size="small" title={t('dimseUpload.cardUpload')}>
         <Space direction="vertical" style={{ width: '100%' }}>
           <Space wrap>
@@ -204,7 +205,7 @@ export const DimseUploadPage: React.FC = () => {
           locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('dimseUpload.emptyText')} /> }}
         />
       </Card>
-    </div>
+    </PageContainer>
   );
 };
 

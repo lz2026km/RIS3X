@@ -3,10 +3,11 @@
 import { occupancyApi } from '../../services/api';
 import { OccupancyQueueEntry, OccupancyRoom, OccupancyTrendPoint, RoomStatusValue } from '../../services/api'
 import RoomOccupancyExtendedSection from './RoomOccupancyExtendedSection';
-import { Card, Space, Tag, Button, Row, Col, Statistic, Table, Tooltip, message, Select, Alert, Spin } from 'antd';
+import { Card, Space, Tag, Button, Row, Col, Table, Tooltip, message, Select, Alert, Spin } from 'antd';
 import { LayoutDashboard, Users, Clock, TrendingUp, AlertTriangle, Circle, RefreshCw } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { t } from '../../i18n/appI18n';
+import { StatCard, StatCardGrid } from '../../components/common';
 
 const STATUS_META: Record<string, { color: string; label: string }> = {
   idle: { color: '#52c41a', label: '空闲' },
@@ -110,12 +111,12 @@ export const RoomOccupancyPage: React.FC = () => {
           description={error} action={<Button size="small" onClick={() => void refresh()}><RefreshCw size={14} /> {t('roomOccupancy.retry')}</Button>} />
       )}
 
-      <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('roomOccupancy.totalRooms')} value={total} suffix={`间 · 占用率 ${rate}%`} prefix={<LayoutDashboard size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('roomOccupancy.occupied')} value={occupied} styles={{ content: { color: '#2563eb' } }} prefix={<Users size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('roomOccupancy.idle')} value={idle} styles={{ content: { color: '#52c41a' } }} prefix={<Circle size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('roomOccupancy.fault')} value={fault} styles={{ content: { color: fault ? '#ff4d4f' : undefined } }} prefix={<AlertTriangle size={16} />} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('roomOccupancy.totalRooms')} value={total} suffix={`间 · 占用率 ${rate}%`} icon={<LayoutDashboard size={16} />} />
+        <StatCard title={t('roomOccupancy.occupied')} value={occupied} color="primary" icon={<Users size={16} />} />
+        <StatCard title={t('roomOccupancy.idle')} value={idle} color="success" icon={<Circle size={16} />} />
+        <StatCard title={t('roomOccupancy.fault')} value={fault} color={fault ? 'error' : 'primary'} icon={<AlertTriangle size={16} />} />
+      </StatCardGrid>
 
       <Row gutter={[16, 16]}>
         <Col span={16}>

@@ -14,6 +14,7 @@ import {
   type SecondReadStatsData,
   type SecondReadSeverity,
 } from '../../services/api/aiSecondReadApi'
+import { StatCard, StatCardGrid } from '../../components/common'
 import { useAuth } from '../../hooks/useAuth'
 import { t } from '../../i18n/appI18n'
 
@@ -187,12 +188,12 @@ const SecondReadPanel: React.FC = () => {
         extra={<Button type="primary" icon={<ClipboardCheck size={14} />} onClick={() => setAnalyzeOpen(true)}>{t('secondRead.newTask')}</Button>}
       >
         {error && !loading && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
-        <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={6}><Statistic title={t('secondRead.statTotal')} value={stats?.total ?? 0} prefix={<Activity size={15} />} /></Col>
-          <Col span={6}><Statistic title={t('secondRead.statAvgRisk')} value={stats?.avgRiskScore ?? 0} suffix="/ 100" /></Col>
-          <Col span={6}><Statistic title={t('secondRead.statOpenRisk')} value={stats?.openRiskItems ?? 0} valueStyle={{ color: '#ef4444' }} /></Col>
-          <Col span={6}><Statistic title={t('secondRead.statAppended')} value={stats?.appendedCount ?? 0} prefix={<FilePlus2 size={15} />} /></Col>
-        </Row>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+          <StatCard title={t('secondRead.statTotal')} value={stats?.total ?? 0} icon={<Activity size={15} />} />
+          <StatCard title={t('secondRead.statAvgRisk')} value={stats?.avgRiskScore ?? 0} suffix="/ 100" />
+          <StatCard title={t('secondRead.statOpenRisk')} value={stats?.openRiskItems ?? 0} color="error" />
+          <StatCard title={t('secondRead.statAppended')} value={stats?.appendedCount ?? 0} icon={<FilePlus2 size={15} />} />
+        </StatCardGrid>
         <Table
           rowKey="id" dataSource={results} columns={columns} size="small" loading={loading}
           pagination={{ pageSize: 8 }} scroll={{ x: 'max-content' }}

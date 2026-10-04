@@ -1,11 +1,12 @@
 // [v3.0.6.8-61] FHIR Server 集成管理
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Space, Tag, Button, Table, Tabs, Row, Col, Statistic, message, Input, Descriptions, Modal, Form, Select, Alert } from 'antd';
+import { Card, Space, Tag, Button, Table, Tabs, message, Input, Descriptions, Modal, Form, Select, Alert } from 'antd';
 import { Globe, Send, Search, RefreshCw, Plus } from 'lucide-react';
 import { fhirApi } from '../../services/api/fhirApi';
 import { api } from '../../services/api/client';
 import { ErrorBanner } from '../../components/feedback';
 import { t } from '../../i18n/appI18n';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 
 const { TextArea } = Input;
 
@@ -108,7 +109,7 @@ export const FhirServerPage: React.FC = () => {
   const resourceTypes = ['Patient', 'Observation', 'DiagnosticReport', 'Practitioner', 'ImagingStudy', 'Bundle'];
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <Globe size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fhirServer.title')}</span>
@@ -123,12 +124,12 @@ export const FhirServerPage: React.FC = () => {
         <ErrorBanner message={loadError} onRetry={() => void loadResources(resourceType)} retryLabel={t('w7demo.retry')} />
       )}
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card><Statistic title={t('fhirServer.capability')} value="1" /></Card></Col>
-        <Col span={4}><Card><Statistic title={t('fhirServer.resourceType')} value="5" /></Card></Col>
-        <Col span={4}><Card><Statistic title={t('fhirServer.interaction')} value="4" suffix={t('fhirServer.kinds')} /></Card></Col>
-        <Col span={4}><Card><Statistic title={t('fhirServer.oauth2')} value="SMART" /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('fhirServer.capability')} value="1" color="primary" icon={<Globe size={18} />} />
+        <StatCard title={t('fhirServer.resourceType')} value="5" color="primary" icon={<Search size={18} />} />
+        <StatCard title={t('fhirServer.interaction')} value="4" suffix={t('fhirServer.kinds')} color="primary" icon={<Send size={18} />} />
+        <StatCard title={t('fhirServer.oauth2')} value="SMART" color="info" />
+      </StatCardGrid>
 
       <Tabs activeKey={tab} onChange={setTab} type="card"
         items={[
@@ -195,7 +196,7 @@ export const FhirServerPage: React.FC = () => {
           <Form.Item label={t('fhirServer.jsonBody')}><TextArea rows={8} placeholder='{"resourceType":"Patient","name":[{"family":"张","given":["伟"]}],...}' /></Form.Item>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 export default FhirServerPage;

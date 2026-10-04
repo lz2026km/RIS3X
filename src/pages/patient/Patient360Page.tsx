@@ -23,6 +23,7 @@ import { followupApi, type FollowUpPlan } from '../../services/api/followupApi'
 import { lesionTrackingApi, type TrackedLesion, type LesionStats } from '../../services/api/lesionTrackingApi'
 import { financeApi, type InvoiceDto } from '../../services/api/financeApi'
 import { t } from '../../i18n/appI18n'
+import { PageContainer } from '../../components/common'
 
 interface ExamView {
   id: string
@@ -386,7 +387,7 @@ export default function Patient360Page() {
   }
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Card style={{ marginBottom: 16, borderRadius: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <div
@@ -1026,7 +1027,7 @@ export default function Patient360Page() {
           )
         })()}
       </Card>
-    </div>
+    </PageContainer>
   )
 }
 

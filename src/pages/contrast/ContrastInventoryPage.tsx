@@ -6,8 +6,9 @@ import dayjs from 'dayjs'
 import { deviceMgmtApi, type ContrastInventory } from '../../services/api/deviceMgmtApi'
 import { t } from '../../i18n/appI18n'
 import {
-  Card, Table, Tag, Space, Typography, Row, Col, Statistic, Button, Modal, Form, Input, InputNumber, Select, DatePicker, Alert, Spin, Empty, message,
+  Card, Table, Tag, Space, Typography, Row, Col, Button, Modal, Form, Input, InputNumber, Select, DatePicker, Alert, Spin, Empty, message,
 } from 'antd'
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
 import { Package, Plus, MinusCircle, Archive, Search, RefreshCw, PackagePlus } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { AlertTriangle, Inbox } from 'lucide-react'
@@ -171,7 +172,7 @@ const ContrastInventoryPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Card size="small" style={{ marginBottom: 16, background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', border: 'none' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
           <Space>
@@ -202,12 +203,12 @@ const ContrastInventoryPage: React.FC = () => {
         />
       )}
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('contrastInv.statBatches')} value={inventory.length} prefix={<Package size={14} />} loading={loading} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('contrastInv.statTotalQty')} value={totalQty} suffix="ml" loading={loading} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('contrastInv.statLow')} value={lowItems.length} loading={loading} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('contrastInv.statExpired')} value={expiredItems.length} loading={loading} styles={{ content: { color: '#ff4d4f' } }} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('contrastInv.statBatches')} value={inventory.length} icon={<Package size={14} />} loading={loading} />
+        <StatCard title={t('contrastInv.statTotalQty')} value={totalQty} suffix="ml" loading={loading} />
+        <StatCard title={t('contrastInv.statLow')} value={lowItems.length} loading={loading} color="warning" />
+        <StatCard title={t('contrastInv.statExpired')} value={expiredItems.length} loading={loading} color="error" />
+      </StatCardGrid>
 
       <Card
         size="small"
@@ -292,7 +293,7 @@ const ContrastInventoryPage: React.FC = () => {
           />
         )}
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

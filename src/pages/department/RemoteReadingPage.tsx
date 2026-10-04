@@ -6,9 +6,10 @@ import { examApi } from '../../services/api/examApi'
 import { remoteReadingApi, type RemoteReadingSession, type RemoteReadingStats } from '../../services/api/remoteReadingApi'
 import type { ExamDto } from '../../types/dto'
 import {
-  Card, Table, Tag, Space, Typography, Row, Col, Statistic, Button, Tabs, Select,
+  Card, Table, Tag, Space, Typography, Button, Tabs, Select,
   Modal, Form, Input, Alert, Spin, Empty, Tooltip, message,
 } from 'antd'
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
 import { Globe, Send, CheckCircle, Clock, UserPlus, PlayCircle, Undo2 } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
@@ -212,7 +213,7 @@ const RemoteReadingPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: '#f5f7fa', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Globe size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('remoteReading.title')}</span>
@@ -226,12 +227,12 @@ const RemoteReadingPage: React.FC = () => {
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('remoteReading.retry')}</Button>} />
       )}
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('remoteReading.statTotal')} value={stats?.totalSessions ?? sessions.length} prefix={<Globe size={16} />} loading={loading} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('remoteReading.statusPending')} value={stats?.pendingCount ?? 0} prefix={<Clock size={16} />} loading={loading} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('remoteReading.statusCompleted')} value={stats?.completedCount ?? 0} prefix={<CheckCircle size={16} />} loading={loading} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('remoteReading.statAvgDuration')} value={stats?.avgCompletionHours ?? 0} suffix="h" prefix={<Send size={16} />} loading={loading} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('remoteReading.statTotal')} value={stats?.totalSessions ?? sessions.length} icon={<Globe size={16} />} loading={loading} />
+        <StatCard title={t('remoteReading.statusPending')} value={stats?.pendingCount ?? 0} icon={<Clock size={16} />} loading={loading} />
+        <StatCard title={t('remoteReading.statusCompleted')} value={stats?.completedCount ?? 0} icon={<CheckCircle size={16} />} color="success" loading={loading} />
+        <StatCard title={t('remoteReading.statAvgDuration')} value={stats?.avgCompletionHours ?? 0} suffix="h" icon={<Send size={16} />} loading={loading} />
+      </StatCardGrid>
 
       <Card
         size="small"
@@ -295,7 +296,7 @@ const RemoteReadingPage: React.FC = () => {
         </div>
         <Input.TextArea rows={6} placeholder={t('remoteReading.reportPlaceholder')} value={reportText} onChange={(e) => setReportText(e.target.value)} />
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

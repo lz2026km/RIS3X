@@ -9,7 +9,6 @@ import {
   Select,
   Row,
   Col,
-  Statistic,
   Form,
   InputNumber,
   message,
@@ -32,6 +31,7 @@ import {
 import { dentalApi } from "../../services/api/dentalApi";
 import { ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
+import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
 
 const DESIGN_TYPES = [
   { value: "inlay", label: t("dentalCad.designType.inlay") },
@@ -305,7 +305,7 @@ export const DentalCadPage: React.FC = () => {
 
   if (mode === "list") {
     return (
-      <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "100vh" }}>
+      <PageContainer padding={24}>
         <Space style={{ marginBottom: 16 }}>
           <Pen size={20} color="#2563eb" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>
@@ -316,43 +316,12 @@ export const DentalCadPage: React.FC = () => {
           <Tag color="purple">{t('dentalCad.tag3Shape')}</Tag>
         </Space>
         {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t("w9.states.retry")} />}
-        <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={4}>
-            <Card size="small">
-              <Statistic title={t('dentalCad.statDesigns')} value={designs.length} />
-            </Card>
-          </Col>
-          <Col span={4}>
-            <Card size="small">
-              <Statistic
-                title={t('dentalCad.statPendingMill')}
-                value={
-                  designs.filter((d: any) => d.status === "designed").length
-                }
-              />
-            </Card>
-          </Col>
-          <Col span={4}>
-            <Card size="small">
-              <Statistic
-                title={t('dentalCad.statCemented')}
-                value={
-                  designs.filter((d: any) => d.status === "cemented").length
-                }
-                styles={{ content: {  color: "#52c41a"  } }}
-              />
-            </Card>
-          </Col>
-          <Col span={4}>
-            <Card size="small">
-              <Statistic
-                title={t('dentalCad.statMonthlyOutput')}
-                prefix="¥"
-                value={designs.length * 2500}
-              />
-            </Card>
-          </Col>
-        </Row>
+        <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+          <StatCard title={t('dentalCad.statDesigns')} value={designs.length} icon={<Pen size={16} />} />
+          <StatCard title={t('dentalCad.statPendingMill')} value={designs.filter((d: any) => d.status === "designed").length} />
+          <StatCard title={t('dentalCad.statCemented')} value={designs.filter((d: any) => d.status === "cemented").length} color="success" />
+          <StatCard title={t('dentalCad.statMonthlyOutput')} prefix="¥" value={designs.length * 2500} />
+        </StatCardGrid>
         <Row gutter={16}>
           <Col span={8}>
             <Card size="small" title={t('dentalCad.newDesign')}>
@@ -479,12 +448,12 @@ export const DentalCadPage: React.FC = () => {
             </Card>
           </Col>
         </Row>
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div style={{ padding: 16, background: "var(--bg-card)", minHeight: "100vh" }}>
+    <PageContainer padding={16}>
       <Space style={{ marginBottom: 12 }}>
         <Button icon={<RotateCcw size={14} />} onClick={() => setMode("list")}>
           {t('dentalCad.backToList')}
@@ -770,7 +739,7 @@ export const DentalCadPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
-    </div>
+    </PageContainer>
   );
 };
 export default DentalCadPage;

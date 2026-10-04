@@ -4,6 +4,7 @@ import { Activity, Search, RefreshCw, Download, BarChart3 } from 'lucide-react'
 import { Inbox } from 'lucide-react'
 import { useState } from 'react'
 import { t } from '../../i18n/appI18n'
+import { PageContainer } from '../../components/common'
 
 export const RadiomicsFeaturePage: React.FC = () => {
   const [instanceId, setInstanceId] = useState('')
@@ -112,7 +113,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <BarChart3 size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('radiomics.title')}</span>
@@ -212,7 +213,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
           <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('radiomics.emptyHint')} />
         </Card>
       )}
-    </div>
+    </PageContainer>
   )
 }
 

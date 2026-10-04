@@ -13,6 +13,7 @@ import {
   Modal, Input, Select, Alert, Spin, Badge, Progress, Steps, Radio,
 } from 'antd'
 import { EmptyState } from '../../components/common/EmptyState'
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
 import { AlertTriangle, CheckCircle, Bell, ArrowUp, RefreshCw, Clock, Phone, MessageSquare, Search } from 'lucide-react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -301,7 +302,7 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
   const maxSev = Math.max(1, ...severityDist.map((s) => s.count))
 
   return (
-    <div style={{ padding: 24 }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <AlertTriangle size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{tr('criticalAlert.title')}</span>
@@ -321,14 +322,12 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
           action={<Button size="small" onClick={refresh}><RefreshCw size={14} /> {tr('criticalAlert.retry')}</Button>} />
       )}
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card><Statistic title={tr('criticalAlert.statTotal')} value={stats?.totalAlerts ?? alerts.length} prefix={<Bell size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title={tr('criticalAlert.statPending')} value={stats?.activeCount ?? pendingCount} styles={{ content: { color: '#ff4d4f' } }} /></Card></Col>
-        <Col span={6}><Card><Statistic title={tr('criticalAlert.statAcknowledged')} value={stats?.acknowledgedCount ?? 0} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col span={6}><Card>
-          <Statistic title={tr('criticalAlert.statAvgResponse')} value={stats?.avgResponseTimeMinutes ?? 0} suffix="min" prefix={<Clock size={14} />} />
-        </Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={tr('criticalAlert.statTotal')} value={stats?.totalAlerts ?? alerts.length} icon={<Bell size={16} />} />
+        <StatCard title={tr('criticalAlert.statPending')} value={stats?.activeCount ?? pendingCount} color="error" />
+        <StatCard title={tr('criticalAlert.statAcknowledged')} value={stats?.acknowledgedCount ?? 0} color="warning" />
+        <StatCard title={tr('criticalAlert.statAvgResponse')} value={stats?.avgResponseTimeMinutes ?? 0} suffix="min" icon={<Clock size={14} />} />
+      </StatCardGrid>
 
       {severityDist.length > 0 && (
         <Card size="small" title={tr('criticalAlert.severityDist')} style={{ marginBottom: 16 }}>
@@ -618,7 +617,7 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
           )}
         </Spin>
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

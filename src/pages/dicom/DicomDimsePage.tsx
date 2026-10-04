@@ -1,9 +1,19 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { Card, Tabs, Table, Button, Form, Input, Select, Upload, message, Tag, Space, Alert, InputNumber, Modal, Switch, Progress, Statistic, Row, Col } from 'antd'
+import { Card, Tabs, Table, Button, Form, Input, Select, Upload, message, Tag, Space, Alert, InputNumber, Modal, Switch, Progress } from 'antd'
 import { Send, Search, Upload as UploadIcon, ArrowRight, CheckCircle, XCircle, Radio, RefreshCw, Plus, Lock, Clock3, FileKey, Save, ListOrdered, Pause, Play, RotateCcw, Ban } from 'lucide-react'
 import { dicomDimseApi, type DicomTlsConfig, type MppsRecord, type TransferRecord, type TransferStats } from '../../services/api/dicomApi'
 import { usePagination } from '../../hooks/usePagination'
+import { PageContainer, StatCard, StatCardGrid } from '../../components/common'
 import { t } from '../../i18n/appI18n'
+
+const STAT_COLOR_MAP: Record<string, string> = {
+  '#cf1322': 'error', '#dc2626': 'error', '#f5222d': 'error', '#ff4d4f': 'error',
+  '#fa8c16': 'warning', '#faad14': 'warning', '#d97706': 'warning', '#ff7a45': 'warning',
+  '#52c41a': 'success', '#16a34a': 'success', '#059669': 'success',
+  '#1890ff': 'primary', '#2563eb': 'primary', '#1d4ed8': 'primary',
+  '#13c2c2': 'info',
+}
+const mapColor = (c?: string): string | undefined => (c ? STAT_COLOR_MAP[c.toLowerCase()] ?? c : c)
 
 const DIMSE_STATUS_LABEL: Record<string, string> = { SUCCESS: t('dicomDimse.statusSuccess') };
 
@@ -690,7 +700,7 @@ export const DicomDimsePage: React.FC = () => {
       label: <Space><ListOrdered />{t('dicomDimse.tabTransfers')}</Space>,
       children: (
         <>
-          <Row gutter={16} style={{ marginBottom: 16 }}>
+          <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
             {[
               { title: t('dicomDimse.statTotal'), value: transferStats?.total ?? 0, color: '#1e40af' },
               { title: t('dicomDimse.statActive'), value: transferStats?.activeCount ?? 0, color: '#0891b2' },
@@ -699,9 +709,9 @@ export const DicomDimsePage: React.FC = () => {
               { title: t('dicomDimse.statCompleted'), value: transferStats?.completed ?? 0, color: '#059669' },
               { title: t('dicomDimse.statSuccessRate'), value: transferStats?.successRate != null ? `${transferStats.successRate}%` : '-', color: '#7c3aed' },
             ].map(s => (
-              <Col span={4} key={s.title}><Card size="small"><Statistic title={s.title} value={s.value} valueStyle={{ color: s.color, fontSize: 18 }} /></Card></Col>
+              <StatCard key={s.title} title={s.title} value={s.value} color={mapColor(s.color)} size="sm" />
             ))}
-          </Row>
+          </StatCardGrid>
           <Card size="small" title={t('dicomDimse.transferQueueTitle')} extra={
             <Space>
               <Button size="small" icon={<RefreshCw size={14} />} onClick={() => void loadTransfers()} loading={transferLoading}>{t('dicomDimse.refresh')}</Button>
@@ -753,7 +763,7 @@ export const DicomDimsePage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <Radio size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dicomDimse.pageTitle')}</span>
@@ -878,7 +888,7 @@ export const DicomDimsePage: React.FC = () => {
           </div>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

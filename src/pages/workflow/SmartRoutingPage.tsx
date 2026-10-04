@@ -10,6 +10,7 @@ import {
   Row, Col, Statistic, Tabs, message, Alert, Progress, Popconfirm,
 } from 'antd'
 import { GitBranch, Plus, Edit3, History, RefreshCw, User, GraduationCap, Route, Trash2 } from 'lucide-react'
+import { StatCard, StatCardGrid } from '../../components/common'
 import React, { useState, useEffect, useCallback } from 'react'
 import { workflowApi } from '../../services/api/workflowApi'
 import { t } from '../../i18n/appI18n'
@@ -207,12 +208,12 @@ const SmartRoutingPage: React.FC = () => {
 
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={fetchAll}><RefreshCw size={14} /> {t('smartRouting.retry')}</Button>} />}
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('smartRouting.statRules')} value={rules.length} prefix={<GitBranch size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('smartRouting.statDoctors')} value={qualifications.length} prefix={<GraduationCap size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('smartRouting.statAssignments')} value={history.length} prefix={<History size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('smartRouting.statRulePriority')} value={rules.filter((r) => r.enabled).length} suffix={t('smartRouting.suffixEnabled')} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('smartRouting.statRules')} value={rules.length} icon={<GitBranch size={16} />} />
+        <StatCard title={t('smartRouting.statDoctors')} value={qualifications.length} icon={<GraduationCap size={16} />} />
+        <StatCard title={t('smartRouting.statAssignments')} value={history.length} icon={<History size={16} />} />
+        <StatCard title={t('smartRouting.statRulePriority')} value={rules.filter((r) => r.enabled).length} suffix={t('smartRouting.suffixEnabled')} />
+      </StatCardGrid>
 
       <Tabs
         activeKey={activeTab}

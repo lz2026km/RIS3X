@@ -6,8 +6,9 @@ import { aiDraftApi, type AiReportDraft, type ReportDraftStyle } from '../servic
 import { EmptyState } from '../components/common/EmptyState'
 import {
   Card, Form, Input, Select, Segmented, Button, Space, Typography, Tag, Spin,
-  Alert, message, List, Empty, Progress, Divider, Row, Col, Statistic, Tooltip,
+  Alert, message, List, Empty, Progress, Divider, Row, Col, Tooltip,
 } from 'antd'
+import { StatCard, StatCardGrid } from '../components/common'
 import { Sparkles, Copy, Check, History, RefreshCw, FileText, ClipboardPaste, BrainCircuit } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Inbox } from 'lucide-react'
@@ -254,23 +255,11 @@ const AIAssistPage: React.FC = () => {
               <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('aiAssist.emptyDraft')} />
             ) : (
               <>
-                <Row gutter={16} style={{ marginBottom: 12 }}>
-                  <Col span={8}>
-                    <Card size="small" styles={{ body: { padding: '8px 12px' } }}>
-                      <Statistic title={t('aiAssist.stat.confidence')} value={Math.round((draft.confidence ?? 0) * 100)} suffix="%" valueStyle={{ color: '#7c3aed', fontSize: 20 }} />
-                    </Card>
-                  </Col>
-                  <Col span={8}>
-                    <Card size="small" styles={{ body: { padding: '8px 12px' } }}>
-                      <Statistic title={t('aiAssist.stat.modelVersion')} value={draft.modelVersion || '-'} valueStyle={{ fontSize: 14 }} />
-                    </Card>
-                  </Col>
-                  <Col span={8}>
-                    <Card size="small" styles={{ body: { padding: '8px 12px' } }}>
-                      <Statistic title={t('aiAssist.stat.status')} value={draft.status} valueStyle={{ fontSize: 14, color: draft.status === 'ACCEPTED' ? '#52c41a' : '#faad14' }} />
-                    </Card>
-                  </Col>
-                </Row>
+                <StatCardGrid minWidth={140} gap={12} style={{ marginBottom: 12 }}>
+                  <StatCard size="sm" title={t('aiAssist.stat.confidence')} value={Math.round((draft.confidence ?? 0) * 100)} suffix="%" color="#7c3aed" />
+                  <StatCard size="sm" title={t('aiAssist.stat.modelVersion')} value={draft.modelVersion || '-'} />
+                  <StatCard size="sm" title={t('aiAssist.stat.status')} value={draft.status} color={draft.status === 'ACCEPTED' ? 'success' : 'warning'} />
+                </StatCardGrid>
                 <Divider style={{ margin: '8px 0' }} />
                 {draft.sections.map((s) => (
                   <div key={s.heading} style={{ marginBottom: 12, border: '1px solid var(--border-color)', borderRadius: 8, padding: 12, background: 'var(--bg-card)' }}>

@@ -7,8 +7,9 @@ import {
   type AdverseEvent, type RiskItem, type AdverseEventTrendItem,
 } from '../../services/api/safetyApi'
 import {
-  Card, Space, Tag, Row, Col, Statistic, Progress, Table, Badge, List, Segmented, Alert, Button, Empty, Tabs,
+  Card, Space, Tag, Row, Col, Progress, Table, Badge, List, Segmented, Alert, Button, Empty, Tabs,
 } from 'antd'
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
 import { Shield, AlertTriangle, Activity, Heart, RefreshCw } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Inbox } from 'lucide-react'
@@ -82,7 +83,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
   const trendWindow = range === 'today' ? trend.slice(-1) : range === 'week' ? trend.slice(-2) : trend
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary, #f5f7fa)', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Shield size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('psd.title')}</span>
@@ -98,12 +99,12 @@ const PatientSafetyDashboardPage: React.FC = () => {
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('psd.retry')}</Button>} />
       )}
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('psd.kpiScore')} value={loading ? 0 : safetyScore} suffix="/100" prefix={<Shield size={14} />} loading={loading} styles={{ content: { color: safetyScore >= 90 ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('psd.kpiOpen')} value={openCount} loading={loading} styles={{ content: { color: 'var(--color-warning-500, #f59e0b)' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('psd.kpiClosed')} value={closedCount} loading={loading} styles={{ content: { color: 'var(--color-success-500, #22c55e)' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('psd.kpiHighRisk')} value={highRiskCount} loading={loading} styles={{ content: { color: 'var(--color-error-500, #ef4444)' } }} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('psd.kpiScore')} value={loading ? 0 : safetyScore} suffix="/100" icon={<Shield size={14} />} loading={loading} color={safetyScore >= 90 ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)'} />
+        <StatCard title={t('psd.kpiOpen')} value={openCount} loading={loading} color="var(--color-warning-500, #f59e0b)" />
+        <StatCard title={t('psd.kpiClosed')} value={closedCount} loading={loading} color="var(--color-success-500, #22c55e)" />
+        <StatCard title={t('psd.kpiHighRisk')} value={highRiskCount} loading={loading} color="var(--color-error-500, #ef4444)" />
+      </StatCardGrid>
 
       <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
         <Col xs={24} lg={16}>
@@ -208,7 +209,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
           />
         )}
       </Card>
-    </div>
+    </PageContainer>
   )
 }
 

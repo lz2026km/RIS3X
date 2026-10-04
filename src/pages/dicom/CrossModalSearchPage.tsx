@@ -5,9 +5,10 @@
 import { crossModalApi } from '../../services/api'
 import type { CrossModalSearchResult, CrossModalSimilarResult } from '../../services/api/crossModalApi'
 import {
-  Card, Input, Row, Col, Typography, Space, Tag, Button, Empty, Spin, Alert, Select, Tabs, Statistic, message,
+  Card, Input, Row, Col, Typography, Space, Tag, Button, Empty, Spin, Alert, Select, Tabs, message,
 } from 'antd'
 import { EmptyState } from '../../components/common/EmptyState'
+import { PageContainer, StatCard, StatCardGrid } from '../../components/common'
 import { Search, ImageIcon, FileText, ScanSearch, ExternalLink, RefreshCw, DatabaseZap } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -178,7 +179,7 @@ const CrossModalSearchPage: React.FC = () => {
   const modalityColors: Record<string, string> = { CT: 'cyan', MR: 'purple', DX: 'orange', MG: 'pink', US: 'blue', DSA: 'red' }
 
   return (
-    <div style={{ padding: 24, background: '#f5f7fa', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
         <ScanSearch size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('crossModal.title')}</span>
@@ -309,14 +310,14 @@ const CrossModalSearchPage: React.FC = () => {
               )
             })}
           </Row>
-          <div style={{ marginTop: 16, display: 'flex', gap: 24 }}>
-            <Statistic title={t('crossModal.hitResults')} value={results.length} />
-            <Statistic title={t('crossModal.modalitiesInvolved')} value={new Set(results.map((r) => r.modality)).size} />
-            <Statistic title={t('crossModal.patientsInvolved')} value={new Set(results.map((r) => r.patientId)).size} />
-          </div>
+          <StatCardGrid minWidth={200} gap={16} style={{ marginTop: 16 }}>
+            <StatCard title={t('crossModal.hitResults')} value={results.length} />
+            <StatCard title={t('crossModal.modalitiesInvolved')} value={new Set(results.map((r) => r.modality)).size} />
+            <StatCard title={t('crossModal.patientsInvolved')} value={new Set(results.map((r) => r.patientId)).size} />
+          </StatCardGrid>
         </Card>
       )}
-    </div>
+    </PageContainer>
   )
 }
 

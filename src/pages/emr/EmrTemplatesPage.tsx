@@ -9,6 +9,7 @@ import { templatesApi } from '../../services/api/templatesApi';
 import { t } from '../../i18n/appI18n';
 import { StatCard, StatCardGrid } from '../../components/common/StatCard';
 import { ActionButton } from '../../components/common/ActionButton';
+import { PageContainer } from '../../components/common';
 
 const {  } = Input;
 
@@ -158,7 +159,7 @@ export const EmrTemplatesPage: React.FC = () => {
   const dentalTplCount = templates.filter((tpl: any) => tpl.category === 'Dental').length;
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
         <FileText size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('w9.emrTpl.title')}</span>
@@ -231,7 +232,7 @@ export const EmrTemplatesPage: React.FC = () => {
           <Form.Item name="sections" label={t('w9.emrTpl.sections')}><Input placeholder="主诉,现病史,检查所见,诊断,治疗计划" /></Form.Item>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 export default EmrTemplatesPage;

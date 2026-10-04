@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import {
-  Card, Row, Col, Select, Button, Tag, Statistic, Spin, message, Table, Modal, Form, Input,
+  Card, Row, Col, Select, Button, Tag, Spin, message, Table, Modal, Form, Input,
   InputNumber, Drawer, Timeline, Space, Alert, Popconfirm, Descriptions, Typography, Empty,
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
@@ -27,6 +27,7 @@ import {
   type LesionStats,
 } from '../../services/api/lesionTrackingApi'
 import type { PatientDto } from '../../types/dto'
+import { PageContainer, StatCard, StatCardGrid } from '../../components/common'
 import { t } from '../../i18n/appI18n'
 
 const { Text } = Typography
@@ -355,7 +356,7 @@ const LesionTrackingPage: React.FC = () => {
   )
 
   return (
-    <div style={{ padding: 16, background: '#0f172a', minHeight: '100vh', color: '#e2e8f0' }}>
+    <PageContainer background="dark" padding={16} style={{ color: '#e2e8f0' }}>
       <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
         <Col>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -378,7 +379,7 @@ const LesionTrackingPage: React.FC = () => {
       </Row>
 
       {/* 统计卡 */}
-      <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
+      <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 16 }}>
         {[
           { title: t('lesionTrack.statTotal'), value: stats?.total ?? 0, color: '#3b82f6' },
           { title: t('lesionTrack.statNew'), value: stats?.new ?? 0, color: '#f97316' },
@@ -386,22 +387,21 @@ const LesionTrackingPage: React.FC = () => {
           { title: t('lesionTrack.statStable'), value: stats?.stable ?? 0, color: '#3b82f6' },
           { title: t('lesionTrack.statDisappeared'), value: stats?.disappeared ?? 0, color: '#64748b' },
         ].map((s) => (
-          <Col key={s.title} xs={12} sm={8} md={4} lg={4}>
-            <Card size="small" style={{ background: '#111c33', border: '1px solid #1e2b45', borderRadius: 10 }}>
-              <Statistic title={<span style={{ fontSize: 12, color: '#94a3b8' }}>{s.title}</span>} value={s.value} valueStyle={{ color: s.color, fontSize: 26, fontWeight: 700 }} />
-            </Card>
-          </Col>
+          <StatCard
+            key={s.title}
+            title={<span style={{ fontSize: 12, color: '#94a3b8' }}>{s.title}</span>}
+            value={s.value}
+            color={s.color}
+            size="sm"
+          />
         ))}
-        <Col xs={12} sm={8} md={4} lg={4}>
-          <Card size="small" style={{ background: '#111c33', border: '1px solid #1e2b45', borderRadius: 10 }}>
-            <Statistic
-              title={<span style={{ fontSize: 12, color: '#94a3b8' }}>{t('lesionTrack.statShrunk')}</span>}
-              value={stats?.shrunk ?? 0}
-              valueStyle={{ color: '#22c55e', fontSize: 26, fontWeight: 700 }}
-            />
-          </Card>
-        </Col>
-      </Row>
+        <StatCard
+          title={<span style={{ fontSize: 12, color: '#94a3b8' }}>{t('lesionTrack.statShrunk')}</span>}
+          value={stats?.shrunk ?? 0}
+          color="#22c55e"
+          size="sm"
+        />
+      </StatCardGrid>
 
       {/* 患者选择 + 新建 */}
       <Card
@@ -699,7 +699,7 @@ const LesionTrackingPage: React.FC = () => {
           )}
         </Spin>
       </Drawer>
-    </div>
+    </PageContainer>
   )
 }
 

@@ -3,7 +3,7 @@
 // + 分割结果管理 (切换显示/删除/改标签/器官分类) + 测量联动 (体积→等效球直径→病灶追踪)
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
-  Card, Row, Col, Select, InputNumber, Button, Tag, Statistic, Spin, message, Empty, Slider, Space, Divider, Alert, Popconfirm, Modal, Input, Radio, Tooltip,
+  Card, Row, Col, Select, InputNumber, Button, Tag, Spin, message, Empty, Slider, Space, Divider, Alert, Popconfirm, Modal, Input, Radio, Tooltip,
 } from 'antd'
 import {
   Scan, Box, Activity, History, Trash2, Eye, EyeOff, PenLine, Ruler, MousePointerClick, Layers, Database, Boxes,
@@ -24,6 +24,7 @@ import {
   type SeedPoint,
 } from '../../services/api/segmentationV2Api'
 import { decodeInt16Base64, applyWWL } from './volumeReal'
+import { PageContainer, StatCard, StatCardGrid } from '../../components/common'
 import { t } from '../../i18n/appI18n'
 
 const ALGORITHMS: Array<{ value: SegmentationV2Algorithm; labelKey: string; color: string; descKey: string }> = [
@@ -532,7 +533,7 @@ const SegmentationPage: React.FC = () => {
   const clampedIndex = Math.max(0, Math.min(planeTotal - 1, sliceIndex))
 
   return (
-    <div style={{ padding: 16, background: '#f0f2f5', minHeight: '100vh' }}>
+    <PageContainer padding={16}>
       <Space style={{ marginBottom: 12 }} wrap>
         <Scan size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('segmentationV2.title')}</span>
@@ -741,14 +742,14 @@ const SegmentationPage: React.FC = () => {
             </Card>
           ) : (
             <>
-              <Row gutter={12} style={{ marginBottom: 12 }}>
-                <Col span={4}><Card size="small"><Statistic title={t('segmentationV2.statVolume')} value={stats?.volumeCm3 ?? 0} precision={2} /></Card></Col>
-                <Col span={4}><Card size="small"><Statistic title={t('segmentationV2.statArea')} value={stats?.areaCm2 ?? 0} precision={1} /></Card></Col>
-                <Col span={4}><Card size="small"><Statistic title={t('segmentationV2.statMean')} value={stats?.meanIntensity ?? 0} precision={1} /></Card></Col>
-                <Col span={4}><Card size="small"><Statistic title={t('segmentationV2.statBoundary')} value={stats?.boundaryPointCount ?? 0} /></Card></Col>
-                <Col span={4}><Card size="small"><Statistic title={t('segmentationV2.statVoxels')} value={stats?.voxelCount ?? 0} /></Card></Col>
-                <Col span={4}><Card size="small"><Statistic title={t('segmentationV2.statDiameter')} value={equivalentDiameterMm(stats?.volumeCm3 ?? 0)} precision={1} /></Card></Col>
-              </Row>
+              <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 12 }}>
+                <StatCard title={t('segmentationV2.statVolume')} value={stats?.volumeCm3 ?? 0} precision={2} icon={<Box size={16} />} />
+                <StatCard title={t('segmentationV2.statArea')} value={stats?.areaCm2 ?? 0} precision={1} />
+                <StatCard title={t('segmentationV2.statMean')} value={stats?.meanIntensity ?? 0} precision={1} icon={<Activity size={16} />} />
+                <StatCard title={t('segmentationV2.statBoundary')} value={stats?.boundaryPointCount ?? 0} />
+                <StatCard title={t('segmentationV2.statVoxels')} value={stats?.voxelCount ?? 0} icon={<Boxes size={16} />} />
+                <StatCard title={t('segmentationV2.statDiameter')} value={equivalentDiameterMm(stats?.volumeCm3 ?? 0)} precision={1} icon={<Ruler size={16} />} />
+              </StatCardGrid>
               <Row gutter={12}>
                 <Col span={16}>
                   <Card
@@ -920,7 +921,7 @@ const SegmentationPage: React.FC = () => {
           </Space>
         )}
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

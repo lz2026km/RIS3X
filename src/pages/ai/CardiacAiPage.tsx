@@ -6,9 +6,6 @@ import {
   Table,
   Tag,
   Space,
-  Row,
-  Col,
-  Statistic,
   Spin,
   Alert,
   Button,
@@ -17,6 +14,7 @@ import {
 import { HeartPulse, RefreshCw, Cpu, Eye, Check, X } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import { t } from "../../i18n/appI18n";
+import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
 
 const cadRadsColor: Record<string, string> = {
   "0": "green",
@@ -159,7 +157,7 @@ const CardiacAiPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <HeartPulse size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t("w9d.cardiac.title")}</span>
@@ -202,31 +200,19 @@ const CardiacAiPage: React.FC = () => {
           </>
         )}
       </Space>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}>
-          <Card>
-            <Statistic title={t("w9d.cardiac.statTotal")} value={results.length} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title="CAD-RADS 3+"
-              value={
-                results.filter(
-                  (r) => r.cadRads && ["3", "4", "5"].includes(r.cadRads),
-                ).length
-              }
-              styles={{ content: {  color: "#ff4d4f"  } }}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic title={t("w9d.cardiac.statAvgEf")} value={`${avgEf.toFixed(1)}%`} />
-          </Card>
-        </Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t("w9d.cardiac.statTotal")} value={results.length} color="primary" icon={<HeartPulse size={18} />} />
+        <StatCard
+          title="CAD-RADS 3+"
+          value={
+            results.filter(
+              (r) => r.cadRads && ["3", "4", "5"].includes(r.cadRads),
+            ).length
+          }
+          color="error"
+        />
+        <StatCard title={t("w9d.cardiac.statAvgEf")} value={`${avgEf.toFixed(1)}%`} color="success" />
+      </StatCardGrid>
       {error && (
         <Alert
           type="error"
@@ -255,7 +241,7 @@ const CardiacAiPage: React.FC = () => {
           />
         </Spin>
       </Card>
-    </div>
+    </PageContainer>
   );
 };
 

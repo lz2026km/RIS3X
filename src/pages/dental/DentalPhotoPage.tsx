@@ -1,10 +1,11 @@
 // [v3.0.6.8-102] 口内照片管理 (修复: 真实图片展示+上传+对比)
-import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Modal, Alert, Upload, Empty, Slider } from 'antd';
+import { Card, Space, Tag, Button, Select, Row, Col, message, Tabs, Modal, Alert, Upload, Empty, Slider } from 'antd';
 import { UploadProps } from 'antd'
 import { Camera, Share2, Download, ZoomIn, ZoomOut, X } from 'lucide-react';
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect } from 'react';
 import { t } from '../../i18n/appI18n';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 
 interface Photo {
   id: string;
@@ -136,7 +137,7 @@ export const DentalPhotoPage: React.FC = () => {
   const radiograph = photos.filter(p => p.category === 'radiograph').length;
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Camera size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalPhoto.title')}</span>
@@ -157,33 +158,13 @@ export const DentalPhotoPage: React.FC = () => {
         </Button>
       </Space>
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}>
-          <Card size="small">
-            <Statistic title={t('dentalPhoto.statTotal')} value={photos.length} />
-          </Card>
-        </Col>
-        <Col span={4}>
-          <Card size="small">
-            <Statistic title={t('dentalPhoto.catIntraoral')} value={intraoral} />
-          </Card>
-        </Col>
-        <Col span={4}>
-          <Card size="small">
-            <Statistic title={t('dentalPhoto.catExtraoral')} value={extraoral} />
-          </Card>
-        </Col>
-        <Col span={4}>
-          <Card size="small">
-            <Statistic title={t('dentalPhoto.catRadiograph')} value={radiograph} />
-          </Card>
-        </Col>
-        <Col span={4}>
-          <Card size="small">
-            <Statistic title={t('dentalPhoto.statCategories')} value={new Set(photos.map(p => p.category)).size} />
-          </Card>
-        </Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('dentalPhoto.statTotal')} value={photos.length} icon={<Camera size={16} />} />
+        <StatCard title={t('dentalPhoto.catIntraoral')} value={intraoral} />
+        <StatCard title={t('dentalPhoto.catExtraoral')} value={extraoral} />
+        <StatCard title={t('dentalPhoto.catRadiograph')} value={radiograph} />
+        <StatCard title={t('dentalPhoto.statCategories')} value={new Set(photos.map(p => p.category)).size} />
+      </StatCardGrid>
 
       <Card size="small" title={t('dentalPhoto.gallery')}>
         {photos.length === 0 ? (
@@ -364,7 +345,7 @@ export const DentalPhotoPage: React.FC = () => {
           </div>
         )}
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 export default DentalPhotoPage;

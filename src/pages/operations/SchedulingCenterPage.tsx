@@ -3,13 +3,14 @@ import dayjs from 'dayjs';
 import { appointmentApi, type AppointmentDto } from '../../services/api/appointmentApi';
 import { deviceApi } from '../../services/api/deviceApi';
 import {
-  Card, Space, Tag, Button, Table, Calendar, Col, Row, Select, Statistic,
+  Card, Space, Tag, Button, Table, Calendar, Col, Row, Select,
   Badge, Modal, Form, DatePicker, message, Alert, Spin, Empty,
 } from 'antd';
 import type { Dayjs } from 'dayjs';
 import { CalendarDays, Clock, Monitor, Users, Plus, RefreshCw } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { t } from '../../i18n/appI18n';
+import { StatCard, StatCardGrid } from '../../components/common';
 
 const STATE_COLOR: Record<string, string> = {
   SCHEDULED: 'blue', CONFIRMED: 'cyan', CHECKED_IN: 'geekblue', IN_PROGRESS: 'orange',
@@ -169,12 +170,12 @@ export const SchedulingCenterPage: React.FC = () => {
           action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('sch.retry')}</Button>} />
       )}
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('sch.totalAppointments')} value={stats.total} prefix={<Clock size={14} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('sch.todayAppointments')} value={todayCount} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('sch.state.inProgress')} value={activeCount} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('sch.onlineDevices')} value={deviceStats.inUse ?? '-'} suffix={`/ ${deviceStats.total ?? '-'}`} prefix={<Monitor size={14} />} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('sch.totalAppointments')} value={stats.total} icon={<Clock size={14} />} />
+        <StatCard title={t('sch.todayAppointments')} value={todayCount} color="primary" />
+        <StatCard title={t('sch.state.inProgress')} value={activeCount} color="warning" />
+        <StatCard title={t('sch.onlineDevices')} value={deviceStats.inUse ?? '-'} suffix={`/ ${deviceStats.total ?? '-'}`} icon={<Monitor size={14} />} color="success" />
+      </StatCardGrid>
 
       <Row gutter={16}>
         <Col span={10}>

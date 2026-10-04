@@ -12,6 +12,7 @@ import { Box, Activity, List } from 'lucide-react'
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { t } from '../../i18n/appI18n'
+import { PageContainer } from '../../components/common'
 
 interface SeriesInfo {
   seriesUID: string
@@ -177,7 +178,7 @@ const VolumeViewerPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: 16, background: '#f0f2f5', minHeight: '100vh' }}>
+    <PageContainer padding={16}>
       <Space style={{ marginBottom: 12 }}>
         <Box size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('w9d.volumeViewer.title')}</span>
@@ -231,7 +232,7 @@ const VolumeViewerPage: React.FC = () => {
           />
         </Col>
       </Row>
-    </div>
+    </PageContainer>
   )
 }
 

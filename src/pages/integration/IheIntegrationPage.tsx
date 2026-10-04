@@ -5,11 +5,12 @@
 import { iheApi } from '../../services/api/integrationApi';
 import { IheStatus } from '../../services/api/integrationApi'
 import {
-  Card, Space, Tag, Table, Button, Row, Col, Statistic, message, Alert, Spin, Input, Modal, Divider, Descriptions,
+  Card, Space, Tag, Table, Button, Row, Col, message, Alert, Spin, Input, Modal, Divider, Descriptions,
 } from 'antd';
 import { Globe, Activity, RefreshCw, ArrowLeftRight, Server, Network, Database, FileSearch, IdCard, CalendarRange } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { t } from '../../i18n/appI18n';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 
 const IheIntegrationPage: React.FC = () => {
   const [status, setStatus] = useState<IheStatus | null>(null);
@@ -67,7 +68,7 @@ const IheIntegrationPage: React.FC = () => {
   const transactions = status?.transactions ?? [];
 
   return (
-    <div style={{ padding: 24, background: '#f5f7fa', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Globe size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('iheInt.title')}</span>
@@ -81,12 +82,12 @@ const IheIntegrationPage: React.FC = () => {
           action={<Button size="small" onClick={() => void fetchStatus()}><RefreshCw size={14} /> {t('iheInt.retry')}</Button>} />
       )}
 
-      <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small" loading={loading}><Statistic title={t('iheInt.statPixRecords')} value={pixCount} prefix={<IdCard size={14} />} /></Card></Col>
-        <Col span={6}><Card size="small" loading={loading}><Statistic title={t('iheInt.statPdqCache')} value={pdqCount} prefix={<FileSearch size={14} />} /></Card></Col>
-        <Col span={6}><Card size="small" loading={loading}><Statistic title={t('iheInt.statPamLog')} value={status?.metrics.pamLogSize ?? 0} prefix={<CalendarRange size={14} />} /></Card></Col>
-        <Col span={6}><Card size="small" loading={loading}><Statistic title={t('iheInt.statTransactions')} value={transactions.length} prefix={<Activity size={14} />} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 16 }}>
+        <StatCard title={t('iheInt.statPixRecords')} value={pixCount} loading={loading} icon={<IdCard size={18} />} color="primary" />
+        <StatCard title={t('iheInt.statPdqCache')} value={pdqCount} loading={loading} icon={<FileSearch size={18} />} color="primary" />
+        <StatCard title={t('iheInt.statPamLog')} value={status?.metrics.pamLogSize ?? 0} loading={loading} icon={<CalendarRange size={18} />} color="primary" />
+        <StatCard title={t('iheInt.statTransactions')} value={transactions.length} loading={loading} icon={<Activity size={18} />} color="info" />
+      </StatCardGrid>
 
       <Row gutter={[12, 12]}>
         <Col xs={24} lg={10}>
@@ -204,7 +205,7 @@ const IheIntegrationPage: React.FC = () => {
           </Descriptions>
         </Space>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 

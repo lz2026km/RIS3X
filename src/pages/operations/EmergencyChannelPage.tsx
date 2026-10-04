@@ -9,11 +9,12 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-  Card, Table, Switch, Space, Row, Col, Statistic, Button, Tag, message, Form, Input, Select, Alert,
+  Card, Table, Switch, Space, Row, Col, Button, Tag, message, Form, Input, Select, Alert,
   Descriptions, Spin, Modal, InputNumber, Badge, Tooltip, Empty,
 } from 'antd'
 import { HeartPulse, Settings, Zap, History, Save, RefreshCw, CheckCircle2, BellRing, AlertTriangle } from 'lucide-react'
 import { emergencyChannelApi, type EmergencyChannelConfigItem, type EmergencyTriggerRecord, type EmergencyChannelType } from '../../services/api/emergencyChannelApi'
+import { StatCard, StatCardGrid } from '../../components/common'
 
 const TRIGGER_TYPES: Array<{ value: string; label: string }> = [
   { value: 'critical-finding', label: '危急值发现' },
@@ -155,14 +156,14 @@ export default function EmergencyChannelPage() {
         <Tag color="red">{t('stat', '急诊')}</Tag>
       </Space>
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title={t('statEnabled', '启用通道')} value={enabledCount} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('statTotal', '通道总数')} value={channels.length} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('statAutoTrigger', '自动触发')} value={autoTriggerEnabled ? t('on', '开启') : t('off', '关闭')} styles={{ content: { color: autoTriggerEnabled ? '#52c41a' : '#999' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('statRecords', '触发记录')} value={records.length} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('statSent', '待确认')} value={records.filter((r) => r.status === 'sent').length} styles={{ content: { color: records.some((r) => r.status === 'sent') ? '#fa8c16' : '#52c41a' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('statKeywords', '触发关键词')} value={keywords.length} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('statEnabled', '启用通道')} value={enabledCount} color="success" />
+        <StatCard title={t('statTotal', '通道总数')} value={channels.length} />
+        <StatCard title={t('statAutoTrigger', '自动触发')} value={autoTriggerEnabled ? t('on', '开启') : t('off', '关闭')} color={autoTriggerEnabled ? 'success' : '#999'} />
+        <StatCard title={t('statRecords', '触发记录')} value={records.length} />
+        <StatCard title={t('statSent', '待确认')} value={records.filter((r) => r.status === 'sent').length} color={records.some((r) => r.status === 'sent') ? 'warning' : 'success'} />
+        <StatCard title={t('statKeywords', '触发关键词')} value={keywords.length} />
+      </StatCardGrid>
 
       {/* ─────────── 通道配置 (GET/PUT /emergency-channel/config) ─────────── */}
       <Card

@@ -13,8 +13,9 @@ import { useTranslation } from 'react-i18next'
 import { t as appT } from '../i18n/appI18n'
 import {
   Card, Table, Space, Tag, Button, Modal, Form, Input, Select, message, Badge,
-  Descriptions, Alert, Row, Col, Statistic, Empty,
+  Descriptions, Alert, Row, Col, Empty,
 } from 'antd'
+import { StatCard, StatCardGrid, PageContainer } from '../components/common'
 import { MessageSquare, Plus, RefreshCw, Send, CheckCircle2, XCircle, Eye } from 'lucide-react'
 import {
   clinicalFeedbackApi,
@@ -165,7 +166,7 @@ export default function ClinicalFeedbackPage() {
   }
 
   return (
-    <div style={{ padding: 24 }}>
+    <PageContainer padding={24}>
       <Alert
         type="info"
         showIcon
@@ -180,12 +181,12 @@ export default function ClinicalFeedbackPage() {
         <Tag color="geekblue">v3.0.6.11-104</Tag>
       </Space>
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title={statusText.SUBMITTED} value={stats.submitted} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={statusText.RESPONDED} value={stats.responded} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={statusText.RESOLVED} value={stats.resolved} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={statusText.REJECTED} value={stats.rejected} styles={{ content: { color: '#ff4d4f' } }} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={statusText.SUBMITTED} value={stats.submitted} />
+        <StatCard title={statusText.RESPONDED} value={stats.responded} color="warning" />
+        <StatCard title={statusText.RESOLVED} value={stats.resolved} color="success" />
+        <StatCard title={statusText.REJECTED} value={stats.rejected} color="error" />
+      </StatCardGrid>
 
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void fetchList()}>{t('feedback.refresh', '刷新')}</Button>} />}
 
@@ -421,6 +422,6 @@ export default function ClinicalFeedbackPage() {
           </>
         )}
       </Modal>
-    </div>
+    </PageContainer>
   )
 }

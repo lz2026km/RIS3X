@@ -1,10 +1,11 @@
 // [W3-2] 种植计划: dentalApi.listImplantPlans3d 真实列表 + 新建/编辑 + 状态流转 (规划/已批准/已实施)
 import { DentalPageLayout } from './DentalShared';
 import { dentalApi } from '@/services/api/dentalApi';
-import { Card, Tag, Button, Row, Col, Statistic, List, Modal, Form, Select, Input, InputNumber, message, Empty, Spin, Alert, Space, Popconfirm, Descriptions, Steps, Badge, Table } from 'antd';
+import { Card, Tag, Button, Row, Col, List, Modal, Form, Select, Input, InputNumber, message, Empty, Spin, Alert, Space, Popconfirm, Descriptions, Steps, Badge, Table } from 'antd';
 import { Plus, RefreshCw, CheckCircle2, Eye } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { t } from '../../i18n/appI18n';
+import { StatCard, StatCardGrid } from '../../components/common';
 
 const { TextArea } = Input;
 
@@ -126,12 +127,12 @@ export const DentalImplantPlanPage: React.FC = () => {
   return (
     <DentalPageLayout header={{ title: t('dentalImplantPlan.title'), tags: [<Tag key='b' color='blue'>{t('dentalImplantPlan.tagBenchmark')}</Tag>, <Tag key='s' color='green'>{t('dentalImplantPlan.tagBrands')}</Tag>] }}>
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('dentalImplantPlan.retry')}</Button>} />}
-      <Row gutter={12} style={{ marginBottom: 12 }}>
-        <Col span={6}><Card size="small"><Statistic title={t('dentalImplantPlan.statTotal')} value={display.length} prefix={<Plus size={12} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('dentalImplantPlan.statPending')} value={display.filter(p => p.status === 'pending' || p.status === 'planning').length} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('dentalImplantPlan.statApproved')} value={display.filter(p => p.status === 'approved' || p.status === 'implementing').length} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('dentalImplantPlan.statCost')} value={(totalCost / 10000).toFixed(1)} suffix="万" styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 12 }}>
+        <StatCard title={t('dentalImplantPlan.statTotal')} value={display.length} icon={<Plus size={12} />} />
+        <StatCard title={t('dentalImplantPlan.statPending')} value={display.filter(p => p.status === 'pending' || p.status === 'planning').length} color="warning" />
+        <StatCard title={t('dentalImplantPlan.statApproved')} value={display.filter(p => p.status === 'approved' || p.status === 'implementing').length} color="primary" />
+        <StatCard title={t('dentalImplantPlan.statCost')} value={(totalCost / 10000).toFixed(1)} suffix="万" color="success" />
+      </StatCardGrid>
       <Row gutter={16}>
         <Col span={16}>
           <Card

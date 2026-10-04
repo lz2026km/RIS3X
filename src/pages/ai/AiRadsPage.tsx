@@ -9,6 +9,7 @@ import { scoreRadsLocally } from '../../services/radsLocalScore'
 import type { RadsType as LocalRadsType } from '../../services/radsLocalScore'
 import { RADS_RULES } from '../../data/radsRules'
 import type { RadsSystem } from '../../data/radsRules'
+import { PageContainer } from '../../components/common'
 
 const { Text, Title } = Typography
 
@@ -216,7 +217,7 @@ const AiRadsPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <Cpu size={20} color="#2563eb" />
         <Title level={4} style={{ margin: 0 }}>{t('aiRads.title')}</Title>
@@ -306,7 +307,7 @@ const AiRadsPage: React.FC = () => {
           </Card>
         )
       })()}
-    </div>
+    </PageContainer>
   )
 }
 

@@ -6,12 +6,12 @@ import {
 } from 'recharts'
 import {
   Activity, TrendingUp, Clock, Monitor, Users, RefreshCw,
-  ArrowUp, ArrowDown,
 } from 'lucide-react'
 import { getOpsAnalyticsService } from '../../services/ops'
 import { Card } from 'antd'
 import { ChartContainer } from '../../components/charts'
 import { StateView } from '../../components/common/StateView'
+import { StatCard } from '../../components/common'
 import { DataTable } from '../../components/common/DataTable'
 import { StatusTag } from '../../components/common/StatusTag'
 import { t } from '../../i18n/appI18n'
@@ -34,22 +34,13 @@ const s: Record<string, React.CSSProperties> = {
 function KpiCard({ title, value, unit, icon: Icon, trend, color }: {
   title: string; value: string | number; unit?: string; icon: typeof Activity; trend?: 'up' | 'down'; color: string
 }) {
-  return (
-    <Card bordered={false} style={s.kpiCard} styles={{ body: { padding: 0 } }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-        <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{title}</span>
-        <Icon size={20} style={{ color }} />
-      </div>
-      <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
-        {value}{unit && <span style={{ fontSize: 14, fontWeight: 400, color: 'var(--text-muted)', marginLeft: 4 }}>{unit}</span>}
-      </div>
-      {trend && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: trend === 'up' ? 'var(--color-success-500)' : 'var(--color-error-500)' }}>
-          {trend === 'up' ? <ArrowUp size={12} /> : <ArrowDown size={12} />}{t('opsDashboard.vsYesterday')}
-        </div>
-      )}
-    </Card>
-  )
+  const c = ({
+    '#dc2626': 'error', '#ef4444': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
+    '#f59e0b': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
+    '#16a34a': 'success', '#22c55e': 'success', '#52c41a': 'success', '#10b981': 'success',
+    '#2563eb': 'primary', '#1890ff': 'primary', '#1d4ed8': 'primary',
+  } as Record<string, string>)[color] ?? color
+  return <StatCard title={title} value={value} suffix={unit} icon={<Icon size={20} />} trend={trend} color={c} />
 }
 
 export default function OpsDashboardPage() {

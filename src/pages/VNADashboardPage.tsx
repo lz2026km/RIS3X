@@ -13,7 +13,7 @@ import {
 } from '../services/api/vnaApi'
 import {
   Alert, Button, Card, Col, Descriptions, Drawer, Empty, Form, Input, InputNumber, Modal, Popconfirm,
-  Row, Select, Space, Statistic, Table, Tabs, Tag, Timeline, Typography, Upload, message,
+  Row, Select, Space, Table, Tabs, Tag, Timeline, Typography, Upload, message,
 } from 'antd'
 import {
   Archive,
@@ -35,6 +35,7 @@ import {
 import { Inbox, Trash2, ArrowRight } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip } from 'recharts'
 import { ChartContainer } from '../components/charts'
+import { StatCard, StatCardGrid } from '../components/common'
 import { t } from '../i18n/appI18n'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -542,13 +543,13 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
       </Card>
 
       {/* 归档统计卡 */}
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card loading={statsLoading}><Statistic title={t('vnaPage.totalObjects')} value={stats?.totalObjects ?? 0} prefix={<FileText size={16} />} styles={{ content: { color: '#7c3aed' } }} /></Card></Col>
-        <Col span={5}><Card loading={statsLoading}><Statistic title={t('vnaPage.totalCapacity')} value={stats ? formatSize(stats.totalSizeBytes) : '-'} prefix={<HardDrive size={16} />} styles={{ content: { color: '#dc2626' } }} /></Card></Col>
-        <Col span={5}><Card loading={statsLoading}><Statistic title={t('vnaPage.dicomInstances')} value={stats?.dicomCount ?? 0} prefix={<DatabaseIcon size={16} />} styles={{ content: { color: '#0891b2' } }} /></Card></Col>
-        <Col span={5}><Card loading={statsLoading}><Statistic title={t('vnaPage.nonDicomObjects')} value={stats?.nonDicomCount ?? 0} prefix={<FileText size={16} />} styles={{ content: { color: '#f59e0b' } }} /></Card></Col>
-        <Col span={5}><Card loading={statsLoading}><Statistic title={t('vnaPage.wormLocked')} value={stats?.wormLockedCount ?? 0} prefix={<ShieldCheck size={16} />} styles={{ content: { color: '#10b981' } }} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard loading={statsLoading} title={t('vnaPage.totalObjects')} value={stats?.totalObjects ?? 0} icon={<FileText size={16} />} color="#7c3aed" />
+        <StatCard loading={statsLoading} title={t('vnaPage.totalCapacity')} value={stats ? formatSize(stats.totalSizeBytes) : '-'} icon={<HardDrive size={16} />} color="error" />
+        <StatCard loading={statsLoading} title={t('vnaPage.dicomInstances')} value={stats?.dicomCount ?? 0} icon={<DatabaseIcon size={16} />} color="#0891b2" />
+        <StatCard loading={statsLoading} title={t('vnaPage.nonDicomObjects')} value={stats?.nonDicomCount ?? 0} icon={<FileText size={16} />} color="#f59e0b" />
+        <StatCard loading={statsLoading} title={t('vnaPage.wormLocked')} value={stats?.wormLockedCount ?? 0} icon={<ShieldCheck size={16} />} color="#10b981" />
+      </StatCardGrid>
 
       <Card>
         <Tabs
@@ -795,14 +796,14 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
                     />
                   </Space>
 
-                  <Row gutter={16} style={{ marginBottom: 16 }}>
-                    <Col span={4}><Card size="small" loading={analyticsLoading}><Statistic title={t('vnaOps.totalObjects')} value={overview?.totalObjects ?? 0} prefix={<FileText size={15} />} /></Card></Col>
-                    <Col span={4}><Card size="small" loading={analyticsLoading}><Statistic title={t('vnaOps.totalCapacity')} value={overview ? formatSize(overview.totalSizeBytes) : '-'} prefix={<HardDrive size={15} />} /></Card></Col>
-                    <Col span={4}><Card size="small" loading={analyticsLoading}><Statistic title={t('vnaOps.wormLocked')} value={overview?.wormLockedCount ?? 0} prefix={<ShieldCheck size={15} />} /></Card></Col>
-                    <Col span={4}><Card size="small" loading={analyticsLoading}><Statistic title={t('vnaOps.last30dNew')} value={overview?.last30dNewObjects ?? 0} prefix={<Plus size={15} />} /></Card></Col>
-                    <Col span={4}><Card size="small" loading={analyticsLoading}><Statistic title={t('vnaOps.growthRate')} value={overview?.growthRate ?? 0} suffix="%" prefix={<RefreshCw size={15} />} /></Card></Col>
-                    <Col span={4}><Card size="small" loading={analyticsLoading}><Statistic title={t('vnaOps.studies')} value={overview?.studyCount ?? 0} prefix={<DatabaseIcon size={15} />} /></Card></Col>
-                  </Row>
+                  <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+                    <StatCard loading={analyticsLoading} title={t('vnaOps.totalObjects')} value={overview?.totalObjects ?? 0} icon={<FileText size={16} />} />
+                    <StatCard loading={analyticsLoading} title={t('vnaOps.totalCapacity')} value={overview ? formatSize(overview.totalSizeBytes) : '-'} icon={<HardDrive size={16} />} />
+                    <StatCard loading={analyticsLoading} title={t('vnaOps.wormLocked')} value={overview?.wormLockedCount ?? 0} icon={<ShieldCheck size={16} />} />
+                    <StatCard loading={analyticsLoading} title={t('vnaOps.last30dNew')} value={overview?.last30dNewObjects ?? 0} icon={<Plus size={16} />} />
+                    <StatCard loading={analyticsLoading} title={t('vnaOps.growthRate')} value={overview?.growthRate ?? 0} suffix="%" icon={<RefreshCw size={16} />} />
+                    <StatCard loading={analyticsLoading} title={t('vnaOps.studies')} value={overview?.studyCount ?? 0} icon={<DatabaseIcon size={16} />} />
+                  </StatCardGrid>
 
                   <Row gutter={16} style={{ marginBottom: 16 }}>
                     <Col span={14}>

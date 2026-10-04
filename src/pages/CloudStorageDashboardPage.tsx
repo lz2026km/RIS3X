@@ -19,6 +19,7 @@ import {
   Tooltip as ChartTooltip, BarChart, Bar,
 } from "recharts";
 import { ChartContainer, chartDefaults } from '../components/charts';
+import { StatCard, StatCardGrid } from '../components/common';
 import { autoInterval } from '../utils/chartUtils';
 import { STORAGE_NODES, TIER_METRICS, ARCHIVE_JOBS, COMPRESSION } from "../services/storage";
 import { usePagination } from "../hooks/usePagination";
@@ -334,28 +335,12 @@ function StorageMonitorTab() {
           </Card>
         </Col>
         <Col span={12}>
-          <Row gutter={12} style={{ marginBottom: 12 }}>
-            <Col span={6}>
-              <Card size="small">
-                <Statistic title={t("cloudStorage.monitor.ioRead")} value={monitor?.ioCounts.readPerMin ?? 0} precision={1} valueStyle={{ color: "#0891b2", fontSize: 18 }} prefix={<Eye size={13} />} />
-              </Card>
-            </Col>
-            <Col span={6}>
-              <Card size="small">
-                <Statistic title={t("cloudStorage.monitor.ioWrite")} value={monitor?.ioCounts.writePerMin ?? 0} precision={1} valueStyle={{ color: "#10b981", fontSize: 18 }} prefix={<UploadCloud size={13} />} />
-              </Card>
-            </Col>
-            <Col span={6}>
-              <Card size="small">
-                <Statistic title={t("cloudStorage.monitor.ioPut")} value={monitor?.ioCounts.putPerMin ?? 0} precision={1} valueStyle={{ color: "#8b5cf6", fontSize: 18 }} prefix={<Cloud size={13} />} />
-              </Card>
-            </Col>
-            <Col span={6}>
-              <Card size="small">
-                <Statistic title={t("cloudStorage.monitor.ioDelete")} value={monitor?.ioCounts.deletePerMin ?? 0} precision={1} valueStyle={{ color: "#dc2626", fontSize: 18 }} prefix={<Trash2 size={13} />} />
-              </Card>
-            </Col>
-          </Row>
+          <StatCardGrid minWidth={140} gap={12} style={{ marginBottom: 12 }}>
+            <StatCard title={t("cloudStorage.monitor.ioRead")} value={monitor?.ioCounts.readPerMin ?? 0} precision={1} color="#0891b2" icon={<Eye size={14} />} />
+            <StatCard title={t("cloudStorage.monitor.ioWrite")} value={monitor?.ioCounts.writePerMin ?? 0} precision={1} color="#10b981" icon={<UploadCloud size={14} />} />
+            <StatCard title={t("cloudStorage.monitor.ioPut")} value={monitor?.ioCounts.putPerMin ?? 0} precision={1} color="#8b5cf6" icon={<Cloud size={14} />} />
+            <StatCard title={t("cloudStorage.monitor.ioDelete")} value={monitor?.ioCounts.deletePerMin ?? 0} precision={1} color="error" icon={<Trash2 size={14} />} />
+          </StatCardGrid>
           <Card
             size="small"
             loading={repLoading}
@@ -400,39 +385,38 @@ function StorageMonitorTab() {
         </Col>
       </Row>
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card><Statistic title={t("cloudStorage.monitor.totalObjects")} value={totalObjects} styles={{ content: { color: "#0ea5e9" } }} /></Card></Col>
-        <Col span={4}><Card><Statistic title={t("cloudStorage.monitor.totalCapacity")} value={(totalCapacity / 1024).toFixed(1)} styles={{ content: { color: "#1e40af" } }} /></Card></Col>
-        <Col span={4}>
-          <Card>
-            <Statistic title={t("cloudStorage.monitor.usedTb")} value={(totalUsed / 1024).toFixed(1)} suffix={`${usedPct.toFixed(1)}%`} styles={{ content: { color: capacityLevel === "critical" ? "#dc2626" : capacityLevel === "warn" ? "#d97706" : "#059669" } }} />
-            {capacityLevel !== "ok" && (
-              <Alert
-                type={capacityLevel === "critical" ? "error" : "warning"}
-                showIcon
-                icon={<AlertCircle size={14} />}
-                style={{ marginTop: 8, padding: "4px 8px" }}
-                message={<span style={{ fontSize: 12 }}>{capacityLevel === "critical" ? t("cloudStorage.monitor.criticalMsg", { pct: criticalPct }) : t("cloudStorage.monitor.warnMsg", { pct: warnPct })}</span>}
-              />
-            )}
-          </Card>
-        </Col>
-        <Col span={4}>
-          <Card>
-            <Tooltip title={twentyFourH.derived ? t("cloudStorage.monitor.derivedTooltip") : t("cloudStorage.monitor.sampleTooltip")}>
-              <Statistic title={t("cloudStorage.monitor.write24h")} prefix={twentyFourH.derived ? "≈ " : `${t("cloudStorage.monitor.samplePrefix")} `} value={formatBytes(twentyFourH.write)} styles={{ content: { color: "#10b981" } }} />
-            </Tooltip>
-          </Card>
-        </Col>
-        <Col span={4}>
-          <Card>
-            <Tooltip title={twentyFourH.derived ? t("cloudStorage.monitor.derivedTooltip") : t("cloudStorage.monitor.sampleTooltip")}>
-              <Statistic title={t("cloudStorage.monitor.read24h")} prefix={twentyFourH.derived ? "≈ " : `${t("cloudStorage.monitor.samplePrefix")} `} value={formatBytes(twentyFourH.read)} styles={{ content: { color: "#0891b2" } }} />
-            </Tooltip>
-          </Card>
-        </Col>
-        <Col span={4}><Card><Statistic title={t("cloudStorage.monitor.compressionSaved")} value={`${COMPRESSION.savedGb} GB`} styles={{ content: { color: "#7c3aed" } }} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t("cloudStorage.monitor.totalObjects")} value={totalObjects} color="#0ea5e9" />
+        <StatCard title={t("cloudStorage.monitor.totalCapacity")} value={(totalCapacity / 1024).toFixed(1)} color="#1e40af" />
+        <StatCard
+          title={t("cloudStorage.monitor.usedTb")}
+          value={(totalUsed / 1024).toFixed(1)}
+          suffix={`${usedPct.toFixed(1)}%`}
+          color={capacityLevel === "critical" ? "error" : capacityLevel === "warn" ? "warning" : "success"}
+          sub={capacityLevel !== "ok" ? (
+            <Alert
+              type={capacityLevel === "critical" ? "error" : "warning"}
+              showIcon
+              icon={<AlertCircle size={14} />}
+              style={{ marginTop: 8, padding: "4px 8px" }}
+              message={<span style={{ fontSize: 12 }}>{capacityLevel === "critical" ? t("cloudStorage.monitor.criticalMsg", { pct: criticalPct }) : t("cloudStorage.monitor.warnMsg", { pct: warnPct })}</span>}
+            />
+          ) : undefined}
+        />
+        <StatCard
+          title={<Tooltip title={twentyFourH.derived ? t("cloudStorage.monitor.derivedTooltip") : t("cloudStorage.monitor.sampleTooltip")}><span>{t("cloudStorage.monitor.write24h")}</span></Tooltip>}
+          prefix={twentyFourH.derived ? "≈ " : `${t("cloudStorage.monitor.samplePrefix")} `}
+          value={formatBytes(twentyFourH.write)}
+          color="#10b981"
+        />
+        <StatCard
+          title={<Tooltip title={twentyFourH.derived ? t("cloudStorage.monitor.derivedTooltip") : t("cloudStorage.monitor.sampleTooltip")}><span>{t("cloudStorage.monitor.read24h")}</span></Tooltip>}
+          prefix={twentyFourH.derived ? "≈ " : `${t("cloudStorage.monitor.samplePrefix")} `}
+          value={formatBytes(twentyFourH.read)}
+          color="#0891b2"
+        />
+        <StatCard title={t("cloudStorage.monitor.compressionSaved")} value={`${COMPRESSION.savedGb} GB`} color="#7c3aed" />
+      </StatCardGrid>
 
       {/* [G005 v3.0.6.11-99 Wave 7A (G-28)] S3 驱动状态徽标 + 数据源徽标 */}
       <Card size="small" style={{ marginBottom: 16 }} title={<Space><ShieldCheck size={16} />{t("cloudStorage.monitor.driverStatusTitle")}</Space>}>
@@ -742,18 +726,10 @@ function StorageConfigTab() {
               <Alert type="warning" showIcon style={{ marginBottom: 12 }}
                 message={t("cloudStorage.config.envDriverMsg", { env: envDriver })} />
             )}
-            <Row gutter={12}>
-              <Col span={12}>
-                <Card size="small" style={{ marginBottom: 12 }}>
-                  <Statistic title={t("cloudStorage.config.usedBytes")} value={formatBytes(stats?.usedBytes)} valueStyle={{ color: "#dc2626", fontSize: 20 }} />
-                </Card>
-              </Col>
-              <Col span={12}>
-                <Card size="small" style={{ marginBottom: 12 }}>
-                  <Statistic title={t("cloudStorage.config.objectCount")} value={stats?.objectCount ?? 0} valueStyle={{ color: "#0ea5e9", fontSize: 20 }} />
-                </Card>
-              </Col>
-            </Row>
+            <StatCardGrid minWidth={140} gap={12} style={{ marginBottom: 12 }}>
+              <StatCard title={t("cloudStorage.config.usedBytes")} value={formatBytes(stats?.usedBytes)} color="error" />
+              <StatCard title={t("cloudStorage.config.objectCount")} value={stats?.objectCount ?? 0} color="#0ea5e9" />
+            </StatCardGrid>
             {stats?.truncated && (
               <Alert type="info" showIcon message={t("cloudStorage.config.truncatedMsg")} style={{ marginBottom: 12 }} />
             )}
@@ -1238,23 +1214,11 @@ function StorageBucketsTab() {
 
   return (
     <>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={8}>
-          <Card size="small">
-            <Statistic title={t("cloudStorage.buckets.count")} value={buckets.length} valueStyle={{ color: "#0ea5e9" }} prefix={<Boxes size={14} />} />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card size="small">
-            <Statistic title={t("cloudStorage.buckets.totalObjects")} value={totalObjects.toLocaleString()} valueStyle={{ color: "#0891b2" }} prefix={<Inbox size={14} />} />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card size="small">
-            <Statistic title={t("cloudStorage.buckets.usedBytes")} value={formatBytes(totalBytes)} valueStyle={{ color: "#dc2626" }} prefix={<HardDrive size={14} />} />
-          </Card>
-        </Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t("cloudStorage.buckets.count")} value={buckets.length} color="#0ea5e9" icon={<Boxes size={14} />} />
+        <StatCard title={t("cloudStorage.buckets.totalObjects")} value={totalObjects.toLocaleString()} color="#0891b2" icon={<Inbox size={14} />} />
+        <StatCard title={t("cloudStorage.buckets.usedBytes")} value={formatBytes(totalBytes)} color="error" icon={<HardDrive size={14} />} />
+      </StatCardGrid>
 
       <Card
         title={<Space><Boxes size={16} />{t("cloudStorage.buckets.title")} <Text type="secondary" style={{ fontSize: 12 }}>{t("cloudStorage.buckets.sub")}</Text><Tag color="gold" icon={<Database size={12} />}>{t("cloudStorage.buckets.dataSourceTag")}</Tag></Space>}

@@ -8,7 +8,8 @@
  * [G005-P0] 各步骤动作接真 API,闭环统一走 PATCH /criticals/:id state=CLOSED_LOOP
  */
 import React, { useState, useEffect, useCallback } from 'react'
-import { Card, Steps, Button, Tag, Row, Col, Statistic, Alert, Descriptions, Modal, Input, message, Table, Spin, Empty } from 'antd'
+import { Card, Steps, Button, Tag, Alert, Descriptions, Modal, Input, message, Table, Spin, Empty } from 'antd'
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
 import { ShieldAlert, Phone, CheckCircle, FileCheck, Archive, AlertTriangle, RefreshCw, Inbox } from 'lucide-react'
 import { criticalApi } from '../../services/api/criticalApi'
 import { t } from '../../i18n/appI18n'
@@ -178,7 +179,7 @@ export default function CriticalValue5StepPage() {
   ]
 
   return (
-    <div style={{ padding: 24 }}>
+    <PageContainer padding={24}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
         <ShieldAlert size={22} style={{ color: '#dc2626' }} />
         <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{t('cv5.title')}</h1>
@@ -214,26 +215,14 @@ export default function CriticalValue5StepPage() {
       </Card>
 
       {/* 统计 */}
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}>
-          <Card size="small"><Statistic title={t('cv5.statTotal')} value={stats.total} /></Card>
-        </Col>
-        <Col span={4}>
-          <Card size="small"><Statistic title={t('cv5.statToNotify')} value={stats.step2} styles={{ content: {  color: '#dc2626'  } }} prefix={<Phone size={14} />} /></Card>
-        </Col>
-        <Col span={4}>
-          <Card size="small"><Statistic title={t('cv5.statToConfirm')} value={stats.step3} styles={{ content: {  color: '#ca8a04'  } }} prefix={<CheckCircle size={14} />} /></Card>
-        </Col>
-        <Col span={4}>
-          <Card size="small"><Statistic title={t('cv5.statToReceipt')} value={stats.step4} styles={{ content: {  color: '#16a34a'  } }} prefix={<FileCheck size={14} />} /></Card>
-        </Col>
-        <Col span={4}>
-          <Card size="small"><Statistic title={t('cv5.statToClose')} value={stats.step5} styles={{ content: {  color: '#2563eb'  } }} prefix={<Archive size={14} />} /></Card>
-        </Col>
-        <Col span={4}>
-          <Card size="small"><Statistic title={t('cv5.statDone')} value={stats.step5} styles={{ content: {  color: '#059669'  } }} prefix={<CheckCircle size={14} />} /></Card>
-        </Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('cv5.statTotal')} value={stats.total} />
+        <StatCard title={t('cv5.statToNotify')} value={stats.step2} color="error" icon={<Phone size={14} />} />
+        <StatCard title={t('cv5.statToConfirm')} value={stats.step3} color="warning" icon={<CheckCircle size={14} />} />
+        <StatCard title={t('cv5.statToReceipt')} value={stats.step4} color="success" icon={<FileCheck size={14} />} />
+        <StatCard title={t('cv5.statToClose')} value={stats.step5} color="primary" icon={<Archive size={14} />} />
+        <StatCard title={t('cv5.statDone')} value={stats.step5} color="success" icon={<CheckCircle size={14} />} />
+      </StatCardGrid>
 
       {/* 列表 */}
       <Card title={t('cv5.listTitle')} extra={<Button icon={<RefreshCw size={14} />} onClick={loadData} loading={loading}>{t('cv5.refresh')}</Button>}>
@@ -337,6 +326,6 @@ export default function CriticalValue5StepPage() {
           <Alert title={t('cv5.closeAlert')} type="warning" showIcon />
         )}
       </Modal>
-    </div>
+    </PageContainer>
   )
 }

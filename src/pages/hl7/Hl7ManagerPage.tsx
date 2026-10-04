@@ -9,6 +9,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts'
 import { ChartContainer, chartDefaults } from '../../components/charts'
+import { PageContainer } from '../../components/common'
 
 // ============================================================
 // [G005 v3.0.6.11-99 Wave 10E-1] HL7 监控面板
@@ -546,7 +547,7 @@ export const Hl7ManagerPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <Archive size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('hl7Page.archiveHeader')}</span>
@@ -555,7 +556,7 @@ export const Hl7ManagerPage: React.FC = () => {
       </Space>
       <Alert title={t('hl7Page.archiveDesc')} type="info" showIcon style={{ marginBottom: 16 }} />
       <Tabs activeKey={tab} onChange={setTab} items={tabItems} />
-    </div>
+    </PageContainer>
   )
 }
 

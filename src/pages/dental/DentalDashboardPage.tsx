@@ -3,6 +3,7 @@ import { dentalApi } from '../../services/api/dentalApi';
 import { DentalPageLayout, EmptyState } from './DentalShared';
 import { t } from '../../i18n/appI18n';
 import { Card, Button, Row, Col, Statistic, Space, Alert, Tag, Spin, Empty, List, Table, message } from 'antd';
+import { StatCard, StatCardGrid } from '../../components/common';
 import { RefreshCw, Calendar, Users, Scan, TrendingUp, Activity, Stethoscope } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 
@@ -72,16 +73,16 @@ export const DentalDashboardPage: React.FC = () => {
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('dentalDash.retry')}</Button>} />}
 
       <Spin spinning={loading}>
-        <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
-          <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalDash.todayPatients')} value={stats?.todayPatients ?? 0} prefix={<Users size={14} />} /></Card></Col>
-          <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalDash.weekPatients')} value={stats?.thisWeek ?? 0} prefix={<TrendingUp size={14} />} /></Card></Col>
-          <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalDash.revenueToday')} prefix="¥" value={stats?.revenueToday ?? 0} /></Card></Col>
-          <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalDash.inTreatment')} value={treatments.length} prefix={<Stethoscope size={14} />} /></Card></Col>
-          <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalDash.todayAppointments')} value={appointments.length} prefix={<Calendar size={14} />} /></Card></Col>
-          <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalDash.completed')} value={todayDone} prefix={<Activity size={14} />} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-          <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalDash.todayExams')} value={stats?.examCount ?? '-'} prefix={<Scan size={14} />} /></Card></Col>
-          <Col xs={12} md={6}><Card size="small"><Statistic title={t('dentalDash.devices')} value={stats?.deviceCount ?? '-'} prefix={<Activity size={14} />} /></Card></Col>
-        </Row>
+        <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 16 }}>
+          <StatCard title={t('dentalDash.todayPatients')} value={stats?.todayPatients ?? 0} icon={<Users size={14} />} />
+          <StatCard title={t('dentalDash.weekPatients')} value={stats?.thisWeek ?? 0} icon={<TrendingUp size={14} />} />
+          <StatCard title={t('dentalDash.revenueToday')} prefix="¥" value={stats?.revenueToday ?? 0} />
+          <StatCard title={t('dentalDash.inTreatment')} value={treatments.length} icon={<Stethoscope size={14} />} />
+          <StatCard title={t('dentalDash.todayAppointments')} value={appointments.length} icon={<Calendar size={14} />} />
+          <StatCard title={t('dentalDash.completed')} value={todayDone} icon={<Activity size={14} />} color="success" />
+          <StatCard title={t('dentalDash.todayExams')} value={stats?.examCount ?? '-'} icon={<Scan size={14} />} />
+          <StatCard title={t('dentalDash.devices')} value={stats?.deviceCount ?? '-'} icon={<Activity size={14} />} />
+        </StatCardGrid>
       </Spin>
 
       <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>

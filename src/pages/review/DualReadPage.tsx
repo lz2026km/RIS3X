@@ -1,7 +1,8 @@
 // @deprecated [v3.0.6.11-104 Wave 5C] 已嵌入 ReviewCenterPage (/review-center 综合审核枢纽) 作为 Tab; 旧路由 /dual-read redirect 兼容。文件保留供回滚参考。
 import React, { useState, useEffect, useCallback } from 'react'
-import { Card, Table, Button, Tag, Space, Modal, Input, Typography, Row, Col, Statistic, message, Select, Divider, Alert, Tooltip } from 'antd'
+import { Card, Table, Button, Tag, Space, Modal, Input, Typography, Row, Col, message, Select, Divider, Alert, Tooltip } from 'antd'
 import { GitBranch, CheckCircle, AlertTriangle, BarChart3, UserCheck, PenLine, RefreshCw, FileText, ExternalLink } from 'lucide-react'
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
 import { dualReadApi, type DualReadAssignment, type DualReadReportLink } from '../../services/api/dualReadApi'
 import { useAuth } from '../../hooks/useAuth'
 import { usePagination } from '../../hooks/usePagination'
@@ -270,7 +271,7 @@ const DualReadPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24 }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <GitBranch size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dualRead.title')}</span>
@@ -278,12 +279,12 @@ const DualReadPage: React.FC = () => {
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadData()} loading={loading}>{t('dualRead.refresh')}</Button>
       </Space>
       {error && !loading && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} />}
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card><Statistic title={t('dualRead.totalAssignments')} value={discTotal} prefix={<GitBranch size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title={t('dualRead.arbitrated')} value={discArbitrated} prefix={<CheckCircle size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title={t('dualRead.avgDiscrepancy')} value={`${(discAvg * 100).toFixed(1)}%`} prefix={<BarChart3 size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title={t('dualRead.pending')} value={assignments.filter(a => a.status === 'both_done').length} prefix={<AlertTriangle size={16} />} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('dualRead.totalAssignments')} value={discTotal} icon={<GitBranch size={16} />} />
+        <StatCard title={t('dualRead.arbitrated')} value={discArbitrated} icon={<CheckCircle size={16} />} />
+        <StatCard title={t('dualRead.avgDiscrepancy')} value={`${(discAvg * 100).toFixed(1)}%`} icon={<BarChart3 size={16} />} />
+        <StatCard title={t('dualRead.pending')} value={assignments.filter(a => a.status === 'both_done').length} icon={<AlertTriangle size={16} />} />
+      </StatCardGrid>
       <Card extra={<Button type="primary" icon={<UserCheck size={14} />} loading={actionLoading} onClick={() => setAssignOpen(true)}>{t('dualRead.assignDualRead')}</Button>}>
         <Table rowKey="id" dataSource={assignPagination.pageData} columns={columns} pagination={assignPagination.pagination} size="small" loading={loading} scroll={{ x: 'max-content' }}/>
       </Card>
@@ -333,7 +334,7 @@ const DualReadPage: React.FC = () => {
           </Space>
         )}
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

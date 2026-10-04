@@ -12,6 +12,7 @@ import {
   Link2, Plus, RotateCw, Search, PlayCircle, CheckCircle2, AlertTriangle, XCircle,
 } from 'lucide-react'
 import { LoadingBanner, ErrorBanner } from '../../components/feedback'
+import { StatCard, StatCardGrid } from '../../components/common'
 import { t } from '../../i18n/appI18n'
 import {
   auditChainApi, complianceAssessmentApi, drApi, fieldEncryptionApi, hsmApi, ocspApi, raApi, w13CertificateApi,
@@ -166,12 +167,12 @@ const CaTab: React.FC = () => {
   return (
     <Space direction="vertical" style={{ width: '100%' }} size={16}>
       {error && <ErrorBanner message={error} />}
-      <Row gutter={16}>
-        <Col span={6}><Card size="small"><Statistic title={t('w13Sec.ca.stats.pending')} value={stats?.pending ?? 0} prefix={<KeyRound size={16} />} valueStyle={{ color: '#d97706' }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w13Sec.ca.stats.approved')} value={stats?.approved ?? 0} valueStyle={{ color: '#16a34a' }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w13Sec.ca.stats.rejected')} value={stats?.rejected ?? 0} valueStyle={{ color: '#dc2626' }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('w13Sec.ca.stats.certs')} value={stats?.issuedCertificates ?? certs.length} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16}>
+        <StatCard title={t('w13Sec.ca.stats.pending')} value={stats?.pending ?? 0} icon={<KeyRound size={16} />} color="warning" />
+        <StatCard title={t('w13Sec.ca.stats.approved')} value={stats?.approved ?? 0} color="success" />
+        <StatCard title={t('w13Sec.ca.stats.rejected')} value={stats?.rejected ?? 0} color="error" />
+        <StatCard title={t('w13Sec.ca.stats.certs')} value={stats?.issuedCertificates ?? certs.length} />
+      </StatCardGrid>
 
       <Row gutter={16}>
         <Col span={10}>
@@ -313,12 +314,12 @@ const FieldEncryptionTab: React.FC = () => {
   return (
     <Space direction="vertical" style={{ width: '100%' }} size={16}>
       {error && <ErrorBanner message={error} />}
-      <Row gutter={16}>
-        <Col span={6}><Card size="small"><Statistic title={t('w13Sec.fe.default')} value={info?.default ?? '-'} prefix={<Lock size={16} />} /></Card></Col>
-        <Col span={8}><Card size="small"><Statistic title={t('w13Sec.fe.supported')} value={(info?.supported ?? []).join(' / ')} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title={t('w13Sec.fe.keySource')} value={info?.keySource ?? '-'} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title={t('w13Sec.fe.sm4')} value={info?.sm4Available ? t('w13Sec.fe.available') : '-'} prefix={<Lock size={16} />} valueStyle={{ color: info?.sm4Available ? '#16a34a' : undefined }} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16}>
+        <StatCard title={t('w13Sec.fe.default')} value={info?.default ?? '-'} icon={<Lock size={16} />} />
+        <StatCard title={t('w13Sec.fe.supported')} value={(info?.supported ?? []).join(' / ')} />
+        <StatCard title={t('w13Sec.fe.keySource')} value={info?.keySource ?? '-'} />
+        <StatCard title={t('w13Sec.fe.sm4')} value={info?.sm4Available ? t('w13Sec.fe.available') : '-'} icon={<Lock size={16} />} color={info?.sm4Available ? 'success' : undefined} />
+      </StatCardGrid>
       <Row gutter={16}>
         <Col span={12}>
           <Card
@@ -569,14 +570,14 @@ const DrTab: React.FC = () => {
   return (
     <Space direction="vertical" style={{ width: '100%' }} size={16}>
       {error && <ErrorBanner message={error} />}
-      <Row gutter={16}>
-        <Col span={4}><Card size="small"><Statistic title={t('w13Sec.dr.rpo')} value={status.rpo.targetMinutes} suffix="min" /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('w13Sec.dr.rto')} value={status.rto.targetMinutes} suffix="min" /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('w13Sec.dr.rpoActual')} value={status.rpo.actualMinutes ?? '-'} suffix="min" valueStyle={{ color: status.rpo.compliant ? '#16a34a' : '#dc2626' }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('w13Sec.dr.rtoActual')} value={status.rto.lastActualMinutes ?? '-'} suffix="min" valueStyle={{ color: status.rto.compliant ? '#16a34a' : '#d97706' }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('w13Sec.dr.restorePoints')} value={status.restorePoints.total} prefix={<DatabaseBackup size={16} />} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('w13Sec.dr.passRate')} value={status.drills.passRate} suffix="%" valueStyle={{ color: status.drills.passRate >= 80 ? '#16a34a' : '#d97706' }} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16}>
+        <StatCard title={t('w13Sec.dr.rpo')} value={status.rpo.targetMinutes} suffix="min" />
+        <StatCard title={t('w13Sec.dr.rto')} value={status.rto.targetMinutes} suffix="min" />
+        <StatCard title={t('w13Sec.dr.rpoActual')} value={status.rpo.actualMinutes ?? '-'} suffix="min" color={status.rpo.compliant ? 'success' : 'error'} />
+        <StatCard title={t('w13Sec.dr.rtoActual')} value={status.rto.lastActualMinutes ?? '-'} suffix="min" color={status.rto.compliant ? 'success' : 'warning'} />
+        <StatCard title={t('w13Sec.dr.restorePoints')} value={status.restorePoints.total} icon={<DatabaseBackup size={16} />} />
+        <StatCard title={t('w13Sec.dr.passRate')} value={status.drills.passRate} suffix="%" color={status.drills.passRate >= 80 ? 'success' : 'warning'} />
+      </StatCardGrid>
 
       <Card size="small" title={<span><DatabaseBackup size={14} /> {t('w13Sec.dr.title')}</span>}
         extra={<Space>

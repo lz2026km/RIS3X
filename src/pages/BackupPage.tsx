@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { backupApi, type BackupDto } from '../services/api/systemApi'
-import { Card, Tag, Button, Space, message, Modal, Select, Row, Col, Statistic, Tabs, Descriptions, Tooltip } from 'antd'
+import { Card, Tag, Button, Space, message, Modal, Select, Row, Tabs, Descriptions, Tooltip } from 'antd'
 import { CloudUploadOutlined, DownloadOutlined, UndoOutlined, SafetyOutlined, ClockCircleOutlined, SyncOutlined, DatabaseOutlined } from '@ant-design/icons'
 import { usePagination } from '../hooks/usePagination'
+import { StatCard, StatCardGrid, PageContainer } from '../components/common'
 import { PageHeader } from '../components/common/PageHeader'
 import { DataTable } from '../components/common/DataTable'
 import { ActionButton } from '../components/common/ActionButton'
@@ -86,7 +87,7 @@ export default function BackupPage() {
   const totalSize = completedBackups.reduce((acc, b) => acc + (b.sizeBytes ?? 0), 0)
 
   return (
-    <div style={{ padding: 24 }}>
+    <PageContainer padding={24}>
       <Card>
         <Space orientation="vertical" style={{ width: '100%' }}>
           <Row justify="space-between" align="middle">
@@ -109,28 +110,12 @@ export default function BackupPage() {
 
           {loadError && !loading && <ErrorBanner message={loadError} />}
 
-          <Row gutter={16}>
-            <Col span={6}>
-              <Card size="small">
-                <Statistic title={t('bk.total')} value={list.length} prefix={<CloudUploadOutlined />} />
-              </Card>
-            </Col>
-            <Col span={6}>
-              <Card size="small">
-                <Statistic title={t('bk.fullBackup')} value={list.filter((b) => b.type === 'FULL').length} prefix={<DatabaseOutlined />} />
-              </Card>
-            </Col>
-            <Col span={6}>
-              <Card size="small">
-                <Statistic title={t('bk.incrementalBackup')} value={list.filter((b) => b.type === 'INCREMENTAL').length} prefix={<SyncOutlined />} />
-              </Card>
-            </Col>
-            <Col span={6}>
-              <Card size="small">
-                <Statistic title={t('bk.totalStorage')} value={(totalSize / 1024 / 1024).toFixed(1)} suffix="MB" prefix={<CloudUploadOutlined />} />
-              </Card>
-            </Col>
-          </Row>
+          <StatCardGrid minWidth={200} gap={16}>
+            <StatCard title={t('bk.total')} value={list.length} icon={<CloudUploadOutlined />} />
+            <StatCard title={t('bk.fullBackup')} value={list.filter((b) => b.type === 'FULL').length} icon={<DatabaseOutlined />} />
+            <StatCard title={t('bk.incrementalBackup')} value={list.filter((b) => b.type === 'INCREMENTAL').length} icon={<SyncOutlined />} />
+            <StatCard title={t('bk.totalStorage')} value={(totalSize / 1024 / 1024).toFixed(1)} suffix="MB" icon={<CloudUploadOutlined />} />
+          </StatCardGrid>
 
           <Tabs items={[
             {
@@ -161,6 +146,6 @@ export default function BackupPage() {
           ]} />
         </Space>
       </Card>
-    </div>
+    </PageContainer>
   )
 }

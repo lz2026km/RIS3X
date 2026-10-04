@@ -8,6 +8,7 @@ import { dentalApi } from '../../services/api/dentalApi';
 import { ErrorBanner } from '../../components/feedback';
 import { MODALITY_LABELS, MODALITY_COLORS } from '../../data/dental/constants';
 import { t } from '../../i18n/appI18n';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 
 const QUALITY_LABELS: Record<string, string> = { Diagnostic: 'dentalStudies.qualityDiagnostic', Acceptable: 'dentalStudies.qualityAcceptable', Suboptimal: 'dentalStudies.qualitySuboptimal', Reject: 'dentalStudies.qualityReject' };
 const STATUS_LABELS: Record<string, string> = { acquired: 'dentalStudies.statusAcquired', reviewed: 'dentalStudies.statusReviewed', reported: 'dentalStudies.statusReported', archived: 'dentalStudies.statusArchived' };
@@ -149,7 +150,7 @@ export const DentalStudiesPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <Activity size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalStudies.title')}</span>
@@ -157,14 +158,14 @@ export const DentalStudiesPage: React.FC = () => {
         <Tag color="purple">{t('dentalStudies.benchmark')}</Tag>
       </Space>
       {loadError && <ErrorBanner message={loadError} onRetry={() => void load()} retryLabel={t('w9.states.retry')} />}
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title={t('dentalStudies.statAll')} value={stats.total} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="CBCT" value={stats.cbct} styles={{ content: {  color: '#722ed1'  } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('dentalStudies.statPanoramic')} value={stats.panoramic} styles={{ content: {  color: '#2563eb'  } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('dentalStudies.statPeriapical')} value={stats.periapical} styles={{ content: {  color: '#52c41a'  } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('dentalStudies.statScan')} value={stats.scan} styles={{ content: {  color: '#13c2c2'  } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('dentalStudies.statToday')} value={studies.filter(s => s.acquisitionDate === new Date().toISOString().slice(0,10)).length} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={180} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('dentalStudies.statAll')} value={stats.total} icon={<Activity size={16} />} />
+        <StatCard title="CBCT" value={stats.cbct} color="#722ed1" />
+        <StatCard title={t('dentalStudies.statPanoramic')} value={stats.panoramic} color="primary" />
+        <StatCard title={t('dentalStudies.statPeriapical')} value={stats.periapical} color="success" />
+        <StatCard title={t('dentalStudies.statScan')} value={stats.scan} color="info" />
+        <StatCard title={t('dentalStudies.statToday')} value={studies.filter(s => s.acquisitionDate === new Date().toISOString().slice(0,10)).length} />
+      </StatCardGrid>
       <Card size="small" style={{ marginBottom: 12 }} title={<Space size={8}><GitCompareArrows size={14} />{t('dentalStudies.compareTitle')}</Space>}>
         <Space wrap>
           <Select size="small" style={{ width: 220 }} placeholder={t('dentalStudies.imageA')} value={cmpA} onChange={setCmpA} options={studyOptions} showSearch optionFilterProp="label" />
@@ -341,7 +342,7 @@ export const DentalStudiesPage: React.FC = () => {
           </>
         )}
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 export default DentalStudiesPage;

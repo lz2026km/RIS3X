@@ -1,10 +1,11 @@
 // [v3.0.6.8-47] PR3: 通知 + 模板 + 词典综合管理
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, message, Tabs, List, Statistic, InputNumber, Modal, Badge, Table, Switch, Avatar } from 'antd';
+import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, message, Tabs, List, InputNumber, Modal, Badge, Table, Switch, Avatar } from 'antd';
 import { Bell, FileText, BookOpen, Plus, Edit3, CheckCircle2, RefreshCw } from 'lucide-react';
 import { notificationApi, templateApi, dictionaryApi } from '@/services/api/notificationTemplateDictApi';
 import { LoadingBanner } from '../../components/feedback';
 import { t } from '../../i18n/appI18n';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 
 const { TextArea } = Input;
 
@@ -167,7 +168,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
   });
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <Bell size={20} color="#f5222d" />
         <FileText size={20} color="#2563eb" />
@@ -189,20 +190,12 @@ export const NotificationTemplateDictPage: React.FC = () => {
           </span>
         } key="notifications">
           <Row gutter={16}>
-            <Col span={4}>
-              <Card size="small">
-                <Statistic title={t('notificationTemplateDict.unread')} value={unreadCount} styles={{ content: {  color: '#f5222d'  } }} />
-              </Card>
-            </Col>
-            <Col span={4}>
-              <Card size="small">
-                <Statistic title={t('notificationTemplateDict.totalNotifs')} value={notifs.length} />
-              </Card>
-            </Col>
-            <Col span={4}>
-              <Card size="small">
-                <Statistic title={t('notificationTemplateDict.critical')} value={notifs.filter((n: any) => n.severity === 'critical').length} styles={{ content: {  color: '#f5222d'  } }} />
-              </Card>
+            <Col span={12}>
+              <StatCardGrid minWidth={120}>
+                <StatCard title={t('notificationTemplateDict.unread')} value={unreadCount} color="error" />
+                <StatCard title={t('notificationTemplateDict.totalNotifs')} value={notifs.length} />
+                <StatCard title={t('notificationTemplateDict.critical')} value={notifs.filter((n: any) => n.severity === 'critical').length} color="error" />
+              </StatCardGrid>
             </Col>
             <Col span={12}>
               <Space>
@@ -358,7 +351,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
           </Row>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 

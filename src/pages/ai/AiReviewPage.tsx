@@ -4,6 +4,7 @@ import { Shield, CheckCircle, AlertTriangle, FileText, Brain, ThumbsUp } from 'l
 import React, { useState, useCallback } from 'react'
 import { Inbox } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
+import { PageContainer } from '../../components/common'
 
 const { Text, Title } = Typography
 const { TextArea } = Input
@@ -79,7 +80,7 @@ const AiReviewPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: 24, minHeight: '100vh', background: '#f5f5f5' }}>
+    <PageContainer padding={24}>
       <Card style={{ marginBottom: 16 }}>
         <Space style={{ marginBottom: 16 }}>
           <Shield size={24} color="#2563eb" />
@@ -207,7 +208,7 @@ const AiReviewPage: React.FC = () => {
           )}
         </Col>
       </Row>
-    </div>
+    </PageContainer>
   )
 }
 

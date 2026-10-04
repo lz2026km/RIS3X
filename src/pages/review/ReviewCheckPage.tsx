@@ -8,10 +8,11 @@
 //   通过 → POST /reports/:id/transition (REVIEWED); 驳回 → transition (REJECTED)
 //   双签待办 → GET /cosign/pending (cosign.controller)
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, message, Tabs, Statistic, Modal, Table } from 'antd';
+import { Card, Space, Tag, Button, Select, Input, Form, message, Tabs, Modal, Table } from 'antd';
 import { CheckCircle2, XCircle, FileSearch, Shield, RefreshCw, ClipboardCheck, FileCheck, PenTool } from 'lucide-react';
 import { reportApi } from '@/services/api/reportApi';
 import { cosignApi } from '@/services/api/reviewApi';
+import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
 import { t } from '../../i18n/appI18n';
 
 const { TextArea } = Input;
@@ -120,7 +121,7 @@ export const ReviewCheckPage: React.FC = () => {
   const [busy, setBusy] = useState(false);
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <ClipboardCheck size={20} color="#2563eb" />
         <FileCheck size={20} color="#52c41a" />
@@ -130,12 +131,12 @@ export const ReviewCheckPage: React.FC = () => {
         <Tag color="green">{t('reviewCheck.tagReportFlow')}</Tag>
       </Space>
 
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={5}><Card size="small"><Statistic title={t('reviewCheck.statInitialPending')} value={filteredInitial.length} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title={t('reviewCheck.statFinalPending')} value={finalItems.length} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title={t('reviewCheck.statReviewPending')} value={reviews.length} styles={{ content: { color: '#722ed1' } }} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title={t('reviewCheck.statCosignPending')} value={cosignPending} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard title={t('reviewCheck.statInitialPending')} value={filteredInitial.length} color="warning" icon={<FileSearch size={18} />} />
+        <StatCard title={t('reviewCheck.statFinalPending')} value={finalItems.length} color="primary" icon={<FileCheck size={18} />} />
+        <StatCard title={t('reviewCheck.statReviewPending')} value={reviews.length} color="#722ed1" icon={<Shield size={18} />} />
+        <StatCard title={t('reviewCheck.statCosignPending')} value={cosignPending} color="success" icon={<CheckCircle2 size={18} />} />
+      </StatCardGrid>
 
       <Tabs activeKey={activeTab} onChange={setActiveTab} type="card">
         {/* 初核 */}
@@ -296,7 +297,7 @@ export const ReviewCheckPage: React.FC = () => {
           </div>
         )}
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 

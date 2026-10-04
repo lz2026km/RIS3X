@@ -15,6 +15,7 @@ import {
 import { followupApi, type FollowUpPlan } from '../../services/api/followupApi'
 import { selfRegistrationApi, type SelfIdentifyResultDto, type SelfPatientDto, type SelfCheckInResultDto, type SelfQueueNumberDto } from '../../services/api/w12PatientApi'
 import { t } from '../../i18n/appI18n'
+import { StatCard, StatCardGrid } from '../../components/common'
 
 // ===== Types =====
 export type { PortalPatientDto as PatientPortalUser, ExamHistoryItemDto as ExamHistoryItem, ImagePreviewDto as ImagePreview }
@@ -786,17 +787,11 @@ export default function SelfServicePortal() {
       label: t('selfService.tab.home'),
       children: (
         <div>
-          <div style={styles.statRow}>
-            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
-              <Statistic title={t('selfService.home.examRecords')} value={exams.length} suffix={t('selfService.home.examRecordsSuffix')} />
-            </Card>
-            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
-              <Statistic title={t('selfService.home.pendingAppointments')} value={upcomingAppointments.length} suffix={t('selfService.home.pendingAppointmentsSuffix')} />
-            </Card>
-            <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
-              <Statistic title={t('selfService.home.reports')} value={reports.length} suffix={t('selfService.home.reportsSuffix')} />
-            </Card>
-          </div>
+          <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 20 }}>
+            <StatCard title={t('selfService.home.examRecords')} value={exams.length} suffix={t('selfService.home.examRecordsSuffix')} />
+            <StatCard title={t('selfService.home.pendingAppointments')} value={upcomingAppointments.length} suffix={t('selfService.home.pendingAppointmentsSuffix')} />
+            <StatCard title={t('selfService.home.reports')} value={reports.length} suffix={t('selfService.home.reportsSuffix')} />
+          </StatCardGrid>
           <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
             <h3 style={styles.subTitle}>{t('selfService.home.todayTodo')}</h3>
             {upcomingAppointments.length === 0 && reports.length === 0 ? (

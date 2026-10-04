@@ -11,7 +11,8 @@ import type {
 import { usePagination } from "@/hooks/usePagination";
 import { startSession, runTestCase, addStep, endSession, exportReport, presetXdsTestCases, presetPixTestCases, presetPdqvTestCases, presetAtnaTestCases, presetPamTestCases } from '@services/integration/connectathon/IheTesting';
 import { IHE_PROFILES } from "@services/integration/ihe/IheProfiles";
-import { Card, Space, Tag, Button, Table, Empty, Statistic, Row, Col, Progress, Select, Input } from 'antd';
+import { Card, Space, Tag, Button, Table, Empty, Row, Col, Progress, Select, Input } from 'antd';
+import { StatCard, StatCardGrid } from '../../components/common';
 import {
   Activity,
   Trophy,
@@ -310,78 +311,39 @@ export const IheConnectathonPage: React.FC = () => {
           </Card>
         </Col>
         <Col span={18}>
-          <Row gutter={8}>
-            <Col span={4}>
-              <Card size="small">
-                <Statistic
-                  title={t("iheConn.cases")}
-                  value={session?.totalCount ?? 0}
-                  prefix={
-                    <FileText
-                      className="w-3 h-3"
-                      style={{ color: "#7c3aed" }}
-                    />
-                  }
-                  styles={{ content: {  fontSize: 16  } }}
-                />
-              </Card>
-            </Col>
-            <Col span={5}>
-              <Card size="small">
-                <Statistic
-                  title={t("iheConn.pass")}
-                  value={session?.passCount ?? 0}
-                  prefix={
-                    <CheckCircle2
-                      className="w-3 h-3"
-                      style={{ color: "#10b981" }}
-                    />
-                  }
-                  styles={{ content: {  fontSize: 16  } }}
-                  suffix={`/ ${session?.totalCount ?? 0}`}
-                />
-              </Card>
-            </Col>
-            <Col span={5}>
-              <Card size="small">
-                <Statistic
-                  title={t("iheConn.warning")}
-                  value={session?.warnCount ?? 0}
-                  prefix={
-                    <AlertCircle
-                      className="w-3 h-3"
-                      style={{ color: "#f59e0b" }}
-                    />
-                  }
-                  styles={{ content: {  fontSize: 16  } }}
-                />
-              </Card>
-            </Col>
-            <Col span={5}>
-              <Card size="small">
-                <Statistic
-                  title={t("iheConn.fail")}
-                  value={session?.failCount ?? 0}
-                  prefix={
-                    <XCircle className="w-3 h-3" style={{ color: "#dc2626" }} />
-                  }
-                  styles={{ content: {  fontSize: 16  } }}
-                />
-              </Card>
-            </Col>
-            <Col span={5}>
-              <Card size="small">
-                <Statistic
-                  title={t("iheConn.skip")}
-                  value={session?.skipCount ?? 0}
-                  prefix={
-                    <Clock className="w-3 h-3" style={{ color: "#64748b" }} />
-                  }
-                  styles={{ content: {  fontSize: 16  } }}
-                />
-              </Card>
-            </Col>
-          </Row>
+          <StatCardGrid minWidth={200} gap={8}>
+            <StatCard
+              title={t("iheConn.cases")}
+              value={session?.totalCount ?? 0}
+              color="#7c3aed"
+              icon={<FileText className="w-3 h-3" style={{ color: "#7c3aed" }} />}
+            />
+            <StatCard
+              title={t("iheConn.pass")}
+              value={session?.passCount ?? 0}
+              color="success"
+              suffix={`/ ${session?.totalCount ?? 0}`}
+              icon={<CheckCircle2 className="w-3 h-3" style={{ color: "#10b981" }} />}
+            />
+            <StatCard
+              title={t("iheConn.warning")}
+              value={session?.warnCount ?? 0}
+              color="warning"
+              icon={<AlertCircle className="w-3 h-3" style={{ color: "#f59e0b" }} />}
+            />
+            <StatCard
+              title={t("iheConn.fail")}
+              value={session?.failCount ?? 0}
+              color="error"
+              icon={<XCircle className="w-3 h-3" style={{ color: "#dc2626" }} />}
+            />
+            <StatCard
+              title={t("iheConn.skip")}
+              value={session?.skipCount ?? 0}
+              color="#64748b"
+              icon={<Clock className="w-3 h-3" style={{ color: "#64748b" }} />}
+            />
+          </StatCardGrid>
 
           <Card
             size="small"

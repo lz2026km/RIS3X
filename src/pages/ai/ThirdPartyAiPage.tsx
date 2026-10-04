@@ -6,9 +6,6 @@ import {
   Button,
   Tag,
   Space,
-  Row,
-  Col,
-  Statistic,
   Modal,
   Form,
   Input,
@@ -31,6 +28,7 @@ import {
 } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import { t } from "../../i18n/appI18n";
+import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
 
 const statusLabel: Record<string, string> = {
   active: t("thirdAi.status.active"),
@@ -255,7 +253,7 @@ const ThirdPartyAiPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
+    <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <Plug size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t("thirdAi.title")}</span>
@@ -268,45 +266,32 @@ const ThirdPartyAiPage: React.FC = () => {
           {t("thirdAi.refresh")}
         </Button>
       </Space>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title={t("thirdAi.statTotal")}
-              value={providers.length}
-              prefix={<Plug size={16} />}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title={t("thirdAi.statConnected")}
-              value={connected}
-              styles={{ content: {  color: "#52c41a"  } }}
-              prefix={<CheckCircle size={16} />}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title={t("thirdAi.statRequests")}
-              value={totalRequests}
-              prefix={<Zap size={16} />}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title={t("thirdAi.statAvgAccuracy")}
-              value={`${(avgAccuracy * 100).toFixed(1)}%`}
-              prefix={<Shield size={16} />}
-            />
-          </Card>
-        </Col>
-      </Row>
+      <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
+        <StatCard
+          title={t("thirdAi.statTotal")}
+          value={providers.length}
+          icon={<Plug size={18} />}
+          color="primary"
+        />
+        <StatCard
+          title={t("thirdAi.statConnected")}
+          value={connected}
+          color="success"
+          icon={<CheckCircle size={18} />}
+        />
+        <StatCard
+          title={t("thirdAi.statRequests")}
+          value={totalRequests}
+          icon={<Zap size={18} />}
+          color="warning"
+        />
+        <StatCard
+          title={t("thirdAi.statAvgAccuracy")}
+          value={`${(avgAccuracy * 100).toFixed(1)}%`}
+          icon={<Shield size={18} />}
+          color="info"
+        />
+      </StatCardGrid>
       {error && (
         <Alert
           type="error"
@@ -444,7 +429,7 @@ const ThirdPartyAiPage: React.FC = () => {
           </Space>
         )}
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 
