@@ -439,7 +439,7 @@ export default function DoseLiveMonitor() {
             <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>{t('doseLive.noExamToday')}</div>
           ) : (
           <ChartContainer height={240} state={distributionData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('doseLive.noDistribution')}>
-            <BarChart data={distributionData} margin={{ top: 4, right: 8, left: -12, bottom: 0 }}>
+            <BarChart data={distributionData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="bodyPart" tick={{ fontSize: 12, fill: "#94a3b8" }} />
                 <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} />
@@ -517,12 +517,11 @@ export default function DoseLiveMonitor() {
             ) : cumulative ? (
               <>
           <ChartContainer height={220} state={trendData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('doseLive.noTrend')}>
-            <LineChart data={trendData} margin={{ top: 4, right: 8, left: -12, bottom: 0 }}>
+            <LineChart data={trendData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                     <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#94a3b8" }} />
                     <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} />
                     <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v: number | string) => [`${v} mGy·cm`, "月度DLP"]} />
-                    <Legend iconSize={10} />
                     <ReferenceLine y={cumulative.annualLimit / 12} stroke="#dc2626" strokeDasharray="5 5" label={{ value: t('doseLive.monthlyLimit'), fontSize: 11, fill: "#dc2626", position: "insideTopRight" }} />
                     <Line type="monotone" dataKey="totalDlp" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} name={t('doseLive.monthlyDlp')} />
                   </LineChart>
@@ -624,14 +623,15 @@ export default function DoseLiveMonitor() {
             </div>
             {statsTrendData.length > 0 ? (
           <ChartContainer height={200} state={statsTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('doseLive.noStatsTrend')}>
-            <LineChart data={statsTrendData} margin={{ top: 4, right: 8, left: -12, bottom: 0 }}>
+            <LineChart data={statsTrendData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                   <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#94a3b8" }} />
-                  <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} />
+                  <YAxis yAxisId="left" tick={{ fontSize: 11, fill: "#3b82f6" }} unit=" mGy" width={60} />
+                  <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: "#8b5cf6" }} unit=" mGy·cm" width={70} />
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
                   <Legend iconSize={10} />
-                  <Line type="monotone" dataKey="avgDlp" stroke="#3b82f6" strokeWidth={2} dot={{ r: 2 }} name={t('doseLive.avgDlpLabel')} />
-                  <Line type="monotone" dataKey="avgCtdivol" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 2 }} name={t('doseLive.avgCtdiVolLabel')} />
+                  <Line yAxisId="left" type="monotone" dataKey="avgCtdivol" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 2 }} name={`${t('doseLive.avgCtdiVolLabel')} (mGy)`} />
+                  <Line yAxisId="right" type="monotone" dataKey="avgDlp" stroke="#3b82f6" strokeWidth={2} dot={{ r: 2 }} name={`${t('doseLive.avgDlpLabel')} (mGy·cm)`} />
                 </LineChart>
               </ChartContainer>
             ) : (

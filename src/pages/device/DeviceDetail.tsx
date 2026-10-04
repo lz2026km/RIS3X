@@ -2,8 +2,9 @@ import {
   Activity, X, Settings, Camera, QrCode, Clock, TrendingUp, Heart, Gauge, Wrench,
 } from 'lucide-react'
 import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts'
+import { ChartContainer, chartDefaults } from '../../components/charts'
 import { C } from './DeviceStatusBadge'
 import { t } from '../../i18n/appI18n'
 
@@ -304,15 +305,15 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
               <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <TrendingUp size={13} /> {t('deviceDetail.trend7d')}
               </div>
-              <ResponsiveContainer width="100%" height={120}>
-                <AreaChart data={device7d}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#94a3b8' }} />
-                  <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} />
-                  <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12 }} />
+              <ChartContainer type="area" height={180}>
+                <AreaChart data={device7d} margin={chartDefaults.margin}>
+                  <CartesianGrid {...chartDefaults.grid} />
+                  <XAxis dataKey="date" {...chartDefaults.axis} />
+                  <YAxis {...chartDefaults.axis} />
+                  <Tooltip {...chartDefaults.tooltip} contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12 }} />
                   <Area type="monotone" dataKey="count" stroke={C.accent} fill={`${C.accent}22`} strokeWidth={2} />
                 </AreaChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </div>
 
             <div style={{

@@ -74,7 +74,15 @@ function normalizeList(res: { success: boolean; data: unknown }): any[] {
   return []
 }
 
-const fmtMoney = (v?: number) => `¥${(v ?? 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`
+const fmtMoney = (v?: number) => `¥${(Number.isFinite(v) ? (v as number) : 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`
+
+function DemoBadge() {
+  return (
+    <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>
+      {t('deptFinance.demoData')}
+    </span>
+  )
+}
 const fmtDate = (iso?: string) => {
   if (!iso) return '—'
   const d = new Date(iso)
@@ -238,23 +246,43 @@ export default function DepartmentFinancePage() {
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([month, v]) => ({ month, revenue: v.revenue, paid: v.paid }))
 
-  const totalRev = MONTHLY_REVENUE.reduce((s, m) => s + m.revenue, 0)
-  const totalCost = MONTHLY_REVENUE.reduce((s, m) => s + m.cost, 0)
-  const totalProfit = MONTHLY_REVENUE.reduce((s, m) => s + m.profit, 0)
-  const margin = ((totalProfit / totalRev) * 100).toFixed(1)
-
-  // [G005 W1-Controls P1-6] 真实接口数据派生 (revenue-analysis / cost-accounting)
+  // [G005 W1-Controls P1-6] 单一数据源: API 存在则用 API, 否则回退演示并加徽标
   const apiRevenue = revenueData
+  const hasApiRevenue = !!revenueData && Number.isFinite(revenueData.totalRevenue)
+  const hasApiCost = !!costData && Number.isFinite(costData.total)
   const apiCostItems = costData
     ? [
-        { label: t('w1Controls.deptFinance.labor'), value: costData.laborCost, color: '#ef4444' },
-        { label: t('w1Controls.deptFinance.equipment'), value: costData.equipmentDepreciation, color: '#f59e0b' },
-        { label: t('w1Controls.deptFinance.material'), value: costData.materialCost, color: '#3b82f6' },
-        { label: t('w1Controls.deptFinance.maintenance'), value: costData.maintenanceCost, color: '#22c55e' },
-        { label: t('w1Controls.deptFinance.other'), value: costData.otherCost, color: '#8b5cf6' },
+        { label: t('w1Controls.deptFinance.labor'), value: Number(costData.laborCost) || 0, color: '#ef4444' },
+        { label: t('w1Controls.deptFinance.equipment'), value: Number(costData.equipmentDepreciation) || 0, color: '#f59e0b' },
+        { label: t('w1Controls.deptFinance.material'), value: Number(costData.materialCost) || 0, color: '#3b82f6' },
+        { label: t('w1Controls.deptFinance.maintenance'), value: Number(costData.maintenanceCost) || 0, color: '#22c55e' },
+        { label: t('w1Controls.deptFinance.other'), value: Number(costData.otherCost) || 0, color: '#8b5cf6' },
       ]
     : []
-  const apiCostTotal = costData?.total ?? apiCostItems.reduce((s, c) => s + c.value, 0)
+  const apiCostParts = apiCostItems.reduce((s, c) => s + (Number.isFinite(c.value) ? c.value : 0), 0)
+  const apiCostTotal = hasApiCost && (costData?.total ?? 0) > 0 ? (costData as CostAccountingDto).total : apiCostParts
+
+  const demoRev = MONTHLY_REVENUE.reduce((s, m) => s + m.revenue, 0)
+  const demoCost = MONTHLY_REVENUE.reduce((s, m) => s + m.cost, 0)
+  const demoProfit = MONTHLY_REVENUE.reduce((s, m) => s + m.profit, 0)
+  const totalRev = hasApiRevenue ? revenueData!.totalRevenue : demoRev
+  const totalCost = hasApiCost && (costData?.total ?? 0) > 0 ? (costData as CostAccountingDto).total : (hasApiRevenue ? revenueData!.totalCost : demoCost)
+  const totalProfit = hasApiRevenue ? revenueData!.totalProfit : demoProfit
+  const margin = totalRev > 0 ? ((totalProfit / totalRev) * 100).toFixed(1) : '0.0'
+
+  // 月度趋势 / 模态收入 / 成本构成: 优先 API, 否则演示
+  const monthlyTrendData = revenueData?.monthly && revenueData.monthly.length > 0
+    ? revenueData.monthly.map(m => ({ month: m.month, revenue: m.revenue, cost: m.cost, profit: m.profit }))
+    : MONTHLY_REVENUE
+  const monthlyTrendIsDemo = !(revenueData?.monthly && revenueData.monthly.length > 0)
+  const modalityBarData = hasApiRevenue && revenueData!.byModality.length > 0
+    ? revenueData!.byModality.map((m, i) => ({ name: m.modality, value: m.revenue, color: ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#6e7681'][i % 6] }))
+    : REVENUE_BY_MODALITY
+  const modalityIsDemo = !(hasApiRevenue && revenueData!.byModality.length > 0)
+  const costPieData = hasApiCost
+    ? apiCostItems.map(c => ({ category: c.label, amount: c.value, color: c.color }))
+    : COST_BREAKDOWN.map((c, i) => ({ category: c.category, amount: c.amount, color: ['#ef4444', '#f59e0b', '#3b82f6', '#22c55e', '#8b5cf6'][i % 5] }))
+  const costPieIsDemo = !hasApiCost
 
   const invoiceColumns = [
     { title: t('deptFinance.colInvoiceNo'), dataIndex: 'id', key: 'id', render: (v: string) => <span style={{ fontSize: 12, fontFamily: 'monospace', color: 'var(--color-primary-300)' }}>{v}</span> },
@@ -383,6 +411,7 @@ export default function DepartmentFinancePage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('w1Controls.deptFinance.apiSource')}</span>
             <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>· {t('w1Controls.deptFinance.periodLabel')}: {apiRevenue?.period ?? costData?.period ?? period}</span>
+            {!hasApiRevenue && !hasApiCost && <DemoBadge />}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 16 }}>
@@ -423,7 +452,7 @@ export default function DepartmentFinancePage() {
               {costData ? (
                 <>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-                    <ChartContainer height={160} style={{ width: 160, flexShrink: 0 }}>
+                    <ChartContainer type="pie" height={160} style={{ width: 200, flexShrink: 0 }}>
                       <PieChart>
                         <Pie data={apiCostItems} cx="50%" cy="50%" outerRadius={70} dataKey="value" nameKey="label">
                           {apiCostItems.map((e, i) => <Cell key={i} fill={e.color} />)}
@@ -456,9 +485,10 @@ export default function DepartmentFinancePage() {
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 16 }}>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <TrendingUp size={16} color="var(--color-primary)" />{t('deptFinance.monthlyTrend')}
+                {monthlyTrendIsDemo && <DemoBadge />}
               </div>
-              <ChartContainer height={260} state={MONTHLY_REVENUE.length === 0 ? 'empty' : 'ready'} emptyDescription={t('deptFinance.noTrendData')}>
-                <LineChart data={MONTHLY_REVENUE}>
+              <ChartContainer height={260} state={monthlyTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('deptFinance.noTrendData')}>
+                <LineChart data={monthlyTrendData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default)" />
                   <XAxis dataKey="month" tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} />
                   <YAxis tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} tickFormatter={v => `¥${(v / 1000).toFixed(0)}k`} />
@@ -474,15 +504,16 @@ export default function DepartmentFinancePage() {
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 16 }}>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <BarChart3 size={16} color="var(--color-warning)" />{t('deptFinance.revenueByModality')}
+                {modalityIsDemo && <DemoBadge />}
               </div>
-              <ChartContainer height={260} state={REVENUE_BY_MODALITY.length === 0 ? 'empty' : 'ready'} emptyDescription={t('deptFinance.noModalityData')}>
-                <BarChart data={REVENUE_BY_MODALITY}>
+              <ChartContainer height={260} state={modalityBarData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('deptFinance.noModalityData')}>
+                <BarChart data={modalityBarData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default)" />
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} />
                   <YAxis tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} tickFormatter={v => `¥${(v / 1000).toFixed(0)}k`} />
                   <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, t('deptFinance.revenue')]} />
                   <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                    {REVENUE_BY_MODALITY.map((e, i) => (
+                    {modalityBarData.map((e, i) => (
                       <Cell key={i} fill={e.color} />
                     ))}
                   </Bar>
@@ -495,27 +526,25 @@ export default function DepartmentFinancePage() {
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 16 }}>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <PieIcon size={16} color="var(--color-modality-mr)" />{t('deptFinance.costStructure')}
+                {costPieIsDemo && <DemoBadge />}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-                <ChartContainer height={180} style={{ width: 180, flexShrink: 0 }}>
+                <ChartContainer type="pie" height={180} style={{ width: 220, flexShrink: 0 }}>
                   <PieChart>
-                    <Pie data={COST_BREAKDOWN} cx="50%" cy="50%" outerRadius={80} dataKey="amount" nameKey="category" label={({ percent }) => `${(percent).toFixed(0)}%`}>
-                      {COST_BREAKDOWN.map((_e, i) => {
-                        const colors = ['#ef4444', '#f59e0b', '#3b82f6', '#22c55e', '#8b5cf6']
-                        return <Cell key={i} fill={colors[i]} />
-                      })}
+                    <Pie data={costPieData} cx="50%" cy="50%" outerRadius={58} dataKey="amount" nameKey="category" labelLine={false} label={({ percent }) => `${((percent ?? 0) * 100).toFixed(0)}%`}>
+                      {costPieData.map((e, i) => <Cell key={i} fill={e.color} />)}
                     </Pie>
                     <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, t('deptFinance.amount')]} />
                   </PieChart>
                 </ChartContainer>
                 <div style={{ flex: 1 }}>
-                  {COST_BREAKDOWN.map((c, i) => {
-                    const colors = ['#ef4444', '#f59e0b', '#3b82f6', '#22c55e', '#8b5cf6']
+                  {costPieData.map((c, i) => {
+                    const pct = apiCostTotal > 0 ? (c.amount / apiCostTotal) * 100 : 0
                     return (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontSize: 12 }}>
-                        <span style={{ width: 10, height: 10, borderRadius: 2, background: colors[i], display: 'inline-block' }} />
+                        <span style={{ width: 10, height: 10, borderRadius: 2, background: c.color, display: 'inline-block' }} />
                         <span style={{ color: 'var(--text-secondary)', flex: 1 }}>{c.category}</span>
-                        <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{c.percent}%</span>
+                        <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{pct.toFixed(0)}%</span>
                       </div>
                     )
                   })}
@@ -526,6 +555,7 @@ export default function DepartmentFinancePage() {
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 16 }}>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <BarChart3 size={16} color="var(--color-success)" />{t('deptFinance.paymentMix')}
+                <DemoBadge />
               </div>
               {INSURANCE_MIX.map((im, i) => (
                 <div key={i} style={{ marginBottom: 16 }}>

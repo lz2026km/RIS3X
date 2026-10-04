@@ -4,6 +4,7 @@ import { Card, Row, Col, Statistic, DatePicker, Spin, Space } from 'antd'
 import { Cpu, TrendingUp, Download } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
 import { aiDiagnosisApi } from '../../services/api/aiDiagnosisApi'
+import { seededInt, seededUnit } from '../../utils/seededRandom'
 import { DataTable } from '../../components/common/DataTable'
 import { ActionButton } from '../../components/common/ActionButton'
 
@@ -32,19 +33,20 @@ interface TrendPoint {
   totalCases: number
 }
 
-function rand(min: number, max: number): number {
-  return Math.round((Math.random() * (max - min) + min) * 100) / 100
+function rand(min: number, max: number, key: string): number {
+  return Math.round((seededUnit(key) * (max - min) + min) * 100) / 100
 }
 
 function fallbackAccuracy(): AccuracyData {
-  return { sensitivity: rand(82, 97), specificity: rand(80, 95), ppv: rand(78, 94), npv: rand(82, 96), accuracy: rand(84, 96), totalCases: Math.round(Math.random() * 2000 + 500) }
+  return { sensitivity: rand(82, 97, 'ai-acc-sens'), specificity: rand(80, 95, 'ai-acc-spec'), ppv: rand(78, 94, 'ai-acc-ppv'), npv: rand(82, 96, 'ai-acc-npv'), accuracy: rand(84, 96, 'ai-acc-acc'), totalCases: seededInt('ai-acc-cases', 500, 2499) }
 }
 
 function fallbackTrend(start: string): TrendPoint[] {
   return Array.from({ length: 30 }, (_, i) => {
     const d = new Date(start)
     d.setDate(d.getDate() + i)
-    return { date: d.toISOString().slice(0, 10), sensitivity: rand(78, 98), specificity: rand(76, 96), accuracy: rand(80, 97), totalCases: Math.round(Math.random() * 100 + 20) }
+    const key = d.toISOString().slice(0, 10)
+    return { date: key, sensitivity: rand(78, 98, `ai-tr-sens-${key}`), specificity: rand(76, 96, `ai-tr-spec-${key}`), accuracy: rand(80, 97, `ai-tr-acc-${key}`), totalCases: seededInt(`ai-tr-cases-${key}`, 20, 119) }
   })
 }
 

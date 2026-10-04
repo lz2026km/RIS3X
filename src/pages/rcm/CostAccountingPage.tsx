@@ -101,32 +101,35 @@ export default function CostAccountingPage() {
           setModalityCostData(liveByModality.length > 0
             ? liveByModality.map((m, i) => {
                 const fallback = DEMO_MODALITY_COST_DATA[i % DEMO_MODALITY_COST_DATA.length]!
+                const costPerExam = m.cost > 0 ? Math.round(m.cost / 100) : fallback.costPerExam * factor
+                const revenuePerExam = m.revenue > 0 ? Math.round(m.revenue / 100) : fallback.revenuePerExam * factor
                 return {
                   name: m.name || fallback.name,
-                  costPerExam: m.cost > 0 ? Math.round(m.cost / 100) : fallback.costPerExam * factor,
-                  revenuePerExam: m.revenue > 0 ? Math.round(m.revenue / 100) : fallback.revenuePerExam * factor,
-                  profitPerExam: 0,
+                  costPerExam,
+                  revenuePerExam,
+                  profitPerExam: Math.round((revenuePerExam - costPerExam) * 10) / 10,
                   color: fallback.color,
                 }
               })
-            : DEMO_MODALITY_COST_DATA.map(m => ({ ...m, costPerExam: m.costPerExam * factor, revenuePerExam: m.revenuePerExam * factor }))
+            : DEMO_MODALITY_COST_DATA.map(m => ({ ...m, costPerExam: m.costPerExam * factor, revenuePerExam: m.revenuePerExam * factor, profitPerExam: Math.round((m.revenuePerExam - m.costPerExam) * factor * 10) / 10 }))
           )
-          // 预算执行: 实际列来自真实发票按月聚合, 预算列为演示派生
-          const monthMap = new Map<string, number>()
+          // 预算执行: 预算与实际的单位统一为「成本」, 实际 = 当月收入 × 成本收入比
+          const monthRevMap = new Map<string, number>()
           for (const inv of invoices) {
             const rec = (inv ?? {}) as Record<string, unknown>
-            const date = String(rec.examDate ?? rec.createdAt ?? '')
+            const date = String(rec.examDate ?? rec.issuedAt ?? rec.createdAt ?? '')
             const month = date.slice(0, 7)
-            if (month.length === 7) monthMap.set(month, (monthMap.get(month) ?? 0) + toNumber(rec.totalAmount))
+            if (month.length === 7) monthRevMap.set(month, (monthRevMap.get(month) ?? 0) + toNumber(rec.totalAmount))
           }
+          const budgetCostRatio = liveTotalRevenue > 0 ? liveTotalCost / liveTotalRevenue : 0
           const demoBudgetMap = new Map(DEMO_BUDGET_DATA.map(b => [b.month, b.budget]))
-          const months = Array.from(new Set([...Array.from(monthMap.keys()), ...DEMO_BUDGET_DATA.map(b => b.month)]))
+          const months = Array.from(new Set([...Array.from(monthRevMap.keys()), ...DEMO_BUDGET_DATA.map(b => b.month)]))
             .sort()
             .slice(-6)
           setBudgetData(months.map(m => ({
             month: m,
             budget: Math.round((demoBudgetMap.get(m) ?? 450000) * factor),
-            actual: Math.round(monthMap.get(m) ?? 0),
+            actual: Math.round((monthRevMap.get(m) ?? 0) * budgetCostRatio),
           })))
           if (liveTotalRevenue > 0) setCostRevenueRatio(liveTotalCost / liveTotalRevenue)
           if (!cancelled) setSource('api')
@@ -255,7 +258,7 @@ export default function CostAccountingPage() {
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('w9e.costAccounting.compositionTitle')} {source === 'demo' && <span style={{ fontSize: 11, color: '#fbbf24', fontWeight: 400 }}>{t('w9e.revenueAnalysis.demoData')}</span>}</div>
                 <ChartContainer height={280} state={categoryData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.costAccounting.noCompositionData')}>
                   <RePie>
-                    <Pie data={categoryData} dataKey="actual" nameKey="name" cx="50%" cy="50%" outerRadius={90} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}>
+                    <Pie data={categoryData} dataKey="actual" nameKey="name" cx="50%" cy="50%" outerRadius={90} labelLine={false}>
                       {categoryData.map(d => <Cell key={d.name} fill={d.color} />)}
                     </Pie>
                     <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d' }} />

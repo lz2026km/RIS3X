@@ -32,13 +32,12 @@ const WORKLOAD_RANKING = [
   { rank: 5, name: "高峰", role: "医师", written: 108, reviewed: 68, score: 95.1 },
 ];
 
-const POSITIVE_RATE_DATA = [
-  { name: "王建国", rate: 42, total: 145 },
-  { name: "刘芳", rate: 38, total: 132 },
-  { name: "陈海涛", rate: 35, total: 128 },
-  { name: "黄志强", rate: 30, total: 115 },
-  { name: "高峰", rate: 28, total: 108 },
-];
+// 阳性率 = 阳性数 / 报告数 × 100 (此前误把阳性计数当百分比)
+const POSITIVE_RATE_DATA = PERFORMANCE_DATA.map((p) => ({
+  name: p.name,
+  rate: p.written > 0 ? +((p.positive / p.written) * 100).toFixed(1) : 0,
+  total: p.written,
+}));
 
 const QUALITY_SCORE_DATA = [
   { name: "王建国", score: 96.5 },
@@ -83,9 +82,9 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
             </div>
           </div>
           <div style={panelBodyStyle}>
-              <div style={{ height: 200, marginBottom: 24 }}>
+              <div style={{ marginBottom: 24 }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>{t("deptFinance.personalReportCount")}</div>
-                <ChartContainer height={170} state={PERFORMANCE_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription={t("deptFinance.noReportCountData")}>
+                <ChartContainer type="bar" state={PERFORMANCE_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription={t("deptFinance.noReportCountData")}>
                   <BarChart data={PERFORMANCE_DATA}>
                     <CartesianGrid strokeDasharray="3 3" stroke={C.borderLight} />
                     <XAxis dataKey="name" tick={{ fontSize: 12 }} /><YAxis tick={{ fontSize: 12 }} /><Tooltip />
@@ -94,12 +93,12 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
                   </BarChart>
                 </ChartContainer>
               </div>
-            <div style={{ height: 180 }}>
+            <div>
               <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>{t("deptFinance.positiveRateTrend")}</div>
-              <ChartContainer height={144} state={POSITIVE_RATE_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription={t("deptFinance.noPositiveRateData")}>
+              <ChartContainer type="line" state={POSITIVE_RATE_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription={t("deptFinance.noPositiveRateData")}>
                 <LineChart data={POSITIVE_RATE_DATA}>
                   <CartesianGrid strokeDasharray="3 3" stroke={C.borderLight} />
-                  <XAxis dataKey="name" tick={{ fontSize: 12 }} /><YAxis tick={{ fontSize: 12 }} domain={[0, 60]} />
+                  <XAxis dataKey="name" tick={{ fontSize: 12 }} /><YAxis tick={{ fontSize: 12 }} domain={[0, 100]} />
                   <Tooltip formatter={(v) => `${v}%`} />
                   <Line type="monotone" dataKey="rate" stroke={C.warning} strokeWidth={2} dot={{ fill: C.warning, r: 4 }} />
                 </LineChart>
@@ -122,8 +121,8 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
             </div>
             <div>
               <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>{t("deptFinance.qualityScore")}</div>
-              <div style={{ height: 150 }}>
-                <ChartContainer height={150} state={QUALITY_SCORE_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription={t("deptFinance.noQualityScoreData")}>
+              <div>
+                <ChartContainer type="bar" state={QUALITY_SCORE_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription={t("deptFinance.noQualityScoreData")}>
                   <BarChart data={QUALITY_SCORE_DATA} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke={C.borderLight} />
                     <XAxis type="number" domain={[90, 100]} tick={{ fontSize: 12 }} />

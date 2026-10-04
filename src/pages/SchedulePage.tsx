@@ -1902,9 +1902,9 @@ export default function SchedulePage() {
                     <Pie
                       data={stats.shiftDistribution}
                       cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={100}
+                      cy="45%"
+                      innerRadius={55}
+                      outerRadius={92}
                       paddingAngle={2}
                       dataKey="value"
                     >

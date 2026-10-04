@@ -654,7 +654,7 @@ export default function DeviceFaultPage() {
               <div style={{ height: 220 }}>
                 <ChartContainer height={220} state={FAULT_TYPE_STATS.length === 0 ? 'empty' : 'ready'} emptyDescription={t('deviceFault.emptyFaultTypes')}>
                   <RePieChart>
-                    <Pie data={FAULT_TYPE_STATS} cx="50%" cy="50%" outerRadius={80} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false}>
+                    <Pie data={FAULT_TYPE_STATS} cx="50%" cy="50%" outerRadius={68} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false}>
                       {FAULT_TYPE_STATS.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                     </Pie>
                     <Tooltip formatter={(value: number) => `${value} 次`} />

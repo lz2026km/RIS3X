@@ -19,7 +19,6 @@ import {
 import {
   LineChart,
   Tooltip,
-  ResponsiveContainer,
   Cell,
   PieChart,
   Pie,
@@ -29,6 +28,7 @@ import {
   PolarRadiusAxis,
   Radar
 } from 'recharts'
+import { ChartContainer, chartDefaults } from '../components/charts'
 import { initialPatients, initialRadiologyExams } from '../data/initialData'
 import { patientApi } from '../services/api'
 import { LoadingBanner, ErrorBanner, AppEmpty } from '../components/feedback'
@@ -1849,8 +1849,8 @@ const DataQualityMonitor = () => {
             {t('clinicalData.qualityDistribution')}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-            <div style={{ width: 180, height: 180, flexShrink: 0 }}>
-            <ResponsiveContainer width="100%" height="100%">
+            <div style={{ width: 180, flexShrink: 0 }}>
+            <ChartContainer type="pie" height={180}>
               <PieChart>
                 <Pie
                   data={pieData}
@@ -1865,9 +1865,9 @@ const DataQualityMonitor = () => {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip {...chartDefaults.tooltip} />
               </PieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
             </div>
             <div style={{ flex: 1 }}>
               {pieData.map(item => (
@@ -1887,14 +1887,14 @@ const DataQualityMonitor = () => {
             <BarChart2 size={18} color={COLORS.primary} />
             {t('clinicalData.categoryComparison')}
           </div>
-          <ResponsiveContainer width="100%" height={200}>
+          <ChartContainer type="radar" height={200}>
             <RadarChart data={radarData}>
               <PolarGrid stroke={COLORS.border} />
               <PolarAngleAxis dataKey="category" tick={{ fontSize: 12 }} />
               <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 12 }} />
               <Radar name={t('clinicalData.qualityScore')} dataKey="score" stroke={COLORS.primary} fill={COLORS.primary} fillOpacity={0.4} />
             </RadarChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </div>
       </div>
       

@@ -44,7 +44,7 @@ export class KpiEngine {
       kpiId,
       value: seed,
       previous,
-      yoy: previous ? Math.round(((seed - yoy) / yoy) * 1000) / 10 : undefined,
+      yoy: yoy ? Math.round(((seed - yoy) / yoy) * 1000) / 10 : undefined,
       mom: previous ? Math.round(((seed - previous) / previous) * 1000) / 10 : undefined,
       trend,
       target: def.target,
@@ -98,12 +98,20 @@ export class KpiEngine {
     };
   }
 
+  // 确定性伪随机走势 (LCG): 同一 KPI id 每次刷新得到相同序列, 无 Math.random/Math.sin
   private generateSparkline(def: KpiDefinition, _range: TimeRange): number[] {
     const points = 24;
-    const base = this.hashCode(def.id) % 100;
-    return Array.from({ length: points }, (_, i) =>
-      Math.round((base + Math.sin(i * 1.5) * 15 + Math.random() * 10) * 10) / 10
-    );
+    let state = this.hashCode(def.id) || 1;
+    const next = (): number => {
+      state = (state * 1664525 + 1013904223) >>> 0;
+      return state / 4294967296;
+    };
+    let value = (this.hashCode(def.id) % 60) + 40;
+    return Array.from({ length: points }, () => {
+      value += (next() - 0.5) * 16;
+      value = Math.max(5, Math.min(100, value));
+      return Math.round(value * 10) / 10;
+    });
   }
 
   private hashCode(str: string): number {

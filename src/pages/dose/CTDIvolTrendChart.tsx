@@ -7,6 +7,7 @@ import {
   Tooltip,
 } from "recharts";
 import ChartContainer from "../../components/charts/ChartContainer";
+import { seededUnit } from "../../utils/seededRandom";
 
 interface CTDIvolPoint {
   date: string;
@@ -15,15 +16,13 @@ interface CTDIvolPoint {
   threshold: number;
 }
 
-const CTDIVOL_TREND: CTDIvolPoint[] = [
-  { date: "04-25", CT1: 22.5, CT2: 18.2, threshold: 50 },
-  { date: "04-26", CT1: 21.8, CT2: 17.5, threshold: 50 },
-  { date: "04-27", CT1: 24.2, CT2: 19.8, threshold: 50 },
-  { date: "04-28", CT1: 20.5, CT2: 16.8, threshold: 50 },
-  { date: "04-29", CT1: 18.9, CT2: 15.2, threshold: 50 },
-  { date: "04-30", CT1: 23.1, CT2: 18.9, threshold: 50 },
-  { date: "05-01", CT1: 19.5, CT2: 14.8, threshold: 50 },
-];
+// [P0] 演示趋势改为确定性 seed 生成 (以日期为键), 刷新不抖动; 已有"演示数据"徽标
+const CTDIVOL_TREND: CTDIvolPoint[] = ['04-25', '04-26', '04-27', '04-28', '04-29', '04-30', '05-01'].map((date) => ({
+  date,
+  CT1: Math.round((18 + seededUnit(`ctdi-ct1-${date}`) * 7) * 10) / 10,
+  CT2: Math.round((14 + seededUnit(`ctdi-ct2-${date}`) * 6) * 10) / 10,
+  threshold: 50,
+}));
 
 interface TooltipPayload {
   value: number;
@@ -78,6 +77,15 @@ export default function CTDIvolTrendChart() {
     }
     return null;
   };
+
+  // [P0] KPI 由趋势数据计算 (原硬编码 21.5/17.2/-12%/0)
+  const n = CTDIVOL_TREND.length || 1;
+  const avgCT1 = CTDIVOL_TREND.reduce((s, d) => s + d.CT1, 0) / n;
+  const avgCT2 = CTDIVOL_TREND.reduce((s, d) => s + d.CT2, 0) / n;
+  const firstAvg = (CTDIVOL_TREND[0]!.CT1 + CTDIVOL_TREND[0]!.CT2) / 2;
+  const lastAvg = (CTDIVOL_TREND[CTDIVOL_TREND.length - 1]!.CT1 + CTDIVOL_TREND[CTDIVOL_TREND.length - 1]!.CT2) / 2;
+  const trendPct = firstAvg > 0 ? `${(((lastAvg - firstAvg) / firstAvg) * 100).toFixed(0)}%` : "-";
+  const overThresholdDays = CTDIVOL_TREND.filter((d) => d.CT1 > d.threshold || d.CT2 > d.threshold).length;
 
   return (
     <div
@@ -162,10 +170,10 @@ export default function CTDIvolTrendChart() {
           borderRadius: 8,
         }}
       >
-        <Stat color="#3b82f6" value="21.5" label="CT-1均值" />
-        <Stat color="#8b5cf6" value="17.2" label="CT-2均值" />
-        <Stat color="#16a34a" value="-12%" label="较上周" />
-        <Stat color="#dc2626" value="0" label="超阈值天数" />
+        <Stat color="#3b82f6" value={avgCT1.toFixed(1)} label="CT-1均值" />
+        <Stat color="#8b5cf6" value={avgCT2.toFixed(1)} label="CT-2均值" />
+        <Stat color={trendPct.startsWith('-') ? "#16a34a" : "#dc2626"} value={trendPct} label="较上周" />
+        <Stat color="#dc2626" value={String(overThresholdDays)} label="超阈值天数" />
       </div>
     </div>
   );

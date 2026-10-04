@@ -26,6 +26,15 @@ export interface InvoiceDto {
   paidAt?: string
 }
 
+export interface RevenueMonthlyPoint {
+  month: string
+  revenue: number
+  cost: number
+  profit: number
+  amount?: number
+  count?: number
+}
+
 export interface RevenueAnalysisDto {
   period: string
   totalRevenue: number
@@ -33,6 +42,11 @@ export interface RevenueAnalysisDto {
   totalProfit: number
   profitMargin: number
   byModality: { modality: string; revenue: number; cost: number; profit: number }[]
+  // 兼容字段: 月度/日度流水 (旧 MSW 形状)
+  monthly?: RevenueMonthlyPoint[]
+  daily?: { date: string; amount: number }[]
+  insuranceTotal?: number
+  selfPayTotal?: number
 }
 
 export interface CostAccountingDto {
@@ -43,6 +57,11 @@ export interface CostAccountingDto {
   maintenanceCost: number
   otherCost: number
   total: number
+  // 兼容字段
+  byDept?: { dept: string; cost: number; revenue: number }[]
+  byModality?: { modality: string; cost: number; revenue: number }[]
+  totalCost?: number
+  totalRevenue?: number
 }
 
 export interface FinancialReportDto {

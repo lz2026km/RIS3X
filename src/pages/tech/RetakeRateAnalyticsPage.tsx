@@ -7,8 +7,9 @@ import { Alert, Button, Card, Col, Input, Modal, Radio, Row, Space, Table, Tag, 
 import { BarChart3, Camera, ClipboardCheck, Database, PieChart as PieIcon, RefreshCw, TrendingUp, Wrench } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip as ReTooltip, XAxis, YAxis,
+  Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, Tooltip as ReTooltip, XAxis, YAxis,
 } from 'recharts'
+import { ChartContainer, chartDefaults } from '../../components/charts'
 import { worklistApi, type RetakeStatsDto, type WorklistItemDto, RETAKE_REASON_OPTIONS } from '../../services/api/worklistApi'
 import { t } from '../../i18n/appI18n'
 import { PageHeader } from '../../components/common/PageHeader'
@@ -227,18 +228,18 @@ export default function RetakeRateAnalyticsPage() {
             ) : trendChart.length === 0 ? (
               <EmptyState description={t('retakeAnalytics.noTrend')} />
             ) : (
-              <ResponsiveContainer width="100%" height={280}>
-                <LineChart data={trendChart} margin={{ top: 8, right: 12, left: -12, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-                  <XAxis dataKey="date" tick={{ fontSize: 11 }} interval="preserveStartEnd" />
-                  <YAxis yAxisId="rate" tick={{ fontSize: 11 }} unit="%" />
-                  <YAxis yAxisId="count" orientation="right" tick={{ fontSize: 11 }} />
+              <ChartContainer type="line" height={280}>
+                <LineChart data={trendChart} margin={chartDefaults.margin}>
+                  <CartesianGrid {...chartDefaults.grid} />
+                  <XAxis dataKey="date" interval="preserveStartEnd" {...chartDefaults.axis} />
+                  <YAxis yAxisId="rate" unit="%" {...chartDefaults.axis} />
+                  <YAxis yAxisId="count" orientation="right" {...chartDefaults.axis} />
                   <Tooltip />
                   <Legend />
                   <Line yAxisId="rate" type="monotone" dataKey="rate" name={t('retakeAnalytics.retakeRatePct')} stroke="#dc2626" strokeWidth={2} dot={{ r: 2 }} />
                   <Line yAxisId="count" type="monotone" dataKey="retakes" name={t('retakeAnalytics.retakeCount')} stroke="#7c3aed" strokeWidth={2} dot={{ r: 2 }} />
                 </LineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             )}
           </Card>
         </Col>
@@ -251,14 +252,14 @@ export default function RetakeRateAnalyticsPage() {
               <EmptyState description={t('retakeAnalytics.noRetakeRecords')} />
             ) : (
               <>
-                <ResponsiveContainer width="100%" height={200}>
+                <ChartContainer type="pie" height={200}>
                   <PieChart>
-                    <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={(p) => `${p.name} ${p.value}`} labelLine={false} fontSize={11}>
+                    <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} labelLine={false} fontSize={11}>
                       {pieData.map((p) => <Cell key={p.name} fill={p.color} />)}
                     </Pie>
-                    <ReTooltip />
+                    <ReTooltip {...chartDefaults.tooltip} />
                   </PieChart>
-                </ResponsiveContainer>
+                </ChartContainer>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
                   {pieData.map((p) => (
                     <span key={p.name} style={{ fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 4, color: THEME_TOKENS.textSecondary }}>
@@ -281,11 +282,11 @@ export default function RetakeRateAnalyticsPage() {
             ) : heatRows.length === 0 ? (
               <EmptyState description={t('retakeAnalytics.noDetail')} />
             ) : (
-              <ResponsiveContainer width="100%" height={Math.max(220, heatRows.length * 44)}>
-                <BarChart data={heatRows} layout="vertical" margin={{ top: 4, right: 16, left: 24, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" horizontal={false} />
-                  <XAxis type="number" tick={{ fontSize: 11 }} allowDecimals={false} />
-                  <YAxis type="category" dataKey="label" width={90} tick={{ fontSize: 11 }} />
+              <ChartContainer type="bar" height={Math.max(220, heatRows.length * 44)}>
+                <BarChart data={heatRows} layout="vertical" margin={chartDefaults.margin}>
+                  <CartesianGrid {...chartDefaults.grid} horizontal={false} />
+                  <XAxis type="number" allowDecimals={false} {...chartDefaults.axis} />
+                  <YAxis type="category" dataKey="label" width={90} {...chartDefaults.axis} />
                   <Tooltip />
                   <Legend />
                   <Bar dataKey="completed" name={t('retakeAnalytics.completedCount')} fill="#cbd5e1" barSize={14} />
@@ -293,7 +294,7 @@ export default function RetakeRateAnalyticsPage() {
                     {heatRows.map((b) => <Cell key={b.key} fill={palette(b.key)} />)}
                   </Bar>
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             )}
           </Card>
         </Col>

@@ -20,9 +20,10 @@ import { ShieldCheck, Activity, AlertOctagon, FileText, Users, Monitor, Camera, 
 import {
   LineChart, Line, BarChart, Bar, ComposedChart,
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   Area, AreaChart,
 } from 'recharts';
+import { ChartContainer, chartDefaults } from "../../components/charts";
 import { PageContainer } from "../../components/common/PageContainer";
 import { PageHeader } from "../../components/common/PageHeader";
 import { StatCard, StatCardGrid } from "../../components/common/StatCard";
@@ -238,39 +239,35 @@ export default function RadiologyQCDashboardPage() {
         {/* 月度质量分 + 闭环率 组合图 */}
         <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 12 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 10 }}>{t("qcDashboard.monthlyScoreClosure")}</div>
-          <div style={{ height: 200 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={qcTrendMonthly}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#64748b' }} />
-                <YAxis yAxisId="left" tick={{ fontSize: 11, fill: '#64748b' }} domain={[0, 100]} />
-                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: '#64748b' }} domain={[0, 100]} />
-                <Tooltip contentStyle={trendChartStyle} />
-                <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-                <Bar yAxisId="left" dataKey="质量分" fill="#1e40af" radius={[3, 3, 0, 0]} barSize={18} />
-                <Line yAxisId="right" type="monotone" dataKey="闭环率" stroke="#10b981" strokeWidth={2} dot={{ r: 3 }} />
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
+          <ChartContainer type="composed" height={200}>
+            <ComposedChart data={qcTrendMonthly} margin={chartDefaults.margin}>
+              <CartesianGrid {...chartDefaults.grid} />
+              <XAxis dataKey="month" {...chartDefaults.axis} />
+              <YAxis yAxisId="left" domain={[0, 100]} {...chartDefaults.axis} />
+              <YAxis yAxisId="right" orientation="right" domain={[0, 100]} {...chartDefaults.axis} />
+              <Tooltip contentStyle={trendChartStyle} />
+              <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
+              <Bar yAxisId="left" dataKey="质量分" fill="#1e40af" radius={[3, 3, 0, 0]} barSize={18} />
+              <Line yAxisId="right" type="monotone" dataKey="闭环率" stroke="#10b981" strokeWidth={2} dot={{ r: 3 }} />
+            </ComposedChart>
+          </ChartContainer>
         </div>
 
         {/* 月度缺陷率 + 缺陷分布 */}
         <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 12 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 10 }}>{t("qcDashboard.monthlyDefectDist")}</div>
-          <div style={{ height: 200 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={qcTrendMonthly}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#64748b' }} />
-                <YAxis yAxisId="l" tick={{ fontSize: 11, fill: '#64748b' }} />
-                <YAxis yAxisId="r" orientation="right" tick={{ fontSize: 11, fill: '#64748b' }} />
-                <Tooltip contentStyle={trendChartStyle} />
-                <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-                <Line yAxisId="l" type="monotone" dataKey="缺陷率" stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} />
-                <Bar yAxisId="r" dataKey="缺陷率" fill="rgba(220,38,38,0.15)" radius={[3, 3, 0, 0]} barSize={18} hide />
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
+          <ChartContainer type="composed" height={200}>
+            <ComposedChart data={qcTrendMonthly} margin={chartDefaults.margin}>
+              <CartesianGrid {...chartDefaults.grid} />
+              <XAxis dataKey="month" {...chartDefaults.axis} />
+              <YAxis yAxisId="l" {...chartDefaults.axis} />
+              <YAxis yAxisId="r" orientation="right" {...chartDefaults.axis} />
+              <Tooltip contentStyle={trendChartStyle} />
+              <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
+              <Line yAxisId="l" type="monotone" dataKey="缺陷率" stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} />
+              <Bar yAxisId="r" dataKey="缺陷率" fill="rgba(220,38,38,0.15)" radius={[3, 3, 0, 0]} barSize={18} hide />
+            </ComposedChart>
+          </ChartContainer>
           <div style={{ marginTop: 10, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {defectDist.map(d => (
               <span key={d.name} style={{
@@ -287,45 +284,41 @@ export default function RadiologyQCDashboardPage() {
         {/* 月度检查量/报告量 面积图 */}
         <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 12 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 10 }}>{t("qcDashboard.monthlyTrend")}</div>
-          <div style={{ height: 200 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={monthlyStats}>
-                <defs>
-                  <linearGradient id="examGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#1e40af" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#1e40af" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="repGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#64748b' }} />
-                <YAxis tick={{ fontSize: 11, fill: '#64748b' }} />
-                <Tooltip contentStyle={trendChartStyle} />
-                <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-                <Area type="monotone" dataKey="examCount" name="检查量" stroke="#1e40af" fill="url(#examGrad)" strokeWidth={2} />
-                <Area type="monotone" dataKey="reportCount" name="报告量" stroke="#10b981" fill="url(#repGrad)" strokeWidth={2} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+          <ChartContainer type="area" height={200}>
+            <AreaChart data={monthlyStats} margin={chartDefaults.margin}>
+              <defs>
+                <linearGradient id="examGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#1e40af" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#1e40af" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="repGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid {...chartDefaults.grid} />
+              <XAxis dataKey="month" {...chartDefaults.axis} />
+              <YAxis {...chartDefaults.axis} />
+              <Tooltip contentStyle={trendChartStyle} />
+              <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
+              <Area type="monotone" dataKey="examCount" name="检查量" stroke="#1e40af" fill="url(#examGrad)" strokeWidth={2} />
+              <Area type="monotone" dataKey="reportCount" name="报告量" stroke="#10b981" fill="url(#repGrad)" strokeWidth={2} />
+            </AreaChart>
+          </ChartContainer>
         </div>
 
         {/* 月均 TAT 柱状 */}
         <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 12 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 10 }}>{t("qcDashboard.avgTatMin")}</div>
-          <div style={{ height: 200 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthlyStats}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#64748b' }} />
-                <YAxis tick={{ fontSize: 11, fill: '#64748b' }} />
-                <Tooltip contentStyle={trendChartStyle} formatter={(v) => [`${v} 分钟`, 'TAT']} />
-                <Bar dataKey="avgTAT" name="平均TAT" fill="#7c3aed" radius={[3, 3, 0, 0]} barSize={22} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          <ChartContainer type="bar" height={200}>
+            <BarChart data={monthlyStats} margin={chartDefaults.margin}>
+              <CartesianGrid {...chartDefaults.grid} />
+              <XAxis dataKey="month" {...chartDefaults.axis} />
+              <YAxis {...chartDefaults.axis} />
+              <Tooltip contentStyle={trendChartStyle} formatter={(v) => [`${v} 分钟`, 'TAT']} />
+              <Bar dataKey="avgTAT" name="平均TAT" fill="#7c3aed" radius={[3, 3, 0, 0]} barSize={22} />
+            </BarChart>
+          </ChartContainer>
           <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-secondary)' }}>
             {t("qcDashboard.peak")} <strong>{Math.max(...monthlyStats.map(m => m.avgTAT))}</strong> {t("qcDashboard.minAvg")}{' '}
             <strong>{Math.round(monthlyStats.reduce((s, m) => s + m.avgTAT, 0) / Math.max(1, monthlyStats.length))}</strong> {t("qcDashboard.minutes")}
@@ -354,20 +347,18 @@ export default function RadiologyQCDashboardPage() {
           {deptRadarData.length === 0 ? (
             <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-secondary)', fontSize: 12 }}>{t("qcDashboard.noDeptData")}</div>
           ) : (
-            <div style={{ height: 240 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart data={deptRadarData} cx="50%" cy="50%" outerRadius="70%">
-                  <PolarGrid stroke="var(--border-color)" />
-                  <PolarAngleAxis dataKey="dept" tick={{ fontSize: 10, fill: '#64748b' }} />
-                  <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 9, fill: '#94a3b8' }} />
-                  <Radar name="质控分" dataKey="质控分" stroke="#1e40af" fill="#1e40af" fillOpacity={0.35} />
-                  <Radar name="报告量" dataKey="报告量" stroke="#10b981" fill="#10b981" fillOpacity={0.3} />
-                  <Radar name="及时率" dataKey="及时率" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.25} />
-                  <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-                  <Tooltip contentStyle={trendChartStyle} />
-                </RadarChart>
-              </ResponsiveContainer>
-            </div>
+            <ChartContainer type="radar" height={240}>
+              <RadarChart data={deptRadarData} cx="50%" cy="50%" outerRadius="70%">
+                <PolarGrid stroke="var(--border-color)" />
+                <PolarAngleAxis dataKey="dept" tick={{ fontSize: 10, fill: '#64748b' }} />
+                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 9, fill: '#94a3b8' }} />
+                <Radar name="质控分" dataKey="质控分" stroke="#1e40af" fill="#1e40af" fillOpacity={0.35} />
+                <Radar name="报告量" dataKey="报告量" stroke="#10b981" fill="#10b981" fillOpacity={0.3} />
+                <Radar name="及时率" dataKey="及时率" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.25} />
+                <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
+                <Tooltip contentStyle={trendChartStyle} />
+              </RadarChart>
+            </ChartContainer>
           )}
         </div>
         <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 12 }}>
@@ -549,21 +540,19 @@ export default function RadiologyQCDashboardPage() {
           {t("qcDashboard.dataSourceLabel")} {imageTrendSource === "real" ? `真实 (${assessRecords.length} 条评估记录)` : t("qcDashboard.derivedDemo")}
         </span>
       </div>
-      <div style={{ height: 240 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={imageDimTrend}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-            <XAxis dataKey="time" tick={{ fontSize: 11, fill: '#64748b' }} />
-            <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#64748b' }} />
-            <Tooltip contentStyle={trendChartStyle} formatter={(v: number) => [`${v} 分`, '']} />
-            <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-            <Line type="monotone" dataKey="伪影" stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} />
-            <Line type="monotone" dataKey="曝光" stroke="#f59e0b" strokeWidth={2} dot={{ r: 3 }} />
-            <Line type="monotone" dataKey="体位" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
-            <Line type="monotone" dataKey="总分" stroke="#10b981" strokeWidth={2.5} strokeDasharray="6 3" dot={{ r: 3 }} />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      <ChartContainer type="line" height={240}>
+        <LineChart data={imageDimTrend} margin={chartDefaults.margin}>
+          <CartesianGrid {...chartDefaults.grid} />
+          <XAxis dataKey="time" {...chartDefaults.axis} />
+          <YAxis domain={[0, 100]} {...chartDefaults.axis} />
+          <Tooltip contentStyle={trendChartStyle} formatter={(v: number) => [`${v} 分`, '']} />
+          <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
+          <Line type="monotone" dataKey="伪影" stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} />
+          <Line type="monotone" dataKey="曝光" stroke="#f59e0b" strokeWidth={2} dot={{ r: 3 }} />
+          <Line type="monotone" dataKey="体位" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
+          <Line type="monotone" dataKey="总分" stroke="#10b981" strokeWidth={2.5} strokeDasharray="6 3" dot={{ r: 3 }} />
+        </LineChart>
+      </ChartContainer>
       <div style={{ marginTop: 10, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
         {['伪影', '曝光', '体位', '总分'].map((dim, i) => {
           const last = imageDimTrend[imageDimTrend.length - 1] as Record<string, unknown> | undefined
@@ -615,20 +604,18 @@ export default function RadiologyQCDashboardPage() {
               {t("qcDashboard.aiQcDemoSub")}
             </span>
           </div>
-          <div style={{ height: 210 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={aiTrend}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#64748b' }} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#64748b' }} />
-                <Tooltip contentStyle={trendChartStyle} formatter={(v: number) => [`${v}%`, '']} />
-                <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-                <Line type="monotone" dataKey="准确率" stroke="#7c3aed" strokeWidth={2} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="召回率" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="误报率" stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+          <ChartContainer type="line" height={210}>
+            <LineChart data={aiTrend} margin={chartDefaults.margin}>
+              <CartesianGrid {...chartDefaults.grid} />
+              <XAxis dataKey="month" {...chartDefaults.axis} />
+              <YAxis domain={[0, 100]} {...chartDefaults.axis} />
+              <Tooltip contentStyle={trendChartStyle} formatter={(v: number) => [`${v}%`, '']} />
+              <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
+              <Line type="monotone" dataKey="准确率" stroke="#7c3aed" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="召回率" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="误报率" stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} />
+            </LineChart>
+          </ChartContainer>
           <div style={{ marginTop: 8, display: 'flex', gap: 14, flexWrap: 'wrap' }}>
             {aiTrend.map(t => (
               <span key={t.month} style={{ fontSize: 11, color: 'var(--text-secondary)' }}>

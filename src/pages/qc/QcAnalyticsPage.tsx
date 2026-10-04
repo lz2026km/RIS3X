@@ -27,7 +27,8 @@ import {
 } from 'lucide-react'
 import { Button, Tag, Space, Modal, Form, Input, Drawer, Popconfirm, message, Timeline, Empty, Table, Tabs, Radio, Progress, Tooltip as ATooltip } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, ResponsiveContainer, Legend, Cell, ReferenceLine } from 'recharts'
+import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, Legend, Cell, ReferenceLine } from 'recharts'
+import { ChartContainer, chartDefaults } from "../../components/charts"
 import { PageContainer } from "../../components/common/PageContainer"
 import { PageHeader } from "../../components/common/PageHeader"
 import { ErrorBanner } from "../../components/feedback"
@@ -377,22 +378,20 @@ export default function QcAnalyticsPage() {
             </Space>
             <Segmented period={period} onChange={setPeriod} />
           </div>
-          <div style={{ height: 300 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={trendData} margin={{ top: 8, right: 16, bottom: 0, left: -16 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="label" tick={{ fontSize: 12 }} />
-                <YAxis yAxisId="rate" tick={{ fontSize: 12 }} />
-                <YAxis yAxisId="right" orientation="right" domain={[0, 100]} hide />
-                <RTooltip content={<TrendTooltip />} />
-                <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Line yAxisId="rate" type="monotone" dataKey="defectRate" name={t('qcAnalytics.defectRate')} stroke="#ef4444" strokeWidth={2.5} dot={{ r: 3 }} />
-                <Line yAxisId="rate" type="monotone" dataKey="timelyRate" name={t('qcAnalytics.timelyRate')} stroke="#10b981" strokeWidth={2} dot={{ r: 3 }} />
-                <Line yAxisId="rate" type="monotone" dataKey="qcRate" name={t('qcAnalytics.qcRate')} stroke="#8b5cf6" strokeWidth={2} strokeDasharray="6 3" dot={{ r: 3 }} />
-                <ReferenceLine yAxisId="rate" y={100} stroke="#e2e8f0" strokeDasharray="4 4" />
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
+          <ChartContainer type="composed" height={300}>
+            <ComposedChart data={trendData} margin={chartDefaults.margin}>
+              <CartesianGrid {...chartDefaults.grid} />
+              <XAxis dataKey="label" {...chartDefaults.axis} />
+              <YAxis yAxisId="rate" {...chartDefaults.axis} />
+              <YAxis yAxisId="right" orientation="right" domain={[0, 100]} hide />
+              <RTooltip content={<TrendTooltip />} />
+              <Legend wrapperStyle={{ fontSize: 12 }} />
+              <Line yAxisId="rate" type="monotone" dataKey="defectRate" name={t('qcAnalytics.defectRate')} stroke="#ef4444" strokeWidth={2.5} dot={{ r: 3 }} />
+              <Line yAxisId="rate" type="monotone" dataKey="timelyRate" name={t('qcAnalytics.timelyRate')} stroke="#10b981" strokeWidth={2} dot={{ r: 3 }} />
+              <Line yAxisId="rate" type="monotone" dataKey="qcRate" name={t('qcAnalytics.qcRate')} stroke="#8b5cf6" strokeWidth={2} strokeDasharray="6 3" dot={{ r: 3 }} />
+              <ReferenceLine yAxisId="rate" y={100} stroke="#e2e8f0" strokeDasharray="4 4" />
+            </ComposedChart>
+          </ChartContainer>
         </div>
 
         {/* 帕累托 + 科室排名 */}
@@ -403,22 +402,20 @@ export default function QcAnalyticsPage() {
               <b>{t('qcAnalytics.paretoTitle')}</b>
               <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('qcAnalytics.paretoSub')}</span>
             </Space>
-            <div style={{ height: 300 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={paretoData} margin={{ top: 8, right: 0, bottom: 0, left: -16 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis dataKey="label" tick={{ fontSize: 11 }} interval={0} />
-                  <YAxis yAxisId="bar" tick={{ fontSize: 12 }} />
-                  <YAxis yAxisId="line" orientation="right" domain={[0, 100]} tick={{ fontSize: 12 }} unit="%" />
-                  <RTooltip content={<TrendTooltip />} />
-                  <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Bar yAxisId="bar" dataKey="count" name={t('qcAnalytics.defectCount')} radius={[4, 4, 0, 0]}>
-                    {paretoData.map((p) => <Cell key={p.code} fill={p.isMain ? '#ef4444' : '#93c5fd'} />)}
-                  </Bar>
-                  <Line yAxisId="line" type="monotone" dataKey="cumulativePercent" name={t('qcAnalytics.cumulativePct')} stroke="#f59e0b" strokeWidth={2} dot={{ r: 3 }} />
-                </ComposedChart>
-              </ResponsiveContainer>
-            </div>
+            <ChartContainer type="composed" height={300}>
+              <ComposedChart data={paretoData} margin={chartDefaults.margin}>
+                <CartesianGrid {...chartDefaults.grid} />
+                <XAxis dataKey="label" interval={0} {...chartDefaults.axis} />
+                <YAxis yAxisId="bar" {...chartDefaults.axis} />
+                <YAxis yAxisId="line" orientation="right" domain={[0, 100]} unit="%" {...chartDefaults.axis} />
+                <RTooltip content={<TrendTooltip />} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Bar yAxisId="bar" dataKey="count" name={t('qcAnalytics.defectCount')} radius={[4, 4, 0, 0]}>
+                  {paretoData.map((p) => <Cell key={p.code} fill={p.isMain ? '#ef4444' : '#93c5fd'} />)}
+                </Bar>
+                <Line yAxisId="line" type="monotone" dataKey="cumulativePercent" name={t('qcAnalytics.cumulativePct')} stroke="#f59e0b" strokeWidth={2} dot={{ r: 3 }} />
+              </ComposedChart>
+            </ChartContainer>
           </div>
 
           <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16 }}>

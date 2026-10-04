@@ -205,7 +205,7 @@ export const OEEDashboardPage: React.FC = () => {
             ) : (
               <ChartContainer height={260}>
                 <PieChart>
-                  <Pie data={causeData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                  <Pie data={causeData} dataKey="value" nameKey="name" cx="50%" cy="45%" outerRadius={76} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
                     {causeData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                   </Pie>
                   <Tooltip />

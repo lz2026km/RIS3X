@@ -17,7 +17,8 @@ import { CRITICAL_RULES } from '../data/criticalValueMock'
 import { criticalApi, type CriticalStatsDto } from '../services/api/criticalApi'
 import { criticalExtApi, type CriticalChannelDto, type CriticalExtRuleDto, type CriticalExtTimelineDto, type CriticalExtCenterDto } from '../services/api'
 import { invalidateApiCache } from '../services/api/client'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
+import { ChartContainer, chartDefaults } from '../components/charts'
 import { t } from '../i18n/appI18n'
 
 // [W2-A] 列表双形状归一化: MSW 裸数组 / 后端 { items, total }
@@ -596,18 +597,18 @@ const CriticalValueCenterPage: React.FC = () => {
               <RefreshCw size={12} /> {t('criticalCenter.refresh')}
             </button>
           </div>
-          <ResponsiveContainer width="100%" height={220}>
-            <LineChart data={timeline} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-              <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-              <Tooltip />
+          <ChartContainer type="line" height={220}>
+            <LineChart data={timeline} margin={chartDefaults.margin}>
+              <CartesianGrid {...chartDefaults.grid} />
+              <XAxis dataKey="date" {...chartDefaults.axis} />
+              <YAxis allowDecimals={false} {...chartDefaults.axis} />
+              <Tooltip {...chartDefaults.tooltip} />
               <Legend wrapperStyle={{ fontSize: 12 }} />
               <Line type="monotone" dataKey="count" name={t('criticalCenter.legendTriggered')} stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} />
               <Line type="monotone" dataKey="resolved" name={t('criticalCenter.legendResolved')} stroke="#10b981" strokeWidth={2} dot={{ r: 3 }} />
               <Line type="monotone" dataKey="escalated" name={t('criticalCenter.legendEscalated')} stroke="#7c3aed" strokeWidth={2} dot={{ r: 3 }} />
             </LineChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </div>
       )}
 

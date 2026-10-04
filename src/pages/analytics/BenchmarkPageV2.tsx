@@ -6,6 +6,7 @@ import BenchmarkV2, { type CompareMode, type MetricCode, type Dimension, type Ch
 import type { ColumnsType } from 'antd/es/table'
 import { benchmarkApi } from '../../services/api'
 import { t } from '../../i18n/appI18n'
+import { seededInt, seededUnit } from '../../utils/seededRandom'
 
 const { RangePicker } = DatePicker
 
@@ -31,8 +32,8 @@ const METRICS_LABEL: Record<string, string> = {
   critical_closed_rate: '危急值闭环率',
 }
 
-function rand(min: number, max: number): number {
-  return Math.round((Math.random() * (max - min) + min) * 100) / 100
+function rand(min: number, max: number, key: string): number {
+  return Math.round((seededUnit(key) * (max - min) + min) * 100) / 100
 }
 
 function toIsoRange(range: [string, string]): { start: string; end: string } {
@@ -125,18 +126,19 @@ export default function BenchmarkPageV2() {
         // 回退本地模拟,保证页面可用
         data = {
           metricName: metricNames[metricCode] ?? metricCode,
-          current: rand(60, 98),
-          previous: rand(50, 98),
+          current: rand(60, 98, `cmp-cur-${metricCode}-${compareMode}-${dimension}`),
+          previous: rand(50, 98, `cmp-prev-${metricCode}-${compareMode}-${dimension}`),
           delta: 0,
           deltaPercent: 0,
           breakdown: dimension === 'dept'
-            ? ['放射科', 'CT室', 'MR室', '超声科', '核医学科'].map((l) => ({ label: l, current: rand(55, 99), previous: rand(50, 95) }))
+            ? ['放射科', 'CT室', 'MR室', '超声科', '核医学科'].map((l) => ({ label: l, current: rand(55, 99, `cmp-dept-${l}`), previous: rand(50, 95, `cmp-dept-p-${l}`) }))
             : dimension === 'site'
-              ? SITES.map((s) => ({ label: s.name, current: rand(55, 99), previous: rand(50, 95) }))
+              ? SITES.map((s) => ({ label: s.name, current: rand(55, 99, `cmp-site-${s.id}`), previous: rand(50, 95, `cmp-site-p-${s.id}`) }))
               : Array.from({ length: 6 }, (_, i) => {
                   const d = new Date(dateRange[0])
                   d.setMonth(d.getMonth() + i)
-                  return { label: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`, current: rand(55, 99), previous: rand(50, 95) }
+                  const label = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+                  return { label, current: rand(55, 99, `cmp-mon-${label}`), previous: rand(50, 95, `cmp-mon-p-${label}`) }
                 }),
         }
         if (!data.breakdown?.length) data.breakdown = undefined
@@ -165,14 +167,14 @@ export default function BenchmarkPageV2() {
           const row: SiteRow = { key: r.siteId, siteName: r.siteName ?? r.siteId }
           for (const code of allMetricCodes) {
             const v = r.values?.[code]
-            row[code] = typeof v === 'number' ? v : rand(50, 100)
+            row[code] = typeof v === 'number' ? v : rand(50, 100, `xs-${r.siteId}-${code}`)
           }
           return row
         })
         if (rows.length === 0) setUsingDemo(true)
         setCrossSiteData(rows.length > 0 ? rows : SITES.filter(s => selectedSites.includes(s.id)).map((s) => {
           const row: SiteRow = { key: s.id, siteName: s.name }
-          for (const code of allMetricCodes) row[code] = rand(50, 100)
+          for (const code of allMetricCodes) row[code] = rand(50, 100, `xs-fb-${s.id}-${code}`)
           return row
         }))
       } else {
@@ -180,7 +182,7 @@ export default function BenchmarkPageV2() {
         setUsingDemo(true)
         setCrossSiteData(SITES.filter(s => selectedSites.includes(s.id)).map((s) => {
           const row: SiteRow = { key: s.id, siteName: s.name }
-          for (const code of allMetricCodes) row[code] = rand(50, 100)
+          for (const code of allMetricCodes) row[code] = rand(50, 100, `xs-er-${s.id}-${code}`)
           return row
         }))
       }
@@ -207,21 +209,21 @@ export default function BenchmarkPageV2() {
         setUsingDemo(true)
       }
       setStats({
-        totalExams: d.totalExams ?? Math.round(Math.random() * 5000 + 3000),
-        positiveRate: d.positiveRate ?? rand(30, 60),
-        gradeARate: d.gradeARate ?? rand(85, 98),
-        reportOnTimeRate: d.reportOnTimeRate ?? rand(88, 99),
-        criticalClosedRate: d.criticalClosedRate ?? rand(90, 100),
+        totalExams: d.totalExams ?? seededInt('bench-total', 3000, 7999),
+        positiveRate: d.positiveRate ?? rand(30, 60, 'bench-pos'),
+        gradeARate: d.gradeARate ?? rand(85, 98, 'bench-gradea'),
+        reportOnTimeRate: d.reportOnTimeRate ?? rand(88, 99, 'bench-ontime'),
+        criticalClosedRate: d.criticalClosedRate ?? rand(90, 100, 'bench-critical'),
       })
       return
     }
     setUsingDemo(true)
     setStats({
-      totalExams: Math.round(Math.random() * 5000 + 3000),
-      positiveRate: rand(30, 60),
-      gradeARate: rand(85, 98),
-      reportOnTimeRate: rand(88, 99),
-      criticalClosedRate: rand(90, 100),
+      totalExams: seededInt('bench-total-fb', 3000, 7999),
+      positiveRate: rand(30, 60, 'bench-pos-fb'),
+      gradeARate: rand(85, 98, 'bench-gradea-fb'),
+      reportOnTimeRate: rand(88, 99, 'bench-ontime-fb'),
+      criticalClosedRate: rand(90, 100, 'bench-critical-fb'),
     })
   }, [])
 

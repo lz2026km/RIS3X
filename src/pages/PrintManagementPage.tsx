@@ -1833,7 +1833,7 @@ export default function PrintManagementPage() {
       <Card title={t("printMgmt.filmUsageStats")} icon={<BarChart2 size={16} />}>
         <div style={{ height: 180 }}>
           <ChartContainer height={180} state={filmUsageStats.length === 0 ? 'empty' : 'ready'} emptyDescription={t("printMgmt.noFilmUsageData")}>
-            <ReBarChart data={filmUsageStats.slice(-7)} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
+            <ReBarChart data={filmUsageStats.slice(-7)} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke={C.textLight} />
               <YAxis tick={{ fontSize: 12 }} stroke={C.textLight} />
@@ -2252,7 +2252,7 @@ export default function PrintManagementPage() {
       <Card title={t("printMgmt.costReport")} icon={<FileBarChart size={16} />} style={{ gridColumn: 'span 2' }}>
         <div style={{ height: 200, marginBottom: 12 }}>
           <ChartContainer height={200} state={costReport.length === 0 ? 'empty' : 'ready'} emptyDescription={t("printMgmt.noCostData")}>
-            <ReBarChart data={costReport} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
+            <ReBarChart data={costReport} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke={C.textLight} />
               <YAxis tick={{ fontSize: 12 }} stroke={C.textLight} />
@@ -2440,7 +2440,7 @@ export default function PrintManagementPage() {
       <Card title={t("printMgmt.monthlyCostTrend")} icon={<TrendingUp size={16} />}>
         <div style={{ height: 200 }}>
           <ChartContainer height={200} state={MONTHLY_COST_TREND.length === 0 ? 'empty' : 'ready'} emptyDescription={t("printMgmt.noMonthlyCost")}>
-            <ReBarChart data={MONTHLY_COST_TREND} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
+            <ReBarChart data={MONTHLY_COST_TREND} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke={C.textLight} />
               <YAxis tick={{ fontSize: 12 }} stroke={C.textLight} />
@@ -2834,7 +2834,7 @@ export default function PrintManagementPage() {
       <Card title={t("printMgmt.printVolumeTrend")} icon={<TrendingUp size={16} />} style={{ gridColumn: 'span 2' }}>
         <div style={{ height: 200 }}>
           <ChartContainer height={200} state={trendData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("printMgmt.noTrendData")}>
-            <AreaChart data={trendData} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
+            <AreaChart data={trendData} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke={C.textLight} />
               <YAxis tick={{ fontSize: 12 }} stroke={C.textLight} />
@@ -2852,7 +2852,7 @@ export default function PrintManagementPage() {
       <Card title={t("printMgmt.printByDevice")} icon={<Monitor size={16} />}>
         <div style={{ height: 200 }}>
           <ChartContainer height={200} state={devicePrintStats.length === 0 ? 'empty' : 'ready'} emptyDescription={t("printMgmt.noDevicePrintData")}>
-            <ReBarChart data={devicePrintStats} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
+            <ReBarChart data={devicePrintStats} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="device" tick={{ fontSize: 12 }} stroke={C.textLight} />
               <YAxis tick={{ fontSize: 12 }} stroke={C.textLight} />
@@ -2911,7 +2911,7 @@ export default function PrintManagementPage() {
       <Card title={t("printMgmt.efficiencyStats")} icon={<Timer size={16} />}>
         <div style={{ height: 200 }}>
           <ChartContainer height={200} state={EFFICIENCY_STATS.length === 0 ? 'empty' : 'ready'} emptyDescription={t("printMgmt.noEfficiencyData")}>
-            <LineChart data={EFFICIENCY_STATS} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
+            <LineChart data={EFFICIENCY_STATS} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="hour" tick={{ fontSize: 12 }} stroke={C.textLight} />
               <YAxis tick={{ fontSize: 12 }} stroke={C.textLight} />

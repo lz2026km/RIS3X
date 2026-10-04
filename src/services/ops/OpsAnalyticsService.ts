@@ -1,3 +1,5 @@
+import { seededInt } from '../../utils/seededRandom'
+
 export interface WorkloadPoint {
   date: string
   exams: number
@@ -51,15 +53,22 @@ export interface IOpsAnalyticsService {
 }
 
 function generateWorkloadData(days: number): WorkloadPoint[] {
+  // [P1] 确定性 seed 生成 (锚点日期为键), 替代 Math.random, 刷新不抖动
   const data: WorkloadPoint[] = []
-  const base = 280 + Math.floor(Math.random() * 60)
+  const base = sortedBase(days)
+  const anchor = Date.UTC(2026, 4, 1) // 2026-05-01
   for (let i = days - 1; i >= 0; i--) {
-    const date = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10)
-    const examCount = base + Math.floor(Math.random() * 80 - 40)
-    const prevCount = base - 15 + Math.floor(Math.random() * 80 - 40)
-    data.push({ date, exams: examCount, previousExams: Math.max(prevCount, 150) })
+    const date = new Date(anchor - i * 86400000).toISOString().slice(0, 10)
+    const examCount = Math.max(150, base + seededInt(`wl-cur-${date}`, -40, 40))
+    const prevCount = Math.max(150, base - 15 + seededInt(`wl-prev-${date}`, -40, 40))
+    data.push({ date, exams: examCount, previousExams: prevCount })
   }
   return data
+}
+
+// 稳定基准 (同一 days 恒定), 避免天气/随机波动
+function sortedBase(days: number): number {
+  return 280 + (days % 60)
 }
 
 class MockOpsAnalyticsService implements IOpsAnalyticsService {
@@ -90,7 +99,7 @@ class MockOpsAnalyticsService implements IOpsAnalyticsService {
     const peakVal = 62
     const hourlyData = modHours.map((h, i) => ({
       hour: h,
-      examCount: i === peakIdx ? peakVal : 18 + Math.floor(Math.random() * 35),
+      examCount: i === peakIdx ? peakVal : 18 + seededInt(`peak-${h}`, 0, 34),
       label: `${h}:00`,
     }))
     return {

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Select, Spin, Tag } from 'antd'
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts'
 import { BarChart3, Wifi, TrendingUp, CalendarRange } from 'lucide-react'
 import { worklistApi, type TechnicianDashboardDto } from '../../services/api/worklistApi'
@@ -188,26 +188,21 @@ export default function TechnicianKpiDashboardPage() {
                   区间 {from || '全部'} ~ {to || '今天'} · 近 7/30 日完成量
                 </AppText>
               </div>
-              <div style={{ height: 260 }}>
-                <ChartContainer state={loading ? 'loading' : trendView.length > 0 ? 'ready' : 'empty'}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={trendView} margin={{ top: 6, right: 12, bottom: 0, left: -18 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-                      <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'var(--text-secondary)' }} minTickGap={24} />
-                      <YAxis tick={{ fontSize: 10, fill: 'var(--text-secondary)' }} allowDecimals={false} />
-                      <Tooltip
-                        formatter={(v) => [`${v} 项`, '完成量']}
-                        contentStyle={{ fontSize: 12, borderRadius: 8 }}
-                      />
-                      <Legend wrapperStyle={{ fontSize: 11 }} />
-                      <Line
-                        type="monotone" dataKey="completed" name="完成量" stroke="#2563eb" strokeWidth={2}
-                        dot={{ r: 2.5 }} activeDot={{ r: 4 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
-              </div>
+              <ChartContainer type="line" height={260} state={loading ? 'loading' : trendView.length > 0 ? 'ready' : 'empty'}>
+                <LineChart data={trendView} margin={{ top: 6, right: 12, bottom: 0, left: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'var(--text-secondary)' }} minTickGap={24} />
+                  <YAxis tick={{ fontSize: 10, fill: 'var(--text-secondary)' }} allowDecimals={false} />
+                  <Tooltip
+                    formatter={(v) => [`${v} 项`, '完成量']}
+                    contentStyle={{ fontSize: 12, borderRadius: 8 }}
+                  />
+                  <Line
+                    type="monotone" dataKey="completed" name="完成量" stroke="#2563eb" strokeWidth={2}
+                    dot={{ r: 2.5 }} activeDot={{ r: 4 }}
+                  />
+                </LineChart>
+              </ChartContainer>
             </div>
 
             <TechnicianRankingTable technicians={data?.technicians ?? []} loading={loading} />

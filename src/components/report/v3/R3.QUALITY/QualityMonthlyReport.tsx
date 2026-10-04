@@ -14,7 +14,6 @@ import {
   XAxis,
   YAxis,
   Tooltip as RTooltip,
-  ResponsiveContainer,
   CartesianGrid,
   Cell,
   LineChart,
@@ -23,6 +22,7 @@ import {
   PieChart,
   Pie,
 } from 'recharts';
+import { ChartContainer } from '../../../charts';
 
 const GRADE_COLOR: Record<QualityGrade, string> = {
   '甲': '#10b981',
@@ -267,8 +267,8 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                 </Col>
                 <Col span={12}>
                   <Card size="small" title={t('qualityMonthly.qualityTrend')}>
-                    <ResponsiveContainer width="100%" height={260}>
-                      <LineChart data={trendData}>
+                    <ChartContainer type="line" height={260}>
+                      <LineChart data={trendData} margin={{ top: 8, right: 16, bottom: 24, left: 48 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                         <XAxis dataKey="date" tick={{ fontSize: 12 }} />
                         <YAxis yAxisId="left" tick={{ fontSize: 12 }} />
@@ -279,7 +279,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                         <Line yAxisId="right" type="monotone" dataKey="evaluated" stroke="#10b981" strokeWidth={2} name={t('qualityMonthly.series.evaluated')} />
                         <Line yAxisId="right" type="monotone" dataKey="defects" stroke="#dc2626" strokeWidth={2} name={t('qualityMonthly.series.defects')} />
                       </LineChart>
-                    </ResponsiveContainer>
+                    </ChartContainer>
                   </Card>
                 </Col>
                 <Col span={6}>
@@ -322,8 +322,8 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
               <Row gutter={12}>
                 <Col span={12}>
                   <Card size="small" title={t('qualityMonthly.gradeDistribution')}>
-                    <ResponsiveContainer width="100%" height={280}>
-                      <BarChart data={gradeData}>
+                    <ChartContainer type="bar" height={280}>
+                      <BarChart data={gradeData} margin={{ top: 8, right: 16, bottom: 24, left: 48 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                         <XAxis dataKey="grade" tick={{ fontSize: 12 }} />
                         <YAxis tick={{ fontSize: 12 }} />
@@ -334,12 +334,12 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                           ))}
                         </Bar>
                       </BarChart>
-                    </ResponsiveContainer>
+                    </ChartContainer>
                   </Card>
                 </Col>
                 <Col span={12}>
                   <Card size="small" title={t('qualityMonthly.gradeShare')}>
-                    <ResponsiveContainer width="100%" height={280}>
+                    <ChartContainer type="pie" height={280}>
                       <PieChart>
                         <Pie data={gradeData} dataKey="count" nameKey="grade" cx="50%" cy="50%" outerRadius={90} label>
                           {gradeData.map((d, i) => (
@@ -349,7 +349,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                         <RTooltip />
                         <Legend />
                       </PieChart>
-                    </ResponsiveContainer>
+                    </ChartContainer>
                   </Card>
                 </Col>
               </Row>

@@ -18,6 +18,7 @@ import { deviceApi } from '../services/api/deviceApi'
 import { ChartContainer } from '../components/charts'
 import { PageHeader } from '../components/common/PageHeader'
 import { StatCard as CommonStatCard } from '../components/common/StatCard'
+import { seededUnit } from '../utils/seededRandom'
 import { t } from '../i18n/appI18n'
 
 // ============================================================
@@ -134,21 +135,23 @@ const C = {
 // 30天无纸化率数据
 const generatePaperlessData = () => {
   const data = []
-  const today = new Date()
+  // [P1] 锚定 2026-05-01, 确定性 seed 生成 (日期键), 刷新不抖动
+  const today = new Date('2026-05-01T00:00:00Z')
   for (let i = 29; i >= 0; i--) {
     const date = new Date(today)
-    date.setDate(date.getDate() - i)
-    const dayStr = `${date.getMonth() + 1}/${date.getDate()}`
+    date.setUTCDate(date.getUTCDate() - i)
+    const dayStr = `${date.getUTCMonth() + 1}/${date.getUTCDate()}`
+    const key = date.toISOString().slice(0, 10)
     // 本期数据：无纸化率在65%-85%之间波动
-    const currentRate = 65 + Math.random() * 20
+    const currentRate = 65 + seededUnit(`paperless-cur-${key}`) * 20
     // 上月同期：略低5%左右
-    const lastMonthRate = currentRate - 5 + Math.random() * 4
+    const lastMonthRate = currentRate - 5 + seededUnit(`paperless-prev-${key}`) * 4
     data.push({
       date: dayStr,
       currentRate: Math.round(currentRate * 10) / 10,
       lastMonthRate: Math.round(lastMonthRate * 10) / 10,
-      electronic: Math.floor(180 + Math.random() * 80),
-      total: 280 + Math.floor(Math.random() * 40),
+      electronic: Math.floor(180 + seededUnit(`paperless-el-${key}`) * 80),
+      total: 280 + Math.floor(seededUnit(`paperless-tot-${key}`) * 40),
     })
   }
   return data

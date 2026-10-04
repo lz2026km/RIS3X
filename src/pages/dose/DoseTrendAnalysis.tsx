@@ -67,6 +67,27 @@ export default function DoseTrendAnalysis() {
     })();
     return () => { cancelled = true; };
   }, [reloadTick]);
+
+  // [P0] Y 轴域由数据驱动 (原硬编码 [300,1000]); KPI 由趋势首末值计算 (原硬编码)
+  const seriesKeys = ['ctAvgDLP', 'chestCTAvgDLP', 'abdomenCTAvgDLP'] as const
+  const allValues = trendData.flatMap((d) => seriesKeys.map((k) => Number(d[k]) || 0)).filter((v) => Number.isFinite(v))
+  const dataMax = allValues.length ? Math.max(...allValues) : 0
+  const dataMin = allValues.length ? Math.min(...allValues) : 0
+  const yDomain: [number, number] = [Math.max(0, Math.floor(dataMin - (dataMax - dataMin) * 0.1 - 20)), Math.ceil(dataMax + (dataMax - dataMin) * 0.1 + 20)]
+
+  const firstTrend = trendData[0]
+  const lastTrend = trendData[trendData.length - 1]
+  const pctDrop = (from?: number, to?: number): string => {
+    if (!from || !to || from <= 0) return "-"
+    return `${(((to - from) / from) * 100).toFixed(1)}%`
+  }
+  const ctDrop = pctDrop(firstTrend?.ctAvgDLP, lastTrend?.ctAvgDLP)
+  const ctRange = firstTrend && lastTrend ? `${Math.round(firstTrend.ctAvgDLP)}→${Math.round(lastTrend.ctAvgDLP)}` : "-"
+  const chestRange = firstTrend && lastTrend ? `${Math.round(firstTrend.chestCTAvgDLP)}→${Math.round(lastTrend.chestCTAvgDLP)}` : "-"
+  // AAPM 胸部参考值 (演示数据中为 560), 从参考常量解析
+  const chestRef = 560
+  const chestBelowRef = (lastTrend?.chestCTAvgDLP ?? Infinity) <= chestRef
+
   const CustomTooltip = ({
     active,
     payload,
@@ -193,7 +214,7 @@ export default function DoseTrendAnalysis() {
             <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#94a3b8" }} />
             <YAxis
               tick={{ fontSize: 12, fill: "#94a3b8" }}
-              domain={[300, 1000]}
+              domain={yDomain}
             />
             <Tooltip content={<CustomTooltip />} />
             <Line
@@ -247,26 +268,26 @@ export default function DoseTrendAnalysis() {
           }}
         >
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 18, fontWeight: 800, color: "#16a34a" }}>
-              -15.3%
+            <div style={{ fontSize: 18, fontWeight: 800, color: ctDrop.startsWith('-') ? "#16a34a" : "#dc2626" }}>
+              {ctDrop}
             </div>
             <div style={{ fontSize: 12, color: "#64748b" }}>CT剂量优化幅度</div>
           </div>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 18, fontWeight: 800, color: "#1e40af" }}>
-              820→695
+              {ctRange}
             </div>
             <div style={{ fontSize: 12, color: "#64748b" }}>DLP降低趋势</div>
           </div>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 18, fontWeight: 800, color: "#dc2626" }}>
-              580→415
+              {chestRange}
             </div>
             <div style={{ fontSize: 12, color: "#64748b" }}>胸部CT降幅</div>
           </div>
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 18, fontWeight: 800, color: "#16a34a" }}>
-              达标
+            <div style={{ fontSize: 18, fontWeight: 800, color: chestBelowRef ? "#16a34a" : "#dc2626" }}>
+              {chestBelowRef ? "达标" : "超标"}
             </div>
             <div style={{ fontSize: 12, color: "#64748b" }}>当前胸部CT状态</div>
           </div>

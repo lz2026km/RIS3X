@@ -212,8 +212,8 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
                   dataKey="count"
                   nameKey="modality"
                   cx="50%"
-                  cy="50%"
-                  outerRadius={80}
+                  cy="42%"
+                  outerRadius={70}
                   label={(d: any) => `${d.modality} ${((d.count / modalityTotal) * 100).toFixed(0)}%`}
                 >
                   {modalityBreakdown.map((_, i) => <Cell key={i} fill={CHART_PALETTE[i % CHART_PALETTE.length]} />)}

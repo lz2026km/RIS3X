@@ -12,6 +12,7 @@ import { deviceMgmtApi } from '../services/api/deviceMgmtApi'
 // [v3.0.6.8-28] 主数据池 + 生成器
 import { DEVICE_MASTER } from '../data/master'
 import { DAILY_KPI_PRE } from '../data/_generators'
+import { seededUnit } from '../utils/seededRandom'
 import { t } from '../i18n/appI18n'
 
 // ============================================================
@@ -186,7 +187,7 @@ const generateHeatmapData = (): HeatmapCell[] => {
       if (device.status === '维护') variance = 30
       if (device.status === '待机') variance = 20
 
-      const randomOffset = (Math.random() - 0.5) * 2 * variance
+      const randomOffset = (seededUnit(`heat-${device.id}-${dateStr}`) - 0.5) * 2 * variance
       const utilization = Math.max(10, Math.min(100, baseUtil + randomOffset))
       const examCount = Math.round((utilization / 100) * 24) // 假设每天最多24个检查
 

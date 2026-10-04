@@ -12,7 +12,8 @@ import dayjs from 'dayjs'
 import {
   Plus, RefreshCw, History, GitCompareArrows, Link2, Activity, TrendingUp, Database, Trash2, Eye, Crosshair,
 } from 'lucide-react'
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts'
+import { ChartContainer, chartDefaults } from '../../components/charts'
 import { patientApi, type ListPayload } from '../../services/api/patientApi'
 import {
   lesionTrackingApi,
@@ -485,19 +486,18 @@ const LesionTrackingPage: React.FC = () => {
                 </Tag>
                 <Tag color={RESPONSE_COLORS[trend.overallResponse]}>{t('lesionTrack.overallResponse')} {t(`lesionTrack.response.${trend.overallResponse}`)}</Tag>
               </Space>
-              <ResponsiveContainer width="100%" height={260}>
-                <LineChart data={trendChartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e2b45" />
-                  <XAxis dataKey="date" stroke="#64748b" fontSize={11} />
-                  <YAxis stroke="#64748b" fontSize={11} unit="mm" />
+              <ChartContainer type="line" height={260}>
+                <LineChart data={trendChartData} margin={chartDefaults.margin}>
+                  <CartesianGrid {...chartDefaults.grid} stroke="#1e2b45" />
+                  <XAxis dataKey="date" {...chartDefaults.axis} stroke="#64748b" />
+                  <YAxis {...chartDefaults.axis} stroke="#64748b" unit="mm" />
                   <Tooltip
                     contentStyle={{ background: '#0f172a', border: '1px solid #1e2b45', borderRadius: 8 }}
                     labelStyle={{ color: '#e2e8f0' }}
                   />
-                  <Legend wrapperStyle={{ fontSize: 12, color: '#94a3b8' }} />
                   <Line type="monotone" dataKey="size" name={t('w9dLesion.size')} stroke="#3b82f6" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6' }} activeDot={{ r: 6 }} />
                 </LineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </div>
           ) : (
             <Empty description={t('lesionTrack.emptyTrend')} style={{ padding: 40, color: '#64748b' }} />

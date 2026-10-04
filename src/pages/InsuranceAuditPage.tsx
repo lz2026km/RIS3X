@@ -18,6 +18,7 @@ import { VOUCHER_DATA } from '../data/initialData';
 import { ShieldCheck, Clock, CheckCircle, XCircle, AlertTriangle, Search, Filter, RefreshCw, ChevronLeft, ChevronRight, FileText, Pill, Stethoscope, Calendar, MessageSquare, Check, X, Send, BookOpen, ClipboardList, Activity, AlertOctagon, BarChart3, Settings, TrendingUp, Clock3, DollarSign, PieChart as PieChartIcon, AlertCircle, Percent, Upload, Loader2, Plus, ClipboardCheck, Target, Trash2 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 import { ChartContainer } from '../components/charts';
+import { autoInterval } from '../utils/chartUtils';
 import { t } from '../i18n/appI18n';
 import { t as appT } from '../i18n/appI18n';
 
@@ -4298,7 +4299,7 @@ export default function InsuranceAuditPage() {
             <ChartContainer height={180} state={passRateTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription={t("insuranceAudit.noApprovalTrendData")}>
               <AreaChart data={passRateTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-              <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#94a3b8" />
+              <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#94a3b8" interval={autoInterval(passRateTrendData.length)} tickFormatter={(v: string) => (v && v.length > 5 ? `${v.slice(5)}` : v)} />
               <YAxis
                 tick={{ fontSize: 12 }}
                 stroke="#94a3b8"
@@ -5316,7 +5317,7 @@ export default function InsuranceAuditPage() {
               <ChartContainer height={180} state={denialRateTrend.length === 0 ? 'empty' : 'ready'} emptyDescription={t("insuranceAudit.noDenialTrendData")}>
                 <AreaChart data={denialRateTrend}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
-                  <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                  <XAxis dataKey="month" tick={{ fontSize: 12 }} interval={autoInterval(denialRateTrend.length)} tickFormatter={(v: string) => (v && v.length > 6 ? `${v.slice(0, 6)}…` : v)} />
                   <YAxis domain={[0, 20]} tick={{ fontSize: 12 }} unit="%" />
                   <Tooltip />
                   <Area

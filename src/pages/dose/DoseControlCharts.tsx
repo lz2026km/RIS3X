@@ -7,7 +7,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ReferenceLine,
 } from "recharts";
 import { controlChartData } from "./mockData";
@@ -82,13 +81,32 @@ export default function DoseControlCharts() {
       p.mean > p.ucl || p.mean < p.lcl || p.range > p.rangeUcl,
   );
 
+  // [P0] 控制限/中心线由派生统计驱动 (原为硬编码 22/32/12/15)
   const first = points[0];
   const last = points[points.length - 1];
+  // UCL/LCL/rangeUcl 在派生时已对全部点取同一值; 回退演示数据同样一致.
+  const cl = first ? first.mean : 0;
+  const ucl = first?.ucl ?? 0;
+  const lcl = first?.lcl ?? 0;
+  const rangeUcl = Math.max(...points.map((p) => p.rangeUcl), 0);
+  const meanMax = Math.max(ucl, ...points.map((p) => p.mean), 0);
+  const meanMin = Math.min(lcl, ...points.map((p) => p.mean), 0);
+  const meanDomain: [number, number] = [Math.max(0, Math.floor(meanMin - 3)), Math.ceil(meanMax + 3)];
+  const rangeDomain: [number, number] = [0, Math.ceil(Math.max(rangeUcl, ...points.map((p) => p.range), 1) + 3)];
   const meanShift =
     first && last
       ? (last.mean - first.mean >= 0 ? "+" : "") +
         (last.mean - first.mean).toFixed(1)
       : "-";
+
+  // [P0] 过程能力 Cp 由数据估算 (原硬编码 1.25).
+  //   sigma ≈ 平均移动极差 / 1.128 (d2), 规格窗口取控制限 [LCL, UCL].
+  const mrBar =
+    points.length > 1
+      ? points.slice(1).reduce((s, p) => s + p.range, 0) / (points.length - 1)
+      : 0;
+  const sigma = mrBar > 0 ? mrBar / 1.128 : 0;
+  const processCp = sigma > 0 && ucl > lcl ? (((ucl - lcl) / (6 * sigma)).toFixed(2)) : "-";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -131,8 +149,7 @@ export default function DoseControlCharts() {
               X-bar 控制图（CTDIvol均值）
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
-              7日CTDIvol均值监控 · UCL: {first?.ucl ?? 32} · LCL: {first?.lcl ?? 12} · CL:{" "}
-              {first ? Math.round(first.mean) : 22}
+              7日CTDIvol均值监控 · UCL: {ucl} · LCL: {lcl} · CL: {Math.round(cl)}
             </div>
           </div>
           {outOfControl.length > 0 && (
@@ -157,32 +174,31 @@ export default function DoseControlCharts() {
           <LineChart data={points}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#94a3b8" }} />
-            <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} domain={[0, 40]} />
+            <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} domain={meanDomain} />
             <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
-            <Legend iconSize={10} wrapperStyle={{ fontSize: 12 }} />
             <ReferenceLine
-              y={22}
+              y={cl}
               stroke="#16a34a"
               strokeDasharray="5 5"
-              label={{ value: "CL(22)", position: "left", fontSize: 12, fill: "#16a34a" }}
+              label={{ value: `CL(${cl.toFixed(1)})`, position: "left", fontSize: 12, fill: "#16a34a" }}
             />
             <ReferenceLine
-              y={32}
+              y={ucl}
               stroke="#dc2626"
               strokeDasharray="5 5"
               label={{
-                value: "UCL(32)",
+                value: `UCL(${ucl})`,
                 position: "center",
                 fontSize: 12,
                 fill: "#dc2626",
               }}
             />
             <ReferenceLine
-              y={12}
+              y={lcl}
               stroke="#d97706"
               strokeDasharray="5 5"
               label={{
-                value: "LCL(12)",
+                value: `LCL(${lcl})`,
                 position: "right",
                 fontSize: 12,
                 fill: "#d97706",
@@ -222,14 +238,14 @@ export default function DoseControlCharts() {
           <LineChart data={points}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#94a3b8" }} />
-            <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} domain={[0, 20]} />
+            <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} domain={rangeDomain} />
             <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
             <ReferenceLine
-              y={15}
+              y={rangeUcl}
               stroke="#dc2626"
               strokeDasharray="5 5"
               label={{
-                value: "UCL(15)",
+                value: `UCL(${rangeUcl})`,
                 position: "right",
                 fontSize: 12,
                 fill: "#dc2626",
@@ -263,7 +279,7 @@ export default function DoseControlCharts() {
         <div style={kpiBox}>
           <div style={{ fontSize: 12, color: "#64748b" }}>过程能力Cp</div>
           <div style={{ fontSize: 16, fontWeight: 800, color: "#16a34a", marginTop: 4 }}>
-            1.25
+            {processCp}
           </div>
         </div>
         <div style={kpiBox}>

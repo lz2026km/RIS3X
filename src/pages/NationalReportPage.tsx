@@ -28,6 +28,7 @@ import {
   Pie
 } from 'recharts'
 import { ChartContainer } from '../components/charts'
+import { autoInterval } from '../utils/chartUtils'
 import { DataTable } from '../components/common/DataTable'
 import { StatusTag } from '../components/common/StatusTag'
 import { severityTone } from '../theme/statusTokens'
@@ -1602,7 +1603,7 @@ export default function NationalReportPage() {
               <ChartContainer height={160}>
                 <LineChart data={monthlyTrends}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-                  <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                  <XAxis dataKey="month" tick={{ fontSize: 12 }} interval={autoInterval(monthlyTrends.length)} tickFormatter={(v: string) => (v && v.length > 6 ? `${v.slice(0, 6)}…` : v)} />
                   <YAxis tick={{ fontSize: 12 }} />
                   <Tooltip contentStyle={{ fontSize: 12 }} />
                   <Legend wrapperStyle={{ fontSize: 12 }} />

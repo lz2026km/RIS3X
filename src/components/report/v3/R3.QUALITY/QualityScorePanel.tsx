@@ -44,7 +44,6 @@ import {
   PolarGrid,
   PolarAngleAxis,
   PolarRadiusAxis,
-  ResponsiveContainer,
   BarChart,
   Bar,
   XAxis,
@@ -52,10 +51,10 @@ import {
   CartesianGrid,
   Tooltip as RTooltip,
   Cell,
-  Legend,
   LineChart,
   Line,
 } from 'recharts';
+import { ChartContainer } from '../../../charts';
 import { Inbox } from 'lucide-react'
 
 const CATEGORY_META: Record<
@@ -387,7 +386,7 @@ export const QualityScorePanel: React.FC<{
               <Card size="small" title={t('qualityScore.radarTitle')}>
                 <Row gutter={12}>
                   <Col xs={24} md={14}>
-                    <ResponsiveContainer width="100%" height={320}>
+                    <ChartContainer type="radar" height={320}>
                       <RadarChart data={radarData}>
                         <PolarGrid stroke="#cbd5e1" />
                         <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 12 }} />
@@ -401,10 +400,10 @@ export const QualityScorePanel: React.FC<{
                         />
                         <RTooltip />
                       </RadarChart>
-                    </ResponsiveContainer>
+                    </ChartContainer>
                   </Col>
                   <Col xs={24} md={10}>
-                    <ResponsiveContainer width="100%" height={320}>
+                    <ChartContainer type="radar" height={320}>
                       <RadarChart data={categoryRadar}>
                         <PolarGrid stroke="#cbd5e1" />
                         <PolarAngleAxis dataKey="category" tick={{ fontSize: 12 }} />
@@ -417,9 +416,8 @@ export const QualityScorePanel: React.FC<{
                           fillOpacity={0.4}
                         />
                         <RTooltip />
-                        <Legend />
                       </RadarChart>
-                    </ResponsiveContainer>
+                    </ChartContainer>
                   </Col>
                 </Row>
               </Card>
@@ -430,8 +428,8 @@ export const QualityScorePanel: React.FC<{
             label: <span><BarChart3 size={12} /> {t('qualityScore.tab.bar')}</span>,
             children: (
               <Card size="small" title={t('qualityScore.barTitle')}>
-                <ResponsiveContainer width="100%" height={360}>
-                  <BarChart data={barData} layout="vertical">
+                <ChartContainer type="bar" height={360}>
+                  <BarChart data={barData} layout="vertical" margin={{ top: 8, right: 16, bottom: 24, left: 48 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                     <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 12 }} />
                     <YAxis dataKey="name" type="category" tick={{ fontSize: 12 }} width={130} />
@@ -445,9 +443,9 @@ export const QualityScorePanel: React.FC<{
                       ))}
                     </Bar>
                   </BarChart>
-                </ResponsiveContainer>
-                <ResponsiveContainer width="100%" height={220}>
-                  <BarChart data={categoryBarData}>
+                </ChartContainer>
+                <ChartContainer type="bar" height={220}>
+                  <BarChart data={categoryBarData} margin={{ top: 8, right: 16, bottom: 24, left: 48 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                     <XAxis dataKey="category" tick={{ fontSize: 12 }} />
                     <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
@@ -458,7 +456,7 @@ export const QualityScorePanel: React.FC<{
                       ))}
                     </Bar>
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </Card>
             ),
           },
@@ -616,12 +614,13 @@ export const QualityScorePanel: React.FC<{
           }
           style={{ marginTop: 12 }}
         >
-          <ResponsiveContainer width="100%" height={160}>
+          <ChartContainer type="line" height={160}>
             <LineChart
               data={Array.from({ length: 10 }, (_, i) => ({
                 idx: i + 1,
                 v: 80 + Math.round(Math.random() * 15),
               }))}
+              margin={{ top: 8, right: 16, bottom: 24, left: 48 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
               <XAxis dataKey="idx" tick={{ fontSize: 12 }} />
@@ -636,7 +635,7 @@ export const QualityScorePanel: React.FC<{
                 name={t('qualityScore.recent10Scores')}
               />
             </LineChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </Card>
       )}
     </div>

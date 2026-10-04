@@ -29,6 +29,7 @@ import { PageHeader } from '../components/common/PageHeader'
 import { PageTemplate } from '../components/common/PageTemplate'
 import { ActionButton } from '../components/common/ActionButton'
 import { replayDeviceEvent, validateDeviceStatus } from '../utils/deviceStateAdapter'
+import { seededInt } from '../utils/seededRandom'
 import {
   C, ModalityBadge, PIE_COLORS,
   DeviceFilter, DeviceList,
@@ -142,7 +143,7 @@ const generateDeviceStats = () => {
 
   devices.forEach(d => {
     const base = d.modality === 'CT' ? 120 : d.modality === 'MR' ? 60 : d.modality === 'DR' ? 200 : 15
-    deviceUsageMap[d.id] = dates.map((_, i) => Math.max(0, base + Math.floor((Math.random() - 0.3) * 30) - i * 2))
+    deviceUsageMap[d.id] = dates.map((_, i) => Math.max(0, base + seededInt(`dev-usage-${d.id}-${dates[i]}`, -9, 21) - i * 2))
   })
   return { dates, deviceUsageMap }
 }
@@ -227,19 +228,19 @@ const UPTIME_STATS = [
 // 设备详细扩展信息（含序列号、购买日期、保修截止等）
 const DEVICE_EXTENDED_INFO = initialModalityDevices.map(d => {
   const purchaseYear = (d as Record<string, unknown>).acquisitionYear as number || 2020
-  const warrantyYears = [3, 5, 5, 3, 3, 5, 5, 3][Math.floor(Math.random() * 8)] || 3
+  const warrantyYears = [3, 5, 5, 3, 3, 5, 5, 3][seededInt(`dev-warr-${d.id}`, 0, 7)] || 3
   const serialPrefix = { CT: 'CT', MR: 'MR', DR: 'DR', DSA: 'DS', MG: 'MG', RF: 'RF' }[d.modality] || 'DV'
   return {
     ...d,
-    serialNumber: `${serialPrefix}-${purchaseYear}-${String(Math.floor(Math.random() * 9000 + 1000))}`,
-    purchaseDate: `${purchaseYear}-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`,
-    warrantyExpiry: `${purchaseYear + warrantyYears}-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`,
-    purchasePrice: Math.floor(Math.random() * 8000000 + 2000000),
+    serialNumber: `${serialPrefix}-${purchaseYear}-${String(seededInt(`dev-sn-${d.id}`, 1000, 9999))}`,
+    purchaseDate: `${purchaseYear}-${String(seededInt(`dev-pm-${d.id}`, 1, 12)).padStart(2, '0')}-${String(seededInt(`dev-pd-${d.id}`, 1, 28)).padStart(2, '0')}`,
+    warrantyExpiry: `${purchaseYear + warrantyYears}-${String(seededInt(`dev-wm-${d.id}`, 1, 12)).padStart(2, '0')}-${String(seededInt(`dev-wd-${d.id}`, 1, 28)).padStart(2, '0')}`,
+    purchasePrice: seededInt(`dev-price-${d.id}`, 2000000, 9999999),
     installationDate: `${purchaseYear + 1}-01-15`,
     installationLocation: `${d.location || '放射科'}`,
-    assetCode: `ZYCZ-${purchaseYear}-${String(Math.floor(Math.random() * 900 + 100))}`,
-    contactEngineer: ['张工', '李工', '王工', '赵工', '陈工'][Math.floor(Math.random() * 5)],
-    contactTel: `138-${String(Math.floor(Math.random() * 9000 + 1000)).padStart(4, '0')}-${String(Math.floor(Math.random() * 9000 + 1000)).padStart(4, '0')}`,
+    assetCode: `ZYCZ-${purchaseYear}-${String(seededInt(`dev-asset-${d.id}`, 100, 999))}`,
+    contactEngineer: ['张工', '李工', '王工', '赵工', '陈工'][seededInt(`dev-eng-${d.id}`, 0, 4)],
+    contactTel: `138-${String(seededInt(`dev-tel1-${d.id}`, 1000, 9999)).padStart(4, '0')}-${String(seededInt(`dev-tel2-${d.id}`, 1000, 9999)).padStart(4, '0')}`,
   }
 })
 
@@ -262,8 +263,8 @@ const DEVICE_EFFICIENCY: DeviceEfficiencyData[] = initialModalityDevices.map((_d
   const todayBookings = (room?.todaysBookings as number) || 0
   const capacity = d.modality === 'CT' ? 150 : d.modality === 'MR' ? 80 : d.modality === 'DR' ? 250 : 20
   const utilization = Math.round((todayBookings / capacity) * 100)
-  const uptime = 95 + Math.floor(Math.random() * 5)
-  const mtbf = 180 + Math.floor(Math.random() * 120)
+  const uptime = 95 + seededInt(`dev-up-${d.id}`, 0, 4)
+  const mtbf = 180 + seededInt(`dev-mtbf-${d.id}`, 0, 119)
   const age = 2026 - ((d.acquisitionYear as number) || 2020)
   return {
     ...d,
@@ -273,8 +274,8 @@ const DEVICE_EFFICIENCY: DeviceEfficiencyData[] = initialModalityDevices.map((_d
     maxExamTime: d.modality === 'CT' ? 35 : d.modality === 'MR' ? 70 : d.modality === 'DR' ? 12 : 90,
     minExamTime: d.modality === 'CT' ? 8 : d.modality === 'MR' ? 15 : d.modality === 'DR' ? 3 : 20,
     totalRuntime: (age * 365 * 8).toLocaleString() + ' ' + t('devicePage.usageHours'),
-    faultCount: Math.floor(Math.random() * 4),
-    maintCount: Math.floor(Math.random() * 6) + 1,
+    faultCount: seededInt(`dev-fault-${d.id}`, 0, 3),
+    maintCount: seededInt(`dev-maint-${d.id}`, 1, 6),
   } as DeviceEfficiencyData
 })
 
@@ -293,7 +294,7 @@ const HEATMAP_DATA = Array.from({ length: 7 }, (_, dayIdx) => {
   const dayNames = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'] as const
   const entry: Record<string, string | number> = { day: dayNames[dayIdx] ?? '' }
   for (let h = 8; h <= 18; h++) {
-    entry[`h${h}`] = Math.floor(Math.random() * 100)
+    entry[`h${h}`] = seededInt(`dev-heat-${dayIdx}-${h}`, 0, 99)
   }
   return entry
 })
@@ -1603,9 +1604,9 @@ export default function DevicePage() {
               <Pie
                 data={utilizationPieData}
                 cx="50%"
-                cy="50%"
-                innerRadius={50}
-                outerRadius={80}
+                cy="45%"
+                innerRadius={45}
+                outerRadius={70}
                 paddingAngle={3}
                 dataKey="value"
               >

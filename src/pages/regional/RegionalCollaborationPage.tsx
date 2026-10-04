@@ -11,8 +11,9 @@ import {
   Modal, Form, message, Timeline, Badge, Empty, Statistic, List, Typography,
 } from "antd";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip,
 } from "recharts";
+import { ChartContainer, chartDefaults } from "@/components/charts";
 import {
   Building2, Network, Share2, MessageSquare, Activity, Globe, Database,
   Search, BookOpenCheck, ShieldCheck, RefreshCw, Video, PhoneIncoming, CheckCircle2,
@@ -470,18 +471,16 @@ const RegionalCollaborationPage: React.FC = () => {
                   <Empty description={t('regionalCollab.emptyStats')} style={{ padding: 16 }} />
                 ) : (
                   <>
-                    <div style={{ height: 210 }}>
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={shareStats} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                          <XAxis dataKey="institution" tick={{ fontSize: 10 }} />
-                          <YAxis tick={{ fontSize: 10 }} />
-                          <ReTooltip />
-                          <Bar dataKey="共享检查" fill="#0891b2" radius={[3, 3, 0, 0]} />
-                          <Bar dataKey="调阅次数" fill="#7c3aed" radius={[3, 3, 0, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
+                    <ChartContainer type="bar" height={210}>
+                      <BarChart data={shareStats} margin={chartDefaults.margin}>
+                        <CartesianGrid {...chartDefaults.grid} stroke="#e5e7eb" />
+                        <XAxis dataKey="institution" {...chartDefaults.axis} />
+                        <YAxis {...chartDefaults.axis} />
+                        <ReTooltip {...chartDefaults.tooltip} />
+                        <Bar dataKey="共享检查" fill="#0891b2" radius={[3, 3, 0, 0]} />
+                        <Bar dataKey="调阅次数" fill="#7c3aed" radius={[3, 3, 0, 0]} />
+                      </BarChart>
+                    </ChartContainer>
                     <div style={{ marginTop: 8, fontSize: 12, color: "var(--text-secondary)" }}>
                       {t('regionalCollab.totalSharedLabel')} {totalShared} {t('regionalCollab.unitItems')} · {t('regionalCollab.totalAccessLabel')} {totalAccess} {t('regionalCollab.unitTimes')}
                     </div>

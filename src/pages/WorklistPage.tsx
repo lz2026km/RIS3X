@@ -9,7 +9,7 @@ import {
   LayoutDashboard, Table2, Users,
 } from 'lucide-react'
 import {
-  AreaChart, Area, BarChart, Bar,
+  AreaChart, Area,
 } from 'recharts'
 import { DndContext, DragOverlay, type DragEndEvent } from '@dnd-kit/core'
 import { initialRadiologyExams, initialModalityDevices, initialExamRooms, initialUsers } from '../data/initialData'
@@ -205,11 +205,29 @@ function replayExamActorTo(exam: RadiologyExam, targetEvent: { type: string; rea
 // ============================================================
 // SLA 辅助
 // ============================================================
-const getSLAInfo = (createdTime: string): SLAInfo => {
+const SLA_CLOSED_STATUSES = new Set(['COMPLETED', 'CANCELLED'])
+
+const isClosedExam = (exam: RadiologyExam): boolean =>
+  SLA_CLOSED_STATUSES.has(normalizeExamStatus(exam.status))
+
+// CLOSED exams (completed/cancelled) use actual TAT (completedAt|updatedAt - created);
+// OPEN exams keep accruing from now - created. Invalid times fall back to 0 (never NaN).
+const getSLAElapsedMinutes = (exam: RadiologyExam): number => {
+  const created = new Date(exam.createdTime).getTime()
+  if (!Number.isFinite(created) || created <= 0) return 0
+  let end = Date.now()
+  if (isClosedExam(exam)) {
+    const updated = new Date(exam.updatedTime).getTime()
+    if (!Number.isFinite(updated) || updated < created) return 0
+    end = updated
+  }
+  const elapsed = Math.floor((end - created) / 60000)
+  return Number.isFinite(elapsed) && elapsed > 0 ? elapsed : 0
+}
+
+const getSLAInfo = (exam: RadiologyExam): SLAInfo => {
   try {
-    const created = new Date(createdTime).getTime()
-    const now = Date.now()
-    const elapsedMinutes = Math.floor((now - created) / 60000)
+    const elapsedMinutes = getSLAElapsedMinutes(exam)
     if (elapsedMinutes > 60) return { elapsedMinutes, status: 'critical', color: '#dc2626', label: '>60min' }
     if (elapsedMinutes > 30) return { elapsedMinutes, status: 'warning', color: '#d97706', label: '30-60min' }
     return { elapsedMinutes, status: 'normal', color: '#059669', label: '<30min' }
@@ -235,18 +253,52 @@ const playSLASound = () => {
 }
 
 // ============================================================
-// MiniSparkline
+// MiniSparkline — deterministic, derived from the exam dataset
+// (no shared hardcoded series; seeded fallback when a window is empty)
 // ============================================================
-const sparklineData = [
-  { value: 10 }, { value: 15 }, { value: 8 }, { value: 12 },
-  { value: 20 }, { value: 18 }, { value: 25 }, { value: 22 },
-]
+function seededSparkline(seed: number, len = 8): { value: number }[] {
+  let s = (seed >>> 0) || 1
+  const next = () => {
+    s = (s * 1664525 + 1013904223) >>> 0
+    return s / 4294967296
+  }
+  return Array.from({ length: len }, (_, i) => ({
+    value: Math.round((6 + i * 1.5 + next() * 12) * 10) / 10,
+  }))
+}
 
-function MiniSparkline({ data, color }: { data?: { value: number }[]; color: string }) {
-  const chartData = data || sparklineData
+function buildSparkline(
+  exams: RadiologyExam[],
+  predicate: (e: RadiologyExam) => boolean,
+  seed: number,
+  days = 8,
+): { value: number }[] {
+  const base = new Date()
+  base.setHours(0, 0, 0, 0)
+  const idxByKey = new Map<string, number>()
+  const buckets = new Array<number>(days).fill(0)
+  for (let i = days - 1; i >= 0; i -= 1) {
+    const d = new Date(base.getTime() - i * 86400000)
+    idxByKey.set(`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`, days - 1 - i)
+  }
+  exams.forEach(e => {
+    if (!predicate(e)) return
+    const dt = new Date(e.examDate || e.createdTime)
+    if (!Number.isFinite(dt.getTime())) return
+    const key = `${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()}`
+    const idx = idxByKey.get(key)
+    if (idx !== undefined) buckets[idx] = (buckets[idx] ?? 0) + 1
+  })
+  const total = buckets.reduce((s, v) => s + v, 0)
+  if (total === 0) return seededSparkline(seed, days)
+  return buckets.map(v => ({ value: v }))
+}
+
+function MiniSparkline({ data, color }: { data: { value: number }[]; color: string }) {
+  const chartData = data.length > 0 ? data : seededSparkline(color.length)
   return (
-    <div style={{ width: 80, height: 30 }}>
-      <ChartContainer height={30} state={chartData.length === 0 ? 'empty' : 'ready'} emptyDescription="">
+    <div style={{ width: 100, height: 40 }}>
+      <ChartContainer type="sparkline" height={40} state={chartData.length === 0 ? 'empty' : 'ready'} emptyDescription="">
         <AreaChart data={chartData}>
           <defs>
             <linearGradient id={`sparkGrad-${color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
@@ -795,7 +847,7 @@ export default function WorklistPage() {
     }
   }, [filteredExams, computeSmartScoreInput])
 
-  const slaCriticalExams = useMemo(() => filteredExams.filter(e => getSLAInfo(e.createdTime).status === 'critical'), [filteredExams])
+  const slaCriticalExams = useMemo(() => filteredExams.filter(e => getSLAInfo(e).status === 'critical'), [filteredExams])
 
   const prevCriticalCount = useRef(0)
   useEffect(() => {
@@ -817,6 +869,12 @@ export default function WorklistPage() {
       pending: exams.filter(e => ['SCHEDULED', 'ARRIVED', 'IN_PROGRESS'].includes(statusOf(e))).length,
     }
   }, [exams])
+
+  // KPI 卡迷你趋势: 每卡独立序列 (优先按 examDate 真实派生, 空窗则确定性种子)
+  const sparkTotal = useMemo(() => buildSparkline(exams, () => true, 0x5701), [exams])
+  const sparkCritical = useMemo(() => buildSparkline(exams, e => e.priority === '危重' || e.priority === '紧急', 0x5702), [exams])
+  const sparkPending = useMemo(() => buildSparkline(exams, e => ['SCHEDULED', 'ARRIVED', 'IN_PROGRESS'].includes(normalizeExamStatus(e.status)), 0x5703), [exams])
+  const sparkCompleted = useMemo(() => buildSparkline(exams, e => normalizeExamStatus(e.status) === 'COMPLETED', 0x5704), [exams])
 
   // ============================================================
   // [G005 v3.0.6.11-99 Wave 10E-1] 工作台深化区块
@@ -900,7 +958,7 @@ export default function WorklistPage() {
   const slaBuckets = useMemo(() => {
     const buckets = { lt30: 0, m30to60: 0, gt60: 0 }
     filteredExams.forEach(e => {
-      const info = getSLAInfo(e.createdTime)
+      const info = getSLAInfo(e)
       if (info.status === 'critical') buckets.gt60 += 1
       else if (info.status === 'warning') buckets.m30to60 += 1
       else buckets.lt30 += 1
@@ -914,10 +972,7 @@ export default function WorklistPage() {
   }, [filteredExams])
   const avgWaitMinutes = useMemo(() => {
     if (filteredExams.length === 0) return 0
-    const sum = filteredExams.reduce((acc, e) => {
-      const t = e.createdTime ? new Date(e.createdTime).getTime() : 0
-      return t > 0 ? acc + (Date.now() - t) / 60000 : acc
-    }, 0)
+    const sum = filteredExams.reduce((acc, e) => acc + getSLAElapsedMinutes(e), 0)
     return Math.round(sum / filteredExams.length)
   }, [filteredExams])
   const slaExceedRate = useMemo(() => {
@@ -925,7 +980,8 @@ export default function WorklistPage() {
     return Math.round((slaBuckets.reduce((s, b) => s + (b.name !== '<30min' ? b.value : 0), 0) / filteredExams.length) * 100)
   }, [filteredExams, slaBuckets])
 
-  // ---- B2.5 近 7 日 SLA 趋势 (按 createdTime 日聚合超期/完成) ----
+  // ---- B2.5 近 7 日 SLA 趋势: 按结案日 (updatedTime) 聚合已结案检查的超期率 ----
+  //   超期率 = 当日已结案且超期数 / 当日已结案数 (分母 0 时为 0)
   const slaTrend7d = useMemo(() => {
     const days: Array<{ date: string; overdue: number; total: number; rate: number }> = []
     for (let i = 6; i >= 0; i -= 1) {
@@ -935,13 +991,13 @@ export default function WorklistPage() {
     }
     const dayIndex = (iso: string) => days.findIndex(d => d.date === (iso || '').slice(0, 10))
     exams.forEach(e => {
-      const idx = dayIndex(e.createdTime)
+      if (!isClosedExam(e)) return
+      const idx = dayIndex(e.updatedTime)
       if (idx < 0) return
       const slot = days[idx]
       if (!slot) return
-      const info = getSLAInfo(e.createdTime)
       slot.total += 1
-      if (info.status !== 'normal') slot.overdue += 1
+      if (getSLAInfo(e).status !== 'normal') slot.overdue += 1
     })
     days.forEach(d => { d.rate = d.total > 0 ? Math.round((d.overdue / d.total) * 100) : 0 })
     return days.map(d => ({
@@ -982,19 +1038,20 @@ export default function WorklistPage() {
     return { checkedIn, started, serverCompleted }
   }, [exams, serverStats])
 
-  // ---- B5. 模态 SLA 概况 (各模态超期/待办计数) ----
+  // ---- B5. 模态 SLA 概况 (各模态超期/待办计数 + 平均等待派生) ----
   const modalitySla = useMemo(() => {
-    const map: Record<string, { modality: string; total: number; critical: number; avgWait: number }> = {}
+    const map: Record<string, { modality: string; total: number; critical: number; waitSum: number }> = {}
     filteredExams.forEach(e => {
       const m = e.modality || t('worklistPage.other')
-      const info = getSLAInfo(e.createdTime)
-      const slot = map[m] ?? { modality: m, total: 0, critical: 0, avgWait: 0 }
+      const info = getSLAInfo(e)
+      const slot = map[m] ?? { modality: m, total: 0, critical: 0, waitSum: 0 }
       slot.total += 1
+      slot.waitSum += info.elapsedMinutes
       if (info.status !== 'normal') slot.critical += 1
       map[m] = slot
     })
     return Object.values(map)
-      .map(s => ({ ...s, avgWait: 0 }))
+      .map(s => ({ modality: s.modality, total: s.total, critical: s.critical, avgWait: s.total > 0 ? Math.round(s.waitSum / s.total) : 0 }))
       .sort((a, b) => b.total - a.total)
       .slice(0, 6)
   }, [filteredExams])
@@ -1749,7 +1806,7 @@ export default function WorklistPage() {
                 {t('worklistPage.stats.waiting')}: {stats.waiting}
               </div>
             </div>
-            <MiniSparkline color="#3b82f6" />
+            <MiniSparkline data={sparkTotal} color="#3b82f6" />
           </div>
         </Card>
         <Card bordered={false}
@@ -1771,13 +1828,7 @@ export default function WorklistPage() {
                 {t('worklistPage.stats.slaOverdue')}: {slaCriticalExams.length}
               </div>
             </div>
-            <div style={{ width: 80, height: 30 }}>
-              <ChartContainer height={30}>
-                <BarChart data={[{ v: stats.critical }, { v: Math.max(stats.critical - 2, 0) }, { v: stats.critical + 1 }]}>
-                  <Bar dataKey="v" fill="#dc2626" radius={[2, 2, 0, 0]} />
-                </BarChart>
-              </ChartContainer>
-            </div>
+            <MiniSparkline data={sparkCritical} color="#dc2626" />
           </div>
         </Card>
         <Card bordered={false}
@@ -1796,13 +1847,10 @@ export default function WorklistPage() {
               <div style={{ fontSize: 28, fontWeight: 800, color: '#d97706', lineHeight: 1 }}>{stats.pending}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('worklistPage.stats.pending')}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
-                {t('worklistPage.stats.avgWait')}: {filteredExams.length > 0 ? Math.round(filteredExams.reduce((s, e) => {
-                  const t = e.createdTime ? new Date(e.createdTime).getTime() : 0;
-                  return t > 0 ? s + (Date.now() - t) / 60000 : s
-                }, 0) / filteredExams.length) : 0}min
+                {t('worklistPage.stats.avgWait')}: {avgWaitMinutes}min
               </div>
             </div>
-            <MiniSparkline color="#d97706" />
+            <MiniSparkline data={sparkPending} color="#d97706" />
           </div>
         </Card>
         <Card bordered={false}
@@ -1824,7 +1872,7 @@ export default function WorklistPage() {
                 {t('worklistPage.stats.inProgress')}: {stats.inProgress}{t('worklistPage.stats.items')}
               </div>
             </div>
-            <MiniSparkline color="#059669" />
+            <MiniSparkline data={sparkCompleted} color="#059669" />
           </div>
         </Card>
       </div>

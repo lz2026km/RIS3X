@@ -1,4 +1,11 @@
-import { useState, useRef, useCallback, type CSSProperties } from 'react'
+/**
+ * @deprecated CH-1: prefer the canonical `ChartContainer` wrapper
+ * (src/components/charts/ChartContainer.tsx + chartDefaults). All former
+ * consumers (DataReportCenterPage) now render recharts directly through
+ * ChartContainer. Kept for backward compatibility only.
+ * Sankey width is now container-responsive (was fixed at 600).
+ */
+import { useState, useRef, useCallback, useEffect, type CSSProperties } from 'react'
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, AreaChart, Area,
   RadarChart, Radar, ScatterChart, Scatter, Treemap, Sankey,
@@ -80,8 +87,20 @@ export function Chart({
 }: ChartProps) {
   const chartRef = useRef<HTMLDivElement>(null)
   const [expanded, setExpanded] = useState(false)
+  const [containerWidth, setContainerWidth] = useState(0)
 
   const chartHeight = expanded ? Math.max(height, window.innerHeight - 100) : height
+
+  useEffect(() => {
+    const el = chartRef.current
+    if (!el) return undefined
+    const update = () => setContainerWidth(el.clientWidth)
+    update()
+    if (typeof ResizeObserver === 'undefined') return undefined
+    const observer = new ResizeObserver(update)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   const exportPng = useCallback(() => {
     const svg = chartRef.current?.querySelector('svg')
@@ -214,7 +233,7 @@ export function Chart({
         return (
           <Sankey
             data={data as unknown as { nodes: { name: string }[]; links: { source: number; target: number; value: number }[] }}
-            width={600} height={chartHeight - 60}
+            width={containerWidth || undefined} height={chartHeight - 60}
             node={{ stroke: '#e2e8f0', strokeWidth: 1 }}
             link={{ stroke: '#e2e8f0' }}
           />

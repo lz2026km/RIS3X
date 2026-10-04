@@ -68,6 +68,7 @@ export default function RevenueAnalysisPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [source, setSource] = useState<'api' | 'demo'>('demo')
+  const [costFromApi, setCostFromApi] = useState(false)
   const [monthlyData, setMonthlyData] = useState(DEMO_MONTHLY_DATA)
   const [modalityData, setModalityData] = useState(DEMO_MODALITY_DATA)
   const [payerData, setPayerData] = useState(DEMO_PAYER_DATA)
@@ -100,12 +101,14 @@ export default function RevenueAnalysisPage() {
         // 按月聚合发票 (真实收入)
         const monthMap = new Map<string, { revenue: number; exams: number }>()
         const modalityMap = new Map<string, { revenue: number; exams: number }>()
+        const apiMonthCost = new Map<string, number>()
         let insTotal = 0
         let selfPayTotal = 0
+        let payerTotal = 0
         let hasPayerData = false
         for (const inv of invoices) {
           const rec = (inv ?? {}) as Record<string, unknown>
-          const date = String(rec.examDate ?? rec.createdAt ?? '')
+          const date = String(rec.examDate ?? rec.issuedAt ?? rec.createdAt ?? '')
           const month = date.slice(0, 7)
           const amount = toNumber(rec.totalAmount)
           if (month.length === 7) {
@@ -114,36 +117,52 @@ export default function RevenueAnalysisPage() {
             cur.exams += 1
             monthMap.set(month, cur)
           }
-          const mod = guessModality(String(rec.examItem ?? rec.examItemName ?? '')) ?? guessModality(String(rec.bodyPart ?? ''))
+          const rowItems = Array.isArray(rec.items) ? (rec.items as Record<string, unknown>[]) : []
+          const itemName = rowItems[0] ? String(rowItems[0].itemName ?? rowItems[0].name ?? '') : ''
+          const mod = guessModality(String(rec.examItem ?? rec.examItemName ?? itemName)) ?? guessModality(String(rec.bodyPart ?? ''))
           if (mod) {
             const cur = modalityMap.get(mod) ?? { revenue: 0, exams: 0 }
             cur.revenue += amount
             cur.exams += 1
             modalityMap.set(mod, cur)
           }
-          if (rec.insuranceCovered != null) {
-            insTotal += toNumber(rec.insuranceCovered)
-            selfPayTotal += toNumber(rec.selfPayAmount ?? 0)
+          const ins = rec.insuranceCovered ?? rec.insurancePaid
+          const self = rec.selfPayAmount ?? rec.selfPaid
+          if (ins != null || self != null) {
+            insTotal += toNumber(ins)
+            selfPayTotal += toNumber(self)
+            payerTotal += amount
             hasPayerData = true
           }
         }
 
-        // revenue-analysis 备用 (MSW 提供 daily/monthly)
+        // revenue-analysis 备用 (MSW 提供 daily/monthly; 有 cost 则用作真实成本)
         const revObj = (revData ?? {}) as Record<string, unknown>
-        if (Array.isArray(revObj.monthly) && monthMap.size === 0) {
+        if (Array.isArray(revObj.monthly)) {
           for (const m of revObj.monthly) {
             const rec = (m ?? {}) as Record<string, unknown>
             const month = String(rec.month ?? rec.date ?? '')
-            const amount = toNumber(rec.amount ?? rec.revenue)
-            if (month.length === 7) monthMap.set(month, { revenue: amount, exams: 0 })
+            if (month.length !== 7) continue
+            if (rec.cost != null && Number.isFinite(Number(rec.cost))) apiMonthCost.set(month, toNumber(rec.cost))
+            if (monthMap.size === 0) {
+              const amount = toNumber(rec.amount ?? rec.revenue)
+              monthMap.set(month, { revenue: amount, exams: 0 })
+            }
           }
         }
 
         if (monthMap.size > 0) {
           const months = Array.from(monthMap.keys()).sort().slice(-10)
+          // 成本: 优先 API 提供, 缺失才按成本收入比派生 (并标记演示)
+          let allCostFromApi = months.length > 0
           setMonthlyData(months.map(m => {
             const revenue = Math.round((monthMap.get(m)?.revenue ?? 0) / 10000 * 10) / 10
-            const cost = Math.round(revenue * costRatio * 10) / 10
+            const apiCost = apiMonthCost.get(m)
+            const hasApiCost = apiCost != null
+            if (!hasApiCost) allCostFromApi = false
+            const cost = hasApiCost
+              ? Math.round((apiCost as number) / 10000 * 10) / 10
+              : Math.round(revenue * costRatio * 10) / 10
             return { month: m, revenue, cost, profit: Math.round((revenue - cost) * 10) / 10, exams: monthMap.get(m)?.exams ?? 0 }
           }))
           setModalityData(Array.from(modalityMap.entries())
@@ -156,14 +175,17 @@ export default function RevenueAnalysisPage() {
               color: MODALITY_COLORS[i % MODALITY_COLORS.length] ?? '#3b82f6',
             })))
           if (hasPayerData && insTotal + selfPayTotal > 0) {
-            const totalPayer = insTotal + selfPayTotal
+            const known = insTotal + selfPayTotal
+            const totalPay = payerTotal > 0 ? payerTotal : known
+            const other = Math.max(totalPay - known, 0)
+            const scale = (v: number) => Math.round(v / 10000 * 10) / 10
             setPayerData([
-              { name: '医保统筹', value: Math.round(insTotal / 10000 * 10) / 10, color: '#3b82f6' },
-              { name: '个人自费', value: Math.round(selfPayTotal / 10000 * 10) / 10, color: '#d97706' },
-              { name: '其他', value: Math.max(Math.round((totalPayer * 0.05) / 10000 * 10) / 10, 0), color: '#6b7280' },
+              { name: '医保统筹', value: scale(insTotal), color: '#3b82f6' },
+              { name: '个人自费', value: scale(selfPayTotal), color: '#d97706' },
+              { name: '其他', value: scale(other), color: '#6b7280' },
             ])
           }
-          if (!cancelled) setSource('api')
+          if (!cancelled) { setSource('api'); setCostFromApi(months.length > 0 && allCostFromApi) }
         }
       } catch (e) {
         setError(e instanceof Error ? e.message : t('w9e.revenueAnalysis.loadFailed'))
@@ -176,7 +198,7 @@ export default function RevenueAnalysisPage() {
   }, [reloadTick])
 
   const latest = monthlyData[monthlyData.length - 1] ?? { month: '', revenue: 0, cost: 0, profit: 0, exams: 0 }
-  const previous = monthlyData[monthlyData.length - 3] ?? latest
+  const previous = monthlyData[monthlyData.length - 2] ?? latest
   const momRevenue = previous.revenue ? ((latest.revenue - previous.revenue) / previous.revenue * 100) : 0
   const momProfit = previous.profit ? ((latest.profit - previous.profit) / previous.profit * 100) : 0
   const momExams = previous.exams ? ((latest.exams - previous.exams) / previous.exams * 100) : 0
@@ -290,7 +312,9 @@ export default function RevenueAnalysisPage() {
             <div>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>
                 {t('w9e.revenueAnalysis.trendTitle')}
-                <span style={{ fontSize: 11, color: '#8b949e', fontWeight: 400, marginLeft: 8 }}>{source === 'api' ? t('w9e.revenueAnalysis.trendApiNote') : t('w9e.revenueAnalysis.demoData')}</span>
+                <span style={{ fontSize: 11, color: '#8b949e', fontWeight: 400, marginLeft: 8 }}>{source === 'api'
+                  ? (costFromApi ? t('w9e.revenueAnalysis.derivedFromInvoices') : t('w9e.revenueAnalysis.trendApiNote'))
+                  : t('w9e.revenueAnalysis.demoData')}</span>
               </div>
 <ChartContainer height={320} state={monthlyData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.revenueAnalysis.noMonthlyData')}>
   <BarChart data={monthlyData}>
@@ -341,7 +365,7 @@ export default function RevenueAnalysisPage() {
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('w9e.revenueAnalysis.payerTitle')} <span style={{ fontSize: 11, color: '#8b949e', fontWeight: 400 }}>{source === 'api' ? t('w9e.revenueAnalysis.payerApiNote') : t('w9e.revenueAnalysis.demoData')}</span></div>
                 <ChartContainer height={300} state={payerData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.revenueAnalysis.noPayerData')}>
                   <RePie>
-                    <Pie data={payerData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}>
+                    <Pie data={payerData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} labelLine={false}>
                       {payerData.map(d => <Cell key={d.name} fill={d.color} />)}
                     </Pie>
                     <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d' }} />

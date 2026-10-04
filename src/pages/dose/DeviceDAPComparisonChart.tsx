@@ -13,9 +13,13 @@ import ChartContainer from "../../components/charts/ChartContainer";
 
 interface DAPPoint {
   device: string;
+  // [P0] 统一口径: 各设备当日剂量占其法规阈值的百分比 (混合单位 DLP/DAP 归一化)
+  pctOfThreshold: number;
+  pctAvgOfThreshold: number;
   DAP: number;
   avgDAP: number;
   threshold: number;
+  unit: string;
 }
 
 interface TooltipPayload {
@@ -23,11 +27,11 @@ interface TooltipPayload {
 }
 
 const DEVICE_DAP_DATA: DAPPoint[] = [
-  { device: "CT-1", DAP: 250, avgDAP: 230, threshold: 1000 },
-  { device: "CT-2", DAP: 280, avgDAP: 250, threshold: 1000 },
-  { device: "DR-1", DAP: 0.15, avgDAP: 0.12, threshold: 300 },
-  { device: "DR-2", DAP: 0.18, avgDAP: 0.14, threshold: 300 },
-  { device: "DSA-1", DAP: 2850, avgDAP: 2650, threshold: 3000 },
+  { device: "CT-1", DAP: 250, avgDAP: 230, threshold: 1000, unit: "mGy·cm", pctOfThreshold: 25, pctAvgOfThreshold: 23 },
+  { device: "CT-2", DAP: 280, avgDAP: 250, threshold: 1000, unit: "mGy·cm", pctOfThreshold: 28, pctAvgOfThreshold: 25 },
+  { device: "DR-1", DAP: 0.15, avgDAP: 0.12, threshold: 300, unit: "mGy·m²", pctOfThreshold: 0.05, pctAvgOfThreshold: 0.04 },
+  { device: "DR-2", DAP: 0.18, avgDAP: 0.14, threshold: 300, unit: "mGy·m²", pctOfThreshold: 0.06, pctAvgOfThreshold: 0.05 },
+  { device: "DSA-1", DAP: 2850, avgDAP: 2650, threshold: 3000, unit: "mGy·m²", pctOfThreshold: 95, pctAvgOfThreshold: 88.3 },
 ];
 
 export default function DeviceDAPComparisonChart() {
@@ -55,27 +59,16 @@ export default function DeviceDAPComparisonChart() {
           </div>
           <div style={{ fontSize: 12, color: "#64748b" }}>
             <div>
-              今日DAP:{" "}
-              <span style={{ fontWeight: 600, color: "#1e40af" }}>{data.DAP}</span>
+              今日: <span style={{ fontWeight: 600, color: "#1e40af" }}>{data.DAP} {data.unit}</span>
             </div>
             <div>
-              平均DAP:{" "}
-              <span style={{ fontWeight: 600, color: "#1e40af" }}>{data.avgDAP}</span>
+              平均: <span style={{ fontWeight: 600, color: "#1e40af" }}>{data.avgDAP} {data.unit}</span>
             </div>
             <div>
-              法规阈值:{" "}
-              <span style={{ fontWeight: 600, color: "#d97706" }}>{data.threshold}</span>
+              法规阈值: <span style={{ fontWeight: 600, color: "#d97706" }}>{data.threshold} {data.unit}</span>
             </div>
             <div>
-              占比:{" "}
-              <span
-                style={{
-                  fontWeight: 600,
-                  color: data.DAP > data.threshold ? "#dc2626" : "#16a34a",
-                }}
-              >
-                {Math.round((data.DAP / data.threshold) * 100)}%
-              </span>
+              占阈值: <span style={{ fontWeight: 600, color: data.pctOfThreshold > 100 ? "#dc2626" : "#16a34a" }}>{data.pctOfThreshold}%</span>
             </div>
           </div>
         </div>
@@ -103,10 +96,10 @@ export default function DeviceDAPComparisonChart() {
       >
         <div>
           <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
-            设备DAP对比分析
+            设备剂量占法规阈值对比
           </div>
           <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
-            今日DAP vs 法规阈值 vs 设备平均值
+            [P0] 混合单位(DLP mGy·cm / DAP mGy·m²)归一化为占阈值百分比, 口径一致可比
           </div>
         </div>
         <span
@@ -118,37 +111,31 @@ export default function DeviceDAPComparisonChart() {
           演示数据 · 未接入接口
         </span>
         <div style={{ display: "flex", gap: 12 }}>
-          <Legend color="#3b82f6" label="今日DAP" />
-          <Legend color="#94a3b8" label="平均DAP" />
+          <Legend color="#3b82f6" label="今日占阈值%" />
+          <Legend color="#94a3b8" label="平均占阈值%" />
         </div>
       </div>
       <ChartContainer height={240} state={DEVICE_DAP_DATA.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
         <BarChart data={DEVICE_DAP_DATA} barCategoryGap="20%">
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
           <XAxis dataKey="device" tick={{ fontSize: 12, fill: "#94a3b8" }} />
-          <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} />
+          <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} unit="%" domain={[0, (dataMax: number) => Math.max(110, Math.ceil(dataMax))]} />
           <Tooltip content={<CustomTooltip />} />
           <ReferenceLine
-            y={3000}
+            y={100}
             stroke="#dc2626"
             strokeDasharray="3 3"
-            label={{ value: "DSA阈值", position: "right", fontSize: 12, fill: "#dc2626" }}
+            label={{ value: "法规阈值(100%)", position: "right", fontSize: 12, fill: "#dc2626" }}
           />
-          <ReferenceLine
-            y={1000}
-            stroke="#f59e0b"
-            strokeDasharray="3 3"
-            label={{ value: "CT阈值", position: "right", fontSize: 12, fill: "#f59e0b" }}
-          />
-          <Bar dataKey="DAP" fill="#3b82f6" radius={[4, 4, 0, 0]} name="今日DAP">
+          <Bar dataKey="pctOfThreshold" fill="#3b82f6" radius={[4, 4, 0, 0]} name="今日占阈值%">
             {DEVICE_DAP_DATA.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={entry.DAP > entry.threshold ? "#dc2626" : "#3b82f6"}
+                fill={entry.pctOfThreshold > 100 ? "#dc2626" : "#3b82f6"}
               />
             ))}
           </Bar>
-          <Bar dataKey="avgDAP" fill="#94a3b8" radius={[4, 4, 0, 0]} name="平均DAP" />
+          <Bar dataKey="pctAvgOfThreshold" fill="#94a3b8" radius={[4, 4, 0, 0]} name="平均占阈值%" />
         </BarChart>
       </ChartContainer>
       <div

@@ -1,3 +1,33 @@
+## v3.0.6.12-8 (2026-09-28) — 图表专业级整改（重叠/尺寸/数据准确性）
+
+> **目标**: 严格审查全部图表 —— 重叠、比例失衡、数据不准确/逻辑不严谨
+> **范围**: CH-1…CH-4；前端 tsc **0** / vitest **47 文件 831 测试**；后端 tsc 0；vite build 成功；保留 recharts
+
+### CH-1 图表基础设施
+- `ChartContainer` 升级为**唯一图表封装**：`type` 驱动默认高度（迷你 40/饼 240/柱线区 220/雷达组合 260）、导出 `chartDefaults`（margins/轴/网格/提示由令牌构建）、单序列自动隐藏图例
+- 新增 `src/utils/chartUtils.ts`：`safePercent`/`normalizePie`(末项取余合计100)/`dateSort`/`formatCount`/`formatWan`/`autoInterval`/`pieLabelLayout`
+- 修嵌套 `ResponsiveContainer`（`TechnicianKpiDashboardPage` 图表塌陷）；**21 个裸 recharts 文件**迁入封装；`Chart.tsx` 弃用（桑基响应式 + 唯一消费者改走封装）
+
+### CH-2 重叠修复
+- 小容器饼图（QCPage/DepartmentQuality/DepartmentFinance/ReviewWorkloadStats/RealtimeOpsDashboard/KpiDashboard/CriticalStatsDashboard/LogStats/Hl7Manager/Schedule/DevicePage/RetakeRate/DeviceFault/RevenueAnalysis/CostAccounting/OEE）外标签→图例/列表或放大 + `cy`/半径调整
+- 长分类轴（Statistics/DeptDashboard/CloudStorage/NationalReport/InsuranceAudit/HomePage）`interval`+截断；单序列去图例；负 margin→0
+
+### CH-3 尺寸/比例
+- 消除过扁（LogStats 80→140、Worklist 迷你图 30→sparkline 40、DeviceDetail 120→180、TechRotation 150→200）与方饼；`DepartmentFinanceSummary` 父高溢出修复；按图型标准高度
+
+### CH-4 数据准确性/逻辑
+- **Worklist SLA**：已完成用 TAT、未完成才算到 now；7 日超时率=闭环超时/闭环；KPI 迷你图接真实序列（删伪造 3 柱）
+- **Finance 契约**：`financeHandlers` 响应对齐 DTO（修 `/finance/department` 崩溃与 `¥NaN`）；单一数据源 + 演示徽标；`percent*100`；`DepartmentFinanceSummary` 阳性率=阳性/书写；`RevenueAnalysis` 环比 `length-2`/购方余数/成本来源；`CostAccounting` 单检查利润/同单位预算对比
+- **Statistics**：修错误 domain（报告量/QC 线/危急值）；阳性率→危急值率；伪序列→真实聚合或确定性种子 + 演示徽标；饼合计归一；热力图 key+强度
+- **Nuclear**：错位叠加 SVG → 单图双轴；除零/单点几何保护；饼单位修正
+- **Dose**：控制限/参考线/域/KPI 由派生值/API 阈值驱动；DAP 分模态归一；DLP+CTDIvol 双轴
+- **确定性化**：`KpiEngine`/`OpsAnalyticsService`/`DevicePage`/`EquipmentEfficiency`/`GreenIT`/`QCPage`/`BenchmarkV2` 的 `Math.random/sin` → `seededRandom` 种子（刷新稳定）+ 演示徽标
+
+### 版本/部署
+- 版本号 16 文件 `3.0.6.12-7` → `3.0.6.12-8`（无 BOM）
+
+---
+
 ## v3.0.6.12-7 (2026-09-28) — UI 迁移续（原生表格→DataTable + 硬编码色→令牌）
 
 > **目标**: 继续 UI-6 —— 消除残余"幼稚/不一致"UI（原生表格、硬编码色、状态色散乱）

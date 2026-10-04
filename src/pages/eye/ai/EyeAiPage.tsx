@@ -459,7 +459,7 @@ const EyeAiPage: React.FC = () => {
                           <ChartContainer height={180} state={acceptanceTrendData.length > 0 ? 'ready' : 'empty'} emptyDescription={t('eyeAi.noData')}>
                             <LineChart
                               data={acceptanceTrendData}
-                              margin={{ top: 8, right: 12, bottom: 0, left: -10 }}
+                              margin={{ top: 8, right: 12, bottom: 0, left: 0 }}
                             >
                               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                               <XAxis
@@ -509,7 +509,7 @@ const EyeAiPage: React.FC = () => {
                           <ChartContainer height={180} state={ROC_CURVE_DATA.length > 0 ? 'ready' : 'empty'} emptyDescription={t('eyeAi.noData')}>
                             <LineChart
                               data={ROC_CURVE_DATA}
-                              margin={{ top: 8, right: 12, bottom: 0, left: -10 }}
+                              margin={{ top: 8, right: 12, bottom: 0, left: 0 }}
                             >
                               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                               <XAxis

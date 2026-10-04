@@ -15,9 +15,11 @@ import {
   Copy as CopyIcon, CalendarClock, ShieldCheck, Link2, Globe2, Gauge, ClipboardCopy,
 } from "lucide-react";
 import {
-  PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid,
+  PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip as ChartTooltip, BarChart, Bar,
 } from "recharts";
+import { ChartContainer, chartDefaults } from '../components/charts';
+import { autoInterval } from '../utils/chartUtils';
 import { STORAGE_NODES, TIER_METRICS, ARCHIVE_JOBS, COMPRESSION } from "../services/storage";
 import { usePagination } from "../hooks/usePagination";
 import { t } from "../i18n/appI18n";
@@ -263,7 +265,7 @@ function StorageMonitorTab() {
         <Row gutter={12}>
           <Col span={7}>
             <div style={{ textAlign: "center" }}>
-              <ResponsiveContainer width="100%" height={200}>
+              <ChartContainer type="pie" height={200}>
                 <PieChart>
                   <Pie
                     data={[
@@ -280,9 +282,9 @@ function StorageMonitorTab() {
                     <Cell fill={capacityLevel === "critical" ? "#dc2626" : capacityLevel === "warn" ? "#d97706" : "#0ea5e9"} />
                     <Cell fill="#e2e8f0" />
                   </Pie>
-                  <ChartTooltip formatter={(v: unknown) => formatBytes(Number(v))} />
+                  <ChartTooltip {...chartDefaults.tooltip} formatter={(v: unknown) => formatBytes(Number(v))} />
                 </PieChart>
-              </ResponsiveContainer>
+              </ChartContainer>
               <div style={{ marginTop: -6 }}>
                 <Text strong style={{ fontSize: 15 }}>{t("cloudStorage.monitor.usageRate", { level: capacityLevel === "critical" ? t("cloudStorage.monitor.levelCritical") : capacityLevel === "warn" ? t("cloudStorage.monitor.levelWarn") : t("cloudStorage.monitor.levelOk"), pct: monitor?.usedPercent ?? usedPct.toFixed(1) })}</Text>
                 <div>
@@ -294,15 +296,15 @@ function StorageMonitorTab() {
             </div>
           </Col>
           <Col span={17}>
-            <ResponsiveContainer width="100%" height={230}>
-              <LineChart data={monitor?.history ?? []} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#eef2f7" />
-                <XAxis dataKey="date" tick={{ fontSize: 11 }} interval={4} />
-                <YAxis tick={{ fontSize: 11 }} tickFormatter={(v: number) => formatBytesShort(v)} width={64} />
-                <ChartTooltip formatter={(v: unknown) => formatBytes(Number(v))} labelFormatter={(l) => t("cloudStorage.monitor.datePrefix", { date: l })} />
+            <ChartContainer type="line" height={230}>
+              <LineChart data={monitor?.history ?? []} margin={chartDefaults.margin}>
+                <CartesianGrid {...chartDefaults.grid} stroke="#eef2f7" />
+                <XAxis dataKey="date" interval={4} {...chartDefaults.axis} />
+                <YAxis tickFormatter={(v: number) => formatBytesShort(v)} width={64} {...chartDefaults.axis} />
+                <ChartTooltip {...chartDefaults.tooltip} formatter={(v: unknown) => formatBytes(Number(v))} labelFormatter={(l) => t("cloudStorage.monitor.datePrefix", { date: l })} />
                 <Line type="monotone" dataKey="usedBytes" name={t("cloudStorage.monitor.usedCapacity")} stroke="#0ea5e9" strokeWidth={2} dot={false} />
               </LineChart>
-            </ResponsiveContainer>
+            </ChartContainer>
             <div style={{ textAlign: "center", marginTop: 4 }}>
               <Tag color="geekblue" icon={<TrendingUp size={12} />}>{t("cloudStorage.monitor.growth30d", { rate: monitor?.growthRatePct30d ?? "—" })}</Tag>
             </div>
@@ -313,17 +315,17 @@ function StorageMonitorTab() {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={12}>
           <Card size="small" title={<Space><Boxes size={15} />{t("cloudStorage.monitor.bucketUsage")}</Space>} style={{ height: "100%" }}>
-            <ResponsiveContainer width="100%" height={230}>
-              <BarChart data={(monitor?.buckets ?? []).map((b) => ({ name: b.name, usedBytes: b.usedBytes, pct: b.percentOfTotal }))} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#eef2f7" />
-                <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} tickFormatter={(v: number) => formatBytesShort(v)} width={64} />
-                <ChartTooltip formatter={(v: unknown, n: unknown) => [`${formatBytes(Number(v))}`, n === "pct" ? t("cloudStorage.monitor.pctShare") : t("cloudStorage.monitor.usedCapacity")]} />
+            <ChartContainer type="bar" height={230}>
+              <BarChart data={(monitor?.buckets ?? []).map((b) => ({ name: b.name, usedBytes: b.usedBytes, pct: b.percentOfTotal }))} margin={chartDefaults.margin}>
+                <CartesianGrid {...chartDefaults.grid} stroke="#eef2f7" />
+                <XAxis dataKey="name" interval={autoInterval((monitor?.buckets ?? []).length)} tickFormatter={(v: string) => (v && v.length > 8 ? `${v.slice(0, 8)}…` : v)} {...chartDefaults.axis} />
+                <YAxis tickFormatter={(v: number) => formatBytesShort(v)} width={64} {...chartDefaults.axis} />
+                <ChartTooltip {...chartDefaults.tooltip} formatter={(v: unknown, n: unknown) => [`${formatBytes(Number(v))}`, n === "pct" ? t("cloudStorage.monitor.pctShare") : t("cloudStorage.monitor.usedCapacity")]} />
                 <Bar dataKey="usedBytes" name={t("cloudStorage.monitor.usedCapacity")} radius={[4, 4, 0, 0]}>
                   {(monitor?.buckets ?? []).map((b, i) => <Cell key={b.name} fill={BAR_PALETTE[i % BAR_PALETTE.length]} />)}
                 </Bar>
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
             {(monitor?.buckets ?? []).map((b) => (
               <Text type="secondary" key={b.name} style={{ fontSize: 11, marginRight: 12 }}>
                 {b.name}: {b.percentOfTotal}%

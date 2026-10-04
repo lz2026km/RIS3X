@@ -320,7 +320,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
                   cx="50%"
                   cy="50%"
                   outerRadius={70}
-                  label
+                  labelLine={false}
                 >
                   {eventTypeData.map((e, i) => <Cell key={i} fill={COLORS[e.name as keyof typeof COLORS] ?? CHART_COLORS.gray} />)}
                 </Pie>

@@ -11,13 +11,14 @@ import {
 } from "antd";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip,
-  ResponsiveContainer, ReferenceLine,
+  ReferenceLine,
 } from "recharts";
 import {
   ScanLine, Activity, Palette, Focus, ShieldAlert, Layers,
   Database, RefreshCw, Grid3X3, Droplets, BarChart2,
 } from "lucide-react";
 import { eyeApi } from "@/services/api/eyeApi";
+import { ChartContainer, chartDefaults } from "@/components/charts";
 import { ErrorBanner } from "@/components/feedback";
 import { t } from "../../../i18n/appI18n";
 
@@ -443,20 +444,19 @@ const EyePixelPage: React.FC = () => {
                   <Empty description={t('eyePixel.histogramHint')} style={{ padding: 24 }} />
                 ) : (
                   <>
-                    <div style={{ height: 240 }}>
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={histogramData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                          <XAxis dataKey="intensity" tick={{ fontSize: 10 }} interval={15} />
-                          <YAxis tick={{ fontSize: 10 }} />
-                          <ReTooltip
-                            formatter={(value: any, _name: any, item: any) => [`${value}`, t('w9d.eyePixel.grayLevel', { v: item?.payload?.intensity })]}
-                          />
-                          <ReferenceLine x={histogram.mean} stroke="#ef4444" strokeDasharray="4 4" />
-                          <Bar dataKey="count" fill="#3b82f6" isAnimationActive={false} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
+                    <ChartContainer type="bar" height={240}>
+                      <BarChart data={histogramData} margin={chartDefaults.margin}>
+                        <CartesianGrid {...chartDefaults.grid} stroke="#e5e7eb" />
+                        <XAxis dataKey="intensity" interval={15} {...chartDefaults.axis} />
+                        <YAxis {...chartDefaults.axis} />
+                        <ReTooltip
+                          {...chartDefaults.tooltip}
+                          formatter={(value: any, _name: any, item: any) => [`${value}`, t('w9d.eyePixel.grayLevel', { v: item?.payload?.intensity })]}
+                        />
+                        <ReferenceLine x={histogram.mean} stroke="#ef4444" strokeDasharray="4 4" />
+                        <Bar dataKey="count" fill="#3b82f6" isAnimationActive={false} />
+                      </BarChart>
+                    </ChartContainer>
                     <div style={{ marginTop: 8 }}>
                       <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 6 }}>
                         <span style={{ color: "#ef4444" }}>{t('eyePixel.meanLine')} {histogram.mean}</span>

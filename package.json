@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.12-7",
-  "description": "G005 Radiology RIS v3.0.6.12-7 - UI Migration (tables + tokens)",
+  "version": "3.0.6.12-8",
+  "description": "G005 Radiology RIS v3.0.6.12-8 - Chart Overhaul (overlap/sizing/accuracy)",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

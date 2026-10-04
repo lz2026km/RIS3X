@@ -28,8 +28,9 @@ import {
 } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts'
+import { ChartContainer, chartDefaults } from '../../components/charts'
 import { t } from '../../i18n/appI18n'
 
 const SAMPLE_INSTANCES = ['inst-2000', 'inst-2001', 'inst-2002', 'inst-2003']
@@ -183,18 +184,18 @@ const AccuracyPanel: React.FC = () => {
           {trend.length === 0 && !loading ? (
             <EmptyState description={t('aiCad.noTrend')} />
           ) : (
-            <ResponsiveContainer width="100%" height={280}>
-              <LineChart data={trend} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94a3b8' }} />
-                <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} domain={[50, 100]} />
-                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v: number | string) => [`${v}%`]} />
+            <ChartContainer type="line" height={280}>
+              <LineChart data={trend} margin={chartDefaults.margin}>
+                <CartesianGrid {...chartDefaults.grid} />
+                <XAxis dataKey="date" {...chartDefaults.axis} />
+                <YAxis domain={[50, 100]} {...chartDefaults.axis} />
+                <Tooltip {...chartDefaults.tooltip} formatter={(v: number | string) => [`${v}%`]} />
                 <Legend iconSize={10} />
                 <Line type="monotone" dataKey="accuracy" name={t('aiCad.accuracy')} stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} />
                 <Line type="monotone" dataKey="sensitivity" name={t('aiCad.sensitivity')} stroke="#52c41a" strokeWidth={2} dot={{ r: 3 }} />
                 <Line type="monotone" dataKey="specificity" name={t('aiCad.specificity')} stroke="#faad14" strokeWidth={2} dot={{ r: 3 }} />
               </LineChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           )}
         </Card>
       </Spin>

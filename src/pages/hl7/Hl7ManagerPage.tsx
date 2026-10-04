@@ -6,8 +6,9 @@ import Hl7AnalyticsSection from './Hl7AnalyticsSection'
 import { t } from '../../i18n/appI18n'
 import {
   PieChart, Pie, Cell, BarChart, Bar,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts'
+import { ChartContainer, chartDefaults } from '../../components/charts'
 
 // ============================================================
 // [G005 v3.0.6.11-99 Wave 10E-1] HL7 监控面板
@@ -210,36 +211,32 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
         {/* M1. 消息类型分布 */}
         <Col span={10}>
           <Card size="small" title={<Space><PieIcon size={14} />{t('hl7Page.typeDistribution')}</Space>} extra={<Tag color="blue">{typeDist.length} {t('hl7Page.classUnit')}</Tag>}>
-            <div style={{ height: 240 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={typeDist} dataKey="count" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={(e: any) => `${e.name} ${e.count}`}>
-                    {typeDist.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
-                  </Pie>
-                  <Tooltip />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
+            <ChartContainer type="pie" height={240}>
+              <PieChart>
+                <Pie data={typeDist} dataKey="count" nameKey="name" cx="50%" cy="45%" outerRadius={72} labelLine={false}>
+                  {typeDist.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+                </Pie>
+                <Tooltip {...chartDefaults.tooltip} />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+              </PieChart>
+            </ChartContainer>
           </Card>
         </Col>
 
         {/* M3. 消息量趋势 */}
         <Col span={14}>
           <Card size="small" title={<Space><TrendingUp size={14} />{t('hl7Page.volumeTrend')}</Space>} extra={<Tag color="green">{t('hl7Page.total')} {trend7d.reduce((s, d) => s + d.count, 0)}</Tag>}>
-            <div style={{ height: 240 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={trend7d} margin={{ top: 8, right: 16, left: 0, bottom: 4 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="day" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Bar dataKey="count" name={t('hl7Page.volume')} fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="failed" name={t('hl7Page.failShort')} fill="#dc2626" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            <ChartContainer type="bar" height={240}>
+              <BarChart data={trend7d} margin={chartDefaults.margin}>
+                <CartesianGrid {...chartDefaults.grid} />
+                <XAxis dataKey="day" {...chartDefaults.axis} />
+                <YAxis {...chartDefaults.axis} />
+                <Tooltip {...chartDefaults.tooltip} />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Bar dataKey="count" name={t('hl7Page.volume')} fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="failed" name={t('hl7Page.failShort')} fill="#dc2626" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ChartContainer>
           </Card>
         </Col>
       </Row>

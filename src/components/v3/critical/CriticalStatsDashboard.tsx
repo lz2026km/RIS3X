@@ -118,7 +118,7 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
               emptyDescription={t('w9e.criticalStats.noCategoryData')}
             >
               <PieChart>
-                <Pie data={data.byCategory} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label>
+                <Pie data={data.byCategory} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} labelLine={false}>
                   {data.byCategory.map((_, i) => <Cell key={i} fill={CHART_PALETTE[i % CHART_PALETTE.length]} />)}
                 </Pie>
                 <RTooltip />

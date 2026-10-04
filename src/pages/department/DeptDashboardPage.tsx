@@ -39,6 +39,7 @@ import {
 import { biApi } from '../../services/api/biApi'
 import { t } from '../../i18n/appI18n'
 import { ChartContainer } from '../../components/charts'
+import { autoInterval } from '../../utils/chartUtils'
 import type {
   CriticalSlaDto,
   DeviceOeeDto,
@@ -416,10 +417,10 @@ export default function DeptDashboardPage() {
 
           <Col xs={24} lg={14}>
             <Card title={t('deptDash.doctorWorkload')}>
-              <ChartContainer height={160} state={state.rvu.length === 0 ? 'empty' : 'ready'} emptyDescription={t('deptDash.noWorkload')}>
+              <ChartContainer type="bar" state={state.rvu.length === 0 ? 'empty' : 'ready'} emptyDescription={t('deptDash.noWorkload')}>
                 <BarChart data={state.rvu}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="doctorName" />
+                  <XAxis dataKey="doctorName" interval={autoInterval(state.rvu.length)} tickFormatter={(v: string) => (v && v.length > 4 ? `${v.slice(0, 4)}…` : v)} />
                   <YAxis />
                   <ReTooltip />
                   <Legend />

@@ -4,8 +4,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button, message, Modal, Select, Spin, Tag, Tooltip } from 'antd'
 import {
   Area, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip as RTooltip, ResponsiveContainer, Legend, ComposedChart, ReferenceLine,
+  Tooltip as RTooltip, Legend, ComposedChart, ReferenceLine,
 } from 'recharts'
+import { ChartContainer, chartDefaults } from '../../components/charts'
 import {
   CalendarRange, RefreshCw, Repeat2, Scale, TrendingUp, PlayCircle, History as HistoryIcon,
 } from 'lucide-react'
@@ -489,17 +490,17 @@ export default function TechRotationPage() {
               <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{t('techRotation.balancePanel')}</span>
             </div>
             {balanceChartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={260}>
-                <BarChart data={balanceChartData} margin={{ top: 4, right: 8, bottom: 0, left: -16 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} />
-                  <YAxis tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} />
-                  <RTooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12 }} />
+              <ChartContainer type="bar" height={260}>
+                <BarChart data={balanceChartData} margin={chartDefaults.margin}>
+                  <CartesianGrid {...chartDefaults.grid} />
+                  <XAxis dataKey="name" {...chartDefaults.axis} />
+                  <YAxis {...chartDefaults.axis} />
+                  <RTooltip {...chartDefaults.tooltip} />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   <Bar dataKey="计划负载" name={t('techRotation.planLoad')} fill="#10b981" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="累计工作量" name={t('techRotation.cumulativeLoad')} fill="#3b82f6" radius={[4, 4, 0, 0]} />
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             ) : (
               <EmptyState description={t('techRotation.noBalance')} />
             )}
@@ -554,12 +555,12 @@ export default function TechRotationPage() {
             </span>
           </div>
           {forecastChartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
-              <ComposedChart data={forecastChartData} margin={{ top: 4, right: 8, bottom: 0, left: -8 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-                <XAxis dataKey="label" tick={{ fontSize: 10, fill: 'var(--text-secondary)' }} interval={0} angle={-32} textAnchor="end" height={56} />
-                <YAxis tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} />
-                <RTooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12 }} />
+            <ChartContainer type="composed" height={300}>
+              <ComposedChart data={forecastChartData} margin={chartDefaults.margin}>
+                <CartesianGrid {...chartDefaults.grid} />
+                <XAxis dataKey="label" interval={0} angle={-32} textAnchor="end" height={56} {...chartDefaults.axis} />
+                <YAxis {...chartDefaults.axis} />
+                <RTooltip {...chartDefaults.tooltip} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 <Area dataKey="upper" name={t('techRotation.upperBound')} stroke="none" fill="#3b82f6" fillOpacity={0.12} />
                 <Area dataKey="lower" name={t('techRotation.lowerBound')} stroke="none" fill="#3b82f6" fillOpacity={0.12} />
@@ -567,7 +568,7 @@ export default function TechRotationPage() {
                 <Line dataKey="forecast" name={t('techRotation.forecast')} stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} connectNulls={false} />
                 <ReferenceLine x={forecastChartData[Math.max(0, forecastChartData.length - (forecast?.days ?? 7))]?.label ?? ''} stroke="#f59e0b" strokeDasharray="4 4" label={{ value: t('techRotation.today'), fontSize: 10, fill: '#f59e0b', position: 'top' }} />
               </ComposedChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           ) : (
             <EmptyState description={t('techRotation.noForecastData')} />
           )}
@@ -577,15 +578,15 @@ export default function TechRotationPage() {
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>
                 {t('techRotation.periodTitle', { date: startDate, count: periodData.length })}
               </div>
-              <ResponsiveContainer width="100%" height={150}>
-                <BarChart data={periodData} margin={{ top: 4, right: 8, bottom: 0, left: -16 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-                  <XAxis dataKey="period" tick={{ fontSize: 10, fill: 'var(--text-secondary)' }} />
-                  <YAxis tick={{ fontSize: 10, fill: 'var(--text-secondary)' }} />
-                  <RTooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12 }} />
+              <ChartContainer type="bar" height={200}>
+                <BarChart data={periodData} margin={chartDefaults.margin}>
+                  <CartesianGrid {...chartDefaults.grid} />
+                  <XAxis dataKey="period" {...chartDefaults.axis} />
+                  <YAxis {...chartDefaults.axis} />
+                  <RTooltip {...chartDefaults.tooltip} />
                   <Bar dataKey="value" name={t('techRotation.periodLoad')} fill="#8b5cf6" radius={[4, 4, 0, 0]} />
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </div>
           )}
         </div>

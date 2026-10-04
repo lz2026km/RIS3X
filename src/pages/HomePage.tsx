@@ -47,6 +47,7 @@ import { PageTemplate } from '../components/common/PageTemplate'
 import { t } from '../i18n/appI18n'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { ChartContainer } from '../components/charts'
+import { autoInterval } from '../utils/chartUtils'
 // [v3.0.6.11-103 Wave 5] 放射专业主题组件接入
 import { PageHeader } from '../components/common/PageHeader'
 import { StatCard as KpiCard, EmptyState, Card } from '../components/common'
@@ -1315,6 +1316,7 @@ const HomePage: FC = () => {
               dataKey="hour"
               tick={{ fontSize: 12, fill: COLORS.textMuted }}
               axisLine={{ stroke: COLORS.border }}
+              interval={autoInterval(hourlyData.length)}
             />
             <YAxis
               tick={{ fontSize: 12, fill: COLORS.textMuted }}

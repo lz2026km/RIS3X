@@ -1,5 +1,5 @@
-export { default as ChartContainer } from './ChartContainer'
-export type { ChartContainerProps, ChartState } from './ChartContainer'
+export { default as ChartContainer, chartDefaults, CHART_TYPE_HEIGHTS, CHART_TYPE_MIN_HEIGHT } from './ChartContainer'
+export type { ChartContainerProps, ChartState, ChartKind, ChartDefaults } from './ChartContainer'
 export { default as ChartEmpty } from './ChartEmpty'
 export type { ChartEmptyProps } from './ChartEmpty'
 export { default as ChartSkeleton } from './ChartSkeleton'

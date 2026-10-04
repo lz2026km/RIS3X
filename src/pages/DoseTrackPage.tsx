@@ -53,8 +53,9 @@ import { exportDoseDataToCSV, exportDeviceDoseToCSV } from "./dose/utils";
 import { LoadingBanner, AppEmpty } from "../components/feedback";
 import {
   LineChart, Line, BarChart as RBChart, Bar, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  XAxis, YAxis, CartesianGrid, Tooltip,
 } from "recharts";
+import { ChartContainer, chartDefaults } from "../components/charts";
 
 type View =
   | "overview"
@@ -854,19 +855,17 @@ function DoseAnalyticsSection({
             {t('doseTrack.trendMeta', { total: statsMeta.totalExams })} <b style={{ color: '#dc2626' }}>{statsMeta.maxCtdiVol}</b> mGy
           </span>
         </div>
-        <div style={{ height: 220 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={statsTrend} margin={{ top: 8, right: 16, left: 0, bottom: 4 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-              <XAxis dataKey="date" tick={{ fontSize: 10 }} interval={4} />
-              <YAxis yAxisId="left" tick={{ fontSize: 10 }} />
-              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} />
-              <Tooltip />
-              <Line yAxisId="left" type="monotone" dataKey="avgCtdiVol" name={t('doseTrack.avgCtdiVol')} stroke="#3b82f6" strokeWidth={2} dot={false} />
-              <Line yAxisId="right" type="monotone" dataKey="avgDlp" name={t('doseTrack.avgDlp')} stroke="#d97706" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+        <ChartContainer type="line" height={220}>
+          <LineChart data={statsTrend} margin={chartDefaults.margin}>
+            <CartesianGrid {...chartDefaults.grid} />
+            <XAxis dataKey="date" interval={4} {...chartDefaults.axis} />
+            <YAxis yAxisId="left" {...chartDefaults.axis} />
+            <YAxis yAxisId="right" orientation="right" {...chartDefaults.axis} />
+            <Tooltip {...chartDefaults.tooltip} />
+            <Line yAxisId="left" type="monotone" dataKey="avgCtdiVol" name={t('doseTrack.avgCtdiVol')} stroke="#3b82f6" strokeWidth={2} dot={false} />
+            <Line yAxisId="right" type="monotone" dataKey="avgDlp" name={t('doseTrack.avgDlp')} stroke="#d97706" strokeWidth={2} dot={false} />
+          </LineChart>
+        </ChartContainer>
         <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: 11, color: 'var(--text-secondary)', flexWrap: 'wrap' }}>
           <span>{t('doseTrack.maxCtdi')} <b style={{ color: '#dc2626' }}>{statsMeta.maxCtdiVol} mGy</b></span>
           <span>{t('doseTrack.maxDlp')} <b style={{ color: '#d97706' }}>{statsMeta.maxDlp} mGy·cm</b></span>
@@ -933,21 +932,19 @@ function DoseAnalyticsSection({
           <BarChart3 size={14} /> {t('doseTrack.typeCompareTitle')}
           <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>{t('doseTrack.typeCompareSubtitle')}</span>
         </div>
-        <div style={{ height: Math.max(180, typeCompare.length * 36) }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <RBChart data={typeCompare} layout="vertical" margin={{ top: 4, right: 40, left: 70, bottom: 4 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-              <XAxis type="number" tick={{ fontSize: 10 }} />
-              <YAxis type="category" dataKey="type" tick={{ fontSize: 11 }} width={70} />
-              <Tooltip formatter={(v: any, name: any) => [name === 'avgDlp' ? `${v} mGy·cm` : v, name === 'avgDlp' ? t('doseTrack.avgDlpShort') : t('doseTrack.examVolume')]} />
+          <ChartContainer type="bar" height={Math.max(180, typeCompare.length * 36)}>
+            <RBChart data={typeCompare} layout="vertical" margin={chartDefaults.margin}>
+              <CartesianGrid {...chartDefaults.grid} />
+              <XAxis type="number" {...chartDefaults.axis} />
+              <YAxis type="category" dataKey="type" width={70} {...chartDefaults.axis} />
+              <Tooltip {...chartDefaults.tooltip} formatter={(v: any, name: any) => [name === 'avgDlp' ? `${v} mGy·cm` : v, name === 'avgDlp' ? t('doseTrack.avgDlpShort') : t('doseTrack.examVolume')]} />
               <Bar dataKey="avgDlp" barSize={16} radius={[0, 4, 4, 0]}>
                 {typeCompare.map((t, i) => (
                   <Cell key={i} fill={t.avgDlp > 700 ? '#dc2626' : t.avgDlp > 500 ? '#d97706' : '#3b82f6'} />
                 ))}
               </Bar>
             </RBChart>
-          </ResponsiveContainer>
-        </div>
+          </ChartContainer>
         <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-secondary)' }}>
           <span>{t('doseTrack.compareRange', { count: typeCompare.length })}</span>
           <span>{t('doseTrack.redAboveNormal')}</span>

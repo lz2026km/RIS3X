@@ -34,6 +34,7 @@ import {
 import {
   DOCTOR_PERFORMANCE_PRE, EXAM_REPORT_PRE, QUALITY_SCORE_PRE,
 } from '../data/_generators'
+import { seededUnit } from '../utils/seededRandom'
 import { AppText } from '../components/common/AppText'
 import { VirtualTable } from '../components/common/VirtualTable'
 import { PageHeader } from '../components/common/PageHeader'
@@ -206,7 +207,7 @@ const imageQCData = (() => {
   const issuePool = [t("qcPage.imageArtifactMotion"), t("qcPage.imageExposure"), t("qcPage.imagePositioning"), t("qcPage.contrastInsufficient"), t("qcPage.imageMotionMinor"), t("qcPage.imageNoise"), t("qcPage.imageMetalArtifact")];
   return DEVICE_MASTER.slice(0, 8).map((d, idx) => {
     const report = EXAM_REPORT_PRE[idx];
-    const score = report ? Math.round(report.qcScore) : Math.round(85 + Math.random() * 10);
+    const score = report ? Math.round(report.qcScore) : Math.round(85 + seededUnit(`imgqc-${d.id}`) * 10);
     const status = score >= 95 ? t("qcPage.excellent") : score >= 85 ? t("qcPage.good") : score >= 75 ? t("qcPage.fair") : t("qcPage.poor");
     const issues = score >= 95 ? [] : score >= 85 ? [issuePool[idx % 6]!] : score >= 75 ? [issuePool[idx % 6]!, issuePool[(idx + 2) % 6]!] : [issuePool[idx % 6]!];
     return {
@@ -310,8 +311,8 @@ const dashboardData = {
   ],
   trend30days: Array.from({ length: 30 }, (_, i) => ({
     date: `04-${String(i + 1).padStart(2, '0')}`,
-    score: 82 + Math.random() * 10,
-    count: 18 + Math.floor(Math.random() * 12 ),
+    score: 82 + seededUnit(`qc-t30-score-${i}`) * 10,
+    count: 18 + Math.floor(seededUnit(`qc-t30-count-${i}`) * 12 ),
   })),
   issueDistribution: [
     { name: t("qcPage.imageArtifactMotion"), value: 28, color: '#ef4444' },
@@ -394,10 +395,10 @@ const regionalOverallScores = [
 // 机构详细评分
 regionalInstitutions.map(inst => ({
   ...inst,
-  imageQualityScore: 75 + Math.random() * 20,
-  reportQualityScore: 75 + Math.random() * 20,
-  timelinessScore: 75 + Math.random() * 20,
-  criticalValueScore: 80 + Math.random() * 18,
+  imageQualityScore: 75 + seededUnit(`qc-reg-img-${inst.id}`) * 20,
+  reportQualityScore: 75 + seededUnit(`qc-reg-rep-${inst.id}`) * 20,
+  timelinessScore: 75 + seededUnit(`qc-reg-time-${inst.id}`) * 20,
+  criticalValueScore: 80 + seededUnit(`qc-reg-crit-${inst.id}`) * 18,
 }));
 
 // 问题追踪数据
@@ -1279,7 +1280,7 @@ export default function QCPage() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, alignItems: 'center' }}>
               <ChartContainer height={220}>
                 <RechartsPie>
-                  <Pie data={dashboardData.issueDistribution} cx='50%' cy='50%' innerRadius={55} outerRadius={90} paddingAngle={3} dataKey='value' label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                  <Pie data={dashboardData.issueDistribution} cx='50%' cy='50%' innerRadius={55} outerRadius={90} paddingAngle={3} dataKey='value' labelLine={false}>
                     {dashboardData.issueDistribution.map((entry, _idx) => (
                       <Cell key={entry.name} fill={entry.color} />
                     ))}
@@ -1469,7 +1470,7 @@ export default function QCPage() {
               </div>
               <ChartContainer height={130}>
                 <RechartsPie>
-                  <Pie data={gradeDistributionData} cx='50%' cy='50%' innerRadius={40} outerRadius={65} paddingAngle={3} dataKey='count' label={({ grade, percent }) => `${grade}级 ${(percent * 100).toFixed(0)}%`}>
+                  <Pie data={gradeDistributionData} cx='50%' cy='50%' innerRadius={28} outerRadius={52} paddingAngle={3} dataKey='count' labelLine={false}>
                     {gradeDistributionData.map(entry => (
                       <Cell key={entry.grade} fill={entry.color} />
                     ))}
@@ -2241,7 +2242,7 @@ export default function QCPage() {
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
                       <ChartContainer height={180}>
                         <PieChart>
-                          <Pie data={reportSummaryData.monthly.issues} cx='50%' cy='50%' innerRadius={45} outerRadius={75} paddingAngle={3} dataKey='count' label={({ type, percent }) => `${type} ${(percent * 100).toFixed(0)}%`}>
+                          <Pie data={reportSummaryData.monthly.issues} cx='50%' cy='50%' innerRadius={45} outerRadius={75} paddingAngle={3} dataKey='count' labelLine={false}>
                             {reportSummaryData.monthly.issues.map((entry, idx) => (
                               <Cell key={entry.type} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
                             ))}

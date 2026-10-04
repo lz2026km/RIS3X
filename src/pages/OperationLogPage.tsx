@@ -1,10 +1,11 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { X, Clock, User, FileText, CheckCircle, Download, BarChart3, Activity, AlertCircle, History, List, Globe, Loader2, FileSpreadsheet, Users, Shield, AlertTriangle, Pause, Play, Radio, GitBranch, Fingerprint, FileJson, FileBarChart } from 'lucide-react'
-import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
+import { XAxis, YAxis, CartesianGrid, Tooltip, Area, AreaChart } from 'recharts'
 import { Select } from 'antd'
 import type { TableColumnsType } from 'antd'
 import { auditApi, type AuditEventDto } from '../services/api/auditApi'
 import { DataTable } from '../components/common/DataTable'
+import { ChartContainer, chartDefaults } from '../components/charts'
 import { ActionButton } from '../components/common/ActionButton'
 import { t } from '../i18n/appI18n'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
@@ -741,15 +742,15 @@ export default function OperationLogPage() {
           </div>
           <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: '1px solid var(--border-color)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px' }}>{t('opLog.anomalyTrend')}</h3>
-            <ResponsiveContainer width='100%' height={200}>
-              <AreaChart data={anomalyTrend}>
-                <CartesianGrid strokeDasharray='3 3' stroke='var(--border-color)' />
-                <XAxis dataKey='month' tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
+            <ChartContainer type="area" height={200}>
+              <AreaChart data={anomalyTrend} margin={chartDefaults.margin}>
+                <CartesianGrid {...chartDefaults.grid} />
+                <XAxis dataKey='month' {...chartDefaults.axis} />
+                <YAxis {...chartDefaults.axis} />
+                <Tooltip {...chartDefaults.tooltip} />
                 <Area type='monotone' dataKey='count' stroke={DANGER} fill='var(--color-error-bg)' strokeWidth={2} name={t('opLog.anomalyCount')} />
               </AreaChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
         </div>
       )}

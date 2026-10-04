@@ -2,7 +2,7 @@ import { Card, Select } from 'antd'
 // G005 放射科RIS系统 - 统计分析页面 v2.0.0
 // 完整重写：6大标签页，800+行，inline样式，recharts图表
 import { useTranslation } from 'react-i18next'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Fragment } from 'react'
 import {
   BarChart3, TrendingUp, TrendingDown, Calendar, Download, Activity,
   DollarSign, Users, Clock,
@@ -27,6 +27,8 @@ import {
 import { statsApi, biApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { ChartEmpty, ChartContainer } from '../components/charts'
+import { autoInterval, normalizePie } from '../utils/chartUtils'
+import { seededInt, seededUnit } from '../utils/seededRandom'
 import { PageTemplate } from '../components/common/PageTemplate'
 import { PageHeader } from '../components/common/PageHeader'
 import { StickyActionBar } from '../components/common/StickyActionBar'
@@ -88,6 +90,11 @@ const sevenDayData = DAILY_KPI_PRE.slice(-7).map((d) => ({
   reports: d.reportCount,
   critical: d.criticalCount,
   revenue: d.examCount * 400, // 三甲均价 ~400元/检查
+  // [P1] 模态分布取自真实 byModality, 不再用固定比例系数
+  CT: d.byModality.CT,
+  MR: d.byModality.MR,
+  DR: d.byModality.DR,
+  DSA: d.byModality.DSA,
 }))
 
 // 时段分布 - 来源: 7天数据 + 经验时段分布系数
@@ -101,26 +108,28 @@ const timeSlotData = [
   { slot: appT("statsPage.slot21to24"), exams: 38 },
 ]
 
-// 患者类型分布 - 来源: PATIENT_MASTER.type (1500 患者聚合)
+// 患者类型分布 - 来源: PATIENT_MASTER.type (聚合, 百分比经 normalizePie 保证合计=100)
 function getPatientTypeData() {
   const counts: Record<string, number> = {};
   PATIENT_MASTER.forEach((p) => { counts[p.type] = (counts[p.type] || 0) + 1; });
-  const total = PATIENT_MASTER.length;
   const colors: Record<string, string> = { '门诊': '#3b82f6', '住院': '#8b5cf6', '急诊': '#f59e0b', '体检': '#22c55e', '外院转入': '#14b8a6' };
-  return Object.entries(counts).map(([k, v]) => ({
-    name: k, value: Math.round((v / total) * 100), color: colors[k] || '#64748b',
-  })).sort((a, b) => b.value - a.value);
+  const items = Object.entries(counts).map(([k, v]) => ({
+    name: k, value: v, color: colors[k] || '#64748b',
+  }));
+  return normalizePie(items, 'value')
+    .map((item) => ({ name: item.name, value: item.percent, color: item.color }))
+    .sort((a, b) => b.value - a.value);
 }
 const patientTypeData = getPatientTypeData()
 
-// 检查部位分布 - 来源: EXAM_REPORT_PRE (600 报告) 按 bodyPart 聚合
+// 检查部位分布 - 来源: EXAM_REPORT_PRE (按 bodyPart 聚合, 使用真实计数)
 function getBodyPartData() {
   const counts: Record<string, number> = {};
   EXAM_REPORT_PRE.forEach((r) => { counts[r.bodyPart] = (counts[r.bodyPart] || 0) + 1; });
   return Object.entries(counts)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 10)
-    .map(([part, count]) => ({ part, count: count * 2 + (part.length % 5) + 1 }));
+    .map(([part, count]) => ({ part, count }));
 }
 const bodyPartData = getBodyPartData()
 
@@ -164,7 +173,7 @@ const qualityScoreData = DAILY_KPI_PRE.slice(-7).map((d) => ({
   score: d.qcAvgScore,
 }))
 
-// 质控分布 - 来源: QUALITY_SCORE_PRE.grade (A/B/C/D)
+// 质控分布 - 来源: QUALITY_SCORE_PRE.grade (A/B/C/D), 百分比归一化
 function getQualityDistribution() {
   const counts = { '优秀': 0, '良好': 0, '合格': 0, '不合格': 0 };
   QUALITY_SCORE_PRE.forEach((q) => {
@@ -173,10 +182,12 @@ function getQualityDistribution() {
     else if (q.grade === 'C') counts['合格']++;
     else counts['不合格']++;
   });
-  const total = QUALITY_SCORE_PRE.length || 1;
   const colors = { '优秀': '#059669', '良好': '#3b82f6', '合格': '#f59e0b', '不合格': '#dc2626' };
-  return Object.entries(counts).map(([name, value]) => ({
-    name, value: Math.round((value / total) * 100), color: colors[name as keyof typeof colors],
+  const items = Object.entries(counts).map(([name, value]) => ({
+    name, value, color: colors[name as keyof typeof colors],
+  }));
+  return normalizePie(items, 'value').map((item) => ({
+    name: item.name, value: item.percent, color: item.color,
   }));
 }
 const qualityDistribution = getQualityDistribution()
@@ -216,12 +227,23 @@ const heatmapData = [
   { hour: '21', Mon: 18, Tue: 20, Wed: 19, Thu: 17, Fri: 21, Sat: 8, Sun: 4 },
 ]
 
+// [P1] 热力图强度按数据最大值缩放 (原硬编码 /50)
+const HEATMAP_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const
+const HEATMAP_MAX = Math.max(1, ...heatmapData.flatMap((row) => HEATMAP_DAYS.map((d) => Number(row[d]) || 0)))
+
+// 维保计划 - 日期改为确定性生成 (锚点 2026-05-01 + seed 天数), 刷新不抖动
+const MAINTENANCE_ANCHOR = new Date('2026-05-01T00:00:00Z')
+function maintenanceDate(daysLeft: number): string {
+  const d = new Date(MAINTENANCE_ANCHOR)
+  d.setUTCDate(d.getUTCDate() + daysLeft)
+  return d.toISOString().slice(0, 10)
+}
 const maintenanceData = [
-  { device: appT("statsPage.deviceMr2Short"), nextDate: '2026-05-15', daysLeft: 14, type: appT("statsPage.routineMaintenance") },
-  { device: appT("statsPage.deviceCt2"), nextDate: '2026-05-20', daysLeft: 19, type: appT("statsPage.performanceCheck") },
-  { device: 'DR-2（GE Optima）', nextDate: '2026-05-28', daysLeft: 27, type: appT("statsPage.routineMaintenance") },
-  { device: appT("statsPage.deviceDsa1Short"), nextDate: '2026-06-05', daysLeft: 35, type: appT("statsPage.softwareUpgrade") },
-]
+  { device: appT("statsPage.deviceMr2Short"), daysLeft: seededInt('maint-MR2', 7, 30), type: appT("statsPage.routineMaintenance") },
+  { device: appT("statsPage.deviceCt2"), daysLeft: seededInt('maint-CT2', 12, 40), type: appT("statsPage.performanceCheck") },
+  { device: 'DR-2（GE Optima）', daysLeft: seededInt('maint-DR2', 20, 55), type: appT("statsPage.routineMaintenance") },
+  { device: appT("statsPage.deviceDsa1Short"), daysLeft: seededInt('maint-DSA1', 25, 70), type: appT("statsPage.softwareUpgrade") },
+].map((m) => ({ ...m, nextDate: maintenanceDate(m.daysLeft) }))
 
 const patientSourceData = [
   { source: appT("statsPage.localCity"), count: 68, color: '#3b82f6' },
@@ -243,19 +265,20 @@ const genderDistribution = [
   { name: appT("statsPage.female"), value: 45, color: '#ec4899' },
 ]
 
-function getPositiveRateData() {
-  // 按模态从 EXAM_REPORT_PRE 计算阳性率 (有临床发现)
-  const counts: Record<string, { total: number; pos: number }> = {};
+// [P1] 原实现用 hasCriticalValue/total 却标注为"阳性率" → 实为危急值率, 已更名.
+// 各模态危急值率 = 含危急值报告数 / 该模态报告总数.
+function getCriticalRateData() {
+  const counts: Record<string, { total: number; critical: number }> = {};
   EXAM_REPORT_PRE.forEach((r) => {
-    if (!counts[r.modality]) counts[r.modality] = { total: 0, pos: 0 };
+    if (!counts[r.modality]) counts[r.modality] = { total: 0, critical: 0 };
     counts[r.modality]!.total++;
-    if (r.hasCriticalValue) counts[r.modality]!.pos++;
+    if (r.hasCriticalValue) counts[r.modality]!.critical++;
   });
   return Object.entries(counts).map(([modality, c]) => ({
-    modality, rate: Math.round((c.pos / c.total) * 1000) / 10,
+    modality, rate: Math.round((c.critical / c.total) * 1000) / 10,
   }));
 }
-const positiveRateData = getPositiveRateData()
+const positiveRateData = getCriticalRateData()
 
 const positiveTrendData = [
   { day: appT("statsPage.monday"), rate: 38.5 },
@@ -280,26 +303,32 @@ const reexaminationData = [
 ]
 
 function getPositiveRateRanking() {
-  // 从 EXAM_ITEM_MASTER 按 name 取前 8, 排名基于估算检查量
-  return EXAM_ITEM_MASTER.slice(0, 8).map((e, idx) => {
-    const estCount = e.modality === 'CT' ? 80 + idx * 20
-                   : e.modality === 'MR' ? 30 + idx * 15
-                   : e.modality === 'DR' ? 200 + idx * 30
-                   : e.modality === 'DSA' ? 10 + idx * 5
-                   : 20 + idx * 10;
-    const rate = e.modality === 'DSA' ? 68.5 : e.modality === 'MG' ? 52.3 : e.modality === 'CT' ? 42 - idx : 35 - idx * 2;
-    return {
-      rank: idx + 1, type: e.name, rate: Math.max(5, Math.round(rate * 10) / 10),
-      count: estCount, trend: ['↑2.1%', '↓1.5%', '↑3.2%', '↑0.8%', '↓0.5%', appT("statsPage.flat"), '↑1.2%', '↓0.3%'][idx] || appT("statsPage.flat"),
-    };
-  });
+  // [P1] 真实聚合: 按 examItem 统计报告数; 比率用确定性 seed (同键稳定)
+  const agg: Record<string, { count: number; critical: number }> = {}
+  EXAM_REPORT_PRE.forEach((r) => {
+    const key = r.examItem || r.modality
+    if (!agg[key]) agg[key] = { count: 0, critical: 0 }
+    agg[key]!.count++
+    if (r.hasCriticalValue) agg[key]!.critical++
+  })
+  return Object.entries(agg)
+    .sort((a, b) => b[1].count - a[1].count)
+    .slice(0, 8)
+    .map(([type, a], idx) => ({
+      rank: idx + 1,
+      type,
+      rate: Math.round((35 + seededUnit(`rank-rate-${type}`) * 35) * 10) / 10,
+      count: a.count,
+      trend: ['↑2.1%', '↓1.5%', '↑3.2%', '↑0.8%', '↓0.5%', appT("statsPage.flat"), '↑1.2%', '↓0.3%'][idx] || appT("statsPage.flat"),
+    }));
 }
 const positiveRateRanking = getPositiveRateRanking()
 
-const positiveRateTrend30Days = Array.from({ length: 30 }, (_, i) => ({
-  day: `Day${i + 1}`,
-  rate: 36 + ((i * 7 + 3) % 80) / 10,
-  critical: Math.round(((i * 13 + 7) % 6)),
+const positiveRateTrend30Days = DAILY_KPI_PRE.slice(-30).map((d) => ({
+  day: d.date.slice(5),
+  // [P1] 确定性 seed 生成 (日期键), 替代模运算伪序列; 危急值数取自真实 KPI
+  rate: Math.round((30 + seededUnit(`posrate-${d.date}`) * 15) * 10) / 10,
+  critical: d.criticalCount,
 }))
 
 // ============================================================
@@ -317,14 +346,19 @@ const businessStats = {
   yoyProfit: '+18.2%',
 }
 
-const costBreakdown = [
-  { name: appT("statsPage.equipmentDepreciation"), value: 420000, color: '#3b82f6', percent: 29.6 },
-  { name: appT("statsPage.laborCost"), value: 380000, color: '#8b5cf6', percent: 26.8 },
-  { name: appT("statsPage.consumables"), value: 280000, color: '#22c55e', percent: 19.7 },
-  { name: appT("statsPage.maintenanceCost"), value: 180000, color: '#f59e0b', percent: 12.7 },
-  { name: appT("statsPage.utilities"), value: 120000, color: '#ec4899', percent: 8.5 },
-  { name: appT("statsPage.otherExpenses"), value: 40000, color: '#14b8a6', percent: 2.8 },
-]
+// [P1] 成本占比由金额归一化计算 (合计=100), 金额保留用于饼图 dataKey="value"
+const costBreakdown = (() => {
+  const items = [
+    { name: appT("statsPage.equipmentDepreciation"), value: 420000, color: '#3b82f6' },
+    { name: appT("statsPage.laborCost"), value: 380000, color: '#8b5cf6' },
+    { name: appT("statsPage.consumables"), value: 280000, color: '#22c55e' },
+    { name: appT("statsPage.maintenanceCost"), value: 180000, color: '#f59e0b' },
+    { name: appT("statsPage.utilities"), value: 120000, color: '#ec4899' },
+    { name: appT("statsPage.otherExpenses"), value: 40000, color: '#14b8a6' },
+  ]
+  const normalized = normalizePie(items.map((d) => ({ value: d.value })), 'value')
+  return items.map((d, i) => ({ ...d, percent: normalized[i]!.percent }))
+})()
 
 const monthlyProfitData = [
   { month: appT("statsPage.jan"), revenue: 238, cost: 128, profit: 110 },
@@ -404,19 +438,24 @@ function getRevenueByModality() {
 const revenueByModality = getRevenueByModality()
 
 function getExamTypeRevenue() {
-  // 用 EXAM_ITEM_MASTER 价格 × 估算检查数
-  return EXAM_ITEM_MASTER.slice(0, 8).map((e, idx) => {
-    const estExams = e.modality === 'CT' ? 80 + ((idx * 17 + 5) % 80)
-                   : e.modality === 'MR' ? 30 + ((idx * 13 + 7) % 50)
-                   : e.modality === 'DR' ? 200 + ((idx * 11 + 3) % 300)
-                   : e.modality === 'DSA' ? 10 + ((idx * 19 + 11) % 30)
-                   : 20 + ((idx * 7 + 13) % 30);
-    return {
-      type: e.name,
-      revenue: estExams * e.priceRMB,
-      exams: estExams,
-    };
+  // [P1] 真实聚合: 按 examItem 统计报告数 × EXAMS_BY 单价; 无匹配单价时用模态均价
+  const priceByCode: Record<string, number> = {};
+  const priceByModality: Record<string, number> = { CT: 400, MR: 800, DR: 80, DSA: 3500, MG: 200, US: 120, 'PET-CT': 5000 };
+  EXAM_ITEM_MASTER.forEach((e) => { priceByCode[e.name] = e.priceRMB });
+  const agg: Record<string, { exams: number; modality: string }> = {};
+  EXAM_REPORT_PRE.forEach((r) => {
+    const key = r.examItem || r.modality;
+    if (!agg[key]) agg[key] = { exams: 0, modality: r.modality };
+    agg[key]!.exams++;
   });
+  return Object.entries(agg)
+    .sort((a, b) => b[1].exams - a[1].exams)
+    .slice(0, 8)
+    .map(([type, a]) => ({
+      type,
+      exams: a.exams,
+      revenue: a.exams * (priceByCode[type] ?? priceByModality[a.modality] ?? 200),
+    }));
 }
 const examTypeRevenue = getExamTypeRevenue()
 
@@ -436,7 +475,7 @@ function buildStatisticsExportRows(): any[] {
   timeSlotData.forEach((d) => rows.push({ 维度: appT("statsPage.timeSlotDist"), 时段: d.slot, 检查量: d.exams }))
   bodyPartData.forEach((d) => rows.push({ 维度: appT("statsPage.bodyPart"), 部位: d.part, 检查量: d.count }))
   doctorWorkloadData.forEach((d) => rows.push({ 维度: appT("statsPage.doctorWorkload"), 医生: d.name, 书写: d.written, 审核: d.reviewed, 平均耗时: d.avgTime }))
-  positiveRateData.forEach((d) => rows.push({ 维度: appT("statsPage.positiveRate"), 模态: d.modality, 阳性率: d.rate }))
+  positiveRateData.forEach((d) => rows.push({ 维度: appT("statsPage.criticalRatePct"), 模态: d.modality, 危急值率: d.rate }))
   deviceEfficiencyData.forEach((d) => rows.push({ 维度: appT("statsPage.equipmentEfficiency"), 设备: d.name, 日均检查: d.exams, 使用率: d.utilization, 状态: d.status }))
   revenueByModality.forEach((d) => rows.push({ 维度: appT("statsPage.revenueComposition"), 模态: d.name, 收入: d.value }))
   return rows
@@ -474,17 +513,33 @@ function StatCard({ label, value, subValue, icon, color, bg, trend }: {
   )
 }
 
+// [P1] 演示数据徽标 — 确定性模拟序列显式标注, 与真实聚合区分
+function DemoBadge({ label }: { label?: string }) {
+  return (
+    <span style={{
+      fontSize: 11, padding: '2px 8px', borderRadius: 10,
+      background: C.warningBg, color: C.warning, border: '1px solid #fcd34d',
+      fontWeight: 600, whiteSpace: 'nowrap',
+    }}>
+      {label ?? appT("statsPage.demoDataBadge")}
+    </span>
+  )
+}
+
 // ============================================================
 // 通用图表卡片包装
 // ============================================================
-function ChartCard({ title, children, action }: { title: string; children: React.ReactNode; action?: React.ReactNode; color?: string }) {
+function ChartCard({ title, children, action, demo }: { title: string; children: React.ReactNode; action?: React.ReactNode; color?: string; demo?: boolean }) {
   return (
     <Card bordered={false} style={{
       background: C.white, borderRadius: 12, padding: 20,
       border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))'
     }} styles={{ body: { padding: 0 } }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{title}</div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, gap: 8 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: C.primary, display: 'flex', alignItems: 'center', gap: 8 }}>
+          {title}
+          {demo && <DemoBadge />}
+        </div>
         {action}
       </div>
       {children}
@@ -538,13 +593,8 @@ function ExamVolumeTab() {
     todayEstimate: 285,
   }
 
-  const mergedData = sevenDayData.map(d => ({
-    ...d,
-    CT: Math.round(d.exams * 0.42),
-    MR: Math.round(d.exams * 0.22),
-    DR: Math.round(d.exams * 0.28),
-    DSA: Math.round(d.exams * 0.08),
-  }))
+  // [P1] 模态分布取自 sevenDayData.byModality 真实聚合, 不再用固定比例系数
+  const mergedData = sevenDayData
 
   return (
     <div>
@@ -589,13 +639,13 @@ function ExamVolumeTab() {
             <ComposedChart data={sevenDayData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
-              <YAxis yAxisId="left" tick={{ fontSize: 12, fill: C.textMuted }} label={{ value: appT("statsPage.examVolume"), angle: -90, position: 'insideLeft', fontSize: 12, fill: C.textMuted }} />
-              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12, fill: C.textMuted }} domain={[30, 50]} label={{ value: appT("statsPage.growthRatePct"), angle: 90, position: 'insideRight', fontSize: 12, fill: C.textMuted }} />
+              <YAxis yAxisId="left" allowDecimals={false} tick={{ fontSize: 12, fill: C.textMuted }} label={{ value: appT("statsPage.examVolume"), angle: -90, position: 'insideLeft', fontSize: 12, fill: C.textMuted }} />
+              <YAxis yAxisId="right" orientation="right" allowDecimals={false} domain={[0, 'dataMax + 10']} tick={{ fontSize: 12, fill: C.textMuted }} label={{ value: appT("statsPage.chart.criticalCount"), angle: 90, position: 'insideRight', fontSize: 12, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
               <Bar yAxisId="left" dataKey="exams" fill="#3b82f6" name={appT("statsPage.chart.examCount")} radius={[4, 4, 0, 0]} opacity={0.7} />
+              <Line yAxisId="left" type="monotone" dataKey="reports" stroke="#22c55e" strokeWidth={2} dot={{ r: 4 }} name={appT("statsPage.chart.reportCount")} />
               <Line yAxisId="right" type="monotone" dataKey="critical" stroke="#ef4444" strokeWidth={2} dot={{ r: 4 }} name={appT("statsPage.chart.criticalCount")} />
-              <Line yAxisId="right" type="monotone" dataKey="reports" stroke="#22c55e" strokeWidth={2} dot={{ r: 4 }} name={appT("statsPage.chart.reportCount")} />
             </ComposedChart>
           </ChartContainer>
         </ChartCard>
@@ -853,9 +903,10 @@ function RevenueTab({ onExport }: { onExport?: () => void }) {
   }
 
   const revenueTrend7 = sevenDayData.map(d => ({ day: d.day, revenue: d.revenue }))
-  const revenueTrend30 = Array.from({ length: 30 }, (_, i) => ({
-    day: `Day${i + 1}`,
-    revenue: 85000 + ((i * 937 + 123) % 30000)
+  // [P1] 30天收入: 确定性 seed 生成 (日期键), 替代模运算伪序列
+  const revenueTrend30 = DAILY_KPI_PRE.slice(-30).map((d) => ({
+    day: d.date.slice(5),
+    revenue: Math.round((d.examCount * 400) * (0.9 + seededUnit(`rev-${d.date}`) * 0.2)),
   }))
 
   const maxRevenue = Math.max(...(chartView === '7days' ? revenueTrend7 : revenueTrend30).map(d => d.revenue))
@@ -898,7 +949,7 @@ function RevenueTab({ onExport }: { onExport?: () => void }) {
 
       {/* 收入趋势面积图 */}
       <div style={{ marginBottom: 16 }}>
-        <ChartCard title={appT("statsPage.revenueTrend")}>
+        <ChartCard title={appT("statsPage.revenueTrend")} demo>
           <ChartContainer height={280} state={(chartView === '7days' ? revenueTrend7 : revenueTrend30).length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noRevenueTrend")}>
             <AreaChart data={chartView === '7days' ? revenueTrend7 : revenueTrend30}>
               <defs>
@@ -1011,9 +1062,9 @@ function QualityControlTab() {
     criticalOvertime: 3,
   }
 
-  const trendData = trendRange === '7days' ? qualityScoreData : Array.from({ length: 30 }, (_, i) => ({
-    day: `Day${i + 1}`,
-    score: 95 + ((i * 7 + 3) % 30) / 10
+  const trendData = trendRange === '7days' ? qualityScoreData : DAILY_KPI_PRE.map((d) => ({
+    day: d.date.slice(5),
+    score: d.qcAvgScore,
   }))
 
   return (
@@ -1132,9 +1183,8 @@ function QualityControlTab() {
             <LineChart data={sevenDayData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
-              <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, 10]} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, 'dataMax + 5']} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-              <Legend iconSize={10} verticalAlign="bottom" align="center" />
               <Line type="monotone" dataKey="critical" stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} name={appT("statsPage.chart.criticalCount")} />
             </LineChart>
           </ChartContainer>
@@ -1144,6 +1194,7 @@ function QualityControlTab() {
       {/* 质控评分趋势 */}
       <ChartCard
         title={appT("statsPage.qcScoreTrend")}
+        demo
         action={
           <div style={{ display: 'flex', gap: 4 }}>
             {['7days', '30days'].map(r => (
@@ -1159,7 +1210,7 @@ function QualityControlTab() {
             <LineChart data={trendData}>
             <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
             <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
-            <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[93, 100]} />
+            <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={['dataMin - 2', 'dataMax + 2']} />
             <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
             <Line type="monotone" dataKey="score" stroke="#059669" strokeWidth={2} dot={{ r: 3 }} name={appT("statsPage.chart.qcScore")} />
           </LineChart>
@@ -1523,21 +1574,21 @@ function DeviceEfficiencyTab() {
                 <div key={d} style={{ fontSize: 12, color: C.textMuted, textAlign: 'center', padding: 4, fontWeight: 600 }}>{d}</div>
               ))}
               {heatmapData.map(row => (
-                <>
-                  <div key={`label-${row.hour}`} style={{ fontSize: 12, color: C.textMuted, textAlign: 'center', padding: 4 }}>{row.hour}</div>
-                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => {
+                <Fragment key={row.hour}>
+                  <div style={{ fontSize: 12, color: C.textMuted, textAlign: 'center', padding: 4 }}>{row.hour}</div>
+                  {HEATMAP_DAYS.map((d) => {
                     const val = row[d as keyof typeof row] as number
-                    const intensity = Math.min(val / 50, 1)
+                    const intensity = Math.min(val / HEATMAP_MAX, 1)
                     return (
                       <div key={`${row.hour}-${d}`} style={{
                         background: `rgba(59, 130, 246, ${intensity})`,
                         borderRadius: 3, padding: '4px 2px', textAlign: 'center', minHeight: 24
                       }}>
-                        <span style={{ fontSize: 12, color: intensity > 0.5 ? C.white : C.textMuted, fontWeight: val > 30 ? 700 : 400 }}>{val}</span>
+                        <span style={{ fontSize: 12, color: intensity > 0.5 ? C.white : C.textMuted, fontWeight: val > HEATMAP_MAX * 0.6 ? 700 : 400 }}>{val}</span>
                       </div>
                     )
                   })}
-                </>
+                </Fragment>
               ))}
             </div>
           </div>
@@ -1677,7 +1728,7 @@ function PatientAnalysisTab() {
 
       {/* 阳性率对比与趋势 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
-        {/* 各设备阳性率 */}
+        {/* 各设备危急值率 */}
         <ChartCard title={appT("statsPage.positiveByDevice")}>
           <ChartContainer height={220} state={positiveRateData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noPositiveRate")}>
             <StatBarChart data={positiveRateData}>
@@ -1685,7 +1736,7 @@ function PatientAnalysisTab() {
               <XAxis dataKey="modality" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, 100]} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-              <Bar dataKey="rate" name={appT("statsPage.chart.positiveRatePct")} radius={[4, 4, 0, 0]}>
+              <Bar dataKey="rate" name={appT("statsPage.criticalRatePct")} radius={[4, 4, 0, 0]}>
                 {positiveRateData.map((entry, i) => (
                   <Cell key={i} fill={entry.rate >= 50 ? C.danger : entry.rate >= 30 ? C.warning : C.success} />
                 ))}
@@ -1700,7 +1751,7 @@ function PatientAnalysisTab() {
             <LineChart data={positiveTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
-              <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[30, 50]} />
+              <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={['dataMin - 5', 'dataMax + 5']} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 4 }} name={appT("statsPage.chart.positiveRatePct")} />
             </LineChart>
@@ -1781,12 +1832,12 @@ function PositiveRateTab() {
 
       {/* 阳性率趋势图（30天） */}
       <div style={{ marginBottom: 16 }}>
-        <ChartCard title={appT("statsPage.positive30dTrend")}>
+        <ChartCard title={appT("statsPage.positive30dTrend")} demo>
           <ChartContainer height={260} state={positiveRateTrend30Days.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.no30dPositive")}>
             <LineChart data={positiveRateTrend30Days}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
-              <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[30, 50]} />
+              <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={['dataMin - 5', 'dataMax + 5']} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
               <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 2 }} name={appT("statsPage.chart.positiveRatePct")} />
@@ -1877,7 +1928,7 @@ function PositiveRateTab() {
               <XAxis dataKey="modality" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, 100]} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-              <Bar dataKey="rate" name={appT("statsPage.chart.positiveRatePct")} radius={[4, 4, 0, 0]}>
+              <Bar dataKey="rate" name={appT("statsPage.criticalRatePct")} radius={[4, 4, 0, 0]}>
                 {positiveRateData.map((entry, i) => (
                   <Cell key={i} fill={entry.rate >= 50 ? C.danger : entry.rate >= 30 ? C.warning : C.success} />
                 ))}
@@ -1891,7 +1942,7 @@ function PositiveRateTab() {
             <LineChart data={positiveTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
-              <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[30, 50]} />
+              <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={['dataMin - 5', 'dataMax + 5']} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 4 }} name={appT("statsPage.chart.positiveRatePct")} />
             </LineChart>
@@ -1961,7 +2012,7 @@ function BusinessAnalysisTab({ onExportBusiness }: { onExportBusiness?: () => vo
 
       {/* 月度利润趋势（面积图） */}
       <div style={{ marginBottom: 16 }}>
-        <ChartCard title={appT("statsPage.monthlyProfitTrend")}>
+        <ChartCard title={appT("statsPage.monthlyProfitTrend")} demo>
           <ChartContainer height={280} state={monthlyProfitData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noMonthlyProfit")}>
             <AreaChart data={monthlyProfitData}>
               <defs>
@@ -2020,7 +2071,7 @@ function BusinessAnalysisTab({ onExportBusiness }: { onExportBusiness?: () => vo
         </ChartCard>
 
         {/* 人均产出趋势 */}
-        <ChartCard title={appT("statsPage.perCapitaTrend")}>
+        <ChartCard title={appT("statsPage.perCapitaTrend")} demo>
           <ChartContainer height={220} state={perCapitaTrend.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noPerCapitaCost")}>
             <LineChart data={perCapitaTrend}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
@@ -2330,7 +2381,7 @@ const DeepAnalysisTab: React.FC = () => {
               <ChartContainer height={210} state="ready">
                 <StatBarChart layout="vertical" data={deviceUtilRank.slice(0, 8)} margin={{ left: 20, right: 24, top: 4, bottom: 4 }}>
                   <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10 }} />
-                  <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 10 }} />
+                  <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 10 }} tickFormatter={(v: string) => (v && v.length > 7 ? `${v.slice(0, 7)}…` : v)} />
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
                   <Tooltip formatter={(v: any) => [`${v}%`, appT("statsPage.usageRate")]} />
                   <Bar dataKey="utilization" fill="#22c55e" radius={[0, 4, 4, 0]} barSize={14} />
@@ -2352,7 +2403,7 @@ const DeepAnalysisTab: React.FC = () => {
               <ChartContainer height={210} state="ready">
                 <StatBarChart layout="vertical" data={deviceVolumeRank.slice(0, 8)} margin={{ left: 20, right: 24, top: 4, bottom: 4 }}>
                   <XAxis type="number" tick={{ fontSize: 10 }} />
-                  <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 10 }} />
+                  <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 10 }} tickFormatter={(v: string) => (v && v.length > 7 ? `${v.slice(0, 7)}…` : v)} />
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
                   <Tooltip formatter={(v: any) => [v, appT("statsPage.examVolume")]} />
                   <Bar dataKey="exams" fill="#2563eb" radius={[0, 4, 4, 0]} barSize={14} />
@@ -2375,7 +2426,7 @@ const DeepAnalysisTab: React.FC = () => {
           <div>
             <ChartContainer height={260} state="ready">
               <StatBarChart data={doctorStack} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
-                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={autoInterval(doctorStack.length)} tickFormatter={(v: string) => (v && v.length > 4 ? `${v.slice(0, 4)}…` : v)} />
                 <YAxis tick={{ fontSize: 10 }} />
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
                 <Tooltip />
@@ -2496,7 +2547,7 @@ const DeepAnalysisTab: React.FC = () => {
       </ChartCard>
 
       {/* D6. 设备使用率周趋势 (OEE 双榜联动) */}
-      <ChartCard title={appT("statsPage.oeeWeeklyTrend")} color="#0891b2">
+      <ChartCard title={appT("statsPage.oeeWeeklyTrend")} color="#0891b2" demo={source === 'demo'}>
         {deviceUtilRank.length === 0 ? (
           <ChartEmpty description={appT("statsPage.noOeeTrend")} height={200} />
         ) : (
@@ -2511,7 +2562,7 @@ const DeepAnalysisTab: React.FC = () => {
               第6天: Math.max(40, d.utilization + 5 + i),
               第7天: d.utilization + 3 + i,
             }))} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
-              <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+              <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={autoInterval(5)} tickFormatter={(v: string) => (v && v.length > 4 ? `${v.slice(0, 4)}…` : v)} />
               <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} />
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
               <Tooltip formatter={(v: any) => [`${v}%`, 'OEE']} />
@@ -2663,7 +2714,7 @@ export default function StatisticsPage() {
           },
           {
             title: appT("statsPage.csvModalityPositive"),
-            rows: [[appT("statsPage.modality"), appT("statsPage.positiveRatePct")], ...positiveRateData.map((d) => [d.modality, d.rate])],
+            rows: [[appT("statsPage.modality"), appT("statsPage.criticalRatePct")], ...positiveRateData.map((d) => [d.modality, d.rate])],
           },
           {
             title: appT("statsPage.csvPositiveTop8"),

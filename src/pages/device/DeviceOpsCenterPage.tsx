@@ -12,7 +12,8 @@ import {
   Activity, AlertTriangle, CheckCircle, ClipboardList, DollarSign, Gauge,
   Package, RefreshCw, ShieldCheck, Wrench,
 } from 'lucide-react'
-import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip as RTooltip, XAxis, YAxis } from 'recharts'
+import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, Tooltip as RTooltip, XAxis, YAxis } from 'recharts'
+import { ChartContainer, chartDefaults } from '../../components/charts'
 import { ExportButton } from '../../components/common'
 import { deviceOpsApi } from '../../services/api/deviceOpsApi'
 import type {
@@ -338,31 +339,31 @@ export default function DeviceOpsCenterPage() {
         <Col span={12}>
           <Card size="small" title={t('w11Device.oee.trend')}>
             {trendData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={240}>
-                <LineChart data={trendData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="label" tick={{ fontSize: 12 }} />
-                  <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
-                  <RTooltip />
+              <ChartContainer type="line" height={240}>
+                <LineChart data={trendData} margin={chartDefaults.margin}>
+                  <CartesianGrid {...chartDefaults.grid} />
+                  <XAxis dataKey="label" {...chartDefaults.axis} />
+                  <YAxis domain={[0, 100]} {...chartDefaults.axis} />
+                  <RTooltip {...chartDefaults.tooltip} />
                   <Legend />
                   <Line type="monotone" dataKey="oee" name="OEE" stroke="#2563eb" strokeWidth={2} />
                   <Line type="monotone" dataKey="availability" name={t('w11Device.oee.availability')} stroke="#16a34a" dot={false} />
                   <Line type="monotone" dataKey="performance" name={t('w11Device.oee.performance')} stroke="#0891b2" dot={false} />
                   <Line type="monotone" dataKey="quality" name={t('w11Device.oee.quality')} stroke="#d97706" dot={false} />
                 </LineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             ) : <Text type="secondary">{t('w11Device.noData')}</Text>}
           </Card>
         </Col>
         <Col span={12}>
           <Card size="small" title={t('w11Device.oee.lossBreakdown')}>
             {lossData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={240}>
-                <BarChart data={lossData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 12 }} />
-                  <RTooltip />
+              <ChartContainer type="bar" height={240}>
+                <BarChart data={lossData} margin={chartDefaults.margin}>
+                  <CartesianGrid {...chartDefaults.grid} />
+                  <XAxis dataKey="name" {...chartDefaults.axis} />
+                  <YAxis {...chartDefaults.axis} />
+                  <RTooltip {...chartDefaults.tooltip} />
                   <Legend />
                   <Bar dataKey="planned" stackId="a" name={t('w11Device.oee.planned')} fill="#93c5fd" />
                   <Bar dataKey="unplanned" stackId="a" name={t('w11Device.oee.unplanned')} fill="#ef4444" />
@@ -370,7 +371,7 @@ export default function DeviceOpsCenterPage() {
                   <Bar dataKey="idle" stackId="a" name={t('w11Device.oee.idle')} fill="#a3a3a3" />
                   <Bar dataKey="smallStop" stackId="a" name={t('w11Device.oee.smallStop')} fill="#8b5cf6" />
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             ) : <Text type="secondary">{t('w11Device.noData')}</Text>}
           </Card>
         </Col>

@@ -20,6 +20,8 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
   const [data, setData] = useState<CumulativeDosePoint[]>(cumulativeDoseData);
   const [patientInfo, setPatientInfo] = useState<{ name: string; id: string }>({ name: "张志刚", id: patientId });
   const [source, setSource] = useState<"api" | "demo">("demo");
+  // [P0] 年度阈值来自 API annualLimit (回退取演示数据末点阈值), 原硬编码 5000
+  const [annualLimit, setAnnualLimit] = useState<number>(cumulativeDoseData[cumulativeDoseData.length - 1]?.threshold ?? 5000);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [reloadTick, setReloadTick] = useState(0);
 
@@ -33,6 +35,7 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
         if (!cancelled && res.success && res.data) {
           const d = res.data as CumulativeDose;
           setPatientInfo({ name: d.patientName, id: d.patientId });
+          if (Number.isFinite(d.annualLimit) && d.annualLimit > 0) setAnnualLimit(d.annualLimit);
           if (d.monthlyTrend && d.monthlyTrend.length > 0) {
             let acc = 0;
             const points = d.monthlyTrend.map(t => {
@@ -50,7 +53,20 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
     return () => { cancelled = true; };
   }, [patientId, reloadTick]);
 
-  const lastPoint = data[data.length - 1] as CumulativeDosePoint;
+  // [P0] 空数据保护: 无 data[last] 时渲染空态, 避免 undefined 读取
+  const lastPoint = data[data.length - 1] as CumulativeDosePoint | undefined;
+  if (!lastPoint) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
+        <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 40, border: "1px solid #e2e8f0", textAlign: "center", color: "#94a3b8", fontSize: 13 }}>
+          暂无累计剂量数据
+        </div>
+      </div>
+    );
+  }
+  const examCountSafe = Math.max(1, lastPoint.examCount);
+  const nearLimit = annualLimit > 0 && lastPoint.cumulativeDLP > annualLimit * 0.8;
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
@@ -82,11 +98,11 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
             <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} />
             <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
             <ReferenceLine
-              y={5000}
+              y={annualLimit}
               stroke="#dc2626"
               strokeDasharray="5 5"
               label={{
-                value: "年度阈值",
+                value: `年度阈值(${annualLimit})`,
                 position: "right",
                 fontSize: 12,
                 fill: "#dc2626",
@@ -135,7 +151,7 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
         </div>
         <div style={statBox}>
           <div style={{ fontSize: 22, fontWeight: 800, color: "#d97706" }}>
-            {Math.round(lastPoint.cumulativeDLP / lastPoint.examCount)}
+            {Math.round(lastPoint.cumulativeDLP / examCountSafe)}
           </div>
           <div style={{ fontSize: 12, color: "#64748b" }}>次均剂量</div>
         </div>
@@ -144,10 +160,10 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
             style={{
               fontSize: 22,
               fontWeight: 800,
-              color: lastPoint.cumulativeDLP > 4000 ? "#dc2626" : "#16a34a",
+              color: nearLimit ? "#dc2626" : "#16a34a",
             }}
           >
-            {lastPoint.cumulativeDLP > 4000 ? "接近阈值" : "安全"}
+            {nearLimit ? "接近阈值" : "安全"}
           </div>
           <div style={{ fontSize: 12, color: "#64748b" }}>状态</div>
         </div>
@@ -155,9 +171,9 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
       <div
         style={{
           padding: "12px 16px",
-          background: lastPoint.cumulativeDLP > 4000 ? "#fffbeb" : "#f0fdf4",
+          background: nearLimit ? "#fffbeb" : "#f0fdf4",
           borderRadius: 8,
-          border: `1px solid ${lastPoint.cumulativeDLP > 4000 ? "#fde68a" : "#bbf7d0"}`,
+          border: `1px solid ${nearLimit ? "#fde68a" : "#bbf7d0"}`,
           display: "flex",
           alignItems: "center",
           gap: 8,
@@ -165,13 +181,13 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
           color: lastPoint.cumulativeDLP > 4000 ? "#d97706" : "#16a34a",
         }}
       >
-        {lastPoint.cumulativeDLP > 4000 ? (
+        {nearLimit ? (
           <AlertTriangle size={14} />
         ) : (
           <CheckCircle size={14} />
         )}
-        {lastPoint.cumulativeDLP > 4000
-          ? "该患者累计剂量接近年度阈值（5000 mGy·cm），建议关注后续检查必要性"
+        {nearLimit
+          ? `该患者累计剂量接近年度阈值（${annualLimit} mGy·cm），建议关注后续检查必要性`
           : "该患者累计剂量在安全范围内"}
       </div>
     </div>

@@ -14,6 +14,10 @@ import {
 } from '../services/api/nuclearStatsApi'
 import { t } from '../i18n/appI18n'
 import { DataTable } from '../components/common/DataTable'
+import { ChartContainer } from '../components/charts'
+import {
+  ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+} from 'recharts'
 
 // ============================================================
 // 样式常量
@@ -130,6 +134,16 @@ const DRUG_DATA: DrugStat[] = [
   { name: '其他', consumption: 2430, unit: 'mCi', percent: 4, color: 'var(--text-secondary)' },
 ]
 
+// SUV 桶中点 (与 label 对应), 用于从分布反推肿瘤/炎症平均 SUVmax
+const SUV_BUCKET_MIDPOINTS: { range: string; mid: number }[] = [
+  { range: '0-2', mid: 1 },
+  { range: '2-4', mid: 3 },
+  { range: '4-6', mid: 5 },
+  { range: '6-8', mid: 7 },
+  { range: '8-10', mid: 9 },
+  { range: '>10', mid: 11 },
+]
+
 // SUV统计数据
 const SUV_STATS: SuvStats = {
   avg: 6.1,
@@ -138,6 +152,14 @@ const SUV_STATS: SuvStats = {
   std: 2.3,
   tumorAvg: 7.8,
   inflammationAvg: 3.2,
+  distribution: [
+    { range: '0-2', count: 8 },
+    { range: '2-4', count: 22 },
+    { range: '4-6', count: 45 },
+    { range: '6-8', count: 38 },
+    { range: '8-10', count: 18 },
+    { range: '>10', count: 7 },
+  ],
 }
 
 // ============================================================
@@ -157,7 +179,8 @@ interface BarChartSVGProps {
 const BarChartSVG = ({ data, width = 600, height = 200, barColor = C.accent, valueKey = 'value', labelKey = 'label' }: BarChartSVGProps) => {
   if (!data || data.length === 0) return null
   const maxVal = Math.max(...data.map(d => Number(d[valueKey] ?? 0)))
-  const barWidth = Math.min(30, (width - 60) / data.length - 4)
+  if (!(maxVal > 0)) return null
+  const barWidth = Math.max(2, Math.min(30, (width - 60) / data.length - 4))
   const chartHeight = height - 50
 
   return (
@@ -213,9 +236,10 @@ interface LineChartSVGProps {
 }
 
 const LineChartSVG = ({ data, width = 600, height = 200, lineColor = C.accent, valueKey = 'value', labelKey = 'label', showArea = true }: LineChartSVGProps) => {
-  if (!data || data.length === 0) return null
+  if (!data || data.length < 2) return null
   const maxVal = Math.max(...data.map(d => Number(d[valueKey] ?? 0)))
   const minVal = Math.min(...data.map(d => Number(d[valueKey] ?? 0)))
+  if (!Number.isFinite(maxVal) || !Number.isFinite(minVal)) return null
   const range = maxVal - minVal || 1
   const chartHeight = height - 50
   const chartWidth = width - 60
@@ -281,16 +305,21 @@ interface PieDatum {
 interface PieChartSVGProps {
   data: PieDatum[]
   size?: number
+  /** 饼图各切片值本身的单位（中心展示），如 '例' / '%' */
+  unit?: string
+  /** 中心显示的数值；默认取切片值之和 */
+  centerValue?: number
 }
 
-const PieChartSVG = ({ data, size = 160 }: PieChartSVGProps) => {
+const PieChartSVG = ({ data, size = 160, unit, centerValue }: PieChartSVGProps) => {
   if (!data || data.length === 0) return null
   const total = data.reduce((sum, d) => sum + d.value, 0)
+  const center = centerValue ?? total
   const cx = size / 2, cy = size / 2, r = size / 2 - 10
   let startAngle = -90
 
   const slices = data.map(d => {
-    const angle = (d.value / total) * 360
+    const angle = total > 0 ? (d.value / total) * 360 : 0
     const endAngle = startAngle + angle
     const x1 = cx + r * Math.cos((startAngle * Math.PI) / 180)
     const y1 = cy + r * Math.sin((startAngle * Math.PI) / 180)
@@ -312,8 +341,8 @@ const PieChartSVG = ({ data, size = 160 }: PieChartSVGProps) => {
           />
         ))}
         <circle cx={cx} cy={cy} r={r * 0.5} fill={C.white} />
-        <text x={cx} y={cy - 5} textAnchor="middle" fontSize={14} fontWeight={700} fill={C.text}>{total}</text>
-        <text x={cx} y={cy + 12} textAnchor="middle" fontSize={10} fill={C.textMuted}>{t('nuclearStats.unitCases')}</text>
+        <text x={cx} y={cy - 5} textAnchor="middle" fontSize={14} fontWeight={700} fill={C.text}>{center}</text>
+        {unit && <text x={cx} y={cy + 12} textAnchor="middle" fontSize={10} fill={C.textMuted}>{unit}</text>}
       </svg>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 16px', justifyContent: 'center', maxWidth: 200 }}>
         {data.map((d, i) => (
@@ -425,6 +454,28 @@ export default function NuclearStatsPage() {
   const totalDrug = daily.reduce((sum, d) => sum + d.drug, 0)
   const avgUtilization = daily.length ? (daily.reduce((sum, d) => sum + d.utilization, 0) / daily.length).toFixed(1) : '0'
   const avgPositive = daily.length ? (daily.reduce((sum, d) => sum + d.positive, 0) / daily.length).toFixed(1) : '0'
+
+  // [P0] SUV 分布归一: 保证桶计数为正整数, 并由桶反推肿瘤/炎症平均 (与分布口径一致)
+  const suvDistribution = (suv?.distribution?.length ? suv.distribution : SUV_STATS.distribution!)
+    .map((b) => ({ range: b.range, count: Math.max(0, Math.round(Number(b.count) || 0)) }))
+  const suvBucketTotal = suvDistribution.reduce((s, b) => s + b.count, 0)
+  const threshold = suv?.threshold ?? 4.5
+  const suvTumorAvg = (() => {
+    const buckets = suvDistribution
+      .map((b) => ({ ...b, mid: SUV_BUCKET_MIDPOINTS.find((m) => m.range === b.range)?.mid ?? (b.range === '>10' ? 11 : 0) }))
+      .filter((b) => b.mid > threshold && b.count > 0)
+    const n = buckets.reduce((s, b) => s + b.count, 0)
+    if (n === 0) return suv?.tumorAvg ?? 0
+    return Math.round((buckets.reduce((s, b) => s + b.mid * b.count, 0) / n) * 10) / 10
+  })()
+  const suvInflammationAvg = (() => {
+    const buckets = suvDistribution
+      .map((b) => ({ ...b, mid: SUV_BUCKET_MIDPOINTS.find((m) => m.range === b.range)?.mid ?? (b.range === '>10' ? 11 : 0) }))
+      .filter((b) => b.mid > 0 && b.mid <= threshold && b.count > 0)
+    const n = buckets.reduce((s, b) => s + b.count, 0)
+    if (n === 0) return suv?.inflammationAvg ?? 0
+    return Math.round((buckets.reduce((s, b) => s + b.mid * b.count, 0) / n) * 10) / 10
+  })()
 
   const tabs = [
     { key: 'overview', label: t('nuclearStats.tabOverview'), icon: <BarChart3 size={15} /> },
@@ -566,33 +617,20 @@ export default function NuclearStatsPage() {
                 ))}
               </div>
             </div>
-            {/* 组合图表 - CSS实现 */}
-            <div style={{ height: 240, position: 'relative' }}>
-              <LineChartSVG
-                data={daily.map(d => ({ label: d.date, value: d.exams }))}
-                width={1100} height={220}
-                lineColor={C.accent}
-                valueKey="value"
-                labelKey="label"
-              />
-              {/* 叠加阳性率 */}
-              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
-                <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0 }}>
-                  {daily.filter((_, i) => i % 5 === 0).map((d, i) => {
-                    const x = 45 + (i * 5 / 30) * 1050
-                    const y = 170 - (d.positive - 55) * 8
-                    return (
-                      <g key={i}>
-                        <circle cx={x + 45} cy={y} r={4} fill="#f59e0b" fillOpacity={0.7} />
-                        <text x={x + 45} y={y - 10} textAnchor="middle" fontSize={9} fill="#f59e0b" fillOpacity={0.8}>
-                          {d.positive}%
-                        </text>
-                      </g>
-                    )
-                  })}
-                </svg>
-              </div>
-            </div>
+            {/* [P0] 单一 recharts 组合图 (柱=检查量, 双轴折线=阳性率%/利用率%), 共享 X 轴, 无固定像素叠加 */}
+            <ChartContainer height={260} state={daily.length >= 2 && totalExams > 0 ? 'ready' : 'empty'} emptyDescription={t('nuclearStats.noDataTitle')}>
+              <ComposedChart data={daily} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: C.textMuted }} interval="preserveStartEnd" />
+                <YAxis yAxisId="left" tick={{ fontSize: 11, fill: C.textMuted }} allowDecimals={false} />
+                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: C.textMuted }} domain={[0, 100]} unit="%" />
+                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
+                <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
+                <Bar yAxisId="left" dataKey="exams" name={t('nuclearStats.legendExams')} fill={C.accent} radius={[3, 3, 0, 0]} opacity={0.7} />
+                <Line yAxisId="right" type="monotone" dataKey="positive" name={t('nuclearStats.legendPositive')} stroke="#f59e0b" strokeWidth={2} dot={false} />
+                <Line yAxisId="right" type="monotone" dataKey="utilization" name={t('nuclearStats.legendUtilization')} stroke="#22c55e" strokeWidth={2} dot={false} />
+              </ComposedChart>
+            </ChartContainer>
           </div>
 
           {/* 设备利用率排名 */}
@@ -711,6 +749,8 @@ export default function NuclearStatsPage() {
               <PieChartSVG
                 data={drugs.map(d => ({ name: d.name, value: d.percent, color: d.color }))}
                 size={180}
+                unit="%"
+                centerValue={100}
               />
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12, justifyContent: 'center' }}>
                 {drugs.map((d, i) => (
@@ -876,16 +916,14 @@ export default function NuclearStatsPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
               {/* 病灶SUV分布 */}
               <div>
-                <h4 style={{ fontSize: 13, fontWeight: 600, color: C.text, margin: '0 0 12px' }}>{t('nuclearStats.lesionSuvDistTitle')}</h4>
+                <h4 style={{ fontSize: 13, fontWeight: 600, color: C.text, margin: '0 0 12px' }}>
+                  {t('nuclearStats.lesionSuvDistTitle')}
+                  <span style={{ fontSize: 12, color: C.textMuted, fontWeight: 400, marginLeft: 8 }}>
+                    ({t('nuclearStats.unitCases')}={suvBucketTotal})
+                  </span>
+                </h4>
                 <BarChartSVG
-                  data={(suv?.distribution?.length ? suv.distribution : [
-                    { range: '0-2', count: 8 },
-                    { range: '2-4', count: 22 },
-                    { range: '4-6', count: 45 },
-                    { range: '6-8', count: 38 },
-                    { range: '8-10', count: 18 },
-                    { range: '>10', count: 7 },
-                  ]).map(x => ({ label: x.range, value: x.count }))}
+                  data={suvDistribution.map(x => ({ label: x.range, value: x.count }))}
                   width={320} height={180}
                   barColor={C.accent}
                   valueKey="value"
@@ -899,7 +937,7 @@ export default function NuclearStatsPage() {
                     <Target size={18} color={C.accent} />
                     <span style={{ fontSize: 13, color: C.accent, fontWeight: 600 }}>{t('nuclearStats.tumorUptakeAvg')}</span>
                   </div>
-                  <p style={{ fontSize: 28, fontWeight: 700, color: C.accent, margin: 0 }}>{suv?.tumorAvg ?? 0}</p>
+                  <p style={{ fontSize: 28, fontWeight: 700, color: C.accent, margin: 0 }}>{suvTumorAvg}</p>
                   <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>SUVmax</p>
                 </div>
                 <div style={{ background: C.successBg, padding: 16, borderRadius: 10 }}>
@@ -907,7 +945,7 @@ export default function NuclearStatsPage() {
                     <AlertCircle size={18} color={C.success} />
                     <span style={{ fontSize: 13, color: C.success, fontWeight: 600 }}>{t('nuclearStats.inflammationUptakeAvg')}</span>
                   </div>
-                  <p style={{ fontSize: 28, fontWeight: 700, color: C.success, margin: 0 }}>{suv?.inflammationAvg ?? 0}</p>
+                  <p style={{ fontSize: 28, fontWeight: 700, color: C.success, margin: 0 }}>{suvInflammationAvg}</p>
                   <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>SUVmax</p>
                 </div>
                 <div style={{ background: C.warningBg, padding: 16, borderRadius: 10 }}>
@@ -915,7 +953,7 @@ export default function NuclearStatsPage() {
                     <Eye size={18} color={C.warning} />
                     <span style={{ fontSize: 13, color: C.warning, fontWeight: 600 }}>{t('nuclearStats.thresholdLabel')}</span>
                   </div>
-                  <p style={{ fontSize: 28, fontWeight: 700, color: C.warning, margin: 0 }}>{suv?.threshold ?? 4.5}</p>
+                  <p style={{ fontSize: 28, fontWeight: 700, color: C.warning, margin: 0 }}>{threshold}</p>
                   <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>{t('nuclearStats.thresholdDesc')}</p>
                 </div>
               </div>

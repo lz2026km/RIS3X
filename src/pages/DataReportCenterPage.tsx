@@ -1,5 +1,11 @@
 ﻿import dayjs from 'dayjs'
-import { Chart } from '../components/chart/Chart'
+import {
+  LineChart, Line, BarChart, Bar, PieChart, Pie, AreaChart, Area,
+  RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
+  ComposedChart, FunnelChart, Funnel, RadialBarChart, RadialBar,
+  XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, Legend, Cell,
+} from 'recharts'
+import { ChartContainer, chartDefaults } from '../components/charts'
 import { ProTable } from '../components/data/ProTable'
 import { ProColumn } from '../components/data/ProTable'
 import { generateMockReportData } from '../data/mockReportData'
@@ -64,6 +70,172 @@ import { useState, useMemo, useCallback, useEffect } from 'react'
 const { Header, Sider, Content } = Layout
 const { Title, Text } = Typography
 const { RangePicker } = DatePicker
+
+const REPORT_CHART_COLORS = [
+  '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+  '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1',
+]
+
+type ReportChartType = 'line' | 'bar' | 'pie' | 'area' | 'radar' | 'stacked-bar' | 'composed' | 'funnel' | 'heatmap' | 'radialBar'
+
+interface ReportChartProps {
+  type: ReportChartType
+  data: Record<string, unknown>[]
+  xKey: string
+  yKeys: string[]
+  height?: number
+  title?: string
+}
+
+function ReportChart({ type, data, xKey, yKeys, height = 280, title }: ReportChartProps) {
+  const colors = REPORT_CHART_COLORS
+  const valueKey = yKeys[0] ?? 'value'
+  const containerType: 'line' | 'bar' | 'area' | 'pie' | 'radar' | 'composed' | 'other' =
+    type === 'stacked-bar' || type === 'heatmap' ? 'bar'
+      : type === 'radialBar' || type === 'funnel' ? 'other'
+        : type
+
+  const chart = (() => {
+    switch (type) {
+      case 'line':
+        return (
+          <LineChart data={data} margin={chartDefaults.margin}>
+            <CartesianGrid {...chartDefaults.grid} />
+            <XAxis dataKey={xKey} {...chartDefaults.axis} />
+            <YAxis {...chartDefaults.axis} />
+            <RTooltip {...chartDefaults.tooltip} />
+            <Legend />
+            {yKeys.map((key, i) => (
+              <Line key={key} type="monotone" dataKey={key} stroke={colors[i % colors.length]} strokeWidth={2} dot={{ r: 3 }} />
+            ))}
+          </LineChart>
+        )
+      case 'bar':
+        return (
+          <BarChart data={data} margin={chartDefaults.margin}>
+            <CartesianGrid {...chartDefaults.grid} />
+            <XAxis dataKey={xKey} {...chartDefaults.axis} />
+            <YAxis {...chartDefaults.axis} />
+            <RTooltip {...chartDefaults.tooltip} />
+            <Legend />
+            {yKeys.map((key, i) => (
+              <Bar key={key} dataKey={key} fill={colors[i % colors.length]} radius={[4, 4, 0, 0]} />
+            ))}
+          </BarChart>
+        )
+      case 'stacked-bar':
+        return (
+          <BarChart data={data} margin={chartDefaults.margin}>
+            <CartesianGrid {...chartDefaults.grid} />
+            <XAxis dataKey={xKey} {...chartDefaults.axis} />
+            <YAxis {...chartDefaults.axis} />
+            <RTooltip {...chartDefaults.tooltip} />
+            <Legend />
+            {yKeys.map((key, i) => (
+              <Bar key={key} dataKey={key} stackId="stack" fill={colors[i % colors.length]} />
+            ))}
+          </BarChart>
+        )
+      case 'area':
+        return (
+          <AreaChart data={data} margin={chartDefaults.margin}>
+            <CartesianGrid {...chartDefaults.grid} />
+            <XAxis dataKey={xKey} {...chartDefaults.axis} />
+            <YAxis {...chartDefaults.axis} />
+            <RTooltip {...chartDefaults.tooltip} />
+            <Legend />
+            {yKeys.map((key, i) => (
+              <Area key={key} type="monotone" dataKey={key} stroke={colors[i % colors.length]} fill={colors[i % colors.length]} fillOpacity={0.2} strokeWidth={2} />
+            ))}
+          </AreaChart>
+        )
+      case 'pie':
+        return (
+          <PieChart>
+            <Pie data={data} dataKey={valueKey} nameKey={xKey} cx="50%" cy="50%" outerRadius={Math.min(height / 2 - 40, 140)} label>
+              {data.map((_, i) => (
+                <Cell key={i} fill={colors[i % colors.length]} />
+              ))}
+            </Pie>
+            <RTooltip {...chartDefaults.tooltip} />
+            <Legend />
+          </PieChart>
+        )
+      case 'radar':
+        return (
+          <RadarChart data={data} cx="50%" cy="50%" outerRadius="70%">
+            <PolarGrid stroke={chartDefaults.grid.stroke} />
+            <PolarAngleAxis dataKey={xKey} tick={{ fontSize: 11, fill: 'var(--text-secondary, #475569)' }} />
+            <PolarRadiusAxis />
+            <RTooltip {...chartDefaults.tooltip} />
+            <Legend />
+            {yKeys.map((key, i) => (
+              <Radar key={key} name={key} dataKey={key} stroke={colors[i % colors.length]} fill={colors[i % colors.length]} fillOpacity={0.2} />
+            ))}
+          </RadarChart>
+        )
+      case 'composed':
+        return (
+          <ComposedChart data={data} margin={chartDefaults.margin}>
+            <CartesianGrid {...chartDefaults.grid} />
+            <XAxis dataKey={xKey} {...chartDefaults.axis} />
+            <YAxis {...chartDefaults.axis} />
+            <RTooltip {...chartDefaults.tooltip} />
+            <Legend />
+            {yKeys.map((key, i) => {
+              if (i === 0) return <Bar key={key} dataKey={key} fill={colors[i % colors.length]} radius={[4, 4, 0, 0]} />
+              return <Line key={key} type="monotone" dataKey={key} stroke={colors[i % colors.length]} strokeWidth={2} />
+            })}
+          </ComposedChart>
+        )
+      case 'funnel':
+        return (
+          <FunnelChart>
+            <RTooltip {...chartDefaults.tooltip} />
+            <Funnel dataKey={valueKey} data={data} isAnimationActive>
+              {data.map((_, i) => (
+                <Cell key={i} fill={colors[i % colors.length]} />
+              ))}
+            </Funnel>
+          </FunnelChart>
+        )
+      case 'heatmap':
+        return (
+          <ComposedChart data={data} margin={chartDefaults.margin}>
+            <CartesianGrid stroke={chartDefaults.grid.stroke} />
+            <XAxis dataKey={xKey} {...chartDefaults.axis} />
+            <YAxis {...chartDefaults.axis} />
+            <RTooltip {...chartDefaults.tooltip} />
+            <Bar dataKey={valueKey}>
+              {data.map((_, i) => (
+                <Cell key={i} fill={colors[i % colors.length]} />
+              ))}
+            </Bar>
+          </ComposedChart>
+        )
+      case 'radialBar':
+        return (
+          <RadialBarChart data={data} cx="50%" cy="50%" innerRadius="20%" outerRadius="90%" barSize={12}>
+            <RadialBar dataKey={valueKey} background>
+              {data.map((_, i) => (
+                <Cell key={i} fill={colors[i % colors.length]} />
+              ))}
+            </RadialBar>
+            <RTooltip {...chartDefaults.tooltip} />
+            <Legend />
+          </RadialBarChart>
+        )
+      default:
+        return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>不支持的图表类型: {type}</div>
+    }
+  })()
+
+  return (
+    <ChartContainer type={containerType} height={height} title={title}>
+      {chart}
+    </ChartContainer>
+  )
+}
 
 const categoryIcons: Record<string, React.ReactNode> = {
   '日常统计': <BarChart3 size={16} />,
@@ -418,7 +590,7 @@ function CustomReportBuilder() {
       >
         {chartRows.length > 0 ? (
           <>
-            <Chart type="bar" data={chartRows as Record<string, unknown>[]} xKey="name" yKeys={chartYKeys} height={280} />
+            <ReportChart type="bar" data={chartRows as Record<string, unknown>[]} xKey="name" yKeys={chartYKeys} height={280} />
             <ProTable<Record<string, unknown>>
               columns={Object.keys(chartRows[0] ?? {}).map((key) => ({
                 key,
@@ -1460,8 +1632,8 @@ export default function DataReportCenterPage() {
                     className="report-chart-area"
                     style={{ borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
                   >
-                    <Chart
-                      type={chartType as Parameters<typeof Chart>[0]['type']}
+                    <ReportChart
+                      type={chartType as ReportChartType}
                       data={chartData as Record<string, unknown>[]}
                       xKey="name"
                       yKeys={yKeys}

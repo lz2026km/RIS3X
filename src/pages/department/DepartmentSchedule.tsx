@@ -3,9 +3,10 @@ import { AlertTriangle, Clock, Plus } from "lucide-react";
 import { regionalApi } from "../../services/api";
 import { Send } from "lucide-react";
 import {
-  Tooltip, ResponsiveContainer,
+  Tooltip,
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
 } from "recharts";
+import { ChartContainer, chartDefaults } from "../../components/charts";
 import { t } from "../../i18n/appI18n";
 
 const C = {
@@ -202,16 +203,14 @@ export default function DepartmentSchedule() {
         </div>
         <div style={{ padding: 16, borderTop: `1px solid ${C.borderLight}` }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>{t("deptSched.monthlyTrend")}</div>
-          <div style={{ height: 160 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={ATTENDANCE_MONTHLY}>
-                <CartesianGrid strokeDasharray="3 3" stroke={C.borderLight} />
-                <XAxis dataKey="month" tick={{ fontSize: 12 }} /><YAxis tick={{ fontSize: 12 }} domain={[90, 105]} /><Tooltip />
-                <Area type="monotone" dataKey="present" stackId="1" stroke={C.success} fill={C.successBg} name={t("deptSched.presentRate")} />
-                <Area type="monotone" dataKey="late" stackId="2" stroke={C.warning} fill={C.warningBg} name={t("deptSched.lateRate")} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+          <ChartContainer type="area" height={160}>
+            <AreaChart data={ATTENDANCE_MONTHLY} margin={chartDefaults.margin}>
+              <CartesianGrid {...chartDefaults.grid} stroke={C.borderLight} />
+              <XAxis dataKey="month" {...chartDefaults.axis} /><YAxis domain={[90, 105]} {...chartDefaults.axis} /><Tooltip {...chartDefaults.tooltip} />
+              <Area type="monotone" dataKey="present" stackId="1" stroke={C.success} fill={C.successBg} name={t("deptSched.presentRate")} />
+              <Area type="monotone" dataKey="late" stackId="2" stroke={C.warning} fill={C.warningBg} name={t("deptSched.lateRate")} />
+            </AreaChart>
+          </ChartContainer>
         </div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>

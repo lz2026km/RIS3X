@@ -5,7 +5,7 @@ import { formatDate, formatTime } from './utils'
 import { Activity, TrendingUp, TrendingDown, Flame, Users, Clock, User, Shield, AlertTriangle, AlertCircle, CheckCircle, Download, FileText, FileCheck, FileSpreadsheet, Eye, Timer, BarChart3, PieChart as PieChartIcon } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  PieChart, Pie, Cell, LineChart, Line, Area, AreaChart
+  PieChart, Pie, Cell, LineChart, Line, Area, AreaChart, Legend
 } from 'recharts'
 import ChartContainer from '../../components/charts/ChartContainer'
 import { t } from '../../i18n/appI18n'
@@ -49,7 +49,7 @@ function TodayTrendCard({ todayCount, yesterdayCount, todayTrend, peakHour, topU
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)', gridColumn: 'span 2' }}>
         <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 8, fontSize: 16 }}>{t('logStats.trend24h')}</div>
-        <ChartContainer height={80} state={todayTrend.length > 0 ? 'ready' : 'empty'} emptyDescription={t('logStats.noData')}>
+        <ChartContainer type="area" height={140} state={todayTrend.length > 0 ? 'ready' : 'empty'} emptyDescription={t('logStats.noData')}>
           <AreaChart data={todayTrend.map((v, i) => ({ hour: `${String(i).padStart(2, '0')}:00`, value: v }))}>
             <defs>
               <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
@@ -691,12 +691,10 @@ function StatisticsCharts({ logs }: { logs: OperationLog[] }) {
         </div>
         <ChartContainer height={220} state={actionStats.length > 0 ? 'ready' : 'empty'} emptyDescription={t('logStats.noData')}>
           <PieChart>
-            <Pie data={actionStats} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={2} dataKey="value"
-              label={({ name, percent }: { name: string; percent: number }) => `${name} ${(percent * 100).toFixed(0)}%`}
-              labelLine={{ stroke: '#94a3b8', strokeWidth: 1 }}
-            >
+            <Pie data={actionStats} cx="50%" cy="45%" innerRadius={45} outerRadius={72} paddingAngle={2} dataKey="value">
               {actionStats.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}
             </Pie>
+            <Legend verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: 11 }} />
             <Tooltip formatter={(value: number) => [`${value}次`, t('logStats.opCount')]} contentStyle={{ borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12 }} />
           </PieChart>
         </ChartContainer>

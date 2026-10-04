@@ -7,8 +7,9 @@ import { useCallback, useEffect, useState } from 'react'
 import {
   Alert, Button, Card, Col, Input, message, Row, Space, Statistic, Table, Tabs, Tag, Typography,
 } from 'antd'
-import { BarChart, Bar, CartesianGrid, Legend, ResponsiveContainer, Tooltip as RTooltip, XAxis, YAxis } from 'recharts'
+import { BarChart, Bar, CartesianGrid, Tooltip as RTooltip, XAxis, YAxis } from 'recharts'
 import { BarChart3, DollarSign, FileText, RefreshCw, TrendingUp } from 'lucide-react'
+import { ChartContainer, chartDefaults } from '../../components/charts'
 import { ExportButton } from '../../components/common'
 import { deviceOpsApi } from '../../services/api/deviceOpsApi'
 import type { CostByExamRow, CostSummary, DrgGroups, ReportDefinition, ReportInstance } from '../../services/api/deviceOpsApi'
@@ -104,16 +105,15 @@ export default function CostDrgPage() {
         <Col span={12}>
           <Card size="small" title={t('w11Device.cost.breakdown')}>
             {breakdownData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={breakdownData} layout="vertical" margin={{ left: 60 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" tick={{ fontSize: 11 }} />
-                  <YAxis type="category" dataKey="name" tick={{ fontSize: 12 }} width={80} />
-                  <RTooltip formatter={(v) => fmtMoney(Number(v))} />
-                  <Legend />
+              <ChartContainer type="bar" height={300}>
+                <BarChart data={breakdownData} layout="vertical" margin={chartDefaults.margin}>
+                  <CartesianGrid {...chartDefaults.grid} />
+                  <XAxis type="number" {...chartDefaults.axis} />
+                  <YAxis type="category" dataKey="name" width={80} {...chartDefaults.axis} />
+                  <RTooltip {...chartDefaults.tooltip} formatter={(v) => fmtMoney(Number(v))} />
                   <Bar dataKey="value" name={t('w11Device.cost.cost')} fill="#2563eb" />
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             ) : <Text type="secondary">{t('w11Device.noData')}</Text>}
           </Card>
         </Col>
