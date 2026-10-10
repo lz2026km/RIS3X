@@ -328,7 +328,7 @@ export function Chart({
           <Dropdown menu={{ items: exportItems.map((item) => ({ key: item.key, label: <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>{item.icon}{item.label}</span>, onClick: item.onClick })) }} trigger={['click']}>
             <Button size="small" icon={<Download size={14} />}>导出</Button>
           </Dropdown>
-          <Button size="small" icon={expanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />} onClick={() => setExpanded((v) => !v)} />
+          <Button aria-label="全屏切换" size="small" icon={expanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />} onClick={() => setExpanded((v) => !v)} />
         </Space>
       </div>
       <div ref={chartRef} onContextMenu={(e) => e.preventDefault()}>

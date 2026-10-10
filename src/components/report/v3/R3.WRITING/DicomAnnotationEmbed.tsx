@@ -191,7 +191,7 @@ const DicomAnnotationEmbed: React.FC<Props> = ({ reportId, studyUid: presetStudy
           {data?.updatedAt && <Tag className="text-[10px]">{new Date(data.updatedAt).toLocaleString()}</Tag>}
         </Space>
         <Tooltip title={t('w9e.annotationEmbed.refreshTip')}>
-          <Button size="small" icon={<RefreshCw className="w-3 h-3" />} loading={loading} onClick={() => void load()} data-testid="annotation-refresh" />
+          <Button aria-label="刷新" size="small" icon={<RefreshCw className="w-3 h-3" />} loading={loading} onClick={() => void load()} data-testid="annotation-refresh" />
         </Tooltip>
       </div>
 
@@ -235,7 +235,7 @@ const DicomAnnotationEmbed: React.FC<Props> = ({ reportId, studyUid: presetStudy
                     </div>
                   </div>
                   <Tooltip title={t('w9e.annotationEmbed.jumpTip')}>
-                    <Button
+                    <Button aria-label="跳转"
                       size="small"
                       type="text"
                       icon={<ExternalLink className="w-3 h-3" />}

@@ -50,8 +50,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       if (this.props.fallback) return this.props.fallback
 
       return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', padding: 'var(--space-6, 24px)' }}>
-          <div style={{ maxWidth: 440, width: '100%', background: '#1e293b', borderRadius: 12, padding: 'var(--space-8, 32px)', textAlign: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-deepest, #0f172a)', padding: 'var(--space-6, 24px)' }}>
+          <div style={{ maxWidth: 440, width: '100%', background: 'var(--bg-header, #1e293b)', borderRadius: 12, padding: 'var(--space-8, 32px)', textAlign: 'center' }}>
             <div style={{ width: 64, height: 64, margin: '0 auto 24px', borderRadius: '50%', background: 'rgba(239,68,68,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <AlertCircle size={32} color="var(--color-error-500)" />
             </div>
@@ -59,7 +59,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             <p style={{ fontSize: 14, color: '#94a3b8', marginBottom: 'var(--space-6, 24px)' }}>系统遇到意外错误，请尝试刷新或返回首页</p>
 
             {this.props.showErrorDetails && this.state.error && (
-              <div style={{ marginBottom: 'var(--space-6, 24px)', padding: 'var(--space-4, 16px)', background: '#0f172a', borderRadius: 8, textAlign: 'left' }}>
+              <div style={{ marginBottom: 'var(--space-6, 24px)', padding: 'var(--space-4, 16px)', background: 'var(--bg-deepest, #0f172a)', borderRadius: 8, textAlign: 'left' }}>
                 <div style={{ fontSize: 12, fontFamily: 'monospace', color: 'var(--color-error-500)', wordBreak: 'break-all' }}>{this.state.error.message}</div>
                 {this.state.errorInfo && (
                   <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, fontFamily: 'monospace', color: '#64748b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

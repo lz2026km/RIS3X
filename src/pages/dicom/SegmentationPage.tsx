@@ -677,7 +677,7 @@ const SegmentationPage: React.FC = () => {
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <Space size={6} wrap>
                           <Tooltip title={visible ? t('segmentationV2.hideOverlay') : t('segmentationV2.showOverlay')}>
-                            <Button size="small" type="text" icon={visible ? <Eye size={12} /> : <EyeOff size={12} />} onClick={(e) => { e.stopPropagation(); toggleVisible(s.id) }} />
+                            <Button aria-label="查看" size="small" type="text" icon={visible ? <Eye size={12} /> : <EyeOff size={12} />} onClick={(e) => { e.stopPropagation(); toggleVisible(s.id) }} />
                           </Tooltip>
                           <span style={{ width: 10, height: 10, borderRadius: '50%', background: s.color, display: 'inline-block' }} />
                           <span style={{ fontWeight: 500 }}>{s.label}</span>
@@ -701,7 +701,7 @@ const SegmentationPage: React.FC = () => {
                           okButtonProps={{ danger: true }}
                           onConfirm={() => handleDelete(s.id)}
                         >
-                          <Button size="small" type="text" danger icon={<Trash2 size={11} />} onClick={(e) => e.stopPropagation()} />
+                          <Button aria-label="删除" size="small" type="text" danger icon={<Trash2 size={11} />} onClick={(e) => e.stopPropagation()} />
                         </Popconfirm>
                       </div>
                     </div>

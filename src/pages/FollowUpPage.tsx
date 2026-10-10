@@ -869,9 +869,9 @@ export default function FollowUpPage() {
       case '已完成':
         return { ...baseStyle, backgroundColor: 'var(--color-success-bg)', color: '#52c41a' };
       case '已失访':
-        return { ...baseStyle, backgroundColor: '#fff1f0', color: '#ff4d4f' };
+        return { ...baseStyle, backgroundColor: 'var(--color-error-bg, #fff2f0)', color: '#ff4d4f' };
       case '已取消':
-        return { ...baseStyle, backgroundColor: '#f5f5f5', color: '#8c8c8c' };
+        return { ...baseStyle, backgroundColor: 'var(--bg-primary, #f8fafc)', color: '#8c8c8c' };
       case '逾期':
         return { ...baseStyle, backgroundColor: 'var(--color-error-bg)', color: '#ff4d4f' };
       default:
@@ -1050,7 +1050,7 @@ export default function FollowUpPage() {
             fontSize: 11, padding: '2px 10px', borderRadius: 10, fontWeight: 600,
             background: dataSource === 'real' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)',
             color: dataSource === 'real' ? '#059669' : 'var(--color-warning-600)',
-            border: `1px solid ${dataSource === 'real' ? '#bbf7d0' : '#fcd34d'}`,
+            border: `1px solid ${dataSource === 'real' ? '#bbf7d0' : 'var(--color-warning-300, #fcd34d)'}`,
           }}>
             {dataSource === 'real' ? t('followUp.realData') : t('followUp.demoFallback')}
           </span>
@@ -1662,9 +1662,9 @@ export default function FollowUpPage() {
                   padding: '4px 12px',
                   borderRadius: '4px',
                   fontSize: '12px',
-                  backgroundColor: selectedPatient.reaction === '无反应' ? '#f6ffed' :
-                                   selectedPatient.reaction === '轻度' ? '#fffbe6' :
-                                   selectedPatient.reaction === '中度' ? '#fff7e6' : '#fff2f0',
+                  backgroundColor: selectedPatient.reaction === '无反应' ? 'var(--color-success-bg, #f0fdf4)' :
+                                   selectedPatient.reaction === '轻度' ? 'var(--color-warning-bg, #fffbe6)' :
+                                   selectedPatient.reaction === '中度' ? '#fff7e6' : 'var(--color-error-bg, #fff2f0)',
                   color: selectedPatient.reaction === '无反应' ? '#52c41a' :
                          selectedPatient.reaction === '轻度' ? '#faad14' :
                          selectedPatient.reaction === '中度' ? '#fa8c16' : '#ff4d4f'

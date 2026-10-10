@@ -110,7 +110,7 @@ export default function DoseAlertConfig({
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-1, 4px)' }}>
                     <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-primary-800)" }}>{alert.patientName}</span>
-                    <span style={{ padding: "2px 6px", background: "#f0fdf4", color: "var(--color-success-600)", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>已确认</span>
+                    <span style={{ padding: "2px 6px", background: "var(--color-success-bg, #f0fdf4)", color: "var(--color-success-600)", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>已确认</span>
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{alert.examItem} · {alert.time}</div>
                   {alert.notes && <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginTop: 'var(--space-1, 4px)' }}>备注: {alert.notes}</div>}

@@ -321,7 +321,7 @@ const SmartRoutingPage: React.FC = () => {
                 </Form>
 
                 {preview && (
-                  <Card size="small" title={t('smartRouting.assignPreviewTitle')} style={{ marginBottom: 'var(--space-4, 16px)', background: '#f6ffed' }}>
+                  <Card size="small" title={t('smartRouting.assignPreviewTitle')} style={{ marginBottom: 'var(--space-4, 16px)', background: 'var(--color-success-bg, #f0fdf4)' }}>
                     <Row gutter={16}>
                       <Col span={6}>
                         <Statistic title={t('smartRouting.assignedDoctor')} value={preview.assignedTo} styles={{ content: { fontSize: 18 } }} prefix={<User size={16} />} />

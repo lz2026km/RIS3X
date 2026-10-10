@@ -117,14 +117,14 @@ export default function DeviceHistoryModal({ device, onClose }: Props) {
             <div style={{ fontSize: 16, fontWeight: 700, color: "var(--color-primary-800)" }}>
               {device} 历史趋势
               {dataSource === "demo" && (
-                <span style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 11, padding: "2px 8px", borderRadius: 10, background: "#fffbeb", color: "var(--color-warning-600)", border: "1px solid #fcd34d", fontWeight: 600, verticalAlign: "middle" }}>{t("w8Dose.deviceHistoryDemo")}</span>
+                <span style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 11, padding: "2px 8px", borderRadius: 10, background: "var(--color-warning-bg, #fffbeb)", color: "var(--color-warning-600)", border: "1px solid var(--color-warning-300, #fcd34d)", fontWeight: 600, verticalAlign: "middle" }}>{t("w8Dose.deviceHistoryDemo")}</span>
               )}
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 'var(--space-1, 4px)' }}>
               近7日剂量趋势分析
             </div>
           </div>
-          <button
+          <button aria-label="关闭"
             onClick={onClose}
             style={{
               padding: 'var(--space-2, 8px)',

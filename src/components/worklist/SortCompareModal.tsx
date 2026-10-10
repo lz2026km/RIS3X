@@ -37,7 +37,7 @@ export function SortCompareModal({ items, onClose }: SortCompareModalProps) {
       }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-4, 16px)' }}>
           <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>排序前后对比</h3>
-          <button onClick={onClose} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0 }}>
+          <button aria-label="关闭" onClick={onClose} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0 }}>
             <X size={18} />
           </button>
         </div>

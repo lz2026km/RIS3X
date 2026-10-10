@@ -24,7 +24,7 @@ export function ReviewResultModal({ show, reportId, result, suggestion, onClose 
         onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
           <Title level={5} style={{ margin: 0 }}>{t('reportResult.reviewResult')}</Title>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={20} color={GRAY} /></button>
+          <button aria-label="关闭" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={20} color={GRAY} /></button>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
           <CheckCircle size={32} color={isApproved ? SUCCESS : DANGER} />
@@ -62,7 +62,7 @@ export function BatchResultModal({ show, title, message, type, onClose }: BatchR
         onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
           <Title level={5} style={{ margin: 0 }}>{title}</Title>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={20} color={GRAY} /></button>
+          <button aria-label="关闭" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={20} color={GRAY} /></button>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
           {type === 'success' ? <CheckCircle size={32} color={SUCCESS} /> : <AlertTriangle size={32} color={DANGER} />}
@@ -93,7 +93,7 @@ export function PrintModal({ show, title, message, onClose, onPrint }: PrintModa
         onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
           <Title level={5} style={{ margin: 0 }}>{title}</Title>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={20} color={GRAY} /></button>
+          <button aria-label="关闭" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={20} color={GRAY} /></button>
         </div>
         <div style={{ fontSize: 12, color: 'var(--text-primary, #334155)', lineHeight: 1.5, marginBottom: 'var(--space-4, 16px)' }}>{message}</div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2, 8px)' }}>
@@ -146,7 +146,7 @@ export function BulkActionModal({ show, action, count, loading, onClose, onConfi
           </div>
         )}
         {isPublish && (
-          <div style={{ background: '#f0fdf4', borderRadius: 8, padding: '12px 16px', marginBottom: 'var(--space-4, 16px)', border: '1px solid #bbf7d0' }}>
+          <div style={{ background: 'var(--color-success-bg, #f0fdf4)', borderRadius: 8, padding: '12px 16px', marginBottom: 'var(--space-4, 16px)', border: '1px solid #bbf7d0' }}>
             <div style={{ fontSize: 12, color: SUCCESS, fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('reportResult.confirmPublish')}</div>
             <div style={{ fontSize: 12, color: '#14532d' }}>{t('reportResult.confirmPublishDesc')}</div>
           </div>
@@ -165,7 +165,7 @@ export function BulkActionModal({ show, action, count, loading, onClose, onConfi
         )}
         {/* [G005 Wave 8] 报告冷归档: 批量归档确认 */}
         {isArchive && (
-          <div style={{ background: '#f8fafc', borderRadius: 8, padding: '12px 16px', marginBottom: 'var(--space-4, 16px)', border: '1px solid var(--border-color, #cbd5e1)' }}>
+          <div style={{ background: 'var(--bg-primary, #f8fafc)', borderRadius: 8, padding: '12px 16px', marginBottom: 'var(--space-4, 16px)', border: '1px solid var(--border-color, #cbd5e1)' }}>
             <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('reportResult.confirmArchive')}</div>
             <div style={{ fontSize: 12, color: 'var(--text-primary, #334155)' }}>{t('reportResult.confirmArchiveDesc')}</div>
           </div>

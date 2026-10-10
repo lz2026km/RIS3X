@@ -1002,7 +1002,7 @@ export default function AppointmentManagementPage() {
             ) : rescheduleHistory.length === 0 ? (
               <div style={{ padding: '24px', textAlign: 'center', color: COLORS.textSecondary }}>{t('w4b.reschedule.empty')}</div>
             ) : rescheduleHistory.map((r, idx) => (
-              <div key={r.id} style={{ ...styles.tableRow, backgroundColor: idx % 2 === 0 ? 'white' : '#fafafa' }}>
+              <div key={r.id} style={{ ...styles.tableRow, backgroundColor: idx % 2 === 0 ? 'white' : 'var(--bg-primary, #f8fafc)' }}>
                 <div style={{ fontWeight: 500 }}>{r.patientName}</div>
                 <div style={{ fontSize: 12, color: COLORS.textSecondary }}>{r.phone}</div>
                 <div>{r.examType}</div>
@@ -1046,10 +1046,10 @@ export default function AppointmentManagementPage() {
                     key={apt.id}
                     style={{
                       ...styles.tableRow,
-                      backgroundColor: idx % 2 === 0 ? 'white' : '#fafafa',
+                      backgroundColor: idx % 2 === 0 ? 'white' : 'var(--bg-primary, #f8fafc)',
                     }}
                     onMouseEnter={e => (e.currentTarget.style.backgroundColor = COLORS.primaryLight)}
-                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = idx % 2 === 0 ? 'white' : '#fafafa')}
+                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = idx % 2 === 0 ? 'var(--bg-card, #ffffff)' : 'var(--bg-primary, #f8fafc)')}
                   >
                     <div style={{ fontWeight: '500', color: COLORS.primary }}>{apt.id}</div>
                     <div>
@@ -1606,7 +1606,7 @@ export default function AppointmentManagementPage() {
                       style={{
                         flex: 1, padding: '8px 0', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer',
                         border: `1px solid ${createForm.priority === v ? COLORS.primary : COLORS.border}`,
-                        background: createForm.priority === v ? COLORS.primaryLight : '#fff',
+                        background: createForm.priority === v ? COLORS.primaryLight : 'var(--bg-card, #ffffff)',
                         color: createForm.priority === v ? COLORS.primary : COLORS.textSecondary,
                       }}>{l}</button>
                   ))}

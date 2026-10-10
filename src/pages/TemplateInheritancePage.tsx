@@ -680,7 +680,7 @@ export default function TemplateInheritancePage() {
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <Eye size={16} color="var(--color-info-600)" /> {t('tinh.previewTitle')}
               </div>
-              <button onClick={() => setPreviewNode(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
+              <button aria-label="关闭" onClick={() => setPreviewNode(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
             </div>
             <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>
               {previewNode.name} <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>({previewNode.version})</span>
@@ -712,7 +712,7 @@ export default function TemplateInheritancePage() {
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <BarChart3 size={16} color="var(--color-info-600)" /> {t('tinh.usageStats')} · {selectedNode.name}
               </div>
-              <button onClick={() => setShowStatsModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
+              <button aria-label="关闭" onClick={() => setShowStatsModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
               <div style={{ padding: 'var(--space-3, 12px)', background: 'var(--content-bg)', borderRadius: 8 }}>
@@ -734,7 +734,7 @@ export default function TemplateInheritancePage() {
                 </div>
               ))}
             </div>
-            <div style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d', marginBottom: 14 }}>
+            <div style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, background: '#f59e0b22', color: '#b45309', border: '1px solid var(--color-warning-300, #fcd34d)', marginBottom: 14 }}>
               {t('tinh.usageNote')}
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>

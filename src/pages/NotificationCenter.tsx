@@ -251,7 +251,7 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
               </div>
             </div>
           </div>
-          <button onClick={onClose} style={{
+          <button aria-label="关闭" onClick={onClose} style={{
             background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 6,
             padding: '6px 8px', cursor: 'pointer', display: 'flex', alignItems: 'center',
           }}>
@@ -642,7 +642,7 @@ function SettingsPanel({ settings, onUpdate }: SettingsPanelProps) {
         icon={<BellRing size={16} />}
       />
 
-      <div style={{ marginTop: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: 'var(--color-warning-bg)', borderRadius: 8, border: '1px solid #fcd34d' }}>
+      <div style={{ marginTop: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: 'var(--color-warning-bg)', borderRadius: 8, border: '1px solid var(--color-warning-300, #fcd34d)' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-2, 8px)' }}>
           <AlertCircle size={16} color={WARNING} style={{ flexShrink: 0, marginTop: 2 }} />
           <div style={{ fontSize: 12, color: '#92400e', lineHeight: 1.5 }}>
@@ -1023,7 +1023,7 @@ function RulesEnginePanel({ rules, onToggle, onDelete }: { rules: NotificationRu
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
             <Switch size="small" checked={rule.enabled} onChange={() => onToggle(rule.id)} />
-            <button onClick={() => onDelete(rule.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}><Trash2 size={14} /></button>
+            <button aria-label="删除" onClick={() => onDelete(rule.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}><Trash2 size={14} /></button>
           </div>
         </div>
       ))}
@@ -1086,7 +1086,7 @@ function PreferencesPanel({ preferences, onUpdate }: { preferences: UserNotifyPr
           </div>
         )}
       </div>
-      <div style={{ padding: 'var(--space-2, 8px)', background: 'var(--color-warning-bg)', borderRadius: 6, border: '1px solid #fcd34d', fontSize: 12, color: '#92400e' }}>
+      <div style={{ padding: 'var(--space-2, 8px)', background: 'var(--color-warning-bg)', borderRadius: 6, border: '1px solid var(--color-warning-300, #fcd34d)', fontSize: 12, color: '#92400e' }}>
         {t('notification.autoSaveHint')}
       </div>
     </div>
@@ -1705,7 +1705,7 @@ export default function NotificationCenter() {
               <RefreshCw size={14} color={GRAY} />
             </button>
             {!showDeliveryTracking && (
-              <button onClick={() => setShowDeliveryTracking(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}>
+              <button aria-label="查看" onClick={() => setShowDeliveryTracking(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}>
                 <Eye size={14} color={GRAY} />
               </button>
             )}
@@ -1805,7 +1805,7 @@ export default function NotificationCenter() {
                 style={{ border: 'none', fontSize: 12, background: 'transparent', width: 200 }}
               />
               {searchText && (
-                <button onClick={() => setSearchText('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                <button aria-label="关闭" onClick={() => setSearchText('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                   <X size={14} color={GRAY} />
                 </button>
               )}
@@ -2103,7 +2103,7 @@ export default function NotificationCenter() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 480, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY }}>{t('notification.broadcast')}</div>
-              <button onClick={() => setShowBroadcast(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
+              <button aria-label="关闭" onClick={() => setShowBroadcast(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
               <div>

@@ -2,7 +2,8 @@
  * G005 放射RIS系统 v3.0.2 - 用户角色权限管理
  * 对标:RBAC / NIST 800-53 AC
  */
-import { Card, Table, Tag, Space, Button, Modal, Form, Select, Input, Switch, Empty, Statistic, Row, Col, message, Alert, Popconfirm } from 'antd'
+import { Card, Tag, Space, Button, Modal, Form, Select, Input, Switch, Empty, Statistic, Row, Col, message, Alert, Popconfirm } from 'antd'
+import { DataTable } from '../../common'
 import { Shield, User, Lock, Edit, Trash2, Plus, CheckCircle, XCircle, KeyRound } from 'lucide-react'
 import React, { useState, useMemo } from 'react'
 import { Inbox } from 'lucide-react'
@@ -143,8 +144,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
         </Button>
       </Space>
 
-      <Table
-        size="small"
+      <DataTable
         dataSource={filtered}
         rowKey="id"
         pagination={{ pageSize: 10 }}

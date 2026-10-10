@@ -208,7 +208,7 @@ function Modal({ open, onClose, title, children, width = 600 }: ModalProps) {
       <div style={{ background: COLORS.bgWhite, borderRadius: 12, width: width, maxHeight: '80vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid ' + COLORS.border }}>
           <span style={{ fontSize: 16, fontWeight: 700, color: COLORS.textPrimary }}>{title}</span>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 'var(--space-1, 4px)', color: COLORS.textSecondary }}><X size={20} /></button>
+          <button aria-label="关闭" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 'var(--space-1, 4px)', color: COLORS.textSecondary }}><X size={20} /></button>
         </div>
         <div style={{ padding: 'var(--space-5, 20px)' }}>{children}</div>
       </div>
@@ -289,7 +289,7 @@ function ProjectsTab() {
               render: (_v, project) => (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-2, 8px)' }}>
                   <button onClick={() => handleShowDetail(project)} style={{ padding: '6px 10px', background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', fontSize: 12, color: COLORS.textSecondary, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><Eye size={14} /> {t('researchPage.detail')}</button>
-                  <button onClick={() => { setEditingProject(project); setNewProject({ code: project.code, name: project.name, leader: project.leader, startDate: project.startDate, description: project.description, members: project.members }); setShowEditModal(true) }} style={{ padding: 6, background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', color: COLORS.textSecondary }}><Edit2 size={14} /></button>
+                  <button aria-label="编辑" onClick={() => { setEditingProject(project); setNewProject({ code: project.code, name: project.name, leader: project.leader, startDate: project.startDate, description: project.description, members: project.members }); setShowEditModal(true) }} style={{ padding: 6, background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', color: COLORS.textSecondary }}><Edit2 size={14} /></button>
                 </div>
               ),
             },
@@ -515,7 +515,7 @@ function LabelsTab() {
             render: (_v, label) => (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-2, 8px)' }}>
                 <button onClick={() => handleApplyLabel(label)} style={{ padding: '6px 10px', background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', fontSize: 12, color: COLORS.textSecondary, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><Tag size={14} /> {t('researchPage.apply')}</button>
-                <button onClick={() => handleDeleteLabel(label)} style={{ padding: 6, background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', color: COLORS.danger }}><Trash2 size={14} /></button>
+                <button aria-label="删除" onClick={() => handleDeleteLabel(label)} style={{ padding: 6, background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', color: COLORS.danger }}><Trash2 size={14} /></button>
               </div>
             ),
           },
@@ -832,7 +832,7 @@ function CohortBuilderTab() {
                 { value: 'contains', label: t('researchPage.opContains') },
               ]} />
               <input value={c.value} onChange={e => updateCriterion(idx, 'value', e.target.value)} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid ' + COLORS.border, fontSize: 12, flex: 1 }} placeholder={t('researchPage.valuePlaceholder')} />
-              <button onClick={() => removeCriterion(idx)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: COLORS.danger, padding: 'var(--space-1, 4px)' }}><X size={14} /></button>
+              <button aria-label="删除" onClick={() => removeCriterion(idx)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: COLORS.danger, padding: 'var(--space-1, 4px)' }}><X size={14} /></button>
             </div>
           ))}
         </div>

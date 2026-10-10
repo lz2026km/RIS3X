@@ -66,6 +66,7 @@ export const TreatmentPlanCenterPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [transitioning, setTransitioning] = useState('');
+  const [deletingId, setDeletingId] = useState('');
   const [error, setError] = useState('');
   const [detail, setDetail] = useState<TreatmentPlan | null>(null);
   const [form] = Form.useForm();
@@ -190,6 +191,7 @@ export const TreatmentPlanCenterPage: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
+    setDeletingId(id);
     try {
       const res = await treatmentPlanApi.remove(id);
       if (res.success) {
@@ -200,6 +202,8 @@ export const TreatmentPlanCenterPage: React.FC = () => {
       }
     } catch {
       message.error(t('treatmentPlan.deleteFailed'));
+    } finally {
+      setDeletingId('');
     }
   };
 
@@ -228,7 +232,7 @@ export const TreatmentPlanCenterPage: React.FC = () => {
           {r.status === 'in_progress' && <Button size="small" type="primary" icon={<CheckCircle2 size={11} />} loading={transitioning === r.id} onClick={() => void handleTransition(r, 'completed')}>{t('treatmentPlan.completeBtn')}</Button>}
           {r.status === 'completed' && <Button size="small" loading={transitioning === r.id} onClick={() => void handleTransition(r, 'in_progress')}>{t('treatmentPlan.restartBtn')}</Button>}
           <Popconfirm title={t('treatmentPlan.confirmDelete')} onConfirm={() => void handleDelete(r.id)}>
-            <Button size="small" danger icon={<Trash2 size={11} />} />
+            <Button aria-label="删除" size="small" danger icon={<Trash2 size={11} />} loading={deletingId === r.id} disabled={deletingId === r.id} />
           </Popconfirm>
         </Space>
       ),

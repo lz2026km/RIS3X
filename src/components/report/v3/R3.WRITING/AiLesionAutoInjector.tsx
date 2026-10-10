@@ -121,10 +121,10 @@ export default function AiLesionAutoInjector({
               </div>
               <Space size={2} className="shrink-0">
                 <Tooltip title={t('w9e.aiInjector.insertOneTip')}>
-                  <Button size="small" type="primary" icon={<CheckCircle2 size={12} />} onClick={() => handleAccept(f)} data-testid={`ai-inject-accept-${f.id}`} />
+                  <Button aria-label="采纳" size="small" type="primary" icon={<CheckCircle2 size={12} />} onClick={() => handleAccept(f)} data-testid={`ai-inject-accept-${f.id}`} />
                 </Tooltip>
                 <Tooltip title={t('w9e.aiInjector.ignoreOneTip')}>
-                  <Button size="small" icon={<XCircle size={12} />} onClick={() => { onIgnore(f.id); setLocalIgnored((prev) => new Set(prev).add(f.id)) }} data-testid={`ai-inject-ignore-${f.id}`} />
+                  <Button aria-label="关闭" size="small" icon={<XCircle size={12} />} onClick={() => { onIgnore(f.id); setLocalIgnored((prev) => new Set(prev).add(f.id)) }} data-testid={`ai-inject-ignore-${f.id}`} />
                 </Tooltip>
               </Space>
             </div>

@@ -86,7 +86,7 @@ const STAGE_CONFIG: Record<ReviewStage, { label: string; color: string; bg: stri
 };
 
 const STATUS_CONFIG: Record<ReviewStatus, { label: string; color: string; bg: string; border: string }> = {
-  'pending':     { label: t('reportReviewPage.statusPending'), color: 'var(--color-warning-500)', bg: '#f59e0b22', border: '#fcd34d' },
+  'pending':     { label: t('reportReviewPage.statusPending'), color: 'var(--color-warning-500)', bg: '#f59e0b22', border: 'var(--color-warning-300, #fcd34d)' },
   'in-progress': { label: t('reportReviewPage.statusInProgress'), color: 'var(--color-info-600)', bg: '#06b6d422', border: '#67e8f9' },
   'completed':   { label: t('reportReviewPage.statusCompleted'), color: '#10b981', bg: '#22c55e22', border: '#6ee7b7' },
   'rejected':    { label: t('reportReviewPage.statusRejected'), color: 'var(--color-error-500)', bg: '#ef444422', border: '#fca5a5' },
@@ -791,7 +791,7 @@ const ReviewTaskDetail: React.FC<{
               return (
                 <React.Fragment key={s}>
                   <div style={{
-                    flex: 1, padding: 'var(--space-2, 8px)', background: 'var(--bg-card)', border: `1px solid ${isCurrent ? sConf.color : '#e2e8f0'}`,
+                    flex: 1, padding: 'var(--space-2, 8px)', background: 'var(--bg-card)', border: `1px solid ${isCurrent ? sConf.color : 'var(--border-color, #e2e8f0)'}`,
                     borderRadius: 4, textAlign: 'center',
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-1, 4px)', fontSize: 12, color: isPast ? '#10b981' : isCurrent ? sConf.color : 'var(--text-secondary)' }}>

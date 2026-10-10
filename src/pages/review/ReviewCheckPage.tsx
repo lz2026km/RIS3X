@@ -117,6 +117,7 @@ export const ReviewCheckPage: React.FC = () => {
 
   // 复审操作
   const handleReviewAction = async (id: string, type: string) => {
+    setReviewActionBusy(true);
     try {
       if (type === 'approve') {
         const r = await reportApi.review(id);
@@ -126,10 +127,12 @@ export const ReviewCheckPage: React.FC = () => {
         if (r.success) { message.success(t('reviewCheck.opSuccess')); loadReviews(); }
       }
     } catch (e: any) { message.error(e.message); }
+    finally { setReviewActionBusy(false); }
   };
 
   const filteredInitial = initialItems.filter((i: any) => !initialFilter.status || String(i.state ?? i.status) === initialFilter.status);
   const [busy, setBusy] = useState(false);
+  const [reviewActionBusy, setReviewActionBusy] = useState(false);
 
   return (
     <PageContainer padding={24}>
@@ -254,8 +257,8 @@ export const ReviewCheckPage: React.FC = () => {
                   title: t('reviewCheck.colAction'),
                   render: (_, item) => (
                     <Space>
-                      <Button type="link" size="small" icon={<CheckCircle2 size={12} />} onClick={() => handleReviewAction(item.id, 'approve')}>{t('reviewCheck.approve')}</Button>
-                      <Button type="link" danger size="small" icon={<XCircle size={12} />} onClick={() => handleReviewAction(item.id, 'reject')}>{t('reviewCheck.reject')}</Button>
+                      <Button type="link" size="small" icon={<CheckCircle2 size={12} />} loading={reviewActionBusy} disabled={reviewActionBusy} onClick={() => handleReviewAction(item.id, 'approve')}>{t('reviewCheck.approve')}</Button>
+                      <Button type="link" danger size="small" icon={<XCircle size={12} />} loading={reviewActionBusy} disabled={reviewActionBusy} onClick={() => handleReviewAction(item.id, 'reject')}>{t('reviewCheck.reject')}</Button>
                     </Space>
                   ),
                 },

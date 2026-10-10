@@ -569,7 +569,7 @@ export default function DictionaryPage() {
       render: (v: string[]) => (
         <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
           {(v ?? []).map(m => (
-            <span key={m} style={{ ...s.modalityBadge, backgroundColor: modalityColors[m]?.bg || '#f1f5f9', color: modalityColors[m]?.color || '#475569' }}>
+            <span key={m} style={{ ...s.modalityBadge, backgroundColor: modalityColors[m]?.bg || 'var(--bg-primary, #f8fafc)', color: modalityColors[m]?.color || '#475569' }}>
               {m}
             </span>
           ))}
@@ -705,7 +705,7 @@ export default function DictionaryPage() {
             onChange={e => { setSearch(e.target.value); setPage(1) }}
           />
           {search && (
-            <button onClick={() => { setSearch(''); setPage(1) }} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: 2 }}>
+            <button aria-label="关闭" onClick={() => { setSearch(''); setPage(1) }} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: 2 }}>
               <X size={13} color="var(--text-secondary)" />
             </button>
           )}
@@ -790,7 +790,7 @@ export default function DictionaryPage() {
           {t('dictionary.pagePrefix')} <strong style={{ color: 'var(--color-primary-800)' }}>{page}</strong> / <strong style={{ color: 'var(--color-primary-800)' }}>{totalPages}</strong> {t('dictionary.pageSuffix')}
         </div>
         <div style={s.pageBtns}>
-          <button style={{ ...s.pageBtn, ...(page === 1 ? s.pageBtnDisabled : {}) }} onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
+          <button aria-label="上一页" style={{ ...s.pageBtn, ...(page === 1 ? s.pageBtnDisabled : {}) }} onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
             <ChevronLeft size={15} />
           </button>
           {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -805,7 +805,7 @@ export default function DictionaryPage() {
               </button>
             )
           })}
-          <button style={{ ...s.pageBtn, ...(page === totalPages ? s.pageBtnDisabled : {}) }} onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
+          <button aria-label="下一页" style={{ ...s.pageBtn, ...(page === totalPages ? s.pageBtnDisabled : {}) }} onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
             <ChevronRight size={15} />
           </button>
         </div>
@@ -1052,7 +1052,7 @@ export default function DictionaryPage() {
         render: (v: VersionEntry['status']) => (
           <span style={{
             ...s.badge,
-            background: v === 'published' ? '#dcfce7' : v === 'review' ? '#fef3c7' : '#f1f5f9',
+            background: v === 'published' ? '#dcfce7' : v === 'review' ? '#fef3c7' : 'var(--bg-primary, #f8fafc)',
             color: v === 'published' ? 'var(--color-success-600)' : v === 'review' ? 'var(--color-warning-600)' : '#94a3b8',
           }}>
             {v === 'published' ? t('dictionary.published') : v === 'review' ? t('dictionary.reviewing') : t('dictionary.draft')}
@@ -1467,7 +1467,7 @@ export default function DictionaryPage() {
               <>
                 <div style={s.modalHeader}>
                   <div style={s.modalTitle}>{t('dictionary.confirmDeleteTitle')}</div>
-                  <button style={s.modalClose} onClick={closeModal}><X size={16} /></button>
+                  <button aria-label="关闭" style={s.modalClose} onClick={closeModal}><X size={16} /></button>
                 </div>
                 <div style={s.modalBody}>
                   <div style={s.deleteModalText}>{t('dictionary.confirmDeletePrefix')} <strong>"{editingDictionary.name}"</strong> {t('dictionary.confirmDeleteSuffix')}</div>
@@ -1485,7 +1485,7 @@ export default function DictionaryPage() {
                     <BookOpen size={16} color="#60a5fa" />
                     <span style={s.modalTitle}>{modalMode === 'add' ? t('dictionary.addItemTitle') : t('dictionary.editItemTitle')}</span>
                   </div>
-                  <button style={s.modalClose} onClick={closeModal}><X size={16} /></button>
+                  <button aria-label="关闭" style={s.modalClose} onClick={closeModal}><X size={16} /></button>
                 </div>
                 <div style={s.modalBody}>
                   {formErrors.length > 0 && (
@@ -1530,11 +1530,11 @@ export default function DictionaryPage() {
                             <label key={m} onClick={() => handleModalityToggle(m)} style={{
                               display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 8, cursor: 'pointer',
                               fontSize: 12, fontWeight: 600, userSelect: 'none',
-                              border: `1px solid ${isSelected ? (modalityColors[m]?.color || 'var(--color-primary-800)') : '#e2e8f0'}`,
-                              background: isSelected ? (modalityColors[m]?.bg || '#eff6ff') : '#fff',
+                              border: `1px solid ${isSelected ? (modalityColors[m]?.color || 'var(--color-primary-800)') : 'var(--border-color, #e2e8f0)'}`,
+                              background: isSelected ? (modalityColors[m]?.bg || '#eff6ff') : 'var(--bg-card, #ffffff)',
                               color: isSelected ? (modalityColors[m]?.color || 'var(--color-primary-800)') : '#94a3b8',
                             }}>
-                              <div style={{ width: 14, height: 14, borderRadius: 4, border: `2px solid ${isSelected ? (modalityColors[m]?.color || 'var(--color-primary-800)') : '#cbd5e1'}`, background: isSelected ? (modalityColors[m]?.color || 'var(--color-primary-800)') : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                              <div style={{ width: 14, height: 14, borderRadius: 4, border: `2px solid ${isSelected ? (modalityColors[m]?.color || 'var(--color-primary-800)') : '#cbd5e1'}`, background: isSelected ? (modalityColors[m]?.color || 'var(--color-primary-800)') : 'var(--bg-card, #ffffff)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                 {isSelected && <span style={{ color: '#fff', fontSize: 12 }}></span>}
                               </div>
                               {m}
@@ -1545,7 +1545,7 @@ export default function DictionaryPage() {
                     </div>
                     <div style={{ ...s.formGroup, ...s.formGroupFull }}>
                       <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', cursor: 'pointer', fontSize: 12, color: 'var(--text-secondary)' }} onClick={() => handleField('isActive', !editingDictionary.isActive)}>
-                        <div style={{ width: 16, height: 16, borderRadius: 4, border: `2px solid ${editingDictionary.isActive ? 'var(--color-success-600)' : '#cbd5e1'}`, background: editingDictionary.isActive ? 'var(--color-success-600)' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ width: 16, height: 16, borderRadius: 4, border: `2px solid ${editingDictionary.isActive ? 'var(--color-success-600)' : '#cbd5e1'}`, background: editingDictionary.isActive ? 'var(--color-success-600)' : 'var(--bg-card, #ffffff)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           {editingDictionary.isActive && <span style={{ color: '#fff', fontSize: 12 }}></span>}
                         </div>
                         {t('dictionary.activeLabel')}

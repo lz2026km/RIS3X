@@ -78,7 +78,7 @@ export function TaskProgress({
           {task.running ? <Loader2 size={14} className="spin" /> : <CheckCircle size={14} style={{ color: "var(--color-success-500)" }} />}
           {task.running ? "任务执行中..." : "任务完成"}
         </div>
-        <button
+        <button aria-label="收起"
           onClick={() => setExpanded(false)}
           style={{ border: "none", background: "none", cursor: "pointer", padding: 2, color: "#94a3b8" }}
         >

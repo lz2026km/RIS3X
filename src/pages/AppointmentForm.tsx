@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Checkbox } from 'antd'
-import { Plus, X, Monitor, User, Scan, ShieldCheck, CreditCard, ClipboardCheck, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Plus, X, Monitor, User, Scan, ShieldCheck, CreditCard, ClipboardCheck, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import { initialModalityDevices, initialExamItems, initialUsers } from '../data/initialData'
 import { FormField } from '../components/common/FormField'
 import { t } from '../i18n/appI18n'
@@ -23,6 +23,7 @@ interface AppointmentFormProps {
   setFormErrors: (v: Record<string, string>) => void
   setValidationError: (v: string) => void
   handleSubmit: () => void
+  submitting?: boolean
   timeSlots: string[]
 }
 
@@ -40,7 +41,7 @@ const inputStyle = (border: string): React.CSSProperties => ({
 })
 
 export default function AppointmentForm(props: AppointmentFormProps) {
-  const { showForm, setShowForm, formData, setFormData, validationError, formErrors, setFormErrors, setValidationError, handleSubmit, timeSlots } = props
+  const { showForm, setShowForm, formData, setFormData, validationError, formErrors, setFormErrors, setValidationError, handleSubmit, submitting = false, timeSlots } = props
   const [step, setStep] = useState(0)
   const [rooms, setRooms] = useState<RoomDto[]>([])
   const [technicians, setTechnicians] = useState<TechnicianDto[]>([])
@@ -132,7 +133,7 @@ export default function AppointmentForm(props: AppointmentFormProps) {
     <div data-testid="appointment-wizard" style={{ background: whiteBg, borderRadius: 10, boxShadow: '0 2px 8px rgba(0,0,0,0.08)', border: `1px solid ${borderGray}`, overflow: 'hidden' }}>
       <div style={{ padding: '12px 16px', background: primaryBlue, color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 700 }}><Plus size={15} /> {t('w5Appt.wizardTitle')}</div>
-        <button onClick={close} style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer' }}><X size={16} /></button>
+        <button aria-label="关闭" onClick={close} style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer' }}><X size={16} /></button>
       </div>
 
       {/* 步骤指示器 */}
@@ -372,7 +373,8 @@ export default function AppointmentForm(props: AppointmentFormProps) {
               {t('w5Appt.next')} <ChevronRight size={13} />
             </button>
           ) : (
-            <button onClick={handleSubmit} style={{ padding: '6px 16px', borderRadius: 6, border: 'none', background: 'var(--color-warning-600)', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+            <button onClick={handleSubmit} disabled={submitting} style={{ padding: '6px 16px', borderRadius: 6, border: 'none', background: 'var(--color-warning-600)', color: '#fff', fontSize: 12, fontWeight: 700, cursor: submitting ? 'wait' : 'pointer', opacity: submitting ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
+              {submitting && <Loader2 size={13} />}
               {t('w5Appt.submit')}
             </button>
           )}

@@ -1033,7 +1033,7 @@ export default function EquipmentLifecyclePage() {
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-1, 4px)', position: 'relative', zIndex: 2 }}>
                             <div style={{
                               width: 18, height: 18, borderRadius: '50%',
-                              background: p.done ? p.color : '#fff',
+                              background: p.done ? p.color : 'var(--bg-card, #ffffff)',
                               border: `2px solid ${p.done ? p.color : '#cbd5e1'}`,
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
                             }}>
@@ -1207,7 +1207,7 @@ export default function EquipmentLifecyclePage() {
           <div style={s.modalContent} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <div style={s.modalTitle}>{t('equipLifecycle.deviceDetailTitle', { name: selectedDevice.name })}</div>
-              <button style={{ ...s.btn, ...s.btnGhost, padding: '6px' }} onClick={() => setSelectedDevice(null)}><X size={18} /></button>
+              <button aria-label="关闭" style={{ ...s.btn, ...s.btnGhost, padding: '6px' }} onClick={() => setSelectedDevice(null)}><X size={18} /></button>
             </div>
             {/* [v3.0.6.11-104 Wave 2A] /device-mgmt/equipment-lifecycle/:id 实时详情 */}
             {lifecycleDetailLoading && (
@@ -1291,7 +1291,7 @@ export default function EquipmentLifecyclePage() {
           <div style={s.modalContent} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <div style={s.modalTitle}>{t('equipLifecycle.addDeviceTitle')}</div>
-              <button style={{ ...s.btn, ...s.btnGhost, padding: '6px' }} onClick={() => setShowAdd(false)}><X size={18} /></button>
+              <button aria-label="关闭" style={{ ...s.btn, ...s.btnGhost, padding: '6px' }} onClick={() => setShowAdd(false)}><X size={18} /></button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
               {[
@@ -1358,7 +1358,7 @@ export default function EquipmentLifecyclePage() {
           <div style={s.modalContent} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <div style={s.modalTitle}>{t('equipLifecycle.newPlanTitle')}</div>
-              <button style={{ ...s.btn, ...s.btnGhost, padding: '6px' }} onClick={() => setShowMaintPlanModal(false)}><X size={18} /></button>
+              <button aria-label="关闭" style={{ ...s.btn, ...s.btnGhost, padding: '6px' }} onClick={() => setShowMaintPlanModal(false)}><X size={18} /></button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
               {[
@@ -1401,7 +1401,7 @@ export default function EquipmentLifecyclePage() {
           <div style={s.modalContent} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <div style={s.modalTitle}>{t('equipLifecycle.editPlanTitle', { name: maintEditForm.deviceName })}</div>
-              <button style={{ ...s.btn, ...s.btnGhost, padding: '6px' }} onClick={() => setMaintEditForm(null)}><X size={18} /></button>
+              <button aria-label="关闭" style={{ ...s.btn, ...s.btnGhost, padding: '6px' }} onClick={() => setMaintEditForm(null)}><X size={18} /></button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
               {[
@@ -1439,7 +1439,7 @@ export default function EquipmentLifecyclePage() {
           <div style={s.modalContent} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <div style={s.modalTitle}>{t('equipLifecycle.maintRecordDetail')}</div>
-              <button style={{ ...s.btn, ...s.btnGhost, padding: '6px' }} onClick={() => setSelectedMaintRecord(null)}><X size={18} /></button>
+              <button aria-label="关闭" style={{ ...s.btn, ...s.btnGhost, padding: '6px' }} onClick={() => setSelectedMaintRecord(null)}><X size={18} /></button>
             </div>
             <div style={s.detailGrid}>
               {[

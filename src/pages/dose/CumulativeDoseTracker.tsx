@@ -171,7 +171,7 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
       <div
         style={{
           padding: "12px 16px",
-          background: nearLimit ? "#fffbeb" : "#f0fdf4",
+          background: nearLimit ? "var(--color-warning-bg, #fffbeb)" : "var(--color-success-bg, #f0fdf4)",
           borderRadius: 8,
           border: `1px solid ${nearLimit ? "#fde68a" : "#bbf7d0"}`,
           display: "flex",

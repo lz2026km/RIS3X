@@ -28,6 +28,7 @@ const OrthoSpecialtyPage = () => {
   const [studies, setStudies] = useState<OrthoStudy[]>(mockStudies);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
   // [W10-B] 优先拉取后端 /ortho-specialty/studies, 接口不可用/返回空时保留内置演示数据
   useEffect(() => {
     let cancelled = false;
@@ -48,7 +49,7 @@ const OrthoSpecialtyPage = () => {
       }
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [reloadTick]);
   const filtered = useMemo(() => {
     let list = [...studies];
     if (search) list = list.filter(r => r.name.includes(search) || r.id.includes(search));
@@ -75,7 +76,7 @@ const OrthoSpecialtyPage = () => {
   return (
     <div style={{ padding: 0 }}>
       {loading && <LoadingBanner message={t('w9.states.loading')} />}
-      {loadError && !loading && <ErrorBanner message={loadError} />}
+      {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => setReloadTick(n => n + 1)} retryLabel={t('w9.states.retry')} />}
 
       <div style={{ marginBottom: 'var(--space-6, 24px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>

@@ -204,7 +204,7 @@ export default function RdsrPage() {
               />
             </div>
             {rdsrResult && (
-              <div style={{ marginTop: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: "#f0fdf4", borderRadius: 6 }}>
+              <div style={{ marginTop: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: "var(--color-success-bg, #f0fdf4)", borderRadius: 6 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: "#065f46", marginBottom: 'var(--space-2, 8px)' }}>{t("currentComparison")}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)' }}>
                   <div>CTDIvol: {rdsrResult.ctdivol} mGy vs DRL {drls.find(d => d.bodyPart === rdsrResult.bodyPart)?.ctdivolDrl ?? "?"} mGy</div>

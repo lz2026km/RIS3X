@@ -302,7 +302,7 @@ export default function ReportScoreRulePage() {
                 <div key={i} style={{
                   padding: 'var(--space-2, 8px)', marginBottom: 'var(--space-1, 4px)',
                   background: rule.score >= 90 ? 'var(--color-success-bg)' : rule.score >= 75 ? 'var(--color-info-bg)' : rule.score >= 60 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)',
-                  border: `1px solid ${rule.score >= 90 ? '#bbf7d0' : rule.score >= 75 ? '#bfdbfe' : rule.score >= 60 ? '#fcd34d' : '#fca5a5'}`,
+                  border: `1px solid ${rule.score >= 90 ? '#bbf7d0' : rule.score >= 75 ? '#bfdbfe' : rule.score >= 60 ? 'var(--color-warning-300, #fcd34d)' : '#fca5a5'}`,
                   borderRadius: 4, fontSize: 12,
                   display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)',
                 }}>

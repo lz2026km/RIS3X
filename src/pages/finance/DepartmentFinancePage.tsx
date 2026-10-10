@@ -78,7 +78,7 @@ const fmtMoney = (v?: number) => `¥${(Number.isFinite(v) ? (v as number) : 0).t
 
 function DemoBadge() {
   return (
-    <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: 'var(--color-warning-600)', border: '1px solid #fcd34d', fontWeight: 600 }}>
+    <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg, #fffbeb)', color: 'var(--color-warning-600)', border: '1px solid var(--color-warning-300, #fcd34d)', fontWeight: 600 }}>
       {t('deptFinance.demoData')}
     </span>
   )

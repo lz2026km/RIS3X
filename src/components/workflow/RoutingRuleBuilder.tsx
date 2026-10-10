@@ -173,7 +173,7 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
                 <span style={{ fontSize: 12, color: rule.active ? '#059669' : '#94a3b8' }}>
                   {rule.active ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
                 </span>
-                <button onClick={(e) => { e.stopPropagation(); handleDelete(rule.id); }} disabled={readonly} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                <button aria-label="删除" onClick={(e) => { e.stopPropagation(); handleDelete(rule.id); }} disabled={readonly} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                   <Trash2 size={12} color="var(--color-error-600)" />
                 </button>
               </div>
@@ -256,7 +256,7 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
                     disabled={readonly}
                     style={inputStyle}
                   />
-                  <button onClick={() => handleRemoveCondition(idx)} disabled={readonly} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                  <button aria-label="删除" onClick={() => handleRemoveCondition(idx)} disabled={readonly} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                     <Trash2 size={14} color="var(--color-error-600)" />
                   </button>
                 </div>

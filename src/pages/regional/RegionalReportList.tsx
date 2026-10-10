@@ -363,7 +363,7 @@ export const RemoteDiagnosisList: React.FC<RemoteDiagnosisListProps> = ({ diagno
 
   return (
     <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
-      <div style={styles.panelHeader}><span>{t('regionalReport.remoteDiagnosis')}</span><div style={{ display: 'flex', gap: '8px' }}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={onSync}><RefreshCw size={14} /></button></div></div>
+      <div style={styles.panelHeader}><span>{t('regionalReport.remoteDiagnosis')}</span><div style={{ display: 'flex', gap: '8px' }}><button aria-label="刷新" style={{ ...styles.button, ...styles.buttonOutline }} onClick={onSync}><RefreshCw size={14} /></button></div></div>
       <div style={styles.tabContainer}>{[{ key: 'list', label: t('regionalReport.remoteWritingList'), icon: <Monitor size={14} /> }].map(tab => <span key={tab.key} style={{ ...styles.tab, ...styles.tabActive, cursor: 'default' }}>{tab.icon}{tab.label}</span>)}</div>
       <div style={styles.searchBox}>
         <Search size={16} style={{ color: COLORS.textMuted }} />

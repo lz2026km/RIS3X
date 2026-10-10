@@ -704,7 +704,7 @@ export default function DicomViewerPage() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
               {['序列1-层面1', '序列1-层面2', '序列2-层面1', '序列2-层面2'].map((label, i) => (
                 <div key={i} style={{ background: '#222', borderRadius: 4, padding: '40px 20px', textAlign: 'center', color: '#666', fontSize: 12 }}>
-                  <div style={{ fontSize: 36, marginBottom: 'var(--space-2, 8px)', opacity: 0.3 }}>▣</div>{label}
+                  <div style={{ fontSize: 36, marginBottom: 'var(--space-2, 8px)', opacity: 0.3 }}><RectIcon size={36} /></div>{label}
                 </div>
               ))}
             </div>
@@ -760,7 +760,7 @@ export default function DicomViewerPage() {
                       {r.modality} · {r.bodyPart}
                       <span style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{r.gender} {r.age}{t('dicomViewer.yearsOld')} · {r.studyDate}</span>
                     </span>
-                    <span style={{ fontSize: 12, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: r.similarity >= 70 ? '#dcfce7' : r.similarity >= 40 ? '#fef3c7' : '#f1f5f9', color: r.similarity >= 70 ? 'var(--color-success-600)' : r.similarity >= 40 ? 'var(--color-warning-600)' : '#64748b' }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: r.similarity >= 70 ? '#dcfce7' : r.similarity >= 40 ? '#fef3c7' : 'var(--bg-primary, #f8fafc)', color: r.similarity >= 70 ? 'var(--color-success-600)' : r.similarity >= 40 ? 'var(--color-warning-600)' : '#64748b' }}>
                       {t('dicomViewer.similarity')} {r.similarity}%
                     </span>
                   </div>

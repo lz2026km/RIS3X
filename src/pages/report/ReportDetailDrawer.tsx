@@ -298,11 +298,11 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
           <StatusBadge status={reportStatus} size="md" />
           {/* [v3.0.6.11-99 Wave7B] 离线副本标注 */}
           {offlineSaved && (
-            <span style={{ padding: '2px 8px', borderRadius: 4, background: 'var(--color-warning-bg)', color: 'var(--color-warning)', fontSize: 12, fontWeight: 600, border: '1px solid #fcd34d' }}>
+            <span style={{ padding: '2px 8px', borderRadius: 4, background: 'var(--color-warning-bg)', color: 'var(--color-warning)', fontSize: 12, fontWeight: 600, border: '1px solid var(--color-warning-300, #fcd34d)' }}>
               {t('reportDetail.offlineCopy')}
             </span>
           )}
-          <button onClick={onClose} style={{ padding: 6, borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', color: GRAY, display: 'flex', alignItems: 'center' }}><X size={16} /></button>
+          <button aria-label="关闭" onClick={onClose} style={{ padding: 6, borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', color: GRAY, display: 'flex', alignItems: 'center' }}><X size={16} /></button>
         </div>
 
         <div style={{ padding: '12px 20px', background: 'var(--bg-primary)', borderBottom: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)', flexShrink: 0 }}>

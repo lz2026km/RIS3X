@@ -5945,7 +5945,7 @@ export default function InsuranceAuditPage() {
                   </span>
                 </div>
                 <div style={styles.btnGroup}>
-                  <button
+                  <button aria-label="查看详情"
                     type="button"
                     onClick={() =>
                       window.open(`/api/rules/${rule.id}/detail`, "_blank")

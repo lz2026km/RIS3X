@@ -290,9 +290,9 @@ const AiDraftPage: React.FC = () => {
                   <Tag color="purple" style={{ fontSize: 11 }}>{(p.confidence * 100).toFixed(0)}%</Tag>
                 </Space>
                 <Space>
-                  <Tooltip title={t('aiDraft.accept')}><Button size="small" type={acceptedIds.includes(p.id) ? 'primary' : 'text'} icon={<Check size={14} color={acceptedIds.includes(p.id) ? '#fff' : '#52c41a'} />} onClick={() => handleAccept(p.id)} /></Tooltip>
-                  <Tooltip title={t('aiDraft.edit')}><Button size="small" type="text" icon={<Edit3 size={14} color="var(--color-primary-600)" />} onClick={() => handleEdit(p)} /></Tooltip>
-                  <Tooltip title={t('aiDraft.reject')}><Button size="small" type="text" icon={<X size={14} color="#ff4d4f" />} onClick={() => handleReject(p.id)} /></Tooltip>
+                  <Tooltip title={t('aiDraft.accept')}><Button aria-label="确认" size="small" type={acceptedIds.includes(p.id) ? 'primary' : 'text'} icon={<Check size={14} color={acceptedIds.includes(p.id) ? '#fff' : '#52c41a'} />} onClick={() => handleAccept(p.id)} /></Tooltip>
+                  <Tooltip title={t('aiDraft.edit')}><Button aria-label="编辑" size="small" type="text" icon={<Edit3 size={14} color="var(--color-primary-600)" />} onClick={() => handleEdit(p)} /></Tooltip>
+                  <Tooltip title={t('aiDraft.reject')}><Button aria-label="关闭" size="small" type="text" icon={<X size={14} color="#ff4d4f" />} onClick={() => handleReject(p.id)} /></Tooltip>
                 </Space>
               </div>
               {editingParagraph === p.id ? (

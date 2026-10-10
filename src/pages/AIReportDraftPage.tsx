@@ -539,7 +539,7 @@ export default function AIReportDraftPage() {
                   style={{
                     padding: 'var(--space-2, 8px)', marginBottom: 'var(--space-1, 4px)',
                     background: selectedTemplateId === tpl.id ? 'var(--color-info-bg)' : 'var(--bg-card)',
-                    border: `1px solid ${selectedTemplateId === tpl.id ? 'var(--color-primary-500)' : '#e2e8f0'}`,
+                    border: `1px solid ${selectedTemplateId === tpl.id ? 'var(--color-primary-500)' : 'var(--border-color, #e2e8f0)'}`,
                     borderRadius: 4, cursor: 'pointer',
                   }}
                 >

@@ -136,9 +136,10 @@ interface CriticalValueRowProps {
   onCloseLoop: () => void
   onDelete: () => void
   onGo5Step: () => void
+  actionBusy?: boolean
 }
 
-const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, onContactClinical, onVoiceCall, onClinicalReceipt, onAcknowledge, onTransferToFollowUp, onEscalate, onCloseLoop, onDelete, onGo5Step }: CriticalValueRowProps) => {
+const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, onContactClinical, onVoiceCall, onClinicalReceipt, onAcknowledge, onTransferToFollowUp, onEscalate, onCloseLoop, onDelete, onGo5Step, actionBusy = false }: CriticalValueRowProps) => {
   const statusCfg = STATUS_CONFIG[cv.status] || STATUS_CONFIG['pending']!
   const severityCfg = SEVERITY_CONFIG[cv.severity] || SEVERITY_CONFIG['高危']!
   const StatusIcon = Bell
@@ -197,7 +198,7 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
           </button>
         )}
         {(cv.status === 'voice_called') && (
-          <button onClick={onAcknowledge} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid var(--color-primary-600)', background: 'var(--color-info-bg)', color: 'var(--color-primary-600)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+          <button onClick={onAcknowledge} disabled={actionBusy} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid var(--color-primary-600)', background: 'var(--color-info-bg)', color: 'var(--color-primary-600)', fontSize: 12, fontWeight: 600, cursor: actionBusy ? 'wait' : 'pointer', opacity: actionBusy ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 3 }}>
             <CheckCircle size={10} />{t('cvList.confirm')}
           </button>
         )}
@@ -210,7 +211,7 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
           <Phone size={10} />{t('cvList.contact')}
         </button>
         {cv.status !== 'closed_loop' && cv.status !== 'resolved' && cv.status !== '已处理' && (
-          <button onClick={onCloseLoop} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #047857', background: 'var(--color-success-bg)', color: '#047857', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+          <button onClick={onCloseLoop} disabled={actionBusy} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #047857', background: 'var(--color-success-bg)', color: '#047857', fontSize: 12, fontWeight: 600, cursor: actionBusy ? 'wait' : 'pointer', opacity: actionBusy ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 3 }}>
             <Archive size={10} />{t('cvList.closeLoop')}
           </button>
         )}
@@ -223,7 +224,7 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
           <CheckCircle size={10} />{t('cvList.fiveStep')}
         </button>
         <Popconfirm title={t('cvList.deleteTitle')} description={t('cvList.deleteDesc')} onConfirm={onDelete} okText={t('cvList.deleteOk')} cancelText={t('cvList.deleteCancel')} okButtonProps={{ danger: true }}>
-          <button style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid var(--color-error-600)', background: 'var(--bg-card)', color: 'var(--color-error-600)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+          <button disabled={actionBusy} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid var(--color-error-600)', background: 'var(--bg-card)', color: 'var(--color-error-600)', fontSize: 12, fontWeight: 600, cursor: actionBusy ? 'wait' : 'pointer', opacity: actionBusy ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 3 }}>
             <Trash2 size={10} />{t('cvList.delete')}
           </button>
         </Popconfirm>
@@ -260,12 +261,13 @@ interface CriticalValueListProps {
   onCloseLoop: (cv: CriticalValue) => void
   onDelete: (cv: CriticalValue) => void
   onGo5Step: (cv: CriticalValue) => void
+  actionBusy?: boolean
   criticalValues: CriticalValue[]
 }
 
 export const CriticalValueList = ({
   filtered, selectedIds, onToggleSelect, onToggleSelectAll,
-  onProcess, onViewDetail, onContactClinical, onVoiceCall, onClinicalReceipt, onAcknowledge, onTransferToFollowUp, onEscalate, onCloseLoop, onDelete, onGo5Step, criticalValues,
+  onProcess, onViewDetail, onContactClinical, onVoiceCall, onClinicalReceipt, onAcknowledge, onTransferToFollowUp, onEscalate, onCloseLoop, onDelete, onGo5Step, actionBusy = false, criticalValues,
 }: CriticalValueListProps) => {
   const allSelected = filtered.length > 0 && selectedIds.size === filtered.length
 
@@ -323,6 +325,7 @@ export const CriticalValueList = ({
             onCloseLoop={() => onCloseLoop(cv)}
             onDelete={() => onDelete(cv)}
             onGo5Step={() => onGo5Step(cv)}
+            actionBusy={actionBusy}
           />
         ))
       ) : (

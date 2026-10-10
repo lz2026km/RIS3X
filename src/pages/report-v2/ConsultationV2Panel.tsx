@@ -62,6 +62,7 @@ const ConsultationV2Panel: React.FC = () => {
   const [finalOpinion, setFinalOpinion] = useState('')
   const [exportData, setExportData] = useState<ExportRecord | null>(null)
   const [actionLoading, setActionLoading] = useState(false)
+  const [exporting, setExporting] = useState(false)
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -214,7 +215,7 @@ const ConsultationV2Panel: React.FC = () => {
 
   const handleExport = async () => {
     if (!active) return
-    setActionLoading(true)
+    setExporting(true)
     try {
       const res = await consultationV2Api.exportRecord(active.id)
       if (res.success) {
@@ -225,7 +226,7 @@ const ConsultationV2Panel: React.FC = () => {
     } catch (e) {
       message.error((e as Error)?.message ?? t('consultationV2.exportFailed'))
     } finally {
-      setActionLoading(false)
+      setExporting(false)
     }
   }
 
@@ -280,14 +281,14 @@ const ConsultationV2Panel: React.FC = () => {
                     {active.conclusion && <Tag color="success">{t('consultationV2.signedCount', { count: active.conclusion.signatures.length })}</Tag>}
                   </Space>}
                   extra={<Space>
-                    {active.status === 'open' && <Button size="small" icon={<PlayCircle size={13} />} onClick={() => void handleStart()}>{t('consultationV2.startConsultation')}</Button>}
+                    {active.status === 'open' && <Button size="small" icon={<PlayCircle size={13} />} loading={actionLoading} disabled={actionLoading} onClick={() => void handleStart()}>{t('consultationV2.startConsultation')}</Button>}
                     {active.status !== 'concluded' && active.status !== 'cancelled' && (
                       <>
                         <Button size="small" icon={<Vote size={13} />} onClick={() => setVoteOpen(true)}>{t('consultationV2.vote')}</Button>
                         <Button size="small" type="primary" icon={<FileCheck2 size={13} />} onClick={() => setConcludeOpen(true)}>{t('consultationV2.generateConclusion')}</Button>
                       </>
                     )}
-                    <Button size="small" icon={<Download size={13} />} onClick={() => void handleExport()}>{t('consultationV2.exportRecord')}</Button>
+                    <Button size="small" icon={<Download size={13} />} loading={exporting} disabled={exporting} onClick={() => void handleExport()}>{t('consultationV2.exportRecord')}</Button>
                     <Button size="small" icon={<RefreshCw size={13} />} onClick={() => { void refreshActive(active.id); void refreshSummary(active.id) }}>{t('consultationV2.refresh')}</Button>
                   </Space>}
                 >

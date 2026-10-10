@@ -1505,7 +1505,7 @@ export default function AIOrchestrationPage() {
                       <Form.Item {...restField} name={[name, 'target']} style={{ marginBottom: 0, width: 200 }}>
                         <Input placeholder={t('aiOrch.phStepTarget')} />
                       </Form.Item>
-                      <Button type="text" danger size="small" icon={<XCircle size={13} />} onClick={() => remove(name)} />
+                      <Button aria-label="删除" type="text" danger size="small" icon={<XCircle size={13} />} onClick={() => remove(name)} />
                     </Space>
                   ))}
                   <Button type="dashed" size="small" icon={<Plus size={13} />} onClick={() => add({ action: '', target: '' })}>
@@ -1533,7 +1533,7 @@ export default function AIOrchestrationPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
             <div style={{
               display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', borderRadius: 8,
-              background: testResult.reachable ? '#f6ffed' : '#fff1f0',
+              background: testResult.reachable ? 'var(--color-success-bg, #f0fdf4)' : 'var(--color-error-bg, #fff2f0)',
             }}>
               {testResult.reachable ? <CheckCircle size={28} color="#52c41a" /> : <XCircle size={28} color="#ff4d4f" />}
               <div>
@@ -1652,8 +1652,8 @@ export default function AIOrchestrationPage() {
                             style={{
                               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                               padding: '8px 12px', borderRadius: 8, cursor: 'pointer',
-                              border: active ? '1.5px solid var(--color-error-500)' : '1px solid #e5e7eb',
-                              background: active ? '#fff1f0' : '#fafafa',
+                              border: active ? '1.5px solid var(--color-error-500)' : '1px solid var(--border-color, #e2e8f0)',
+                              background: active ? 'var(--color-error-bg, #fff2f0)' : 'var(--bg-primary, #f8fafc)',
                             }}
                           >
                             <Space>

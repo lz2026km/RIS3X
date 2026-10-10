@@ -7,7 +7,8 @@ import { DELIVERY_CHANNELS_CONFIG, DELIVERY_TASKS_MOCK, DELIVERY_QUEUE_MOCK } fr
 import { sendMultiChannel, retryDeliveryTask, cancelDeliveryTask } from '@services/distribution/distributionService';
 import type { DeliveryChannel, DeliveryChannelConfig, DeliveryTask, DeliveryStatus } from '@/types/R3/R3.DIST';
 import { DELIVERY_STATUS_COLORS as STATUS_COLORS } from '@utils/statusColors';
-import { Card, Space, Button, Tag, Tooltip, message, Modal, Form, Select, Switch, Table, Empty, Statistic, Row, Col, Divider, Alert, List, Progress, Input, InputNumber } from 'antd';
+import { Card, Space, Button, Tag, Tooltip, message, Modal, Form, Select, Switch, Empty, Statistic, Row, Col, Divider, Alert, List, Progress, Input, InputNumber } from 'antd';
+import { DataTable } from '../../../common';
 import { Send, MessageSquare, Smartphone, Mail, Bell, Database, Printer, Cloud, Film, CheckCircle2, XCircle, Loader2, RefreshCw, Settings, Eye, Filter, Layers, Inbox, Activity, Clock } from 'lucide-react';
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { t } from '../../../../i18n/appI18n';
@@ -278,8 +279,7 @@ export const MultiChannelSender: React.FC<Props> = ({ reportId, patientId, onSen
           </Space>
         }>
         {filteredTasks.length > 0 ? (
-          <Table
-            size="small"
+          <DataTable
             rowKey="id"
             columns={columns}
             dataSource={filteredTasks.slice(0, 30)}

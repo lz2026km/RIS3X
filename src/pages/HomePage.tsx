@@ -3072,6 +3072,7 @@ const HomePage: FC = () => {
       showHeader={false}
       loading={loading}
       error={loadError}
+      onRetry={() => void fetchStats()}
       testId="home-page"
     >
       {/* [v3.0.6.11-103 Wave 5] 页面头: 面包屑 + 标题图标 + 子标题 */}
@@ -3084,7 +3085,7 @@ const HomePage: FC = () => {
         style={{ marginBottom: 'var(--space-4, 16px)' }}
       />
       {loading && <LoadingBanner message={t('homePage.loadingStats')} />}
-      {loadError && !loading && <ErrorBanner message={loadError} />}
+      {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => void fetchStats()} retryLabel={t('w9.states.retry')} />}
       {loadError && !loading && (
         <div style={{ marginTop: 'var(--space-2, 8px)', padding: '8px 14px', borderRadius: 8, background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning)', fontSize: 12, color: '#b45309', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <AlertTriangle size={14} />

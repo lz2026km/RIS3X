@@ -197,16 +197,16 @@ export const Scan3DViewerPage: React.FC = () => {
         </Space>
         <Space>
           <Slider min={50} max={300} value={zoom} onChange={handleZoom} style={{ width: 100 }} />
-          <Tooltip title={t('scan3d.zoomIn')}><Button size="small" icon={<ZoomIn size={14} />} onClick={() => handleZoom(Math.min(300, zoom + 25))} /></Tooltip>
-          <Tooltip title={t('scan3d.zoomOut')}><Button size="small" icon={<ZoomOut size={14} />} onClick={() => handleZoom(Math.max(50, zoom - 25))} /></Tooltip>
-          <Tooltip title={t('scan3d.resetView')}><Button size="small" icon={<RotateCcw size={14} />} onClick={() => handleZoom(100)} /></Tooltip>
+          <Tooltip title={t('scan3d.zoomIn')}><Button aria-label="放大" size="small" icon={<ZoomIn size={14} />} onClick={() => handleZoom(Math.min(300, zoom + 25))} /></Tooltip>
+          <Tooltip title={t('scan3d.zoomOut')}><Button aria-label="缩小" size="small" icon={<ZoomOut size={14} />} onClick={() => handleZoom(Math.max(50, zoom - 25))} /></Tooltip>
+          <Tooltip title={t('scan3d.resetView')}><Button aria-label="逆时针旋转" size="small" icon={<RotateCcw size={14} />} onClick={() => handleZoom(100)} /></Tooltip>
         </Space>
       </div>
       <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
         <div style={{ width: 260, background: '#0f172a', padding: 'var(--space-3, 12px)', overflow: 'auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2, 8px)' }}>
             <span style={{ color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600 }}>{t('scan3d.scanRecords')}</span>
-            <Button size="small" icon={<RefreshCw size={11} />} onClick={() => void loadScans()} />
+            <Button aria-label="刷新" size="small" icon={<RefreshCw size={11} />} onClick={() => void loadScans()} />
           </div>
           {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-2, 8px)', fontSize: 12 }} />}
           <Spin spinning={listLoading}>

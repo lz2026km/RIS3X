@@ -35,7 +35,7 @@ const { Title } = Typography
 // ============================================================
 const STATUS_CONFIG: Record<CriticalStatus, { label: string; color: string; bg: string; border: string; icon: any }> = {
   pending:      { label: '待通报', color: 'var(--color-error-500)', bg: '#ef444422', border: '#fca5a5', icon: AlertCircle },
-  notified:     { label: '已通报', color: 'var(--color-warning-500)', bg: '#f59e0b22', border: '#fcd34d', icon: Bell },
+  notified:     { label: '已通报', color: 'var(--color-warning-500)', bg: '#f59e0b22', border: 'var(--color-warning-300, #fcd34d)', icon: Bell },
   acknowledged: { label: '已接收', color: 'var(--color-info-600)', bg: '#06b6d422', border: '#67e8f9', icon: CheckCircle2 },
   resolved:     { label: '已处理', color: '#10b981', bg: '#22c55e22', border: '#6ee7b7', icon: CheckCircle2 },
   overdue:      { label: '已超时', color: '#7f1d1d', bg: '#ef444422', border: '#f87171', icon: AlertOctagon },

@@ -340,7 +340,7 @@ export default function ReportTimelinessPage() {
 // ============================================================
 function BigStat({ icon: Icon, label, value, suffix, color, trend, trendValue, alert }: any) {
   return (
-    <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 14, border: '1px solid ' + (alert ? '#fecaca' : '#e2e8f0') }}>
+    <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 14, border: '1px solid ' + (alert ? '#fecaca' : 'var(--border-color, #e2e8f0)') }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)', fontSize: 12 }}>
           <Icon size={12} /> {label}

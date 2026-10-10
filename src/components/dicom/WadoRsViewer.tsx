@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Tree, Button, Spin, Modal, Typography, Space, Card } from 'antd'
-import { DownloadOutlined, FolderOpenOutlined, FileOutlined, PictureOutlined } from '@ant-design/icons'
+import { Download, FolderOpen, FileText, Image as ImageIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { API_BASE } from '../../services/api/client'
 import { dicomWebApi, type DicomWebStudy, type DicomWebSeries, type DicomWebInstance } from '../../services/api/dicomApi'
@@ -66,11 +66,11 @@ export default function WadoRsViewer({ studyUID }: Props) {
       return {
         title: `${series.modality} #${series.seriesNumber} - ${series.seriesDescription || 'N/A'} (${instances.length})`,
         key: `series-${series.seriesInstanceUID}`,
-        icon: <FolderOpenOutlined />,
+        icon: <FolderOpen />,
         children: instances.map((inst) => ({
           title: `#${inst.instanceNumber} SOP: ${inst.sopInstanceUID.slice(0, 12)}...`,
           key: `inst-${inst.sopInstanceUID}`,
-          icon: <FileOutlined />,
+          icon: <FileText />,
           isLeaf: true,
           data: inst,
         })),
@@ -93,7 +93,7 @@ export default function WadoRsViewer({ studyUID }: Props) {
   }
 
   return (
-    <Card title={t('viewer')} extra={study && <Button icon={<DownloadOutlined />} onClick={handleDownload}>{t('upload')}</Button>}>
+    <Card title={t('viewer')} extra={study && <Button icon={<Download />} onClick={handleDownload}>{t('upload')}</Button>}>
       <Spin spinning={loading}>
         {study && (
           <Space orientation="vertical" style={{ width: '100%' }} size="small">
@@ -117,7 +117,7 @@ export default function WadoRsViewer({ studyUID }: Props) {
       <Modal open={previewOpen} onCancel={() => setPreviewOpen(false)} footer={null} width={600} title={t('viewer')}>
         {previewUrl ? (
           <div style={{ background: '#000', minHeight: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <PictureOutlined style={{ fontSize: 64, color: '#666' }} />
+            <ImageIcon size={64} color="#666" />
             <Text style={{ color: '#999', marginLeft: 'var(--space-3, 12px)' }}>{t('instance')}</Text>
           </div>
         ) : (

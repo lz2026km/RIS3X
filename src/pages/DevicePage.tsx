@@ -669,6 +669,7 @@ export default function DevicePage() {
   const [, setDeviceStats] = useState<{ totalDevices: number; inUse: number; idle: number; maintenance: number } | null>(null)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [reloadTick, setReloadTick] = useState(0)
   const [deviceFaults, setDeviceFaults] = useState<any[]>([])
   const [equipmentLifecycle, setEquipmentLifecycle] = useState<any[]>([])
 
@@ -687,7 +688,7 @@ export default function DevicePage() {
       setLoading(false)
     })()
     return () => { cancelled = true }
-  }, [])
+  }, [reloadTick])
 
   // 加载 device-mgmt 模块数据
   useEffect(() => {
@@ -1763,7 +1764,7 @@ export default function DevicePage() {
             <div style={{ fontSize: 16, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <Plus size={16} /> {t('devicePage.addMaintPlan')}
             </div>
-            <button onClick={() => setShowMaintForm(false)} style={{
+            <button aria-label="关闭" onClick={() => setShowMaintForm(false)} style={{
               background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 8,
               padding: 6, cursor: 'pointer', color: '#fff', display: 'flex'
             }}>
@@ -1859,7 +1860,7 @@ export default function DevicePage() {
             <div style={{ fontSize: 16, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <Plus size={16} /> {t('devicePage.addDevice')}
             </div>
-            <button onClick={() => setShowDeviceModal(false)} style={{
+            <button aria-label="关闭" onClick={() => setShowDeviceModal(false)} style={{
               background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 8,
               padding: 6, cursor: 'pointer', color: '#fff', display: 'flex'
             }}>
@@ -1927,8 +1928,9 @@ export default function DevicePage() {
         </div>
       )}
       {loadError && !loading && (
-        <div style={{ padding: 'var(--space-2, 8px)', margin: 'var(--space-3, 12px)', background: 'var(--color-warning-bg)', color: '#92400e', borderRadius: 6, fontSize: 12 }}>
+        <div style={{ padding: 'var(--space-2, 8px)', margin: 'var(--space-3, 12px)', background: 'var(--color-warning-bg)', color: '#92400e', borderRadius: 6, fontSize: 12, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           {loadError}
+          <button onClick={() => setReloadTick(n => n + 1)} style={{ marginLeft: 'auto', padding: '2px 10px', borderRadius: 6, border: '1px solid #fde68a', background: '#fff', color: '#92400e', fontSize: 12, cursor: 'pointer' }}>{t('w9.states.retry')}</button>
         </div>
       )}
       {/* 页面标题 */}

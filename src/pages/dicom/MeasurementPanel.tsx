@@ -825,7 +825,7 @@ export default function MeasurementPanel(props: Props) {
                   </div>
                   <div style={{ fontSize: 11, color: 'var(--text-secondary, #475569)' }}>{m.value} {m.unit} · v{m.version}{m.annotationId ? ' · ' : ''}</div>
                 </div>
-                <button style={{ width: 22, height: 22, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                <button aria-label="删除" style={{ width: 22, height: 22, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                   onClick={e => { e.stopPropagation(); void removeV2Measurement(m.id) }}><Trash2 size={12} color="var(--color-error-500)" /></button>
               </div>
             ))
@@ -878,8 +878,8 @@ export default function MeasurementPanel(props: Props) {
                 </span>
                 <button style={{ ...s.smallBtn, padding: '1px 6px' }} title={t('measPanel.editAnnTitle')} onClick={() => startEditAnn(a)}><PenTool size={10} /></button>
                 <button style={{ ...s.smallBtn, padding: '1px 6px' }} title={t('measPanel.linkAnnTitle')} onClick={() => void linkAnnToMeasurement(a.id)}><Link2 size={10} /></button>
-                <button style={{ ...s.smallBtn, padding: '1px 6px' }} onClick={() => void openAnnVersions(a.id)}><History size={10} /></button>
-                <button style={{ ...s.smallBtn, padding: '1px 6px', ...s.smallBtnDanger }} onClick={() => void removeAnnotation(a.id)}><Trash2 size={10} /></button>
+                <button aria-label="历史版本" style={{ ...s.smallBtn, padding: '1px 6px' }} onClick={() => void openAnnVersions(a.id)}><History size={10} /></button>
+                <button aria-label="删除" style={{ ...s.smallBtn, padding: '1px 6px', ...s.smallBtnDanger }} onClick={() => void removeAnnotation(a.id)}><Trash2 size={10} /></button>
               </div>
               {editingAnnId === a.id && (
                 <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', marginTop: 'var(--space-1, 4px)', alignItems: 'center' }}>
@@ -1021,7 +1021,7 @@ export default function MeasurementPanel(props: Props) {
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
-                <button style={{ width: 24, height: 24, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => deleteMeasure(measure.id)}><Trash2 size={12} color="var(--color-error-500)" /></button>
+                <button aria-label="删除" style={{ width: 24, height: 24, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => deleteMeasure(measure.id)}><Trash2 size={12} color="var(--color-error-500)" /></button>
               </div>
             </div>
           ))

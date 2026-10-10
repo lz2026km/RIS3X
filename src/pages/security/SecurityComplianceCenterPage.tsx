@@ -83,6 +83,8 @@ const CaTab: React.FC = () => {
   const [ocspResult, setOcspResult] = useState<OcspResponseDto | null>(null)
   const [ocspLoading, setOcspLoading] = useState(false)
   const [rotating, setRotating] = useState(false)
+  const [approvingId, setApprovingId] = useState('')
+  const [rejecting, setRejecting] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true); setError(null)
@@ -114,21 +116,31 @@ const CaTab: React.FC = () => {
   }
 
   const handleApprove = async (id: string) => {
-    const res = await raApi.approve(id, { approvedBy: '安全管理员' })
-    if (res.success && res.data) {
-      message.success(t('w13Sec.ca.approveSuccess', { id, serial: res.data.certificate.serial }))
-      await load()
-    } else message.error(res.error?.message ?? t('w13Sec.ca.requestFailed'))
+    setApprovingId(id)
+    try {
+      const res = await raApi.approve(id, { approvedBy: '安全管理员' })
+      if (res.success && res.data) {
+        message.success(t('w13Sec.ca.approveSuccess', { id, serial: res.data.certificate.serial }))
+        await load()
+      } else message.error(res.error?.message ?? t('w13Sec.ca.requestFailed'))
+    } finally {
+      setApprovingId('')
+    }
   }
 
   const handleReject = async () => {
     if (!rejectTarget || !rejectReason.trim()) return
-    const res = await raApi.reject(rejectTarget.id, rejectReason.trim())
-    if (res.success) {
-      message.success(t('w13Sec.ca.rejectSuccess', { id: rejectTarget.id }))
-      setRejectTarget(null); setRejectReason('')
-      await load()
-    } else message.error(res.error?.message ?? t('w13Sec.ca.requestFailed'))
+    setRejecting(true)
+    try {
+      const res = await raApi.reject(rejectTarget.id, rejectReason.trim())
+      if (res.success) {
+        message.success(t('w13Sec.ca.rejectSuccess', { id: rejectTarget.id }))
+        setRejectTarget(null); setRejectReason('')
+        await load()
+      } else message.error(res.error?.message ?? t('w13Sec.ca.requestFailed'))
+    } finally {
+      setRejecting(false)
+    }
   }
 
   const handleOcsp = async () => {
@@ -160,7 +172,7 @@ const CaTab: React.FC = () => {
       title: t('w13Sec.ca.col.actions'), key: 'actions', width: 170,
       render: (_v, r) => r.status === 'pending' ? (
         <Space size={4}>
-          <Button size="small" type="primary" onClick={() => void handleApprove(r.id)}>{t('w13Sec.ca.approve')}</Button>
+          <Button size="small" type="primary" loading={approvingId === r.id} disabled={approvingId === r.id} onClick={() => void handleApprove(r.id)}>{t('w13Sec.ca.approve')}</Button>
           <Button size="small" danger onClick={() => { setRejectTarget(r); setRejectReason('') }}>{t('w13Sec.ca.reject')}</Button>
         </Space>
       ) : r.issuedSerial ? <Text code style={{ fontSize: 11 }}>{r.issuedSerial}</Text> : '-',
@@ -258,7 +270,7 @@ const CaTab: React.FC = () => {
         </Col>
       </Row>
 
-      <Modal title={t('w13Sec.ca.reject')} open={Boolean(rejectTarget)} onCancel={() => setRejectTarget(null)} onOk={() => void handleReject()} okText={t('w13Sec.ca.reject')} cancelText="取消" okButtonProps={{ danger: true }}>
+        <Modal title={t('w13Sec.ca.reject')} open={Boolean(rejectTarget)} onCancel={() => setRejectTarget(null)} onOk={() => void handleReject()} confirmLoading={rejecting} okText={t('w13Sec.ca.reject')} cancelText="取消" okButtonProps={{ danger: true }}>
         <Input.TextArea rows={3} value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} placeholder={t('w13Sec.ca.rejectReason')} maxLength={300} showCount />
       </Modal>
     </Space>
@@ -547,13 +559,19 @@ const DrTab: React.FC = () => {
     } finally { setBusy(false) }
   }
   const handleRestore = async (id: string) => {
-    const res = await drApi.restore(id)
-    if (res.success && res.data?.restored) message.success(t('w13Sec.dr.restored', { id }))
-    else message.error(t('w13Sec.loadError'))
+    setBusy(true)
+    try {
+      const res = await drApi.restore(id)
+      if (res.success && res.data?.restored) message.success(t('w13Sec.dr.restored', { id }))
+      else message.error(t('w13Sec.loadError'))
+    } finally { setBusy(false) }
   }
   const handleSaveConfig = async () => {
-    const res = await drApi.updateConfig({ rpoMinutes: rpo, rtoMinutes: rto })
-    if (res.success) { message.success(t('w13Sec.dr.saved')); await load() } else message.error(t('w13Sec.loadError'))
+    setBusy(true)
+    try {
+      const res = await drApi.updateConfig({ rpoMinutes: rpo, rtoMinutes: rto })
+      if (res.success) { message.success(t('w13Sec.dr.saved')); await load() } else message.error(t('w13Sec.loadError'))
+    } finally { setBusy(false) }
   }
 
   const backupColumns: ColumnsType<BackupSetDto> = [
@@ -568,7 +586,7 @@ const DrTab: React.FC = () => {
     { title: t('w13Sec.dr.col.label'), dataIndex: 'label', ellipsis: true },
     { title: t('w13Sec.dr.col.age'), dataIndex: 'ageMinutes', width: 100, render: (v: number) => `${v} min` },
     { title: t('w13Sec.dr.col.rpoOk'), dataIndex: 'rpoCompliant', width: 90, render: (v: boolean) => v ? <Tag color="green">{t('w13Sec.dr.compliant')}</Tag> : <Tag color="red">{t('w13Sec.dr.nonCompliant')}</Tag> },
-    { title: t('w13Sec.ca.col.actions'), key: 'a', width: 90, render: (_v, r) => <Button size="small" icon={<PlayCircle size={12} />} onClick={() => void handleRestore(r.id)}>{t('w13Sec.dr.restore')}</Button> },
+    { title: t('w13Sec.ca.col.actions'), key: 'a', width: 90, render: (_v, r) => <Button size="small" icon={<PlayCircle size={12} />} loading={busy} disabled={busy} onClick={() => void handleRestore(r.id)}>{t('w13Sec.dr.restore')}</Button> },
   ]
   const drillColumns: ColumnsType<DrillRecordDto> = [
     { title: 'ID', dataIndex: 'id', width: 90, render: (v: string) => <Text code>{v}</Text> },
@@ -602,8 +620,8 @@ const DrTab: React.FC = () => {
         extra={<Space>
           <Button size="small" icon={<Plus size={12} />} loading={busy} onClick={() => void handleCreateBackup()}>{t('w13Sec.dr.createBackup')}</Button>
           <Button size="small" type="primary" icon={<PlayCircle size={12} />} loading={busy} onClick={() => void handleDrill()}>{t('w13Sec.dr.runDrill')}</Button>
-          <Button size="small" onClick={() => void handleFailover('dry-run')}>{t('w13Sec.dr.dryRun')}</Button>
-          <Button size="small" danger onClick={() => void handleFailover('live')}>{t('w13Sec.dr.live')}</Button>
+          <Button size="small" loading={busy} disabled={busy} onClick={() => void handleFailover('dry-run')}>{t('w13Sec.dr.dryRun')}</Button>
+          <Button size="small" danger loading={busy} disabled={busy} onClick={() => void handleFailover('live')}>{t('w13Sec.dr.live')}</Button>
         </Space>}>
         <Row gutter={16}>
           <Col span={8}>
@@ -612,7 +630,7 @@ const DrTab: React.FC = () => {
               <Descriptions.Item label="RTO (min)"><InputNumber size="small" min={1} max={1440} value={rto} onChange={(v) => setRto(v ?? 30)} /></Descriptions.Item>
               <Descriptions.Item label={t('w13Sec.dr.offsite')}>{status.backup.offsite ? <Tag color="green">{t('w13Sec.dr.compliant')}</Tag> : <Tag color="red">{t('w13Sec.dr.nonCompliant')}</Tag>}</Descriptions.Item>
               <Descriptions.Item label={t('w13Sec.dr.lastBackup')}>{status.backup.lastBackupAt?.slice(0, 19).replace('T', ' ') ?? '-'}</Descriptions.Item>
-              <Descriptions.Item label=""><Button size="small" type="primary" onClick={() => void handleSaveConfig()}>{t('w13Sec.dr.saveConfig')}</Button></Descriptions.Item>
+              <Descriptions.Item label=""><Button size="small" type="primary" loading={busy} disabled={busy} onClick={() => void handleSaveConfig()}>{t('w13Sec.dr.saveConfig')}</Button></Descriptions.Item>
             </Descriptions>
           </Col>
           <Col span={16}>

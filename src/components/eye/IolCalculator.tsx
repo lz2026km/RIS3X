@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Card, InputNumber, Select, Button, Table, Tag, Space, Tooltip, Alert } from 'antd';
+import { Card, InputNumber, Select, Button, Tag, Space, Tooltip, Alert } from 'antd';
+import { DataTable } from '../common';
 import { Calculator, Info } from 'lucide-react';
 import { calculateIol } from '@/services/eye/iolCalculator';
 // [G005 Wave1B] IOL 常数表 + 在线计算优先 (eyeApi.getIolConstants / calculateIol), 失败回退本地
@@ -197,12 +198,11 @@ const IolCalculator: React.FC<IolCalculatorProps> = ({ initialInput }) => {
         &nbsp;·&nbsp;当前 AL = {input.al}mm
       </div>
 
-      <Table
+      <DataTable
         dataSource={results}
         columns={columns}
         rowKey="formula"
         pagination={false}
-        size="small"
         bordered
         scroll={{ x: 'max-content' }}
       />
@@ -222,11 +222,10 @@ const IolCalculator: React.FC<IolCalculatorProps> = ({ initialInput }) => {
             IOL 常数表 ({constantsSource === 'api' ? 'ULIB 2024 · 在线常数库' : '本地'})
             <Tag color="blue" style={{ marginLeft: 6, fontSize: 10 }}>A 常数已同步</Tag>
           </div>
-          <Table
+          <DataTable
             dataSource={constants.slice(0, 12)}
             rowKey="model"
             pagination={false}
-            size="small"
             scroll={{ x: 'max-content' }}
             onRow={(l: any) => ({
               style: { background: l.model === input.iolModel ? 'var(--color-info-bg)' : undefined, fontWeight: l.model === input.iolModel ? 700 : 400 },

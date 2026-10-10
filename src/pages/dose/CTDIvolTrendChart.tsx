@@ -115,7 +115,7 @@ export default function CTDIvolTrendChart() {
         <span
           style={{
             fontSize: 11, color: "#b45309", background: "#fef3c7",
-            border: "1px solid #fcd34d", borderRadius: 10, padding: "2px 10px",
+            border: "1px solid var(--color-warning-300, #fcd34d)", borderRadius: 10, padding: "2px 10px",
           }}
         >
           演示数据 · 未接入接口

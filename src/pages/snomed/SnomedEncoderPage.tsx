@@ -107,7 +107,7 @@ const SnomedEncoderPage: React.FC = () => {
         <Space>
           <Text strong>{pt}</Text>
           <Tooltip title="复制">
-            <Button size="small" type="text" icon={<Clipboard size={12} />} onClick={() => copyToClipboard(pt)} />
+            <Button aria-label="复制" size="small" type="text" icon={<Clipboard size={12} />} onClick={() => copyToClipboard(pt)} />
           </Tooltip>
         </Space>
       ),
@@ -120,7 +120,7 @@ const SnomedEncoderPage: React.FC = () => {
         <Space>
           <Text code style={{ fontSize: 12 }}>{id}</Text>
           <Tooltip title="复制">
-            <Button size="small" type="text" icon={<Clipboard size={12} />} onClick={() => copyToClipboard(id)} />
+            <Button aria-label="复制" size="small" type="text" icon={<Clipboard size={12} />} onClick={() => copyToClipboard(id)} />
           </Tooltip>
         </Space>
       ),

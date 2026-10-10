@@ -172,7 +172,7 @@ export const ToothChartPage: React.FC = () => {
                       >
                         <div>{toothNo}</div>
                         {hasCaries && (
-                          <div style={{ fontSize: 10, color: "#f5222d" }}>●</div>
+                          <div style={{ fontSize: 10, color: "#f5222d" }}><span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "var(--color-error-500)" }} /></div>
                         )}
                       </div>
                     </Tooltip>

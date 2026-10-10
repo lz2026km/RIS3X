@@ -491,7 +491,7 @@ export default function CollaborationPage() {
                 <div key={comment.id} style={{
                   padding: 10, marginBottom: 6,
                   background: comment.resolved ? 'var(--color-success-bg)' : 'var(--bg-card)',
-                  border: `1px solid ${comment.resolved ? '#bbf7d0' : '#e2e8f0'}`,
+                  border: `1px solid ${comment.resolved ? '#bbf7d0' : 'var(--border-color, #e2e8f0)'}`,
                   borderRadius: 6, opacity: comment.resolved ? 0.7 : 1,
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', marginBottom: 6 }}>

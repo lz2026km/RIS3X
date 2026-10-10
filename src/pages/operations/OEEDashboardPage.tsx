@@ -233,8 +233,8 @@ export const OEEDashboardPage: React.FC = () => {
       </Card>
 
       <style>{`
-        .oee-row-red { background: #fff2f0 !important; }
-        .oee-row-yellow { background: #fffbe6 !important; }
+        .oee-row-red { background: var(--color-error-bg, #fff2f0) !important; }
+        .oee-row-yellow { background: var(--color-warning-bg, #fffbe6) !important; }
         .oee-row-red:hover td, .oee-row-yellow:hover td { filter: brightness(0.95); }
       `}</style>
     </div>

@@ -75,6 +75,8 @@ const TriagePage: React.FC = () => {
   const [vitals, setVitals] = useState<VitalInput>({});
   const [reTriageInfo, setReTriageInfo] = useState<{ esiLevel?: number; queuePriority?: string; breaches: string[] } | null>(null);
   const [reTriaging, setReTriaging] = useState(false);
+  const [actingId, setActingId] = useState("");
+  const [manualSaving, setManualSaving] = useState(false);
   // [W3-C] 受控分页: 待分诊列表
   const listPagination = usePagination(items, 10);
 
@@ -95,6 +97,7 @@ const TriagePage: React.FC = () => {
   }, [fetchPending]);
 
   const handleAssign = async (item: TriageItem) => {
+    setActingId(item.id);
     try {
       const res = await api.post<{ assignedDoctor: string }>("/triage/assign", {
         examId: item.examId,
@@ -106,21 +109,27 @@ const TriagePage: React.FC = () => {
       fetchPending();
     } catch {
       message.error(t("triage.assignError"));
+    } finally {
+      setActingId("");
     }
   };
 
   const handleConfirm = async (item: TriageItem) => {
+    setActingId(item.id);
     try {
       await api.put(`/triage/${item.id}`, { status: "COMPLETED" });
       message.success(t("triage.confirmSuccess"));
       fetchPending();
     } catch {
       message.error(t("triage.confirmError"));
+    } finally {
+      setActingId("");
     }
   };
 
   const handleManualUpdate = async () => {
     if (!selectedItem) return;
+    setManualSaving(true);
     try {
       await api.put(`/triage/${selectedItem.id}`, {
         assignedDoctor: newDoctor || undefined,
@@ -131,6 +140,8 @@ const TriagePage: React.FC = () => {
       fetchPending();
     } catch {
       message.error(t("triage.updateError"));
+    } finally {
+      setManualSaving(false);
     }
   };
 
@@ -251,7 +262,7 @@ const TriagePage: React.FC = () => {
       render: (_: unknown, record: TriageItem) => (
         <Space>
           {record.status === "PENDING" && (
-            <Button size="small" type="primary" onClick={() => handleAssign(record)}>
+            <Button size="small" type="primary" loading={actingId === record.id} disabled={actingId === record.id} onClick={() => handleAssign(record)}>
               {t("triage.assign")}
             </Button>
           )}
@@ -262,7 +273,7 @@ const TriagePage: React.FC = () => {
             {t("w6Reg.triage.reTriage")}
           </Button>
           {record.status !== "COMPLETED" && (
-            <Button size="small" type="default" onClick={() => handleConfirm(record)}>
+            <Button size="small" type="default" loading={actingId === record.id} disabled={actingId === record.id} onClick={() => handleConfirm(record)}>
               {t("triage.confirm")}
             </Button>
           )}
@@ -296,7 +307,8 @@ const TriagePage: React.FC = () => {
       <Modal
         title={t("triage.adjustTitle")}
         open={modalOpen}
-        onOk={handleManualUpdate}
+          onOk={handleManualUpdate}
+          confirmLoading={manualSaving}
         onCancel={() => setModalOpen(false)}
       >
         {selectedItem && (

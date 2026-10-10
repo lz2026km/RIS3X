@@ -557,7 +557,7 @@ export default function ReportRevisionsPage() {
                           style={{
                             minWidth: 200, padding: 'var(--space-3, 12px)',
                             background: (isLeft || isRight) ? 'var(--color-info-bg)' : 'var(--bg-card)',
-                            border: `2px solid ${isLeft ? 'var(--color-warning-500)' : isRight ? '#10b981' : '#e2e8f0'}`,
+                            border: `2px solid ${isLeft ? 'var(--color-warning-500)' : isRight ? '#10b981' : 'var(--border-color, #e2e8f0)'}`,
                             borderRadius: 8, cursor: 'pointer',
                             position: 'relative',
                           }}
@@ -677,7 +677,7 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
 
                   {/* 修订变更列表 */}
                   {rightRev.changes && rightRev.changes.length > 0 && (
-                    <div style={{ marginTop: 'var(--space-3, 12px)', padding: 10, background: 'var(--color-warning-bg)', borderRadius: 6, border: '1px solid #fcd34d' }}>
+                    <div style={{ marginTop: 'var(--space-3, 12px)', padding: 10, background: 'var(--color-warning-bg)', borderRadius: 6, border: '1px solid var(--color-warning-300, #fcd34d)' }}>
                       <div style={{ fontSize: 12, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>
                         {t('reportRev.changesList', { count: rightRev.changes.length })}
                       </div>

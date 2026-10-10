@@ -187,7 +187,7 @@ export default function SlaPolicyPage() {
           <Input placeholder={t('sla.searchPlaceholder')} prefix={<Search size={14} />} value={search} onChange={e => setSearch(e.target.value)} style={{ width: 300 }} allowClear />
           <ActionButton action="create" onClick={openAdd} disabled={loading}>{t('sla.addPolicy')}</ActionButton>
         </div>
-        {loadError && !loading && <ErrorBanner message={loadError} />}
+        {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => void loadPolicies()} retryLabel={t('w9.states.retry')} />}
         <DataTable columns={columns} dataSource={pagedPolicies} rowKey="id" pagination={policiesPagination} loading={loading} emptyText={t('w9.states.empty')} scroll={{ x: 'max-content' }}/>
         <div style={{ marginTop: 'var(--space-4, 16px)', textAlign: 'right' }}>
           <Button type="primary" loading={saving} onClick={handleSaveAll} icon={<Clock size={14} />}>{t('sla.saveAll')}</Button>

@@ -1,4 +1,4 @@
-# G005 放射科 RIS 系统 v3.0.6.13-9
+# G005 放射科 RIS 系统 v3.0.6.13-10
 
 > **企业级放射信息系统 · 对标前 10 大 PACS/RIS 厂商** · 17 模块 / 9,000+ R3 点完整实施
 
@@ -14,7 +14,7 @@
 
 G005 是面向**三级甲等综合医院**的企业级放射信息系统(RIS)，对标全球前 10 大 PACS/RIS 厂商（GE、Siemens、Philips、Fujifilm、Carestream、Agfa、Canon、Hologic、Intelerad、Mach7），涵盖从 AI 辅助到患者门户的完整放射科工作流。
 
-**版本迭代**: v3.0.0 → v3.0.6.13-9（**假功能根治**：7 个假服务接真端点、10 个死调用修复、7 个死筛选器接线、29 处 alert→message、C-ECHO 接真 DIMSE 端点；**后端 357 suites/3770 tests + 前端 tsc 0 / 47 文件 831 测试 0 失败**）
+**版本迭代**: v3.0.0 → v3.0.6.13-10（**a11y+暗色+loading+重试**：325 按钮 aria-label、182 处暗色主题令牌化、75 按钮 loading 态、20 页错误重试、组件内 14 表迁移、6 文件 antd-icons→lucide；**后端 357 suites/3770 tests + 前端 tsc 0 / 47 文件 831 测试 0 失败**）
 
 ### v3.0.6.8-40 眼科深化 (7 PR 并行, 对标 Topcon Synergy 8.0)
 
@@ -264,7 +264,8 @@ g005-radiology-ris/
 | v3.0.5.1          | 修复 MSW 路径 + 最终发布                                                     |   ✅ 完成   |
 | v3.0.6.1          | 4 PACS 厂商 MVP (GE/Siemens/Philips/Canon)                                   |   ✅ 完成   |
 | v3.0.6.8-xx       | 17 模块 9,000+ 升级点 + 眼科深化                                             |   ✅ 完成   |
-| **v3.0.6.13-9**  | **假功能根治**：`RegionalReportServiceWire` 7 假服务→真 API（创建/接受/同步/统计/导出 CSV）；`ConsultationPage` 拒绝→`consultationApi.cancel`、截图/下载→诚实禁用；`DevicePage` C-ECHO→`dicomDimseApi.cEcho`、检查→演示徽标；`DefectLibrary` 编辑→受控表单+PATCH；`FhirServerPage` 创建资源→POST `/fhir/r4/{type}`；`ResearchPage` 导出→真实 Blob 下载；10 处 404 死调用修复；7 处死筛选器接线；29 处 `window.alert`→`message` | ✅ **当前** |
+| **v3.0.6.13-10** | **a11y+暗色+loading+重试**：325 个图标按钮补 `aria-label`；182 处硬编码浅色背景→令牌（93 文件）；75 个异步按钮补 `loading+disabled`（34 文件）；20 页错误态补重试（`ErrorBanner onRetry`/`reloadTick`）；组件内 14 张裸 antd Table→DataTable；6 文件 antd-icons→lucide；5 处字形图标→CSS/lucide | ✅ **当前** |
+| v3.0.6.13-9      | **假功能根治**：7 假服务→真 API、10 死调用修复、7 死筛选器接线、29 alert→message、C-ECHO 接真端点 | ✅ 完成 |
 | v3.0.6.13-8      | **中性色上下文令牌化**：168 文件——`color:` 上下文 1,272 处 + 边框上下文 185 处 → 语义 token | ✅ 完成 |
 | v3.0.6.13-7      | **间距令牌化**：12,013 处落在设计刻度的内联 `margin/padding/gap` → `var(--space-N)`，606 文件；`guard:ui` 新增 `spacingTokens` 预算=0 | ✅ 完成 |
 | v3.0.6.13-6      | **P0 稳定性修复**：`ConfigBootstrapper` 增加 3s 宽限期 + 配置消费方空值降级——修复临床配置 bootstrap 阻塞导致整站白屏 | ✅ 完成 |

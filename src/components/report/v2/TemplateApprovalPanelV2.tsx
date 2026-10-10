@@ -177,11 +177,11 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
             </Button>
           )}
           <Tooltip title={t('templateApproval.versionHistoryTip')}>
-            <Button size="small" icon={<History size={11} />} onClick={() => { setSelectedId(row.id); setHistoryOpen(true); void loadDetail(row.id) }} />
+            <Button aria-label="查看详情" size="small" icon={<History size={11} />} onClick={() => { setSelectedId(row.id); setHistoryOpen(true); void loadDetail(row.id) }} />
           </Tooltip>
           {row.state !== 'published' && (
             <Tooltip title={t('templateApproval.favoriteTip')}>
-              <Button size="small" icon={<Bookmark size={11} />} onClick={async () => {
+              <Button aria-label="收藏" size="small" icon={<Bookmark size={11} />} onClick={async () => {
                 const res = await templateApprovalApi.toggleFavorite(row.id, 'u-001')
                 if (res.success) message.success(res.data?.favorite ? t('templateApproval.favorited') : t('templateApproval.unfavorited'))
                 await loadAll()

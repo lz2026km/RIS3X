@@ -990,7 +990,7 @@ export default function TemplateManagementPage() {
           <div style={styles.modal} onClick={e => e.stopPropagation()}>
             <div style={styles.modalHeader}>
               <div style={styles.modalTitle}><FileEdit size={22} style={{ color: C.primary }} /><Title level={5} style={{ margin: 0 }}>{modalMode === 'add' ? t9('templateMgmt.modalAdd') : t9('templateMgmt.modalEdit')}</Title></div>
-              <button style={styles.modalClose} onClick={() => setShowModal(false)}><X size={20} /></button>
+              <button aria-label="关闭" style={styles.modalClose} onClick={() => setShowModal(false)}><X size={20} /></button>
             </div>
             <div style={styles.modalBody}>
               <div style={styles.formRow}>
@@ -1032,7 +1032,7 @@ export default function TemplateManagementPage() {
           <div style={styles.previewModal} onClick={e => e.stopPropagation()}>
             <div style={styles.modalHeader}>
               <div style={styles.modalTitle}><Eye size={22} style={{ color: C.primary }} /><Title level={5} style={{ margin: 0 }}>{t9('templateMgmt.preview')}</Title></div>
-              <button style={styles.modalClose} onClick={() => setShowPreview(false)}><X size={20} /></button>
+              <button aria-label="关闭" style={styles.modalClose} onClick={() => setShowPreview(false)}><X size={20} /></button>
             </div>
             <div style={styles.previewMeta}>
               <div style={styles.previewMetaItem}><span style={styles.previewMetaLabel}>{t9('templateMgmt.metaCode')}</span><code style={styles.code}>{previewTemplate.code}</code></div>
@@ -1059,7 +1059,7 @@ export default function TemplateManagementPage() {
           <div style={{ width: 460, background: 'var(--bg-card)', borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.15)', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
             <div style={styles.modalHeader}>
               <div style={styles.modalTitle}><XCircle size={20} style={{ color: C.danger }} /><Title level={5} style={{ margin: 0 }}>{t9('templateMgmt.rejectTitle')}</Title></div>
-              <button style={styles.modalClose} onClick={() => { if (!actionBusy) { setRejectTarget(null); setRejectReason('') } }}><X size={20} /></button>
+              <button aria-label="关闭" style={styles.modalClose} onClick={() => { if (!actionBusy) { setRejectTarget(null); setRejectReason('') } }}><X size={20} /></button>
             </div>
             <div style={{ padding: '20px 24px' }}>
               <div style={{ fontSize: 12, color: C.textDark, marginBottom: 6 }}>

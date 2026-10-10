@@ -897,7 +897,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                   <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>{t('patientDetailPanel.mergeModalDesc', { name: selectedPatient.name, id: selectedPatient.id })}</div>
                 </div>
               </div>
-              <button onClick={() => { if (!mergeLoading) setShowMergeModal(false) }} style={{ width: 32, height: 32, borderRadius: 8, border: 'none', background: 'rgba(255,255,255,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <button aria-label="关闭" onClick={() => { if (!mergeLoading) setShowMergeModal(false) }} style={{ width: 32, height: 32, borderRadius: 8, border: 'none', background: 'rgba(255,255,255,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <X size={16} color="#fff" />
               </button>
             </div>

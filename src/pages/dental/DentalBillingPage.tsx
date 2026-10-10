@@ -275,7 +275,7 @@ export const DentalBillingPage: React.FC = () => {
                       <span><Tag>{item.code}</Tag>{item.name}</span>
                       <Space><InputNumber size="small" value={item.qty} min={1} max={10} style={{width:60}} onChange={v=>{const items=[...newInvoice.items];items[i]={...items[i],qty:v||1};setNewInvoice({...newInvoice,items});}} />
                       <span style={{fontWeight:600}}>¥{item.unitPrice * (item.qty||1)}</span>
-                      <Button size="small" type="text" danger icon={<XCircle size={10}/>} onClick={()=>setNewInvoice({...newInvoice,items:newInvoice.items.filter((_:any,j:number)=>j!==i)})} /></Space>
+                      <Button aria-label="关闭" size="small" type="text" danger icon={<XCircle size={10}/>} onClick={()=>setNewInvoice({...newInvoice,items:newInvoice.items.filter((_:any,j:number)=>j!==i)})} /></Space>
                     </div>
                   ))}
                   <Divider style={{margin:'8px 0'}} />

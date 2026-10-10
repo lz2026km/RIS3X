@@ -125,7 +125,7 @@ function AdvancedFilterPanel({ filters, onChange, onReset, presets, onApplyPrese
               {presets.map((p, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', padding: '4px 10px', background: 'var(--bg-card)', borderRadius: 6, border: '1px solid var(--border-color)' }}>
                   <button onClick={() => onApplyPreset?.(p)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, padding: 0 }}>{p.name}</button>
-                  <button onClick={() => onDeletePreset?.(i)} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: 'var(--text-muted, #94a3b8)' }}><X size={10} /></button>
+                  <button aria-label="删除" onClick={() => onDeletePreset?.(i)} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: 'var(--text-muted, #94a3b8)' }}><X size={10} /></button>
                 </div>
               ))}
             </div>

@@ -625,9 +625,9 @@ export default function FusionV2Page() {
         <button style={linkedScroll ? activeBtnStyle : btnStyle} onClick={() => setLinkedScroll(v => !v)}>
           <Move size={12} /> {t('fusion.linkedScroll')}
         </button>
-        <button style={btnStyle} onClick={handleZoomIn}><ZoomIn size={12} /></button>
-        <button style={btnStyle} onClick={handleZoomOut}><ZoomOut size={12} /></button>
-        <button style={btnStyle} onClick={handleReset}><RotateCw size={12} /></button>
+        <button aria-label="放大" style={btnStyle} onClick={handleZoomIn}><ZoomIn size={12} /></button>
+        <button aria-label="缩小" style={btnStyle} onClick={handleZoomOut}><ZoomOut size={12} /></button>
+        <button aria-label="顺时针旋转" style={btnStyle} onClick={handleReset}><RotateCw size={12} /></button>
       </div>
 
       {/* Fusion slider */}

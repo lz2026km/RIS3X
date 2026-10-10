@@ -207,7 +207,7 @@ export default function MobileApprovalPage() {
       key={item.id}
       style={{
         background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)',
-        boxShadow: '0 1px 4px rgba(0,0,0,0.06)', border: isOverdue(item) ? '1px solid #fecaca' : '1px solid #e2e8f0',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.06)', border: isOverdue(item) ? '1px solid #fecaca' : '1px solid var(--border-color, #e2e8f0)',
         display: 'flex', flexDirection: 'column', gap: 10,
       }}
     >

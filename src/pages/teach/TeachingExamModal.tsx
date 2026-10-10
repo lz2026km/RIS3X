@@ -186,7 +186,7 @@ export const TeachingExamModal: React.FC<TeachingExamModalProps> = ({ visible, c
             <Award size={18} color="#fff" />
             <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>在线考试模式</span>
           </div>
-          <button
+          <button aria-label="关闭"
             onClick={onClose}
             style={{
               width: 32, height: 32, borderRadius: 6, border: 'none',

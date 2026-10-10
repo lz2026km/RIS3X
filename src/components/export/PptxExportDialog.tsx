@@ -59,7 +59,7 @@ export const PptxExportDialog: React.FC<PptxExportDialogProps> = ({ open, onClos
             <FileText size={18} color="#7c3aed" />
             <span style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>PPTX 导出</span>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
+          <button aria-label="关闭" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
         </div>
 
         <div style={{ padding: 'var(--space-5, 20px)' }}>
@@ -91,7 +91,7 @@ export const PptxExportDialog: React.FC<PptxExportDialogProps> = ({ open, onClos
                   <option value="two-column">双栏</option>
                   <option value="image-full">全图</option>
                 </select>
-                <button onClick={() => removeSlide(idx)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-error-600)' }}><Trash2 size={14} /></button>
+                <button aria-label="删除" onClick={() => removeSlide(idx)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-error-600)' }}><Trash2 size={14} /></button>
               </div>
               <textarea value={slide.body ?? ''} onChange={e => updateSlide(idx, { body: e.target.value })} placeholder="幻灯片内容" rows={3} style={textAreaStyle} />
             </div>

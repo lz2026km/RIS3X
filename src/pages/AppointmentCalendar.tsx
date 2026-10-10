@@ -134,9 +134,9 @@ export default function AppointmentCalendar(props: Props) {
       {viewMode === 'calendar' && calendarSubView === 'week' && (
         <div style={{ background: whiteBg, borderRadius: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: `1px solid ${borderGray}`, overflow: 'hidden' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 16px', background: lightBlue }}>
-            <button onClick={() => { const d = new Date(currentWeekStart); d.setDate(d.getDate() - 7); setCurrentWeekStart(d) }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: primaryBlue }}><ChevronLeft size={16} /></button>
+            <button aria-label="上一页" onClick={() => { const d = new Date(currentWeekStart); d.setDate(d.getDate() - 7); setCurrentWeekStart(d) }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: primaryBlue }}><ChevronLeft size={16} /></button>
             <span style={{ fontSize: 12, fontWeight: 700, color: primaryBlue }}>{formatDateCht(weekDates[0]!)} - {formatDateCht(weekDates[6]!)}</span>
-            <button onClick={() => { const d = new Date(currentWeekStart); d.setDate(d.getDate() + 7); setCurrentWeekStart(d) }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: primaryBlue }}><ChevronRight size={16} /></button>
+            <button aria-label="下一页" onClick={() => { const d = new Date(currentWeekStart); d.setDate(d.getDate() + 7); setCurrentWeekStart(d) }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: primaryBlue }}><ChevronRight size={16} /></button>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', background: lightBlue, borderBottom: `1px solid ${borderGray}` }}>
             {weekDates.map((d, i) => {

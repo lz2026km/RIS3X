@@ -1246,7 +1246,7 @@ export default function FindingLibraryPage() {
             >
               {isCopied ? <><Check size={12} /> {tv3('findingCopied')}</> : <><Zap size={12} /> {tv3('findingInsertReport')}</>}
             </button>
-            <button
+            <button aria-label="查看详情"
               onClick={(e) => { e.stopPropagation(); openDetail(finding) }}
               style={{
                 padding: '7px 10px',
@@ -1344,7 +1344,7 @@ export default function FindingLibraryPage() {
                 {isFav ? <Star size={14} fill="var(--color-warning-500)" color="var(--color-warning-500)" /> : <StarOff size={14} />}
                 {isFav ? tv3('favored') : tv3('favorite')}
               </button>
-              <button
+              <button aria-label="关闭"
                 onClick={() => setShowDetailModal(false)}
                 style={{
                   width: 36,
@@ -1784,7 +1784,7 @@ export default function FindingLibraryPage() {
                 }}
               />
               {searchText && (
-                <button
+                <button aria-label="关闭"
                   onClick={() => setSearchText('')}
                   style={{
                     position: 'absolute',

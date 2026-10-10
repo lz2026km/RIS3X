@@ -1573,10 +1573,10 @@ export default function PrintManagementPage() {
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
-                <button onClick={() => handlePreviewTemplate(template)} style={{ padding: 6, border: 'none', borderRadius: 4, background: C.primaryLighter, cursor: 'pointer' }}>
+                <button aria-label="预览" onClick={() => handlePreviewTemplate(template)} style={{ padding: 6, border: 'none', borderRadius: 4, background: C.primaryLighter, cursor: 'pointer' }}>
                   <Eye size={14} color={C.primary} />
                 </button>
-                <button onClick={() => handleEditTemplate(template)} style={{ padding: 6, border: 'none', borderRadius: 4, background: C.bg, cursor: 'pointer' }}>
+                <button aria-label="编辑" onClick={() => handleEditTemplate(template)} style={{ padding: 6, border: 'none', borderRadius: 4, background: C.bg, cursor: 'pointer' }}>
                   <Edit2 size={14} color={C.textMid} />
                 </button>
               </div>
@@ -1793,11 +1793,11 @@ export default function PrintManagementPage() {
               </div>
               <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
                 {item.status === 'queued' && (
-                  <button onClick={() => handlePrintFilmNow(item)} style={{ padding: 6, border: 'none', borderRadius: 4, background: C.primary, cursor: 'pointer' }}>
+                  <button aria-label="打印" onClick={() => handlePrintFilmNow(item)} style={{ padding: 6, border: 'none', borderRadius: 4, background: C.primary, cursor: 'pointer' }}>
                     <Zap size={14} color={C.white} />
                   </button>
                 )}
-                <button
+                <button aria-label="预览"
                   onClick={() => { setPreviewItem(item); setShowPreviewModal(true) }}
                   style={{ padding: 6, border: 'none', borderRadius: 4, background: C.bg, cursor: 'pointer' }}
                 >
@@ -2755,7 +2755,7 @@ export default function PrintManagementPage() {
               <div style={{ fontSize: 16, fontWeight: 700, color: C.primary, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <Plus size={16} /> {t("printMgmt.newQuotaRequest")}
               </div>
-              <button onClick={() => !quotaSaving && setQuotaModalOpen(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: C.textLight, padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
+              <button aria-label="关闭" onClick={() => !quotaSaving && setQuotaModalOpen(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: C.textLight, padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
@@ -2772,7 +2772,7 @@ export default function PrintManagementPage() {
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 'var(--space-1, 4px)' }}>{t("printMgmt.requestPurposeRequired")}</label>
                 <textarea rows={3} value={quotaForm.reason} onChange={e => setQuotaForm({ ...quotaForm, reason: e.target.value })} placeholder={t("printMgmt.purposeExample")} style={{ width: '100%', padding: '9px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 12, boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit' }} />
               </div>
-              <div style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>
+              <div style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, background: '#f59e0b22', color: '#b45309', border: '1px solid var(--color-warning-300, #fcd34d)' }}>
                 {t("printMgmt.quotaSubmitNote2")}
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 'var(--space-2, 8px)' }}>
@@ -2985,7 +2985,7 @@ export default function PrintManagementPage() {
             <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>
               {selectedPrinter ? t("printMgmt.editPrinter") : t("printMgmt.addPrinter2")}
             </span>
-            <button onClick={() => setShowPrinterModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+            <button aria-label="关闭" onClick={() => setShowPrinterModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
               <X size={20} color={C.textMid} />
             </button>
           </div>
@@ -3066,7 +3066,7 @@ export default function PrintManagementPage() {
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-6, 24px)', width: 440, boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
             <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t("printMgmt.editDicomPreset")}</span>
-            <button onClick={() => setPresetEditOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+            <button aria-label="关闭" onClick={() => setPresetEditOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
               <X size={20} color={C.textMid} />
             </button>
           </div>
@@ -3132,7 +3132,7 @@ export default function PrintManagementPage() {
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-6, 24px)', width: 620, boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
             <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t("printMgmt.templatePreviewDash")} {tpl.name}</span>
-            <button onClick={() => setTemplatePreviewOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+            <button aria-label="关闭" onClick={() => setTemplatePreviewOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
               <X size={20} color={C.textMid} />
             </button>
           </div>
@@ -3196,7 +3196,7 @@ export default function PrintManagementPage() {
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
             <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t("printMgmt.filmPrintPreview")}</span>
-            <button onClick={() => setShowPreviewModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+            <button aria-label="关闭" onClick={() => setShowPreviewModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
               <X size={20} color={C.textMid} />
             </button>
           </div>
@@ -3398,7 +3398,7 @@ export default function PrintManagementPage() {
             <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>
               {isNewTemplate ? t("printMgmt.newTemplate") : t("printMgmt.editTemplate")}
             </span>
-            <button
+            <button aria-label="关闭"
               onClick={() => setShowTemplateEditModal(false)}
               style={{ background: 'none', border: 'none', cursor: 'pointer' }}
             >

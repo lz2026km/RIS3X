@@ -113,7 +113,7 @@ const CriticalItemsDirectory = () => {
                   <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>{t('cvSection.modalSubtitle', { count: Object.values(NATIONAL_CRITICAL_ITEMS).flat().length })}</div>
                 </div>
               </div>
-              <button onClick={() => setShowModal(false)} style={{ width: 36, height: 36, borderRadius: 8, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <button aria-label="关闭" onClick={() => setShowModal(false)} style={{ width: 36, height: 36, borderRadius: 8, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <X size={18} style={{ color: '#fff' }} />
               </button>
             </div>
@@ -196,11 +196,12 @@ export interface CriticalValueListSectionProps {
   onCloseLoop: (cv: CriticalValue) => void
   onDelete: (cv: CriticalValue) => void
   onGo5Step: (cv: CriticalValue) => void
+  actionBusy?: boolean
   criticalValues: CriticalValue[]
 }
 
 export const CriticalValueListSection = (props: CriticalValueListSectionProps) => {
-  const { filtered, selectedIds, onToggleSelect, onToggleSelectAll, onProcess, onViewDetail, onContactClinical, onVoiceCall, onClinicalReceipt, onAcknowledge, onTransferToFollowUp, onEscalate, onCloseLoop, onDelete, onGo5Step, criticalValues, ...filterProps } = props
+  const { filtered, selectedIds, onToggleSelect, onToggleSelectAll, onProcess, onViewDetail, onContactClinical, onVoiceCall, onClinicalReceipt, onAcknowledge, onTransferToFollowUp, onEscalate, onCloseLoop, onDelete, onGo5Step, actionBusy = false, criticalValues, ...filterProps } = props
 
   return (
     <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', alignItems: 'flex-start' }}>
@@ -225,6 +226,7 @@ export const CriticalValueListSection = (props: CriticalValueListSectionProps) =
           onCloseLoop={onCloseLoop}
           onDelete={onDelete}
           onGo5Step={onGo5Step}
+          actionBusy={actionBusy}
           criticalValues={criticalValues}
         />
       </div>

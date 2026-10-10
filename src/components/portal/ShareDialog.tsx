@@ -68,7 +68,7 @@ export default function ShareDialog({
             <Share2 size={16} color="#0ea5e9" />
             <span style={{ fontSize: 14, fontWeight: 700, color: '#1e293b' }}>生成分享链接</span>
           </div>
-          <button onClick={onClose} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}>
+          <button aria-label="关闭" onClick={onClose} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}>
             <X size={16} color="#94a3b8" />
           </button>
         </div>

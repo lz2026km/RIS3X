@@ -201,7 +201,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
           )}
           {!compact && (
             <Tooltip title={t('criticalValueCard.refreshLogTooltip')}>
-              <Button size="small" icon={<RefreshCw size={12} />} onClick={() => setLogRefresh((v) => v + 1)} />
+              <Button aria-label="刷新" size="small" icon={<RefreshCw size={12} />} onClick={() => setLogRefresh((v) => v + 1)} />
             </Tooltip>
           )}
         </Space>

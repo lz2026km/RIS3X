@@ -60,7 +60,7 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
             <History size={20} color={WHITE} />
             <span style={{ color: WHITE, fontSize: 16, fontWeight: 600 }}>{t('logDetail.title')}</span>
           </div>
-          <button onClick={onClose} style={{
+          <button aria-label="关闭" onClick={onClose} style={{
             background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 6,
             padding: '6px 8px', cursor: 'pointer', display: 'flex', alignItems: 'center',
           }}>
@@ -146,7 +146,7 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
 
           {log.complianceLevel && (
             <div style={{
-              background: log.complianceLevel === 'critical' ? 'var(--color-error-bg)' : log.complianceLevel === 'warning' ? '#fffbeb' : '#ecfdf5',
+              background: log.complianceLevel === 'critical' ? 'var(--color-error-bg)' : log.complianceLevel === 'warning' ? 'var(--color-warning-bg, #fffbeb)' : '#ecfdf5',
               padding: 'var(--space-4, 16px)', borderRadius: 8,
               border: `1px solid ${log.complianceLevel === 'critical' ? '#fecaca' : log.complianceLevel === 'warning' ? '#fde68a' : '#a7f3d0'}`,
               marginBottom: 'var(--space-4, 16px)'

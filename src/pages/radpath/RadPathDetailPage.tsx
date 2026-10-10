@@ -59,7 +59,7 @@ export default function RadPathDetailPage() {
   return (
     <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1400, margin: '0 auto' }}>
       <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
-        <button onClick={() => navigate(-1)} style={{ background: 'none', border: '1px solid var(--border-color, #cbd5e1)', borderRadius: 6, padding: '6px 10px', cursor: 'pointer' }}>
+        <button aria-label="返回" onClick={() => navigate(-1)} style={{ background: 'none', border: '1px solid var(--border-color, #cbd5e1)', borderRadius: 6, padding: '6px 10px', cursor: 'pointer' }}>
           <ArrowLeft size={16} />
         </button>
         <div>

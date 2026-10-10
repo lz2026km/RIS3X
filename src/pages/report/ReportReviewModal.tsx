@@ -40,7 +40,7 @@ export default function ReportReviewModal({ report, onClose, onSubmit }: ReportR
         }}>
           <ShieldCheck size={18} style={{ color: WHITE }} />
           <span style={{ fontSize: 14, fontWeight: 700, color: WHITE, flex: 1 }}>报告审核</span>
-          <button onClick={onClose} style={{ padding: 'var(--space-1, 4px)', background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 6, cursor: 'pointer', color: WHITE, display: 'flex' }}>
+          <button aria-label="关闭" onClick={onClose} style={{ padding: 'var(--space-1, 4px)', background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 6, cursor: 'pointer', color: WHITE, display: 'flex' }}>
             <X size={16} />
           </button>
         </div>

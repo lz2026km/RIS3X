@@ -6,7 +6,7 @@
 import { FEATURED_TERMS, REPORT_PHRASES } from '../data/knowledgeStatsMock';
 import { reportApi } from '../services/api/reportApi';
 import type { ReportDto } from '../types/dto';
-import { Spin, Alert, Empty, message, Typography } from 'antd';
+import { Spin, Alert, Empty, message, Typography, Button } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
   Search,
@@ -495,7 +495,7 @@ export default function ReportSearchPage() {
         )}
       </div>
 
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-3, 12px)' }} />}
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 'var(--space-3, 12px)' }} action={<Button size="small" onClick={() => void fetchReports(query.trim())}>{t('w9.states.retry')}</Button>} />}
 
       {/* [G005 v3.0.6.11-99 Wave 10E-1] 数据源徽标 */}
       <div style={{
@@ -561,7 +561,7 @@ export default function ReportSearchPage() {
                 <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 5 }}>
                   <Star size={13} /> {t('reportSearch.favoritesPanel')} ({favorites.length})
                 </span>
-                <button onClick={() => setShowFavorites(false)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}><X size={13} /></button>
+                <button aria-label="关闭" onClick={() => setShowFavorites(false)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}><X size={13} /></button>
               </div>
               {favorites.length === 0 ? (
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '16px 0', textAlign: 'center' }}>{t('reportSearch.noFavorites')}</div>
@@ -593,7 +593,7 @@ export default function ReportSearchPage() {
                   {searchHistory.length > 0 && (
                     <button onClick={() => { setSearchHistory([]); localStorage.removeItem('report-search:history') }} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-error-600)', textDecoration: 'underline' }}>{t('reportSearch.clear')}</button>
                   )}
-                  <button onClick={() => setShowHistoryPanel(false)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}><X size={13} /></button>
+                  <button aria-label="关闭" onClick={() => setShowHistoryPanel(false)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}><X size={13} /></button>
                 </div>
               </div>
               {searchHistory.length === 0 ? (

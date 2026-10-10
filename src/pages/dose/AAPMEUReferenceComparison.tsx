@@ -281,7 +281,7 @@ export default function AAPMEUReferenceComparison() {
                   <span
                     style={{
                       padding: "3px 8px",
-                      background: isExceed ? "#fef2f2" : "#f0fdf4",
+                      background: isExceed ? "#fef2f2" : "var(--color-success-bg, #f0fdf4)",
                       color: isExceed ? "var(--color-error-600)" : "var(--color-success-600)",
                       borderRadius: 4,
                       fontSize: 12,

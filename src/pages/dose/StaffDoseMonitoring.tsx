@@ -240,7 +240,7 @@ export default function StaffDoseMonitoring() {
                 render: (v: number) => {
                   const isHighRisk = v < 60;
                   return (
-                    <span style={{ padding: "2px 8px", background: isHighRisk ? "#fef2f2" : "#f0fdf4", color: isHighRisk ? "var(--color-error-600)" : "var(--color-success-600)", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>
+                    <span style={{ padding: "2px 8px", background: isHighRisk ? "#fef2f2" : "var(--color-success-bg, #f0fdf4)", color: isHighRisk ? "var(--color-error-600)" : "var(--color-success-600)", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>
                       {isHighRisk ? "高风险" : "正常"}
                     </span>
                   );

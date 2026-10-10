@@ -4,7 +4,7 @@ import {
   AlertTriangle, X, Phone, MessageSquare, Bell, Mail, Smartphone, MessageCircle,
   CheckCircle, Timer, ArrowUp, Settings, Plus, Edit3,
 } from 'lucide-react'
-import { Switch } from 'antd'
+import { Spin, Switch } from 'antd'
 import type { CriticalValue } from './types'
 import { PRIMARY_COLOR, PRIMARY_LIGHT } from './types'
 import type { NotificationMethod } from '../../services/api/criticalApi'
@@ -51,8 +51,8 @@ export const Toast = ({ toast }: { toast: { show: boolean; message: string; type
 }
 
 // -------------- ProcessModal --------------
-export const ProcessModal = ({ cv, onConfirm, onCancel }: {
-  cv: CriticalValue | null; onConfirm: () => void; onCancel: () => void
+export const ProcessModal = ({ cv, onConfirm, onCancel, confirmBusy }: {
+  cv: CriticalValue | null; onConfirm: () => void; onCancel: () => void; confirmBusy?: boolean
 }) => {
   useEffect(() => {
     if (!cv) return
@@ -95,7 +95,7 @@ export const ProcessModal = ({ cv, onConfirm, onCancel }: {
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={onCancel} style={footerBtn()}>{t('cvModals.cancel')}</button>
-            <button onClick={onConfirm} style={footerBtn(true)}>{t('cvModals.confirmProcessDone')}</button>
+            <button onClick={onConfirm} disabled={confirmBusy} style={{ ...footerBtn(true), opacity: confirmBusy ? 0.6 : 1, cursor: confirmBusy ? 'wait' : 'pointer' }}>{confirmBusy ? <Spin size="small" style={{ marginRight: 6 }} /> : null}{t('cvModals.confirmProcessDone')}</button>
           </div>
         </div>
       </div>
@@ -104,10 +104,10 @@ export const ProcessModal = ({ cv, onConfirm, onCancel }: {
 }
 
 // -------------- NotifyModal --------------
-export const NotifyModal = ({ cv, phone, notes, method, onSetPhone, onSetNotes, onSetMethod, onConfirm, onCancel }: {
+export const NotifyModal = ({ cv, phone, notes, method, onSetPhone, onSetNotes, onSetMethod, onConfirm, onCancel, confirmBusy }: {
   cv: CriticalValue | null; phone: string; notes: string; method: string
   onSetPhone: (v: string) => void; onSetNotes: (v: string) => void; onSetMethod: (v: string) => void
-  onConfirm: () => void; onCancel: () => void
+  onConfirm: () => void; onCancel: () => void; confirmBusy?: boolean
 }) => {
   useEffect(() => {
     if (!cv) return
@@ -160,7 +160,7 @@ export const NotifyModal = ({ cv, phone, notes, method, onSetPhone, onSetNotes, 
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={onCancel} style={footerBtn()}>{t('cvModals.cancel')}</button>
-            <button onClick={onConfirm} style={{ ...footerBtn(true), display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}><Phone size={14} /> {t('cvModals.confirmNotify')}</button>
+            <button onClick={onConfirm} disabled={confirmBusy} style={{ ...footerBtn(true), display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: confirmBusy ? 0.6 : 1, cursor: confirmBusy ? 'wait' : 'pointer' }}>{confirmBusy ? <Spin size="small" /> : <Phone size={14} />} {t('cvModals.confirmNotify')}</button>
           </div>
         </div>
       </div>
@@ -169,9 +169,9 @@ export const NotifyModal = ({ cv, phone, notes, method, onSetPhone, onSetNotes, 
 }
 
 // -------------- VoiceCallModal --------------
-export const VoiceCallModal = ({ cv, phone, onSetPhone, onConfirm, onCancel }: {
+export const VoiceCallModal = ({ cv, phone, onSetPhone, onConfirm, onCancel, confirmBusy }: {
   cv: CriticalValue | null; phone: string
-  onSetPhone: (v: string) => void; onConfirm: () => void; onCancel: () => void
+  onSetPhone: (v: string) => void; onConfirm: () => void; onCancel: () => void; confirmBusy?: boolean
 }) => {
   useEffect(() => {
     if (!cv) return
@@ -203,7 +203,7 @@ export const VoiceCallModal = ({ cv, phone, onSetPhone, onConfirm, onCancel }: {
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={onCancel} style={footerBtn()}>{t('cvModals.cancel')}</button>
-            <button onClick={onConfirm} disabled={!phone} style={{ ...footerBtn(true), display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: phone ? 1 : 0.5, cursor: phone ? 'pointer' : 'not-allowed' }}><Phone size={14} /> {t('cvModals.confirmPhoneNotify')}</button>
+            <button onClick={onConfirm} disabled={!phone || confirmBusy} style={{ ...footerBtn(true), display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: phone && !confirmBusy ? 1 : 0.5, cursor: phone && !confirmBusy ? 'pointer' : 'not-allowed' }}>{confirmBusy ? <Spin size="small" /> : <Phone size={14} />} {t('cvModals.confirmPhoneNotify')}</button>
           </div>
         </div>
       </div>
@@ -212,9 +212,9 @@ export const VoiceCallModal = ({ cv, phone, onSetPhone, onConfirm, onCancel }: {
 }
 
 // -------------- ClinicalReceiptModal --------------
-export const ClinicalReceiptModal = ({ cv, doctor, comment, onSetDoctor, onSetComment, onConfirm, onCancel }: {
+export const ClinicalReceiptModal = ({ cv, doctor, comment, onSetDoctor, onSetComment, onConfirm, onCancel, confirmBusy }: {
   cv: CriticalValue | null; doctor: string; comment: string
-  onSetDoctor: (v: string) => void; onSetComment: (v: string) => void; onConfirm: () => void; onCancel: () => void
+  onSetDoctor: (v: string) => void; onSetComment: (v: string) => void; onConfirm: () => void; onCancel: () => void; confirmBusy?: boolean
 }) => {
   useEffect(() => {
     if (!cv) return
@@ -254,7 +254,7 @@ export const ClinicalReceiptModal = ({ cv, doctor, comment, onSetDoctor, onSetCo
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={onCancel} style={footerBtn()}>{t('cvModals.cancel')}</button>
-            <button onClick={onConfirm} disabled={!doctor} style={{ ...footerBtn(true), display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: doctor ? 1 : 0.5, cursor: doctor ? 'pointer' : 'not-allowed' }}><Edit3 size={14} /> {t('cvModals.confirmReceipt')}</button>
+            <button onClick={onConfirm} disabled={!doctor || confirmBusy} style={{ ...footerBtn(true), display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: doctor && !confirmBusy ? 1 : 0.5, cursor: doctor && !confirmBusy ? 'pointer' : 'not-allowed' }}>{confirmBusy ? <Spin size="small" /> : <Edit3 size={14} />} {t('cvModals.confirmReceipt')}</button>
           </div>
         </div>
       </div>
@@ -263,10 +263,10 @@ export const ClinicalReceiptModal = ({ cv, doctor, comment, onSetDoctor, onSetCo
 }
 
 // -------------- EscalateModal [W2-A] 升级操作: POST /criticals/escalate --------------
-export const EscalateModal = ({ cv, to, dept, reason, onSetTo, onSetDept, onSetReason, onConfirm, onCancel }: {
+export const EscalateModal = ({ cv, to, dept, reason, onSetTo, onSetDept, onSetReason, onConfirm, onCancel, confirmBusy }: {
   cv: CriticalValue | null; to: string; dept: string; reason: string
   onSetTo: (v: string) => void; onSetDept: (v: string) => void; onSetReason: (v: string) => void
-  onConfirm: () => void; onCancel: () => void
+  onConfirm: () => void; onCancel: () => void; confirmBusy?: boolean
 }) => {
   useEffect(() => {
     if (!cv) return
@@ -306,7 +306,7 @@ export const EscalateModal = ({ cv, to, dept, reason, onSetTo, onSetDept, onSetR
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={onCancel} style={footerBtn()}>{t('cvModals.cancel')}</button>
-            <button onClick={onConfirm} disabled={!to} style={{ ...footerBtn(true), display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: to ? 1 : 0.5, cursor: to ? 'pointer' : 'not-allowed' }}><ArrowUp size={14} /> {t('cvModals.confirmEscalate')}</button>
+            <button onClick={onConfirm} disabled={!to || confirmBusy} style={{ ...footerBtn(true), display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: to && !confirmBusy ? 1 : 0.5, cursor: to && !confirmBusy ? 'pointer' : 'not-allowed' }}>{confirmBusy ? <Spin size="small" /> : <ArrowUp size={14} />} {t('cvModals.confirmEscalate')}</button>
           </div>
         </div>
       </div>
@@ -315,8 +315,8 @@ export const EscalateModal = ({ cv, to, dept, reason, onSetTo, onSetDept, onSetR
 }
 
 // -------------- ConfirmModal --------------
-export const ConfirmModal = ({ message, onConfirm, onCancel }: {
-  message: string; onConfirm: () => void; onCancel: () => void
+export const ConfirmModal = ({ message, onConfirm, onCancel, confirmBusy }: {
+  message: string; onConfirm: () => void; onCancel: () => void; confirmBusy?: boolean
 }) => {
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.stopPropagation(); onCancel() } }
@@ -335,7 +335,7 @@ export const ConfirmModal = ({ message, onConfirm, onCancel }: {
       </div>
       <div style={{ padding: 'var(--space-5, 20px)', display: 'flex', gap: 10 }}>
         <button onClick={onCancel} style={footerBtn()}>{t('cvModals.cancel')}</button>
-        <button onClick={onConfirm} style={footerBtn(true)}>{t('cvModals.confirm')}</button>
+        <button onClick={onConfirm} disabled={confirmBusy} style={{ ...footerBtn(true), opacity: confirmBusy ? 0.6 : 1, cursor: confirmBusy ? 'wait' : 'pointer' }}>{confirmBusy ? <Spin size="small" style={{ marginRight: 6 }} /> : null}{t('cvModals.confirm')}</button>
       </div>
     </div>
   </div>
@@ -801,29 +801,30 @@ export interface CriticalValueModalsProps {
   escalateTo: string; escalateDept: string; escalateReason: string
   onSetEscalateTo: (v: string) => void; onSetEscalateDept: (v: string) => void; onSetEscalateReason: (v: string) => void
   onConfirmEscalate: () => void; onCancelEscalate: () => void
+  confirmBusy?: boolean
 }
 
 export const CriticalValueModals = (p: CriticalValueModalsProps) => (
   <>
     <Toast toast={p.toast} />
-    <ProcessModal cv={p.processCV} onConfirm={p.onConfirmProcess} onCancel={p.onCancelProcess} />
+    <ProcessModal cv={p.processCV} onConfirm={p.onConfirmProcess} onCancel={p.onCancelProcess} confirmBusy={p.confirmBusy} />
     <NotifyModal cv={p.notifyCV} phone={p.notifyPhone} notes={p.notifyNotes} method={p.notifyMethod}
       onSetPhone={p.onSetNotifyPhone} onSetNotes={p.onSetNotifyNotes} onSetMethod={p.onSetNotifyMethod}
-      onConfirm={p.onConfirmNotify} onCancel={p.onCancelNotify} />
+      onConfirm={p.onConfirmNotify} onCancel={p.onCancelNotify} confirmBusy={p.confirmBusy} />
     {p.showVoiceCallModal && p.voiceCallCV && (
       <VoiceCallModal cv={p.voiceCallCV} phone={p.voiceCallPhone}
-        onSetPhone={p.onSetVoiceCallPhone} onConfirm={p.onConfirmVoiceCall} onCancel={p.onCancelVoiceCall} />
+        onSetPhone={p.onSetVoiceCallPhone} onConfirm={p.onConfirmVoiceCall} onCancel={p.onCancelVoiceCall} confirmBusy={p.confirmBusy} />
     )}
     {p.showReceiptModal && p.receiptCV && (
       <ClinicalReceiptModal cv={p.receiptCV} doctor={p.receiptDoctor} comment={p.receiptComment}
         onSetDoctor={p.onSetReceiptDoctor} onSetComment={p.onSetReceiptComment}
-        onConfirm={p.onConfirmReceipt} onCancel={p.onCancelReceipt} />
+        onConfirm={p.onConfirmReceipt} onCancel={p.onCancelReceipt} confirmBusy={p.confirmBusy} />
     )}
-    {p.showConfirmModal && <ConfirmModal message={p.confirmMessage} onConfirm={p.onConfirm} onCancel={p.onCancelConfirm} />}
+    {p.showConfirmModal && <ConfirmModal message={p.confirmMessage} onConfirm={p.onConfirm} onCancel={p.onCancelConfirm} confirmBusy={p.confirmBusy} />}
     {p.showEscalateModal && p.escalateCV && (
       <EscalateModal cv={p.escalateCV} to={p.escalateTo} dept={p.escalateDept} reason={p.escalateReason}
         onSetTo={p.onSetEscalateTo} onSetDept={p.onSetEscalateDept} onSetReason={p.onSetEscalateReason}
-        onConfirm={p.onConfirmEscalate} onCancel={p.onCancelEscalate} />
+        onConfirm={p.onConfirmEscalate} onCancel={p.onCancelEscalate} confirmBusy={p.confirmBusy} />
     )}
     {p.showSettings && <RulesSettingsModal onClose={p.onCloseSettings} showToast={p.showToastFn} />}
     {p.showTransferModal && p.transferCV && (

@@ -656,7 +656,7 @@ export default function CriticalValueRulePage() {
                 marginBottom: 'var(--space-3, 12px)',
                 padding: 10,
                 background: "var(--color-warning-bg)",
-                border: "1px solid #fcd34d",
+                border: "1px solid var(--color-warning-300, #fcd34d)",
                 borderRadius: 6,
               }}
             >

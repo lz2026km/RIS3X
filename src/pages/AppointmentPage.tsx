@@ -299,7 +299,7 @@ const STATUS_CONFIG: Record<
   "in-progress": {
     label: t("apptPage.status.inProgress"),
     bg: "#f59e0b22", color: "var(--color-warning-500)",
-    border: "#fcd34d",
+    border: "var(--color-warning-300, #fcd34d)",
   },
   rescheduled: {
     label: t("apptPage.status.rescheduled"),
@@ -443,6 +443,7 @@ export default function AppointmentPage() {
   const { showUndo } = useUndoActions();
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -479,7 +480,7 @@ export default function AppointmentPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reloadTick]);
   const [rules, setRules] = useState<AppointmentRules[]>([]);
 
   // [W2-4] 一键预约: 支持 /appointments?patientId=xxx 从患者详情直达预约表单
@@ -534,6 +535,7 @@ export default function AppointmentPage() {
   useEffect(() => {
     let cancelled = false;
     void (async () => {
+      setTabError(null);
       const [wlRes, remRes, rsRes, cxRes] = await Promise.all([
         appointmentApi.getWaitlist(),
         appointmentApi.getReminderRecords(),
@@ -560,7 +562,7 @@ export default function AppointmentPage() {
         );
     });
     return () => { cancelled = true; };
-  }, []);
+  }, [reloadTick]);
 
   // 右侧面板
   const [showForm, setShowForm] = useState(false);
@@ -643,6 +645,7 @@ export default function AppointmentPage() {
     result: ConflictResult | null;
   }>({ show: false, result: null });
   const [preventSubmitOnConflict, setPreventSubmitOnConflict] = useState(false);
+  const [creatingAppt, setCreatingAppt] = useState(false);
 
   // 提醒相关状态
   const [reminderRecords, setReminderRecords] = useState<ReminderRecord[]>([]);
@@ -1011,56 +1014,61 @@ export default function AppointmentPage() {
   };
 
   const submitAppointment = async (force: boolean) => {
-    const errs: Record<string, string> = {};
-    if (!formData.patientName.trim()) errs.patientName = t("apptPage.errPatientName");
-    if (
-      formData.idCard &&
-      formData.idCard.length > 0 &&
-      formData.idCard.length !== 18
-    ) {
-      errs.idCard = t("apptPage.errIdCard");
-    }
-    if (formData.phone && !/^1[3-9]\d{9}$/.test(formData.phone)) {
-      errs.phone = t("apptPage.errPhone");
-    }
-    if (!formData.examItemId) errs.examItemId = t("apptPage.errExamItem");
-    if (!formData.deviceId) errs.deviceId = t("apptPage.errDevice");
-    setFormErrors(errs);
-    if (Object.keys(errs).length > 0) {
-      setValidationError(t("apptPage.errRequired"));
-      return;
-    }
-    setValidationError("");
-    if (!force) {
-      const conflict = findConflicts(
-        formData.examDate,
-        formData.examTime,
-        formData.deviceId,
-        formData.roomId,
-        appointments,
-      );
-      if (conflict.hasConflict) {
-        setConflictModal({ show: true, result: conflict });
-        setPreventSubmitOnConflict(true);
+    setCreatingAppt(true);
+    try {
+      const errs: Record<string, string> = {};
+      if (!formData.patientName.trim()) errs.patientName = t("apptPage.errPatientName");
+      if (
+        formData.idCard &&
+        formData.idCard.length > 0 &&
+        formData.idCard.length !== 18
+      ) {
+        errs.idCard = t("apptPage.errIdCard");
+      }
+      if (formData.phone && !/^1[3-9]\d{9}$/.test(formData.phone)) {
+        errs.phone = t("apptPage.errPhone");
+      }
+      if (!formData.examItemId) errs.examItemId = t("apptPage.errExamItem");
+      if (!formData.deviceId) errs.deviceId = t("apptPage.errDevice");
+      setFormErrors(errs);
+      if (Object.keys(errs).length > 0) {
+        setValidationError(t("apptPage.errRequired"));
         return;
       }
+      setValidationError("");
+      if (!force) {
+        const conflict = findConflicts(
+          formData.examDate,
+          formData.examTime,
+          formData.deviceId,
+          formData.roomId,
+          appointments,
+        );
+        if (conflict.hasConflict) {
+          setConflictModal({ show: true, result: conflict });
+          setPreventSubmitOnConflict(true);
+          return;
+        }
+      }
+      const payload = buildCreatePayload();
+      if (!payload) {
+        setValidationError(t("apptPage.errInvalidTime"));
+        return;
+      }
+      const res = await appointmentApi.create(payload);
+      if (!res.success) {
+        setValidationError(res.error?.message || t("apptPage.createFailed"));
+        return;
+      }
+      // 以服务端返回为准: 联动 Exam 已创建, 失效工作列表缓存
+      setAppointments((prev) => [...prev, toLocalAppointment(res.data)]);
+      await invalidateApiCacheByPrefix("/worklist");
+      setShowForm(false);
+      setFormErrors({});
+      resetAppointmentForm();
+    } finally {
+      setCreatingAppt(false);
     }
-    const payload = buildCreatePayload();
-    if (!payload) {
-      setValidationError(t("apptPage.errInvalidTime"));
-      return;
-    }
-    const res = await appointmentApi.create(payload);
-    if (!res.success) {
-      setValidationError(res.error?.message || t("apptPage.createFailed"));
-      return;
-    }
-    // 以服务端返回为准: 联动 Exam 已创建, 失效工作列表缓存
-    setAppointments((prev) => [...prev, toLocalAppointment(res.data)]);
-    await invalidateApiCacheByPrefix("/worklist");
-    setShowForm(false);
-    setFormErrors({});
-    resetAppointmentForm();
   };
 
   const handleCreateAppointment = () => void submitAppointment(false);
@@ -1179,8 +1187,8 @@ const borderGray = "var(--border-color)";
       }}
     >
       {loading && <LoadingBanner message={t("apptPage.loadingData")} />}
-      {loadError && !loading && <ErrorBanner message={loadError} />}
-      {tabError && <ErrorBanner message={tabError} />}
+      {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => setReloadTick(n => n + 1)} retryLabel={t('w9.states.retry')} />}
+      {tabError && <ErrorBanner message={tabError} onRetry={() => setReloadTick(n => n + 1)} retryLabel={t('w9.states.retry')} />}
 
       {/* [W2-4] 一键预约横幅: 从患者详情跳转时展示 */}
       {patientPreset && (
@@ -1575,6 +1583,7 @@ const borderGray = "var(--border-color)";
               setFormErrors={setFormErrors}
               setValidationError={setValidationError}
               handleSubmit={handleCreateAppointment}
+              submitting={creatingAppt}
               timeSlots={timeSlots}
             />{/* ====== 预约规则设置 ====== */}
             {showRules && (
@@ -1608,7 +1617,7 @@ const borderGray = "var(--border-color)";
                   >
                     <Settings size={15} /> {t("apptPage.rulesTitle")}
                   </div>
-                  <button
+                  <button aria-label="关闭"
                     onClick={() => setShowRules(false)}
                     style={{
                       background: "transparent",
@@ -2015,7 +2024,7 @@ const borderGray = "var(--border-color)";
                   >
                     <Upload size={15} /> {t("apptPage.batchImportTitle")}
                   </div>
-                  <button
+                  <button aria-label="关闭"
                     onClick={() => setShowBatchImport(false)}
                     style={{
                       background: "transparent",
@@ -2284,7 +2293,7 @@ const borderGray = "var(--border-color)";
                   >
                     <User size={15} /> {t("apptPage.waitlist")} ({waitlist.length})
                   </div>
-                  <button
+                  <button aria-label="关闭"
                     onClick={() => setShowWaitlist(false)}
                     style={{
                       background: "transparent",
@@ -2660,7 +2669,7 @@ const borderGray = "var(--border-color)";
               >
                 <Eye size={15} /> {t("apptPage.detailTitle")}
               </div>
-              <button
+              <button aria-label="关闭"
                 onClick={() => setShowDetailModal(false)}
                 style={{
                   background: "transparent",
@@ -3265,6 +3274,7 @@ const borderGray = "var(--border-color)";
                   {t("apptPage.backToEdit")}
                 </button>
                 <button
+                  disabled={creatingAppt}
                   onClick={() => {
                     setConflictModal({ show: false, result: null });
                     setPreventSubmitOnConflict(false);
@@ -3279,7 +3289,8 @@ const borderGray = "var(--border-color)";
                     borderRadius: 8,
                     fontSize: 12,
                     fontWeight: 700,
-                    cursor: "pointer",
+                    cursor: creatingAppt ? "wait" : "pointer",
+                    opacity: creatingAppt ? 0.6 : 1,
                   }}
                 >
                   {t("apptPage.forceBook")}

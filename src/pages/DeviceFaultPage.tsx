@@ -763,7 +763,7 @@ export default function DeviceFaultPage() {
                 <AlertTriangle size={18} color={C.danger} />
                 {t('deviceFault.addFaultTitle')}
               </h3>
-              <button onClick={() => setShowAddModal(false)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}>
+              <button aria-label="关闭" onClick={() => setShowAddModal(false)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}>
                 <X size={20} color={C.textLight} />
               </button>
             </div>
@@ -832,7 +832,7 @@ export default function DeviceFaultPage() {
                 <FileText size={18} color={C.primary} />
                 {t('deviceFault.detailTitle')}{selectedRecord.id}
               </h3>
-              <button onClick={() => setShowDetailModal(false)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}>
+              <button aria-label="关闭" onClick={() => setShowDetailModal(false)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}>
                 <X size={20} color={C.textLight} />
               </button>
             </div>

@@ -533,7 +533,7 @@ function DemoBadge({ label }: { label?: string }) {
   return (
     <span style={{
       fontSize: 11, padding: '2px 8px', borderRadius: 10,
-      background: C.warningBg, color: C.warning, border: '1px solid #fcd34d',
+      background: C.warningBg, color: C.warning, border: '1px solid var(--color-warning-300, #fcd34d)',
       fontWeight: 600, whiteSpace: 'nowrap',
     }}>
       {label ?? appT("statsPage.demoDataBadge")}
@@ -2848,7 +2848,7 @@ export default function StatisticsPage() {
       <div style={{ padding: '0 24px 24px' }}>
         <div style={{ padding: 'var(--space-6, 24px)', maxWidth: 1400, margin: '0 auto', background: C.background }}>
       {loading && <LoadingBanner message={t('statistics.loading')} />}
-      {loadError && !loading && <ErrorBanner message={loadError} />}
+      {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => setRefreshKey((k) => k + 1)} retryLabel={appT('w9.states.retry')} />}
       {/* Toast消息提示 */}
       {toast && (
         <div style={{

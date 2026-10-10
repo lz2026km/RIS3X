@@ -528,7 +528,7 @@ export default function ReportDeliveryPage() {
               key={c}
               onClick={() => setFilterChannel(isActive ? 'all' : c)}
               style={{
-                background: 'var(--bg-card)', padding: 10, borderRadius: 8, border: `2px solid ${isActive ? conf.color : '#e2e8f0'}`,
+                background: 'var(--bg-card)', padding: 10, borderRadius: 8, border: `2px solid ${isActive ? conf.color : 'var(--border-color, #e2e8f0)'}`,
                 cursor: 'pointer', textAlign: 'center',
               }}
             >

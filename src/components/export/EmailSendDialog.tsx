@@ -61,7 +61,7 @@ export const EmailSendDialog: React.FC<EmailSendDialogProps> = ({ open, onClose,
             <Mail size={18} color="var(--color-primary-600)" />
             <span style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>邮件发送</span>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
+          <button aria-label="关闭" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
         </div>
 
         <div style={{ padding: 'var(--space-5, 20px)' }}>

@@ -1370,7 +1370,7 @@ const DigitizationScorecard = () => {
       render: (v: number) => (
         <span style={{
           display: 'inline-flex', width: 24, height: 24, borderRadius: '50%', alignItems: 'center', justifyContent: 'center',
-          background: v <= 3 ? C.primary : '#f1f5f9', color: v <= 3 ? '#fff' : C.textMuted,
+          background: v <= 3 ? C.primary : 'var(--bg-primary, #f8fafc)', color: v <= 3 ? '#fff' : C.textMuted,
           fontSize: 12, fontWeight: 700
         }}>{v}</span>
       ),
@@ -1477,7 +1477,7 @@ const GreenRecommendations = () => {
         {['全部', 'energy', 'paper', 'waste', 'behavior'].map(cat => (
           <button key={cat} onClick={() => setFilter(cat)}
             style={{ padding: '6px 14px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer',
-              background: filter === cat ? categoryColors[cat] || C.primary : '#f1f5f9', color: filter === cat ? '#fff' : C.textMuted }}>
+              background: filter === cat ? categoryColors[cat] || C.primary : 'var(--bg-primary, #f8fafc)', color: filter === cat ? '#fff' : C.textMuted }}>
             {cat === '全部' ? t('greenIt.filterAll') : categoryLabels[cat]}
           </button>
         ))}
@@ -1498,7 +1498,7 @@ const GreenRecommendations = () => {
                   <span style={{ padding: '2px 8px', background: `${catColor}15`, color: catColor, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>
                     {categoryLabels[tip.category]}
                   </span>
-                  <span style={{ padding: '2px 8px', background: tip.difficulty === 'easy' ? '#f0fdf4' : tip.difficulty === 'medium' ? '#fffbeb' : '#fef2f2', borderRadius: 4, fontSize: 12, fontWeight: 600,
+                  <span style={{ padding: '2px 8px', background: tip.difficulty === 'easy' ? 'var(--color-success-bg, #f0fdf4)' : tip.difficulty === 'medium' ? 'var(--color-warning-bg, #fffbeb)' : '#fef2f2', borderRadius: 4, fontSize: 12, fontWeight: 600,
                     color: tip.difficulty === 'easy' ? C.success : tip.difficulty === 'medium' ? C.warning : 'var(--color-error-600)' }}>
                     {tip.difficulty === 'easy' ? t('greenIt.difficultyEasy') : tip.difficulty === 'medium' ? t('greenIt.difficultyMedium') : t('greenIt.difficultyHard')}
                   </span>

@@ -460,7 +460,7 @@ export default function ReportDefectLibraryPage() {
                 background: "var(--bg-card)",
                 padding: 'var(--space-3, 12px)',
                 borderRadius: 8,
-                border: `2px solid ${filterCategory === key ? conf.color : "#e2e8f0"}`,
+                border: `2px solid ${filterCategory === key ? conf.color : "var(--border-color, #e2e8f0)"}`,
                 cursor: "pointer",
               }}
             >
@@ -514,7 +514,7 @@ export default function ReportDefectLibraryPage() {
           borderRadius: 8,
           padding: 'var(--space-3, 12px)',
           marginBottom: 'var(--space-4, 16px)',
-          border: "1px solid #fcd34d",
+          border: "1px solid var(--color-warning-300, #fcd34d)",
         }}
       >
         <div

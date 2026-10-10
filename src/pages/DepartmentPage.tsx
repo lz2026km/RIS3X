@@ -848,7 +848,7 @@ export default function DepartmentPage() {
           <div style={{ background: C.white, borderRadius: 8, padding: 'var(--space-6, 24px)', minWidth: 400, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 'var(--space-5, 20px)' }}>
               <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t("deptPage.addStaff")}</div>
-              <button onClick={() => setShowAddModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button>
+              <button aria-label="关闭" onClick={() => setShowAddModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button>
             </div>
             {addError && <div style={{ padding: "8px 12px", background: C.dangerBg, border: `1px solid ${C.danger}30`, color: C.danger, borderRadius: 6, fontSize: 12, marginBottom: 'var(--space-3, 12px)' }}>{addError}</div>}
             <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
@@ -899,7 +899,7 @@ export default function DepartmentPage() {
           <div style={{ background: C.white, borderRadius: 8, padding: 'var(--space-6, 24px)', minWidth: 400, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 'var(--space-5, 20px)' }}>
               <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t("deptPage.editStaff")} — {selectedStaff?.name}</div>
-              <button onClick={() => setShowEditModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button>
+              <button aria-label="关闭" onClick={() => setShowEditModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
               {[
@@ -929,7 +929,7 @@ export default function DepartmentPage() {
       {showReviewModal && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
           <div style={{ background: C.white, borderRadius: 8, padding: 'var(--space-6, 24px)', minWidth: 400, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 'var(--space-5, 20px)' }}><div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t("deptPage.assignReviewTask")}</div><button onClick={() => setShowReviewModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button></div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 'var(--space-5, 20px)' }}><div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t("deptPage.assignReviewTask")}</div><button aria-label="关闭" onClick={() => setShowReviewModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button></div>
             <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
               <div><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.reviewee")}</label>
                 <select value={reviewForm.targetId} onChange={(e) => setReviewForm({ ...reviewForm, targetId: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }}>
@@ -953,7 +953,7 @@ export default function DepartmentPage() {
           <div style={{ background: C.white, borderRadius: 8, padding: 'var(--space-6, 24px)', minWidth: 440, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 'var(--space-5, 20px)' }}>
               <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{announceEditId ? t("deptPage.editAnnouncement") : t("deptPage.publishAnnouncement")}</div>
-              <button onClick={() => setShowAnnounceModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button>
+              <button aria-label="关闭" onClick={() => setShowAnnounceModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button>
             </div>
             {announceError && <div style={{ padding: "8px 12px", background: C.dangerBg, border: `1px solid ${C.danger}30`, color: C.danger, borderRadius: 6, fontSize: 12, marginBottom: 'var(--space-3, 12px)' }}>{announceError}</div>}
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -991,7 +991,7 @@ export default function DepartmentPage() {
           <div style={{ background: C.white, borderRadius: 8, padding: 'var(--space-6, 24px)', minWidth: 420, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 'var(--space-5, 20px)' }}>
               <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{onCallEditId ? t("deptPage.editOnCall") : t("deptPage.addOnCallTitle")}</div>
-              <button onClick={() => setShowOnCallModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button>
+              <button aria-label="关闭" onClick={() => setShowOnCallModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button>
             </div>
             {onCallError && <div style={{ padding: "8px 12px", background: C.dangerBg, border: `1px solid ${C.danger}30`, color: C.danger, borderRadius: 6, fontSize: 12, marginBottom: 'var(--space-3, 12px)' }}>{onCallError}</div>}
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>

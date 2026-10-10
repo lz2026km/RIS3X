@@ -605,7 +605,7 @@ export default function PatientMobileApp() {
           <div style={{ maxWidth: 420, width: '92%', background: '#0f172a', borderRadius: 16, padding: 'var(--space-4, 16px)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
               <span style={{ color: '#fff', fontSize: 14, fontWeight: 600 }}>{imageViewer.report.examType} {t('mobileApp.imageSuffix')}</span>
-              <button onClick={() => setImageViewer(null)} style={{ background: 'none', border: 'none', color: 'var(--text-muted, #94a3b8)', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
+              <button aria-label="关闭" onClick={() => setImageViewer(null)} style={{ background: 'none', border: 'none', color: 'var(--text-muted, #94a3b8)', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
             </div>
             {imageLoading ? (
               <div style={{ height: 260, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted, #64748b)', fontSize: 12 }}>{t('mobileApp.imageLoading')}</div>

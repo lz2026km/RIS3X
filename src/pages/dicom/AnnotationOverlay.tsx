@@ -112,7 +112,7 @@ export default function AnnotationOverlay(props: Props) {
                   <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
                     <button style={{ width: 22, height: 22, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted, #64748b)' }} onClick={e => { e.stopPropagation(); toggleAnnotationVisibility(ann.id) }}>{ann.visible ? <Eye size={13} /> : <EyeOff size={13} />}</button>
                     <button style={{ width: 22, height: 22, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted, #64748b)' }} onClick={e => { e.stopPropagation(); toggleAnnotationLock(ann.id) }}>{ann.locked ? <Lock size={12} /> : <Unlock size={12} />}</button>
-                    <button style={{ width: 22, height: 22, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-error-600)' }} onClick={e => { e.stopPropagation(); deleteAnnotation(ann.id) }}><Trash2 size={13} /></button>
+                    <button aria-label="删除" style={{ width: 22, height: 22, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-error-600)' }} onClick={e => { e.stopPropagation(); deleteAnnotation(ann.id) }}><Trash2 size={13} /></button>
                   </div>
                 </div>
               ))

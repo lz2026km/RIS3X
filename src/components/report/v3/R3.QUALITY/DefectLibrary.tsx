@@ -511,7 +511,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                 />
                 <Space onClick={(e) => e.stopPropagation()}>
                   <Tooltip title={t('defectLibrary.detail')}>
-                    <Button
+                    <Button aria-label="查看详情"
                       size="small"
                       icon={<FileText size={10} />}
                       onClick={() => {

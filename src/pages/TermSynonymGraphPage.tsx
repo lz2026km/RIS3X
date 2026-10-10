@@ -164,7 +164,7 @@ export default function TermSynonymGraphPage() {
             onClick={() => setFilterCategory(filterCategory === c.key ? 'all' : c.key)}
             style={{
               background: 'var(--bg-card)', padding: 10, borderRadius: 6,
-              border: `2px solid ${filterCategory === c.key ? c.color : '#e2e8f0'}`,
+              border: `2px solid ${filterCategory === c.key ? c.color : 'var(--border-color, #e2e8f0)'}`,
               cursor: 'pointer', textAlign: 'center',
             }}
           >

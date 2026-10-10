@@ -2,7 +2,7 @@
 // 放射科专用术语词库，支持快速录入、分类管理、快捷复制、批量导入
 // 支持 WS/T 500-2016 国家标准对照
 import { useState, useEffect, useRef } from 'react'
-import { BookOpen, Search, Plus, X, Copy, Upload, Download, BarChart2, Tag, FolderOpen, TrendingUp, CheckCircle2, FileSpreadsheet, RefreshCw, EyeOff, Check, LayoutGrid, Zap, FileCheck, DownloadCloud, Network, Lightbulb, Languages, FileSearch, Move } from 'lucide-react'
+import { BookOpen, Search, Plus, X, Copy, Upload, Download, BarChart2, Tag, FolderOpen, TrendingUp, CheckCircle2, FileSpreadsheet, RefreshCw, EyeOff, Check, LayoutGrid, Zap, FileCheck, DownloadCloud, Network, Lightbulb, Languages, FileSearch, Move, ChevronDown, ChevronRight } from 'lucide-react'
 import { initialTermLibrary } from '../data/initialData'
 import { termApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
@@ -177,6 +177,7 @@ export default function TermLibraryPage() {
   )
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [reloadTick, setReloadTick] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -192,7 +193,7 @@ export default function TermLibraryPage() {
       setLoading(false)
     })()
     return () => { cancelled = true }
-  }, [])
+  }, [reloadTick])
   const [categories, _setCategories] = useState<TermCategory[]>(INIT_CATEGORIES)
   const [leftSearch, setLeftSearch] = useState('')
   const [activeCategoryId, setActiveCategoryId] = useState<string>('ALL')
@@ -941,7 +942,7 @@ export default function TermLibraryPage() {
           }}
         >
           {node.children.length > 0 ? (
-            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{expandedNodes.has(node.id) ? '▼' : ''}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'inline-flex' }}>{expandedNodes.has(node.id) ? <ChevronDown size={12} /> : <ChevronRight size={12} />}</span>
           ) : <span style={{ width: 10 }} />}
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: node.color, flexShrink: 0 }} />
           <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', flex: 1 }}>{node.name}</span>
@@ -1037,7 +1038,7 @@ export default function TermLibraryPage() {
          {t9('termLibrary.apiBanner')}
       </div>
       {loading && <LoadingBanner message={t9('termLibrary.loading')} />}
-      {loadError && !loading && <ErrorBanner message={loadError} />}
+      {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => setReloadTick(n => n + 1)} retryLabel={t9('w9.states.retry')} />}
       <div style={{ width: 260, background: 'var(--bg-card)', borderRight: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
         <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid var(--border-color)', background: 'var(--color-primary-800)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
@@ -1050,7 +1051,7 @@ export default function TermLibraryPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', background: 'var(--content-bg)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '7px 10px' }}>
             <Search size={13} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
             <input value={leftSearch} onChange={e => setLeftSearch(e.target.value)} placeholder={t9('termLibrary.searchTermsPlaceholder')} style={{ border: 'none', fontSize: 12, background: 'transparent', width: '100%', color: 'var(--color-primary-800)' }} />
-            {leftSearch && <button onClick={() => setLeftSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}><X size={12} style={{ color: 'var(--text-secondary)' }} /></button>}
+            {leftSearch && <button aria-label="关闭" onClick={() => setLeftSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}><X size={12} style={{ color: 'var(--text-secondary)' }} /></button>}
           </div>
         </div>
         <div style={{ padding: '10px 12px', borderBottom: '1px solid var(--border-light)' }}>
@@ -1167,7 +1168,7 @@ export default function TermLibraryPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--content-bg)', border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', flex: 1, minWidth: 200 }}>
                     <Search size={12} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
                     <input value={wsSearch} onChange={e => setWsSearch(e.target.value)} placeholder={t9('termLibrary.searchStandardPlaceholder')} style={{ border: 'none', fontSize: 12, background: 'transparent', width: '100%', color: 'var(--color-primary-800)' }} />
-                    {wsSearch && <button onClick={() => setWsSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}><X size={12} style={{ color: 'var(--text-secondary)' }} /></button>}
+                    {wsSearch && <button aria-label="关闭" onClick={() => setWsSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}><X size={12} style={{ color: 'var(--text-secondary)' }} /></button>}
                   </div>
                   <select value={wsDeptFilter} onChange={e => setWsDeptFilter(e.target.value)} style={{ padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--text-secondary)', background: 'var(--content-bg)', cursor: 'pointer' }}>
                     <option value="全部">{t9('termLibrary.allDepartments')}</option>
@@ -1249,7 +1250,7 @@ export default function TermLibraryPage() {
                             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.term}</div>
                             <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t.count}{t9('termLibrary.timesSuffix')}</div>
                           </div>
-                          <button onClick={() => handleCopyTerm(t.term)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, display: 'flex', color: 'var(--text-secondary)' }}><Copy size={11} /></button>
+                          <button aria-label="复制" onClick={() => handleCopyTerm(t.term)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, display: 'flex', color: 'var(--text-secondary)' }}><Copy size={11} /></button>
                         </div>
                       ))}
                     </div>

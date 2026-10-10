@@ -216,7 +216,7 @@ export default function GuidelineLibraryPage() {
               <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <BookOpen size={18} style={{ color: 'var(--color-primary-500)' }} /> {t('guideline.newGuideline')}
               </div>
-              <button onClick={() => setShowCreateModal(false)} style={{ border: 'none', background: 'transparent', color: '#6e7681', cursor: 'pointer' }}>
+              <button aria-label="关闭" onClick={() => setShowCreateModal(false)} style={{ border: 'none', background: 'transparent', color: '#6e7681', cursor: 'pointer' }}>
                 <X size={18} />
               </button>
             </div>
@@ -271,7 +271,7 @@ export default function GuidelineLibraryPage() {
               <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <BookOpen size={18} style={{ color: 'var(--color-primary-500)' }} /> {t('guideline.detailTitle')}
               </div>
-              <button onClick={() => setDetailOpen(false)} style={{ border: 'none', background: 'transparent', color: '#6e7681', cursor: 'pointer' }}>
+              <button aria-label="关闭" onClick={() => setDetailOpen(false)} style={{ border: 'none', background: 'transparent', color: '#6e7681', cursor: 'pointer' }}>
                 <X size={18} />
               </button>
             </div>

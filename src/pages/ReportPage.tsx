@@ -80,6 +80,7 @@ export default function ReportPage() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [accessDenied, setAccessDenied] = useState(false);
+  const [reloadTick, setReloadTick] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -112,7 +113,7 @@ export default function ReportPage() {
       }
     })();
     return () => { cancelled = true; };
-  }, [checkAccess, user?.department]);
+  }, [checkAccess, user?.department, reloadTick]);
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("全部");
@@ -559,7 +560,7 @@ export default function ReportPage() {
     <PageTemplate background="slate" maxWidth="wide" padding={0} showHeader={false} testId="report-page">
       {accessDenied && <div style={{ padding: 'var(--space-6, 24px)', margin: 'var(--space-6, 24px)', background: "var(--color-error-bg)", border: "1px solid #fca5a5", color: "#7f1d1d", borderRadius: 8, fontSize: 14 }}>{t("reportPage.accessDenied")}</div>}
       {loading && <LoadingBanner message={t("reportPage.loading")} />}
-      {loadError && !loading && <ErrorBanner message={loadError} />}
+      {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => setReloadTick(n => n + 1)} retryLabel={t('w9.states.retry')} />}
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } } @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.3); } } @keyframes criticalPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.4); } 50% { box-shadow: 0 0 0 6px rgba(220,38,38,0); } }`}</style>
 
       <ReportPageHeader selectedIds={selectedIds} allReports={allReports} setReviewReport={setReviewReport} showToast={showToast} />

@@ -73,6 +73,8 @@ export default function ResearchExportCenterPage() {
   const [tasks, setTasks] = useState<ExportTaskDto[]>([])
   const [stats, setStats] = useState<ExportStatsDto | null>(null)
   const [loading, setLoading] = useState(false)
+  const [previewingId, setPreviewingId] = useState<string | null>(null)
+  const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const [preview, setPreview] = useState<ExportTaskContentDto | null>(null)
 
   const fetchFields = useCallback(async () => {
@@ -164,11 +166,12 @@ export default function ResearchExportCenterPage() {
   }
 
   const handlePreview = async (id: string) => {
+    setPreviewingId(id)
     try {
       const res = await researchExportApi.getTaskContent(id)
       if (res.success && res.data) setPreview(res.data as ExportTaskContentDto)
       else message.error(res.error?.message ?? t('previewFailed', '预览失败'))
-    } catch { message.error(t('previewFailed', '预览失败')) }
+    } catch { message.error(t('previewFailed', '预览失败')) } finally { setPreviewingId(null) }
   }
 
   // [W1] 下载: 有 downloadUrl 直接下载; 否则拉取内容生成 Blob 本地下载
@@ -185,6 +188,7 @@ export default function ResearchExportCenterPage() {
       message.success(t('downloadStarted', '已开始下载'))
       return
     }
+    setDownloadingId(task.id)
     try {
       const res = await researchExportApi.getTaskContent(task.id)
       if (res.success && res.data) {
@@ -205,7 +209,7 @@ export default function ResearchExportCenterPage() {
       } else {
         message.error(res.error?.message ?? t('downloadFailed', '下载失败'))
       }
-    } catch (e) { message.error((e as Error)?.message || t('downloadFailed', '下载失败')) }
+    } catch (e) { message.error((e as Error)?.message || t('downloadFailed', '下载失败')) } finally { setDownloadingId(null) }
   }
 
   const groupedFields = useMemo(() => {
@@ -463,10 +467,10 @@ export default function ResearchExportCenterPage() {
                 width: 140,
                 render: (_, r) => (
                   <Space size={4}>
-                    <Button size="small" icon={<FileText size={12} />} onClick={() => void handlePreview(r.id)}>
+                    <Button size="small" icon={<FileText size={12} />} loading={previewingId === r.id} disabled={previewingId === r.id} onClick={() => void handlePreview(r.id)}>
                       {t('preview', '预览')}
                     </Button>
-                    <Button size="small" type="link" icon={<Download size={12} />} disabled={r.status === 'failed'} title={r.status === 'failed' ? t('downloadUnavailable', '任务失败，无可用导出文件') : undefined} onClick={() => void handleDownload(r)}>
+                    <Button size="small" type="link" icon={<Download size={12} />} loading={downloadingId === r.id} disabled={r.status === 'failed' || downloadingId === r.id} title={r.status === 'failed' ? t('downloadUnavailable', '任务失败，无可用导出文件') : undefined} onClick={() => void handleDownload(r)}>
                       {t('download', '下载')}
                     </Button>
                   </Space>

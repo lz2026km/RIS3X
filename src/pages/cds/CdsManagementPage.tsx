@@ -540,7 +540,7 @@ export default function CdsManagementPage() {
                 <Shield size={18} style={{ color: "var(--color-primary-500)" }} /> {t("cdsMgmt.newRulePrefix")}{" "}
                 {t(TAB_CONFIG.find((tab) => tab.key === activeTab)?.labelKey ?? "")}
               </div>
-              <button
+              <button aria-label="关闭"
                 onClick={() => setShowNewRuleModal(false)}
                 style={{
                   border: "none",
@@ -733,7 +733,7 @@ export default function CdsManagementPage() {
               >
                 <Edit3 size={18} style={{ color: "var(--color-primary-500)" }} /> {t("cdsMgmt.editRuleTitle")} · {editRule.id}
               </div>
-              <button
+              <button aria-label="关闭"
                 onClick={() => setEditRule(null)}
                 style={{
                   border: "none",

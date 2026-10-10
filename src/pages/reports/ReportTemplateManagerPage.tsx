@@ -241,7 +241,7 @@ export const ReportTemplateManagerPage: React.FC = () => {
           <Button size="small" icon={<Edit3 size={10} />} onClick={() => openEdit(tpl)}>{t('reportTpl.edit')}</Button>
           <Button size="small" icon={<Copy size={10} />} onClick={() => void handleClone(tpl)}>{t('reportTpl.clone')}</Button>
           <Popconfirm title={t('reportTpl.confirmDelete')} onConfirm={() => void handleDelete(tpl)}>
-            <Button size="small" danger icon={<Trash2 size={10} />} />
+            <Button aria-label="删除" size="small" danger icon={<Trash2 size={10} />} />
           </Popconfirm>
         </Space>
       ),
@@ -302,7 +302,7 @@ export const ReportTemplateManagerPage: React.FC = () => {
               { title: t('reportTpl.colCategory'), dataIndex: 'category', key: 'category', width: 80, render: (c: string) => <Tag color={c === '正常' ? 'green' : c === '牙科' ? 'purple' : 'orange'}>{c}</Tag> },
               { title: t('reportTpl.colShortcuts'), dataIndex: 'shortcuts', key: 'shortcuts', width: 110, render: (s: string) => <Tag color="geekblue">{s}</Tag> },
               { title: t('reportTpl.colUsage'), dataIndex: 'usage', key: 'usage', width: 80 },
-              { title: t('reportTpl.colActions'), key: 'actions', width: 90, render: (_: unknown, s: Snippet) => <Popconfirm title={t('reportTpl.confirmDeleteSnippet')} onConfirm={() => void handleSnippetDelete(s)}><Button size="small" danger icon={<Trash2 size={10} />} /></Popconfirm> },
+              { title: t('reportTpl.colActions'), key: 'actions', width: 90, render: (_: unknown, s: Snippet) => <Popconfirm title={t('reportTpl.confirmDeleteSnippet')} onConfirm={() => void handleSnippetDelete(s)}><Button aria-label="删除" size="small" danger icon={<Trash2 size={10} />} /></Popconfirm> },
             ]}
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('reportTpl.noSnippets')} /> }}
          

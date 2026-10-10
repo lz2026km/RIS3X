@@ -156,7 +156,7 @@ const VisionExamPage: React.FC = () => {
           { title: t('visionExam.col.odGrade'), key: 'odGrade', width: 90, render: (_: unknown, r: VisionRecord) => <Tag color={visionGrade(r.odBcva) === '正常' ? 'success' : 'warning'}>{visionGradeLabel(visionGrade(r.odBcva))}</Tag> },
           { title: t('visionExam.col.osGrade'), key: 'osGrade', width: 90, render: (_: unknown, r: VisionRecord) => <Tag color={visionGrade(r.osBcva) === '正常' ? 'success' : 'warning'}>{visionGradeLabel(visionGrade(r.osBcva))}</Tag> },
     { title: t('visionExam.col.examiner'), dataIndex: 'examiner', key: 'examiner', width: 90, render: (v?: string) => v || '-' },
-    { title: t('visionExam.col.actions'), key: 'actions', width: 80, render: (_: unknown, r: VisionRecord) => <Popconfirm title={t('visionExam.confirmDelete')} onConfirm={() => void handleDelete(r.id)}><Button size="small" danger icon={<Trash2 size={12} />} /></Popconfirm> },
+    { title: t('visionExam.col.actions'), key: 'actions', width: 80, render: (_: unknown, r: VisionRecord) => <Popconfirm title={t('visionExam.confirmDelete')} onConfirm={() => void handleDelete(r.id)}><Button aria-label="删除" size="small" danger icon={<Trash2 size={12} />} /></Popconfirm> },
   ];
 
   return (

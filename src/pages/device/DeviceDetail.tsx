@@ -110,7 +110,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
               {device.manufacturer} · {device.model} · {device.modality}
             </div>
           </div>
-          <button onClick={onClose} style={{
+          <button aria-label="关闭" onClick={onClose} style={{
             background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 8,
             padding: 'var(--space-2, 8px)', cursor: 'pointer', color: '#fff', display: 'flex'
           }}>

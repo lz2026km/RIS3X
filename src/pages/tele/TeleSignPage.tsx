@@ -28,6 +28,7 @@ const TeleSignPage: React.FC = () => {
   const [previewOpen, setPreviewOpen] = useState(false)
   const [selectedSession, setSelectedSession] = useState<TeleSignSession | null>(null)
   const [comment, setComment] = useState('')
+  const [signSaving, setSignSaving] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [isDrawing, setIsDrawing] = useState(false)
   // [W1-B] 发起签署会话: teleSignApi.createSession (POST /tele-sign/session)
@@ -107,30 +108,40 @@ const TeleSignPage: React.FC = () => {
 
   const handleApprove = async () => {
     if (!selectedSession) return
-    const canvas = canvasRef.current
-    const signatureData = canvas ? canvas.toDataURL() : ''
-    const res = await teleSignApi.approve(selectedSession.id, signatureData, comment || undefined)
-    if (!res.success) {
-      message.error((res.error as { message?: string })?.message || t('teleSign.approveFail'))
-      return
+    setSignSaving(true)
+    try {
+      const canvas = canvasRef.current
+      const signatureData = canvas ? canvas.toDataURL() : ''
+      const res = await teleSignApi.approve(selectedSession.id, signatureData, comment || undefined)
+      if (!res.success) {
+        message.error((res.error as { message?: string })?.message || t('teleSign.approveFail'))
+        return
+      }
+      setSessions(prev => prev.map(s => s.id === selectedSession.id ? { ...s, ...res.data } : s))
+      setSignOpen(false)
+      setComment('')
+      message.success(t('teleSign.approveSuccess'))
+    } finally {
+      setSignSaving(false)
     }
-    setSessions(prev => prev.map(s => s.id === selectedSession.id ? { ...s, ...res.data } : s))
-    setSignOpen(false)
-    setComment('')
-    message.success(t('teleSign.approveSuccess'))
   }
 
   const handleReject = async () => {
     if (!selectedSession || !comment) { message.warning(t('teleSign.rejectReason')); return }
-    const res = await teleSignApi.reject(selectedSession.id, comment)
-    if (!res.success) {
-      message.error((res.error as { message?: string })?.message || t('teleSign.rejectFail'))
-      return
+    setSignSaving(true)
+    try {
+      const res = await teleSignApi.reject(selectedSession.id, comment)
+      if (!res.success) {
+        message.error((res.error as { message?: string })?.message || t('teleSign.rejectFail'))
+        return
+      }
+      setSessions(prev => prev.map(s => s.id === selectedSession.id ? { ...s, ...res.data } : s))
+      setSignOpen(false)
+      setComment('')
+      message.success(t('teleSign.rejected'))
+    } finally {
+      setSignSaving(false)
     }
-    setSessions(prev => prev.map(s => s.id === selectedSession.id ? { ...s, ...res.data } : s))
-    setSignOpen(false)
-    setComment('')
-    message.success(t('teleSign.rejected'))
   }
 
   const clearCanvas = () => {
@@ -170,8 +181,8 @@ const TeleSignPage: React.FC = () => {
       <Modal title={t('teleSign.signReport')} open={signOpen} onCancel={() => setSignOpen(false)} width={600} footer={
         <Space>
           <Button onClick={clearCanvas}>{t('teleSign.clearSignature')}</Button>
-          <Button icon={<XCircle size={14} />} danger onClick={handleReject}>{t('teleSign.reject')}</Button>
-          <Button type="primary" icon={<CheckCircle size={14} />} onClick={handleApprove}>{t('teleSign.approve')}</Button>
+          <Button icon={<XCircle size={14} />} danger loading={signSaving} disabled={signSaving} onClick={handleReject}>{t('teleSign.reject')}</Button>
+          <Button type="primary" icon={<CheckCircle size={14} />} loading={signSaving} disabled={signSaving} onClick={handleApprove}>{t('teleSign.approve')}</Button>
         </Space>
       }>
         <Card size="small" title={selectedSession?.reportTitle} style={{ marginBottom: 'var(--space-4, 16px)' }}>

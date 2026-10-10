@@ -108,10 +108,10 @@ export default function NlpCheckPage() {
       <PageHeader icon={<FileText size={20} color="var(--color-primary-500)" />} title={t("title")} subtitle={t("subtitle")} />
       <div style={{ padding: 'var(--space-6, 24px)' }}>
         <div style={{ display: "flex", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
-          <button onClick={() => setActiveTab("spell")} style={{ padding: "6px 16px", background: activeTab === "spell" ? "var(--color-primary-800)" : "#fff", color: activeTab === "spell" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "spell" ? "var(--color-primary-800)" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+          <button onClick={() => setActiveTab("spell")} style={{ padding: "6px 16px", background: activeTab === "spell" ? "var(--color-primary-800)" : "var(--bg-card, #ffffff)", color: activeTab === "spell" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "spell" ? "var(--color-primary-800)" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
             <SpellCheck size={14} />{t("spellCheck")}
           </button>
-          <button onClick={() => setActiveTab("term")} style={{ padding: "6px 16px", background: activeTab === "term" ? "var(--color-primary-800)" : "#fff", color: activeTab === "term" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "term" ? "var(--color-primary-800)" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+          <button onClick={() => setActiveTab("term")} style={{ padding: "6px 16px", background: activeTab === "term" ? "var(--color-primary-800)" : "var(--bg-card, #ffffff)", color: activeTab === "term" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "term" ? "var(--color-primary-800)" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
             <BookOpen size={14} />{t("terminology")}
           </button>
         </div>

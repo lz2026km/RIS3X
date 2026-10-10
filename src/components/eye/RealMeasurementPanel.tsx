@@ -149,7 +149,7 @@ export const RealMeasurementPanel: React.FC<MeasurementPanelProps> = ({
                     {m.value} {m.unit}
                   </span>
                 </Space>
-                <Button
+                <Button aria-label="删除"
                   type="text"
                   size="small"
                   danger

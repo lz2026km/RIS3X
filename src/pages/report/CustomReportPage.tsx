@@ -138,6 +138,7 @@ export default function CustomReportPage() {
   const [result, setResult] = useState<ReportRunResult | null>(null)
   const [resultLoading, setResultLoading] = useState(false)
   const [runningId, setRunningId] = useState<string | null>(null)
+  const [exportingId, setExportingId] = useState<string | null>(null)
   const [historyDef, setHistoryDef] = useState<CustomReportDef | null>(null)
   const [history, setHistory] = useState<RunHistoryEntry[]>([])
   const [historyLoading, setHistoryLoading] = useState(false)
@@ -347,6 +348,7 @@ export default function CustomReportPage() {
   }
 
   const handleExport = async (def: CustomReportDef) => {
+    setExportingId(def.id)
     try {
       const res = await customReportApi.exportCsv(def.id)
       if (!res.success || !res.data) {
@@ -363,6 +365,8 @@ export default function CustomReportPage() {
       message.success(t('customReport.csvExportSuccess'))
     } catch {
       message.error(t('customReport.exportFailed'))
+    } finally {
+      setExportingId(null)
     }
   }
 
@@ -504,7 +508,7 @@ export default function CustomReportPage() {
           <Button size="small" icon={<Table2 size={12} />} onClick={() => void openResult(record)}>{t('customReport.result')}</Button>
           <Button size="small" icon={<History size={12} />} onClick={() => void openHistory(record)}>{t('customReport.history')}</Button>
           <Button size="small" icon={<Clock size={12} />} onClick={() => openSchedule(record)}>{t('customReport.schedule')}</Button>
-          <Button size="small" icon={<FileDown size={12} />} onClick={() => void handleExport(record)}>{t('customReport.export')}</Button>
+          <Button size="small" icon={<FileDown size={12} />} loading={exportingId === record.id} disabled={exportingId === record.id} onClick={() => void handleExport(record)}>{t('customReport.export')}</Button>
           <Button size="small" icon={<Pencil size={12} />} onClick={() => openEdit(record)}>{t('customReport.edit')}</Button>
           <Button size="small" danger icon={<Trash2 size={12} />} onClick={() => void handleDelete(record)}>{t('customReport.delete')}</Button>
         </Space>
@@ -821,8 +825,8 @@ export default function CustomReportPage() {
               size="small"
             />
             <Space>
-              <Button type="primary" size="small" icon={<FileDown size={13} />} onClick={() => void handleExport(resultDef!)}>{t('customReport.exportCsv')}</Button>
-              <Button size="small" icon={<Table2 size={13} />} onClick={() => void handleRun(resultDef!)}>{t('customReport.rerun')}</Button>
+              <Button type="primary" size="small" icon={<FileDown size={13} />} loading={exportingId === resultDef?.id} disabled={exportingId === resultDef?.id} onClick={() => void handleExport(resultDef!)}>{t('customReport.exportCsv')}</Button>
+              <Button size="small" icon={<Table2 size={13} />} loading={runningId === resultDef?.id} disabled={runningId === resultDef?.id} onClick={() => void handleRun(resultDef!)}>{t('customReport.rerun')}</Button>
             </Space>
           </div>
         ) : (

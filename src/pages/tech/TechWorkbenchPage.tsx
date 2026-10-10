@@ -631,10 +631,10 @@ export default function TechWorkbenchPage() {
         render: (_v: unknown, s: any) => (
           <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
             <Input size="small" style={{ width: 140 }} placeholder={t('w7exec.qcReason')} value={qcReasons[s.seriesNumber] ?? ''} onChange={e => setQcReasons(r => ({ ...r, [s.seriesNumber]: e.target.value }))} />
-            <Button size="small" style={{ color: '#059669' }} disabled={execBusy} onClick={() => void submitSeriesQc(s.seriesNumber, 'PASS')}>
+            <Button size="small" style={{ color: '#059669' }} loading={execBusy} disabled={execBusy} onClick={() => void submitSeriesQc(s.seriesNumber, 'PASS')}>
               {t('w7exec.qcPass')}
             </Button>
-            <Button size="small" danger disabled={execBusy} onClick={() => void submitSeriesQc(s.seriesNumber, 'REJECT')}>
+            <Button size="small" danger loading={execBusy} disabled={execBusy} onClick={() => void submitSeriesQc(s.seriesNumber, 'REJECT')}>
               {t('w7exec.qcReject')}
             </Button>
           </div>
@@ -712,7 +712,7 @@ export default function TechWorkbenchPage() {
                     data-testid="exec-image-mismatch"
                     style={{
                       display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 10, padding: '6px 10px', borderRadius: 8,
-                      background: validation.imageCountMismatch ? '#fef2f2' : '#f0fdf4',
+                      background: validation.imageCountMismatch ? '#fef2f2' : 'var(--color-success-bg, #f0fdf4)',
                       border: `1px solid ${validation.imageCountMismatch ? '#fecaca' : '#bbf7d0'}`,
                       color: validation.imageCountMismatch ? 'var(--color-error-600)' : '#059669', fontSize: 12, fontWeight: 600,
                     }}
@@ -744,7 +744,7 @@ export default function TechWorkbenchPage() {
               <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 16px' }} data-testid="exec-mwl-panel">
                 <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
                   <RadioTower size={14} /> {t('w7exec.mwlQueue')}
-                  <Button size="small" type="text" icon={<RefreshCw size={11} />} onClick={() => void loadMwlQueue()} />
+                  <Button aria-label="刷新" size="small" type="text" icon={<RefreshCw size={11} />} onClick={() => void loadMwlQueue()} />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 260, overflowY: 'auto' }}>
                   {mwlItems.length === 0 ? (

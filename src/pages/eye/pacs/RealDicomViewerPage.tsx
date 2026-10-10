@@ -468,21 +468,21 @@ export const RealDicomViewerPage: React.FC = () => {
             tooltip={{ formatter: (v) => `${(v || 100) / 100}x` }}
           />
           <Tooltip title={t('realDicom.zoomIn')}>
-            <Button
+            <Button aria-label="放大"
               size="small"
               icon={<ZoomIn size={14} />}
               onClick={() => setZoom((z) => Math.min(200, z + 20))}
             />
           </Tooltip>
           <Tooltip title={t('realDicom.zoomOut')}>
-            <Button
+            <Button aria-label="缩小"
               size="small"
               icon={<ZoomOut size={14} />}
               onClick={() => setZoom((z) => Math.max(50, z - 20))}
             />
           </Tooltip>
           <Tooltip title={t('realDicom.reset')}>
-            <Button
+            <Button aria-label="逆时针旋转"
               size="small"
               icon={<RotateCcw size={14} />}
               onClick={() => {
@@ -607,7 +607,7 @@ export const RealDicomViewerPage: React.FC = () => {
             }}
           >
             <Space>
-              <Button
+              <Button aria-label="上一页"
                 size="small"
                 icon={<ChevronLeft size={14} />}
                 onClick={() => scroll(-1)}
@@ -618,7 +618,7 @@ export const RealDicomViewerPage: React.FC = () => {
               >
                 {currentIndex + 1} / {imageIds.length}
               </span>
-              <Button
+              <Button aria-label="下一页"
                 size="small"
                 icon={<ChevronRight size={14} />}
                 onClick={() => scroll(1)}

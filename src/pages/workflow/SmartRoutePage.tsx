@@ -146,7 +146,7 @@ const SmartRoutePage: React.FC = () => {
       message.warning(t('smartRoute.fillStudyPatient'))
       return
     }
-    setAssigningId(doctorId ?? null)
+    setAssigningId(doctorId ?? 'TOP')
     try {
       const res = await smartRouteApi.assign({
         studyId: values.studyId,
@@ -220,7 +220,7 @@ const SmartRoutePage: React.FC = () => {
                 <Button type="primary" icon={<UserCheck size={14} />} loading={recommending} disabled={!recommendReady} onClick={handleRecommend}>{t('smartRoute.getRecommendedDoctors')}</Button>
               </Form.Item>
               <Form.Item>
-                <Button icon={<Zap size={14} />} disabled={recommendations.length === 0} onClick={() => handleAssign()}>{t('smartRoute.oneClickAssignTop')}</Button>
+                <Button icon={<Zap size={14} />} loading={assigningId === 'TOP'} disabled={recommendations.length === 0 || assigningId !== null} onClick={() => handleAssign()}>{t('smartRoute.oneClickAssignTop')}</Button>
               </Form.Item>
             </Form>
             <Alert type="info" showIcon style={{ marginBottom: 'var(--space-4, 16px)' }}
@@ -238,7 +238,7 @@ const SmartRoutePage: React.FC = () => {
                       </Space>
                     }
                     extra={<span style={{ fontSize: 16, fontWeight: 800, color: rec.qualified ? 'var(--color-primary-600)' : '#94a3b8' }}>{t('smartRoute.scoreSuffix', { score: (rec.composite * 100).toFixed(0) })}</span>}
-                    style={{ borderColor: rec.qualified ? '#93c5fd' : '#e2e8f0', height: '100%' }}
+                    style={{ borderColor: rec.qualified ? '#93c5fd' : 'var(--border-color, #e2e8f0)', height: '100%' }}
                   >
                     <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
                       <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-1, 4px)' }}>{t('smartRoute.matchScore')} <b style={{ color: 'var(--color-primary-800)' }}>{Math.round(rec.matchScore * 100)}%</b></div>

@@ -534,7 +534,7 @@ export default function ReportExportPage() {
                   {EXPORT_TEMPLATES.slice(0, 4).map(tpl => (
                     <div key={tpl.id} style={{
                       padding: 'var(--space-2, 8px)', background: tpl.id === selectedTemplateId ? `${tpl.color}15` : 'var(--bg-card)',
-                      border: `1px solid ${tpl.id === selectedTemplateId ? tpl.color : '#e2e8f0'}`,
+                      border: `1px solid ${tpl.id === selectedTemplateId ? tpl.color : 'var(--border-color, #e2e8f0)'}`,
                       borderRadius: 6, fontSize: 12,
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', marginBottom: 2 }}>

@@ -150,7 +150,7 @@ export default function CompliancePage() {
                   {
                     title: '状态', dataIndex: 'status', key: 'status',
                     render: (v: string) => (
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)', padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: v === 'PASS' ? '#ecfdf5' : v === 'FAIL' ? '#fef2f2' : '#fffbeb', color: v === 'PASS' ? COLORS.success : v === 'FAIL' ? COLORS.danger : COLORS.warning }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)', padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: v === 'PASS' ? '#ecfdf5' : v === 'FAIL' ? '#fef2f2' : 'var(--color-warning-bg, #fffbeb)', color: v === 'PASS' ? COLORS.success : v === 'FAIL' ? COLORS.danger : COLORS.warning }}>
                         {v === 'PASS' ? <CheckCircle size={10} /> : v === 'FAIL' ? <XCircle size={10} /> : <AlertTriangle size={10} />}
                         {v === 'PASS' ? '通过' : v === 'FAIL' ? '未通过' : '警告'}
                       </span>
@@ -159,7 +159,7 @@ export default function CompliancePage() {
                   {
                     title: '严重级别', dataIndex: 'severity', key: 'severity',
                     render: (v: string) => (
-                      <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: v === 'CRITICAL' ? '#fef2f2' : v === 'MAJOR' ? '#fffbeb' : '#f1f5f9', color: v === 'CRITICAL' ? COLORS.danger : v === 'MAJOR' ? COLORS.warning : COLORS.textMid }}>
+                      <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: v === 'CRITICAL' ? '#fef2f2' : v === 'MAJOR' ? 'var(--color-warning-bg, #fffbeb)' : 'var(--bg-primary, #f8fafc)', color: v === 'CRITICAL' ? COLORS.danger : v === 'MAJOR' ? COLORS.warning : COLORS.textMid }}>
                         {v === 'CRITICAL' ? '严重' : v === 'MAJOR' ? '主要' : '轻微'}
                       </span>
                     ),
@@ -178,7 +178,7 @@ export default function CompliancePage() {
           {docs.map(doc => (
             <Card bordered={false} key={doc.id} style={{ background: COLORS.white, borderRadius: 12, border: `1px solid ${COLORS.border}`, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }} styles={{ body: { padding: 0 } }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-3, 12px)' }}>
-                <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: doc.status === 'CURRENT' ? '#ecfdf5' : doc.status === 'DRAFT' ? '#fffbeb' : '#f1f5f9', color: doc.status === 'CURRENT' ? COLORS.success : doc.status === 'DRAFT' ? COLORS.warning : COLORS.textLight }}>
+                <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: doc.status === 'CURRENT' ? '#ecfdf5' : doc.status === 'DRAFT' ? 'var(--color-warning-bg, #fffbeb)' : 'var(--bg-primary, #f8fafc)', color: doc.status === 'CURRENT' ? COLORS.success : doc.status === 'DRAFT' ? COLORS.warning : COLORS.textLight }}>
                   {doc.status === 'CURRENT' ? '当前版本' : doc.status === 'DRAFT' ? '草稿' : '已归档'}
                 </span>
                 <span style={{ fontSize: 12, color: COLORS.textLight }}>v{doc.version}</span>

@@ -420,7 +420,7 @@ export default function AIMedicalDevicePage() {
                 style={{
                   padding: '8px 16px', borderRadius: 8, border: '1px solid',
                   borderColor: statusFilter === btn.key ? 'var(--color-primary-500)' : '#dbeafe',
-                  background: statusFilter === btn.key ? '#eff6ff' : '#fff',
+                  background: statusFilter === btn.key ? '#eff6ff' : 'var(--bg-card, #ffffff)',
                   color: statusFilter === btn.key ? 'var(--color-primary-800)' : '#64748b',
                   fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
                   display: 'flex', alignItems: 'center', gap: 6,

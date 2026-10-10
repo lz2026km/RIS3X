@@ -211,7 +211,7 @@ export const DimseUploadPage: React.FC = () => {
           rowKey="key"
           columns={[...uploadColumns(), {
             title: t('dimseUpload.colActions'), key: 'actions', width: 70,
-            render: (_: unknown, r: UploadRecord) => <Popconfirm title={t('dimseUpload.removeConfirm')} onConfirm={() => handleRemove(r.key)}><Button size="small" danger icon={<Trash2 />} /></Popconfirm>,
+            render: (_: unknown, r: UploadRecord) => <Popconfirm title={t('dimseUpload.removeConfirm')} onConfirm={() => handleRemove(r.key)}><Button aria-label="删除" size="small" danger icon={<Trash2 />} /></Popconfirm>,
           }]}
           pagination={false}
           scroll={{ x: 'max-content' }}

@@ -372,7 +372,7 @@ export default function ReportPhraseBankPage() {
               onClick={() => setFilterCategory(filterCategory === c.key ? 'all' : c.key)}
               style={{
                 background: 'var(--bg-card)', padding: 10, borderRadius: 8,
-                border: `2px solid ${filterCategory === c.key ? c.color : '#e2e8f0'}`,
+                border: `2px solid ${filterCategory === c.key ? c.color : 'var(--border-color, #e2e8f0)'}`,
                 cursor: 'pointer', textAlign: 'center',
               }}
             >
@@ -460,7 +460,7 @@ export default function ReportPhraseBankPage() {
 
               {/* 占位符提示 */}
               {placeholders.length > 0 && (
-                <div style={{ marginBottom: 'var(--space-3, 12px)', padding: 10, background: 'var(--color-warning-bg)', border: '1px solid #fcd34d', borderRadius: 6 }}>
+                <div style={{ marginBottom: 'var(--space-3, 12px)', padding: 10, background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning-300, #fcd34d)', borderRadius: 6 }}>
                   <div style={{ fontSize: 12, color: '#92400e', fontWeight: 700, marginBottom: 6 }}>
                     {t('rpb.placeholdersHint', { count: placeholders.length })}
                   </div>
@@ -502,7 +502,7 @@ export default function ReportPhraseBankPage() {
                   {filledContent}
                 </div>
                 {variableNote && (
-                  <div style={{ marginTop: 6, fontSize: 11, color: '#92400e', padding: '4px 8px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 4 }}>
+                  <div style={{ marginTop: 6, fontSize: 11, color: '#92400e', padding: '4px 8px', background: 'var(--color-warning-bg, #fffbeb)', border: '1px solid #fde68a', borderRadius: 4 }}>
                     {variableNote}
                   </div>
                 )}

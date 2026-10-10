@@ -200,7 +200,7 @@ function SimilarTab({ reportText, modality, bodyPart }: { reportText: string; mo
     if (reportText.trim()) void run(reportText, selectedSeries);
   }, [reportText, run, selectedSeries]);
 
-  if (error) return <Alert type="error" showIcon message={error} />;
+  if (error) return <Alert type="error" showIcon message={error} action={<Button size="small" onClick={() => void run(reportText, selectedSeries)}>{t("w9.states.retry")}</Button>} />;
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
@@ -585,7 +585,7 @@ function TemplateSmartPanel({ templates, loading, favIds, recentIds, modality, b
 .v3-sider .ant-tabs-nav { margin-bottom: 0 !important; padding-top: 4px; }
 .v3-sider .ant-tabs-extra-content, .v3-sider .ant-tabs-extra-content .ant-badge { pointer-events: none; }
 .v3-sider-body { padding: 8px; }
-.v3-sider-body .ant-card { border: 1px solid #e2e8f0; box-shadow: none; border-radius: 6px; }
+.v3-sider-body .ant-card { border: 1px solid var(--border-color, #e2e8f0); box-shadow: none; border-radius: 6px; }
 @media (max-width: 1024px) { .v3-topbar-hide-mobile { display: none; } .v3-sider { width: 300px !important; max-width: 300px !important; } }
 @media (max-width: 768px) { .v3-sider { display: none; } .v3-topbar-stats { display: none; } }
 @media print {
@@ -2128,7 +2128,7 @@ export default function ReportWritePage() {
       {/* 顶部工具条 */}
       <div className="v3-topbar no-print">
         <div className="v3-topbar-left">
-          <Button type="text" icon={<ChevronLeft className="w-4 h-4" />} onClick={() => navigate(-1)} />
+          <Button aria-label="返回" type="text" icon={<ChevronLeft className="w-4 h-4" />} onClick={() => navigate(-1)} />
           <span className="v3-topbar-title">{t("reportWrite.pageTitle")}</span>
           <Tag color="blue">{context.reportId}</Tag>
           <Tag color="purple">{context.modality} - {context.bodyPart}</Tag>
@@ -2175,10 +2175,10 @@ export default function ReportWritePage() {
           </Tooltip>
           {/* [W2-2] 上下例导航 */}
           <Tooltip title={t("reportWrite.prevCase")}>
-            <Button type="text" size="small" disabled={listIndex <= 0} icon={<ChevronUp className="w-4 h-4" />} onClick={goPrev} />
+            <Button aria-label="操作" type="text" size="small" disabled={listIndex <= 0} icon={<ChevronUp className="w-4 h-4" />} onClick={goPrev} />
           </Tooltip>
           <Tooltip title={t("reportWrite.nextCase")}>
-            <Button type="text" size="small" disabled={listIndex >= reportList.length - 1} icon={<ChevronDown className="w-4 h-4" />} onClick={goNext} />
+            <Button aria-label="操作" type="text" size="small" disabled={listIndex >= reportList.length - 1} icon={<ChevronDown className="w-4 h-4" />} onClick={goNext} />
           </Tooltip>
           {reportList.length > 0 && (
             <span className="v3-topbar-stats v3-topbar-hide-mobile">{listIndex + 1} / {reportList.length}</span>
@@ -2218,7 +2218,7 @@ export default function ReportWritePage() {
           </Tooltip>
           {/* [W2-2] 打印 / PDF 导出 */}
           <Tooltip title={t("reportWrite.printHint")}>
-            <ActionButton action="print" onClick={handlePrint} disabled={!reportId}>{t("reportWrite.print")}</ActionButton>
+            <ActionButton action="print" loading={printLoading} onClick={handlePrint} disabled={!reportId}>{t("reportWrite.print")}</ActionButton>
           </Tooltip>
           <Tooltip title={t("reportWrite.exportPdf")}>
             <ActionButton action="export" loading={exporting} onClick={() => void handleExport()} disabled={!reportId}>{t("reportWrite.export")}</ActionButton>
@@ -2232,7 +2232,7 @@ export default function ReportWritePage() {
           </span>
           {/* [v3.0.6.11-95 Wave2B P1] 快捷键提示 */}
           <Tooltip title={t("reportWrite.shortcuts2")}>
-            <Button type="text" size="small" className="v3-topbar-hide-mobile" icon={<Keyboard className="w-3.5 h-3.5" />} onClick={() => setShortcutHelpOpen(true)} />
+            <Button aria-label="操作" type="text" size="small" className="v3-topbar-hide-mobile" icon={<Keyboard className="w-3.5 h-3.5" />} onClick={() => setShortcutHelpOpen(true)} />
           </Tooltip>
           <span className="v3-topbar-autosave">{autoSaveTip}</span>
           {/* [W2-2] 签署 / 发布入口 (按状态机显示) */}
@@ -2259,7 +2259,7 @@ export default function ReportWritePage() {
             </ActionButton>
           ) : null}
           <Tooltip title={siderVisible ? t("reportWrite.collapseSidebar") : t("reportWrite.expandSidebar")}>
-            <Button type="text" icon={siderVisible ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />} onClick={() => setSiderVisible((v) => !v)} />
+            <Button aria-label="关闭" type="text" icon={siderVisible ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />} onClick={() => setSiderVisible((v) => !v)} />
           </Tooltip>
         </div>
       </div>
@@ -2429,7 +2429,7 @@ export default function ReportWritePage() {
                         {t('w12.write.insertRow')}
                       </Button>
                     </Tooltip>
-                    <Button size="small" type="text" danger icon={<Trash2 className="w-3 h-3" />} onClick={() => removeMeasureRow(i)} />
+                    <Button aria-label="删除" size="small" type="text" danger icon={<Trash2 className="w-3 h-3" />} onClick={() => removeMeasureRow(i)} />
                   </div>
                 ))}
               </div>
@@ -2667,7 +2667,7 @@ export default function ReportWritePage() {
               role="button"
               tabIndex={0}
               className="p-3 border rounded cursor-pointer flex items-start gap-3 transition-colors"
-              style={{ borderColor: printLayoutId === l.id ? 'var(--color-primary-600)' : '#e2e8f0', background: printLayoutId === l.id ? '#eff6ff' : '#fff' }}
+              style={{ borderColor: printLayoutId === l.id ? 'var(--color-primary-600)' : 'var(--border-color, #e2e8f0)', background: printLayoutId === l.id ? '#eff6ff' : 'var(--bg-card, #ffffff)' }}
               onClick={() => setPrintLayoutId(l.id)}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setPrintLayoutId(l.id) } }}
             >

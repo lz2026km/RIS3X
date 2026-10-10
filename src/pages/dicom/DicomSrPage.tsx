@@ -724,7 +724,7 @@ export const DicomSrPage: React.FC = () => {
           padding: '3px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600,
           background: statsSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
           color: statsSource === 'real' ? '#065f46' : '#92400e',
-          border: `1px solid ${statsSource === 'real' ? '#bbf7d0' : '#fcd34d'}`,
+          border: `1px solid ${statsSource === 'real' ? '#bbf7d0' : 'var(--color-warning-300, #fcd34d)'}`,
         }}>
           <Database size={12} />
           SR {t('dicomSrPage.statsSource')}: {statsSource === 'real' ? t('dicomSrPage.sourceReal') : t('dicomSrPage.sourceDemo')}
@@ -755,7 +755,7 @@ export const DicomSrPage: React.FC = () => {
                     <span style={{ color: 'var(--text-primary, #334155)', fontWeight: 500 }}>{tid}</span>
                     <span style={{ color: 'var(--color-primary-800)', fontWeight: 700 }}>{cnt}</span>
                   </div>
-                  <div style={{ height: 6, background: '#f1f5f9', borderRadius: 3, overflow: 'hidden' }}>
+                  <div style={{ height: 6, background: 'var(--bg-primary, #f8fafc)', borderRadius: 3, overflow: 'hidden' }}>
                     <div style={{ width: `${(cnt / maxTid) * 100}%`, height: '100%', background: 'var(--color-primary-800)', borderRadius: 3 }} />
                   </div>
                 </div>
@@ -776,7 +776,7 @@ export const DicomSrPage: React.FC = () => {
                     <span style={{ color: 'var(--text-primary, #334155)', fontWeight: 500 }}>{mod}</span>
                     <span style={{ color: colors[mod] || '#64748b', fontWeight: 700 }}>{cnt}</span>
                   </div>
-                  <div style={{ height: 6, background: '#f1f5f9', borderRadius: 3, overflow: 'hidden' }}>
+                  <div style={{ height: 6, background: 'var(--bg-primary, #f8fafc)', borderRadius: 3, overflow: 'hidden' }}>
                     <div style={{ width: `${(cnt / maxMod) * 100}%`, height: '100%', background: colors[mod] || '#64748b', borderRadius: 3 }} />
                   </div>
                 </div>
@@ -850,7 +850,7 @@ export const DicomSrPage: React.FC = () => {
                 <div key={node.code} style={{ marginBottom: 'var(--space-2, 8px)' }}>
                   <div style={{
                     fontSize: 12, fontWeight: 600, padding: '5px 10px', borderRadius: 6,
-                    background: '#f1f5f9', color: 'var(--text-primary, #334155)', borderLeft: '3px solid var(--color-primary-800)',
+                    background: 'var(--bg-primary, #f8fafc)', color: 'var(--text-primary, #334155)', borderLeft: '3px solid var(--color-primary-800)',
                   }}>
                     {node.label}
                     <span style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)', marginLeft: 6, fontFamily: 'monospace' }}>{node.code}</span>
@@ -936,7 +936,7 @@ export const DicomSrPage: React.FC = () => {
             </div>
           )}
           {linkResult === 'none' && (
-            <div style={{ padding: 'var(--space-3, 12px)', borderRadius: 8, background: 'var(--color-warning-bg)', border: '1px solid #fcd34d', fontSize: 12, color: '#92400e' }}>
+            <div style={{ padding: 'var(--space-3, 12px)', borderRadius: 8, background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning-300, #fcd34d)', fontSize: 12, color: '#92400e' }}>
               {t('dicomSrPage.linkNotFound')}
             </div>
           )}

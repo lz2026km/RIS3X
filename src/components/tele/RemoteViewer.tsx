@@ -419,7 +419,7 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
         </Space>
         <Space size={4}>
           <Tooltip title={showChat ? "Hide Chat" : "Show Chat"}>
-            <Button
+            <Button aria-label="聊天"
               size="small"
               type="text"
               icon={<MessageSquare size={14} />}
@@ -428,7 +428,7 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
             />
           </Tooltip>
           <Tooltip title="复制邀请链接">
-            <Button
+            <Button aria-label="邀请"
               size="small"
               type="text"
               icon={<Link2 size={14} />}
@@ -538,7 +538,7 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
 
           <Space size={4} style={{ justifyContent: "center" }}>
             <Tooltip title={audioEnabled ? "Mute Audio" : "Unmute Audio"}>
-              <Button
+              <Button aria-label="麦克风开关"
                 size="small"
                 type={audioEnabled ? "primary" : "default"}
                 icon={audioEnabled ? <Mic size={14} /> : <MicOff size={14} />}
@@ -546,7 +546,7 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
               />
             </Tooltip>
             <Tooltip title={screenSharing ? "Stop Sharing" : "Share Screen"}>
-              <Button
+              <Button aria-label="分享"
                 size="small"
                 type={screenSharing ? "primary" : "default"}
                 icon={
@@ -634,7 +634,7 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
                 }}
                 variant="borderless"
               />
-              <Button
+              <Button aria-label="聊天"
                 size="small"
                 type="text"
                 icon={<Send size={12} />}

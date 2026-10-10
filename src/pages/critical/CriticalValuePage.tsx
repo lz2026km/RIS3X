@@ -94,6 +94,7 @@ export default function CriticalValuePage() {
   const [escalateReason, setEscalateReason] = useState("")
   // [W2-A] 详情完整信息 + 操作历史 (GET /criticals/:id + /criticals/:id/history)
   const [historyEvents, setHistoryEvents] = useState<{ time: string; event: string; user: string; detail?: string }[]>([])
+  const [cvActionBusy, setCvActionBusy] = useState(false)
 
   // [W2-1] 支持从工作列表跳转携带筛选: ?search=<患者姓名/检查号>&patientId=&examId=
   useEffect(() => {
@@ -263,18 +264,28 @@ export default function CriticalValuePage() {
   }
 
   const handleConfirmVoiceCall = async () => {
-    if (voiceCallCV) {
-      await useCriticalStore.getState().voiceCall(voiceCallCV.id, voiceCallPhone)
-      log("voice_call", voiceCallCV.id, { phone: voiceCallPhone })
-      showToast(t("criticalValuePage.phoneRecorded"))
+    setCvActionBusy(true)
+    try {
+      if (voiceCallCV) {
+        await useCriticalStore.getState().voiceCall(voiceCallCV.id, voiceCallPhone)
+        log("voice_call", voiceCallCV.id, { phone: voiceCallPhone })
+        showToast(t("criticalValuePage.phoneRecorded"))
+      }
+      setShowVoiceCallModal(false); setVoiceCallCV(null); setVoiceCallPhone("")
+    } finally {
+      setCvActionBusy(false)
     }
-    setShowVoiceCallModal(false); setVoiceCallCV(null); setVoiceCallPhone("")
   }
 
   const handleAcknowledge = async (cv: CriticalValue) => {
-    await useCriticalStore.getState().acknowledge(cv.id)
-    log("acknowledge", cv.id)
-    showToast(t("criticalValuePage.clinicalAck"))
+    setCvActionBusy(true)
+    try {
+      await useCriticalStore.getState().acknowledge(cv.id)
+      log("acknowledge", cv.id)
+      showToast(t("criticalValuePage.clinicalAck"))
+    } finally {
+      setCvActionBusy(false)
+    }
   }
 
   const handleClinicalReceipt = (cv: CriticalValue) => {
@@ -282,12 +293,17 @@ export default function CriticalValuePage() {
   }
 
   const handleConfirmReceipt = async () => {
-    if (receiptCV && receiptDoctor) {
-      await useCriticalStore.getState().clinicalReceipt(receiptCV.id, { confirmedBy: receiptDoctor, comment: receiptComment })
-      log("clinical_receipt", receiptCV.id, { confirmedBy: receiptDoctor })
-      showToast(t("criticalValuePage.receiptRecorded"))
+    setCvActionBusy(true)
+    try {
+      if (receiptCV && receiptDoctor) {
+        await useCriticalStore.getState().clinicalReceipt(receiptCV.id, { confirmedBy: receiptDoctor, comment: receiptComment })
+        log("clinical_receipt", receiptCV.id, { confirmedBy: receiptDoctor })
+        showToast(t("criticalValuePage.receiptRecorded"))
+      }
+      setShowReceiptModal(false); setReceiptCV(null); setReceiptDoctor(""); setReceiptComment("")
+    } finally {
+      setCvActionBusy(false)
     }
-    setShowReceiptModal(false); setReceiptCV(null); setReceiptDoctor(""); setReceiptComment("")
   }
 
   const handleContactClinical = (cv: CriticalValue) => {
@@ -295,12 +311,17 @@ export default function CriticalValuePage() {
   }
 
   const handleConfirmNotify = async () => {
-    if (notifyCV) {
-      await useCriticalStore.getState().notify(notifyCV.id, notifyMethod as NotificationMethod)
-      log("notify", notifyCV.id, { method: notifyMethod })
-      showToast(t("criticalValuePage.notifySent"))
+    setCvActionBusy(true)
+    try {
+      if (notifyCV) {
+        await useCriticalStore.getState().notify(notifyCV.id, notifyMethod as NotificationMethod)
+        log("notify", notifyCV.id, { method: notifyMethod })
+        showToast(t("criticalValuePage.notifySent"))
+      }
+      setShowNotifyModal(false); setNotifyCV(null)
+    } finally {
+      setCvActionBusy(false)
     }
-    setShowNotifyModal(false); setNotifyCV(null)
   }
 
   // [W2-A] 升级: 输入升级对象 + 原因 → POST /criticals/escalate
@@ -309,44 +330,59 @@ export default function CriticalValuePage() {
   }
 
   const handleConfirmEscalate = async () => {
-    if (escalateCV) {
-      const res = await criticalApi.escalate(escalateCV.id, escalateTo, escalateReason || t("criticalValuePage.manualEscalate"))
-      log("escalate", escalateCV.id, { to: escalateTo, reason: escalateReason })
-      if (res.success) {
-        showToast(t("criticalValuePage.escalateSent"))
-        setSelectedCV((prev) => (prev && prev.id === escalateCV.id ? { ...prev, status: "escalated", escalatedTo: escalateTo } : prev))
-        void useCriticalStore.getState().load()
-      } else {
-        showToast(res.error?.message ?? t("criticalValuePage.escalateFailed"), "error")
+    setCvActionBusy(true)
+    try {
+      if (escalateCV) {
+        const res = await criticalApi.escalate(escalateCV.id, escalateTo, escalateReason || t("criticalValuePage.manualEscalate"))
+        log("escalate", escalateCV.id, { to: escalateTo, reason: escalateReason })
+        if (res.success) {
+          showToast(t("criticalValuePage.escalateSent"))
+          setSelectedCV((prev) => (prev && prev.id === escalateCV.id ? { ...prev, status: "escalated", escalatedTo: escalateTo } : prev))
+          void useCriticalStore.getState().load()
+        } else {
+          showToast(res.error?.message ?? t("criticalValuePage.escalateFailed"), "error")
+        }
       }
+      setShowEscalateModal(false); setEscalateCV(null); setEscalateTo(""); setEscalateDept(""); setEscalateReason("")
+    } finally {
+      setCvActionBusy(false)
     }
-    setShowEscalateModal(false); setEscalateCV(null); setEscalateTo(""); setEscalateDept(""); setEscalateReason("")
   }
 
   // [W2-A] 闭环: PATCH /criticals/:id state=CLOSED_LOOP (5 步页可直达, 列表亦可闭环)
   const handleCloseLoop = async (cv: CriticalValue) => {
-    const res = await criticalApi.closeLoop(cv.id, "current-user")
-    log("close_loop", cv.id)
-    if (res.success) {
-      showToast(t("criticalValuePage.closedLoop"))
-      setSelectedCV((prev) => (prev && prev.id === cv.id ? { ...prev, status: "closed_loop" } : prev))
-      void useCriticalStore.getState().load()
-    } else {
-      showToast(res.error?.message ?? t("criticalValuePage.closeFailed"), "error")
+    setCvActionBusy(true)
+    try {
+      const res = await criticalApi.closeLoop(cv.id, "current-user")
+      log("close_loop", cv.id)
+      if (res.success) {
+        showToast(t("criticalValuePage.closedLoop"))
+        setSelectedCV((prev) => (prev && prev.id === cv.id ? { ...prev, status: "closed_loop" } : prev))
+        void useCriticalStore.getState().load()
+      } else {
+        showToast(res.error?.message ?? t("criticalValuePage.closeFailed"), "error")
+      }
+    } finally {
+      setCvActionBusy(false)
     }
   }
 
   // [W2-A] 删除: DELETE /criticals/:id
   const handleDelete = async (cv: CriticalValue) => {
-    const res = await criticalApi.delete(cv.id)
-    log("delete", cv.id)
-    if (res.success) {
-      showToast(t("criticalValuePage.deleted"))
-      setSelectedIds((prev) => { const n = new Set(prev); n.delete(cv.id); return n })
-      setSelectedCV((prev) => (prev && prev.id === cv.id ? null : prev))
-      void useCriticalStore.getState().load()
-    } else {
-      showToast(res.error?.message ?? t("criticalValuePage.deleteFailed"), "error")
+    setCvActionBusy(true)
+    try {
+      const res = await criticalApi.delete(cv.id)
+      log("delete", cv.id)
+      if (res.success) {
+        showToast(t("criticalValuePage.deleted"))
+        setSelectedIds((prev) => { const n = new Set(prev); n.delete(cv.id); return n })
+        setSelectedCV((prev) => (prev && prev.id === cv.id ? null : prev))
+        void useCriticalStore.getState().load()
+      } else {
+        showToast(res.error?.message ?? t("criticalValuePage.deleteFailed"), "error")
+      }
+    } finally {
+      setCvActionBusy(false)
     }
   }
 
@@ -358,17 +394,22 @@ export default function CriticalValuePage() {
   }
 
   const handleConfirmProcess = async () => {
-    if (processCV) {
-      const currentUserId = "current-user-id"
-      if (!canApprove(currentUserId, processCV.reportedBy ?? '')) {
-        message.error(t('criticalValuePage.selfApproveForbidden'))
-        setShowProcessModal(false); setProcessCV(null); return
+    setCvActionBusy(true)
+    try {
+      if (processCV) {
+        const currentUserId = "current-user-id"
+        if (!canApprove(currentUserId, processCV.reportedBy ?? '')) {
+          message.error(t('criticalValuePage.selfApproveForbidden'))
+          setShowProcessModal(false); setProcessCV(null); return
+        }
+        await useCriticalStore.getState().resolve(processCV.id)
+        log("resolve", processCV.id)
+        showToast(t("criticalValuePage.processed"))
       }
-      await useCriticalStore.getState().resolve(processCV.id)
-      log("resolve", processCV.id)
-      showToast(t("criticalValuePage.processed"))
+      setShowProcessModal(false); setProcessCV(null)
+    } finally {
+      setCvActionBusy(false)
     }
-    setShowProcessModal(false); setProcessCV(null)
   }
 
   const handleTransferToFollowUp = (cv: CriticalValue) => { setTransferCV(cv); setShowTransferModal(true) }
@@ -392,14 +433,19 @@ export default function CriticalValuePage() {
   const handleBatchProcess = () => { setConfirmType("process"); setConfirmMessage(t('w9c.critical.confirmBatchProcess', { count: selectedIds.size })); setShowConfirmModal(true) }
 
   const handleConfirm = async () => {
-    if (confirmType === "notify") {
-      for (const id of Array.from(selectedIds)) { await useCriticalStore.getState().notify(id, "SYSTEM"); log("batch_notify", id) }
-      showToast(t('w9c.critical.batchNotifySuccess', { count: selectedIds.size }))
-    } else {
-      for (const id of Array.from(selectedIds)) { await useCriticalStore.getState().resolve(id); log("batch_resolve", id) }
-      showToast(t('w9c.critical.batchProcessSuccess', { count: selectedIds.size }))
+    setCvActionBusy(true)
+    try {
+      if (confirmType === "notify") {
+        for (const id of Array.from(selectedIds)) { await useCriticalStore.getState().notify(id, "SYSTEM"); log("batch_notify", id) }
+        showToast(t('w9c.critical.batchNotifySuccess', { count: selectedIds.size }))
+      } else {
+        for (const id of Array.from(selectedIds)) { await useCriticalStore.getState().resolve(id); log("batch_resolve", id) }
+        showToast(t('w9c.critical.batchProcessSuccess', { count: selectedIds.size }))
+      }
+      setSelectedIds(new Set()); setShowConfirmModal(false)
+    } finally {
+      setCvActionBusy(false)
     }
-    setSelectedIds(new Set()); setShowConfirmModal(false)
   }
 
   useKeyboardShortcuts([
@@ -503,6 +549,7 @@ export default function CriticalValuePage() {
           onProcess={handleProcess} onViewDetail={handleViewDetail}
           onContactClinical={handleContactClinical} onVoiceCall={handleVoiceCall} onClinicalReceipt={handleClinicalReceipt} onAcknowledge={handleAcknowledge} onTransferToFollowUp={handleTransferToFollowUp}
           onEscalate={handleEscalate} onCloseLoop={handleCloseLoop} onDelete={handleDelete} onGo5Step={handleGo5Step}
+          actionBusy={cvActionBusy}
           criticalValues={criticalValues}
         />
         {selectedCV && (
@@ -537,6 +584,7 @@ export default function CriticalValuePage() {
 
       <CriticalValueModals
         toast={toast}
+        confirmBusy={cvActionBusy}
         showProcessModal={showProcessModal} processCV={processCV}
         onConfirmProcess={handleConfirmProcess} onCancelProcess={() => { setShowProcessModal(false); setProcessCV(null) }}
         showNotifyModal={showNotifyModal} notifyCV={notifyCV}

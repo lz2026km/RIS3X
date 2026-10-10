@@ -691,7 +691,7 @@ export default function TemplateDesignerPage() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-3, 12px)' }}>
-          <button
+          <button aria-label="返回"
             onClick={() => navigate("/template-management")}
             style={{
               padding: 'var(--space-1, 4px)',
@@ -1144,7 +1144,7 @@ e.currentTarget.style.borderColor = `${meta.color}30`;
                   marginTop: 'var(--space-4, 16px)',
                   padding: 'var(--space-2, 8px)',
                   background: "var(--color-warning-bg)",
-                  border: "1px solid #fcd34d",
+                  border: "1px solid var(--color-warning-300, #fcd34d)",
                   borderRadius: 6,
                   fontSize: 12,
                   color: "#92400e",
@@ -1216,7 +1216,7 @@ e.currentTarget.style.borderColor = `${meta.color}30`;
                       </AppText>
                     </div>
                     <div style={{ display: "flex", gap: 'var(--space-1, 4px)' }}>
-                      <button
+                      <button aria-label="删除"
                         onClick={(e) => {
                           e.stopPropagation();
                           removeSection(section.id);
@@ -1275,7 +1275,7 @@ e.currentTarget.style.borderColor = `${meta.color}30`;
                               background: isSelected
                                 ? `${typeMeta?.color}15`
                                 : "var(--bg-card)",
-                              border: `1px solid ${isSelected ? typeMeta?.color : "#e2e8f0"}`,
+                              border: `1px solid ${isSelected ? typeMeta?.color : "var(--border-color, #e2e8f0)"}`,
                               borderRadius: 4,
                               cursor: "pointer",
                               display: "flex",
@@ -1385,7 +1385,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                                 {typeMeta?.label} · {field.fieldKey}
                               </div>
                             </div>
-                            <button
+                            <button aria-label="删除"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 removeField(field.id);
@@ -1614,7 +1614,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                         key={rule.id}
                         style={{
                           background: "var(--color-warning-bg)",
-                          border: "1px solid #fcd34d",
+                          border: "1px solid var(--color-warning-300, #fcd34d)",
                           borderRadius: 6,
                           padding: 10,
                           marginBottom: 'var(--space-2, 8px)',
@@ -1637,7 +1637,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                           >
                             {t("templateDesigner.conditionalRule")}
                           </span>
-                          <button
+                          <button aria-label="删除"
                             onClick={() => removeConditionalRule(rule.id)}
                             style={{
                               padding: 2,
@@ -1996,7 +1996,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                               (m) => m.fieldId === f.id,
                             );
                             return mapping ? (
-                              <button
+                              <button aria-label="删除"
                                 onClick={() => removeSrMapping(f.id)}
                                 style={{
                                   padding: 2,

@@ -385,7 +385,7 @@ export default function TechRotationPage() {
               options={[{ value: 7, label: t('techRotation.days7') }, { value: 14, label: t('techRotation.days14') }]} />
             <Button size="small" type="primary" onClick={() => void handleGenerate()} data-testid="trv-generate">{t('techRotation.generate')}</Button>
             <Tooltip title={t('techRotation.refresh')}>
-              <Button size="small" icon={<RefreshCw size={14} />} onClick={regenerate} />
+              <Button aria-label="刷新" size="small" icon={<RefreshCw size={14} />} onClick={regenerate} />
             </Tooltip>
           </>
         }

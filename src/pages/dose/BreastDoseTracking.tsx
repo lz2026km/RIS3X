@@ -256,9 +256,9 @@ export default function BreastDoseTracking() {
                   v === "none" ? (
                     <span style={{ fontSize: 12, color: "var(--color-success-600)" }}>无需召回</span>
                   ) : v === "recalled" ? (
-                    <span style={{ padding: "2px 8px", background: "#fffbeb", color: "var(--color-warning-600)", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>待重拍</span>
+                    <span style={{ padding: "2px 8px", background: "var(--color-warning-bg, #fffbeb)", color: "var(--color-warning-600)", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>待重拍</span>
                   ) : (
-                    <span style={{ padding: "2px 8px", background: "#f0fdf4", color: "var(--color-success-600)", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>已完成</span>
+                    <span style={{ padding: "2px 8px", background: "var(--color-success-bg, #f0fdf4)", color: "var(--color-success-600)", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>已完成</span>
                   ),
               },
               { title: "设备", dataIndex: "device", key: "device", align: "center", render: (v: string) => <span style={{ color: 'var(--text-primary, #334155)' }}>{v}</span> },

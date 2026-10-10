@@ -46,16 +46,16 @@ export default function ToolbarSection(props: Props) {
       ))}
       {activeTool === 'zoom' && (
         <div style={{ marginTop: 'var(--space-1, 4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-          <button style={{ ...s.toolBtn, width: 36, height: 28, padding: 0 }} onClick={() => setZoom(z => Math.min(500, z + 20))}><Plus size={14} color="#fff" /></button>
+          <button aria-label="添加" style={{ ...s.toolBtn, width: 36, height: 28, padding: 0 }} onClick={() => setZoom(z => Math.min(500, z + 20))}><Plus size={14} color="#fff" /></button>
           <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{zoom}%</span>
-          <button style={{ ...s.toolBtn, width: 36, height: 28, padding: 0 }} onClick={() => setZoom(z => Math.max(10, z - 20))}><Minus size={14} color="#fff" /></button>
+          <button aria-label="减少" style={{ ...s.toolBtn, width: 36, height: 28, padding: 0 }} onClick={() => setZoom(z => Math.max(10, z - 20))}><Minus size={14} color="#fff" /></button>
         </div>
       )}
       {activeTool === 'rotate' && (
         <div style={{ marginTop: 'var(--space-1, 4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-          <button style={{ ...s.toolBtn, width: 36, height: 28, padding: 0 }} onClick={() => setRotation(r => (r + 90) % 360)}><RotateCw size={14} color="#fff" /></button>
+          <button aria-label="顺时针旋转" style={{ ...s.toolBtn, width: 36, height: 28, padding: 0 }} onClick={() => setRotation(r => (r + 90) % 360)}><RotateCw size={14} color="#fff" /></button>
           <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{rotation}°</span>
-          <button style={{ ...s.toolBtn, width: 36, height: 28, padding: 0 }} onClick={() => setRotation(r => (r - 90 + 360) % 360)}><RotateCcw size={14} color="#fff" /></button>
+          <button aria-label="逆时针旋转" style={{ ...s.toolBtn, width: 36, height: 28, padding: 0 }} onClick={() => setRotation(r => (r - 90 + 360) % 360)}><RotateCcw size={14} color="#fff" /></button>
         </div>
       )}
       <div style={{ marginTop: 'var(--space-2, 8px)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
@@ -78,7 +78,7 @@ export default function ToolbarSection(props: Props) {
       </div>
       <div style={{ marginTop: 'var(--space-1, 4px)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
         <Tooltip title={t('w9d.annotation.panelTitle')}>
-          <button style={{ ...s.toolBtn, width: 36, height: 28, padding: 0, ...(activeTool === 'annotate' ? { background: 'rgba(255,255,255,0.25)', color: '#fff' } : {}) }} onClick={() => { handleToolClick('annotate'); setShowAnnotationPanel(!showAnnotationPanel) }}>
+          <button aria-label="标注" style={{ ...s.toolBtn, width: 36, height: 28, padding: 0, ...(activeTool === 'annotate' ? { background: 'rgba(255,255,255,0.25)', color: '#fff' } : {}) }} onClick={() => { handleToolClick('annotate'); setShowAnnotationPanel(!showAnnotationPanel) }}>
             <PenTool size={14} />
           </button>
         </Tooltip>

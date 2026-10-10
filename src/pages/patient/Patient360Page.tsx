@@ -679,7 +679,7 @@ export default function Patient360Page() {
           padding: '3px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600,
           background: deepSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
           color: deepSource === 'real' ? '#065f46' : '#92400e',
-          border: `1px solid ${deepSource === 'real' ? '#bbf7d0' : '#fcd34d'}`,
+          border: `1px solid ${deepSource === 'real' ? '#bbf7d0' : 'var(--color-warning-300, #fcd34d)'}`,
         }}>
           <Database size={12} />
           {t('patient360.deepSource')}{deepSource === 'real' ? t('patient360.deepReal') : t('patient360.deepDemo')}

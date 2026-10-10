@@ -61,6 +61,8 @@ const TriageDashboardPage: React.FC = () => {
   const [vitals, setVitals] = useState<VitalSigns>({})
   const [reTriageResult, setReTriageResult] = useState<TriageScoreResult | null>(null)
   const [reTriaging, setReTriaging] = useState(false)
+  const [confirmingId, setConfirmingId] = useState('')
+  const [manualSaving, setManualSaving] = useState(false)
 
   const fetchPending = useCallback(async () => {
     setLoading(true)
@@ -153,6 +155,7 @@ const TriageDashboardPage: React.FC = () => {
   }
 
   const handleConfirm = async (item: TriagePendingItem) => {
+    setConfirmingId(item.id)
     try {
       const res = await triageApi.update(item.id, { status: 'COMPLETED' })
       if (res.success) {
@@ -163,11 +166,14 @@ const TriageDashboardPage: React.FC = () => {
       }
     } catch {
       message.error(t('triage.confirmFailed'))
+    } finally {
+      setConfirmingId('')
     }
   }
 
   const handleManualUpdate = async () => {
     if (!selectedItem) return
+    setManualSaving(true)
     try {
       const res = await triageApi.update(selectedItem.id, {
         assignedDoctor: newDoctor || undefined,
@@ -182,6 +188,8 @@ const TriageDashboardPage: React.FC = () => {
       }
     } catch {
       message.error(t('triage.updateFailed'))
+    } finally {
+      setManualSaving(false)
     }
   }
 
@@ -307,7 +315,7 @@ const TriageDashboardPage: React.FC = () => {
           </Tooltip>
           {record.status !== 'COMPLETED' && (
             <Tooltip title={t('triage.confirmComplete')}>
-              <Button size="small" type="default" onClick={() => handleConfirm(record)}>
+              <Button size="small" type="default" loading={confirmingId === record.id} disabled={confirmingId === record.id} onClick={() => handleConfirm(record)}>
                 {t('triage.complete')}
               </Button>
             </Tooltip>
@@ -407,6 +415,7 @@ const TriageDashboardPage: React.FC = () => {
         title={t('triage.detailTitle')}
         open={detailOpen}
         onOk={handleManualUpdate}
+        confirmLoading={manualSaving}
         onCancel={() => setDetailOpen(false)}
         width={500}
       >

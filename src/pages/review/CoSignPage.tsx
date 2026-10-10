@@ -595,7 +595,7 @@ const CoSignPage: React.FC = () => {
               width: 90,
               render: (_: unknown, r: CoSignRule) => (
                 <Popconfirm title={t('coSign.confirmDeleteRule')} onConfirm={() => void handleDeleteRule(r.key)}>
-                  <Button size="small" danger icon={<Trash2 size={12} />} loading={ruleDeletingKey === r.key} />
+                  <Button aria-label="删除" size="small" danger icon={<Trash2 size={12} />} loading={ruleDeletingKey === r.key} />
                 </Popconfirm>
               ),
             },

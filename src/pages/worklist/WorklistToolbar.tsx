@@ -113,7 +113,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
         fontWeight: 600,
         cursor: 'pointer',
         transition: 'all 0.15s',
-        borderColor: active ? 'var(--color-primary-800)' : '#e2e8f0',
+        borderColor: active ? 'var(--color-primary-800)' : 'var(--border-color, #e2e8f0)',
         background: active ? 'var(--color-primary-800)' : 'var(--bg-card)',
         color: active ? '#fff' : '#64748b',
         display: 'flex',
@@ -169,7 +169,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
             }}
           />
           {filters.search && (
-            <button
+            <button aria-label="关闭"
               onClick={() => updateFilter('search', '')}
               style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 0, display: 'flex' }}
             >
@@ -409,7 +409,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
                   <button onClick={() => onApplyPreset?.(p)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--text-primary)', fontWeight: 600, padding: 0, whiteSpace: 'nowrap' }}>
                     {p.name}
                   </button>
-                  <button onClick={() => onDeletePreset?.(i)} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: 'var(--text-secondary)' }}>
+                  <button aria-label="删除" onClick={() => onDeletePreset?.(i)} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: 'var(--text-secondary)' }}>
                     <X size={10} />
                   </button>
                 </div>
@@ -717,7 +717,7 @@ export function QuickFilters({ currentFilters, onApply }: QuickFilterProps) {
             style={{
               padding: '5px 12px', borderRadius: 6, border: '1px solid', fontSize: 12, fontWeight: 600,
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', transition: 'all 0.15s',
-              borderColor: isActive ? 'var(--color-primary-800)' : '#e2e8f0',
+              borderColor: isActive ? 'var(--color-primary-800)' : 'var(--border-color, #e2e8f0)',
               background: isActive ? 'var(--color-primary-800)' : 'var(--bg-card)',
               color: isActive ? '#fff' : '#64748b',
             }}

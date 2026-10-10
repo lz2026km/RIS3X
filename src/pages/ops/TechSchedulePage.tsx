@@ -339,9 +339,9 @@ export default function TechSchedulePage() {
       {/* ================= 工具栏 ================= */}
       <div style={{ padding: 'var(--space-4, 16px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
-          <Button size="small" icon={<ChevronLeft size={14} />} onClick={() => setMonth(shiftMonth(month, -1))} />
+          <Button aria-label="上一页" size="small" icon={<ChevronLeft size={14} />} onClick={() => setMonth(shiftMonth(month, -1))} />
           <span style={{ fontSize: 14, fontWeight: 600, minWidth: 90, textAlign: 'center' }}>{monthLabel}</span>
-          <Button size="small" icon={<ChevronRight size={14} />} onClick={() => setMonth(shiftMonth(month, 1))} />
+          <Button aria-label="下一页" size="small" icon={<ChevronRight size={14} />} onClick={() => setMonth(shiftMonth(month, 1))} />
           <Button size="small" onClick={() => setMonth(monthStr())}>{t('techSchedule.thisMonth')}</Button>
         </div>
         <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', alignItems: 'center', flexWrap: 'wrap' }}>

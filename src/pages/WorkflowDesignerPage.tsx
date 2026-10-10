@@ -66,7 +66,7 @@ function DropZone({ children }: { children: React.ReactNode }) {
       ref={setNodeRef}
       style={{
         flex: 1, minHeight: 400, background: isOver ? 'var(--color-info-bg)' : 'var(--bg-primary)',
-        border: `2px dashed ${isOver ? 'var(--color-primary-500)' : '#e2e8f0'}`,
+        border: `2px dashed ${isOver ? 'var(--color-primary-500)' : 'var(--border-color, #e2e8f0)'}`,
         borderRadius: 8, padding: 'var(--space-4, 16px)', position: 'relative', transition: 'background 0.2s',
       }}
     >
@@ -263,7 +263,7 @@ export default function WorkflowDesignerPage() {
           <Button size="small" type="primary" loading={saving} icon={<Save size={14} />} onClick={handleSave}>{t('workflowDesigner.save')}</Button>
         </header>
         {loading && <LoadingBanner message={t('w9.states.loading')} />}
-        {loadError && !loading && <ErrorBanner message={loadError} />}
+        {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => void loadDefinitions()} retryLabel={t('w9.states.retry')} />}
         <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
           <aside style={{ width: 200, background: 'var(--bg-card)', borderRight: '1px solid var(--border-color)', padding: 'var(--space-4, 16px)', overflowY: 'auto' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-3, 12px)' }}>{t('workflowDesigner.stepTypes')}</div>

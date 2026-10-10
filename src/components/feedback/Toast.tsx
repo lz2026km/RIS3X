@@ -8,7 +8,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { App, Modal, type ModalFuncProps } from 'antd';
-import { ExclamationCircleOutlined, CheckCircleOutlined, InfoCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { AlertCircle, CheckCircle2, Info, XCircle } from 'lucide-react';
 import { useEffect, type ReactNode } from 'react';
 
 // ============= Toast 业务封装 =============
@@ -18,16 +18,16 @@ export function useToast() {
 
   return {
     success: (content: string, duration = 3) => {
-      message.success({ content, duration, icon: <CheckCircleOutlined /> });
+      message.success({ content, duration, icon: <CheckCircle2 /> });
     },
     error: (content: string, duration = 4) => {
-      message.error({ content, duration, icon: <CloseCircleOutlined /> });
+      message.error({ content, duration, icon: <XCircle /> });
     },
     warning: (content: string, duration = 4) => {
-      message.warning({ content, duration, icon: <ExclamationCircleOutlined /> });
+      message.warning({ content, duration, icon: <AlertCircle /> });
     },
     info: (content: string, duration = 3) => {
-      message.info({ content, duration, icon: <InfoCircleOutlined /> });
+      message.info({ content, duration, icon: <Info /> });
     },
     loading: (content: string) => message.loading({ content, duration: 0 }),
     // 业务语义
@@ -83,7 +83,7 @@ export function useNotification() {
         description: finding,
         placement: 'topRight',
         duration: 0,  // 不自动关闭
-        icon: <CloseCircleOutlined style={{ color: 'var(--color-error-600)' }} />,
+        icon: <XCircle style={{ color: 'var(--color-error-600)' }} />,
       });
     },
   };
@@ -110,21 +110,21 @@ export function useConfirm() {
         ...config,
         okText: t('common.confirm'),
         cancelText: t('common.cancel'),
-        icon: <ExclamationCircleOutlined />,
+        icon: <AlertCircle />,
       }),
     info: (config: Omit<ModalFuncProps, 'okText' | 'cancelText'>) =>
       modal.info({
         ...config,
         okText: t('common.confirm'),
         cancelText: t('common.cancel'),
-        icon: <InfoCircleOutlined />,
+        icon: <Info />,
       }),
     error: (config: Omit<ModalFuncProps, 'okText' | 'cancelText'>) =>
       modal.error({
         ...config,
         okText: t('common.confirm'),
         cancelText: t('common.cancel'),
-        icon: <CloseCircleOutlined />,
+        icon: <XCircle />,
       }),
     // 业务:危险操作
     delete: (name: string, onOk: () => void | Promise<void>) => {
@@ -135,7 +135,7 @@ export function useConfirm() {
         cancelText: t('common.cancel'),
         okButtonProps: { danger: true },
         onOk,
-        icon: <ExclamationCircleOutlined style={{ color: 'var(--color-error-600)' }} />,
+        icon: <AlertCircle style={{ color: 'var(--color-error-600)' }} />,
       });
     },
     // 业务:提交确认

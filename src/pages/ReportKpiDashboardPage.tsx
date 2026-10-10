@@ -167,9 +167,9 @@ export default function ReportKpiDashboardPage() {
             <BarChart3 size={20} color="var(--color-primary-800)" /> {t('reportKpi.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
             {/* [G005 Wave2B P2] KpiEngine 本地合成指标 → 演示数据徽标 */}
-            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: 'var(--color-warning-600)', border: '1px solid #fcd34d', fontWeight: 600 }}>{t('reportKpi.demoBadge')}</span>
+            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg, #fffbeb)', color: 'var(--color-warning-600)', border: '1px solid var(--color-warning-300, #fcd34d)', fontWeight: 600 }}>{t('reportKpi.demoBadge')}</span>
             {/* [G005 W7] 真实 KPI 源 (/bi/kpi) 优先, 否则标注本地引擎 */}
-            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: biKpi ? '#ecfdf5' : '#f1f5f9', color: biKpi ? '#059669' : '#475569', border: `1px solid ${biKpi ? '#6ee7b7' : '#cbd5e1'}`, fontWeight: 600 }}>{biKpi ? t('w7demo.kpiBiSource') : t('w7demo.kpiEngineSource')}</span>
+            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: biKpi ? '#ecfdf5' : 'var(--bg-primary, #f8fafc)', color: biKpi ? '#059669' : '#475569', border: `1px solid ${biKpi ? '#6ee7b7' : '#cbd5e1'}`, fontWeight: 600 }}>{biKpi ? t('w7demo.kpiBiSource') : t('w7demo.kpiEngineSource')}</span>
           </Typography.Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('reportKpi.subtitle')}

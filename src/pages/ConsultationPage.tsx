@@ -193,6 +193,7 @@ export default function ConsultationPage() {
   const [consultations, setConsultations] = useState(initialConsultations)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [reloadTick, setReloadTick] = useState(0)
 
   // [G005 2B] 会诊统计 (GET /consultations/stats, 失败回退本地计算)
   const [consultStats, setConsultStats] = useState<any>(null)
@@ -357,7 +358,7 @@ export default function ConsultationPage() {
       setLoading(false)
     })()
     return () => { cancelled = true }
-  }, [])
+  }, [reloadTick])
 
   const selected = consultations.find(c => c.id === selectedId)
 
@@ -746,7 +747,7 @@ export default function ConsultationPage() {
       <div style={{ background: 'var(--color-success-bg)', color: '#065f46', fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 6, border: '1px solid #a7f3d0', marginBottom: 'var(--space-3, 12px)' }}>
         {t('consultation.realApiBanner')}</div>
       {loading && <LoadingBanner message={t('consultation.loadingData')} />}
-      {loadError && !loading && <ErrorBanner message={loadError} />}
+      {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => setReloadTick(n => n + 1)} retryLabel={t('w9.states.retry')} />}
       {/* Header */}
       <div style={{ marginBottom: 'var(--space-5, 20px)' }}>
         <Title level={4} style={{ margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
@@ -1299,7 +1300,7 @@ export default function ConsultationPage() {
       {activeTab === '录音录像会诊' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
           {/* [G005 W2-B P2] 后端暂无录像/存档端点, 列表为演示数据 */}
-          <div style={{ background: '#fffbeb', color: '#92400e', fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 6, border: '1px solid #fcd34d' }}>
+          <div style={{ background: 'var(--color-warning-bg, #fffbeb)', color: '#92400e', fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 6, border: '1px solid var(--color-warning-300, #fcd34d)' }}>
             {t('consultation.recordingDemoBanner')}
           </div>
           {/* Stat Cards */}
@@ -1353,7 +1354,7 @@ export default function ConsultationPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', flexWrap: 'wrap' }}>
                   {/* 录制按钮 */}
                   {recordingStatus === '准备中' && (
-                    <button
+                    <button aria-label="开始录制"
                       onClick={handleStartRecording}
                       style={{
                         width: 56,
@@ -1373,7 +1374,7 @@ export default function ConsultationPage() {
                   )}
 
                   {recordingStatus === '录制中' && (
-                    <button
+                    <button aria-label="重新录制"
                       onClick={handleStartRecording}
                       style={{
                         width: 56,
@@ -1415,7 +1416,7 @@ export default function ConsultationPage() {
 
                   {/* 停止按钮 */}
                   {(recordingStatus === '录制中' || recordingStatus === '已暂停') && (
-                    <button
+                    <button aria-label="停止录制"
                       onClick={handleStopRecording}
                       style={{
                         width: 48,
@@ -1662,7 +1663,7 @@ export default function ConsultationPage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Film size={16} color={ACCENT} />{t('consultation.archiveList')}
-              <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-warning-600)', background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: 10, padding: '2px 8px' }}>{t('consultation.demoData')}</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-warning-600)', background: 'var(--color-warning-bg, #fffbeb)', border: '1px solid var(--color-warning-300, #fcd34d)', borderRadius: 10, padding: '2px 8px' }}>{t('consultation.demoData')}</span>
             </h3>
 
             <div style={{ overflowX: 'auto' }}>
@@ -1921,7 +1922,7 @@ export default function ConsultationPage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 'var(--space-6, 24px)', width: 480, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>{t('consultation.detailRatingTitle')}</h3>
-              <button onClick={() => setShowRatingModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
+              <button aria-label="关闭" onClick={() => setShowRatingModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
                 <X size={20} />
               </button>
             </div>
@@ -1934,7 +1935,7 @@ export default function ConsultationPage() {
                   </div>
                   <div style={{ display: 'flex', gap: 6, marginBottom: 'var(--space-2, 8px)' }}>
                     {[1, 2, 3, 4, 5].map(s => (
-                      <button
+                      <button aria-label="评分"
                         key={s}
                         onClick={() => {
                           const updated = [...ratingModalData]
@@ -1982,7 +1983,7 @@ export default function ConsultationPage() {
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 4px' }}>{t('consultation.videoPlayback')} - {selectedArchive.patientName}</h3>
                 <div style={{ fontSize: 12, color: GRAY }}>{selectedArchive.consultationId} | {selectedArchive.duration} | {selectedArchive.fileSize}</div>
               </div>
-              <button
+              <button aria-label="关闭"
                 onClick={() => {
                   setVideoModalOpen(false)
                   setIsPlaying(false)
@@ -2047,7 +2048,7 @@ export default function ConsultationPage() {
                     {isPlaying ? <Pause size={18} color="white" /> : <Play size={18} color="white" />}
                   </button>
 
-                  <button
+                  <button aria-label="上一个"
                     onClick={() => setVideoProgress(Math.max(0, videoProgress - 10))}
                     style={{
                       background: 'none',
@@ -2059,7 +2060,7 @@ export default function ConsultationPage() {
                     <SkipBack size={20} />
                   </button>
 
-                  <button
+                  <button aria-label="下一个"
                     onClick={() => setVideoProgress(Math.min(100, videoProgress + 10))}
                     style={{
                       background: 'none',
@@ -2245,7 +2246,7 @@ export default function ConsultationPage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 'var(--space-6, 24px)', width: 480, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>{t('consultation.uploadTitle')}</h3>
-              <button onClick={() => setShowUploadModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
+              <button aria-label="关闭" onClick={() => setShowUploadModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
                 <X size={20} />
               </button>
             </div>
@@ -2271,7 +2272,7 @@ export default function ConsultationPage() {
                       <FileText size={14} color={ACCENT} />
                       <span style={{ flex: 1, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</span>
                       <span style={{ color: GRAY }}>{(f.size / 1024).toFixed(0)}KB</span>
-                      <button onClick={() => handleRemoveUploadFile(f.name)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: DANGER, padding: 0 }}><X size={14} /></button>
+                      <button aria-label="删除" onClick={() => handleRemoveUploadFile(f.name)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: DANGER, padding: 0 }}><X size={14} /></button>
                     </div>
                   ))}
                 </div>
@@ -2295,7 +2296,7 @@ export default function ConsultationPage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 'var(--space-6, 24px)', width: 440, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>{t('consultation.inviteTitle')}</h3>
-              <button onClick={() => setShowInviteModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
+              <button aria-label="关闭" onClick={() => setShowInviteModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
                 <X size={20} />
               </button>
             </div>
@@ -2327,7 +2328,7 @@ export default function ConsultationPage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 'var(--space-6, 24px)', width: 560, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>{t('consultation.registration.editTitle')} #{selected.id}</h3>
-              <button onClick={() => setShowEditModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
+              <button aria-label="关闭" onClick={() => setShowEditModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
                 <X size={20} />
               </button>
             </div>
@@ -2378,7 +2379,7 @@ export default function ConsultationPage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 'var(--space-6, 24px)', width: 520, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>{t('consultation.confirmConclusionTitle')}</h3>
-              <button onClick={() => setShowConclusionModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
+              <button aria-label="关闭" onClick={() => setShowConclusionModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
                 <X size={20} />
               </button>
             </div>
@@ -2414,7 +2415,7 @@ export default function ConsultationPage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 'var(--space-6, 24px)', width: 400, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: DANGER, margin: 0 }}>{t('consultation.confirmDeleteArchive')}</h3>
-              <button onClick={() => { setShowDeleteModal(false); setDeleteTarget(null) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
+              <button aria-label="关闭" onClick={() => { setShowDeleteModal(false); setDeleteTarget(null) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
                 <X size={20} />
               </button>
             </div>

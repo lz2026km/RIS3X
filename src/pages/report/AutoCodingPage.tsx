@@ -162,7 +162,7 @@ export default function AutoCodingPage() {
                   <button onClick={() => setConfirmed(new Set(result.terms.map((term) => term.keyword)))} style={{ fontSize: 11, color: 'var(--color-primary-700)', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 4, padding: '2px 8px', cursor: 'pointer' }}>
                     {t('w17.coding.confirmAll')}
                   </button>
-                  <button onClick={() => setConfirmed(new Set())} style={{ fontSize: 11, color: 'var(--text-muted, #64748b)', background: '#f1f5f9', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: 4, padding: '2px 8px', cursor: 'pointer' }}>
+                  <button onClick={() => setConfirmed(new Set())} style={{ fontSize: 11, color: 'var(--text-muted, #64748b)', background: 'var(--bg-primary, #f8fafc)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: 4, padding: '2px 8px', cursor: 'pointer' }}>
                     {t('w17.coding.clearAll')}
                   </button>
                 </div>
@@ -170,7 +170,7 @@ export default function AutoCodingPage() {
                   {result.terms.map((term: AutoEncodedTerm, i: number) => {
                     const isConfirmed = confirmed.has(term.keyword)
                     return (
-                      <div key={`${term.keyword}-${i}`} style={{ border: isConfirmed ? '1.5px solid #10b981' : '1px solid #e2e8f0', borderRadius: 8, padding: 10, background: isConfirmed ? '#f0fdf4' : '#fff' }}>
+                      <div key={`${term.keyword}-${i}`} style={{ border: isConfirmed ? '1.5px solid #10b981' : '1px solid var(--border-color, #e2e8f0)', borderRadius: 8, padding: 10, background: isConfirmed ? 'var(--color-success-bg, #f0fdf4)' : 'var(--bg-card, #ffffff)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 6, flexWrap: 'wrap' }}>
                           <button
                             onClick={() => toggleConfirm(term.keyword)}
@@ -179,7 +179,7 @@ export default function AutoCodingPage() {
                             {isConfirmed && <CheckCircle2 size={14} />}
                           </button>
                           <span style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{term.keyword}</span>
-                          <span style={{ fontSize: 11, fontWeight: 600, color: SECTION_COLORS[term.section] ?? '#94a3b8', background: '#f8fafc', padding: '2px 8px', borderRadius: 10, border: '1px solid var(--border-color, #e2e8f0)' }}>
+                          <span style={{ fontSize: 11, fontWeight: 600, color: SECTION_COLORS[term.section] ?? '#94a3b8', background: 'var(--bg-primary, #f8fafc)', padding: '2px 8px', borderRadius: 10, border: '1px solid var(--border-color, #e2e8f0)' }}>
                             {t(`w17.coding.section.${term.section}`)}
                           </span>
                           <span style={{ fontSize: 11, fontWeight: 600, color: term.confidence >= 0.9 ? '#059669' : 'var(--color-warning-600)', background: term.confidence >= 0.9 ? '#d1fae5' : '#fef3c7', padding: '2px 8px', borderRadius: 10 }}>
@@ -211,7 +211,7 @@ export default function AutoCodingPage() {
               </div>
             )}
             {result && result.terms.length === 0 && (
-              <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-4, 16px)', textAlign: 'center', color: 'var(--text-muted, #94a3b8)', fontSize: 12, background: '#f8fafc', borderRadius: 8 }}>
+              <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-4, 16px)', textAlign: 'center', color: 'var(--text-muted, #94a3b8)', fontSize: 12, background: 'var(--bg-primary, #f8fafc)', borderRadius: 8 }}>
                 {t('w17.coding.noTerms')}
               </div>
             )}
@@ -248,7 +248,7 @@ export default function AutoCodingPage() {
                 </span>
               )}
             </div>
-            <div style={{ marginTop: 14, padding: 10, background: '#fffbeb', borderRadius: 6, fontSize: 11, color: '#92400e', lineHeight: 1.7, border: '1px solid #fde68a' }}>
+            <div style={{ marginTop: 14, padding: 10, background: 'var(--color-warning-bg, #fffbeb)', borderRadius: 6, fontSize: 11, color: '#92400e', lineHeight: 1.7, border: '1px solid #fde68a' }}>
               {t('w17.coding.note')}
             </div>
           </div>

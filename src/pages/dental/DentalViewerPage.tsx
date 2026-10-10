@@ -89,9 +89,9 @@ export const DentalViewerPage: React.FC = () => {
           <Tooltip title={t("dViewer.windowWidth")}><InputNumber size="small" value={ww} onChange={(v) => setWw(v ?? 400)} min={1} max={2000} style={{ width: 80 }} suffix="W" /></Tooltip>
           <Tooltip title={t("dViewer.windowCenter")}><InputNumber size="small" value={wc} onChange={(v) => setWc(v ?? 40)} min={-500} max={500} style={{ width: 80 }} suffix="C" /></Tooltip>
           <Slider min={50} max={300} value={zoom} onChange={setZoom} style={{ width: 100 }} />
-          <Tooltip title={t("dViewer.zoomIn")}><Button size="small" icon={<ZoomIn size={14} />} onClick={() => setZoom(z => Math.min(300, z + 20))} /></Tooltip>
-          <Tooltip title={t("dViewer.zoomOut")}><Button size="small" icon={<ZoomOut size={14} />} onClick={() => setZoom(z => Math.max(50, z - 20))} /></Tooltip>
-          <Tooltip title={t("dViewer.reset")}><Button size="small" icon={<RotateCcw size={14} />} onClick={() => { setZoom(1); setWw(400); setWc(40); }} /></Tooltip>
+          <Tooltip title={t("dViewer.zoomIn")}><Button aria-label="放大" size="small" icon={<ZoomIn size={14} />} onClick={() => setZoom(z => Math.min(300, z + 20))} /></Tooltip>
+          <Tooltip title={t("dViewer.zoomOut")}><Button aria-label="缩小" size="small" icon={<ZoomOut size={14} />} onClick={() => setZoom(z => Math.max(50, z - 20))} /></Tooltip>
+          <Tooltip title={t("dViewer.reset")}><Button aria-label="逆时针旋转" size="small" icon={<RotateCcw size={14} />} onClick={() => { setZoom(1); setWw(400); setWc(40); }} /></Tooltip>
         </Space>
       </div>
 
@@ -112,9 +112,9 @@ export const DentalViewerPage: React.FC = () => {
                 </div>
               </div>
               <div style={{ marginTop: 'var(--space-2, 8px)' }}>
-                <Button size="small" icon={<ChevronLeft size={12} />} onClick={() => setCurrentSlice(s => Math.max(0, s-1))} disabled={currentSlice === 0} />
+                <Button aria-label="上一页" size="small" icon={<ChevronLeft size={12} />} onClick={() => setCurrentSlice(s => Math.max(0, s-1))} disabled={currentSlice === 0} />
                 <span style={{ color: 'var(--text-secondary)', margin: '0 12px' }}>{currentSlice + 1} / {imageCount}</span>
-                <Button size="small" icon={<ChevronRight size={12} />} onClick={() => setCurrentSlice(s => Math.min(imageCount-1, s+1))} disabled={currentSlice >= imageCount-1} />
+                <Button aria-label="下一页" size="small" icon={<ChevronRight size={12} />} onClick={() => setCurrentSlice(s => Math.min(imageCount-1, s+1))} disabled={currentSlice >= imageCount-1} />
               </div>
             </div>
           ) : (
@@ -166,7 +166,7 @@ export const DentalViewerPage: React.FC = () => {
               { key: 'segments', label: t("dViewer.tabSegments"), children: <Card size="small" styles={{ body: { padding: 'var(--space-2, 8px)' } }}>
                   {(study.segments && study.segments.length > 0) ? <Row gutter={[8,8]}>
                     {study.segments.map((s: any, i: number) => <Col key={i} span={12}>
-                      <div style={{ padding: 'var(--space-2, 8px)', background: s.color || '#f0f0f0', borderRadius: 4, fontSize: 12, fontWeight: 600, color: '#fff' }}>{s.label} ({s.volume}mm³)</div>
+                      <div style={{ padding: 'var(--space-2, 8px)', background: s.color || 'var(--bg-primary, #f8fafc)', borderRadius: 4, fontSize: 12, fontWeight: 600, color: '#fff' }}>{s.label} ({s.volume}mm³)</div>
                     </Col>)}
                   </Row> : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("dViewer.noSegments")} />}
                 </Card>

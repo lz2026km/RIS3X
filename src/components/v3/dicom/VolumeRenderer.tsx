@@ -356,7 +356,7 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid }) => {
         </Row>
       )}
       <Space style={{ marginTop: 'var(--space-1, 4px)' }}>
-        <Tooltip title={t('w9e.volumeRenderer.reset')}><Button size="small" icon={<RotateCcw size={12} />} onClick={handleReset} /></Tooltip>
+        <Tooltip title={t('w9e.volumeRenderer.reset')}><Button aria-label="重置" size="small" icon={<RotateCcw size={12} />} onClick={handleReset} /></Tooltip>
       </Space>
     </Card>
   )

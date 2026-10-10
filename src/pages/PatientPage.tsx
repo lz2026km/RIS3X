@@ -357,6 +357,7 @@ export default function PatientPage() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [importText, setImportText] = useState("");
   const [importing, setImporting] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [importResult, setImportResult] = useState<{
     imported: number;
     skipped: number;
@@ -393,6 +394,7 @@ export default function PatientPage() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [accessDenied, setAccessDenied] = useState(false);
+  const [reloadTick, setReloadTick] = useState(0);
 
   const [dismissedDuplicateIds, setDismissedDuplicateIds] = useState<
     Set<string>
@@ -490,7 +492,7 @@ export default function PatientPage() {
     return () => {
       cancelled = true;
     };
-  }, [checkAccess, user?.department]);
+  }, [checkAccess, user?.department, reloadTick]);
 
   // ============================================================
   // [v3.0.6.11-104 Wave 2B] 患者统计: overview + age-distribution (真实 API, 失败回退演示)
@@ -875,6 +877,7 @@ export default function PatientPage() {
   };
 
   const handleExport = async () => {
+    setExporting(true);
     // [W4-A] 优先走后端 CSV 导出, 失败时回退本地导出
     try {
       const res = await patientApi.exportPatients({});
@@ -930,6 +933,8 @@ export default function PatientPage() {
       link.download = `患者列表_${new Date().toISOString().split("T")[0]}.csv`;
       link.click();
       setToast({ show: true, type: "success", message: t('patientPage.exportedCountLocal', { count: filteredPatients.length }) });
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -1077,7 +1082,7 @@ export default function PatientPage() {
               </div>
             </div>
           </div>
-          <button
+          <button aria-label="关闭"
             onClick={handleClosePMIPanel}
             style={{
               width: 36,
@@ -1130,7 +1135,7 @@ export default function PatientPage() {
               />
             </FieldGate>
             {pmiSearchQuery && (
-              <button
+              <button aria-label="关闭"
                 onClick={() => {
                   setPmiSearchQuery("");
                   setPmiSearchResults([]);
@@ -1542,7 +1547,7 @@ export default function PatientPage() {
             </div>
             <AppText size="xs" color="secondary" as="div">{t('patientPage.matchConfidence')}</AppText>
           </div>
-          <button
+          <button aria-label="关闭"
             onClick={handleClosePMIPanel}
             style={{
               width: 32,
@@ -2019,7 +2024,7 @@ export default function PatientPage() {
 
   // ==================== 主渲染 ====================
   return (
-    <PageTemplate background="slate" maxWidth="standard" showHeader={false} loading={loading} error={loadError} testId="patient-page">
+    <PageTemplate background="slate" maxWidth="standard" showHeader={false} loading={loading} error={loadError} onRetry={() => setReloadTick(n => n + 1)} testId="patient-page">
       {accessDenied && (
         <div
           style={{
@@ -2036,7 +2041,7 @@ export default function PatientPage() {
         </div>
       )}
       {loading && <LoadingBanner message={t('w9.states.loading')} />}
-      {loadError && !loading && <ErrorBanner message={loadError} />}
+      {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => setReloadTick(n => n + 1)} retryLabel={t('w9.states.retry')} />}
       <div
         style={{
           display: "flex",
@@ -2081,6 +2086,8 @@ export default function PatientPage() {
           <ActionButton
             action="export"
             size="compact"
+            loading={exporting}
+            disabled={exporting}
             onClick={() => void handleExport()}
           >
             {t('patientPage.export')}
@@ -2389,7 +2396,7 @@ export default function PatientPage() {
                   {t('patientPage.batchImportTitle')}
                 </span>
               </div>
-              <button
+              <button aria-label="关闭"
                 onClick={() => setShowImportModal(false)}
                 style={{
                   background: "rgba(255,255,255,0.15)",
@@ -2466,7 +2473,7 @@ export default function PatientPage() {
                     padding: "12px 14px",
                     border: "1px solid",
                     borderColor: importResult.errors.length > 0 ? "#fde68a" : "#bbf7d0",
-                    background: importResult.errors.length > 0 ? "#fffbeb" : "#f0fdf4",
+                    background: importResult.errors.length > 0 ? "var(--color-warning-bg, #fffbeb)" : "var(--color-success-bg, #f0fdf4)",
                   }}
                 >
                   <div style={{ fontSize: 12, fontWeight: 700, color: importResult.errors.length > 0 ? "#92400e" : "#166534" }}>

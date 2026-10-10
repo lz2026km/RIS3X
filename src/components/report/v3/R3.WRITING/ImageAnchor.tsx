@@ -210,11 +210,11 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
       <div className="space-y-3">
         {/* 工具栏 */}
         <div className="flex items-center gap-1 p-1 bg-slate-50 rounded">
-          <Tooltip title={t('w9e.imageAnchor.toolSelect')}><Button size="small" type={activeTool === 'select' ? 'primary' : 'text'} icon={<Move className="w-3 h-3" />} onClick={() => setActiveTool('select')} /></Tooltip>
-          <Tooltip title={t('w9e.imageAnchor.toolArrow')}><Button size="small" type={activeTool === 'arrow' ? 'primary' : 'text'} icon={<ArrowUpRight className="w-3 h-3" />} onClick={() => setActiveTool('arrow')} /></Tooltip>
-          <Tooltip title={t('w9e.imageAnchor.toolCircleTip')}><Button size="small" type={activeTool === 'circle' ? 'primary' : 'text'} icon={<CircleIcon className="w-3 h-3" />} onClick={() => setActiveTool('circle')} /></Tooltip>
-          <Tooltip title={t('w9e.imageAnchor.toolLineTip')}><Button size="small" type={activeTool === 'line' ? 'primary' : 'text'} icon={<Ruler className="w-3 h-3" />} onClick={() => setActiveTool('line')} /></Tooltip>
-          <Tooltip title={t('w9e.imageAnchor.toolTextTip')}><Button size="small" type={activeTool === 'text' ? 'primary' : 'text'} icon={<Type className="w-3 h-3" />} onClick={() => setActiveTool('text')} /></Tooltip>
+          <Tooltip title={t('w9e.imageAnchor.toolSelect')}><Button aria-label="选择工具" size="small" type={activeTool === 'select' ? 'primary' : 'text'} icon={<Move className="w-3 h-3" />} onClick={() => setActiveTool('select')} /></Tooltip>
+          <Tooltip title={t('w9e.imageAnchor.toolArrow')}><Button aria-label="箭头标注" size="small" type={activeTool === 'arrow' ? 'primary' : 'text'} icon={<ArrowUpRight className="w-3 h-3" />} onClick={() => setActiveTool('arrow')} /></Tooltip>
+          <Tooltip title={t('w9e.imageAnchor.toolCircleTip')}><Button aria-label="圆形标注" size="small" type={activeTool === 'circle' ? 'primary' : 'text'} icon={<CircleIcon className="w-3 h-3" />} onClick={() => setActiveTool('circle')} /></Tooltip>
+          <Tooltip title={t('w9e.imageAnchor.toolLineTip')}><Button aria-label="线段测量" size="small" type={activeTool === 'line' ? 'primary' : 'text'} icon={<Ruler className="w-3 h-3" />} onClick={() => setActiveTool('line')} /></Tooltip>
+          <Tooltip title={t('w9e.imageAnchor.toolTextTip')}><Button aria-label="文字标注" size="small" type={activeTool === 'text' ? 'primary' : 'text'} icon={<Type className="w-3 h-3" />} onClick={() => setActiveTool('text')} /></Tooltip>
           <div className="flex-1" />
           <Select
             size="small"
@@ -228,9 +228,9 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
           />
           <div className="w-1" />
           <Space.Compact>
-            <Button size="small" icon={<ZoomOut className="w-3 h-3" />} onClick={() => setZoom((z) => Math.max(0.5, z - 0.1))} />
+            <Button aria-label="缩小" size="small" icon={<ZoomOut className="w-3 h-3" />} onClick={() => setZoom((z) => Math.max(0.5, z - 0.1))} />
             <Button size="small">{(zoom * 100).toFixed(0)}%</Button>
-            <Button size="small" icon={<ZoomIn className="w-3 h-3" />} onClick={() => setZoom((z) => Math.min(3, z + 0.1))} />
+            <Button aria-label="放大" size="small" icon={<ZoomIn className="w-3 h-3" />} onClick={() => setZoom((z) => Math.min(3, z + 0.1))} />
           </Space.Compact>
         </div>
 
@@ -248,14 +248,14 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
                   )}
                 </div>
                 <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
-                  <Button size="small" icon={<Pin className="w-3 h-3" />} onClick={() => handlePin(selected.id)} />
-                  <Button size="small" icon={<Copy className="w-3 h-3" />} onClick={() => handleInsert(selected)} />
-                  <Button size="small" type={isFullscreen ? 'primary' : 'default'} icon={<Maximize2 className="w-3 h-3" />} onClick={toggleFullscreen} />
+                  <Button aria-label="固定" size="small" icon={<Pin className="w-3 h-3" />} onClick={() => handlePin(selected.id)} />
+                  <Button aria-label="插入" size="small" icon={<Copy className="w-3 h-3" />} onClick={() => handleInsert(selected)} />
+                  <Button aria-label="全屏" size="small" type={isFullscreen ? 'primary' : 'default'} icon={<Maximize2 className="w-3 h-3" />} onClick={toggleFullscreen} />
                   {frameMode === 'cine' && (
                     <>
                       {/* [G005 W1-Controls P0-3] 真实播放/暂停 (每 300ms 循环帧) */}
                       <Tooltip title={cinePlaying ? t('w1Controls.imageAnchor.pause') : t('w1Controls.imageAnchor.playTip')}>
-                        <Button
+                        <Button aria-label="播放"
                           size="small"
                           type={cinePlaying ? 'primary' : 'default'}
                           icon={cinePlaying ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
@@ -348,7 +348,7 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
           <div className="flex items-center gap-1 p-1 bg-slate-50 rounded flex-wrap">
             {TOOLS_PANEL.map((tool) => (
               <Tooltip key={tool.key} title={tool.label}>
-                <Button size="small" type="text" icon={<tool.icon className="w-3.5 h-3.5" />} onClick={() => setActiveTool(tool.key as 'select' | 'arrow' | 'circle' | 'line' | 'text')} />
+                <Button aria-label="操作" size="small" type="text" icon={<tool.icon className="w-3.5 h-3.5" />} onClick={() => setActiveTool(tool.key as 'select' | 'arrow' | 'circle' | 'line' | 'text')} />
               </Tooltip>
             ))}
           </div>

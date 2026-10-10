@@ -448,7 +448,7 @@ export default function TeachingCaseLibraryPage() {
                             <Button size="small" icon={<Share2 size={12} />} onClick={() => void handleShare(c)}>{t('share', '分享')}</Button>
                             <Button size="small" icon={<MessageSquare size={12} />} onClick={() => void openComments(c)}>{t('comment', '评论')}</Button>
                             <Popconfirm title={t('deleteConfirm', '确定删除该教学病例？')} onConfirm={() => void handleDelete(c.id)}>
-                              <Button size="small" danger icon={<Trash2 size={12} />} />
+                              <Button aria-label="删除" size="small" danger icon={<Trash2 size={12} />} />
                             </Popconfirm>
                           </Space>
                         </Card>

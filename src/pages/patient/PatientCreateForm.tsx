@@ -164,7 +164,7 @@ function RegistrationWizard({
                 </div>
               </div>
             </div>
-            <button
+            <button aria-label="关闭"
               onClick={onClose}
               style={{
                 width: 32,
@@ -864,7 +864,7 @@ function RegistrationWizard({
                 style={{
                   gridColumn: "1 / -1",
                   padding: 'var(--space-4, 16px)',
-                  background: "#f0fdf4",
+                  background: "var(--color-success-bg, #f0fdf4)",
                   borderRadius: 8,
                   border: "1px solid #bbf7d0",
                   display: "flex",
@@ -1009,7 +1009,7 @@ export function PatientCreateForm({
           marginBottom: 'var(--space-6, 24px)',
         }}
       >
-        <button
+        <button aria-label="关闭"
           onClick={onCancel}
           style={{
             width: 36,

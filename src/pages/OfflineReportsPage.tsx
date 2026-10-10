@@ -129,7 +129,7 @@ export default function OfflineReportsPage() {
               <div key={r.id} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 14, border: '1px solid var(--border-color)', borderLeft: '4px solid var(--color-info-600)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2, 8px)' }}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{r.patientName || t('offlineReports.unknownPatient')}</div>
-                  <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning)', border: '1px solid #fcd34d' }}>{t('offlineReports.offlineCopy')}</span>
+                  <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning)', border: '1px solid var(--color-warning-300, #fcd34d)' }}>{t('offlineReports.offlineCopy')}</span>
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-1, 4px)' }}>
                   {r.modality ? `${r.modality}${r.bodyPart ? ` · ${r.bodyPart}` : ''}` : '-'} · {r.reportNo || r.id}

@@ -18,7 +18,7 @@ export const STATUS_CONFIG: Record<string, { label: string; bg: string; color: s
   待审核: { label: '待审核', bg: '#ede9fe', color: '#6d28d9', border: '#c4b5fd' },
   已审核: { label: '已审核', bg: '#dbeafe', color: 'var(--color-primary-600)', border: '#93c5fd' },
   已发布: { label: '已发布', bg: '#d1fae5', color: '#047857', border: '#6ee7b7' },
-  已修改: { label: '已修改', bg: '#fef3c7', color: '#b45309', border: '#fcd34d' },
+  已修改: { label: '已修改', bg: '#fef3c7', color: '#b45309', border: 'var(--color-warning-300, #fcd34d)' },
   已退回: { label: '已退回', bg: '#fee2e2', color: '#b91c1c', border: '#fca5a5' },
   待分配: REPORT_STATUS_META['待分配'],
   已分配: REPORT_STATUS_META['已分配'],

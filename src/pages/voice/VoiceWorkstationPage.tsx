@@ -121,6 +121,8 @@ export default function VoiceWorkstationPage() {
   const [feedbacks, setFeedbacks] = useState<CorrectionFeedback[]>([])
   const [removedFeedbacks, setRemovedFeedbacks] = useState<string[]>([])
   const [feedbackForm, setFeedbackForm] = useState({ original: '', corrected: '' })
+  const [feedbackSaving, setFeedbackSaving] = useState(false)
+  const [confirmingId, setConfirmingId] = useState('')
 
   // 报告联动
   const [reportModalOpen, setReportModalOpen] = useState(false)
@@ -340,6 +342,7 @@ export default function VoiceWorkstationPage() {
       message.warning(t('voiceWs.originalCorrectedRequired'))
       return
     }
+    setFeedbackSaving(true)
     try {
       await voiceWorkstationApi.submitCorrection({ original, corrected })
       message.success(`纠正反馈已提交: ${original} → ${corrected} (已沉淀进词库)`)
@@ -349,10 +352,13 @@ export default function VoiceWorkstationPage() {
       await loadStats()
     } catch (e) {
       message.error((e as Error).message ?? t('voiceWs.submitFailed'))
+    } finally {
+      setFeedbackSaving(false)
     }
   }
 
   const handleConfirmFeedback = async (fb: CorrectionFeedback) => {
+    setConfirmingId(fb.id)
     try {
       await voiceWorkstationApi.submitCorrection({ original: fb.original, corrected: fb.corrected })
       message.success(`「${fb.original} → ${fb.corrected}」已确认并沉淀词库`)
@@ -361,6 +367,8 @@ export default function VoiceWorkstationPage() {
       await loadStats()
     } catch (e) {
       message.error((e as Error).message ?? t('voiceWs.confirmFailed'))
+    } finally {
+      setConfirmingId('')
     }
   }
 
@@ -688,10 +696,10 @@ export default function VoiceWorkstationPage() {
                 </td>
                 <td style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>
                   <Tooltip title={t('voiceWs.editTooltip')}>
-                    <Button size="small" type="text" icon={<Pencil size={14} />} onClick={() => startEditLex(entry)} style={{ color: 'var(--color-primary-500)' }} />
+                    <Button aria-label="编辑" size="small" type="text" icon={<Pencil size={14} />} onClick={() => startEditLex(entry)} style={{ color: 'var(--color-primary-500)' }} />
                   </Tooltip>
                   <Popconfirm title={`${t('voiceWs.deleteEntryConfirm')} ${entry.term} ?`} okText={t('voiceWs.delete')} cancelText={t('voiceWs.cancel')} okButtonProps={{ danger: true }} onConfirm={() => void handleLexiconDelete(entry.id, entry.term)}>
-                    <Button size="small" type="text" danger icon={<Trash2 size={14} />} />
+                    <Button aria-label="删除" size="small" type="text" danger icon={<Trash2 size={14} />} />
                   </Popconfirm>
                 </td>
               </tr>
@@ -773,7 +781,7 @@ export default function VoiceWorkstationPage() {
             size="small"
             style={{ width: 200 }}
           />
-          <Button size="small" type="primary" icon={<Plus size={12} />} onClick={() => void handleSubmitFeedback()}>{t('voiceWs.submit')}</Button>
+          <Button size="small" type="primary" icon={<Plus size={12} />} loading={feedbackSaving} disabled={feedbackSaving} onClick={() => void handleSubmitFeedback()}>{t('voiceWs.submit')}</Button>
         </div>
         <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginTop: 6 }}>{t('voiceWs.correctionHint')}</div>
       </div>
@@ -802,7 +810,7 @@ export default function VoiceWorkstationPage() {
                   <b style={{ color: '#059669' }}>{fb.corrected}</b>
                 </div>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  <Button size="small" type="primary" ghost icon={<BadgeCheck size={12} />} onClick={() => void handleConfirmFeedback(fb)}>{t('voiceWs.confirmAndSave')}</Button>
+                  <Button size="small" type="primary" ghost icon={<BadgeCheck size={12} />} loading={confirmingId === fb.id} disabled={confirmingId === fb.id} onClick={() => void handleConfirmFeedback(fb)}>{t('voiceWs.confirmAndSave')}</Button>
                   <Button size="small" danger icon={<Trash2 size={12} />} onClick={() => handleRemoveFeedback(fb.id)}>{t('voiceWs.remove')}</Button>
                 </div>
               </div>

@@ -265,9 +265,9 @@ export default function DeviceScheduleGanttPage() {
 
       {/* 周导航 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}>
-        <Button size="small" icon={<ChevronLeft size={14} />} onClick={() => shiftWeek(-1)} />
+        <Button aria-label="上一页" size="small" icon={<ChevronLeft size={14} />} onClick={() => shiftWeek(-1)} />
         <Button size="small" onClick={goToday}>{t('thisWeek', '本周')}</Button>
-        <Button size="small" icon={<ChevronRight size={14} />} onClick={() => shiftWeek(1)} />
+        <Button aria-label="下一页" size="small" icon={<ChevronRight size={14} />} onClick={() => shiftWeek(1)} />
         <span style={{ fontSize: 12, fontWeight: 600, color: '#0f172a' }}>
           {view ? `${view.weekStart} ~ ${dayjs(view.weekStart).add(6, 'day').format('YYYY-MM-DD')}` : weekStart}
         </span>

@@ -986,7 +986,7 @@ const SubmissionAuditTrail = () => {
             <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
               <Fingerprint size={16} color={COLORS.primary} /> {t('nationalReport.signatureDetail')}
             </div>
-            <button onClick={() => setSelectedSubmission(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: COLORS.textMuted }}><X size={16} /></button>
+            <button aria-label="关闭" onClick={() => setSelectedSubmission(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: COLORS.textMuted }}><X size={16} /></button>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('nationalReport.sigFingerprint')}</span><div style={{ fontSize: 12, fontWeight: 600, fontFamily: 'monospace', wordBreak: 'break-all' }}>{selectedSubmission.signature}</div></div>

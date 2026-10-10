@@ -275,7 +275,7 @@ const PacsAdminPage: React.FC = () => {
           <Button size="small" icon={<Zap size={12} />} loading={testingId === r.id} onClick={() => void handleTestConnection(r.id)}>{t('pacsAdmin.test')}</Button>
           <Button size="small" icon={<Edit3 size={12} />} onClick={() => openEditServer(r)}>{t('pacsAdmin.edit')}</Button>
           <Popconfirm title={t('pacsAdmin.confirmDeleteServer')} onConfirm={() => void handleDeleteServer(r.id)}>
-            <Button size="small" danger icon={<Trash2 size={12} />} />
+            <Button aria-label="删除" size="small" danger icon={<Trash2 size={12} />} />
           </Popconfirm>
         </Space>
       ),
@@ -419,7 +419,7 @@ const PacsAdminPage: React.FC = () => {
                             <Space>
                               <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{formatBytes(g.usedBytes)} / {formatBytes(g.totalBytes)} · {g.studyCount?.toLocaleString()} {t('pacsAdmin.studiesUnit')} · <Tag color={g.status === 'active' ? 'green' : g.status === 'readonly' ? 'orange' : 'default'}>{g.status === 'active' ? t('pacsAdmin.active') : g.status === 'readonly' ? t('pacsAdmin.readonly') : t('pacsAdmin.offline')}</Tag></span>
                               <Popconfirm title={t('pacsAdmin.confirmDeleteStorage')} onConfirm={() => void handleDeleteStorageGroup(g.id)}>
-                                <Button size="small" danger icon={<Trash2 size={12} />} loading={deletingStorageId === g.id} />
+                                <Button aria-label="删除" size="small" danger icon={<Trash2 size={12} />} loading={deletingStorageId === g.id} />
                               </Popconfirm>
                             </Space>
                           </div>

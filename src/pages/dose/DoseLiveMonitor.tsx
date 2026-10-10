@@ -666,7 +666,7 @@ export default function DoseLiveMonitor() {
 
 function MiniInfo({ label, value, warn }: { label: string; value: string; warn?: boolean }) {
   return (
-    <div style={{ background: "var(--bg-primary)", borderRadius: 8, padding: "8px 10px", border: `1px solid ${warn ? "#fecaca" : "#e2e8f0"}` }}>
+    <div style={{ background: "var(--bg-primary)", borderRadius: 8, padding: "8px 10px", border: `1px solid ${warn ? "#fecaca" : "var(--border-color, #e2e8f0)"}` }}>
       <div style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>{label}</div>
       <div style={{ fontSize: 14, fontWeight: 700, color: warn ? "var(--color-error-600)" : "var(--color-primary-800)", marginTop: 2 }}>{value}</div>
     </div>

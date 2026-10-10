@@ -331,7 +331,7 @@ export const DentalPhotoPage: React.FC = () => {
                 alt={preview.label}
                 style={{ width: '100%', maxHeight: 480, objectFit: 'contain', display: 'block' }}
               />
-              <Button
+              <Button aria-label="关闭"
                 type="text"
                 icon={<X size={16} />}
                 onClick={() => setPreview(null)}

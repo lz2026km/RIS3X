@@ -344,6 +344,7 @@ export default function ExamPage() {
   const [allExams, setAllExams] = useState(initialRadiologyExams);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -370,7 +371,7 @@ export default function ExamPage() {
     return () => {
       cancelled = true;
     };
-  }, [storeLoad]);
+  }, [storeLoad, reloadTick]);
 
   // 从 store.exams 派生技师执行卡片视图
   const techExecutions = useMemo<TechnicianExecution[]>(() => {
@@ -716,6 +717,7 @@ export default function ExamPage() {
       return;
     }
     const action = modal.action ?? "start";
+    setExecuting(true);
     try {
       if (action === "complete") {
         await useExamStore.getState().transition(modal.exam.id, "complete");
@@ -753,6 +755,7 @@ export default function ExamPage() {
     } catch (e) {
       message.error((e as Error)?.message ?? t("examPage.opFailed"));
     } finally {
+      setExecuting(false);
       closeModal();
     }
   };
@@ -781,8 +784,13 @@ export default function ExamPage() {
   const handleConfirmComplete = async (executionId: string) => {
     const exe = techExecutions.find((e) => e.id === executionId);
     if (!exe) return;
-    if (exe.examId) {
-      await useExamStore.getState().transition(exe.examId, "complete");
+    setCompletingId(executionId);
+    try {
+      if (exe.examId) {
+        await useExamStore.getState().transition(exe.examId, "complete");
+      }
+    } finally {
+      setCompletingId("");
     }
   };
 
@@ -793,6 +801,9 @@ export default function ExamPage() {
     visible: boolean;
     deviceId: string;
   }>({ visible: false, deviceId: "" });
+  const [batchAssigning, setBatchAssigning] = useState(false);
+  const [completingId, setCompletingId] = useState("");
+  const [executing, setExecuting] = useState(false);
 
   const runBatchApiAction = async (action: string, ids: string[]) => {
     if (ids.length === 0) return;
@@ -888,16 +899,21 @@ export default function ExamPage() {
       setBatchAssignModal((prev) => ({ ...prev, visible: false }));
       return;
     }
-    const res = await worklistApi.batchAssign(ids, { deviceId: batchAssignModal.deviceId });
-    if (res.success) {
-      message.success(t("w9a.examPage.batchAssignSuccess", { count: ids.length }));
-      ids.forEach((id) => log("batch_assign", id, { deviceId: batchAssignModal.deviceId }));
-    } else {
-      message.error(res.error?.message ?? t("examPage.batchAssignFailed"));
+    setBatchAssigning(true);
+    try {
+      const res = await worklistApi.batchAssign(ids, { deviceId: batchAssignModal.deviceId });
+      if (res.success) {
+        message.success(t("w9a.examPage.batchAssignSuccess", { count: ids.length }));
+        ids.forEach((id) => log("batch_assign", id, { deviceId: batchAssignModal.deviceId }));
+      } else {
+        message.error(res.error?.message ?? t("examPage.batchAssignFailed"));
+      }
+      void reloadExams();
+      setSelectedIds(new Set());
+      setBatchAssignModal({ visible: false, deviceId: "" });
+    } finally {
+      setBatchAssigning(false);
     }
-    void reloadExams();
-    setSelectedIds(new Set());
-    setBatchAssignModal({ visible: false, deviceId: "" });
   };
 
   const handleBatchAction = (action: string) => {
@@ -910,6 +926,7 @@ export default function ExamPage() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [importText, setImportText] = useState("");
   const [importing, setImporting] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [importResult, setImportResult] = useState<{
     imported: number;
     skipped: number;
@@ -932,6 +949,7 @@ export default function ExamPage() {
 
   // [W4-A] 检查导出 (CSV, 优先 API, 失败回退本地)
   const handleExamExport = async () => {
+    setExporting(true);
     try {
       const res = await examApi.exportExams({});
       if (res.success && res.data?.content) {
@@ -970,6 +988,8 @@ export default function ExamPage() {
       link.href = url;
       link.download = t("w9a.examPage.examListFile", { date: new Date().toISOString().split("T")[0] });
       link.click();
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -1406,6 +1426,8 @@ export default function ExamPage() {
         <ActionButton
           action="export"
           size="compact"
+          loading={exporting}
+          disabled={exporting}
           onClick={() => void handleExamExport()}
         >
           {t("examPage.batchExport2")}
@@ -1989,6 +2011,8 @@ export default function ExamPage() {
                 action="submit"
                 block
                 icon={<CheckCircle2 size={16} />}
+                loading={completingId === execution.id}
+                disabled={completingId === execution.id}
                 onClick={() => handleConfirmComplete(execution.id)}
               >
                 {t("examPage.confirmCaptureDone")}
@@ -3087,6 +3111,8 @@ export default function ExamPage() {
             <ActionButton
               action="submit"
               style={{ backgroundColor: actionConfig.color, borderColor: actionConfig.color }}
+              loading={executing}
+              disabled={executing}
               onClick={handleExecute}
             >
               {actionConfig.confirmText}
@@ -3203,7 +3229,7 @@ export default function ExamPage() {
       }}
     >
       {loading && <LoadingBanner message={t("examPage.loading")} />}
-      {loadError && !loading && <ErrorBanner message={loadError} />}
+      {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => setReloadTick(n => n + 1)} retryLabel={t('w9.states.retry')} />}
       {/* Tab栏 */}
       <TabBar />
 
@@ -3226,6 +3252,7 @@ export default function ExamPage() {
         open={batchAssignModal.visible}
         onCancel={() => setBatchAssignModal((prev) => ({ ...prev, visible: false }))}
         onOk={() => void handleBatchAssignConfirm()}
+        confirmLoading={batchAssigning}
         okText={t("examPage.confirmAssign2")}
         cancelText={t("examPage.cancel")}
       >
@@ -3315,7 +3342,7 @@ export default function ExamPage() {
                   {t("examPage.mergeExams")}
                 </span>
               </div>
-              <button
+              <button aria-label="关闭"
                 onClick={() => setShowMergeModal(false)}
                 style={{
                   background: "rgba(255,255,255,0.15)",
@@ -3467,7 +3494,7 @@ export default function ExamPage() {
                   {t("examPage.splitExam")}
                 </span>
               </div>
-              <button
+              <button aria-label="关闭"
                 onClick={() => setSplitExam(null)}
                 style={{
                   background: "rgba(255,255,255,0.15)",
@@ -3601,7 +3628,7 @@ export default function ExamPage() {
                   {t("examPage.batchImportExam")}
                 </span>
               </div>
-              <button
+              <button aria-label="关闭"
                 onClick={() => setShowImportModal(false)}
                 style={{
                   background: "rgba(255,255,255,0.15)",

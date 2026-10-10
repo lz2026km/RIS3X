@@ -521,11 +521,11 @@ export default function ReportRulesPage() {
       render: (_, r) => (
         <Space size={4}>
           <Tooltip title={t('reportRules.edit')}>
-            <Button size="small" type="text" icon={<Pencil size={14} />} onClick={() => openEdit(r)} />
+            <Button aria-label="编辑" size="small" type="text" icon={<Pencil size={14} />} onClick={() => openEdit(r)} />
           </Tooltip>
           {!r.builtIn && (
             <Tooltip title={t('reportRules.deleteCustom')}>
-              <Button size="small" type="text" danger icon={<Trash2 size={14} />} onClick={() => void removeRule(r)} />
+              <Button aria-label="删除" size="small" type="text" danger icon={<Trash2 size={14} />} onClick={() => void removeRule(r)} />
             </Tooltip>
           )}
         </Space>
@@ -590,10 +590,10 @@ export default function ReportRulesPage() {
       render: (_, r) => (
         <Space size={4}>
           <Tooltip title={t('w4a.tiers.edit')}>
-            <Button size="small" type="text" icon={<Pencil size={14} />} onClick={() => openTierEdit(r)} />
+            <Button aria-label="编辑" size="small" type="text" icon={<Pencil size={14} />} onClick={() => openTierEdit(r)} />
           </Tooltip>
           <Tooltip title={t('w4a.tiers.delete')}>
-            <Button size="small" type="text" danger icon={<Trash2 size={14} />} onClick={() => void removeTier(r)} />
+            <Button aria-label="删除" size="small" type="text" danger icon={<Trash2 size={14} />} onClick={() => void removeTier(r)} />
           </Tooltip>
         </Space>
       ),

@@ -868,7 +868,7 @@ const ReportTab: React.FC = () => {
           </Space>
           <div
             style={{
-              background: "#f8fafc",
+              background: "var(--bg-primary, #f8fafc)",
               border: "1px solid var(--border-color, #e2e8f0)",
               borderRadius: 8,
               padding: 'var(--space-3, 12px)',

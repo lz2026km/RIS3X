@@ -203,7 +203,7 @@ const AiRadsPage: React.FC = () => {
   const renderFields = (tabKey: RadsType) => {
     if (tabKey === 'breast') {
       return (
-        <div style={{ padding: 'var(--space-3, 12px)', background: '#fffbe6', border: '1px solid #ffe58f', borderRadius: 8 }}>
+        <div style={{ padding: 'var(--space-3, 12px)', background: 'var(--color-warning-bg, #fffbe6)', border: '1px solid var(--color-warning-300, #fcd34d)', borderRadius: 8 }}>
           <Text>{t('aiRads.biradsHint')}</Text>
         </div>
       )

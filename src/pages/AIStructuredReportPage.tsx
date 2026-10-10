@@ -1206,7 +1206,7 @@ const AIStructuredReportPage: React.FC = () => {
       <header style={styles.header}>
         <Title level={4} style={{ margin: 0 }}>
           {t("aiStructured.title")}
-          <span style={{ marginLeft: 10, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fff3cd', color: '#b45309', fontWeight: 600, verticalAlign: 'middle' }}>{t("aiStructured.demoBadge")}</span>
+          <span style={{ marginLeft: 10, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg, #fffbe6)', color: '#b45309', fontWeight: 600, verticalAlign: 'middle' }}>{t("aiStructured.demoBadge")}</span>
         </Title>
         <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
           <span style={{ fontSize: "12px", opacity: 0.9 }}>

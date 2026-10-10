@@ -47,7 +47,7 @@ export default function ReportCriticalModal({ report, submitting, onClose, onSub
               {report.reportId} · {report.patientName} · {report.examItemName}
             </div>
           </div>
-          <button onClick={onClose} style={{ padding: 'var(--space-1, 4px)', background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 6, cursor: 'pointer', color: '#fff', display: 'flex' }}>
+          <button aria-label="关闭" onClick={onClose} style={{ padding: 'var(--space-1, 4px)', background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 6, cursor: 'pointer', color: '#fff', display: 'flex' }}>
             <X size={16} />
           </button>
         </div>

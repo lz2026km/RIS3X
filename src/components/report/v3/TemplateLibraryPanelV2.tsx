@@ -246,13 +246,13 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
             <Button size="small" type="primary" icon={<Zap size={11} />} onClick={() => void handleUse(row.id)}>{t('templateLibrary.use')}</Button>
           </Tooltip>
           <Tooltip title={t('templateLibrary.favoriteTip')}>
-            <Button size="small" icon={<Bookmark size={11} />} onClick={() => void handleFavorite(row.id)} />
+            <Button aria-label="收藏" size="small" icon={<Bookmark size={11} />} onClick={() => void handleFavorite(row.id)} />
           </Tooltip>
           <Tooltip title={t('templateLibrary.copyTip')}>
-            <Button size="small" icon={<Copy size={11} />} onClick={() => void handleCopy(row.id)} />
+            <Button aria-label="复制" size="small" icon={<Copy size={11} />} onClick={() => void handleCopy(row.id)} />
           </Tooltip>
           <Tooltip title={t('templateLibrary.exportJsonTip')}>
-            <Button size="small" icon={<Download size={11} />} onClick={() => void handleExport([row.id])} />
+            <Button aria-label="下载" size="small" icon={<Download size={11} />} onClick={() => void handleExport([row.id])} />
           </Tooltip>
         </Space>
       ) },
@@ -404,7 +404,7 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
                       <Space>
                         <Tag color="purple">{t('templateLibrary.score', { score: r.score.toFixed(1) })}</Tag>
                         <Button size="small" type="primary" icon={<Zap size={11} />} onClick={() => void handleUse(r.template.id)}>{t('templateLibrary.use')}</Button>
-                        <Button size="small" icon={<Bookmark size={11} />} onClick={() => void handleFavorite(r.template.id)} />
+                        <Button aria-label="收藏" size="small" icon={<Bookmark size={11} />} onClick={() => void handleFavorite(r.template.id)} />
                       </Space>
                     </Space>
                     <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 'var(--space-1, 4px)' }}>{t('templateLibrary.reason')} {r.reason}</div>

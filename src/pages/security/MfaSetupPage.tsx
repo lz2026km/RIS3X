@@ -44,13 +44,16 @@ export default function MfaSetupPage() {
       return;
     }
     setVerifying(true);
-    const res = await mfaApi.setupTotp();
-    setVerifying(false);
-    if (res.success && res.data) {
-      setSecret(res.data.secret);
-      setStep(1);
-    } else {
-      antdMessage.error(res.error?.message || t("mfaSetup.getSecretFailed"));
+    try {
+      const res = await mfaApi.setupTotp();
+      if (res.success && res.data) {
+        setSecret(res.data.secret);
+        setStep(1);
+      } else {
+        antdMessage.error(res.error?.message || t("mfaSetup.getSecretFailed"));
+      }
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -212,7 +215,7 @@ export default function MfaSetupPage() {
               </Button>
             </Space>
             <Divider />
-            <Button type="primary" onClick={handleStart}>
+            <Button type="primary" loading={verifying} disabled={verifying} onClick={handleStart}>
               {t("mfaSetup.nextStep")}
             </Button>
           </div>

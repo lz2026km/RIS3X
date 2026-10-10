@@ -183,7 +183,7 @@ export const HangingProtocolSwitcher: React.FC<HangingProtocolSwitcherProps> = (
       />
       {showManager && (
         <Tooltip title={t('w9e.hangingProtocol.managerTip')}>
-          <Button size="small" icon={<Settings size={12} />} onClick={() => setOpen(true)} data-testid="hp-manage" />
+          <Button aria-label="设置" size="small" icon={<Settings size={12} />} onClick={() => setOpen(true)} data-testid="hp-manage" />
         </Tooltip>
       )}
 

@@ -259,8 +259,8 @@ const SecondReadPanel: React.FC = () => {
                 </Space>}
                 extra={item.status === 'open' ? (
                   <Space>
-                    <Button size="small" icon={<CheckCircle size={13} />} onClick={() => void handleItem(detail.id, item, 'adopt')}>{t('secondRead.adopt')}</Button>
-                    <Button size="small" icon={<XCircle size={13} />} onClick={() => void handleItem(detail.id, item, 'ignore')}>{t('secondRead.ignore')}</Button>
+                    <Button size="small" icon={<CheckCircle size={13} />} loading={actionLoading} disabled={actionLoading} onClick={() => void handleItem(detail.id, item, 'adopt')}>{t('secondRead.adopt')}</Button>
+                    <Button size="small" icon={<XCircle size={13} />} loading={actionLoading} disabled={actionLoading} onClick={() => void handleItem(detail.id, item, 'ignore')}>{t('secondRead.ignore')}</Button>
                   </Space>
                 ) : undefined}
               >

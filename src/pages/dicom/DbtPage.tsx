@@ -610,13 +610,13 @@ const DbtPage: React.FC = () => {
                   {!slicesLoading && !slicesError && viewportCanvas(mode)}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-2, 8px)', background: PANEL_BG, borderRadius: 6, padding: '8px 12px' }}>
-                  <button style={currentSlice === 0 ? { ...btnStyle, opacity: 0.4 } : btnStyle} disabled={currentSlice === 0} onClick={() => { setCurrentSlice(0); setPlaying(false) }}>
+                  <button aria-label="上一个" style={currentSlice === 0 ? { ...btnStyle, opacity: 0.4 } : btnStyle} disabled={currentSlice === 0} onClick={() => { setCurrentSlice(0); setPlaying(false) }}>
                     <SkipBack size={14} />
                   </button>
                   <button style={playing ? activeBtnStyle : btnStyle} onClick={() => setPlaying((v) => !v)} disabled={mode !== 'single' || sliceCount === 0}>
                     {playing ? <Pause size={14} /> : <Play size={14} />}
                   </button>
-                  <button style={currentSlice >= sliceCount - 1 ? { ...btnStyle, opacity: 0.4 } : btnStyle} disabled={currentSlice >= sliceCount - 1 || sliceCount === 0} onClick={() => { setCurrentSlice((f) => Math.min(sliceCount - 1, f + 1)); setPlaying(false) }}>
+                  <button aria-label="下一个" style={currentSlice >= sliceCount - 1 ? { ...btnStyle, opacity: 0.4 } : btnStyle} disabled={currentSlice >= sliceCount - 1 || sliceCount === 0} onClick={() => { setCurrentSlice((f) => Math.min(sliceCount - 1, f + 1)); setPlaying(false) }}>
                     <SkipForward size={14} />
                   </button>
                   <div style={{ width: 1, height: 20, background: '#334155' }} />
@@ -718,7 +718,7 @@ const DbtPage: React.FC = () => {
                     <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', whiteSpace: 'nowrap' }}>{t('dbtPage.syncSliceLabel')}</span>
                     <Slider min={0} max={14} value={compareSlice} onChange={setCompareSlice} style={{ flex: 1, margin: 0 }} />
                     <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{compareSlice + 1}/15</span>
-                    <button style={btnStyle} onClick={() => setCompareSlice((c) => Math.min(14, c + 1))}><SkipForward size={14} /></button>
+                    <button aria-label="下一个" style={btnStyle} onClick={() => setCompareSlice((c) => Math.min(14, c + 1))}><SkipForward size={14} /></button>
                   </div>
                 </>
               )}
@@ -795,11 +795,11 @@ const DbtPage: React.FC = () => {
               extra={<Button size="small" icon={<FileText size={12} />} onClick={insertBiradsToReport}>{t('dbtPage.insertReport')}</Button>}
             >
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
-                <div style={{ padding: 10, background: '#f0fdf4', borderRadius: 8 }}>
+                <div style={{ padding: 10, background: 'var(--color-success-bg, #f0fdf4)', borderRadius: 8 }}>
                   <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('dbtPage.category')}</div>
                   <div style={{ fontSize: 18, fontWeight: 800, color: biradsResult.category === '5' ? 'var(--color-error-600)' : biradsResult.category.startsWith('4') ? '#ea580c' : biradsResult.category === '3' ? '#ca8a04' : 'var(--color-success-600)' }}>{biradsResult.categoryLabel}</div>
                 </div>
-                <div style={{ padding: 10, background: '#fffbeb', borderRadius: 8 }}>
+                <div style={{ padding: 10, background: 'var(--color-warning-bg, #fffbeb)', borderRadius: 8 }}>
                   <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('dbtPage.malignancyRisk')}</div>
                   <div style={{ fontSize: 18, fontWeight: 800, color: '#b45309' }}>{biradsResult.malignancyRisk}</div>
                 </div>

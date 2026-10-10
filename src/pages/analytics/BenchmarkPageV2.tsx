@@ -327,7 +327,7 @@ export default function BenchmarkPageV2() {
       )}
 
       {usingDemo && (
-        <div style={{ marginBottom: 'var(--space-3, 12px)', padding: '8px 12px', background: '#fef3c7', border: '1px solid #fcd34d', color: 'var(--color-warning-600)', borderRadius: 6, fontSize: 12 }}>
+        <div style={{ marginBottom: 'var(--space-3, 12px)', padding: '8px 12px', background: '#fef3c7', border: '1px solid var(--color-warning-300, #fcd34d)', color: 'var(--color-warning-600)', borderRadius: 6, fontSize: 12 }}>
           {t('w8Dose.benchmarkDemo')}
         </div>
       )}

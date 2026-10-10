@@ -444,7 +444,7 @@ export default function TemplateCategoryPage() {
             <StatusTag status="success" style={{ fontWeight: 700 }}>R2</StatusTag>
             {categorySource === 'api'
               ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: 'var(--color-success-600)', border: '1px solid #bbf7d0' }}>{t('tplCategory.realtimeTag')}</span>
-              : <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>{t('tplCategory.staticTag')}</span>}
+              : <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f59e0b22', color: '#b45309', border: '1px solid var(--color-warning-300, #fcd34d)' }}>{t('tplCategory.staticTag')}</span>}
           </Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('tplCategory.subtitle')} {categorySource === 'api' ? t('tplCategory.realCategories', { count: realCategories.length }) : t('tplCategory.staticData')}
@@ -730,7 +730,7 @@ export default function TemplateCategoryPage() {
                 </div>
 
                 {/* 路径面包屑 */}
-                <div style={{ marginTop: 'var(--space-4, 16px)', padding: 10, background: 'var(--color-warning-bg)', border: '1px solid #fcd34d', borderRadius: 6, fontSize: 12 }}>
+                <div style={{ marginTop: 'var(--space-4, 16px)', padding: 10, background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning-300, #fcd34d)', borderRadius: 6, fontSize: 12 }}>
                   <div style={{ fontWeight: 700, color: '#92400e', marginBottom: 'var(--space-1, 4px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                     <GitBranch size={12} /> {t('tplCategory.categoryPath')}
                   </div>
@@ -767,7 +767,7 @@ export default function TemplateCategoryPage() {
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <FolderTree size={16} color="var(--color-info-600)" /> {catModal.mode === 'edit' ? t('tplCategory.editCategoryWithName', { name: catModal.cat.name }) : t('tplCategory.newCategory')}
               </div>
-              <button onClick={() => setCatModal(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
+              <button aria-label="关闭" onClick={() => setCatModal(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
@@ -783,7 +783,7 @@ export default function TemplateCategoryPage() {
                 <input type="number" min={1} value={catForm.sortOrder} onChange={e => setCatForm({ ...catForm, sortOrder: Number(e.target.value) })} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} />
               </div>
               {categorySource === 'fallback' && (
-                <div style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>
+                <div style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, background: '#f59e0b22', color: '#b45309', border: '1px solid var(--color-warning-300, #fcd34d)' }}>
                   {t('tplCategory.localFallbackHint')}
                 </div>
               )}
@@ -803,7 +803,7 @@ export default function TemplateCategoryPage() {
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <Move size={16} color="var(--color-info-600)" /> {t('tplCategory.moveCategory')} · {moveModal.cat.name}
               </div>
-              <button onClick={() => setMoveModal(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
+              <button aria-label="关闭" onClick={() => setMoveModal(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>

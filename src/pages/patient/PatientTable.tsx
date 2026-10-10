@@ -119,7 +119,7 @@ function Pagination({
                 height: 32,
                 borderRadius: 6,
                 border: "1px solid",
-                borderColor: currentPage === pageNum ? "var(--color-primary-800)" : "#e2e8f0",
+                borderColor: currentPage === pageNum ? "var(--color-primary-800)" : "var(--border-color, #e2e8f0)",
                 background: currentPage === pageNum ? "var(--color-primary-800)" : "var(--bg-card)",
                 color: currentPage === pageNum ? "#fff" : "#64748b",
                 cursor: "pointer",
@@ -466,7 +466,7 @@ export function PatientTable({
             aria-label={`编辑 ${p.name}`}
             style={{
               padding: "6px 10px",
-              background: "#f0fdf4",
+              background: "var(--color-success-bg, #f0fdf4)",
               color: "var(--color-success-600)",
               border: "none",
               borderRadius: 4,
@@ -570,7 +570,7 @@ export function PatientTable({
           style={{
             marginBottom: 'var(--space-4, 16px)',
             padding: "12px 16px",
-            background: "#fffbeb",
+            background: "var(--color-warning-bg, #fffbeb)",
             border: "1px solid #fde68a",
             borderRadius: 10,
             display: "flex",
@@ -826,7 +826,7 @@ export function PatientTable({
                 </div>
               </div>
             </div>
-            <button
+            <button aria-label="关闭"
               onClick={() => onSelectPatient(null)}
               style={{
                 width: 32,

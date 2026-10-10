@@ -151,7 +151,7 @@ export default function PediatricProtocolOptimization() {
                 fontSize: 12,
                 fontWeight: 600,
                 cursor: "pointer",
-                background: selectedAge === ag ? "var(--color-primary-800)" : "#f1f5f9",
+                background: selectedAge === ag ? "var(--color-primary-800)" : "var(--bg-primary, #f8fafc)",
                 color: selectedAge === ag ? "#fff" : "#64748b",
               }}
             >

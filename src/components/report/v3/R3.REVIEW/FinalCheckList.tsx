@@ -619,7 +619,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
               key={n.id}
               style={{ background: n.pinned ? 'var(--color-warning-bg)' : 'var(--bg-card)', padding: 10, borderRadius: 6, marginBottom: 6, border: '1px solid var(--border-color)' }}
               actions={[
-                <Button key="pin" size="small" type="text" icon={n.pinned ? <PinOff size={12} /> : <Pin size={12} />} onClick={async () => {
+                <Button aria-label="固定" key="pin" size="small" type="text" icon={n.pinned ? <PinOff size={12} /> : <Pin size={12} />} onClick={async () => {
                   const updated = await finalCheckService.pinNote(n.id, !n.pinned);
                   setNotes((prev) => prev.map((x) => (x.id === updated.id ? updated : x)));
                 }} />,

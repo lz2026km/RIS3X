@@ -1292,7 +1292,7 @@ export default function SelfServicePortal() {
               <span>{t('selfService.followup.title')}（{followups.length}）</span>
               {followupSource === 'api'
                 ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: 'var(--color-success-600)', border: '1px solid #bbf7d0' }}>{t('ssp.followup.apiRealtime')}</span>
-                : <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>{t('ssp.followup.demoFallback')}</span>}
+                : <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f59e0b22', color: '#b45309', border: '1px solid var(--color-warning-300, #fcd34d)' }}>{t('ssp.followup.demoFallback')}</span>}
             </h3>
             {followupLoading ? (
               <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}><Spin tip={t('ssp.followup.loading')} /></div>

@@ -806,8 +806,8 @@ const CancerScreenPage = () => {
                 key: 'action',
                 render: (_v, task) => (
                   <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
-                    <button style={{ ...s.btn, padding: '4px 8px', fontSize: 12 }} onClick={() => setShowDetailModal(true)}><Eye size={12} /></button>
-                    <button style={{ ...s.btn, padding: '4px 8px', fontSize: 12 }} onClick={() => { setEditTaskForm({ id: task.id, name: task.name, type: task.type, region: task.region, target: task.target, status: task.status }); setShowEditModal(true) }}><Edit size={12} /></button>
+                    <button aria-label="查看" style={{ ...s.btn, padding: '4px 8px', fontSize: 12 }} onClick={() => setShowDetailModal(true)}><Eye size={12} /></button>
+                    <button aria-label="编辑" style={{ ...s.btn, padding: '4px 8px', fontSize: 12 }} onClick={() => { setEditTaskForm({ id: task.id, name: task.name, type: task.type, region: task.region, target: task.target, status: task.status }); setShowEditModal(true) }}><Edit size={12} /></button>
                   </div>
                 ),
               },

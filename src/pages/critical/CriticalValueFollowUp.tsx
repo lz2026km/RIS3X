@@ -94,7 +94,7 @@ export const TransferToFollowUpModal = ({
               </div>
             </div>
           </div>
-          <button
+          <button aria-label="关闭"
             onClick={onClose}
             style={{
               width: 32,

@@ -6,7 +6,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { Alert, Button, Empty, Progress, Result } from 'antd';
-import { InboxOutlined, FileSearchOutlined, WarningOutlined } from '@ant-design/icons';
+import { Inbox, FileSearch, AlertTriangle } from 'lucide-react';
 import type { CSSProperties, ReactNode } from 'react';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
 
@@ -29,10 +29,10 @@ export interface AppEmptyProps {
 }
 
 const VARIANT_ICONS: Record<NonNullable<AppEmptyProps['variant']>, ReactNode> = {
-  'no-data': <InboxOutlined style={{ fontSize: 64, color: '#94a3b8' }} />,
-  'no-results': <FileSearchOutlined style={{ fontSize: 64, color: '#94a3b8' }} />,
-  'no-permission': <WarningOutlined style={{ fontSize: 64, color: 'var(--color-warning-500)' }} />,
-  'error': <WarningOutlined style={{ fontSize: 64, color: 'var(--color-error-600)' }} />,
+  'no-data': <Inbox size={64} style={{ color: '#94a3b8' }} />,
+  'no-results': <FileSearch size={64} style={{ color: '#94a3b8' }} />,
+  'no-permission': <AlertTriangle size={64} style={{ color: 'var(--color-warning-500)' }} />,
+  'error': <AlertTriangle size={64} style={{ color: 'var(--color-error-600)' }} />,
 };
 
 const VARIANT_DEFAULTS: Record<NonNullable<AppEmptyProps['variant']>, string> = {

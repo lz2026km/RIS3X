@@ -13,7 +13,8 @@ import {
   getVoiceDictationHistory,
 } from '@services/writing/writingService';
 import type { VoiceDictationSession, VoiceDictationLang } from '@/types/R3/R3.WRITING';
-import { Card, Space, Button, Tag, Statistic, Select, Switch, message, Row, Col, Alert, Empty, List, Modal, Collapse, Table } from 'antd';
+import { Card, Space, Button, Tag, Statistic, Select, Switch, message, Row, Col, Alert, Empty, List, Modal, Collapse } from 'antd';
+import { DataTable } from '../../../common';
 import { TableProps } from 'antd'
 import { Mic, MicOff, Square, Volume2, Command, History, Trash2, Activity, FileText, Clock, ChevronRight, BookOpen, User , Type, CheckCircle } from 'lucide-react';
 import { Inbox } from 'lucide-react'
@@ -618,10 +619,9 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
               ),
               children: (
                 <div>
-                  <Table
+                  <DataTable
                     dataSource={VOICE_COMMAND_TABLE_DATA}
                     columns={VOICE_COMMAND_TABLE_COLUMNS}
-                    size="small"
                     pagination={false}
                     scroll={{ x: 'max-content' }}
                     rowKey="command"
@@ -668,7 +668,7 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
         </span>
       } open={showVocab} onCancel={() => setShowVocab(false)} footer={null} width={640}>
         {onlineLexicon ? (
-          <Table
+          <DataTable
             dataSource={onlineLexicon.slice(0, 100)}
             columns={[
               { title: t('aiDraft.voice.col.term'), dataIndex: 'term', key: 'term', width: 140 },
@@ -676,16 +676,14 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
               { title: t('aiDraft.voice.col.priority'), dataIndex: 'priority', key: 'priority', width: 70 },
               { title: t('aiDraft.voice.col.aliases'), dataIndex: 'aliases', key: 'aliases', render: (v: string[]) => v.length > 0 ? v.join(' / ') : '-' },
             ]}
-            size="small"
             pagination={{ pageSize: 10, showSizeChanger: false }}
             scroll={{ x: 'max-content' }}
             rowKey="id"
           />
         ) : (
-          <Table
+          <DataTable
             dataSource={MEDICAL_VOCAB}
             columns={VOCAB_COLUMNS}
-            size="small"
             pagination={false}
             scroll={{ x: 'max-content' }}
             rowKey="term"

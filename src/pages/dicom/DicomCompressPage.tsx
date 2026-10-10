@@ -1034,6 +1034,8 @@ export default function DicomCompressPage() {
               <Button
                 icon={<Maximize2 />}
                 style={{ marginTop: 'var(--space-3, 12px)' }}
+                loading={loading}
+                disabled={loading}
                 onClick={handleDecompress}
               >
                 {t("compressV2.decompressVerify")}

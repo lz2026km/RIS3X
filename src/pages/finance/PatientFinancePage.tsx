@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getFinanceService, type PatientBill, type PaymentRecord, type InsuranceClaim } from '../../services/finance/FinanceService'
 import { financeApi, type InvoiceDto, type ChargeItemDto } from '../../services/api/financeApi'
-import { Card, Typography, message } from 'antd'
+import { Card, Typography, message, Spin } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { LoadingBanner, ErrorBanner } from '../../components/feedback'
 import { DataTable } from '../../components/common/DataTable'
@@ -61,6 +61,7 @@ export default function PatientFinancePage() {
   const [selectedBill, setSelectedBill] = useState<PatientBill | null>(null)
   const [billPayments, setBillPayments] = useState<PaymentRecord[]>([])
   const [payMethod, setPayMethod] = useState<PaymentRecord['method']>('wechat')
+  const [paying, setPaying] = useState(false)
 
   const svc = getFinanceService()
   const [invoices, setInvoices] = useState<InvoiceDto[]>([])
@@ -134,14 +135,19 @@ export default function PatientFinancePage() {
   const handlePay = async (billId: string) => {
     const bill = bills.find(b => b.id === billId)
     if (!bill) return
-    await svc.makePayment(billId, bill.balance, payMethod)
-    const updated = await svc.getBills('P001')
-    setBills(updated)
-    if (selectedBill?.id === billId) {
-      const updatedBill = updated.find(b => b.id === billId)
-      if (updatedBill) setSelectedBill(updatedBill)
-      const ps = await svc.getPayments(billId)
-      setBillPayments(ps)
+    setPaying(true)
+    try {
+      await svc.makePayment(billId, bill.balance, payMethod)
+      const updated = await svc.getBills('P001')
+      setBills(updated)
+      if (selectedBill?.id === billId) {
+        const updatedBill = updated.find(b => b.id === billId)
+        if (updatedBill) setSelectedBill(updatedBill)
+        const ps = await svc.getPayments(billId)
+        setBillPayments(ps)
+      }
+    } finally {
+      setPaying(false)
     }
   }
 
@@ -281,7 +287,10 @@ export default function PatientFinancePage() {
                   <select style={s.select} value={payMethod} onChange={e => setPayMethod(e.target.value as PaymentRecord['method'])}>
                     {(['wechat', 'alipay', 'card', 'cash'] as const).map(m => <option key={m} value={m}>{methodLabel(m)}</option>)}
                   </select>
-                  <button style={s.btn} onClick={() => handlePay(selectedBill.id)}>{t('patientFinance.pay')} ¥{selectedBill.balance}</button>
+                  <button style={s.btn} disabled={paying} onClick={() => handlePay(selectedBill.id)}>
+                    {paying && <Spin size="small" style={{ marginRight: 6 }} />}
+                    {t('patientFinance.pay')} ¥{selectedBill.balance}
+                  </button>
                 </div>
               )}
 

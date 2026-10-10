@@ -150,7 +150,7 @@ const QualityControlPage: React.FC = () => {
                       key={s.id}
                       size="small"
                       onClick={() => setSelectedScore(s)}
-                      style={{ cursor: 'pointer', borderColor: selectedScore?.id === s.id ? 'var(--color-primary-500)' : '#e2e8f0', minWidth: 180 }}
+                      style={{ cursor: 'pointer', borderColor: selectedScore?.id === s.id ? 'var(--color-primary-500)' : 'var(--border-color, #e2e8f0)', minWidth: 180 }}
                     >
                       <div style={{ fontSize: 12 }}><strong>{s.patientName}</strong></div>
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{s.reportId}</div>

@@ -107,6 +107,7 @@ const RegistrationWorkstationPage: React.FC = () => {
   const [consentWitness, setConsentWitness] = useState('')
   const [consentAgreed, setConsentAgreed] = useState(true)
   const [consentList, setConsentList] = useState<ConsentRecordDto[]>([])
+  const [consentSaving, setConsentSaving] = useState(false)
 
   const [charge, setCharge] = useState<ChargeDto | null>(null)
   const [payMethod, setPayMethod] = useState('CASH')
@@ -202,6 +203,7 @@ const RegistrationWorkstationPage: React.FC = () => {
 
   const submitConsent = async () => {
     if (!patient) return
+    setConsentSaving(true)
     try {
       const res = await registrationApi.consent(visitId, {
         patientId: patient.patientId,
@@ -219,6 +221,8 @@ const RegistrationWorkstationPage: React.FC = () => {
       }
     } catch {
       message.error(t('w6Reg.saveFailed'))
+    } finally {
+      setConsentSaving(false)
     }
   }
 
@@ -479,7 +483,7 @@ const RegistrationWorkstationPage: React.FC = () => {
                         </Col>
                       </Row>
                       <Checkbox checked={consentAgreed} onChange={(e) => setConsentAgreed(e.target.checked)}>{t('w6Reg.consent.agreed')}</Checkbox>
-                      <Button type="primary" onClick={submitConsent} data-testid="consent-submit-btn">{t('w6Reg.consent.submit')}</Button>
+                      <Button type="primary" onClick={submitConsent} loading={consentSaving} disabled={consentSaving} data-testid="consent-submit-btn">{t('w6Reg.consent.submit')}</Button>
                       {consentList.length > 0 && (
                         <List
                           size="small"

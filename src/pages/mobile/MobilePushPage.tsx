@@ -454,7 +454,7 @@ export default function MobilePushPage() {
                   </span>
                 </div>
               </div>
-              <button
+              <button aria-label="删除"
                 onClick={(e) => { e.stopPropagation(); handleDelete(n.id) }}
                 style={{ padding: 'var(--space-1, 4px)', border: 'none', background: 'transparent', cursor: 'pointer', color: '#cbd5e1' }}
               >

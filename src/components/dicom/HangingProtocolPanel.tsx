@@ -164,7 +164,7 @@ function HangingProtocolPanelInner({ onApply, modality, bodyPart }: HangingProto
                 >
                   {p.builtin && <Star size={10} color="var(--color-warning-500)" />}
                   {!p.builtin && (
-                    <button
+                    <button aria-label="删除"
                       onClick={(e) => { e.stopPropagation(); removeProtocol(p.id) }}
                       style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--color-error-500)', padding: 0, display: 'flex' }}
                     >

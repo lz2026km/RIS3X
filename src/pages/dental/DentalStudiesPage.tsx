@@ -228,7 +228,7 @@ export const DentalStudiesPage: React.FC = () => {
                 avatar={
                   <div style={{
                     width: 60, height: 50, borderRadius: 4,
-                    background: s.thumbnail || '#f0f0f0',
+                    background: s.thumbnail || 'var(--bg-primary, #f8fafc)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     color: 'var(--text-secondary)', fontSize: 10,
                   }}>

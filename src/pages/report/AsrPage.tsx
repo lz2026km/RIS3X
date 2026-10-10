@@ -290,7 +290,7 @@ export default function AsrPage() {
           </div>
 
           {/* 新增/编辑表单 */}
-          <div style={{ display: "flex", gap: 'var(--space-2, 8px)', flexWrap: "wrap", alignItems: "center", marginBottom: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: "#f8fafc", borderRadius: 8, border: "1px solid var(--border-color, #e2e8f0)" }}>
+          <div style={{ display: "flex", gap: 'var(--space-2, 8px)', flexWrap: "wrap", alignItems: "center", marginBottom: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: "var(--bg-primary, #f8fafc)", borderRadius: 8, border: "1px solid var(--border-color, #e2e8f0)" }}>
             <input
               value={lexForm.term}
               onChange={(e) => setLexForm((f) => ({ ...f, term: e.target.value }))}
@@ -330,7 +330,7 @@ export default function AsrPage() {
           {/* 词库表格 */}
           <div style={{ overflowX: "auto", maxHeight: 320, overflowY: "auto", border: "1px solid var(--border-color, #e2e8f0)", borderRadius: 8 }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-              <thead style={{ position: "sticky", top: 0, background: "#f1f5f9" }}>
+              <thead style={{ position: "sticky", top: 0, background: "var(--bg-primary, #f8fafc)" }}>
                 <tr>
                   {[t("asrPage.colTerm"), t("asrPage.colCategory"), t("asrPage.colPriority"), t("asrPage.colAliases"), t("asrPage.colActions")].map((h) => (
                     <th key={h} style={{ padding: "8px 10px", textAlign: "left", fontWeight: 600, color: 'var(--text-secondary, #475569)', whiteSpace: "nowrap", borderBottom: "1px solid var(--border-color, #e2e8f0)" }}>{h}</th>
@@ -402,7 +402,7 @@ export default function AsrPage() {
                         <span style={{ fontWeight: 500 }}>{c.category}</span>
                         <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{c.count} {t("asrPage.entriesUnit")} ({pct}%)</span>
                       </div>
-                      <div style={{ height: 6, background: "#f1f5f9", borderRadius: 3, overflow: "hidden" }}>
+                      <div style={{ height: 6, background: "var(--bg-primary, #f8fafc)", borderRadius: 3, overflow: "hidden" }}>
                         <div style={{ height: "100%", width: `${pct}%`, background: CATEGORY_COLORS[c.category] ?? "#94a3b8", borderRadius: 3 }} />
                       </div>
                     </div>

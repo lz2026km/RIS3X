@@ -536,20 +536,20 @@ export const TeleConsultPage: React.FC = () => {
                             fontWeight: 700,
                           }}
                         >
-                          ● REC {Math.floor(recordingTime / 60)}:
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}><span style={{ width: 8, height: 8, borderRadius: "50%", background: "#ef4444" }} />REC</span> {Math.floor(recordingTime / 60)}:
                           {(recordingTime % 60).toString().padStart(2, "0")}
                         </div>
                       )}
                     </div>
                     <Divider style={{ margin: "8px 0" }} />
                     <Space>
-                      <Button
+                      <Button aria-label="麦克风开关"
                         shape="circle"
                         icon={micOn ? <Mic size={14} /> : <MicOff size={14} />}
                         onClick={() => setMicOn(!micOn)}
                         danger={!micOn}
                       />
-                      <Button
+                      <Button aria-label="摄像头开关"
                         shape="circle"
                         icon={
                           videoOn ? <Video size={14} /> : <VideoOff size={14} />
@@ -565,7 +565,7 @@ export const TeleConsultPage: React.FC = () => {
                         onClick={handleCall}
                         title={callActive ? t("w1Buttons.tele.callEnded") : t("w1Buttons.tele.call")}
                       />
-                      <Button
+                      <Button aria-label="录制开关"
                         shape="circle"
                         icon={
                           recording ? (

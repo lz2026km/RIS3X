@@ -1,3 +1,22 @@
+## v3.0.6.13-10 (2026-10-10) — a11y + 暗色主题 + loading + 错误重试 + 组件表格迁移（W-B）
+
+> **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；`guard:ui` 全绿（hex 降至 5,464）
+
+### a11y
+- **325 个图标按钮**补 `aria-label`（~130 文件）：关闭 114、删除 44+、编辑/查看/上传/下载/播放/缩放等
+- 5 处字形图标 → CSS dot / lucide（`▼▣●●`）
+
+### 暗色主题
+- **182 处**硬编码浅色背景/边框 → 令牌（93 文件）：`#fffbeb→--color-warning-bg`、`#fff→--bg-card`、`#e2e8f0→--border-color` 等；`COLORS` 常量已为令牌
+
+### 可靠性
+- **75 个异步按钮**补 `loading+disabled`（34 文件）：提交/导出/打印/审批类
+- **20 页**错误态补重试（`ErrorBanner onRetry` + `reloadTick`）
+
+### 表格/图标收尾
+- 组件内 **14 张裸 antd Table** → `DataTable`（8 文件）；`CosignSchedule` 4 张接 `loading`
+- 6 文件 `@ant-design/icons` → lucide；`src` 内 antd-icons 引用清零
+
 ## v3.0.6.13-9 (2026-10-10) — 假功能根治（W-A）
 
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功 / 30 路由 E2E 通过（仅已知时序伪报）；`guard:ui` 全绿（hex 预算排除 var 回退后收紧至 5,628）

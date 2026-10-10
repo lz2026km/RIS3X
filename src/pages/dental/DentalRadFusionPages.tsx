@@ -308,7 +308,7 @@ export const CBCTUnifiedReportPage: React.FC = () => {
                   onClick={() => setSelected(r)}
                   style={{
                     padding: '8px 10px', marginBottom: 6, borderRadius: 6, cursor: 'pointer',
-                    border: selected?.id === r.id ? '1.5px solid var(--color-primary-600)' : '1px solid #e2e8f0',
+                    border: selected?.id === r.id ? '1.5px solid var(--color-primary-600)' : '1px solid var(--border-color, #e2e8f0)',
                     background: selected?.id === r.id ? 'var(--color-info-bg)' : 'var(--bg-card)',
                   }}
                 >
@@ -424,7 +424,7 @@ export const DentalRadFusionPage: React.FC = () => {
                       onClick={() => setSelected(s)}
                       style={{
                         padding: '8px 10px', marginBottom: 6, borderRadius: 6, cursor: 'pointer',
-                        border: selected?.id === s.id ? '1.5px solid var(--color-primary-600)' : '1px solid #e2e8f0',
+                        border: selected?.id === s.id ? '1.5px solid var(--color-primary-600)' : '1px solid var(--border-color, #e2e8f0)',
                         background: selected?.id === s.id ? 'var(--color-info-bg)' : 'var(--bg-card)',
                       }}
                     >

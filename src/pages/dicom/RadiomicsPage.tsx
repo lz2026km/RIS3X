@@ -16,7 +16,7 @@ import {
   Alert,
   Tabs,
 } from "antd";
-import { DownloadOutlined, RadarChartOutlined, PlusOutlined, DeleteOutlined, ExperimentOutlined } from '@ant-design/icons'
+import { Download, Radar, Plus, Trash2, FlaskConical } from 'lucide-react'
 import { radiomicsApi, type RadiomicsFeature, type RadiomicsResult } from '../../services/api/radiomicsApi'
 
 const { Title, Text } = Typography
@@ -173,7 +173,7 @@ export default function RadiomicsPage() {
 
   return (
     <div style={{ padding: 'var(--space-6, 24px)' }}>
-      <Title level={3}><ExperimentOutlined /> {t('radiomics:pageTitle')}</Title>
+      <Title level={3}><FlaskConical /> {t('radiomics:pageTitle')}</Title>
       <Text type="secondary">{t('radiomics:subtitle')}</Text>
       <Divider />
 
@@ -185,7 +185,7 @@ export default function RadiomicsPage() {
                 <Space>
                   <Text strong>ROI #{idx + 1}</Text>
                   {rois.length > 1 && (
-                    <Button type="link" danger icon={<DeleteOutlined />} onClick={() => removeRoi(roi.key)} size="small">
+                    <Button type="link" danger icon={<Trash2 />} onClick={() => removeRoi(roi.key)} size="small">
                       {t('radiomics:removeRoi')}
                     </Button>
                   )}
@@ -217,11 +217,11 @@ export default function RadiomicsPage() {
                 </Space>
               </Space>
             ))}
-            <Button type="dashed" icon={<PlusOutlined />} onClick={addRoi} block>
+            <Button type="dashed" icon={<Plus />} onClick={addRoi} block>
               {t('radiomics:addRoi')}
             </Button>
             <Divider />
-            <Button type="primary" icon={<ExperimentOutlined />} loading={extracting} onClick={handleExtract} block>
+            <Button type="primary" icon={<FlaskConical />} loading={extracting} onClick={handleExtract} block>
               {extracting ? t('radiomics:extracting') : t('radiomics:extract')}
             </Button>
           </Card>
@@ -231,9 +231,9 @@ export default function RadiomicsPage() {
           <Card title={t('radiomics:featureTable')} size="small" extra={
             <Space>
               {results.length >= 2 && (
-                <Button icon={<RadarChartOutlined />} onClick={handleCompare}>{t('radiomics:compare')}</Button>
+                <Button icon={<Radar />} onClick={handleCompare}>{t('radiomics:compare')}</Button>
               )}
-              <Button icon={<DownloadOutlined />} disabled={!results.length} onClick={handleExportCsv}>
+              <Button icon={<Download />} disabled={!results.length} onClick={handleExportCsv}>
                 {t('radiomics:exportCsv')}
               </Button>
             </Space>

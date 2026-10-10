@@ -238,7 +238,7 @@ const AIAssistPage: React.FC = () => {
             extra={draft && (
               <Space size={4}>
                 <Tooltip title={t('aiAssist.copyAll')}>
-                  <Button size="small" icon={copied === 'all' ? <Check size={12} /> : <Copy size={12} />} onClick={() => copyText(allText, 'all')} />
+                  <Button aria-label="复制" size="small" icon={copied === 'all' ? <Check size={12} /> : <Copy size={12} />} onClick={() => copyText(allText, 'all')} />
                 </Tooltip>
                 <Tooltip title={t('aiAssist.acceptDraft')}>
                   <Button size="small" type="primary" icon={<ClipboardPaste size={12} />} onClick={handleAccept}>{t('aiAssist.acceptDraft')}</Button>

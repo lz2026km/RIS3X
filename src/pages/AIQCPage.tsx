@@ -1523,7 +1523,7 @@ export default function AIQCPage() {
                 <Brain size={20} color={PRIMARY} />
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: WHITE, margin: 0 }}>{t('aiQcPage.detailTitle')}</h3>
               </div>
-              <button
+              <button aria-label="关闭"
                 onClick={() => setShowDetail(false)}
                 style={{
                   background: 'transparent',

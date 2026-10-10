@@ -139,7 +139,7 @@ const IntraocularPressurePage: React.FC = () => {
     { title: t('iop.colOd'), dataIndex: 'od', key: 'od', width: 90, render: (v: number) => { const c = classify(v); return <Space size={4}><b>{v}</b><Tag color={c.color} style={{ margin: 0, fontSize: 11 }}>{c.label}</Tag></Space>; } },
     { title: t('iop.colOs'), dataIndex: 'os', key: 'os', width: 90, render: (v: number) => { const c = classify(v); return <Space size={4}><b>{v}</b><Tag color={c.color} style={{ margin: 0, fontSize: 11 }}>{c.label}</Tag></Space>; } },
     { title: t('iop.colDevice'), dataIndex: 'device', key: 'device', width: 130, render: (v: string) => (DEVICE_LABEL[v] ? t(DEVICE_LABEL[v]!) : v) },
-    { title: t('iop.colActions'), key: 'actions', width: 70, render: (_: unknown, r: IopRecord) => <Popconfirm title={t('iop.deleteConfirm')} onConfirm={() => void handleDelete(r.id)}><Button size="small" danger icon={<Trash2 size={12} />} /></Popconfirm> },
+    { title: t('iop.colActions'), key: 'actions', width: 70, render: (_: unknown, r: IopRecord) => <Popconfirm title={t('iop.deleteConfirm')} onConfirm={() => void handleDelete(r.id)}><Button aria-label="删除" size="small" danger icon={<Trash2 size={12} />} /></Popconfirm> },
   ];
 
   return (
@@ -160,7 +160,7 @@ const IntraocularPressurePage: React.FC = () => {
           <Card
             size="small"
             title={t('iop.currentMeasurement')}
-            extra={<Space><Select size="small" value={patient} onChange={(v) => { setPatient(v); const p = PATIENT_OPTIONS.find(o => o.value === v); if (p) setPatientName(p.label); }} options={PATIENT_OPTIONS} style={{ width: 100 }} /><Button size="small" icon={<RefreshCw size={11} />} onClick={() => void load()} /></Space>}
+            extra={<Space><Select size="small" value={patient} onChange={(v) => { setPatient(v); const p = PATIENT_OPTIONS.find(o => o.value === v); if (p) setPatientName(p.label); }} options={PATIENT_OPTIONS} style={{ width: 100 }} /><Button aria-label="刷新" size="small" icon={<RefreshCw size={11} />} onClick={() => void load()} /></Space>}
           >
             <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>{t('iop.odLabel')}</div>

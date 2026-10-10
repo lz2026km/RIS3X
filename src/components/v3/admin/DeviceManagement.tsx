@@ -1,7 +1,8 @@
 /**
  * G005 放射RIS系统 v3.0.2 - 系统配置 / 设备管理
  */
-import { Card, Table, Tag, Space, Button, Modal, Form, Input, Select, Statistic, Row, Col, message, Empty, Switch } from 'antd'
+import { Card, Tag, Space, Button, Modal, Form, Input, Select, Statistic, Row, Col, message, Empty, Switch } from 'antd'
+import { DataTable } from '../../common'
 import { Cpu, Wifi, WifiOff, Settings, Plus, Edit, Trash2, Power, Activity, MapPin } from 'lucide-react'
 import React, { useState, useMemo } from 'react'
 import { Inbox } from 'lucide-react'
@@ -97,8 +98,7 @@ export const DeviceManagement: React.FC<DeviceManagementProps> = ({ devices, onC
         </Button>
       </Space>
 
-      <Table
-        size="small"
+      <DataTable
         dataSource={devices}
         rowKey="id"
         pagination={false}
@@ -141,7 +141,7 @@ export const DeviceManagement: React.FC<DeviceManagementProps> = ({ devices, onC
               const d = devices.find((x) => x.id === id)!
               return (
                 <Space size={2}>
-                  <Button
+                  <Button aria-label="编辑"
                     size="small"
                     type="text"
                     icon={<Edit size={12} />}
@@ -152,7 +152,7 @@ export const DeviceManagement: React.FC<DeviceManagementProps> = ({ devices, onC
                     }}
                     data-testid={`device-edit-${id}`}
                   />
-                  <Button size="small" type="text" danger icon={<Trash2 size={12} />} onClick={() => onDelete?.(id)} />
+                  <Button aria-label="删除" size="small" type="text" danger icon={<Trash2 size={12} />} onClick={() => onDelete?.(id)} />
                 </Space>
               )
             },

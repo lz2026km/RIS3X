@@ -389,7 +389,7 @@ const StrokePanel: React.FC<{ r: StrokeResult }> = ({ r }) => (
             key={a.key}
             style={{
               border: `1px solid ${a.involved ? "#ffa39e" : "#b7eb8f"}`,
-              background: a.involved ? "#fff1f0" : "#f6ffed",
+              background: a.involved ? "var(--color-error-bg, #fff2f0)" : "var(--color-success-bg, #f0fdf4)",
               borderRadius: 8,
               padding: "8px 6px",
               textAlign: "center",

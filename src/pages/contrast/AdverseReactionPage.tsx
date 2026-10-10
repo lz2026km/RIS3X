@@ -287,7 +287,7 @@ export default function AdverseReactionPage() {
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 10, padding: 'var(--space-6, 24px)', width: 520, maxHeight: '85vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <div style={{ fontSize: 16, fontWeight: 600 }}>{t('advR.statsTitle')}</div>
-              <button onClick={() => setShowStats(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted, #8b949e)', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
+              <button aria-label="关闭" onClick={() => setShowStats(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted, #8b949e)', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
               <div style={{ padding: 14, background: 'var(--bg-primary, #0d1117)', borderRadius: 8, textAlign: 'center' }}><div style={{ fontSize: 30, fontWeight: 700, color: 'var(--text-primary, #f0f6fc)' }}>{stats.totalReactions}</div><div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginTop: 'var(--space-1, 4px)' }}>{t('advR.totalCount')}</div></div>
@@ -315,7 +315,7 @@ export default function AdverseReactionPage() {
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 10, padding: 'var(--space-6, 24px)', width: 720, maxHeight: '88vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <div style={{ fontSize: 16, fontWeight: 600 }}>{t('w3d.allergy.title')}</div>
-              <button onClick={() => setShowAllergyGuide(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted, #8b949e)', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
+              <button aria-label="关闭" onClick={() => setShowAllergyGuide(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted, #8b949e)', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
               {CONTRAST_ALLERGY_TREATMENT.map(a => {

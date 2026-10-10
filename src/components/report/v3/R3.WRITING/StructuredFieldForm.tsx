@@ -465,7 +465,7 @@ export const StructuredFieldForm: React.FC<Props> = ({
                   <span style={{ fontWeight: 600 }}>{g.label}</span>
                   <Tag color="blue">{filled}/{fields.length}</Tag>
                 </Space>
-                <Button type="text" size="small" icon={collapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />} onClick={() => toggleGroup(g.id)} />
+                <Button aria-label="收起" type="text" size="small" icon={collapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />} onClick={() => toggleGroup(g.id)} />
               </div>
             }
             className="shadow-sm"

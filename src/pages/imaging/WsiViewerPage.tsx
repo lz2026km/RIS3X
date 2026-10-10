@@ -1391,14 +1391,14 @@ const WsiViewerPage: React.FC = () => {
                         </Space>
                         <Space size={2}>
                           <Tooltip title={t('w10Wsi.locate')}>
-                            <Button size="small" type="text" icon={<Crosshair size={13} />} onClick={() => locateAnnotation(a)} />
+                            <Button aria-label="操作" size="small" type="text" icon={<Crosshair size={13} />} onClick={() => locateAnnotation(a)} />
                           </Tooltip>
                           <Tooltip title={t('w10Wsi.edit')}>
-                            <Button size="small" type="text" icon={<Square size={13} />} onClick={() => openEditModal(a)} />
+                            <Button aria-label="编辑" size="small" type="text" icon={<Square size={13} />} onClick={() => openEditModal(a)} />
                           </Tooltip>
                           <Popconfirm title={t('w10Wsi.confirmDelete')} onConfirm={() => void deleteAnnotation(a.id)}>
                             <Tooltip title={t('w10Wsi.delete')}>
-                              <Button size="small" type="text" danger icon={<Trash2 size={13} />} />
+                              <Button aria-label="删除" size="small" type="text" danger icon={<Trash2 size={13} />} />
                             </Tooltip>
                           </Popconfirm>
                         </Space>
@@ -1461,7 +1461,7 @@ const WsiViewerPage: React.FC = () => {
             >
               {CATEGORIES.map((c) => (
                 <Radio.Button key={c.value} value={c.value}>
-                  <span style={{ color: c.color }}>●</span> {t('w10Wsi.categoryName.' + c.value)}
+                  <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "currentColor", marginRight: 'var(--space-1, 4px)', color: c.color }} /> {t('w10Wsi.categoryName.' + c.value)}
                 </Radio.Button>
               ))}
             </Radio.Group>

@@ -85,7 +85,7 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
         borderRadius: 12, padding: 'var(--space-5, 20px)', marginBottom: 'var(--space-4, 16px)', color: '#fff',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
-          <button
+          <button aria-label="返回"
             onClick={() => navigate('/critical-value')}
             style={{
               padding: 'var(--space-1, 4px)', border: 'none', background: 'rgba(255,255,255,0.2)', color: '#fff',
@@ -190,7 +190,7 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
                   style={{
                     width: '100%', padding: 10, marginBottom: 6,
                     background: selected ? g.color : 'var(--bg-card)',
-                    border: `2px solid ${selected ? g.color : '#e2e8f0'}`,
+                    border: `2px solid ${selected ? g.color : 'var(--border-color, #e2e8f0)'}`,
                     borderRadius: 6, textAlign: 'left', cursor: 'pointer',
                     transition: 'all 0.15s',
                   }}

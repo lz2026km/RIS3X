@@ -26,7 +26,7 @@ interface LogFilterProps {
 }
 
 const filterBtnStyle = (active: boolean) => ({
-  padding: '5px 12px', borderRadius: 6, border: `1px solid ${active ? ACCENT : '#e2e8f0'}`,
+  padding: '5px 12px', borderRadius: 6, border: `1px solid ${active ? ACCENT : 'var(--border-color, #e2e8f0)'}`,
   background: active ? `${ACCENT}15` : WHITE, color: active ? ACCENT : GRAY,
   fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
 })
@@ -66,7 +66,7 @@ export default function LogFilter({
               onClick={() => onQuickTimeFilter(filter.value)}
               style={{
                 padding: '4px 10px', borderRadius: 6,
-                border: `1px solid ${quickTimeFilter === filter.value ? ACCENT : '#e2e8f0'}`,
+                border: `1px solid ${quickTimeFilter === filter.value ? ACCENT : 'var(--border-color, #e2e8f0)'}`,
                 background: quickTimeFilter === filter.value ? `${ACCENT}15` : WHITE,
                 color: quickTimeFilter === filter.value ? ACCENT : GRAY,
                 fontSize: 12, fontWeight: 600, cursor: 'pointer',
@@ -91,7 +91,7 @@ export default function LogFilter({
             style={{ border: 'none', fontSize: 12, width: '100%', background: 'transparent' }}
           />
           {searchText && (
-            <button onClick={() => onSearchChange('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+            <button aria-label="关闭" onClick={() => onSearchChange('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
               <X size={14} color={GRAY} />
             </button>
           )}

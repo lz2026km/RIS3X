@@ -133,7 +133,7 @@ export const MllpConfigPage: React.FC = () => {
       width: 80,
       render: (_: unknown, record: { cidr: string }) => (
         <Popconfirm title={t('mllp.removeConfirm')} onConfirm={() => handleRemoveWhitelist(record.cidr)}>
-          <Button size="small" danger icon={<Trash2 className="w-3 h-3" />} />
+          <Button aria-label="删除" size="small" danger icon={<Trash2 className="w-3 h-3" />} />
         </Popconfirm>
       ),
     },

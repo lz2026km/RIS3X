@@ -162,7 +162,7 @@ export default function DICOMSRParser() {
           <div
             style={{
               padding: "10px 14px",
-              background: "#f0fdf4",
+              background: "var(--color-success-bg, #f0fdf4)",
               border: "1px solid #bbf7d0",
               borderRadius: 8,
               color: "var(--color-success-600)",
@@ -199,7 +199,7 @@ export default function DICOMSRParser() {
             style={{
               padding: "10px 14px",
               background: "#fef3c7",
-              border: "1px solid #fcd34d",
+              border: "1px solid var(--color-warning-300, #fcd34d)",
               borderRadius: 8,
               color: "var(--color-warning-600)",
               fontSize: 12,
@@ -268,7 +268,7 @@ export default function DICOMSRParser() {
                   <span
                     style={{
                       padding: "2px 8px",
-                      background: v ? "#f0fdf4" : "#fef2f2",
+                      background: v ? "var(--color-success-bg, #f0fdf4)" : "#fef2f2",
                       color: v ? "var(--color-success-600)" : "var(--color-error-600)",
                       borderRadius: 4,
                       fontSize: 12,

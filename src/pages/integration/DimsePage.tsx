@@ -14,7 +14,7 @@ import {
   Alert,
   InputNumber,
 } from "antd";
-import { UploadOutlined, SendOutlined, SearchOutlined, ForwardOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { Upload as UploadIcon, Send, Search, Forward, CheckCircle2, XCircle } from 'lucide-react';
 import { api } from '../../services/api/client';
 import { usePagination } from '../../hooks/usePagination';
 import { t } from '../../i18n/appI18n';
@@ -30,7 +30,7 @@ const ECHO_COLUMNS: any[] = [
   { title: t('dimse.colPort'), dataIndex: 'port', key: 'port' },
   { title: t('dimse.colModality'), dataIndex: 'modality', key: 'modality' },
   { title: t('dimse.colConnectivity'), dataIndex: 'pingMs', key: 'pingMs', render: (v: number | null) => v != null ? `${v} ms` : '-' },
-  { title: t('dimse.colStatus'), dataIndex: 'status', key: 'status', render: (v: string | null) => v ? <Tag color={v === 'SUCCESS' ? 'green' : 'red'} icon={v === 'SUCCESS' ? <CheckCircleOutlined /> : <CloseCircleOutlined />}>{DIMSE_STATUS_LABEL[v] ?? v}</Tag> : '-' },
+  { title: t('dimse.colStatus'), dataIndex: 'status', key: 'status', render: (v: string | null) => v ? <Tag color={v === 'SUCCESS' ? 'green' : 'red'} icon={v === 'SUCCESS' ? <CheckCircle2 /> : <XCircle />}>{DIMSE_STATUS_LABEL[v] ?? v}</Tag> : '-' },
 ];
 
 const MWL_COLUMNS = [
@@ -147,7 +147,7 @@ export const DimsePage: React.FC = () => {
   const tabItems = [
     {
       key: 'echo',
-      label: <Space><SendOutlined />C-ECHO</Space>,
+      label: <Space><Send />C-ECHO</Space>,
       children: (
         <Card size="small" title={t('dimse.deviceList')}>
           <DataTable scroll={{ x: 'max-content' }}
@@ -160,7 +160,7 @@ export const DimsePage: React.FC = () => {
                 title: t('dimse.colAction'),
                 key: 'action',
                 render: (_: any, record: any) => (
-                  <Button type="primary" size="small" icon={<SendOutlined />} loading={record._echoing} onClick={() => handleEcho(record)}>{t('dimse.echoTest')}</Button>
+                  <Button type="primary" size="small" icon={<Send />} loading={record._echoing} onClick={() => handleEcho(record)}>{t('dimse.echoTest')}</Button>
                 ),
               },
             ]}
@@ -170,7 +170,7 @@ export const DimsePage: React.FC = () => {
     },
     {
       key: 'mwl',
-      label: <Space><SearchOutlined />MWL (C-FIND)</Space>,
+      label: <Space><Search />MWL (C-FIND)</Space>,
       children: (
         <>
           <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
@@ -187,7 +187,7 @@ export const DimsePage: React.FC = () => {
                 </Select>
               </Form.Item>
               <Form.Item name="dateRange" label={t('dimse.labelDate')}><RangePicker /></Form.Item>
-              <Form.Item><Button type="primary" htmlType="submit" icon={<SearchOutlined />} loading={mwlLoading}>{t('dimse.query')}</Button></Form.Item>
+              <Form.Item><Button type="primary" htmlType="submit" icon={<Search />} loading={mwlLoading}>{t('dimse.query')}</Button></Form.Item>
             </Form>
           </Card>
           <Card size="small" title={t('dimse.worklistEntries')}>
@@ -198,7 +198,7 @@ export const DimsePage: React.FC = () => {
     },
     {
       key: 'cstore',
-      label: <Space><UploadOutlined />C-STORE</Space>,
+      label: <Space><UploadIcon />C-STORE</Space>,
       children: (
         <Card size="small" title={t('dimse.fileUpload')}>
           <Upload
@@ -207,7 +207,7 @@ export const DimsePage: React.FC = () => {
             beforeUpload={(file) => { handleStore(file); return false; }}
             disabled={storeLoading}
           >
-            <Button icon={<UploadOutlined />} loading={storeLoading} disabled={storeLoading}>{t('dimse.selectDcm')}</Button>
+            <Button icon={<UploadIcon />} loading={storeLoading} disabled={storeLoading}>{t('dimse.selectDcm')}</Button>
           </Upload>
           <Alert title={t('dimse.uploadHint')} type="info" showIcon style={{ marginTop: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }} />
           <DataTable scroll={{ x: 'max-content' }} dataSource={storePagination.pageData} rowKey={(r, i) => r.sopInstanceUid || `${i}`} columns={C_STORE_COLUMNS} pagination={storePagination.pagination} />
@@ -216,7 +216,7 @@ export const DimsePage: React.FC = () => {
     },
     {
       key: 'cmove',
-      label: <Space><ForwardOutlined />C-MOVE</Space>,
+      label: <Space><Forward />C-MOVE</Space>,
       children: (
         <>
           <Card size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
@@ -233,7 +233,7 @@ export const DimsePage: React.FC = () => {
               <Form.Item name="destPort" label={t('dimse.labelPort')}>
                 <InputNumber placeholder="11112" min={1} max={65535} />
               </Form.Item>
-              <Form.Item><Button type="primary" htmlType="submit" icon={<ForwardOutlined />} loading={moveLoading}>{t('dimse.forward')}</Button></Form.Item>
+              <Form.Item><Button type="primary" htmlType="submit" icon={<Forward />} loading={moveLoading}>{t('dimse.forward')}</Button></Form.Item>
             </Form>
           </Card>
           <Card size="small" title={t('dimse.transferRecords')}>

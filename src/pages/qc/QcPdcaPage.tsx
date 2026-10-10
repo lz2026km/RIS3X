@@ -404,7 +404,7 @@ export default function QcPdcaPage() {
             <Button size="small" type="primary" ghost icon={<CheckCircle2 size={12} />} onClick={() => openComplete(r)}>{t('qcPdca.complete')}</Button>
           )}
           <Popconfirm title={t('qcPdca.deleteCycle')} description={t('qcPdca.deleteConfirm')} onConfirm={() => void handleDelete(r.id)} okText={t('qcPdca.delete')} cancelText={t('qcPdca.cancel')} okButtonProps={{ danger: true }}>
-            <Button size="small" danger icon={<Trash2 size={12} />} />
+            <Button aria-label="删除" size="small" danger icon={<Trash2 size={12} />} />
           </Popconfirm>
         </Space>
       ),
@@ -569,7 +569,7 @@ export default function QcPdcaPage() {
                             {fmtDate(p.createdAt)}{p.updatedAt !== p.createdAt ? ` · ${t('qcPdca.updatedAt', { date: fmtDate(p.updatedAt) })}` : ''}
                           </div>
                         </div>
-                        <Button
+                        <Button aria-label="编辑"
                           size="small"
                           type="text"
                           icon={<Pencil size={12} />}

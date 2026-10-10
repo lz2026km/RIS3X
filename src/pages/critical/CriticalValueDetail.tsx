@@ -46,7 +46,7 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
             <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{cv.id} · {cv.patientName}</div>
           </div>
         </div>
-        <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <button aria-label="关闭" onClick={onClose} style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <X size={16} style={{ color: 'var(--text-muted, #64748b)' }} />
         </button>
       </div>

@@ -405,25 +405,25 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
         <Divider orientation="vertical" />
 
         <Tooltip title={t('w9b.reportRich.tipBold')}>
-          <Button size="small" type="text" icon={<Bold className="w-4 h-4" />} onClick={() => applyFormat('bold')} />
+          <Button aria-label="加粗" size="small" type="text" icon={<Bold className="w-4 h-4" />} onClick={() => applyFormat('bold')} />
         </Tooltip>
         <Tooltip title={t('w9b.reportRich.tipItalic')}>
-          <Button size="small" type="text" icon={<Italic className="w-4 h-4" />} onClick={() => applyFormat('italic')} />
+          <Button aria-label="倾斜" size="small" type="text" icon={<Italic className="w-4 h-4" />} onClick={() => applyFormat('italic')} />
         </Tooltip>
         <Tooltip title={t('w9b.reportRich.tipUnderline')}>
-          <Button size="small" type="text" icon={<Underline className="w-4 h-4" />} onClick={() => applyFormat('underline')} />
+          <Button aria-label="下划线" size="small" type="text" icon={<Underline className="w-4 h-4" />} onClick={() => applyFormat('underline')} />
         </Tooltip>
         <Tooltip title={t('w9b.reportRich.tipStrike')}>
-          <Button size="small" type="text" icon={<Strikethrough className="w-4 h-4" />} onClick={() => applyFormat('strikeThrough')} />
+          <Button aria-label="删除线" size="small" type="text" icon={<Strikethrough className="w-4 h-4" />} onClick={() => applyFormat('strikeThrough')} />
         </Tooltip>
         <Tooltip title={t('w9b.reportRich.tipSuperscript')}>
-          <Button size="small" type="text" icon={<Superscript className="w-4 h-4" />} onClick={() => applyFormat('superscript')} />
+          <Button aria-label="上标" size="small" type="text" icon={<Superscript className="w-4 h-4" />} onClick={() => applyFormat('superscript')} />
         </Tooltip>
         <Tooltip title={t('w9b.reportRich.tipSubscript')}>
-          <Button size="small" type="text" icon={<Subscript className="w-4 h-4" />} onClick={() => applyFormat('subscript')} />
+          <Button aria-label="下标" size="small" type="text" icon={<Subscript className="w-4 h-4" />} onClick={() => applyFormat('subscript')} />
         </Tooltip>
         <Tooltip title={t('w9b.reportRich.tipHr')}>
-          <Button size="small" type="text" icon={<Minus className="w-4 h-4" />} onClick={insertHorizontalRule} />
+          <Button aria-label="插入分隔线" size="small" type="text" icon={<Minus className="w-4 h-4" />} onClick={insertHorizontalRule} />
         </Tooltip>
 
         <Divider orientation="vertical" />
@@ -433,36 +433,36 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
 
         <Divider orientation="vertical" />
 
-        <Tooltip title={t('w9b.reportRich.tipAlignLeft')}><Button size="small" type="text" icon={<AlignLeft className="w-4 h-4" />} onClick={() => applyFormat('justifyLeft')} /></Tooltip>
-        <Tooltip title={t('w9b.reportRich.tipAlignCenter')}><Button size="small" type="text" icon={<AlignCenter className="w-4 h-4" />} onClick={() => applyFormat('justifyCenter')} /></Tooltip>
-        <Tooltip title={t('w9b.reportRich.tipAlignRight')}><Button size="small" type="text" icon={<AlignRight className="w-4 h-4" />} onClick={() => applyFormat('justifyRight')} /></Tooltip>
-        <Tooltip title={t('w9b.reportRich.tipAlignJustify')}><Button size="small" type="text" icon={<AlignJustify className="w-4 h-4" />} onClick={() => applyFormat('justifyFull')} /></Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipAlignLeft')}><Button aria-label="左对齐" size="small" type="text" icon={<AlignLeft className="w-4 h-4" />} onClick={() => applyFormat('justifyLeft')} /></Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipAlignCenter')}><Button aria-label="居中对齐" size="small" type="text" icon={<AlignCenter className="w-4 h-4" />} onClick={() => applyFormat('justifyCenter')} /></Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipAlignRight')}><Button aria-label="右对齐" size="small" type="text" icon={<AlignRight className="w-4 h-4" />} onClick={() => applyFormat('justifyRight')} /></Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipAlignJustify')}><Button aria-label="两端对齐" size="small" type="text" icon={<AlignJustify className="w-4 h-4" />} onClick={() => applyFormat('justifyFull')} /></Tooltip>
 
         <Divider orientation="vertical" />
 
-        <Tooltip title={t('w9b.reportRich.tipOrderedList')}><Button size="small" type="text" icon={<ListOrdered className="w-4 h-4" />} onClick={() => applyFormat('insertOrderedList')} /></Tooltip>
-        <Tooltip title={t('w9b.reportRich.tipUnorderedList')}><Button size="small" type="text" icon={<List className="w-4 h-4" />} onClick={() => applyFormat('insertUnorderedList')} /></Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipOrderedList')}><Button aria-label="有序列表" size="small" type="text" icon={<ListOrdered className="w-4 h-4" />} onClick={() => applyFormat('insertOrderedList')} /></Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipUnorderedList')}><Button aria-label="无序列表" size="small" type="text" icon={<List className="w-4 h-4" />} onClick={() => applyFormat('insertUnorderedList')} /></Tooltip>
 
         <Divider orientation="vertical" />
 
-        <Tooltip title="H1"><Button size="small" type="text" icon={<Heading1 className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'H1')} /></Tooltip>
-        <Tooltip title="H2"><Button size="small" type="text" icon={<Heading2 className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'H2')} /></Tooltip>
-        <Tooltip title="H3"><Button size="small" type="text" icon={<Heading3 className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'H3')} /></Tooltip>
-        <Tooltip title={t('w9b.reportRich.tipQuote')}><Button size="small" type="text" icon={<Quote className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'BLOCKQUOTE')} /></Tooltip>
+        <Tooltip title="H1"><Button aria-label="一级标题" size="small" type="text" icon={<Heading1 className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'H1')} /></Tooltip>
+        <Tooltip title="H2"><Button aria-label="二级标题" size="small" type="text" icon={<Heading2 className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'H2')} /></Tooltip>
+        <Tooltip title="H3"><Button aria-label="三级标题" size="small" type="text" icon={<Heading3 className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'H3')} /></Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipQuote')}><Button aria-label="引用" size="small" type="text" icon={<Quote className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'BLOCKQUOTE')} /></Tooltip>
 
         <Divider orientation="vertical" />
 
         <Tooltip title={t('w9b.reportRich.tipInsertImage')}>
-          <Button size="small" type="text" icon={<ImageIcon className="w-4 h-4" />} onClick={insertImage} />
+          <Button aria-label="插入图片" size="small" type="text" icon={<ImageIcon className="w-4 h-4" />} onClick={insertImage} />
         </Tooltip>
         <Tooltip title={t('w9b.reportRich.tipInsertTable')}>
-          <Button size="small" type="text" icon={<TableIcon className="w-4 h-4" />} onClick={insertTable} />
+          <Button aria-label="插入表格" size="small" type="text" icon={<TableIcon className="w-4 h-4" />} onClick={insertTable} />
         </Tooltip>
         <Tooltip title={t('w9b.reportRich.tipInsertSpecials')}>
-          <Button size="small" type="text" icon={<Hash className="w-4 h-4" />} onClick={() => setShowSpecials(true)} />
+          <Button aria-label="插入特殊字符" size="small" type="text" icon={<Hash className="w-4 h-4" />} onClick={() => setShowSpecials(true)} />
         </Tooltip>
         <Tooltip title={t('w9b.reportRich.tipLink')}>
-          <Button size="small" type="text" icon={<Link2 className="w-4 h-4" />} onClick={() => {
+          <Button aria-label="插入链接" size="small" type="text" icon={<Link2 className="w-4 h-4" />} onClick={() => {
             let url = '';
             Modal.confirm({
               title: t('w9b.reportRich.linkUrlTitle'),
@@ -485,8 +485,8 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
 
         <Divider orientation="vertical" />
 
-        <Tooltip title={t('w9b.reportRich.tipUndo')}><Button size="small" type="text" icon={<Undo className="w-4 h-4" />} onClick={() => applyFormat('undo')} /></Tooltip>
-        <Tooltip title={t('w9b.reportRich.tipRedo')}><Button size="small" type="text" icon={<Redo className="w-4 h-4" />} onClick={() => applyFormat('redo')} /></Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipUndo')}><Button aria-label="撤销" size="small" type="text" icon={<Undo className="w-4 h-4" />} onClick={() => applyFormat('undo')} /></Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipRedo')}><Button aria-label="重做" size="small" type="text" icon={<Redo className="w-4 h-4" />} onClick={() => applyFormat('redo')} /></Tooltip>
 
         <Divider orientation="vertical" />
         <Tooltip title={t('w9b.reportRich.tipCompare')}>
@@ -502,7 +502,7 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
         <Divider orientation="vertical" />
 
         <Tooltip title={voiceListening ? t('w9b.reportRich.voiceStopTip') : t('w9b.reportRich.voiceTip')}>
-          <Button
+          <Button aria-label="语音输入"
             size="small"
             type={voiceListening ? 'primary' : 'text'}
             danger={voiceListening}
@@ -521,9 +521,9 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
         <Tooltip title={t('w9b.reportRich.tipSpellCheck')}>
           <Button size="small" icon={<SpellCheck2 className="w-4 h-4" />} onClick={runSpellCheck}>{t('w9b.reportRich.btnCheck')}</Button>
         </Tooltip>
-        <Tooltip title={t('w9b.reportRich.tipSplitPreview')}><Button size="small" type={splitPreview ? 'primary' : 'text'} icon={<Eye className="w-4 h-4" />} onClick={() => setSplitPreview((v) => !v)} /></Tooltip>
-        <Tooltip title={t('w9b.reportRich.tipPrintPreview')}><Button size="small" type="text" icon={<Printer className="w-4 h-4" />} onClick={() => window.print()} /></Tooltip>
-        <Tooltip title={t('w9b.reportRich.tipFullscreen')}><Button size="small" type="text" icon={fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />} onClick={() => setFullscreen((v) => !v)} /></Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipSplitPreview')}><Button aria-label="分屏预览" size="small" type={splitPreview ? 'primary' : 'text'} icon={<Eye className="w-4 h-4" />} onClick={() => setSplitPreview((v) => !v)} /></Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipPrintPreview')}><Button aria-label="打印预览" size="small" type="text" icon={<Printer className="w-4 h-4" />} onClick={() => window.print()} /></Tooltip>
+        <Tooltip title={t('w9b.reportRich.tipFullscreen')}><Button aria-label="全屏切换" size="small" type="text" icon={fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />} onClick={() => setFullscreen((v) => !v)} /></Tooltip>
         <Button size="small" type="primary" icon={<Save className="w-4 h-4" />} onClick={handleSave}>{t('w9b.reportRich.btnSave')}</Button>
       </div>
 

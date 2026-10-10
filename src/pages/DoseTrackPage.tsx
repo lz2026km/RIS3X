@@ -97,6 +97,7 @@ export default function DoseTrackPage() {
   const [dataSource, setDataSource] = useState<'api' | 'demo'>('demo');
   const [dataError, setDataError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reloadTick, setReloadTick] = useState(0);
   // [G005 W8-Dose] 总览图数据: 优先 /rdsr/overview, 端点不可用/返回空时回退 mock
   const [doseHistory, setDoseHistory] = useState(doseHistoryData);
   const [ctdivolTrend, setCtdivolTrend] = useState(ctdivolTrendData);
@@ -156,7 +157,7 @@ export default function DoseTrackPage() {
       }
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [reloadTick]);
 
   const stats: CumulativeStats = today
     ? {
@@ -241,9 +242,9 @@ export default function DoseTrackPage() {
           {t('doseTrack.dataSourceLine')} {today?.date ?? '-'}
         </div>
       ) : (
-        <div style={{ marginBottom: 'var(--space-3, 12px)', padding: '8px 12px', background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', borderRadius: 8, fontSize: 12 }}>
-          {dataError ? t('doseTrack.apiErrorPrefix', { error: dataError }) : ''}
-          {overviewSource === 'demo' ? t('w8Dose.doseTrackDemo') : t('doseTrack.demoDataNote')}
+        <div style={{ marginBottom: 'var(--space-3, 12px)', padding: '8px 12px', background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', borderRadius: 8, fontSize: 12, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
+          <span>{dataError ? t('doseTrack.apiErrorPrefix', { error: dataError }) : ''}{overviewSource === 'demo' ? t('w8Dose.doseTrackDemo') : t('doseTrack.demoDataNote')}</span>
+          {dataError && <button onClick={() => setReloadTick(n => n + 1)} style={{ marginLeft: 'auto', padding: '2px 10px', borderRadius: 6, border: '1px solid #fde68a', background: '#fff', color: 'var(--color-warning-600)', fontSize: 12, cursor: 'pointer' }}>{t('w9.states.retry')}</button>}
         </div>
       )}
 

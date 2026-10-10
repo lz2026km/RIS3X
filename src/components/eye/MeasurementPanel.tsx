@@ -1,5 +1,6 @@
 import React from "react";
-import { Card, Tag, Table } from 'antd';
+import { Card, Tag } from 'antd';
+import { DataTable } from '../common';
 import type { EyeMeasurement } from "../../types/eye";
 
 const MeasurementPanel: React.FC<{
@@ -11,10 +12,9 @@ const MeasurementPanel: React.FC<{
     title={title || `测量数据 (${measurements.length})`}
     style={{ marginBottom: 'var(--space-2, 8px)' }}
   >
-    <Table
+    <DataTable
       dataSource={measurements}
       rowKey="id"
-      size="small"
       pagination={false}
       scroll={{ x: 'max-content' }}
       columns={[

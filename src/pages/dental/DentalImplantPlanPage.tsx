@@ -159,7 +159,7 @@ export const DentalImplantPlanPage: React.FC = () => {
           <Card
             size="small"
             title={<Space>{t('dentalImplantPlan.planList')} <Badge count={display.length} size="small" /></Space>}
-            extra={<Space><Button size="small" icon={<RefreshCw size={11} />} onClick={() => void load()} /><Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setCreateModal(true)}>{t('dentalImplantPlan.newPlan')}</Button></Space>}
+            extra={<Space><Button aria-label="刷新" size="small" icon={<RefreshCw size={11} />} onClick={() => void load()} /><Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setCreateModal(true)}>{t('dentalImplantPlan.newPlan')}</Button></Space>}
           >
             <Spin spinning={loading}>
               <List
@@ -197,7 +197,7 @@ export const DentalImplantPlanPage: React.FC = () => {
           <Card
             size="small"
             title={t('w4b.implant.catalogTitle')}
-            extra={<Button size="small" icon={<RefreshCw size={11} />} loading={modelsLoading} onClick={() => void loadModels()} />}
+            extra={<Button aria-label="刷新" size="small" icon={<RefreshCw size={11} />} loading={modelsLoading} onClick={() => void loadModels()} />}
           >
             {modelsError && <Alert type="warning" showIcon message={modelsError} style={{ marginBottom: 'var(--space-2, 8px)' }} />}
             <DataTable

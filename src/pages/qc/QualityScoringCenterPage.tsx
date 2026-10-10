@@ -408,6 +408,8 @@ function PdcaTab() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [advancingId, setAdvancingId] = useState('')
   const [form] = Form.useForm()
 
   const load = useCallback(async () => {
@@ -422,17 +424,27 @@ function PdcaTab() {
   useEffect(() => { void load() }, [load])
 
   const createAction = async () => {
-    const values = await form.validateFields().catch(() => null)
-    if (!values) return
-    const res = await api.addAction(cycleId, values).catch(() => null)
-    if (res?.success) { message.success(t('w9Qc.pdca.created')); setCreateOpen(false); form.resetFields(); void load() }
-    else message.error(t('w9Qc.pdca.createFailed'))
+    setSaving(true)
+    try {
+      const values = await form.validateFields().catch(() => null)
+      if (!values) return
+      const res = await api.addAction(cycleId, values).catch(() => null)
+      if (res?.success) { message.success(t('w9Qc.pdca.created')); setCreateOpen(false); form.resetFields(); void load() }
+      else message.error(t('w9Qc.pdca.createFailed'))
+    } finally {
+      setSaving(false)
+    }
   }
 
   const advance = async (id: string) => {
-    const res = await api.completeAction(id).catch(() => null)
-    if (res?.success) { message.success(t('w9Qc.pdca.advanced')); void load() }
-    else message.error(t('w9Qc.pdca.advanceFailed'))
+    setAdvancingId(id)
+    try {
+      const res = await api.completeAction(id).catch(() => null)
+      if (res?.success) { message.success(t('w9Qc.pdca.advanced')); void load() }
+      else message.error(t('w9Qc.pdca.advanceFailed'))
+    } finally {
+      setAdvancingId('')
+    }
   }
 
   const columns: ColumnsType<PdcaAction> = [
@@ -448,7 +460,7 @@ function PdcaTab() {
       title: t('w9Qc.actions'), key: 'actions', width: 120,
       render: (_, r) => r.status !== 'done' ? (
         <Popconfirm title={t('w9Qc.pdca.confirmDone')} onConfirm={() => advance(r.id)}>
-          <Button size="small" type="link">{t('w9Qc.pdca.markDone')}</Button>
+          <Button size="small" type="link" loading={advancingId === r.id} disabled={advancingId === r.id}>{t('w9Qc.pdca.markDone')}</Button>
         </Popconfirm>
       ) : <Tag color="success">{t('w9Qc.action.done')}</Tag>,
     },
@@ -475,7 +487,7 @@ function PdcaTab() {
         <DataTable<PdcaAction> rowKey="id" columns={columns} dataSource={actions} pagination={false} />
       </StateView>
 
-      <Modal title={t('w9Qc.pdca.createAction')} open={createOpen} onOk={createAction} onCancel={() => setCreateOpen(false)} okText={t('w9Qc.save')}>
+      <Modal title={t('w9Qc.pdca.createAction')} open={createOpen} onOk={createAction} confirmLoading={saving} onCancel={() => setCreateOpen(false)} okText={t('w9Qc.save')}>
         <Form form={form} layout="vertical">
           <Form.Item name="description" label={t('w9Qc.pdca.description')} rules={[{ required: true }]}><Input.TextArea rows={2} /></Form.Item>
           <Form.Item name="phase" label={t('w9Qc.pdca.phase')} initialValue="plan"><Select options={['plan', 'do', 'check', 'act'].map((v) => ({ value: v, label: v }))} /></Form.Item>
@@ -498,6 +510,8 @@ function SamplingTab() {
   const [form] = Form.useForm()
   const [detail, setDetail] = useState<SamplingBatchView | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [batchSaving, setBatchSaving] = useState(false)
+  const [recording, setRecording] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true); setError(null)
@@ -511,11 +525,16 @@ function SamplingTab() {
   useEffect(() => { void load() }, [load])
 
   const createBatch = async () => {
-    const values = await form.validateFields().catch(() => null)
-    if (!values) return
-    const res = await api.createSamplingBatch(values).catch(() => null)
-    if (res?.success) { message.success(t('w9Qc.sampling.created')); setCreateOpen(false); form.resetFields(); void load() }
-    else message.error(t('w9Qc.sampling.createFailed'))
+    setBatchSaving(true)
+    try {
+      const values = await form.validateFields().catch(() => null)
+      if (!values) return
+      const res = await api.createSamplingBatch(values).catch(() => null)
+      if (res?.success) { message.success(t('w9Qc.sampling.created')); setCreateOpen(false); form.resetFields(); void load() }
+      else message.error(t('w9Qc.sampling.createFailed'))
+    } finally {
+      setBatchSaving(false)
+    }
   }
 
   const openDetail = async (batch: SamplingBatchView) => {
@@ -525,9 +544,14 @@ function SamplingTab() {
 
   const record = async (itemId: string, readerSlot: 1 | 2, result: 'positive' | 'negative' | 'indeterminate') => {
     if (!detail) return
-    const res = await api.recordSamplingReading(detail.id, itemId, { readerSlot, readerId: `dr-00${readerSlot}`, readerName: readerSlot === 1 ? '张医生' : '李医生', result }).catch(() => null)
-    if (res?.success && res.data) { setDetail(res.data); void load() }
-    else message.error(t('w9Qc.sampling.recordFailed'))
+    setRecording(true)
+    try {
+      const res = await api.recordSamplingReading(detail.id, itemId, { readerSlot, readerId: `dr-00${readerSlot}`, readerName: readerSlot === 1 ? '张医生' : '李医生', result }).catch(() => null)
+      if (res?.success && res.data) { setDetail(res.data); void load() }
+      else message.error(t('w9Qc.sampling.recordFailed'))
+    } finally {
+      setRecording(false)
+    }
   }
 
   const columns: ColumnsType<SamplingBatchView> = [
@@ -560,7 +584,7 @@ function SamplingTab() {
         <DataTable<SamplingBatchView> rowKey="id" columns={columns} dataSource={batches} pagination={{ pageSize: 10 }} />
       </StateView>
 
-      <Modal title={t('w9Qc.sampling.createBatch')} open={createOpen} onOk={createBatch} onCancel={() => setCreateOpen(false)} okText={t('w9Qc.save')}>
+      <Modal title={t('w9Qc.sampling.createBatch')} open={createOpen} onOk={createBatch} confirmLoading={batchSaving} onCancel={() => setCreateOpen(false)} okText={t('w9Qc.save')}>
         <Form form={form} layout="vertical">
           <Form.Item name="name" label={t('w9Qc.sampling.batch')}><Input placeholder="2026-08 QC 抽查" /></Form.Item>
           <Form.Item name="method" label={t('w9Qc.sampling.method')} initialValue="random"><Select options={[{ value: 'random', label: METHOD_LABELS.random }, { value: 'low_yield', label: METHOD_LABELS.low_yield }, { value: 'stratified', label: METHOD_LABELS.stratified }]} /></Form.Item>
@@ -603,10 +627,10 @@ function SamplingTab() {
                   title: t('w9Qc.sampling.record'), key: 'record', width: 180,
                   render: (_, r) => (
                     <Space size={4}>
-                      <Button size="small" onClick={() => record(r.itemId, 1, 'positive')}>R1 +</Button>
-                      <Button size="small" onClick={() => record(r.itemId, 1, 'negative')}>R1 -</Button>
-                      <Button size="small" onClick={() => record(r.itemId, 2, 'positive')}>R2 +</Button>
-                      <Button size="small" onClick={() => record(r.itemId, 2, 'negative')}>R2 -</Button>
+                      <Button size="small" loading={recording} disabled={recording} onClick={() => record(r.itemId, 1, 'positive')}>R1 +</Button>
+                      <Button size="small" loading={recording} disabled={recording} onClick={() => record(r.itemId, 1, 'negative')}>R1 -</Button>
+                      <Button size="small" loading={recording} disabled={recording} onClick={() => record(r.itemId, 2, 'positive')}>R2 +</Button>
+                      <Button size="small" loading={recording} disabled={recording} onClick={() => record(r.itemId, 2, 'negative')}>R2 -</Button>
                     </Space>
                   ),
                 },
@@ -774,6 +798,7 @@ function EquipmentTab() {
   const [error, setError] = useState<string | null>(null)
   const [modality, setModality] = useState<EquipmentModality | 'all'>('all')
   const [recordOpen, setRecordOpen] = useState(false)
+  const [recordSaving, setRecordSaving] = useState(false)
   const [form] = Form.useForm()
   // [G005 W4B] 设备质控项详情 (GET /equipment-qc/items/:id)
   const [itemDetail, setItemDetail] = useState<PhantomTestItem | null>(null)
@@ -806,11 +831,16 @@ function EquipmentTab() {
   useEffect(() => { void load() }, [load])
 
   const createRecord = async () => {
-    const values = await form.validateFields().catch(() => null)
-    if (!values) return
-    const res = await api.createEquipmentRecord(values).catch(() => null)
-    if (res?.success) { message.success(t('w9Qc.equipment.created')); setRecordOpen(false); form.resetFields(); void load() }
-    else message.error(t('w9Qc.equipment.createFailed'))
+    setRecordSaving(true)
+    try {
+      const values = await form.validateFields().catch(() => null)
+      if (!values) return
+      const res = await api.createEquipmentRecord(values).catch(() => null)
+      if (res?.success) { message.success(t('w9Qc.equipment.created')); setRecordOpen(false); form.resetFields(); void load() }
+      else message.error(t('w9Qc.equipment.createFailed'))
+    } finally {
+      setRecordSaving(false)
+    }
   }
 
   const filtered = useMemo(() => modality === 'all' ? items : items.filter((i) => i.modality === modality), [items, modality])
@@ -860,7 +890,7 @@ function EquipmentTab() {
         />
       </StateView>
 
-      <Modal title={t('w9Qc.equipment.record')} open={recordOpen} onOk={createRecord} onCancel={() => setRecordOpen(false)} okText={t('w9Qc.save')}>
+      <Modal title={t('w9Qc.equipment.record')} open={recordOpen} onOk={createRecord} confirmLoading={recordSaving} onCancel={() => setRecordOpen(false)} okText={t('w9Qc.save')}>
         <Form form={form} layout="vertical">
           <Form.Item name="modality" label={t('w9Qc.equipment.modality')} initialValue="CT" rules={[{ required: true }]}><Select options={(['CT', 'DR', 'MRI', 'MG'] as EquipmentModality[]).map((v) => ({ value: v }))} /></Form.Item>
           <Form.Item name="deviceId" label={t('w9Qc.equipment.device')} rules={[{ required: true }]}><Input placeholder="DEV-CT-01" /></Form.Item>

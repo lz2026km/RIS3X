@@ -696,6 +696,7 @@ function CustomReportCenter() {
   const [scheduleText, setScheduleText] = useState('')
   const [recipients, setRecipients] = useState<string[]>(['current'])
   const [saving, setSaving] = useState(false)
+  const [exportingId, setExportingId] = useState<string | null>(null)
   const [runningId, setRunningId] = useState<string | null>(null)
 
   const loadAll = useCallback(async () => {
@@ -854,6 +855,7 @@ function CustomReportCenter() {
   }
 
   const handleExport = async (def: ApiReportDef) => {
+    setExportingId(def.id)
     try {
       const res = await customReportApi.exportCsv(def.id)
       if (!res.success || !res.data) {
@@ -870,6 +872,8 @@ function CustomReportCenter() {
       message.success(t('dataReportCenter.csvExportSuccess'))
     } catch {
       message.error(t('dataReportCenter.exportFailed'))
+    } finally {
+      setExportingId(null)
     }
   }
 
@@ -947,7 +951,7 @@ function CustomReportCenter() {
           <Button size="small" icon={<Table2 size={12} />} onClick={() => void openResult(record)}>{t('dataReportCenter.result')}</Button>
           <Button size="small" icon={<History size={12} />} onClick={() => void openHistory(record)}>{t('dataReportCenter.history')}</Button>
           <Button size="small" icon={<Clock size={12} />} onClick={() => openSchedule(record)}>{t('dataReportCenter.schedule')}</Button>
-          <Button size="small" icon={<FileDown size={12} />} onClick={() => void handleExport(record)}>{t('dataReportCenter.export')}</Button>
+          <Button size="small" icon={<FileDown size={12} />} loading={exportingId === record.id} disabled={exportingId === record.id} onClick={() => void handleExport(record)}>{t('dataReportCenter.export')}</Button>
           <Button size="small" icon={<Pencil size={12} />} onClick={() => openEdit(record)}>{t('dataReportCenter.edit')}</Button>
           <Button size="small" danger icon={<Trash2 size={12} />} onClick={() => void handleDelete(record)}>{t('dataReportCenter.delete')}</Button>
         </Space>
@@ -1472,7 +1476,7 @@ export default function DataReportCenterPage() {
             style={{ width: 80 }}
           />
           <Tooltip title={t('dataReportCenter.refreshData')}>
-            <Button
+            <Button aria-label="刷新"
               size="small"
               icon={<RefreshCw size={14} />}
               onClick={() => void handleRefresh()}
@@ -1481,7 +1485,7 @@ export default function DataReportCenterPage() {
             />
           </Tooltip>
           <Tooltip title={fullscreen ? t('dataReportCenter.exitFullscreen') : t('dataReportCenter.fullscreen')}>
-            <Button
+            <Button aria-label="全屏切换"
               size="small"
               icon={fullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
               onClick={() => setFullscreen((v) => !v)}

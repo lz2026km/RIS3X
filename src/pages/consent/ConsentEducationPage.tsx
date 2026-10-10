@@ -77,6 +77,8 @@ export const ConsentEducationPage: React.FC = () => {
   // [Wave 4B] 记录编辑 (PATCH /records/:id): 状态(拒绝/签署) + 见证人
   const [editingConsent, setEditingConsent] = useState<ConsentRecord | null>(null);
   const [consentEditForm] = Form.useForm();
+  const [saving, setSaving] = useState(false);
+  const [signingId, setSigningId] = useState<string | null>(null);
   const { pageData: consentPageData, pagination: consentPagination } = usePagination(consents, 6);
 
   // [W3-C] 发送患者: 本地真实状态 (标记已发送 + 浏览数 +1)
@@ -145,33 +147,43 @@ export const ConsentEducationPage: React.FC = () => {
   const { pageData: materialPageData, pagination: materialPagination } = usePagination(filteredMaterials, 6);
 
   const createConsent = async () => {
-    const values = await consentForm.validateFields();
-    const res = await consentEducationApi.createRecord({
-      patient: values.patient,
-      patientId: values.patientId || undefined,
-      examId: values.examId || undefined,
-      type: values.type,
-      procedure: values.procedure,
-      witnessName: values.witnessName || undefined,
-    });
-    if (res.success) {
-      setConsents((prev) => [...prev, res.data as ConsentRecord]);
-      message.success(t('consentEdu.created'));
-      setConsentModal(false);
-      consentForm.resetFields();
-    } else {
-      message.error(res.error?.message ?? t('consentEdu.createFailed'));
+    setSaving(true);
+    try {
+      const values = await consentForm.validateFields();
+      const res = await consentEducationApi.createRecord({
+        patient: values.patient,
+        patientId: values.patientId || undefined,
+        examId: values.examId || undefined,
+        type: values.type,
+        procedure: values.procedure,
+        witnessName: values.witnessName || undefined,
+      });
+      if (res.success) {
+        setConsents((prev) => [...prev, res.data as ConsentRecord]);
+        message.success(t('consentEdu.created'));
+        setConsentModal(false);
+        consentForm.resetFields();
+      } else {
+        message.error(res.error?.message ?? t('consentEdu.createFailed'));
+      }
+    } finally {
+      setSaving(false);
     }
   };
 
   const signConsent = async (record: ConsentRecord) => {
-    // [v3.0.6.11-88 Round10] 签署走新路径 POST /records/:id/sign (后端 signConsent)
-    const res = await consentEducationApi.signRecord(record.id, { signer: 'Dr. System' });
-    if (res.success) {
-      setConsents((prev) => prev.map((c) => c.id === record.id ? { ...c, status: 'signed' as const, signedAt: new Date().toLocaleString('zh-CN', { hour12: false }), witness: 'Dr. System', witnessName: c.witnessName ?? 'Dr. System' } : c));
-      message.success(t('consentEdu.signDone'));
-    } else {
-      message.error(res.error?.message ?? t('consentEdu.signFailed'));
+    setSigningId(record.id);
+    try {
+      // [v3.0.6.11-88 Round10] 签署走新路径 POST /records/:id/sign (后端 signConsent)
+      const res = await consentEducationApi.signRecord(record.id, { signer: 'Dr. System' });
+      if (res.success) {
+        setConsents((prev) => prev.map((c) => c.id === record.id ? { ...c, status: 'signed' as const, signedAt: new Date().toLocaleString('zh-CN', { hour12: false }), witness: 'Dr. System', witnessName: c.witnessName ?? 'Dr. System' } : c));
+        message.success(t('consentEdu.signDone'));
+      } else {
+        message.error(res.error?.message ?? t('consentEdu.signFailed'));
+      }
+    } finally {
+      setSigningId(null);
     }
   };
 
@@ -201,41 +213,51 @@ export const ConsentEducationPage: React.FC = () => {
 
   const submitEditConsent = async () => {
     if (!editingConsent) return;
-    const values = await consentEditForm.validateFields();
-    const res = await consentEducationApi.updateRecord(editingConsent.id, {
-      status: values.status,
-      witnessName: values.witnessName || null,
-    });
-    if (res.success) {
-      setConsents((prev) => prev.map((c) => c.id === editingConsent.id ? { ...c, status: values.status, witnessName: values.witnessName || null } : c));
-      message.success(t('consentEdu.recordUpdated'));
-      setEditingConsent(null);
-    } else {
-      message.error(res.error?.message ?? t('consentEdu.updateFailed'));
+    setSaving(true);
+    try {
+      const values = await consentEditForm.validateFields();
+      const res = await consentEducationApi.updateRecord(editingConsent.id, {
+        status: values.status,
+        witnessName: values.witnessName || null,
+      });
+      if (res.success) {
+        setConsents((prev) => prev.map((c) => c.id === editingConsent.id ? { ...c, status: values.status, witnessName: values.witnessName || null } : c));
+        message.success(t('consentEdu.recordUpdated'));
+        setEditingConsent(null);
+      } else {
+        message.error(res.error?.message ?? t('consentEdu.updateFailed'));
+      }
+    } finally {
+      setSaving(false);
     }
   };
 
   const createMaterial = async () => {
-    const values = await materialForm.validateFields();
-    // [G005 2B] 附件随提交附上: base64 → content 字段, 文件名 → 摘要 (后端 FormData 不支持时的回退)
-    const attachmentNote = materialFile ? `[附件: ${materialFile.name} (${(materialFile.size / 1024).toFixed(1)} KB)]` : '';
-    const res = await consentEducationApi.createMaterial({
-      title: values.title,
-      category: values.category,
-      lang: values.lang,
-      pages: values.pages ?? 1,
-      format: values.format,
-      summary: [values.summary, attachmentNote].filter(Boolean).join(' '),
-      content: materialFile?.base64 || undefined,
-    });
-    if (res.success) {
-      setMaterials((prev) => [...prev, res.data as EducationMaterialDto]);
-      message.success(materialFile ? `宣教资料已上传 (附件 ${materialFile.name})` : t('consentEdu.materialUploaded'));
-      setUploadModal(false);
-      setMaterialFile(null);
-      materialForm.resetFields();
-    } else {
-      message.error(res.error?.message ?? t('consentEdu.uploadFailed'));
+    setSaving(true);
+    try {
+      const values = await materialForm.validateFields();
+      // [G005 2B] 附件随提交附上: base64 → content 字段, 文件名 → 摘要 (后端 FormData 不支持时的回退)
+      const attachmentNote = materialFile ? `[附件: ${materialFile.name} (${(materialFile.size / 1024).toFixed(1)} KB)]` : '';
+      const res = await consentEducationApi.createMaterial({
+        title: values.title,
+        category: values.category,
+        lang: values.lang,
+        pages: values.pages ?? 1,
+        format: values.format,
+        summary: [values.summary, attachmentNote].filter(Boolean).join(' '),
+        content: materialFile?.base64 || undefined,
+      });
+      if (res.success) {
+        setMaterials((prev) => [...prev, res.data as EducationMaterialDto]);
+        message.success(materialFile ? `宣教资料已上传 (附件 ${materialFile.name})` : t('consentEdu.materialUploaded'));
+        setUploadModal(false);
+        setMaterialFile(null);
+        materialForm.resetFields();
+      } else {
+        message.error(res.error?.message ?? t('consentEdu.uploadFailed'));
+      }
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -260,21 +282,26 @@ export const ConsentEducationPage: React.FC = () => {
 
   const submitEditMaterial = async () => {
     if (!editingMaterial) return;
-    const values = await materialEditForm.validateFields();
-    const res = await consentEducationApi.updateEducationMaterial(editingMaterial.id, {
-      title: values.title,
-      category: values.category,
-      lang: values.lang,
-      format: values.format,
-      pages: values.pages ?? 1,
-      summary: values.summary,
-    });
-    if (res.success) {
-      setMaterials((prev) => prev.map((x) => x.id === editingMaterial.id ? { ...x, ...res.data } : x));
-      message.success(t('consentEdu.materialUpdated'));
-      setEditingMaterial(null);
-    } else {
-      message.error(res.error?.message ?? t('consentEdu.updateFailed'));
+    setSaving(true);
+    try {
+      const values = await materialEditForm.validateFields();
+      const res = await consentEducationApi.updateEducationMaterial(editingMaterial.id, {
+        title: values.title,
+        category: values.category,
+        lang: values.lang,
+        format: values.format,
+        pages: values.pages,
+        summary: values.summary,
+      });
+      if (res.success) {
+        setMaterials((prev) => prev.map((x) => x.id === editingMaterial.id ? { ...x, ...res.data } : x));
+        message.success(t('consentEdu.materialUpdated'));
+        setEditingMaterial(null);
+      } else {
+        message.error(res.error?.message ?? t('consentEdu.updateFailed'));
+      }
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -323,7 +350,7 @@ export const ConsentEducationPage: React.FC = () => {
                 title: t('consentEdu.actions'),
                 render: (_, r: ConsentRecord) => (
                   <Space>
-                    {r.status === 'pending' && <Button size="small" type="primary" onClick={() => void signConsent(r)}>{t('consentEdu.signNow')}</Button>}
+                    {r.status === 'pending' && <Button size="small" type="primary" loading={signingId === r.id} disabled={signingId === r.id} onClick={() => void signConsent(r)}>{t('consentEdu.signNow')}</Button>}
                     <Button size="small" icon={<Eye size={10} />} onClick={() => void viewConsentDetail(r)}>{t('consentEdu.view')}</Button>
                     {/* [Wave 4B] 记录编辑: PATCH /records/:id (拒绝/见证人) */}
                     <Button size="small" onClick={() => openEditConsent(r)}>{t('consentEdu.edit')}</Button>
@@ -377,7 +404,7 @@ export const ConsentEducationPage: React.FC = () => {
         />
       </Card>
 
-      <Modal title={t('consentEdu.newConsent')} open={consentModal} onOk={() => void createConsent()} onCancel={() => setConsentModal(false)} okText={t('consentEdu.create')}>
+      <Modal title={t('consentEdu.newConsent')} open={consentModal} onOk={() => void createConsent()} confirmLoading={saving} onCancel={() => setConsentModal(false)} okText={t('consentEdu.create')}>
         <Form form={consentForm} layout="vertical">
           <Form.Item name="patient" label={t('consentEdu.patientName')} rules={[{ required: true, message: t('consentEdu.patientNamePlaceholder') }]}>
             <Input placeholder={t('consentEdu.patientNamePlaceholder')} />
@@ -406,7 +433,7 @@ export const ConsentEducationPage: React.FC = () => {
         </Form>
       </Modal>
 
-      <Modal title={`${t('consentEdu.type')} - ${editingConsent?.patient ?? ''}`} open={!!editingConsent} onOk={() => void submitEditConsent()} onCancel={() => setEditingConsent(null)} okText={t('consentEdu.save')}>
+      <Modal title={`${t('consentEdu.type')} - ${editingConsent?.patient ?? ''}`} open={!!editingConsent} onOk={() => void submitEditConsent()} confirmLoading={saving} onCancel={() => setEditingConsent(null)} okText={t('consentEdu.save')}>
         <Form form={consentEditForm} layout="vertical">
           <Form.Item name="status" label={t('consentEdu.status')} rules={[{ required: true, message: t('consentEdu.selectStatus') }]}>
             <Select options={[{ value: 'pending', label: t('consentEdu.pending') }, { value: 'signed', label: t('consentEdu.signed') }, { value: 'refused', label: t('consentEdu.refused') }, { value: 'expired', label: t('consentEdu.expired') }]} />
@@ -417,7 +444,7 @@ export const ConsentEducationPage: React.FC = () => {
         </Form>
       </Modal>
 
-      <Modal title={t('consentEdu.uploadMaterialTitle')} open={uploadModal} onOk={() => void createMaterial()} onCancel={() => { setUploadModal(false); setMaterialFile(null); }} okText={t('consentEdu.upload')}>
+      <Modal title={t('consentEdu.uploadMaterialTitle')} open={uploadModal} onOk={() => void createMaterial()} confirmLoading={saving} onCancel={() => { setUploadModal(false); setMaterialFile(null); }} okText={t('consentEdu.upload')}>
         <Form form={materialForm} layout="vertical">
           <Form.Item name="title" label={t('consentEdu.titleCol')} rules={[{ required: true, message: t('consentEdu.enterTitle') }]}>
             <Input placeholder={t('consentEdu.titlePlaceholder')} />
@@ -453,7 +480,7 @@ export const ConsentEducationPage: React.FC = () => {
         </Form>
       </Modal>
 
-      <Modal title={`${t('consentEdu.editMaterial')} - ${editingMaterial?.title ?? ''}`} open={!!editingMaterial} onOk={() => void submitEditMaterial()} onCancel={() => setEditingMaterial(null)} okText={t('consentEdu.save')} width={520}>
+      <Modal title={`${t('consentEdu.editMaterial')} - ${editingMaterial?.title ?? ''}`} open={!!editingMaterial} onOk={() => void submitEditMaterial()} confirmLoading={saving} onCancel={() => setEditingMaterial(null)} okText={t('consentEdu.save')} width={520}>
         <Form form={materialEditForm} layout="vertical">
           <Form.Item name="title" label={t('consentEdu.titleCol')} rules={[{ required: true, message: t('consentEdu.enterTitle') }]}>
             <Input placeholder={t('consentEdu.titlePlaceholder')} />

@@ -172,7 +172,7 @@ export default function DepartmentSchedule() {
     <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
       <div style={panelStyle}>
         <div style={panelHeaderStyle}>
-          <span>{t("deptSched.attendanceRecords")} {/* [G005 Wave2B P2] ATTENDANCE_DATA 等硬编码 → 演示数据徽标 */}<span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: 'var(--color-warning-600)', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("deptSched.demoBadge")}</span></span>
+          <span>{t("deptSched.attendanceRecords")} {/* [G005 Wave2B P2] ATTENDANCE_DATA 等硬编码 → 演示数据徽标 */}<span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg, #fffbeb)', color: 'var(--color-warning-600)', border: '1px solid var(--color-warning-300, #fcd34d)', fontWeight: 600 }}>{t("deptSched.demoBadge")}</span></span>
           <div style={{ display: "flex", gap: 'var(--space-2, 8px)', alignItems: "center" }}>
             <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
             <span style={{ fontSize: 12, color: C.textMid }}>{t("deptSched.to")}</span>

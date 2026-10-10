@@ -105,6 +105,9 @@ export default function ReportWatermarkPage() {
   const [applyForm] = Form.useForm()
   const [rejecting, setRejecting] = useState<SignRequest | null>(null)
   const [rejectForm] = Form.useForm()
+  const [actingId, setActingId] = useState('')
+  const [modalSaving, setModalSaving] = useState(false)
+  const [verifying, setVerifying] = useState(false)
   const [detail, setDetail] = useState<SignRequest | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
 
@@ -154,18 +157,23 @@ export default function ReportWatermarkPage() {
   }, [refreshPreview])
 
   const runVerify = async () => {
-    const res = await reportSignV2Api
-      .verifyWatermark({
-        reportId: 'RPT-1001',
-        text: verifyText,
-        config,
-        contentHash: preview?.contentHash,
-        tamperCode: verifyInput || preview?.tamperCode,
-      })
-      .catch(() => null)
-    if (res?.success && res.data) {
-      setVerifyResult(res.data)
-      message[res.data.valid ? 'success' : 'error'](res.data.valid ? t('reportWatermark.verifyMsg') : t('reportWatermark.verifyMsgFail'))
+    setVerifying(true)
+    try {
+      const res = await reportSignV2Api
+        .verifyWatermark({
+          reportId: 'RPT-1001',
+          text: verifyText,
+          config,
+          contentHash: preview?.contentHash,
+          tamperCode: verifyInput || preview?.tamperCode,
+        })
+        .catch(() => null)
+      if (res?.success && res.data) {
+        setVerifyResult(res.data)
+        message[res.data.valid ? 'success' : 'error'](res.data.valid ? t('reportWatermark.verifyMsg') : t('reportWatermark.verifyMsgFail'))
+      }
+    } finally {
+      setVerifying(false)
     }
   }
 
@@ -176,52 +184,72 @@ export default function ReportWatermarkPage() {
   }
 
   const submitApply = async () => {
-    const values = await applyForm.validateFields()
-    const res = await reportSignV2Api
-      .applySign({
-        reportId: values.reportId,
-        reportTitle: SIGN_REPORT_OPTIONS.find((o) => o.value === values.reportId)?.label.split(' ')[1],
-        kind: values.kind as SignKind,
-        signerId: values.signerId,
-        applicantId: values.applicantId,
-        reason: values.reason,
-        reportText: REPORT_TEXT,
-      })
-      .catch(() => null)
-    if (res?.success) {
-      message.success(t('reportWatermark.applySubmitted', { id: res.data.id, hash: res.data.reportHash }))
-      setApplyOpen(false)
-      void loadSigns()
-    } else {
-      message.error(t('reportWatermark.applyFailed'))
+    setModalSaving(true)
+    try {
+      const values = await applyForm.validateFields()
+      const res = await reportSignV2Api
+        .applySign({
+          reportId: values.reportId,
+          reportTitle: SIGN_REPORT_OPTIONS.find((o) => o.value === values.reportId)?.label.split(' ')[1],
+          kind: values.kind as SignKind,
+          signerId: values.signerId,
+          applicantId: values.applicantId,
+          reason: values.reason,
+          reportText: REPORT_TEXT,
+        })
+        .catch(() => null)
+      if (res?.success) {
+        message.success(t('reportWatermark.applySubmitted', { id: res.data.id, hash: res.data.reportHash }))
+        setApplyOpen(false)
+        void loadSigns()
+      } else {
+        message.error(t('reportWatermark.applyFailed'))
+      }
+    } finally {
+      setModalSaving(false)
     }
   }
 
   const doApprove = async (sign: SignRequest) => {
-    const res = await reportSignV2Api.approveSign(sign.id, { note: '同意', actorId: ACTOR.id }).catch(() => null)
-    if (res?.success) {
-      message.success(t('reportWatermark.approvedSigned', { name: res.data.signedByName }))
-      void loadSigns()
-    } else message.error(t('reportWatermark.approveFailed'))
+    setActingId(sign.id)
+    try {
+      const res = await reportSignV2Api.approveSign(sign.id, { note: '同意', actorId: ACTOR.id }).catch(() => null)
+      if (res?.success) {
+        message.success(t('reportWatermark.approvedSigned', { name: res.data.signedByName }))
+        void loadSigns()
+      } else message.error(t('reportWatermark.approveFailed'))
+    } finally {
+      setActingId('')
+    }
   }
 
   const doReject = async () => {
     if (!rejecting) return
-    const values = await rejectForm.validateFields()
-    const res = await reportSignV2Api.rejectSign(rejecting.id, { reason: values.reason, actorId: ACTOR.id }).catch(() => null)
-    if (res?.success) {
-      message.success(t('reportWatermark.rejected'))
-      setRejecting(null)
-      void loadSigns()
-    } else message.error(t('reportWatermark.rejectFailed'))
+    setModalSaving(true)
+    try {
+      const values = await rejectForm.validateFields()
+      const res = await reportSignV2Api.rejectSign(rejecting.id, { reason: values.reason, actorId: ACTOR.id }).catch(() => null)
+      if (res?.success) {
+        message.success(t('reportWatermark.rejected'))
+        setRejecting(null)
+        void loadSigns()
+      } else message.error(t('reportWatermark.rejectFailed'))
+    } finally {
+      setModalSaving(false)
+    }
   }
 
   const doCancel = async (sign: SignRequest) => {
-    const res = await reportSignV2Api.cancelSign(sign.id, { reason: '申请撤销', actorId: ACTOR.id }).catch(() => null)
-    if (res?.success) {
-      message.success(t('reportWatermark.cancelled'))
-      void loadSigns()
-    } else message.error(t('reportWatermark.cancelFailed'))
+    setActingId(sign.id)
+    try {
+      const res = await reportSignV2Api.cancelSign(sign.id, { reason: '申请撤销', actorId: ACTOR.id }).catch(() => null)
+      if (res?.success) {
+        message.success(t('reportWatermark.cancelled'))
+        void loadSigns()
+      } else message.error(t('reportWatermark.cancelFailed'))
+    } finally {
+      setActingId('')
+    }
   }
 
   const openDetail = async (sign: SignRequest) => {
@@ -330,13 +358,13 @@ export default function ReportWatermarkPage() {
           </Button>
           {sign.status === 'pending' && (
             <>
-              <Button size="small" type="primary" icon={<CheckCircle2 size={13} />} onClick={() => void doApprove(sign)}>
+              <Button size="small" type="primary" icon={<CheckCircle2 size={13} />} loading={actingId === sign.id} disabled={actingId === sign.id} onClick={() => void doApprove(sign)}>
                 {t('reportWatermark.approve')}
               </Button>
               <Button size="small" danger icon={<XCircle size={13} />} onClick={() => setRejecting(sign)}>
                 {t('reportWatermark.reject')}
               </Button>
-              <Button size="small" icon={<Undo2 size={13} />} onClick={() => void doCancel(sign)}>
+              <Button size="small" icon={<Undo2 size={13} />} loading={actingId === sign.id} disabled={actingId === sign.id} onClick={() => void doCancel(sign)}>
                 {t('reportWatermark.cancel')}
               </Button>
             </>
@@ -497,7 +525,7 @@ export default function ReportWatermarkPage() {
                         onChange={(e) => setVerifyText(e.target.value)}
                       />
                       <Input style={{ width: 200 }} placeholder={t('reportWatermark.codePlaceholder')} value={verifyInput} onChange={(e) => setVerifyInput(e.target.value)} />
-                      <Button icon={<ShieldCheck size={14} />} onClick={() => void runVerify()}>
+                      <Button icon={<ShieldCheck size={14} />} loading={verifying} disabled={verifying} onClick={() => void runVerify()}>
                         {t('reportWatermark.verifyHash')}
                       </Button>
                     </Space>
@@ -546,7 +574,7 @@ export default function ReportWatermarkPage() {
       />
 
       {/* 签名申请 */}
-      <Modal title={t('reportWatermark.applyModalTitle')} open={applyOpen} onCancel={() => setApplyOpen(false)} onOk={() => void submitApply()}>
+        <Modal title={t('reportWatermark.applyModalTitle')} open={applyOpen} onCancel={() => setApplyOpen(false)} onOk={() => void submitApply()} confirmLoading={modalSaving}>
         <Form form={applyForm} layout="vertical">
           <Form.Item name="reportId" label={t('reportWatermark.fldReport')} rules={[{ required: true }]}>
             <Select options={SIGN_REPORT_OPTIONS} />
@@ -567,7 +595,7 @@ export default function ReportWatermarkPage() {
       </Modal>
 
       {/* 驳回 */}
-      <Modal title={t('reportWatermark.rejectModalTitle', { id: rejecting?.id ?? '' })} open={!!rejecting} onCancel={() => setRejecting(null)} onOk={() => void doReject()}>
+        <Modal title={t('reportWatermark.rejectModalTitle', { id: rejecting?.id ?? '' })} open={!!rejecting} onCancel={() => setRejecting(null)} onOk={() => void doReject()} confirmLoading={modalSaving}>
         <Form form={rejectForm} layout="vertical">
           <Form.Item name="reason" label={t('reportWatermark.fldRejectReason')} rules={[{ required: true, message: t('reportWatermark.rejectReasonRequired') }]}>
             <Input.TextArea rows={2} />

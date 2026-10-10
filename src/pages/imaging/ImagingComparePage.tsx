@@ -737,7 +737,7 @@ export default function ImagingComparePage() {
                     <div style={{ fontSize: 10, color: 'var(--text-muted, #64748b)' }}>{s.patientName} · {s.seriesGroups.length} 序列</div>
                   </div>
                   <Tooltip title={t('imagingCompare.deleteSession')}>
-                    <Button
+                    <Button aria-label="删除"
                       size="small" type="text" danger
                       icon={<Trash2 size={12} />}
                       onClick={(e) => { e.stopPropagation(); void deleteSession(s.id) }}

@@ -20,7 +20,7 @@ export default function ReportAdvancedFilter({
     <div style={{ marginBottom: showAdvancedFilter ? 14 : 0, transition: 'all 0.2s' }}>
       <button onClick={() => setShowAdvancedFilter(!showAdvancedFilter)}
         style={{
-          padding: '6px 14px', borderRadius: 8, border: `1px solid ${showAdvancedFilter ? 'var(--color-primary-800)' : '#e2e8f0'}`,
+          padding: '6px 14px', borderRadius: 8, border: `1px solid ${showAdvancedFilter ? 'var(--color-primary-800)' : 'var(--border-color, #e2e8f0)'}`,
           background: showAdvancedFilter ? '#eff6ff' : WHITE, color: showAdvancedFilter ? 'var(--color-primary-800)' : GRAY,
           fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, marginBottom: showAdvancedFilter ? 10 : 0,
         }}>

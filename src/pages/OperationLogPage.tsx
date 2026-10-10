@@ -49,6 +49,7 @@ export default function OperationLogPage() {
 
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [reloadTick, setReloadTick] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -76,7 +77,7 @@ export default function OperationLogPage() {
       }
     })()
     return () => { cancelled = true }
-  }, [])
+  }, [reloadTick])
 
   const [viewMode, setViewMode] = useState<'table' | 'timeline'>('table')
   const [viewTab, setViewTab] = useState<ViewTab>('logs')
@@ -418,7 +419,7 @@ export default function OperationLogPage() {
   return (
     <div data-testid="operation-log-page" style={{ background: BG }}>
       {loading && <LoadingBanner message={t('opLog.loadingBanner')} />}
-      {loadError && !loading && <ErrorBanner message={loadError} />}
+      {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => setReloadTick(n => n + 1)} retryLabel={t('w9.states.retry')} />}
       {dataSource === 'demo' && !loading && (
         <div style={{ padding: '8px 24px', background: '#fef3c7', color: 'var(--color-warning-600)', fontSize: 12 }}>
           {t('w8Dose.demoBadge')} · {t('opLog.apiUnavailableLocal')}

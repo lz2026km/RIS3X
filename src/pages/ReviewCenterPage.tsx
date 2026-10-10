@@ -32,6 +32,7 @@ const ReviewCenterPage: React.FC = () => {
   const [selectedTask, setSelectedTask] = useState<ReviewTask | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
+  const [actionBusy, setActionBusy] = useState(false);
 
   // [W2-B] 真实化: 审核待办计数 (reportApi 状态过滤 + cosignApi)
   const [summary, setSummary] = useState<{
@@ -87,6 +88,7 @@ const ReviewCenterPage: React.FC = () => {
 
   const handleApprove = async () => {
     if (!selectedTask) return;
+    setActionBusy(true);
     try {
       if (selectedTask.stage === 'initial') {
         await reviewService.approveInitial(selectedTask.id, 'D001', t('reviewCenter.currentUser'), 92, t('reviewCenter.approveInitialComment'));
@@ -97,6 +99,8 @@ const ReviewCenterPage: React.FC = () => {
       setDrawerOpen(false);
     } catch (e: any) {
       message.error(e?.message ?? t('reviewCenter.operationFailed'));
+    } finally {
+      setActionBusy(false);
     }
   };
 
@@ -178,7 +182,7 @@ const ReviewCenterPage: React.FC = () => {
         width={720}
         extra={selectedTask && (
           <Space>
-            <Button type="primary" onClick={handleApprove}>{t('reviewCenter.approve')}</Button>
+            <Button type="primary" loading={actionBusy} disabled={actionBusy} onClick={handleApprove}>{t('reviewCenter.approve')}</Button>
             <Button danger onClick={() => setRejectOpen(true)}>{t('reviewCenter.reject')}</Button>
           </Space>
         )}

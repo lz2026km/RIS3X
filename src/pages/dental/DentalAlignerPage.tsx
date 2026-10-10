@@ -383,19 +383,19 @@ export const DentalAlignerPage: React.FC = () => {
             }
             extra={
               <Space>
-                <Button
+                <Button aria-label="上一个"
                   size="small"
                   icon={<SkipBack size={10} />}
                   onClick={() => setCurrentStage(Math.max(0, currentStage - 1))}
                   disabled={currentStage <= 0}
                 />
-                <Button
+                <Button aria-label="播放"
                   size="small"
                   icon={playing ? <Pause size={10} /> : <Play size={10} />}
                   type={playing ? "primary" : "default"}
                   onClick={() => setPlaying(!playing)}
                 />
-                <Button
+                <Button aria-label="下一个"
                   size="small"
                   icon={<SkipForward size={10} />}
                   onClick={() =>

@@ -703,6 +703,8 @@ export default function WorklistPage() {
   const [prefetchStats, setPrefetchStats] = useState<{ total: number; cached: number; pending: number } | null>(null)
   const [prefetchBusy, setPrefetchBusy] = useState(false)
   const [prefetchMsg, setPrefetchMsg] = useState<string | null>(null)
+  const [savingPatientInfo, setSavingPatientInfo] = useState(false)
+  const [submittingReport, setSubmittingReport] = useState(false)
   const prefetchMsgTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const showPrefetchMsg = useCallback((msg: string) => {
@@ -1290,6 +1292,7 @@ export default function WorklistPage() {
   const savePatientInfo = async () => {
     const exam = patientInfoModalExam
     if (!exam || !patientForm) return
+    setSavingPatientInfo(true)
     try {
       const payload: Record<string, string> = {
         name: patientForm.name,
@@ -1328,6 +1331,8 @@ export default function WorklistPage() {
         message: err instanceof Error ? err.message : t('worklistPage.msg.editPatientFailed'),
         onConfirm: () => setConfirmModalConfig(null),
       })
+    } finally {
+      setSavingPatientInfo(false)
     }
   }
 
@@ -1419,6 +1424,7 @@ export default function WorklistPage() {
   const submitReport = async () => {
     const exam = reportModalExam
     if (!exam || !reportForm) return
+    setSubmittingReport(true)
     try {
       const payload: Partial<ReportDto> & { conclusion?: string } = {
         patientId: exam.patientId,
@@ -1447,6 +1453,8 @@ export default function WorklistPage() {
         message: err instanceof Error ? err.message : t('worklistPage.msg.submitFailed'),
         onConfirm: () => setConfirmModalConfig(null),
       })
+    } finally {
+      setSubmittingReport(false)
     }
   }
 
@@ -1621,11 +1629,12 @@ export default function WorklistPage() {
       showHeader={false}
       loading={loading}
       error={loadError}
+      onRetry={() => void fetchOnce()}
       testId="worklist-page"
     >
       {loading && <LoadingBanner message={t('worklist.loadingApi')} />}
       {loadError && !loading && (
-        <ErrorBanner message={`${loadError} (t('worklistPage.errorFallback')`} />
+        <ErrorBanner message={`${loadError} (t('worklistPage.errorFallback')`} onRetry={() => void fetchOnce()} retryLabel={t('w9.states.retry')} />
       )}
       <div style={{
         display: 'flex',
@@ -2482,7 +2491,7 @@ export default function WorklistPage() {
             </div>
             <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-4, 16px)', justifyContent: 'flex-end' }}>
               <ActionButton action="cancel" size="compact" onClick={() => setPatientInfoModalExam(null)}>{t('worklistPage.confirm.cancel')}</ActionButton>
-              <ActionButton action="save" size="compact" onClick={() => void savePatientInfo()}>{t('worklistPage.patientInfo.save')}</ActionButton>
+              <ActionButton action="save" size="compact" loading={savingPatientInfo} disabled={savingPatientInfo} onClick={() => void savePatientInfo()}>{t('worklistPage.patientInfo.save')}</ActionButton>
             </div>
           </Card>
         </div>
@@ -2584,7 +2593,7 @@ export default function WorklistPage() {
                     style={{
                       padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)', borderRadius: 8, cursor: 'pointer',
                       display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)',
-                      background: isAssigned ? '#f0f7ff' : '#fff',
+                      background: isAssigned ? '#f0f7ff' : 'var(--bg-card, #ffffff)',
                     }} onClick={() => void assignDoctor(doctorSelectModalExam, doctor.id)}>
                     <Stethoscope size={16} style={{ color: 'var(--color-primary-800)' }} />
                     <span style={{ fontSize: 12, fontWeight: 600 }}>{doctor.name}</span>
@@ -2635,7 +2644,7 @@ export default function WorklistPage() {
             </div>
             <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-4, 16px)', justifyContent: 'flex-end' }}>
               <ActionButton action="cancel" size="compact" onClick={() => setReportModalExam(null)}>{t('worklistPage.confirm.cancel')}</ActionButton>
-              <ActionButton action="submit" size="compact" onClick={() => void submitReport()}>{t('worklistPage.report.submit')}</ActionButton>
+              <ActionButton action="submit" size="compact" loading={submittingReport} disabled={submittingReport} onClick={() => void submitReport()}>{t('worklistPage.report.submit')}</ActionButton>
             </div>
           </Card>
         </div>

@@ -22,6 +22,7 @@ import { userApi } from '../../services/api/userApi';
 import { usePagination } from '../../hooks/usePagination';
 import { t } from '../../i18n/appI18n';
 import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
+import { ErrorBanner } from '../../components/feedback';
 
 // [G005 Wave1A P0-2] 中文角色 → userApi 英文枚举
 const ROLE_TO_ENUM: Record<string, 'DOCTOR' | 'TECHNICIAN' | 'NURSE' | 'ADMIN' | 'DIRECTOR'> = {
@@ -40,6 +41,8 @@ export const SystemAdminPage: React.FC = () => {
   const [configValues, setConfigValues] = useState<Record<string, string>>({});
   const [savingConfig, setSavingConfig] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
   const [userModal, setUserModal] = useState(false);
   const [newUserName, setNewUserName] = useState('');
   const [newUserRole, setNewUserRole] = useState('技师');
@@ -100,6 +103,7 @@ export const SystemAdminPage: React.FC = () => {
     let cancelled = false;
     void (async () => {
       setLoading(true);
+      setLoadError(null);
       // 用户/角色统计为装饰性数据, fire-and-forget 不阻塞配置加载 (W5)
       void systemAdminApi.getUsers().then(res => {
         if (!cancelled && res.success && Array.isArray(res.data)) setUsers(res.data);
@@ -109,11 +113,11 @@ export const SystemAdminPage: React.FC = () => {
       }).catch(() => { /* noop */ });
       try {
         await loadConfigs();
-      } catch (err) { console.error('[SystemAdmin] load configs failed:', err); if (!cancelled) message.error(t('sysAdmin.loadConfigsFailed')); }
+      } catch (err) { console.error('[SystemAdmin] load configs failed:', err); if (!cancelled) { setLoadError(t('sysAdmin.loadConfigsFailed')); message.error(t('sysAdmin.loadConfigsFailed')); } }
       if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [reloadTick]);
 
   // [W5] 单项配置保存
   const handleSaveConfig = async (c: SystemConfigDto) => {
@@ -198,6 +202,8 @@ export const SystemAdminPage: React.FC = () => {
         <StatCard title={t('sysAdmin.statOnline')} value="2" color="success" />
       </StatCardGrid>
 
+      {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => setReloadTick(n => n + 1)} retryLabel={t('w9.states.retry')} />}
+
       {loading ? (
         <Card><div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}><Spin tip={t('sysAdmin.loading')} /></div></Card>
       ) : (
@@ -212,7 +218,7 @@ export const SystemAdminPage: React.FC = () => {
                     {title:t('sysAdmin.colDept'),dataIndex:'dept'},
                     {title:t('sysAdmin.colStatus'),dataIndex:'status',render:(s)=><Badge status={s==='active'?'success':'default'} />},
                     {title:t('sysAdmin.colLastLogin'),dataIndex:'lastLogin'},
-                    {title:t('sysAdmin.colActions'),render:(_,record)=><Space><Button size="small" icon={<Edit3 size={10}/>} onClick={() => openEditUser(record)} title={t('sysAdmin.editUser')}/><Button size="small" danger icon={<Trash2 size={10}/>} onClick={() => handleDeleteUser(record)}/></Space>},
+                    {title:t('sysAdmin.colActions'),render:(_,record)=><Space><Button size="small" icon={<Edit3 size={10}/>} onClick={() => openEditUser(record)} title={t('sysAdmin.editUser')}/><Button aria-label="删除" size="small" danger icon={<Trash2 size={10}/>} onClick={() => handleDeleteUser(record)}/></Space>},
                   ]} 
                 scroll={{ x: 'max-content' }}/>
               </Card>

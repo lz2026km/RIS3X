@@ -4,7 +4,8 @@
 import { CHART_COLORS, CHART_PALETTE } from '../../../utils/chartColors'
 import { ChartContainer } from '../../charts'
 import type { CriticalValueV2 } from './CriticalEscalationV2'
-import { Card, Tag, Statistic, Row, Col, Progress, Empty, Table } from 'antd'
+import { Card, Tag, Statistic, Row, Col, Progress, Empty } from 'antd'
+import { DataTable } from '../../common'
 import { AlertOctagon, CheckCircle2, Clock, User } from 'lucide-react'
 import React, { useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts'
@@ -169,9 +170,9 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
         </Col>
         <Col span={10}>
           <Card size="small" title={t('w9e.criticalStats.recipientTop10')} data-testid="cv-stats-recipient">
-            <Table
-              size="small"
+            <DataTable
               dataSource={data.byRecipient.map((r, i) => ({ ...r, key: i }))}
+              rowKey="key"
               pagination={false}
               scroll={{ x: 'max-content' }}
               columns={[

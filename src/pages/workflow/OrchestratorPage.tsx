@@ -147,7 +147,7 @@ function CanvasStep({
       </div>
       <Space>
         <Tooltip title={appT("orchestratorPage.edit")}>
-          <Button
+          <Button aria-label="编辑"
             type="text"
             size="small"
             icon={<Settings size={14} />}
@@ -155,7 +155,7 @@ function CanvasStep({
           />
         </Tooltip>
         <Popconfirm title={appT("orchestratorPage.confirmDeleteFlow")} onConfirm={onDelete}>
-          <Button type="text" size="small" danger icon={<Trash2 size={14} />} />
+          <Button aria-label="删除" type="text" size="small" danger icon={<Trash2 size={14} />} />
         </Popconfirm>
       </Space>
     </div>
@@ -886,14 +886,14 @@ export default function OrchestratorPage() {
           extra={<Badge count={flow._count?.executions ?? 0} showZero />}
           actions={[
             <Tooltip title={t("triggerFlow")}>
-              <Button
+              <Button aria-label="播放"
                 type="text"
                 icon={<Play size={14} />}
                 onClick={() => handleTriggerFlow(flow.id)}
               />
             </Tooltip>,
             <Tooltip title={appT("orchestratorPage.view")}>
-              <Button
+              <Button aria-label="操作"
                 type="text"
                 icon={<List size={14} />}
                 onClick={() => selectFlow(flow)}

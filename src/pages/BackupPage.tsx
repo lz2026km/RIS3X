@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { backupApi, type BackupDto } from '../services/api/systemApi'
 import { Card, Tag, Button, Space, message, Modal, Select, Row, Tabs, Descriptions, Tooltip } from 'antd'
-import { CloudUploadOutlined, DownloadOutlined, UndoOutlined, SafetyOutlined, ClockCircleOutlined, SyncOutlined, DatabaseOutlined } from '@ant-design/icons'
+import { CloudUpload, Download, Undo2, ShieldCheck, Clock, RefreshCw, Database } from 'lucide-react'
 import { usePagination } from '../hooks/usePagination'
 import { StatCard, StatCardGrid, PageContainer } from '../components/common'
 import { PageHeader } from '../components/common/PageHeader'
@@ -68,7 +68,7 @@ export default function BackupPage() {
     { title: t('bk.colType'), dataIndex: 'type', key: 'type', width: 100, render: (v: string) => <Tag color={v === 'FULL' ? 'blue' : 'green'}>{BACKUP_TYPE_LABEL[v] ?? v}</Tag> },
     { title: t('bk.colStatus'), dataIndex: 'status', key: 'status', width: 120, render: (v: string) => {
       const colorMap: Record<string, string> = { COMPLETED: 'success', RUNNING: 'processing', FAILED: 'error', PENDING: 'warning' }
-      return <Tag color={colorMap[v] ?? 'default'} icon={v === 'RUNNING' ? <SyncOutlined spin /> : undefined}>{BACKUP_STATUS_LABEL[v] ?? v}</Tag>
+      return <Tag color={colorMap[v] ?? 'default'} icon={v === 'RUNNING' ? <RefreshCw size={12} className="spin" /> : undefined}>{BACKUP_STATUS_LABEL[v] ?? v}</Tag>
     }},
     { title: t('bk.colSize'), dataIndex: 'sizeBytes', key: 'sizeBytes', width: 100, render: (v: number) => v ? `${(v / 1024 / 1024).toFixed(2)} MB` : '-' },
     { title: t('bk.colCreatedBy'), dataIndex: 'createdBy', key: 'createdBy', width: 120 },
@@ -76,8 +76,8 @@ export default function BackupPage() {
       title: t('bk.colActions'), key: 'actions', width: 160,
       render: (_: unknown, r: BackupDto) => (
         <Space>
-          <Tooltip title={t('bk.downloadTip')}><Button size="small" icon={<DownloadOutlined />} onClick={() => backupApi.download(r.id)}>{t('bk.download')}</Button></Tooltip>
-          <Tooltip title={t('bk.restoreTip')}><Button size="small" icon={<UndoOutlined />} onClick={() => handleRestore(r.id)}>{t('bk.restore')}</Button></Tooltip>
+          <Tooltip title={t('bk.downloadTip')}><Button size="small" icon={<Download />} onClick={() => backupApi.download(r.id)}>{t('bk.download')}</Button></Tooltip>
+          <Tooltip title={t('bk.restoreTip')}><Button size="small" icon={<Undo2 />} onClick={() => handleRestore(r.id)}>{t('bk.restore')}</Button></Tooltip>
         </Space>
       ),
     },
@@ -91,7 +91,7 @@ export default function BackupPage() {
       <Card>
         <Space orientation="vertical" style={{ width: '100%' }}>
           <Row justify="space-between" align="middle">
-            <PageHeader variant="flex" icon={<SafetyOutlined />} title={t('bk.title')} style={{ marginBottom: 0 }} />
+            <PageHeader variant="flex" icon={<ShieldCheck />} title={t('bk.title')} style={{ marginBottom: 0 }} />
             <Space>
               <Select
                 placeholder={t('bk.backupType')}
@@ -103,7 +103,7 @@ export default function BackupPage() {
                   { value: 'INCREMENTAL', label: t('bk.incrementalBackup') },
                 ]}
               />
-              <Button type="primary" icon={<CloudUploadOutlined />} loading={creating} disabled={!backupType} onClick={() => { if (backupType) handleCreate(backupType); }}>{t('bk.startBackup')}</Button>
+              <Button type="primary" icon={<CloudUpload />} loading={creating} disabled={!backupType} onClick={() => { if (backupType) handleCreate(backupType); }}>{t('bk.startBackup')}</Button>
               <ActionButton action="refresh" onClick={fetchList}>{t('bk.refresh')}</ActionButton>
             </Space>
           </Row>
@@ -111,23 +111,23 @@ export default function BackupPage() {
           {loadError && !loading && <ErrorBanner message={loadError} />}
 
           <StatCardGrid minWidth={200} gap={16}>
-            <StatCard title={t('bk.total')} value={list.length} icon={<CloudUploadOutlined />} />
-            <StatCard title={t('bk.fullBackup')} value={list.filter((b) => b.type === 'FULL').length} icon={<DatabaseOutlined />} />
-            <StatCard title={t('bk.incrementalBackup')} value={list.filter((b) => b.type === 'INCREMENTAL').length} icon={<SyncOutlined />} />
-            <StatCard title={t('bk.totalStorage')} value={(totalSize / 1024 / 1024).toFixed(1)} suffix="MB" icon={<CloudUploadOutlined />} />
+            <StatCard title={t('bk.total')} value={list.length} icon={<CloudUpload />} />
+            <StatCard title={t('bk.fullBackup')} value={list.filter((b) => b.type === 'FULL').length} icon={<Database />} />
+            <StatCard title={t('bk.incrementalBackup')} value={list.filter((b) => b.type === 'INCREMENTAL').length} icon={<RefreshCw />} />
+            <StatCard title={t('bk.totalStorage')} value={(totalSize / 1024 / 1024).toFixed(1)} suffix="MB" icon={<CloudUpload />} />
           </StatCardGrid>
 
           <Tabs items={[
             {
               key: 'list',
-              label: <span><ClockCircleOutlined /> {t('bk.tabRecords')}</span>,
+              label: <span><Clock /> {t('bk.tabRecords')}</span>,
               children: (
                 <DataTable dataSource={pageData} columns={columns} rowKey="id" loading={loading} pagination={pagination} emptyText={t('w9.states.empty')} scroll={{ x: 'max-content' }} />
               ),
             },
             {
               key: 'schedule',
-              label: <span><SyncOutlined /> {t('bk.tabSchedule')}</span>,
+              label: <span><RefreshCw /> {t('bk.tabSchedule')}</span>,
               children: (
                 <Card size="small">
                   <Descriptions bordered column={2}>

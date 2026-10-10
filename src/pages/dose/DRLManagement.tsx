@@ -296,7 +296,7 @@ export default function DRLManagement() {
           <AlertTriangle size={14} /> {t('w8Dose.demoBadge')} · {t('w8Dose.sourceDemo')}
         </div>
       )}
-      <style>{`.drl-row-critical td { background: #fef2f2 !important; } .drl-row-warning td { background: #fffbeb !important; }`}</style>
+      <style>{`.drl-row-critical td { background: #fef2f2 !important; } .drl-row-warning td { background: var(--color-warning-bg, #fffbeb) !important; }`}</style>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 'var(--space-3, 12px)' }}>
         <div style={kpiBox}>
           <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('drl.kpiThresholds')}</div>

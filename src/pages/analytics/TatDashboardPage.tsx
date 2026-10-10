@@ -76,6 +76,7 @@ function tatLevel(minutes: number): TatLevel {
 
 export default function TatDashboardPage() {
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
   const [error, setError] = useState("");
   const [modalityRows, setModalityRows] = useState<ModalityTatRow[]>([]);
   const [doctorRows, setDoctorRows] = useState<DoctorTatRow[]>([]);
@@ -279,6 +280,7 @@ export default function TatDashboardPage() {
 
   // 导出当前筛选表格数据: 优先 POST /olap/export/csv (后端真实生成), 失败回退本地 CSV blob
   const handleExport = async () => {
+    setExporting(true);
     const buildLocal = () => {
       const esc = (v: unknown) => {
         const s = String(v ?? "");
@@ -322,6 +324,8 @@ export default function TatDashboardPage() {
       buildLocal();
     } catch {
       buildLocal();
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -446,7 +450,7 @@ export default function TatDashboardPage() {
             >
               {t('tatDashboard.refresh')}
             </Button>
-            <Button icon={<Download size={14} />} onClick={handleExport}>{t('tatDashboard.export')}</Button>
+            <Button icon={<Download size={14} />} loading={exporting} disabled={exporting} onClick={handleExport}>{t('tatDashboard.export')}</Button>
           </Space>
         </div>
       </div>

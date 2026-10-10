@@ -113,7 +113,7 @@ export default function ReportDiffModal({ report, data, loading, onClose }: Repo
               {report.reportId} · {report.patientName} · 当前版本 vs 上一版本
             </div>
           </div>
-          <button onClick={onClose} style={{ padding: 6, borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', color: 'var(--text-muted, #64748b)', display: 'flex' }}>
+          <button aria-label="关闭" onClick={onClose} style={{ padding: 6, borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', color: 'var(--text-muted, #64748b)', display: 'flex' }}>
             <X size={16} />
           </button>
         </div>

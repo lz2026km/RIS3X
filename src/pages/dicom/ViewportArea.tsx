@@ -272,13 +272,13 @@ export default function ViewportArea(props: Props) {
         <div style={s.topToolbarSection}>
           <span style={s.label}>{t('dcm.imageLabel')}</span>
           <span style={s.imgCounter}>{imageIndex + 1} / {images.length}</span>
-          <button style={{ ...s.toolBtn, color: PRIMARY, padding: '4px 6px', border: '1px solid var(--border-color)', borderRadius: 6 }} onClick={() => setImageIndex(i => Math.max(0, i - 1))}><ChevronLeft size={14} /></button>
-          <button style={{ ...s.toolBtn, color: PRIMARY, padding: '4px 6px', border: '1px solid var(--border-color)', borderRadius: 6 }} onClick={() => setImageIndex(i => Math.min(images.length - 1, i + 1))}><ChevronRight size={14} /></button>
+          <button aria-label="上一页" style={{ ...s.toolBtn, color: PRIMARY, padding: '4px 6px', border: '1px solid var(--border-color)', borderRadius: 6 }} onClick={() => setImageIndex(i => Math.max(0, i - 1))}><ChevronLeft size={14} /></button>
+          <button aria-label="下一页" style={{ ...s.toolBtn, color: PRIMARY, padding: '4px 6px', border: '1px solid var(--border-color)', borderRadius: 6 }} onClick={() => setImageIndex(i => Math.min(images.length - 1, i + 1))}><ChevronRight size={14} /></button>
         </div>
         <div style={s.topToolbarSection}>
           <span style={s.label}>{t('dcm.layoutLabel')}</span>
           {(['1x1', '2x2', '1x2', '2x1'] as LayoutMode[]).map(l => (
-            <button key={l} style={{ ...s.layoutBtn, ...(layout === l ? s.layoutBtnActive : {}) }} onClick={() => handleLayoutChange(l)}><Grid3x3 size={14} color={layout === l ? '#fff' : 'var(--text-muted)'} /></button>
+            <button aria-label="切换网格" key={l} style={{ ...s.layoutBtn, ...(layout === l ? s.layoutBtnActive : {}) }} onClick={() => handleLayoutChange(l)}><Grid3x3 size={14} color={layout === l ? '#fff' : 'var(--text-muted)'} /></button>
           ))}
         </div>
         <div style={s.topToolbarSection}>
@@ -290,7 +290,7 @@ export default function ViewportArea(props: Props) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', marginLeft: 'var(--space-2, 8px)' }}>
           <button style={{ ...s.compareToolbarBtn, ...(selectedHistoryExams.length > 0 ? s.compareToolbarBtnActive : {}) }} onClick={enterCompareMode}><History size={14} />{t('dcm.historyTab')}</button>
         </div>
-        <button style={{ ...s.layoutBtn, ...(showGrid ? s.layoutBtnActive : {}), marginLeft: 'var(--space-2, 8px)' }} onClick={() => setShowGrid(g => !g)}><Grid3x3 size={14} color={showGrid ? '#fff' : 'var(--text-muted)'} /></button>
+        <button aria-label="切换网格" style={{ ...s.layoutBtn, ...(showGrid ? s.layoutBtnActive : {}), marginLeft: 'var(--space-2, 8px)' }} onClick={() => setShowGrid(g => !g)}><Grid3x3 size={14} color={showGrid ? '#fff' : 'var(--text-muted)'} /></button>
         {/* [G005 v3.0.6.11-91 Wave 4A (PACS P0-3)] GSOF 校准开关 */}
         <button
           style={{
@@ -596,8 +596,8 @@ export default function ViewportArea(props: Props) {
         ))}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <span style={{ fontSize: 12, color: '#6b7280' }}>{exam.modality} · {exam.bodyPart}</span>
-          <button style={{ ...s.layoutBtn, background: PRIMARY, borderColor: PRIMARY }} onClick={() => setImageIndex(i => Math.max(0, i - 1))}><ChevronLeft size={14} color="#fff" /></button>
-          <button style={{ ...s.layoutBtn, background: PRIMARY, borderColor: PRIMARY }} onClick={() => setImageIndex(i => Math.min(images.length - 1, i + 1))}><ChevronRight size={14} color="#fff" /></button>
+          <button aria-label="上一页" style={{ ...s.layoutBtn, background: PRIMARY, borderColor: PRIMARY }} onClick={() => setImageIndex(i => Math.max(0, i - 1))}><ChevronLeft size={14} color="#fff" /></button>
+          <button aria-label="下一页" style={{ ...s.layoutBtn, background: PRIMARY, borderColor: PRIMARY }} onClick={() => setImageIndex(i => Math.min(images.length - 1, i + 1))}><ChevronRight size={14} color="#fff" /></button>
         </div>
       </div>
     </div>

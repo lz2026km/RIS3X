@@ -222,7 +222,7 @@ export const TerminologyServerPage: React.FC = () => {
                   title: t('terminology.colActions'), width: 60,
                   render: (_: unknown, r: TerminologyMapping) => (
                     <Popconfirm title={t('terminology.confirmDeleteMapping')} onConfirm={() => void handleDeleteMapping(r.id)}>
-                      <Button size="small" danger icon={<Trash2 size={12} />} />
+                      <Button aria-label="删除" size="small" danger icon={<Trash2 size={12} />} />
                     </Popconfirm>
                   ),
                 },

@@ -76,7 +76,7 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
         <div style={panelStyle}>
           <div style={panelHeaderStyle}>
-            <span>{t("deptFinance.workloadStats")} {/* [G005 Wave2B P2] PERFORMANCE_DATA 等全硬编码 → 演示数据徽标 */}<span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: 'var(--color-warning-600)', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("deptFinance.demoData")}</span></span>
+            <span>{t("deptFinance.workloadStats")} {/* [G005 Wave2B P2] PERFORMANCE_DATA 等全硬编码 → 演示数据徽标 */}<span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg, #fffbeb)', color: 'var(--color-warning-600)', border: '1px solid var(--color-warning-300, #fcd34d)', fontWeight: 600 }}>{t("deptFinance.demoData")}</span></span>
             <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
               <select style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}><option>{t("deptFinance.thisWeek")}</option><option>{t("deptFinance.thisMonth")}</option><option>{t("deptFinance.thisQuarter")}</option></select>
             </div>
@@ -167,7 +167,7 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
         </div>
         <div style={{ padding: 'var(--space-4, 16px)', background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}`, marginBottom: 'var(--space-5, 20px)' }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 'var(--space-4, 16px)' }}>
-            <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: 0 }}>{t("deptFinance.kpiMonthlyTrend")} <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: 'var(--color-warning-600)', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("deptFinance.demoData")}</span></h4>
+            <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: 0 }}>{t("deptFinance.kpiMonthlyTrend")} <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg, #fffbeb)', color: 'var(--color-warning-600)', border: '1px solid var(--color-warning-300, #fcd34d)', fontWeight: 600 }}>{t("deptFinance.demoData")}</span></h4>
             <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
               {["cards", "charts"].map((v) => (
                 <button key={v} onClick={() => setKpiView(v as any)} style={{ padding: "4px 12px", background: kpiView === v ? C.primary : C.white, color: kpiView === v ? C.white : C.textMid, border: `1px solid ${C.border}`, borderRadius: 4, cursor: "pointer", fontSize: 12 }}>{v === "cards" ? t("deptFinance.overview") : t("deptFinance.charts")}</button>

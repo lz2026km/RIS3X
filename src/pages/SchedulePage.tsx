@@ -663,6 +663,7 @@ export default function SchedulePage() {
   const [currentWeekStart, setCurrentWeekStart] = useState(() => getWeekStart(new Date()))
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [reloadTick, setReloadTick] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -678,7 +679,7 @@ export default function SchedulePage() {
       setLoading(false)
     })()
     return () => { cancelled = true }
-  }, [])
+  }, [reloadTick])
   const [activeTab, setActiveTab] = useState<'schedule' | 'holiday' | 'swap' | 'stats' | 'auto' | 'templates' | 'leave' | 'compliance' | 'cost' | 'tech'>('schedule')
   const [selectedModality, setSelectedModality] = useState<string>('all')
   const [selectedStaff, setSelectedStaff] = useState<string>('all')
@@ -1139,7 +1140,7 @@ export default function SchedulePage() {
   return (
     <div data-testid="schedule-page" style={{ background: C.bg, padding: 'var(--space-5, 20px)' }}>
       {loading && <LoadingBanner message={t('schedulePage.loading')} />}
-      {loadError && !loading && <ErrorBanner message={loadError} />}
+      {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => setReloadTick(n => n + 1)} retryLabel={t('w9.states.retry')} />}
       {/* 顶部标题栏 */}
       <div style={{
         background: 'var(--bg-card)',
@@ -1154,7 +1155,7 @@ export default function SchedulePage() {
             <div>
               <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 {t('schedulePage.title')}
-                <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-warning-600)', background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: 10, padding: '2px 8px' }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-warning-600)', background: 'var(--color-warning-bg, #fffbeb)', border: '1px solid var(--color-warning-300, #fcd34d)', borderRadius: 10, padding: '2px 8px' }}>
                   {t('schedulePage.demoBadge')}
                 </span>
               </Typography.Title>
@@ -1551,7 +1552,7 @@ export default function SchedulePage() {
                         <span style={{ fontWeight: 500, color: C.textDark }}>{h.name}</span>
                         <span style={{ marginLeft: 'var(--space-3, 12px)', color: C.textMid, fontSize: 12 }}>{h.date}</span>
                       </div>
-                      <button 
+                      <button aria-label="删除" 
                         onClick={() => handleHolidayDelete(h.date)}
                         style={{
                           background: 'none',
@@ -1612,7 +1613,7 @@ export default function SchedulePage() {
                         <span style={{ fontWeight: 500, color: C.textDark }}>{h.name}</span>
                         <span style={{ marginLeft: 'var(--space-3, 12px)', color: C.textMid, fontSize: 12 }}>{h.date}</span>
                       </div>
-                      <button 
+                      <button aria-label="删除" 
                         onClick={() => handleHolidayDelete(h.date)}
                         style={{
                           background: 'none',
@@ -2346,7 +2347,7 @@ export default function SchedulePage() {
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
                 {t('schedulePage.applySwap')}
               </h3>
-              <button onClick={() => setShowSwapModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button aria-label="关闭" onClick={() => setShowSwapModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 <X size={20} style={{ color: C.textMid }} />
               </button>
             </div>
@@ -2559,7 +2560,7 @@ export default function SchedulePage() {
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
                 {t('schedulePage.addHoliday')}
               </h3>
-              <button onClick={() => setShowHolidayModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button aria-label="关闭" onClick={() => setShowHolidayModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 <X size={20} style={{ color: C.textMid }} />
               </button>
             </div>
@@ -2664,7 +2665,7 @@ export default function SchedulePage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 420 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>{t('schedulePage.newTemplateTitle')}</h3>
-              <button onClick={() => setShowTemplateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button aria-label="关闭" onClick={() => setShowTemplateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 <X size={20} style={{ color: C.textMid }} />
               </button>
             </div>
@@ -2700,7 +2701,7 @@ export default function SchedulePage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 460 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>{t('schedulePage.newLeave')}</h3>
-              <button onClick={() => setShowLeaveModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button aria-label="关闭" onClick={() => setShowLeaveModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 <X size={20} style={{ color: C.textMid }} />
               </button>
             </div>
@@ -2757,7 +2758,7 @@ export default function SchedulePage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-6, 24px)', width: 400 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>{t('schedulePage.exportTitle')}</h3>
-              <button onClick={() => setShowExportModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button aria-label="关闭" onClick={() => setShowExportModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 <X size={20} style={{ color: C.textMid }} />
               </button>
             </div>

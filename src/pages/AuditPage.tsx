@@ -17,6 +17,7 @@ export default function AuditPage() {
   // [G005 Wave1A P0] 按操作类型分布 (后端 GET /audit/aggregation → byAction)
   const [byAction, setByAction] = useState<Record<string, number> | null>(null)
   const [loading, setLoading] = useState(false)
+  const [exporting, setExporting] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
@@ -176,6 +177,7 @@ export default function AuditPage() {
 
   const handleExport = async () => {
     setLoading(true)
+    setExporting(true)
     try {
       const blob = await auditApi.exportCsv({ ...params, startDate: undefined, endDate: undefined })
       const url = URL.createObjectURL(blob)
@@ -189,6 +191,7 @@ export default function AuditPage() {
       message.error((e as Error)?.message || t('auditPage.exportFailed'))
     } finally {
       setLoading(false)
+      setExporting(false)
     }
   }
 
@@ -200,7 +203,7 @@ export default function AuditPage() {
 <Row justify="space-between" align="middle">
 <PageHeader variant="flex" icon={<ClipboardList />} title={t('auditPage.title')} style={{ marginBottom: 0 }} />
             <Space>
-              <Button icon={<Download />} onClick={handleExport}>{t('auditPage.export')}</Button>
+              <Button icon={<Download />} loading={exporting} disabled={exporting} onClick={handleExport}>{t('auditPage.export')}</Button>
               <Button icon={<RefreshCw />} onClick={() => { fetchLogs(1); fetchStats(); fetchExtended(); fetchChain(); fetchOrphanChain() }}>{t('auditPage.refresh')}</Button>
             </Space>
           </Row>

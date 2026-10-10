@@ -49,7 +49,6 @@ import {
   Tabs,
   Progress,
   Badge,
-  Table,
   Timeline,
   Alert,
   Input,
@@ -57,6 +56,7 @@ import {
   Popconfirm,
   Drawer,
 } from 'antd';
+import { DataTable } from '../../../common';
 import {
   Calendar as CalIcon,
   Users,
@@ -137,7 +137,7 @@ function timeAgo(iso: string): string {
 
 export const CosignSchedule: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
-  const [, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [kpi, setKpi] = useState<CosignDashboardKPI | null>(null);
   const [records, setRecords] = useState<CosignRecord[]>([]);
   const [emergency, setEmergency] = useState<EmergencyCosign[]>([]);
@@ -530,8 +530,8 @@ export const CosignSchedule: React.FC = () => {
                     title={t('reportReview.cosign.slaDefault', { default: slaConfig.defaultMinutes, warn: slaConfig.warnMinutes, escalate: slaConfig.escalateToRole ?? 'director' })}
                   />
                 )}
-                <Table scroll={{ x: 'max-content' }}
-                  size="small"
+                <DataTable scroll={{ x: 'max-content' }}
+                  loading={loading}
                   rowKey="recordId"
                   dataSource={slaMetrics}
                   pagination={false}
@@ -569,8 +569,8 @@ export const CosignSchedule: React.FC = () => {
             label: <Space><AlertTriangle size={14} />{t('reportReview.cosign.tabConflicts')}</Space>,
             children: (
               <Card size="small" title={<Space><AlertTriangle size={14} color="var(--color-error-600)" />{t('reportReview.cosign.conflictList')}</Space>}>
-                <Table scroll={{ x: 'max-content' }}
-                  size="small"
+                <DataTable scroll={{ x: 'max-content' }}
+                  loading={loading}
                   rowKey="id"
                   dataSource={conflicts}
                   pagination={false}
@@ -686,8 +686,8 @@ export const CosignSchedule: React.FC = () => {
                   showIcon
                   title={t('reportReview.cosign.skipConfigTitle', { status: skipConfig.enabled ? t('reportReview.common.enabled') : t('reportReview.common.disabled'), roles: skipConfig.authorizedRoles.join('/'), level: skipConfig.auditLevel })}
                 />
-                <Table scroll={{ x: 'max-content' }}
-                  size="small"
+                <DataTable scroll={{ x: 'max-content' }}
+                  loading={loading}
                   rowKey="id"
                   dataSource={skipConfig.conditions}
                   pagination={false}
@@ -732,8 +732,8 @@ export const CosignSchedule: React.FC = () => {
             label: <Space><Key size={14} />{t('reportReview.cosign.tempAuth')}</Space>,
             children: (
               <Card size="small" title={<Space><Key size={14} />{t('reportReview.cosign.tempAuthList')}</Space>} extra={<Button size="small" icon={<Plus size={14} />} onClick={() => setTempAuthModal(true)}>{t('reportReview.cosign.addAuth')}</Button>}>
-                <Table scroll={{ x: 'max-content' }}
-                  size="small"
+                <DataTable scroll={{ x: 'max-content' }}
+                  loading={loading}
                   rowKey="id"
                   dataSource={tempAuths}
                   pagination={false}

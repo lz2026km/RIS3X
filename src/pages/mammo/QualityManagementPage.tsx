@@ -211,7 +211,7 @@ const QualityManagementPage = () => {
           <p style={s.subtitle}>{t('mammoQc.subtitle')}</p>
         </div>
         <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center' }}>
-          <span style={{ fontSize: 12, padding: '5px 10px', borderRadius: 6, background: source === 'demo' ? '#fffbeb' : '#ecfdf5', border: `1px solid ${source === 'demo' ? 'var(--color-warning-500)' : '#10b981'}`, color: source === 'demo' ? '#b45309' : '#047857' }}>
+          <span style={{ fontSize: 12, padding: '5px 10px', borderRadius: 6, background: source === 'demo' ? 'var(--color-warning-bg, #fffbeb)' : '#ecfdf5', border: `1px solid ${source === 'demo' ? 'var(--color-warning-500)' : '#10b981'}`, color: source === 'demo' ? '#b45309' : '#047857' }}>
             {source === 'demo' ? t('mammoQc.sourceDemo') : t('mammoQc.sourceReal')}
           </span>
           <button style={s.btn} onClick={fetchAll}><RefreshCw size={14} /> {t('mammoQc.sync')}</button>

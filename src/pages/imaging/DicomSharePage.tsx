@@ -175,7 +175,7 @@ const DicomSharePage: React.FC = () => {
           <Button size="small" type="primary" ghost icon={<Link2 size={12} />} onClick={() => handleCopyLink(row)}>{t('dicomShare.copyLink')}</Button>
           <Button size="small" icon={<Download size={12} />} onClick={() => handleDownload(row)}>{t('dicomShare.download')}</Button>
           <Popconfirm title={t('dicomShare.deleteConfirm')} onConfirm={() => handleDelete(row.id)}>
-            <Button size="small" danger icon={<Trash2 size={12} />} />
+            <Button aria-label="删除" size="small" danger icon={<Trash2 size={12} />} />
           </Popconfirm>
         </Space>
       ),
