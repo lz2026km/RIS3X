@@ -111,14 +111,14 @@ export default function CvOperationsPage() {
   const protocolColumns: TableColumnsType<Protocol> = [
     { title: t('cvOps.colProtocol'), dataIndex: 'name', key: 'name', render: (v: string) => <span style={{ fontWeight: 500 }}>{v}</span> },
     { title: t('cvOps.colModality'), dataIndex: 'modality', key: 'modality' },
-    { title: t('cvOps.colIndication'), dataIndex: 'indication', key: 'indication', render: (v: string) => <span style={{ color: '#64748b' }}>{v}</span> },
+    { title: t('cvOps.colIndication'), dataIndex: 'indication', key: 'indication', render: (v: string) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{v}</span> },
     {
       title: t('cvOps.colActiveCases'), dataIndex: 'activeCases', key: 'activeCases', align: 'center',
       render: (v: number) => (
         <span style={{ background: v > 0 ? 'var(--color-success-bg)' : 'var(--bg-card)', color: v > 0 ? 'var(--color-success)' : '#94a3b8', padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600 }}>{v}</span>
       ),
     },
-    { title: t('cvOps.colLastUsed'), dataIndex: 'lastUsed', key: 'lastUsed', render: (v: string) => <span style={{ color: '#64748b' }}>{v}</span> },
+    { title: t('cvOps.colLastUsed'), dataIndex: 'lastUsed', key: 'lastUsed', render: (v: string) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{v}</span> },
   ]
 
   const workloadColumns: TableColumnsType<WorkloadRow> = [
@@ -145,13 +145,13 @@ export default function CvOperationsPage() {
   const contrastColumns: TableColumnsType<{ agent: string; stock: number; reorder: number }> = [
     { title: t('cvOps.colOperator'), dataIndex: 'agent', key: 'agent' },
     { title: t('cvOps.colStock'), dataIndex: 'stock', key: 'stock', align: 'center', render: (v: number, r) => <span style={{ color: v < r.reorder ? 'var(--color-error-600)' : 'var(--color-success-600)', fontWeight: 600 }}>{v}</span> },
-    { title: t('cvOps.colReorder'), dataIndex: 'reorder', key: 'reorder', align: 'center', render: (v: number) => <span style={{ color: '#64748b' }}>{v}</span> },
+    { title: t('cvOps.colReorder'), dataIndex: 'reorder', key: 'reorder', align: 'center', render: (v: number) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{v}</span> },
   ]
 
   const stressColumns: TableColumnsType<{ agent: string; doses: number; expiry: string }> = [
     { title: t('cvOps.colOperator'), dataIndex: 'agent', key: 'agent' },
     { title: t('cvOps.colDose'), dataIndex: 'doses', key: 'doses', align: 'center', render: (v: number) => <span style={{ fontWeight: 600 }}>{v}</span> },
-    { title: t('cvOps.colExpiry'), dataIndex: 'expiry', key: 'expiry', align: 'center', render: (v: string) => <span style={{ color: '#64748b' }}>{v}</span> },
+    { title: t('cvOps.colExpiry'), dataIndex: 'expiry', key: 'expiry', align: 'center', render: (v: string) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{v}</span> },
   ]
 
   return (
@@ -178,8 +178,8 @@ export default function CvOperationsPage() {
             {kpi.map(k => (
               <div key={k.label} style={{ padding: 'var(--space-4, 16px)', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-2, 8px)' }}>
-                  <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>{k.label}</span>
-                  <span style={{ color: '#64748b' }}>{k.icon}</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', fontWeight: 600, textTransform: 'uppercase' }}>{k.label}</span>
+                  <span style={{ color: 'var(--text-muted, #64748b)' }}>{k.icon}</span>
                 </div>
                 <div style={{ fontSize: 24, fontWeight: 'bold' }}>{k.value}</div>
                 <div style={{ fontSize: 12, color: k.changeType === 'up' ? 'var(--color-success-600)' : k.changeType === 'down' ? 'var(--color-error-600)' : '#64748b', marginTop: 'var(--space-1, 4px)' }}>{k.change}</div>
@@ -188,8 +188,8 @@ export default function CvOperationsPage() {
           </div>
 
           <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 'var(--space-4, 16px)' }}>
-            <h3 style={{ margin: '0 0 12px', fontSize: 16 }}>{t('cvOps.timelineToday')} <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{t('cvOps.demoData')}</span></h3>
-            <div style={{ fontSize: 14, color: '#64748b' }}>
+            <h3 style={{ margin: '0 0 12px', fontSize: 16 }}>{t('cvOps.timelineToday')} <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', fontWeight: 400 }}>{t('cvOps.demoData')}</span></h3>
+            <div style={{ fontSize: 14, color: 'var(--text-muted, #64748b)' }}>
               {['08:00 — CCTA: 三联排除 (患者 #P1023)', '08:30 — CMR: 心肌病 (患者 #P1045)', '09:00 — 导管室: STEMI急诊PCI (患者 #P1067)', '10:00 — 超声: 负荷超声 (患者 #P1082)', '11:30 — 血管超声: 颈动脉超声 (患者 #P1095)', '13:00 — CMR: 心肌存活 (患者 #P1101)', '14:00 — CCTA: TAVR规划 (患者 #P1118)', '15:00 — 导管室: 分期PCI (患者 #P1132)'].map((e, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '6px 0', borderBottom: i < 7 ? '1px solid var(--border-color)' : 'none' }}>
                   <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--color-primary-800)', flexShrink: 0 }} />
@@ -202,8 +202,8 @@ export default function CvOperationsPage() {
       )}
 
       {selectedTab === 'protocols' && (
-        <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
-          <div style={{ padding: '10px 16px', background: 'var(--bg-primary)', borderBottom: '1px solid var(--border-color)', fontSize: 12, color: '#94a3b8' }}>{t('cvOps.protocolsSource')}</div>
+        <div style={{ border: '1px solid var(--border-color, #e2e8f0)', borderRadius: 8, overflow: 'hidden' }}>
+          <div style={{ padding: '10px 16px', background: 'var(--bg-primary)', borderBottom: '1px solid var(--border-color)', fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('cvOps.protocolsSource')}</div>
           <DataTable<Protocol>
             columns={protocolColumns}
             dataSource={PROTOCOLS}
@@ -214,7 +214,7 @@ export default function CvOperationsPage() {
 
       {selectedTab === 'workload' && (
         <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 'var(--space-4, 16px)', background: 'var(--bg-card)' }}>
-          <h3 style={{ margin: '0 0 16px', fontSize: 16 }}>{t('cvOps.workloadToday')} <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{t('cvOps.demoData')}</span></h3>
+          <h3 style={{ margin: '0 0 16px', fontSize: 16 }}>{t('cvOps.workloadToday')} <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', fontWeight: 400 }}>{t('cvOps.demoData')}</span></h3>
           <DataTable<WorkloadRow>
             columns={workloadColumns}
             dataSource={[
@@ -234,7 +234,7 @@ export default function CvOperationsPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
           <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 'var(--space-4, 16px)', background: 'var(--bg-card)' }}>
             <h3 style={{ margin: '0 0 12px', fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <FlaskConical size={16} /> {t('cvOps.contrastInventory')} <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{t('cvOps.demoData')}</span>
+              <FlaskConical size={16} /> {t('cvOps.contrastInventory')} <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', fontWeight: 400 }}>{t('cvOps.demoData')}</span>
             </h3>
             <DataTable<{ agent: string; stock: number; reorder: number }>
               columns={contrastColumns}
@@ -249,7 +249,7 @@ export default function CvOperationsPage() {
           </div>
           <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 'var(--space-4, 16px)', background: 'var(--bg-card)' }}>
             <h3 style={{ margin: '0 0 12px', fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Package size={16} /> {t('cvOps.stressDrugInventory')} <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{t('cvOps.demoData')}</span>
+              <Package size={16} /> {t('cvOps.stressDrugInventory')} <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', fontWeight: 400 }}>{t('cvOps.demoData')}</span>
             </h3>
             <DataTable<{ agent: string; doses: number; expiry: string }>
               columns={stressColumns}

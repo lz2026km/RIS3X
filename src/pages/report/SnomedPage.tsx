@@ -114,14 +114,14 @@ export default function SnomedPage() {
 
         <div style={{ display: "flex", gap: 'var(--space-5, 20px)', flexWrap: "wrap" }}>
           <div style={{ flex: 1, minWidth: 320, background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #1e293b)', margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
               <FileText size={16} color="var(--color-primary-500)" />{t("reportInput")}
             </h3>
             <textarea
               value={text}
               onChange={e => setText(e.target.value)}
               rows={8}
-              style={{ width: "100%", padding: 'var(--space-3, 12px)', border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12, fontFamily: "monospace", lineHeight: 1.6, resize: "vertical" }}
+              style={{ width: "100%", padding: 'var(--space-3, 12px)', border: "1px solid var(--border-color, #cbd5e1)", borderRadius: 6, fontSize: 12, fontFamily: "monospace", lineHeight: 1.6, resize: "vertical" }}
               placeholder={t("inputPlaceholder")}
             />
             <div style={{ marginTop: 'var(--space-3, 12px)' }}>
@@ -133,7 +133,7 @@ export default function SnomedPage() {
             {codes.length > 0 && (
               <div style={{ marginTop: 'var(--space-4, 16px)' }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 'var(--space-2, 8px)' }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: "#1e293b" }}>{t("encodedCodes")} ({codes.length})</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #1e293b)' }}>{t("encodedCodes")} ({codes.length})</span>
                   <ActionButton action="save" size="compact" onClick={confirmAll} icon={<ThumbsUp size={12} />}>
                     {t("confirmAll")}
                   </ActionButton>
@@ -156,8 +156,8 @@ export default function SnomedPage() {
                       dataIndex: "pt",
                       render: (v: string, c) => (
                         <Space direction="vertical" size={0}>
-                          <span style={{ fontSize: 12, fontWeight: 600, color: "#1e293b" }}>{v}</span>
-                          <span style={{ fontSize: 11, color: "#64748b" }}>{c.fsn}</span>
+                          <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #1e293b)' }}>{v}</span>
+                          <span style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>{c.fsn}</span>
                         </Space>
                       ),
                     },
@@ -191,14 +191,14 @@ export default function SnomedPage() {
             )}
 
             {codes.length === 0 && !loading && text && (
-              <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: "var(--bg-primary)", borderRadius: 6, color: "#94a3b8", fontSize: 12, textAlign: "center" }}>
+              <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: "var(--bg-primary)", borderRadius: 6, color: 'var(--text-muted, #94a3b8)', fontSize: 12, textAlign: "center" }}>
                 {t("noCodesFound")}
               </div>
             )}
           </div>
 
           <div style={{ flex: 1, minWidth: 320, background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #1e293b)', margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
               <Search size={16} color="#8b5cf6" />{t("searchCodes")}
             </h3>
             <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
@@ -207,7 +207,7 @@ export default function SnomedPage() {
                 onChange={e => setSearchQ(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && void handleSearch()}
                 placeholder={t("searchPlaceholder")}
-                style={{ flex: 1, padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12 }}
+                style={{ flex: 1, padding: "8px 12px", border: "1px solid var(--border-color, #cbd5e1)", borderRadius: 6, fontSize: 12 }}
               />
               <ActionButton action="submit" loading={searching} disabled={!searchQ.trim()} onClick={() => void handleSearch()} icon={<Search size={14} />}>
                 {t9("w9.common.search")}
@@ -221,7 +221,7 @@ export default function SnomedPage() {
                   pagination={{ pageSize: 8, showSizeChanger: false }}
                   scroll={{ x: "max-content" }}
                   columns={[
-                    { title: t9("w9.snomed.pt"), dataIndex: "pt", render: (v: string) => <span style={{ fontSize: 12, fontWeight: 600, color: "#1e293b" }}>{v}</span> },
+                    { title: t9("w9.snomed.pt"), dataIndex: "pt", render: (v: string) => <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #1e293b)' }}>{v}</span> },
                     { title: t9("w9.snomed.conceptId"), dataIndex: "conceptId", width: 150, render: (v: string) => <Tag style={{ fontFamily: "monospace" }}>{v}</Tag> },
                     { title: t9("w9.snomed.semanticTag"), dataIndex: "semanticTag", width: 120, render: (v?: string) => v || "-" },
                     {
@@ -237,7 +237,7 @@ export default function SnomedPage() {
                 />
               )}
               {searchResults.length === 0 && searchQ && !searching && (
-                <div style={{ padding: 'var(--space-3, 12px)', color: "#94a3b8", fontSize: 12, textAlign: "center" }}>{t("noSearchResults")}</div>
+                <div style={{ padding: 'var(--space-3, 12px)', color: 'var(--text-muted, #94a3b8)', fontSize: 12, textAlign: "center" }}>{t("noSearchResults")}</div>
               )}
             </div>
           </div>

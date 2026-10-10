@@ -213,7 +213,7 @@ const VrPage: React.FC = () => {
   }, [canvasRef, mode, jobId, navigate])
 
   const btnStyle: React.CSSProperties = {
-    background: 'transparent', border: '1px solid #334155', color: '#94a3b8',
+    background: 'transparent', border: '1px solid #334155', color: 'var(--text-muted, #94a3b8)',
     borderRadius: 4, padding: '4px 8px', fontSize: 11, cursor: 'pointer',
     display: 'inline-flex', alignItems: 'center', gap: 3,
   }
@@ -228,23 +228,23 @@ const VrPage: React.FC = () => {
         {mode === 'real' && <Tag color="green">{t('vr.tag.realDicom')}</Tag>}
         {mode === 'synthetic' && <Tag>{t('vr.tag.synthetic')}</Tag>}
         {realError && <Tag color="red">{t('vr.tag.fallback')}</Tag>}
-        {seriesInfo && <span style={{ fontSize: 11, color: '#64748b' }}>{seriesInfo}</span>}
+        {seriesInfo && <span style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>{seriesInfo}</span>}
       </div>
       <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('vr.label.preset')}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('vr.label.preset')}</span>
         {(Object.keys(PRESETS) as PresetType[]).map(p => (
           <button key={p} style={preset === p ? activeBtnStyle : btnStyle} onClick={() => handlePresetChange(p)}>
             {t(PRESETS[p].labelKey)}
           </button>
         ))}
         <div style={{ width: 1, height: 20, background: '#334155' }} />
-        <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('vr.label.opacity')}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('vr.label.opacity')}</span>
         <Slider min={0} max={1} step={0.01} value={opacity} onChange={setOpacity} style={{ width: 120 }} />
-        <span style={{ fontSize: 11, color: '#94a3b8' }}>{Math.round(opacity * 100)}%</span>
+        <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{Math.round(opacity * 100)}%</span>
         <div style={{ width: 1, height: 20, background: '#334155' }} />
-        <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('vr.label.slice')}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('vr.label.slice')}</span>
         <Slider min={0} max={127} value={sliceZ} onChange={setSliceZ} style={{ width: 120 }} />
-        <span style={{ fontSize: 11, color: '#94a3b8' }}>{sliceZ}</span>
+        <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{sliceZ}</span>
         <button style={btnStyle} onClick={() => { setRotation({ x: 0, y: 0, z: 0 }); setOpacity(0.8); setPreset('default'); setSliceZ(64) }}>
           <RotateCcw size={12} /> {t('vr.action.reset')}
         </button>

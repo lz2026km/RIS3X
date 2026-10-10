@@ -179,8 +179,8 @@ const FundusViewerPage: React.FC = () => {
               {/* [v3.0.6.11-96 Wave5A P2] 病灶标签: 接口无病灶数据时展示「示例病灶标注」灰标 + 区块标注 (第 4 个 eye 查看器) */}
               {lesions.length === 0 ? (
                 <div style={{ display: "flex", gap: 'var(--space-2, 8px)', fontSize: 12, alignItems: "center" }}>
-                  <Tag style={{ background: "var(--bg-primary)", color: "#64748b", borderColor: "#cbd5e1" }}>{t('fundusViewer.sampleLesionTag')}</Tag>
-                  <span style={{ color: "#94a3b8" }}>{t('fundusViewer.sampleLesionHint')}</span>
+                  <Tag style={{ background: "var(--bg-primary)", color: 'var(--text-muted, #64748b)', borderColor: "var(--border-color, #cbd5e1)" }}>{t('fundusViewer.sampleLesionTag')}</Tag>
+                  <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{t('fundusViewer.sampleLesionHint')}</span>
                 </div>
               ) : (
                 <div style={{ display: "flex", gap: 'var(--space-4, 16px)', fontSize: 12 }}>

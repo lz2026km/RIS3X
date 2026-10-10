@@ -95,12 +95,12 @@ export default function StructuredReportV3Page() {
       <PageHeader icon={<FileCheck2 size={20} color="var(--color-primary-600)" />} title={t('w17.srPage.title')} subtitle={t('w17.srPage.subtitle')} />
       <div style={{ padding: 'var(--space-6, 24px)' }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
-          <label style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>{t('w17.srPage.reportIdLabel')}</label>
+          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #334155)' }}>{t('w17.srPage.reportIdLabel')}</label>
           <input
             value={reportId}
             onChange={(e) => { setReportId(e.target.value); setSaved(false) }}
             placeholder={t('w17.srPage.reportIdPlaceholder')}
-            style={{ flex: 1, minWidth: 260, maxWidth: 420, padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12,}}
+            style={{ flex: 1, minWidth: 260, maxWidth: 420, padding: '8px 12px', border: '1px solid var(--border-color, #cbd5e1)', borderRadius: 6, fontSize: 12,}}
           />
           <Button
             loading={validating}
@@ -132,10 +132,10 @@ export default function StructuredReportV3Page() {
 
         {unlockLog.length > 0 && (
           <div style={{ marginTop: 14, background: 'var(--bg-card)', borderRadius: 10, padding: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', marginBottom: 'var(--space-2, 8px)' }}>{t('w17.srPage.unlockLogTitle')}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #1e293b)', marginBottom: 'var(--space-2, 8px)' }}>{t('w17.srPage.unlockLogTitle')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
               {unlockLog.map((entry, i) => (
-                <div key={i} style={{ fontSize: 12, color: '#64748b' }}>
+                <div key={i} style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
                   {entry.at} · 【{entry.section}】→ {t('w17.srPage.unlockRequested')}
                 </div>
               ))}
@@ -180,7 +180,7 @@ export default function StructuredReportV3Page() {
               </div>
             )}
             {validation.valid && validation.warnings.length === 0 && (
-              <div style={{ fontSize: 12, color: '#64748b' }}>{t('w4a.validate.noIssues')}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('w4a.validate.noIssues')}</div>
             )}
           </div>
         )}

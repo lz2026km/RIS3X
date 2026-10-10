@@ -18,7 +18,7 @@ const STATUS_META: Record<RoomStatusItemDto['status'], { label: string; color: s
   paused: { label: 'examRoom.status.paused', color: 'var(--color-warning-600)', bg: '#fef3c7', border: 'var(--color-warning-400)' },
   overdue: { label: 'examRoom.status.overdue', color: 'var(--color-error-600)', bg: '#fee2e2', border: '#f87171' },
   waiting: { label: 'examRoom.status.waiting', color: 'var(--color-primary-600)', bg: '#dbeafe', border: '#60a5fa' },
-  idle: { label: 'examRoom.status.idle', color: '#64748b', bg: '#f1f5f9', border: '#cbd5e1' },
+  idle: { label: 'examRoom.status.idle', color: 'var(--text-muted, #64748b)', bg: '#f1f5f9', border: 'var(--border-color, #cbd5e1)' },
 }
 
 const MODALITY_COLORS: Record<string, string> = {
@@ -157,7 +157,7 @@ export default function ExamRoomStatusBoard() {
                   style={{ borderRadius: 10, border: `1px solid ${isBusy ? meta.border : 'var(--border-color)'}`, borderTop: `3px solid ${meta.border}` }}
                   styles={{ body: { padding: 14 } }}
                   title={
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 700, color: '#1e293b' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 700, color: 'var(--text-primary, #1e293b)' }}>
                       <DoorOpen size={15} color={meta.color} />
                       {room.name}
                     </div>
@@ -168,30 +168,30 @@ export default function ExamRoomStatusBoard() {
                     <span style={{ padding: '3px 10px', borderRadius: 12, fontSize: 12, fontWeight: 700, background: meta.bg, color: meta.color }}>
                       {t(meta.label)}
                     </span>
-                    <span style={{ fontSize: 12, color: '#94a3b8' }}>
+                    <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
                       <Users size={11} style={{ verticalAlign: -1, marginRight: 3 }} />{t('examRoom.queueLength', { count: room.queueLength })}
                     </span>
                   </div>
 
                   {room.currentExam ? (
                     <div style={{ background: 'var(--content-bg)', borderRadius: 8, padding: '10px 12px', border: '1px solid var(--border-color)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, fontSize: 12, color: '#1e293b' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, fontSize: 12, color: 'var(--text-primary, #1e293b)' }}>
                         <UserRound size={13} color="var(--color-primary-500)" />
                         {room.currentExam.patientName}
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6, fontSize: 11, color: '#64748b' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6, fontSize: 11, color: 'var(--text-muted, #64748b)' }}>
                         <span>{t('examRoom.state', { state: room.currentExam.state })}</span>
                         <span style={{ fontFamily: 'monospace' }}>{formatClock(room.currentExam.startedAt)} {t('examRoom.start')}</span>
                       </div>
                     </div>
                   ) : (
-                    <div style={{ background: 'var(--content-bg)', borderRadius: 8, padding: '12px', textAlign: 'center', color: '#94a3b8', fontSize: 12, border: '1px dashed var(--border-color)' }}>
+                    <div style={{ background: 'var(--content-bg)', borderRadius: 8, padding: '12px', textAlign: 'center', color: 'var(--text-muted, #94a3b8)', fontSize: 12, border: '1px dashed var(--border-color)' }}>
                       <Camera size={16} style={{ marginBottom: 'var(--space-1, 4px)', opacity: 0.5 }} />
                       <div>{t('examRoom.noCurrentPatient')}</div>
                     </div>
                   )}
 
-                  <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 11, color: '#94a3b8' }}>
+                  <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>
                     <Clock size={11} />
                     {t('examRoom.idleDuration', { duration: formatIdle(room.idleSince) })}
                     {room.status === 'overdue' && (
@@ -211,7 +211,7 @@ export default function ExamRoomStatusBoard() {
       <Card size="small" style={{ marginTop: 'var(--space-4, 16px)' }}>
         <Space>
           <CheckCircle2 size={14} color={source === 'api' ? '#10b981' : 'var(--color-warning-500)'} />
-          <span style={{ fontSize: 12, color: '#64748b' }}>
+          <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
             {source === 'api'
               ? t('examRoom.dataSourceApi')
               : t('examRoom.dataSourceDemo')}

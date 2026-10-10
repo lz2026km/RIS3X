@@ -13,7 +13,7 @@ export default function DeviceDoseCard({ device: d, onShowHistory }: Props) {
         background: "var(--bg-card)",
         borderRadius: 12,
         padding: 'var(--space-5, 20px)',
-        border: "1px solid #e2e8f0",
+        border: "1px solid var(--border-color, #e2e8f0)",
       }}
     >
       <div
@@ -48,7 +48,7 @@ export default function DeviceDoseCard({ device: d, onShowHistory }: Props) {
             >
               {d.device}
             </div>
-            <div style={{ fontSize: 12, color: "#94a3b8" }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
               <span
                 style={{
                   display: "inline-flex",
@@ -128,7 +128,7 @@ export default function DeviceDoseCard({ device: d, onShowHistory }: Props) {
             marginBottom: 6,
           }}
         >
-          <span style={{ fontSize: 12, color: "#64748b" }}>CTDI范围</span>
+          <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>CTDI范围</span>
           <span style={{ fontSize: 12, color: "var(--color-primary-800)", fontWeight: 600 }}>
             {d.avgCTDI} - {d.maxCTDI} mGy
           </span>
@@ -186,9 +186,9 @@ const Metric = ({
       textAlign: "center",
     }}
   >
-    <div style={{ fontSize: 12, color: "#64748b", marginBottom: 'var(--space-1, 4px)' }}>{label}</div>
+    <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-1, 4px)' }}>{label}</div>
     <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-primary-800)" }}>{value}</div>
-    <div style={{ fontSize: 12, color: "#94a3b8" }}>{unit}</div>
+    <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{unit}</div>
   </div>
 );
 
@@ -202,7 +202,7 @@ const MicroStat = ({ label, value }: { label: string; value: string | number }) 
     }}
   >
     <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-primary-800)" }}>{value}</div>
-    <div style={{ fontSize: 12, color: "#64748b" }}>{label}</div>
+    <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{label}</div>
   </div>
 );
 

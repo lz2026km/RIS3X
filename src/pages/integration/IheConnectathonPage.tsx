@@ -352,7 +352,7 @@ export const IheConnectathonPage: React.FC = () => {
               title={t("iheConn.skip")}
               value={session?.skipCount ?? 0}
               color="#64748b"
-              icon={<Clock className="w-3 h-3" style={{ color: "#64748b" }} />}
+              icon={<Clock className="w-3 h-3" style={{ color: 'var(--text-muted, #64748b)' }} />}
             />
           </StatCardGrid>
 

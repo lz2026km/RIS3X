@@ -603,7 +603,7 @@ export default function ImagingComparePage() {
   }, [diffMetrics])
 
   const btnStyle: React.CSSProperties = {
-    background: 'transparent', border: '1px solid #334155', color: '#94a3b8', borderRadius: 4,
+    background: 'transparent', border: '1px solid #334155', color: 'var(--text-muted, #94a3b8)', borderRadius: 4,
     padding: '4px 8px', fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3,
   }
 
@@ -614,7 +614,7 @@ export default function ImagingComparePage() {
         <Columns2 size={18} color={BLUE} />
         <span style={{ fontSize: 14, fontWeight: 700 }}>{t('nav.imagingCompare')}</span>
         {groupTypeTag}
-        <span style={{ fontSize: 11, color: '#64748b' }}>{t('imagingCompare.subtitle')}</span>
+        <span style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>{t('imagingCompare.subtitle')}</span>
         <div style={{ flex: 1 }} />
         <Button size="small" onClick={() => { setPatientKeyword(''); void loadPatients() }}>{t('imagingCompare.refreshPatients')}</Button>
       </div>
@@ -649,13 +649,13 @@ export default function ImagingComparePage() {
                   }}
                 >
                   <span style={{ fontWeight: 700, color: CYAN }}>{p.name}</span>
-                  <span style={{ fontSize: 10, color: '#64748b' }}>{p.patientId}</span>
+                  <span style={{ fontSize: 10, color: 'var(--text-muted, #64748b)' }}>{p.patientId}</span>
                   <div style={{ flex: 1 }} />
-                  <span style={{ fontSize: 10, color: '#94a3b8' }}>{p.studyCount}{t('imagingCompare.studyUnit')}</span>
+                  <span style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)' }}>{p.studyCount}{t('imagingCompare.studyUnit')}</span>
                 </button>
               ))}
               {patients.length === 0 && (
-                <div style={{ fontSize: 11, color: '#475569', textAlign: 'center', padding: 'var(--space-2, 8px)' }}>{t('imagingCompare.noPatient')}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary, #475569)', textAlign: 'center', padding: 'var(--space-2, 8px)' }}>{t('imagingCompare.noPatient')}</div>
               )}
             </div>
           </div>
@@ -664,7 +664,7 @@ export default function ImagingComparePage() {
             <div style={{ background: PANEL_BG, borderRadius: 6, padding: 10 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                 <span style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0' }}>{t('imagingCompare.studyList')}</span>
-                <span style={{ fontSize: 10, color: '#64748b' }}>{selectedPatient.name}</span>
+                <span style={{ fontSize: 10, color: 'var(--text-muted, #64748b)' }}>{selectedPatient.name}</span>
                 <div style={{ flex: 1 }} />
                 {studiesSource === 'seed' && (
                   <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 10, background: '#ea580c22', color: '#ea580c', border: '1px solid #ea580c55' }}>{t('imagingCompare.seedData')}</span>
@@ -676,24 +676,24 @@ export default function ImagingComparePage() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Tag color="geekblue" style={{ marginRight: 0, fontSize: 10 }}>{study.modality}</Tag>
                       <span style={{ fontSize: 11, fontWeight: 600, color: '#e2e8f0' }}>{study.bodyPart}</span>
-                      <span style={{ fontSize: 10, color: '#64748b' }}>{study.studyDate || study.accessionNumber}</span>
+                      <span style={{ fontSize: 10, color: 'var(--text-muted, #64748b)' }}>{study.studyDate || study.accessionNumber}</span>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 'var(--space-1, 4px)' }}>
                       {study.series.map((s) => (
-                        <label key={s.seriesInstanceUid} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#94a3b8', cursor: 'pointer', padding: '2px 4px', borderRadius: 4, background: selectedSeries.has(s.seriesInstanceUid) ? '#22d3ee11' : 'transparent' }}>
+                        <label key={s.seriesInstanceUid} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--text-muted, #94a3b8)', cursor: 'pointer', padding: '2px 4px', borderRadius: 4, background: selectedSeries.has(s.seriesInstanceUid) ? '#22d3ee11' : 'transparent' }}>
                           <Checkbox
                             checked={selectedSeries.has(s.seriesInstanceUid)}
                             onChange={(e) => toggleSeries(s.seriesInstanceUid, e.target.checked)}
                           />
                           <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.seriesDescription}</span>
-                          <span style={{ fontSize: 10, color: '#475569' }}>{s.instanceCount}</span>
+                          <span style={{ fontSize: 10, color: 'var(--text-secondary, #475569)' }}>{s.instanceCount}</span>
                         </label>
                       ))}
                     </div>
                   </div>
                 ))}
                 {studies.length === 0 && (
-                  <div style={{ fontSize: 11, color: '#475569', textAlign: 'center', padding: 'var(--space-3, 12px)' }}>{t('imagingCompare.noStudy')}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary, #475569)', textAlign: 'center', padding: 'var(--space-3, 12px)' }}>{t('imagingCompare.noStudy')}</div>
                 )}
               </div>
               <div style={{ display: 'flex', gap: 6, marginTop: 'var(--space-2, 8px)' }}>
@@ -709,7 +709,7 @@ export default function ImagingComparePage() {
                   {t('imagingCompare.createSession')}
                 </Button>
               </div>
-              <div style={{ fontSize: 10, color: '#475569', marginTop: 'var(--space-1, 4px)' }}>
+              <div style={{ fontSize: 10, color: 'var(--text-secondary, #475569)', marginTop: 'var(--space-1, 4px)' }}>
                 {t('imagingCompare.seriesCount')}: {selectedSeries.size}/4
               </div>
             </div>
@@ -734,7 +734,7 @@ export default function ImagingComparePage() {
                   <GitCompare size={13} color={CYAN} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: 600, color: '#e2e8f0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.name}</div>
-                    <div style={{ fontSize: 10, color: '#64748b' }}>{s.patientName} · {s.seriesGroups.length} 序列</div>
+                    <div style={{ fontSize: 10, color: 'var(--text-muted, #64748b)' }}>{s.patientName} · {s.seriesGroups.length} 序列</div>
                   </div>
                   <Tooltip title={t('imagingCompare.deleteSession')}>
                     <Button
@@ -746,7 +746,7 @@ export default function ImagingComparePage() {
                 </div>
               ))}
               {sessions.length === 0 && (
-                <div style={{ fontSize: 11, color: '#475569', textAlign: 'center', padding: 'var(--space-2, 8px)' }}>{t('imagingCompare.noSession')}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary, #475569)', textAlign: 'center', padding: 'var(--space-2, 8px)' }}>{t('imagingCompare.noSession')}</div>
               )}
             </div>
           </div>
@@ -760,17 +760,17 @@ export default function ImagingComparePage() {
               {sync.panZoom && sync.wwwl && sync.frame ? <Lock size={13} color={BLUE} /> : <LockOpen size={13} color="#94a3b8" />}
               {t('imagingCompare.sync')}
             </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 11, color: '#94a3b8' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>
               <MousePointerClick size={12} />
               {t('imagingCompare.panZoom')}
               <Switch size="small" checked={sync.panZoom} onChange={(v) => void updateSync('panZoom', v)} />
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 11, color: '#94a3b8' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>
               <Sun size={12} />
               {t('imagingCompare.wwwl')}
               <Switch size="small" checked={sync.wwwl} onChange={(v) => void updateSync('wwwl', v)} />
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 11, color: '#94a3b8' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>
               <Layers size={12} />
               {t('imagingCompare.frame')}
               <Switch size="small" checked={sync.frame} onChange={(v) => void updateSync('frame', v)} />
@@ -787,7 +787,7 @@ export default function ImagingComparePage() {
             </Tooltip>
             <div style={{ width: 1, height: 18, background: '#334155' }} />
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1, minWidth: 160 }}>
-              <span style={{ fontSize: 11, color: '#94a3b8', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', whiteSpace: 'nowrap' }}>
                 {t('imagingCompare.slice')} {cells[activeCell]?.frame ?? 0}/127
               </span>
               <Slider
@@ -796,7 +796,7 @@ export default function ImagingComparePage() {
                 style={{ flex: 1, margin: 0 }}
               />
             </div>
-            <span style={{ fontSize: 10, color: '#64748b' }}>
+            <span style={{ fontSize: 10, color: 'var(--text-muted, #64748b)' }}>
               {t('imagingCompare.activeCell')}: {CELL_LABELS[activeCell]}
             </span>
           </div>
@@ -861,7 +861,7 @@ export default function ImagingComparePage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 11, color: '#94a3b8', width: 24 }}>A</span>
+                <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', width: 24 }}>A</span>
                 <Select
                   size="small" style={{ flex: 1 }} placeholder={t('imagingCompare.seriesA')}
                   value={diffA ?? undefined} options={sessionOptions}
@@ -870,7 +870,7 @@ export default function ImagingComparePage() {
                 />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 11, color: '#94a3b8', width: 24 }}>B</span>
+                <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', width: 24 }}>B</span>
                 <Select
                   size="small" style={{ flex: 1 }} placeholder={t('imagingCompare.seriesB')}
                   value={diffB ?? undefined} options={sessionOptions}
@@ -900,7 +900,7 @@ export default function ImagingComparePage() {
                     <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 10, background: '#ea580c22', color: '#ea580c', border: '1px solid #ea580c55' }}>{t('imagingCompare.seedData')}</span>
                   )}
                 </div>
-                <div style={{ fontSize: 10, color: '#64748b', marginBottom: 6 }}>
+                <div style={{ fontSize: 10, color: 'var(--text-muted, #64748b)', marginBottom: 6 }}>
                   {t('imagingCompare.changedPixels')}: {diffMetrics.changedPixelCount.toLocaleString()} / {diffMetrics.pixelCount.toLocaleString()} (S{diffMetrics.sliceIndex}, Δ&gt;{diffMetrics.threshold})
                 </div>
 
@@ -917,7 +917,7 @@ export default function ImagingComparePage() {
                       </div>
                     ))}
                   </div>
-                  <div style={{ display: 'flex', gap: 10, marginTop: 3, fontSize: 10, color: '#64748b' }}>
+                  <div style={{ display: 'flex', gap: 10, marginTop: 3, fontSize: 10, color: 'var(--text-muted, #64748b)' }}>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><span style={{ width: 8, height: 8, background: 'var(--color-primary-500)', display: 'inline-block' }} /> A</span>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}><span style={{ width: 8, height: 8, background: '#facc15', display: 'inline-block' }} /> B</span>
                   </div>
@@ -932,13 +932,13 @@ export default function ImagingComparePage() {
                     { key: 'hist', name: t('imagingCompare.histogramDiff'), a: '-', b: '-', diff: diffMetrics.histogramDiff.toFixed(4) },
                   ]}
                   columns={[
-                    { title: '', dataIndex: 'name', width: 86, render: (v: string) => <span style={{ fontSize: 11, color: '#94a3b8' }}>{v}</span> },
+                    { title: '', dataIndex: 'name', width: 86, render: (v: string) => <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{v}</span> },
                     { title: 'A', dataIndex: 'a', width: 64, render: (v: string) => <span style={{ fontSize: 11, color: 'var(--color-primary-500)' }}>{v}</span> },
                     { title: 'B', dataIndex: 'b', width: 64, render: (v: string) => <span style={{ fontSize: 11, color: '#facc15' }}>{v}</span> },
                     { title: 'Δ', dataIndex: 'diff', render: (v: string) => <span style={{ fontSize: 11, fontWeight: 700, color: CYAN }}>{v}</span> },
                   ]}
                 />
-                <div style={{ fontSize: 10, color: '#475569', marginTop: 'var(--space-1, 4px)' }}>
+                <div style={{ fontSize: 10, color: 'var(--text-secondary, #475569)', marginTop: 'var(--space-1, 4px)' }}>
                   {t('imagingCompare.diffHint')}
                 </div>
               </>
@@ -947,7 +947,7 @@ export default function ImagingComparePage() {
         </div>
       </div>
 
-      <div style={{ marginTop: 6, fontSize: 10, color: '#475569', textAlign: 'center' }}>
+      <div style={{ marginTop: 6, fontSize: 10, color: 'var(--text-secondary, #475569)', textAlign: 'center' }}>
         {t('imagingCompare.hint')}
       </div>
     </div>

@@ -216,7 +216,7 @@ export const InterfaceMonitorPage: React.FC = () => {
             <Radio className="w-5 h-5 text-blue-600" size={20} />
             <div>
               <div style={{ fontSize: 16, fontWeight: 600 }}>{t('w10Interop.monitor.title')}</div>
-              <div style={{ fontSize: 12, color: '#64748b' }}>{t('w10Interop.monitor.subtitle')}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('w10Interop.monitor.subtitle')}</div>
             </div>
           </Space>
           <Button size="small" icon={<RefreshCw size={12} />} onClick={fetchAll} loading={loading}>{t('w10Interop.monitor.refresh')}</Button>

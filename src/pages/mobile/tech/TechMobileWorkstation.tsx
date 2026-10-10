@@ -434,7 +434,7 @@ export default function TechMobileWorkstation() {
 
       <div style={s.searchBar}>
         <Search size={16} color="#94a3b8" />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('techMobile.searchPlaceholder')} style={{ border: 'none', fontSize: 12, color: '#334155', width: '100%', background: 'transparent' }} />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('techMobile.searchPlaceholder')} style={{ border: 'none', fontSize: 12, color: 'var(--text-primary, #334155)', width: '100%', background: 'transparent' }} />
         <Camera size={16} color="#94a3b8" style={{ cursor: 'pointer' }} onClick={handleScan} />
       </div>
 
@@ -480,12 +480,12 @@ export default function TechMobileWorkstation() {
                       {item.priority === 'urgent' ? t('techMobile.urgent') : t('techMobile.routine')}
                     </span>
                   </div>
-                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 2, display: 'flex', gap: 6 }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginTop: 2, display: 'flex', gap: 6 }}>
                     <span>{item.gender}/{item.age}{t('techMobile.ageUnit')}</span>
                     <span>{item.modality}</span>
                     <span>{item.bodyPart}</span>
                   </div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 1 }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 1 }}>
                     {item.deviceName ? `${item.deviceName}${item.roomName ? ` · ${item.roomName}` : ''}` : item.roomName || t('techMobile.unassignedDevice')} · {item.scheduledTime}
                   </div>
                 </div>
@@ -514,7 +514,7 @@ export default function TechMobileWorkstation() {
                       <button onClick={() => handleQc(item)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#7c3aed', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('techMobile.qc')}</button>
                     </>
                   )}
-                  {item.status === 'cancelled' && <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600 }}>{t('techMobile.cancelled')}</span>}
+                  {item.status === 'cancelled' && <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', fontWeight: 600 }}>{t('techMobile.cancelled')}</span>}
                 </div>
               </div>
             ))}
@@ -527,8 +527,8 @@ export default function TechMobileWorkstation() {
               {device.status === 'online' ? <Wifi size={18} color="#059669" /> : device.status === 'offline' ? <WifiOff size={18} color="var(--color-error-600)" /> : <AlertCircle size={18} color="var(--color-warning-600)" />}
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{device.name}</div>
-                <div style={{ fontSize: 12, color: '#64748b' }}>{device.modality} · {device.status === 'online' ? t('techMobile.online') : device.status === 'offline' ? t('techMobile.offline') : t('techMobile.maintenance')}</div>
-                {device.currentPatient && <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{t('techMobile.currentPatient')}: {device.currentPatient}</div>}
+                <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{device.modality} · {device.status === 'online' ? t('techMobile.online') : device.status === 'offline' ? t('techMobile.offline') : t('techMobile.maintenance')}</div>
+                {device.currentPatient && <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>{t('techMobile.currentPatient')}: {device.currentPatient}</div>}
               </div>
             </div>
           ))}
@@ -545,7 +545,7 @@ export default function TechMobileWorkstation() {
         {detail && (
           <div style={{ fontSize: 12 }}>
             <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 10 }}>{detail.patientName}</div>
-            <div style={{ marginBottom: 14, fontSize: 12, color: '#64748b' }}>
+            <div style={{ marginBottom: 14, fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
               {detail.gender} / {detail.age}{t('techMobile.ageUnit')} · {detail.modality} · {detail.bodyPart}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -558,19 +558,19 @@ export default function TechMobileWorkstation() {
                 { label: t('techMobile.fieldAccession'), value: detail.accessionNumber || '-' },
               ].map(f => (
                 <div key={f.label} style={{ background: 'var(--bg-card)', borderRadius: 8, padding: '8px 10px' }}>
-                  <div style={{ fontSize: 11, color: '#94a3b8' }}>{f.label}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{f.label}</div>
                   <div style={{ fontWeight: 600, marginTop: 2 }}>{f.value}</div>
                 </div>
               ))}
             </div>
             <div style={{ fontSize: 12, fontWeight: 700, margin: '14px 0 8px' }}>{t('techMobile.operationLog')}</div>
             {detailOps.length === 0 ? (
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('techMobile.noOperationRecords')}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('techMobile.noOperationRecords')}</div>
             ) : (
               detailOps.map((o, i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid var(--border-color)', fontSize: 12 }}>
-                  <span style={{ color: '#334155' }}>{o.actorName ?? t('techMobile.system')} · {OP_LABELS[o.op] ?? o.op}</span>
-                  <span style={{ color: '#94a3b8' }}>{o.createdAt}</span>
+                  <span style={{ color: 'var(--text-primary, #334155)' }}>{o.actorName ?? t('techMobile.system')} · {OP_LABELS[o.op] ?? o.op}</span>
+                  <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{o.createdAt}</span>
                 </div>
               ))
             )}

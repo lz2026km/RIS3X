@@ -53,10 +53,10 @@ import { DataTable } from '../../components/common'
 const PRIORITY_META: Record<string, { label: string; color: string; bg: string; rank: number }> = {
   STAT: { label: '危重', color: 'var(--color-error-600)', bg: '#fee2e2', rank: 0 },
   URGENT: { label: '紧急', color: 'var(--color-warning-600)', bg: '#fef3c7', rank: 1 },
-  ROUTINE: { label: '普通', color: '#64748b', bg: '#f1f5f9', rank: 2 },
+  ROUTINE: { label: '普通', color: 'var(--text-muted, #64748b)', bg: '#f1f5f9', rank: 2 },
   危重: { label: '危重', color: 'var(--color-error-600)', bg: '#fee2e2', rank: 0 },
   紧急: { label: '紧急', color: 'var(--color-warning-600)', bg: '#fef3c7', rank: 1 },
-  普通: { label: '普通', color: '#64748b', bg: '#f1f5f9', rank: 2 },
+  普通: { label: '普通', color: 'var(--text-muted, #64748b)', bg: '#f1f5f9', rank: 2 },
 }
 
 const priorityOf = (exam: WorklistItemDto): string => String(exam.priority ?? 'ROUTINE')

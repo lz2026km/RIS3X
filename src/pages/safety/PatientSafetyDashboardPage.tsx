@@ -38,7 +38,7 @@ const RISK_LEVEL_META: Record<string, { color: string; label: string }> = {
   high: { color: 'var(--color-warning-500)', label: t('psd.risk.high') },
   medium: { color: 'var(--color-primary-500)', label: t('psd.risk.medium') },
   low: { color: '#10b981', label: t('psd.risk.low') },
-  'very-low': { color: '#94a3b8', label: t('psd.risk.veryLow') },
+  'very-low': { color: 'var(--text-muted, #94a3b8)', label: t('psd.risk.veryLow') },
 }
 
 const PatientSafetyDashboardPage: React.FC = () => {
@@ -133,7 +133,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
                           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                             <span style={{ fontSize: 12, width: 70 }}>{s.label}</span>
                             <Progress percent={events.length ? Math.round((s.count / events.length) * 100) : 0} size="small" style={{ flex: 1, margin: 0 }} strokeColor={s.key === 'severe' || s.key === 'catastrophic' ? 'var(--color-error-500, var(--color-error-500))' : 'var(--color-primary-600, var(--color-primary-600))'} />
-                            <span style={{ fontSize: 12, color: '#64748b', width: 30 }}>{s.count}</span>
+                            <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', width: 30 }}>{s.count}</span>
                           </div>
                         </Col>
                       ))}
@@ -150,7 +150,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
                           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                             <span style={{ fontSize: 12, width: 110 }}>{CATEGORY_LABELS[c.key] ?? c.key}</span>
                             <Progress percent={events.length ? Math.round((c.count / events.length) * 100) : 0} size="small" style={{ flex: 1, margin: 0 }} />
-                            <span style={{ fontSize: 12, color: '#64748b', width: 30 }}>{c.count}</span>
+                            <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', width: 30 }}>{c.count}</span>
                           </div>
                         </Col>
                       ))}
@@ -166,7 +166,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
                         <div key={t.period} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
                           <span style={{ fontSize: 12, fontWeight: 600 }}>{t.total}</span>
                           <div style={{ width: 32, height: Math.max(4, t.total * 14), background: t.total > 5 ? 'var(--color-error-500, var(--color-error-500))' : 'var(--color-primary-500, var(--color-primary-500))', borderRadius: '4px 4px 0 0' }} />
-                          <span style={{ fontSize: 11, color: '#64748b', marginTop: 'var(--space-1, 4px)' }}>{t.period}</span>
+                          <span style={{ fontSize: 11, color: 'var(--text-muted, #64748b)', marginTop: 'var(--space-1, 4px)' }}>{t.period}</span>
                         </div>
                       ))}
                       {trendWindow.length === 0 && <Empty description={t('psd.noTrend')} image={Empty.PRESENTED_IMAGE_SIMPLE} />}
@@ -192,7 +192,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
                         <Tag color={RISK_LEVEL_META[r.riskLevel]?.color} style={{ marginInlineEnd: 0 }}>{RISK_LEVEL_META[r.riskLevel]?.label ?? r.riskLevel}</Tag>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                        <span style={{ fontSize: 11, color: '#64748b' }}>{r.category} · {r.status}</span>
+                        <span style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>{r.category} · {r.status}</span>
                         <span style={{ fontSize: 12, fontWeight: 600 }}>RPN {r.rpn}</span>
                       </div>
                     </Space>

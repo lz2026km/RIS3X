@@ -52,7 +52,7 @@ const card: React.CSSProperties = {
   background: "var(--bg-card)",
   borderRadius: 12,
   padding: 18,
-  border: "1px solid #e2e8f0",
+  border: "1px solid var(--border-color, #e2e8f0)",
 };
 
 const cardTitle: React.CSSProperties = {
@@ -68,9 +68,9 @@ const cardTitle: React.CSSProperties = {
 const btn: React.CSSProperties = {
   padding: "6px 12px",
   borderRadius: 6,
-  border: "1px solid #cbd5e1",
+  border: "1px solid var(--border-color, #cbd5e1)",
   background: "var(--bg-card)",
-  color: "#334155",
+  color: 'var(--text-primary, #334155)',
   fontSize: 12,
   fontWeight: 600,
   cursor: "pointer",
@@ -89,9 +89,9 @@ const btnPrimary: React.CSSProperties = {
 const input: React.CSSProperties = {
   padding: "6px 10px",
   borderRadius: 6,
-  border: "1px solid #e2e8f0",
+  border: "1px solid var(--border-color, #e2e8f0)",
   fontSize: 12,
-  color: "#334155", width: "100%",
+  color: 'var(--text-primary, #334155)', width: "100%",
   boxSizing: "border-box",
 };
 
@@ -111,10 +111,10 @@ function StatCard({
   return (
     <div style={{ ...card, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px" }}>
       <div>
-        <div style={{ fontSize: 12, color: "#64748b" }}>{label}</div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{label}</div>
         <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-primary-800)", marginTop: 'var(--space-1, 4px)', lineHeight: 1.2 }}>
           {value}
-          {sub && <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 400 }}> {sub}</span>}
+          {sub && <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', fontWeight: 400 }}> {sub}</span>}
         </div>
       </div>
       <div style={{ width: 40, height: 40, borderRadius: 10, background: `${color}1a`, display: "flex", alignItems: "center", justifyContent: "center", color }}>
@@ -329,7 +329,7 @@ export default function DoseLiveMonitor() {
     { title: 'DLP', dataIndex: 'dlp', key: 'dlp', render: (v: number) => fmt(v) },
     {
       title: t('doseLive.colDrlThreshold'), key: 'drl',
-      render: (_: unknown, a: DoseAlert) => <span style={{ color: "#64748b" }}>{fmt(a.ctdivolDrl)} / {fmt(a.dlpDrl)}</span>,
+      render: (_: unknown, a: DoseAlert) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{fmt(a.ctdivolDrl)} / {fmt(a.dlpDrl)}</span>,
     },
     {
       title: t('doseLive.colLevel'), dataIndex: 'level', key: 'level',
@@ -390,7 +390,7 @@ export default function DoseLiveMonitor() {
         );
       },
     },
-    { title: t('doseLive.colSource'), dataIndex: 'source', key: 'source', render: (v: string) => <span style={{ color: "#64748b" }}>{v}</span> },
+    { title: t('doseLive.colSource'), dataIndex: 'source', key: 'source', render: (v: string) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{v}</span> },
     {
       title: t('doseLive.colActions'), key: 'actions', align: 'center' as const,
       render: (_: unknown, d: DrlEntry) => (
@@ -403,7 +403,7 @@ export default function DoseLiveMonitor() {
 
   if (loading) {
     return (
-      <div style={{ ...card, textAlign: "center", padding: 'var(--space-10, 40px)', color: "#94a3b8", fontSize: 12 }}>
+      <div style={{ ...card, textAlign: "center", padding: 'var(--space-10, 40px)', color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>
         {t('doseLive.loadingRealtime')}
       </div>
     );
@@ -434,7 +434,7 @@ export default function DoseLiveMonitor() {
             <BarChart3 size={14} /> {t('doseLive.distributionTitle')}
           </div>
           {distributionData.length === 0 ? (
-            <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 'var(--space-6, 24px)' }}>{t('doseLive.noExamToday')}</div>
+            <div style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12, textAlign: "center", padding: 'var(--space-6, 24px)' }}>{t('doseLive.noExamToday')}</div>
           ) : (
           <ChartContainer height={240} state={distributionData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('doseLive.noDistribution')}>
             <BarChart data={distributionData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
@@ -485,8 +485,8 @@ export default function DoseLiveMonitor() {
                     borderBottom: "1px solid #f1f5f9",
                   }}
                 >
-                  <span style={{ color: "#334155" }}>
-                    {p.patientName} <span style={{ color: "#94a3b8" }}>({p.patientId})</span>
+                  <span style={{ color: 'var(--text-primary, #334155)' }}>
+                    {p.patientName} <span style={{ color: 'var(--text-muted, #94a3b8)' }}>({p.patientId})</span>
                   </span>
                   <span style={{ color: p.overDrlCount > 0 ? "var(--color-error-600)" : "#64748b" }}>
                     {p.examCount} {t('doseLive.timesUnit')} · 30{t('doseLive.daysUnit')} {fmt(p.totalDlp30d)} · 1{t('doseLive.yearUnit')} {fmt(p.totalDlp1y)}
@@ -497,7 +497,7 @@ export default function DoseLiveMonitor() {
             </div>
           )}
           {selectedPatient && (
-            <div style={{ marginTop: 10, fontSize: 12, color: "#64748b" }}>
+            <div style={{ marginTop: 10, fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
               {t('doseLive.selectedPatient')}<strong style={{ color: "var(--color-primary-800)" }}>{selectedPatient.patientName}</strong>（{selectedPatient.patientId}）
             </div>
           )}
@@ -511,7 +511,7 @@ export default function DoseLiveMonitor() {
             <TrendingUp size={14} /> {cumulative?.patientName ?? selectedPatient.patientName} {t('doseLive.annualTrend')}
           </div>
             {cumLoading ? (
-              <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 'var(--space-6, 24px)' }}>{t('doseLive.loading')}</div>
+              <div style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12, textAlign: "center", padding: 'var(--space-6, 24px)' }}>{t('doseLive.loading')}</div>
             ) : cumulative ? (
               <>
           <ChartContainer height={220} state={trendData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('doseLive.noTrend')}>
@@ -539,7 +539,7 @@ export default function DoseLiveMonitor() {
             <Users size={14} /> {t('doseLive.doseDetail')}
           </div>
             {cumLoading ? (
-              <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 'var(--space-6, 24px)' }}>{t('doseLive.loading')}</div>
+              <div style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12, textAlign: "center", padding: 'var(--space-6, 24px)' }}>{t('doseLive.loading')}</div>
             ) : cumulative && cumulative.exams.length > 0 ? (
               <DataTable<DoseExamRow>
                 rowKey="id"
@@ -549,7 +549,7 @@ export default function DoseLiveMonitor() {
                 scroll={{ x: "max-content", y: 280 }}
               />
             ) : (
-              <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 'var(--space-6, 24px)' }}>{t('doseLive.noRecords')}</div>
+              <div style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12, textAlign: "center", padding: 'var(--space-6, 24px)' }}>{t('doseLive.noRecords')}</div>
             )}
           </div>
         </div>
@@ -596,7 +596,7 @@ export default function DoseLiveMonitor() {
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
             />
-            <span style={{ color: "#94a3b8" }}>{t('doseLive.to')}</span>
+            <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{t('doseLive.to')}</span>
             <input
               type="date"
               style={{ ...input, width: 150 }}
@@ -633,13 +633,13 @@ export default function DoseLiveMonitor() {
                 </LineChart>
               </ChartContainer>
             ) : (
-              <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 'var(--space-5, 20px)' }}>
+              <div style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12, textAlign: "center", padding: 'var(--space-5, 20px)' }}>
                 {statsLoading ? t('doseLive.calculating') : t('doseLive.noRecordsInRange')}
               </div>
             )}
           </>
         ) : (
-          <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 'var(--space-6, 24px)' }}>
+          <div style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12, textAlign: "center", padding: 'var(--space-6, 24px)' }}>
             {statsLoading ? t('doseLive.calculating') : t('doseLive.noStatsData')}
           </div>
         )}
@@ -650,7 +650,7 @@ export default function DoseLiveMonitor() {
           <span style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
             <ShieldAlert size={14} /> {t('doseLive.drlConfigTitle')}
           </span>
-          <span style={{ fontSize: 11, color: "#94a3b8" }}>{t('doseLive.drlConfigHint')}</span>
+          <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{t('doseLive.drlConfigHint')}</span>
         </div>
         <DataTable<DrlEntry>
           rowKey={(d) => `${d.modality}-${d.bodyPart}`}
@@ -667,7 +667,7 @@ export default function DoseLiveMonitor() {
 function MiniInfo({ label, value, warn }: { label: string; value: string; warn?: boolean }) {
   return (
     <div style={{ background: "var(--bg-primary)", borderRadius: 8, padding: "8px 10px", border: `1px solid ${warn ? "#fecaca" : "#e2e8f0"}` }}>
-      <div style={{ fontSize: 11, color: "#64748b" }}>{label}</div>
+      <div style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>{label}</div>
       <div style={{ fontSize: 14, fontWeight: 700, color: warn ? "var(--color-error-600)" : "var(--color-primary-800)", marginTop: 2 }}>{value}</div>
     </div>
   );

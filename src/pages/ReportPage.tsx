@@ -667,7 +667,7 @@ export default function ReportPage() {
       {/* [v3.0.6.11-95 Wave2B P1] 保存当前筛选为快捷预置 */}
       <Modal title={<span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Bookmark size={15} style={{ color: 'var(--color-primary-800)' }} />{t("reportPage.savePresetTitle")}</span>} open={showSavePreset} onCancel={() => setShowSavePreset(false)} onOk={saveCurrentPreset} okText={t("reportPage.save")} cancelText={t("reportPage.cancel")} width={400} destroyOnHidden>
         <Input value={savePresetName} onChange={e => setSavePresetName(e.target.value)} onPressEnter={saveCurrentPreset} placeholder={t("reportPage.presetNamePlaceholder")} allowClear style={{ marginTop: 'var(--space-2, 8px)' }} />
-        <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 'var(--space-2, 8px)' }}>{t("reportPage.presetHelp")}</div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 'var(--space-2, 8px)' }}>{t("reportPage.presetHelp")}</div>
       </Modal>
       <ReportExportModal show={exportModal.show} title={exportModal.title} message={exportModal.message} complete={exportModal.complete} onClose={() => setExportModal(e => ({ ...e, show: false }))} />
       <ReviewResultModal show={reviewResultModal.show} reportId={reviewResultModal.reportId} result={reviewResultModal.result} suggestion={reviewResultModal.suggestion} onClose={() => setReviewResultModal(r => ({ ...r, show: false }))} />

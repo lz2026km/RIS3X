@@ -114,10 +114,10 @@ export default function ReportHeader({
 
       <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginBottom: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', flex: 1, minWidth: 220, border: '1px solid var(--border-color)', borderRadius: 8, padding: '6px 12px', background: 'var(--bg-card)' }}>
-          <Search size={14} style={{ color: '#94a3b8', flexShrink: 0 }} />
+          <Search size={14} style={{ color: 'var(--text-muted, #94a3b8)', flexShrink: 0 }} />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="搜索患者姓名 / 检查号 / 报告ID / 检查号..."
             style={{ border: 'none', fontSize: 12, width: '100%', background: 'transparent' }} />
-          {search && <X size={13} style={{ color: '#94a3b8', cursor: 'pointer', flexShrink: 0 }} onClick={() => setSearch('')} />}
+          {search && <X size={13} style={{ color: 'var(--text-muted, #94a3b8)', cursor: 'pointer', flexShrink: 0 }} onClick={() => setSearch('')} />}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           <span style={{ fontSize: 12, color: GRAY, fontWeight: 600, marginRight: 2 }}>设备:</span>
@@ -151,7 +151,7 @@ export default function ReportHeader({
       </div>
 
       {!loadingDoctors && !doctorError && doctors.length === 0 && (
-        <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 10 }}>{t('w9.states.empty')}</div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginBottom: 10 }}>{t('w9.states.empty')}</div>
       )}
 
       <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginBottom: 10 }}>
@@ -180,7 +180,7 @@ export default function ReportHeader({
         </button>
       </div>
 
-      <div style={{ fontSize: 12, color: '#94a3b8', borderTop: '1px solid var(--border-color)', paddingTop: 'var(--space-2, 8px)' }}>
+      <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', borderTop: '1px solid var(--border-color)', paddingTop: 'var(--space-2, 8px)' }}>
         <Filter size={11} style={{ verticalAlign: 'middle', marginRight: 'var(--space-1, 4px)' }} />
         提示: 使用高级筛选可进一步按质量评分过滤
       </div>

@@ -464,7 +464,7 @@ export default function CustomReportPage() {
                 <BellRing size={11} style={{ verticalAlign: -1 }} /> {t('customReport.subscribedPushed', { count: record.recipients.length })}
               </span>
             ) : (
-              <span style={{ fontSize: 11, color: '#94a3b8' }}>{t('customReport.noRecipients')}</span>
+              <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{t('customReport.noRecipients')}</span>
             )}
           </Space>
         ) : (
@@ -588,7 +588,7 @@ export default function CustomReportPage() {
             <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ width: 38, height: 38, borderRadius: 10, background: card.bg, color: card.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{card.icon}</div>
               <div>
-                <div style={{ fontSize: 12, color: '#64748b' }}>{card.label}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{card.label}</div>
                 <div style={{ fontSize: 20, fontWeight: 700, color: card.color }}>{card.value}</div>
               </div>
             </div>
@@ -639,7 +639,7 @@ export default function CustomReportPage() {
         </Card>
 
         {/* 数据源徽标 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, color: '#64748b', padding: '0 4px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-muted, #64748b)', padding: '0 4px', flexWrap: 'wrap' }}>
           <Tag color="blue" style={{ margin: 0 }}>{t('customReport.dataSource')}</Tag>
           <span>{t('customReport.dsLegend')}</span>
         </div>
@@ -705,7 +705,7 @@ export default function CustomReportPage() {
                 options={fieldGroups.map((g) => ({ label: g.label, options: g.options }))}
                 maxTagCount={8}
               />
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
                 {t('customReport.selectedFields', { count: form.fields.length, names: form.fields.map((f) => catalogName(f)).join('、') || t('customReport.notSelected') })}
               </div>
             </div>
@@ -720,7 +720,7 @@ export default function CustomReportPage() {
                   onChange={(e) => setForm({ ...form, dataSource: e.target.value })}
                   options={DATA_SOURCE_OPTIONS}
                 />
-                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 'var(--space-1, 4px)' }}>{t('customReport.dataSourceHint')}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginTop: 'var(--space-1, 4px)' }}>{t('customReport.dataSourceHint')}</div>
               </div>
               <div>
                 <Text strong style={{ display: 'block', marginBottom: 6 }}>{t('customReport.statPeriod')}</Text>
@@ -730,7 +730,7 @@ export default function CustomReportPage() {
                   style={{ width: 160 }}
                   options={Object.entries(PERIOD_LABELS).map(([value, label]) => ({ value, label: `${label} (${value})` }))}
                 />
-                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 'var(--space-1, 4px)' }}>
+                <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginTop: 'var(--space-1, 4px)' }}>
                   <CalendarRange size={11} style={{ verticalAlign: -1 }} /> {t('customReport.lookbackWindow')}
                 </div>
               </div>

@@ -261,7 +261,7 @@ const SnomedEncoderPage: React.FC = () => {
                     <BookOpen size={14} color="#8b5cf6" />
                     <div style={{ flex: 1 }}>
                       <Text strong style={{ fontSize: 12 }}>{c.pt}</Text>
-                      <div style={{ fontSize: 11, color: '#64748b' }}>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>
                         {c.conceptId} | {c.semanticTag}
                       </div>
                     </div>

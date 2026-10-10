@@ -18,7 +18,7 @@ interface DetailPanelProps {
   historyEvents?: TimelineEvent[]
 }
 
-const labelStyle: React.CSSProperties = { fontSize: 12, color: '#94a3b8', marginBottom: 2 }
+const labelStyle: React.CSSProperties = { fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginBottom: 2 }
 const valueStyle: React.CSSProperties = { fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)' }
 
 export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpRecords, historyEvents }: DetailPanelProps) => {
@@ -43,11 +43,11 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
           <ShieldAlert size={20} style={{ color: 'var(--color-error-600)' }} />
           <div>
             <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--color-error-600)' }}>{t('critDetail.title')}</div>
-            <div style={{ fontSize: 12, color: '#94a3b8' }}>{cv.id} · {cv.patientName}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{cv.id} · {cv.patientName}</div>
           </div>
         </div>
         <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <X size={16} style={{ color: '#64748b' }} />
+          <X size={16} style={{ color: 'var(--text-muted, #64748b)' }} />
         </button>
       </div>
 
@@ -244,16 +244,16 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
                 <div key={idx} style={{ display: 'flex', gap: 'var(--space-3, 12px)', marginBottom: idx < cv.timeline.length - 1 ? 16 : 0 }}>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <div style={{ width: 32, height: 32, borderRadius: '50%', background: idx === cv.timeline.length - 1 ? 'var(--color-primary-800)' : 'var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {idx === cv.timeline.length - 1 ? <CheckCircle size={16} style={{ color: '#fff' }} /> : <Circle size={12} style={{ color: '#94a3b8' }} />}
+                      {idx === cv.timeline.length - 1 ? <CheckCircle size={16} style={{ color: '#fff' }} /> : <Circle size={12} style={{ color: 'var(--text-muted, #94a3b8)' }} />}
                     </div>
                     {idx < cv.timeline.length - 1 && <div style={{ width: 2, flex: 1, background: 'var(--border-color)', marginTop: 'var(--space-1, 4px)', minHeight: 20 }} />}
                   </div>
                   <div style={{ flex: 1, paddingTop: 'var(--space-1, 4px)' }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{event.event}</div>
-                    <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{event.time}</div>
-                    <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{event.user}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>{event.time}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginTop: 2 }}>{event.user}</div>
                     {event.detail && (
-                      <div style={{ fontSize: 12, color: '#64748b', marginTop: 'var(--space-1, 4px)', background: 'var(--bg-card)', padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border-color)' }}>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginTop: 'var(--space-1, 4px)', background: 'var(--bg-card)', padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border-color)' }}>
                         {event.detail}
                       </div>
                     )}
@@ -273,10 +273,10 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
                       </div>
                       <div style={{ flex: 1, paddingTop: 'var(--space-1, 4px)' }}>
                         <div style={{ fontSize: 12, fontWeight: 700, color: '#4338ca' }}>{event.event}</div>
-                        <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{event.time}</div>
-                        <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{event.user}</div>
+                        <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>{event.time}</div>
+                        <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginTop: 2 }}>{event.user}</div>
                         {event.detail && (
-                          <div style={{ fontSize: 12, color: '#64748b', marginTop: 'var(--space-1, 4px)', background: 'var(--bg-card)', padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border-color)' }}>
+                          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginTop: 'var(--space-1, 4px)', background: 'var(--bg-card)', padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border-color)' }}>
                             {event.detail}
                           </div>
                         )}

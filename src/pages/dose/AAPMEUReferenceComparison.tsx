@@ -79,7 +79,7 @@ export default function AAPMEUReferenceComparison() {
           style={{
             background: "var(--bg-card)",
             padding: 'var(--space-3, 12px)',
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border-color, #e2e8f0)",
             borderRadius: 8,
             boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
           }}
@@ -94,7 +94,7 @@ export default function AAPMEUReferenceComparison() {
           >
             {label}
           </div>
-          <div style={{ fontSize: 12, color: "#64748b" }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
             <div>
               AAPM参考值:{" "}
               <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>
@@ -155,7 +155,7 @@ export default function AAPMEUReferenceComparison() {
           background: "var(--bg-card)",
           borderRadius: 12,
           padding: 'var(--space-5, 20px)',
-          border: "1px solid #e2e8f0",
+          border: "1px solid var(--border-color, #e2e8f0)",
       }}
     >
       <div
@@ -170,7 +170,7 @@ export default function AAPMEUReferenceComparison() {
           <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>
             AAPM/欧盟 CT剂量参考值对比
           </div>
-          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>
             本院CT剂量 vs 国际参考值（单位: CTDIvol mGy）
           </div>
         </div>
@@ -184,7 +184,7 @@ export default function AAPMEUReferenceComparison() {
                 background: "var(--color-primary-800)",
               }}
             />
-            <span style={{ fontSize: 12, color: "#64748b" }}>AAPM参考值</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>AAPM参考值</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
             <div
@@ -195,7 +195,7 @@ export default function AAPMEUReferenceComparison() {
                 background: "#7c3aed",
               }}
             />
-            <span style={{ fontSize: 12, color: "#64748b" }}>欧盟参考值</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>欧盟参考值</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
             <div
@@ -206,7 +206,7 @@ export default function AAPMEUReferenceComparison() {
                 background: "var(--color-error-600)",
               }}
             />
-            <span style={{ fontSize: 12, color: "#64748b" }}>本院平均值</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>本院平均值</span>
           </div>
         </div>
       </div>
@@ -265,8 +265,8 @@ export default function AAPMEUReferenceComparison() {
           showDensity={false}
           columns={[
             { title: "检查类型", dataIndex: "examType", key: "examType", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{v}</span> },
-            { title: "AAPM参考值", dataIndex: "aapmRef", key: "aapmRef", align: "center", render: (v: number) => <span style={{ color: "#334155" }}>{v} mGy</span> },
-            { title: "欧盟参考值", dataIndex: "euRef", key: "euRef", align: "center", render: (v: number) => <span style={{ color: "#334155" }}>{v} mGy</span> },
+            { title: "AAPM参考值", dataIndex: "aapmRef", key: "aapmRef", align: "center", render: (v: number) => <span style={{ color: 'var(--text-primary, #334155)' }}>{v} mGy</span> },
+            { title: "欧盟参考值", dataIndex: "euRef", key: "euRef", align: "center", render: (v: number) => <span style={{ color: 'var(--text-primary, #334155)' }}>{v} mGy</span> },
             {
               title: "本院平均值", dataIndex: "hospitalAvg", key: "hospitalAvg", align: "center",
               render: (v: number, ref: AAPMReference) => (

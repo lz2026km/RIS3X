@@ -39,7 +39,7 @@ const COLORS = {
   warning: 'var(--color-warning-600)',
   text: '#1e293b',
   textMuted: '#64748b',
-  border: '#e2e8f0',
+  border: 'var(--border-color, #e2e8f0)',
   bg: 'var(--bg-card)',
 }
 

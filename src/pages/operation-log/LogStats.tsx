@@ -230,7 +230,7 @@ function HipaaLogTable({ logs, onViewDetail }: { logs: OperationLog[]; onViewDet
               {log.action}
             </span>
           </div>
-          <div style={{ color: '#475569' }}>
+          <div style={{ color: 'var(--text-secondary, #475569)' }}>
             {log.patientId && <div style={{ fontSize: 12 }}>{t('logStats.patient')}: {log.patientId}</div>}
             {log.reportId && <div style={{ fontSize: 12 }}>{t('logStats.report')}: {log.reportId}</div>}
             {!log.patientId && !log.reportId && (
@@ -238,7 +238,7 @@ function HipaaLogTable({ logs, onViewDetail }: { logs: OperationLog[]; onViewDet
             )}
           </div>
           <div style={{ color: GRAY }}>{log.ipAddress}</div>
-          <div style={{ color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={log.targetDesc}>
+          <div style={{ color: 'var(--text-secondary, #475569)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={log.targetDesc}>
             {log.targetDesc}
           </div>
           <div>

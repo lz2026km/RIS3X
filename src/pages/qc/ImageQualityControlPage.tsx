@@ -311,7 +311,7 @@ export default function ImageQualityControlPage() {
                   <div style={{ width: 60, height: 6, background: 'var(--border-color)', borderRadius: 3, overflow: 'hidden' }}>
                     <div style={{ width: `${v}%`, height: '100%', background: v >= 90 ? '#10b981' : v >= 80 ? 'var(--color-warning-500)' : 'var(--color-error-600)' }} />
                   </div>
-                  <span style={{ fontSize: 11, color: '#475569' }}>{v}%</span>
+                  <span style={{ fontSize: 11, color: 'var(--text-secondary, #475569)' }}>{v}%</span>
                 </div>
               ),
             },

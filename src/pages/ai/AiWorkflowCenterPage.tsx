@@ -538,7 +538,7 @@ const ReviewTab: React.FC = () => {
             gap: 'var(--space-6, 24px)',
             height: 180,
             padding: "0 8px",
-            borderBottom: "1px solid #e2e8f0",
+            borderBottom: "1px solid var(--border-color, #e2e8f0)",
           }}
           data-testid="wf-trend-chart"
         >
@@ -869,7 +869,7 @@ const ReportTab: React.FC = () => {
           <div
             style={{
               background: "#f8fafc",
-              border: "1px solid #e2e8f0",
+              border: "1px solid var(--border-color, #e2e8f0)",
               borderRadius: 8,
               padding: 'var(--space-3, 12px)',
               fontSize: 12,

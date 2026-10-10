@@ -19,7 +19,7 @@ const s = {
   badge: (color: string, bg: string) => ({ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: bg, color }),
   btn: { padding: '8px 16px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: 'var(--color-primary-800)', color: '#fff' },
   select: { width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)' },
-  label: { fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 'var(--space-1, 4px)', display: 'block' },
+  label: { fontSize: 12, color: 'var(--text-muted, #64748b)', fontWeight: 600, marginBottom: 'var(--space-1, 4px)', display: 'block' },
   tab: (active: boolean) => ({
     flex: 1, padding: '10px 0', borderRadius: 8, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer',
     background: active ? 'var(--bg-card)' : 'transparent', color: active ? 'var(--color-primary-800)' : '#64748b',
@@ -239,7 +239,7 @@ export default function PatientEducationPage() {
                 {CONTENT_TYPE_LABELS[selectedMaterial.contentType] || selectedMaterial.contentType}
               </span>
               {selectedMaterial.duration && (
-                <span style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 12, color: '#94a3b8' }}>
+                <span style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
                   {Math.floor((selectedMaterial.duration || 0) / 60)}{t('patientEdu.minuteUnit')}{(selectedMaterial.duration || 0) % 60}{t('patientEdu.secondUnit')}
                 </span>
               )}
@@ -262,7 +262,7 @@ export default function PatientEducationPage() {
                       {t('patientEdu.markComplete')}
                     </button>
                   </div>
-                  <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 11, color: '#64748b' }}>{Math.round(playerProgress)}% · {t('patientEdu.demoPlayer')}</div>
+                  <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 11, color: 'var(--text-muted, #64748b)' }}>{Math.round(playerProgress)}% · {t('patientEdu.demoPlayer')}</div>
                 </div>
               )}
 
@@ -282,17 +282,17 @@ export default function PatientEducationPage() {
                   onClick={() => handlePlay(m)}>
                   <button
                     title={t('patientEdu.deleteMaterialTitle')}
-                    style={{ position: 'absolute', top: 8, right: 8, border: 'none', background: 'transparent', color: '#94a3b8', fontSize: 14, cursor: 'pointer', lineHeight: 1 }}
+                    style={{ position: 'absolute', top: 8, right: 8, border: 'none', background: 'transparent', color: 'var(--text-muted, #94a3b8)', fontSize: 14, cursor: 'pointer', lineHeight: 1 }}
                     onClick={e => { e.stopPropagation(); void handleDeleteMaterial(m) }}
                   >×</button>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-1, 4px)' }}>
                     <span style={{ fontSize: 20 }}>{m.contentType === 'video' ? '' : m.contentType === 'audio' ? '' : m.contentType === 'pdf' ? '' : ''}</span>
                     <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{m.title}</div>
                   </div>
-                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>{m.summary}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-2, 8px)' }}>{m.summary}</div>
                   <span style={s.badge('#fff', 'var(--color-primary-800)')}>{CATEGORY_LABELS[m.category] || m.category}</span>
-                  <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 'var(--space-2, 8px)' }}>{CONTENT_TYPE_LABELS[m.contentType] || m.contentType}</span>
-                  {m.duration && <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 'var(--space-2, 8px)' }}>{Math.floor(m.duration / 60)}{t('patientEdu.minuteUnit')}{m.duration % 60}{t('patientEdu.secondUnit')}</span>}
+                  <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginLeft: 'var(--space-2, 8px)' }}>{CONTENT_TYPE_LABELS[m.contentType] || m.contentType}</span>
+                  {m.duration && <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginLeft: 'var(--space-2, 8px)' }}>{Math.floor(m.duration / 60)}{t('patientEdu.minuteUnit')}{m.duration % 60}{t('patientEdu.secondUnit')}</span>}
                 </div>
               ))}
             </div>
@@ -319,8 +319,8 @@ export default function PatientEducationPage() {
                 </div>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 'var(--space-2, 8px)' }}>
                   {m.modality && <span style={s.badge('#fff', 'var(--color-primary-800)')}>{m.modality}</span>}
-                  {m.duration && <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('w3d.edu.duration')}: {m.duration}</span>}
-                  {m.fasting && <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('w3d.edu.fasting')}: {m.fasting}</span>}
+                  {m.duration && <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('w3d.edu.duration')}: {m.duration}</span>}
+                  {m.fasting && <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('w3d.edu.fasting')}: {m.fasting}</span>}
                 </div>
                 <ul style={{ margin: 0, paddingLeft: 18 }}>
                   {m.keyPoints.slice(0, 3).map((p, i) => <li key={i} style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{p}</li>)}
@@ -341,14 +341,14 @@ export default function PatientEducationPage() {
             <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
               <div>
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{r.materialTitle}</div>
-                <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('patientEdu.assignedAt')}{new Date(r.assignedAt).toLocaleString()}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('patientEdu.assignedAt')}{new Date(r.assignedAt).toLocaleString()}</div>
               </div>
               <span style={s.badge(r.completed ? 'var(--color-success)' : 'var(--color-warning)', r.completed ? 'var(--color-success-bg)' : 'var(--color-warning-bg)')}>
                 {r.completed ? t('patientEdu.learned') : t('patientEdu.notLearned')}
               </span>
             </div>
           ))}
-          {records.length === 0 && <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', padding: 'var(--space-6, 24px)' }}>{t('patientEdu.noRecords')}</div>}
+          {records.length === 0 && <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', textAlign: 'center', padding: 'var(--space-6, 24px)' }}>{t('patientEdu.noRecords')}</div>}
         </Card>
       )}
 
@@ -362,7 +362,7 @@ export default function PatientEducationPage() {
                 <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{tpl.name}</span>
                 <span style={s.badge('#fff', { 'sms': '#0369a1', 'wechat': '#166534', 'email': '#92400e', 'app_push': '#7c3aed' }[tpl.channel] || '#64748b')}>{tpl.channel}</span>
               </div>
-              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('patientEdu.commTitle')}{tpl.title}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-1, 4px)' }}>{t('patientEdu.commTitle')}{tpl.title}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', background: 'var(--bg-card)', padding: 'var(--space-2, 8px)', borderRadius: 6, border: '1px solid var(--border-color)' }}>{tpl.body}</div>
               <div style={{ marginTop: 6, display: 'flex', gap: 'var(--space-1, 4px)' }}>
                 {tpl.variables.map(v => <span key={v} style={s.badge('#7c3aed', '#f3e8ff')}>{`{${v}}`}</span>)}
@@ -385,7 +385,7 @@ export default function PatientEducationPage() {
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
               <span style={s.badge('#fff', 'var(--color-primary-800)')}>{eduDetail.category}</span>
               {eduDetail.modality && <span style={s.badge('#0369a1', '#e0f2fe')}>{eduDetail.modality}</span>}
-              <span style={{ fontSize: 12, color: '#94a3b8' }}>{eduDetail.targetAudience}</span>
+              <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{eduDetail.targetAudience}</span>
             </div>
             <div>
               <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{t('w3d.edu.keyPoints')}</div>

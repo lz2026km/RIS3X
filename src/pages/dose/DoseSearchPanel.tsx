@@ -94,7 +94,7 @@ export default function DoseSearchPanel({
               left: 10,
               top: "50%",
               transform: "translateY(-50%)",
-              color: "#94a3b8",
+              color: 'var(--text-muted, #94a3b8)',
             }}
           />
           <input
@@ -105,7 +105,7 @@ export default function DoseSearchPanel({
             style={{
               padding: "6px 10px 6px 30px",
               borderRadius: 6,
-              border: "1px solid #e2e8f0",
+              border: "1px solid var(--border-color, #e2e8f0)",
               fontSize: 12,
               width: 180, }}
           />
@@ -121,9 +121,9 @@ export default function DoseSearchPanel({
               style={{
                 padding: "6px 10px",
                 borderRadius: 6,
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-color, #e2e8f0)",
                 fontSize: 12,
-                color: "#334155", }}
+                color: 'var(--text-primary, #334155)', }}
             >
               {modalities.map((m) => (
                 <option key={m} value={m}>
@@ -139,9 +139,9 @@ export default function DoseSearchPanel({
             style={{
               padding: "6px 10px",
               borderRadius: 6,
-              border: "1px solid #e2e8f0",
+              border: "1px solid var(--border-color, #e2e8f0)",
               fontSize: 12,
-              color: "#334155", }}
+              color: 'var(--text-primary, #334155)', }}
           >
             <option value="全部">{t("doseTrack.allStatus")}</option>
             <option value="pending">{t("doseTrack.statusPending")}</option>

@@ -241,7 +241,7 @@ export default function CvDatabasePage() {
           style={{
             padding: "6px 12px",
             borderRadius: 6,
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border-color, #e2e8f0)",
             background: "var(--bg-card)",
             fontSize: 14,
           }}
@@ -259,7 +259,7 @@ export default function CvDatabasePage() {
           style={{
             padding: "6px 12px",
             borderRadius: 6,
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border-color, #e2e8f0)",
             background: "var(--bg-card)",
             fontSize: 14,
           }}
@@ -289,7 +289,7 @@ export default function CvDatabasePage() {
       <Spin spinning={loading}>
         <div
           style={{
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border-color, #e2e8f0)",
             borderRadius: 8,
             overflow: "hidden",
           }}
@@ -309,7 +309,7 @@ export default function CvDatabasePage() {
                   <>
                     {c.patientName}
                     <br />
-                    <span style={{ fontSize: 12, color: "#94a3b8" }}>
+                    <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
                       {c.patientId}
                       {c.age ? ` | ${c.age}岁 ${c.gender ?? ""}` : ""}
                     </span>
@@ -337,7 +337,7 @@ export default function CvDatabasePage() {
                 title: "部位", dataIndex: "anatomy", key: "anatomy",
                 render: (v: string) => <span style={{ textTransform: "capitalize" }}>{v}</span>,
               },
-              { title: "日期", dataIndex: "studyDate", key: "studyDate", render: (v: string) => <span style={{ color: "#64748b" }}>{v}</span> },
+              { title: "日期", dataIndex: "studyDate", key: "studyDate", render: (v: string) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{v}</span> },
               {
                 title: "诊断", dataIndex: "diagnosis", key: "diagnosis",
                 render: (v: string) => (
@@ -351,7 +351,7 @@ export default function CvDatabasePage() {
                   c.hasSrReport ? (
                     <span style={{ color: "var(--color-success-600)" }}></span>
                   ) : (
-                    <span style={{ color: "#94a3b8" }}>—</span>
+                    <span style={{ color: 'var(--text-muted, #94a3b8)' }}>—</span>
                   ),
               },
               {
@@ -417,19 +417,19 @@ export default function CvDatabasePage() {
                 fontSize: 14,
               }}
             >
-              <dt style={{ color: "#64748b", fontWeight: 500 }}>患者 ID</dt>
+              <dt style={{ color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>患者 ID</dt>
               <dd>{selectedCase.patientId}</dd>
-              <dt style={{ color: "#64748b", fontWeight: 500 }}>设备</dt>
+              <dt style={{ color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>设备</dt>
               <dd>{selectedCase.modality}</dd>
-              <dt style={{ color: "#64748b", fontWeight: 500 }}>部位</dt>
+              <dt style={{ color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>部位</dt>
               <dd>{selectedCase.anatomy}</dd>
-              <dt style={{ color: "#64748b", fontWeight: 500 }}>检查日期</dt>
+              <dt style={{ color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>检查日期</dt>
               <dd>{selectedCase.studyDate}</dd>
-              <dt style={{ color: "#64748b", fontWeight: 500 }}>诊断</dt>
+              <dt style={{ color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>诊断</dt>
               <dd>{selectedCase.diagnosis}</dd>
               {selectedCase.cadRads && (
                 <>
-                  <dt style={{ color: "#64748b", fontWeight: 500 }}>
+                  <dt style={{ color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                     CAD-RADS
                   </dt>
                   <dd>{selectedCase.cadRads}</dd>
@@ -437,11 +437,11 @@ export default function CvDatabasePage() {
               )}
               {selectedCase.efPercent !== undefined && (
                 <>
-                  <dt style={{ color: "#64748b", fontWeight: 500 }}>EF</dt>
+                  <dt style={{ color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>EF</dt>
                   <dd>{selectedCase.efPercent}%</dd>
                 </>
               )}
-              <dt style={{ color: "#64748b", fontWeight: 500 }}>
+              <dt style={{ color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                 关键所见
               </dt>
               <dd>{selectedCase.keyFindings}</dd>
@@ -471,8 +471,8 @@ export default function CvDatabasePage() {
                 style={{
                   padding: "8px 20px",
                   background: "var(--bg-primary)",
-                  color: "#1e293b",
-                  border: "1px solid #e2e8f0",
+                  color: 'var(--text-primary, #1e293b)',
+                  border: "1px solid var(--border-color, #e2e8f0)",
                   borderRadius: 6,
                   cursor: "pointer",
                 }}

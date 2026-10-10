@@ -247,7 +247,7 @@ const StatusIndicator: React.FC<{ status: string }> = ({ status }) => {
       case '故障':
         return { color: 'var(--color-error-500)', bg: '#ef444422', label: t('homePage.stFault') }
       default:
-        return { color: '#94a3b8', bg: '#94a3b824', label: t('homePage.stUnknown') }
+        return { color: 'var(--text-muted, #94a3b8)', bg: '#94a3b824', label: t('homePage.stUnknown') }
     }
   }
 

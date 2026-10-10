@@ -940,7 +940,7 @@ const s: Record<string, React.CSSProperties> = {
     paddingLeft: 'var(--space-2, 8px)',
     borderLeft: "1px solid #1e293b",
   },
-  groupLabel: { fontSize: 10, color: "#64748b", whiteSpace: "nowrap" },
+  groupLabel: { fontSize: 10, color: 'var(--text-muted, #64748b)', whiteSpace: "nowrap" },
   btn: {
     display: "inline-flex",
     alignItems: "center",
@@ -971,7 +971,7 @@ const s: Record<string, React.CSSProperties> = {
   sideHeader: {
     fontSize: 11,
     fontWeight: 700,
-    color: "#94a3b8",
+    color: 'var(--text-muted, #94a3b8)',
     padding: "6px 10px",
     borderBottom: "1px solid #1e293b",
     background: "#0f172a",
@@ -999,7 +999,7 @@ const s: Record<string, React.CSSProperties> = {
     borderRadius: 3,
     padding: "1px 5px",
   },
-  seriesKey: { fontSize: 10, color: "#64748b" },
+  seriesKey: { fontSize: 10, color: 'var(--text-muted, #64748b)' },
   seriesDesc: { fontSize: 11, color: "#e2e8f0", marginTop: 2 },
   metaBox: { borderTop: "1px solid #1e293b" },
   metaRow: {
@@ -1009,7 +1009,7 @@ const s: Record<string, React.CSSProperties> = {
     padding: "3px 10px",
     fontSize: 11,
   },
-  metaLabel: { color: "#64748b" },
+  metaLabel: { color: 'var(--text-muted, #64748b)' },
   metaValue: { color: "#e2e8f0", textAlign: "right", wordBreak: "break-all" },
   viewportArea: {
     flex: 1,
@@ -1080,7 +1080,7 @@ const s: Record<string, React.CSSProperties> = {
   },
   hudTitle: { fontSize: 12, fontWeight: 700, color: "var(--color-warning-400)" },
   hudLine: { fontSize: 11, color: "#e2e8f0" },
-  hudMuted: { fontSize: 10, color: "#94a3b8" },
+  hudMuted: { fontSize: 10, color: 'var(--text-muted, #94a3b8)' },
   hudRight: {
     position: "absolute",
     top: 6,
@@ -1128,7 +1128,7 @@ const s: Record<string, React.CSSProperties> = {
     justifyContent: "center",
     gap: 6,
     background: "rgba(2,6,23,0.75)",
-    color: "#94a3b8",
+    color: 'var(--text-muted, #94a3b8)',
     fontSize: 12,
   },
   thumbStrip: {
@@ -1156,7 +1156,7 @@ const s: Record<string, React.CSSProperties> = {
     fontFamily: "inherit",
   },
   thumbMod: { fontSize: 10, color: "#38bdf8", fontWeight: 700 },
-  thumbCount: { fontSize: 10, color: "#94a3b8" },
+  thumbCount: { fontSize: 10, color: 'var(--text-muted, #94a3b8)' },
   thumbDesc: { fontSize: 10, color: "#e2e8f0", whiteSpace: "nowrap" },
 };
 

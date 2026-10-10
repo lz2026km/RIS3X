@@ -19,7 +19,7 @@ export default function DoseAlertConfig({
 }: DoseAlertConfigProps) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-4, 16px)' }}>
-      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid #e2e8f0" }}>
+      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid var(--border-color, #e2e8f0)" }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 'var(--space-4, 16px)', display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
           <AlertTriangle size={16} color="var(--color-error-600)" />
           {t("doseTrack.alert.pending")}
@@ -45,9 +45,9 @@ export default function DoseAlertConfig({
                         {alert.alertLevel === "critical" ? "危" : "警"}
                       </span>
                     </div>
-                    <span style={{ fontSize: 12, color: "#94a3b8" }}>{alert.time}</span>
+                    <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{alert.time}</span>
                   </div>
-                  <div style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 6 }}>
                     {alert.examItem} · 设备：{alert.device}
                   </div>
                   <div style={{ fontSize: 12, color: badge.color, fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>
@@ -59,7 +59,7 @@ export default function DoseAlertConfig({
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)', marginBottom: 10, padding: "6px 10px", background: "var(--bg-card)", borderRadius: 4, fontSize: 12 }}>
                     <ShieldAlert size={12} color="var(--color-warning-600)" />
-                    <span style={{ color: "#64748b" }}>
+                    <span style={{ color: 'var(--text-muted, #64748b)' }}>
                       依据GBZ 130-2020，{alert.modality === "CT" ? "CT头颅平扫DLP参考值800mGy·cm" : alert.modality === "DSA" ? "DSA冠脉造影DAP参考值3000mGy·m²" : "该检查类型参考值"}，当前剂量超出指导水平
                     </span>
                   </div>
@@ -77,8 +77,8 @@ export default function DoseAlertConfig({
                     <button
                       onClick={() => onViewPatient(alert.patientName)}
                       style={{
-                        flex: 1, padding: "6px 12px", background: "var(--bg-card)", color: "#334155",
-                        border: "1px solid #e2e8f0", borderRadius: 6, fontSize: 12, fontWeight: 600,
+                        flex: 1, padding: "6px 12px", background: "var(--bg-card)", color: 'var(--text-primary, #334155)',
+                        border: "1px solid var(--border-color, #e2e8f0)", borderRadius: 6, fontSize: 12, fontWeight: 600,
                         cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 'var(--space-1, 4px)',
                       }}
                     >
@@ -89,7 +89,7 @@ export default function DoseAlertConfig({
               );
             })}
           {filteredAlerts.filter((a) => a.status === "pending").length === 0 && (
-            <div style={{ textAlign: "center", padding: 'var(--space-10, 40px)', color: "#94a3b8" }}>
+            <div style={{ textAlign: "center", padding: 'var(--space-10, 40px)', color: 'var(--text-muted, #94a3b8)' }}>
               <CheckCircle size={48} color="#e2e8f0" style={{ marginBottom: 'var(--space-3, 12px)' }} />
               <div style={{ fontSize: 14 }}>{t("doseTrack.alert.noPending")}</div>
             </div>
@@ -97,7 +97,7 @@ export default function DoseAlertConfig({
         </div>
       </div>
 
-      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid #e2e8f0" }}>
+      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid var(--border-color, #e2e8f0)" }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 'var(--space-4, 16px)', display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
           <ShieldAlert size={16} color="var(--color-success-600)" />
           {t("doseTrack.alert.acknowledged")}
@@ -112,12 +112,12 @@ export default function DoseAlertConfig({
                     <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-primary-800)" }}>{alert.patientName}</span>
                     <span style={{ padding: "2px 6px", background: "#f0fdf4", color: "var(--color-success-600)", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>已确认</span>
                   </div>
-                  <div style={{ fontSize: 12, color: "#94a3b8" }}>{alert.examItem} · {alert.time}</div>
-                  {alert.notes && <div style={{ fontSize: 12, color: "#64748b", marginTop: 'var(--space-1, 4px)' }}>备注: {alert.notes}</div>}
+                  <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{alert.examItem} · {alert.time}</div>
+                  {alert.notes && <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginTop: 'var(--space-1, 4px)' }}>备注: {alert.notes}</div>}
                 </div>
-                <div style={{ fontSize: 12, color: "#64748b", textAlign: "right" }}>
+                <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', textAlign: "right" }}>
                   <div>超出 {Math.round((alert.doseValue / alert.threshold - 1) * 100)}%</div>
-                  <div style={{ fontSize: 12, color: "#94a3b8" }}>{alert.doseValue}/{alert.threshold}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{alert.doseValue}/{alert.threshold}</div>
                 </div>
               </div>
             ))}
@@ -128,15 +128,15 @@ export default function DoseAlertConfig({
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 'var(--space-3, 12px)' }}>
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-error-600)" }}>{cumulativeStats.criticalAlerts}</div>
-              <div style={{ fontSize: 12, color: "#64748b" }}>              {t("doseTrack.alert.critical")}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>              {t("doseTrack.alert.critical")}</div>
             </div>
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-warning-600)" }}>{cumulativeStats.warningAlerts}</div>
-              <div style={{ fontSize: 12, color: "#64748b" }}>              {t("doseTrack.alert.warning")}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>              {t("doseTrack.alert.warning")}</div>
             </div>
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-success-600)" }}>0</div>
-              <div style={{ fontSize: 12, color: "#64748b" }}>              {t("doseTrack.alert.overdue")}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>              {t("doseTrack.alert.overdue")}</div>
             </div>
           </div>
         </div>

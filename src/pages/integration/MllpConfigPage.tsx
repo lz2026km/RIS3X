@@ -266,7 +266,7 @@ export const MllpConfigPage: React.FC = () => {
         width={420}
       >
         <div style={{ marginTop: 'var(--space-3, 12px)' }}>
-          <div style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>{t('mllp.cidrLabel')}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 6 }}>{t('mllp.cidrLabel')}</div>
           <Input
             value={newCidr}
             onChange={(e) => setNewCidr(e.target.value)}

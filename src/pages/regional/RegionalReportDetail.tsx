@@ -219,8 +219,8 @@ export const RemoteWriting: React.FC<DetailProps> = ({
             <div style={{ position: 'absolute', bottom: '20px', right: '20px', color: 'rgba(255,255,255,0.3)', fontSize: '10px' }}>1/120</div>
           </div>
         </div>
-        <div style={{ width: '400px', borderLeft: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-card)' }}>
-          <div style={{ padding: '12px', borderBottom: '1px solid #e5e7eb', backgroundColor: 'var(--bg-card)' }}>
+        <div style={{ width: '400px', borderLeft: '1px solid var(--border-color, #e5e7eb)', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-card)' }}>
+          <div style={{ padding: '12px', borderBottom: '1px solid var(--border-color, #e5e7eb)', backgroundColor: 'var(--bg-card)' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>{t('regionalReport.patientInfo')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', fontSize: '12px' }}>
               <div>{t('regionalReport.nameLabel')}{rd.patientName}</div><div>{t('regionalReport.genderLabel')}{rd.gender}</div><div>{t('regionalReport.ageLabel')}{rd.age}{t('regionalReport.yearsOld')}</div><div>{t('regionalReport.examLabel')}{rd.examType}</div>
@@ -232,11 +232,11 @@ export const RemoteWriting: React.FC<DetailProps> = ({
             <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>{t('regionalReport.reportContent')}</div>
             <textarea style={{ ...styles.textarea, width: '100%', minHeight: '200px', fontSize: '12px', lineHeight: '1.6' }} placeholder={t('regionalReport.reportPlaceholder')} value={remoteReportContent} onChange={e => onRemoteReportContentChange(e.target.value)} />
           </div>
-          <div style={{ padding: '12px', borderTop: '1px solid #e5e7eb', backgroundColor: 'var(--bg-card)' }}>
+          <div style={{ padding: '12px', borderTop: '1px solid var(--border-color, #e5e7eb)', backgroundColor: 'var(--bg-card)' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>{t('regionalReport.digitalSignature')}</div>
             <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
-              <div style={{ flex: 1, padding: '8px', backgroundColor: 'var(--bg-card)', borderRadius: '6px', border: '1px solid #e5e7eb' }}><div style={{ fontSize: '10px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('regionalReport.applyDoctorSignature')}</div><div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Lock size={12} style={{ color: COLORS.success }} /><span style={{ fontSize: '11px' }}>{t('regionalReport.pendingSignature')}</span></div></div>
-              <div style={{ flex: 1, padding: '8px', backgroundColor: 'var(--bg-card)', borderRadius: '6px', border: '1px solid #e5e7eb' }}><div style={{ fontSize: '10px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('regionalReport.reviewExpertSignature')}</div><div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Lock size={12} style={{ color: COLORS.pending }} /><span style={{ fontSize: '11px' }}>{t('regionalReport.pendingSignature')}</span></div></div>
+              <div style={{ flex: 1, padding: '8px', backgroundColor: 'var(--bg-card)', borderRadius: '6px', border: '1px solid var(--border-color, #e5e7eb)' }}><div style={{ fontSize: '10px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('regionalReport.applyDoctorSignature')}</div><div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Lock size={12} style={{ color: COLORS.success }} /><span style={{ fontSize: '11px' }}>{t('regionalReport.pendingSignature')}</span></div></div>
+              <div style={{ flex: 1, padding: '8px', backgroundColor: 'var(--bg-card)', borderRadius: '6px', border: '1px solid var(--border-color, #e5e7eb)' }}><div style={{ fontSize: '10px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('regionalReport.reviewExpertSignature')}</div><div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Lock size={12} style={{ color: COLORS.pending }} /><span style={{ fontSize: '11px' }}>{t('regionalReport.pendingSignature')}</span></div></div>
             </div>
             <ActionButton action="submit" block onClick={onSubmitRemoteReport}>{t('regionalReport.submitReport')}</ActionButton>
           </div>
@@ -361,7 +361,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ institutions, onRefreshS
   return (
     <div style={styles.rightPanel}>
       <div style={styles.panelHeader}><span>{t('regionalReport.regionalStats')}</span><ActionButton action="refresh" size="compact" icon={<RefreshCw size={14} />} onClick={onRefreshStats} /></div>
-      <div style={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+      <div style={{ padding: '12px', borderBottom: '1px solid var(--border-color, #e5e7eb)' }}>
         <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '10px', color: COLORS.textMuted }}>{t('regionalReport.institutionReports')}</div>
         {institutions.map((inst) => {
           const maxCount = Math.max(...institutions.map(i => i.reportCount))
@@ -374,7 +374,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ institutions, onRefreshS
           )
         })}
       </div>
-      <div style={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+      <div style={{ padding: '12px', borderBottom: '1px solid var(--border-color, #e5e7eb)' }}>
         <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '10px', color: COLORS.textMuted }}>{t('regionalReport.consultationResponseTime')}（{t('regionalReport.minutes')}）</div>
         <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'flex-end', height: '100px' }}>
           {[{ label: t('regionalReport.today'), value: 15, height: 40 }, { label: t('regionalReport.week'), value: 18, height: 48 }, { label: t('regionalReport.month'), value: 22, height: 58 }, { label: t('regionalReport.quarter'), value: 20, height: 53 }].map((item, idx) => (
@@ -386,7 +386,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ institutions, onRefreshS
           ))}
         </div>
       </div>
-      <div style={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+      <div style={{ padding: '12px', borderBottom: '1px solid var(--border-color, #e5e7eb)' }}>
         <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '10px', color: COLORS.textMuted }}>{t('regionalReport.positivityRate')}</div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <div style={{ position: 'relative', width: '80px', height: '80px' }}>

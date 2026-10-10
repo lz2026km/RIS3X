@@ -110,7 +110,7 @@ export default function BreastDoseTracking() {
           background: "var(--bg-card)",
           borderRadius: 12,
           padding: 'var(--space-5, 20px)',
-          border: "1px solid #e2e8f0",
+          border: "1px solid var(--border-color, #e2e8f0)",
         }}
       >
         <div
@@ -125,7 +125,7 @@ export default function BreastDoseTracking() {
             <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>
               乳腺摄影AGD剂量追踪
             </div>
-            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>
               平均腺体剂量(AGD)参考值: 6 mGy（欧盟标准）
             </div>
           </div>
@@ -157,14 +157,14 @@ export default function BreastDoseTracking() {
                       style={{
                         background: "var(--bg-card)",
                         padding: 10,
-                        border: "1px solid #e2e8f0",
+                        border: "1px solid var(--border-color, #e2e8f0)",
                         borderRadius: 6,
                       }}
                     >
                       <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>
                         {record?.patientName}
                       </div>
-                      <div style={{ fontSize: 12, color: "#64748b" }}>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
                         AGD: {payload[0]?.value} mGy
                       </div>
                       <div
@@ -199,7 +199,7 @@ export default function BreastDoseTracking() {
           background: "var(--bg-card)",
           borderRadius: 12,
           padding: 'var(--space-5, 20px)',
-          border: "1px solid #e2e8f0",
+          border: "1px solid var(--border-color, #e2e8f0)",
         }}
       >
         <div
@@ -221,15 +221,15 @@ export default function BreastDoseTracking() {
             showDensity={false}
             columns={[
               { title: "患者姓名", dataIndex: "patientName", key: "patientName", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{v}</span> },
-              { title: "年龄", dataIndex: "age", key: "age", align: "center", render: (v: number) => <span style={{ color: "#334155" }}>{v}</span> },
-              { title: "检查日期", dataIndex: "examDate", key: "examDate", align: "center", render: (v: string) => <span style={{ color: "#64748b" }}>{v}</span> },
+              { title: "年龄", dataIndex: "age", key: "age", align: "center", render: (v: number) => <span style={{ color: 'var(--text-primary, #334155)' }}>{v}</span> },
+              { title: "检查日期", dataIndex: "examDate", key: "examDate", align: "center", render: (v: string) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{v}</span> },
               {
                 title: "AGD(mGy)", dataIndex: "agd", key: "agd", align: "center",
                 render: (v: number, record: BreastDoseRecord) => (
                   <span style={{ fontWeight: 700, color: record.agd > 6 ? "var(--color-error-600)" : "var(--color-success-600)" }}>{v}</span>
                 ),
               },
-              { title: "参考值", dataIndex: "referenceValue", key: "referenceValue", align: "center", render: (v: number) => <span style={{ color: "#64748b" }}>{v}</span> },
+              { title: "参考值", dataIndex: "referenceValue", key: "referenceValue", align: "center", render: (v: number) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{v}</span> },
               {
                 title: "状态", dataIndex: "alertLevel", key: "alertLevel", align: "center",
                 render: (v: BreastDoseRecord["alertLevel"]) => {
@@ -261,7 +261,7 @@ export default function BreastDoseTracking() {
                     <span style={{ padding: "2px 8px", background: "#f0fdf4", color: "var(--color-success-600)", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>已完成</span>
                   ),
               },
-              { title: "设备", dataIndex: "device", key: "device", align: "center", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
+              { title: "设备", dataIndex: "device", key: "device", align: "center", render: (v: string) => <span style={{ color: 'var(--text-primary, #334155)' }}>{v}</span> },
             ]}
           />
         </div>
@@ -286,19 +286,19 @@ const KpiBox = ({
       background: "var(--bg-card)",
       borderRadius: 10,
       padding: "14px 16px",
-      border: "1px solid #e2e8f0",
+      border: "1px solid var(--border-color, #e2e8f0)",
       textAlign: "center",
     }}
   >
-    <div style={{ fontSize: 12, color: "#64748b" }}>{label}</div>
+    <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{label}</div>
     <div style={{ fontSize: 24, fontWeight: 800, color, marginTop: 'var(--space-1, 4px)' }}>{value}</div>
-    <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{suffix}</div>
+    <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>{suffix}</div>
   </div>
 );
 
 const Legend = ({ color, label }: { color: string; label: string }) => (
   <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
     <div style={{ width: 10, height: 10, borderRadius: 2, background: color }} />
-    <span style={{ fontSize: 12, color: "#64748b" }}>{label}</span>
+    <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{label}</span>
   </div>
 );

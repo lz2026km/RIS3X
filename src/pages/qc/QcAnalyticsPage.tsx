@@ -259,7 +259,7 @@ export default function QcAnalyticsPage() {
     { title: t('qcAnalytics.thDefect'), dataIndex: 'message', key: 'message', ellipsis: true, render: (v: string, r) => (
       <Space direction="vertical" size={2}>
         <span style={{ fontWeight: 500 }}>{v}</span>
-        <span style={{ color: '#94a3b8', fontSize: 12 }}>{r.reportId} · {r.id}</span>
+        <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{r.reportId} · {r.id}</span>
       </Space>
     ) },
     { title: t('qcAnalytics.thType'), dataIndex: 'typeLabel', key: 'typeLabel', width: 110, render: (v: string) => <Tag color="geekblue">{v}</Tag> },
@@ -279,7 +279,7 @@ export default function QcAnalyticsPage() {
     { title: t('qcAnalytics.thItem'), dataIndex: 'title', key: 'title', ellipsis: true, render: (v: string, r) => (
       <Space direction="vertical" size={2}>
         <span style={{ fontWeight: 500 }}>{v}</span>
-        <span style={{ color: '#94a3b8', fontSize: 12 }}>{r.reportId} · {r.id}</span>
+        <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{r.reportId} · {r.id}</span>
       </Space>
     ) },
     { title: t('qcAnalytics.thType'), dataIndex: 'typeLabel', key: 'typeLabel', width: 100, render: (v: string) => <Tag color="geekblue">{v}</Tag> },
@@ -391,7 +391,7 @@ export default function QcAnalyticsPage() {
             <Space size={8}>
               <TrendingUp size={16} color="var(--color-primary-500)" />
               <b>{t('qcAnalytics.trendTitle')}</b>
-              <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('qcAnalytics.trendSub')}</span>
+              <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{t('qcAnalytics.trendSub')}</span>
             </Space>
             <Segmented period={period} onChange={setPeriod} />
           </div>
@@ -417,7 +417,7 @@ export default function QcAnalyticsPage() {
             <Space size={8} style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <Bug size={16} color="var(--color-error-500)" />
               <b>{t('qcAnalytics.paretoTitle')}</b>
-              <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('qcAnalytics.paretoSub')}</span>
+              <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{t('qcAnalytics.paretoSub')}</span>
             </Space>
             <ChartContainer type="composed" height={300}>
               <ComposedChart data={paretoData} margin={chartDefaults.margin}>
@@ -439,7 +439,7 @@ export default function QcAnalyticsPage() {
             <Space size={8} style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <Target size={16} color="var(--color-primary-500)" />
               <b>{t('qcAnalytics.deptRankTitle')}</b>
-              <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('qcAnalytics.deptRankSub')}</span>
+              <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{t('qcAnalytics.deptRankSub')}</span>
             </Space>
             <DataTable<DepartmentRankItem>
               rowKey="department"
@@ -456,7 +456,7 @@ export default function QcAnalyticsPage() {
           <Space size={8} style={{ marginBottom: 'var(--space-3, 12px)' }}>
             <CheckCircle2 size={16} color="#10b981" />
             <b>{t('qcAnalytics.loopTitle')}</b>
-            <span style={{ color: '#94a3b8', fontSize: 12 }}>
+            <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>
               {t('qcAnalytics.loopSub', { open: loopStats?.openDefects ?? 0, days: loopStats?.avgDaysToClose ?? 0, rounds: loopStats?.avgRecheckRounds ?? 0 })}
             </span>
           </Space>
@@ -512,7 +512,7 @@ export default function QcAnalyticsPage() {
         {createDefect && (
           <div style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 8, padding: '10px 12px', fontSize: 12, marginBottom: 'var(--space-3, 12px)', color: '#7f1d1d' }}>
             <Space size={6}><Bug size={13} /> {createDefect.message}</Space>
-            <div style={{ color: '#94a3b8', fontSize: 12, marginTop: 'var(--space-1, 4px)' }}>{createDefect.reportId} · {createDefect.department} · {sourceLabel(createDefect.source)}</div>
+            <div style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12, marginTop: 'var(--space-1, 4px)' }}>{createDefect.reportId} · {createDefect.department} · {sourceLabel(createDefect.source)}</div>
           </div>
         )}
         <Form form={createForm} layout="vertical" preserve={false} initialValues={{ assigneeName: '王质控员' }}>
@@ -522,7 +522,7 @@ export default function QcAnalyticsPage() {
           <Form.Item name="assigneeName" label={t('qcAnalytics.fldAssignee')}>
             <Input placeholder={t('qcAnalytics.fldAssigneePlaceholder')} maxLength={20} />
           </Form.Item>
-          <div style={{ color: '#94a3b8', fontSize: 12 }}>{t('qcAnalytics.createHint')}</div>
+          <div style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{t('qcAnalytics.createHint')}</div>
         </Form>
       </Modal>
 
@@ -540,7 +540,7 @@ export default function QcAnalyticsPage() {
           <Form.Item name="note" label={t('qcAnalytics.fldFixNote')} rules={[{ required: true, message: t('qcAnalytics.fldFixNoteRequired') }]}>
             <Input.TextArea rows={4} placeholder={t('qcAnalytics.fldFixNotePlaceholder')} maxLength={300} />
           </Form.Item>
-          <div style={{ color: '#94a3b8', fontSize: 12 }}>{t('qcAnalytics.fixHint')}</div>
+          <div style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{t('qcAnalytics.fixHint')}</div>
         </Form>
       </Modal>
 
@@ -609,7 +609,7 @@ export default function QcAnalyticsPage() {
                 <Tag color={detail.source === 'qc-v2' ? 'cyan' : 'blue'}>{sourceLabel(detail.source)}</Tag>
                 <Tag color={LOOP_STATUS_META[detail.status]?.color}>{loopStatusLabel(detail.status)}</Tag>
               </Space>
-              <div style={{ marginTop: 10, color: '#475569', fontSize: 12, lineHeight: 1.8 }}>
+              <div style={{ marginTop: 10, color: 'var(--text-secondary, #475569)', fontSize: 12, lineHeight: 1.8 }}>
                 <div><b>{t('qcAnalytics.fldReport')}</b> {detail.reportId} · <b>{t('qcAnalytics.fldDept')}</b> {detail.department}</div>
                 <div><b>{t('qcAnalytics.fldOwner')}</b> {detail.assigneeName} · <b>{t('qcAnalytics.fldCreated')}</b> {fmtDate(detail.createdAt)}{detail.closedAt ? t('qcAnalytics.closedAt', { date: fmtDate(detail.closedAt) }) : ''}</div>
                 {detail.fixNote && <div><b>{t('qcAnalytics.fldFixNote2')}</b> {detail.fixNote}</div>}
@@ -628,9 +628,9 @@ export default function QcAnalyticsPage() {
                       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 'var(--space-2, 8px)' }}>
                         <div>
                           <div style={{ fontSize: 12 }}>{h.note}</div>
-                          <div style={{ color: '#94a3b8', fontSize: 11, marginTop: 2 }}>{h.actor}</div>
+                          <div style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 11, marginTop: 2 }}>{h.actor}</div>
                         </div>
-                        <span style={{ color: '#94a3b8', fontSize: 11, flexShrink: 0 }}>{fmtDate(h.at)}</span>
+                        <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 11, flexShrink: 0 }}>{fmtDate(h.at)}</span>
                       </div>
                     ),
                   }))}

@@ -515,7 +515,7 @@ export default function DeviceOpsCenterPage() {
         </Form>
       </Modal>
 
-      <div style={{ marginTop: 'var(--space-4, 16px)', fontSize: 12, color: '#94a3b8' }}>
+      <div style={{ marginTop: 'var(--space-4, 16px)', fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
         <Space><CheckCircle size={12} />{t('w11Device.subtitle')}</Space>
         <span style={{ marginLeft: 'var(--space-4, 16px)' }}><AlertTriangle size={12} /> {t('w11Device.wo.slaBreached')}: {workOrders.filter((w) => w.slaState === 'breached').length}</span>
       </div>

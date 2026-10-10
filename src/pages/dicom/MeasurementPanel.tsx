@@ -280,17 +280,17 @@ const s = {
   measureListItemLeft: { display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' } as React.CSSProperties,
   measureListItemDot: { width: 8, height: 8, borderRadius: '50%' } as React.CSSProperties,
   reportBtn: { padding: '6px 10px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', justifyContent: 'center' } as React.CSSProperties,
-  v2ToolBtn: { flex: 1, minWidth: 56, padding: '6px 2px', borderRadius: 6, border: '1px solid var(--border-default, rgba(0,0,0,0.12))', background: 'var(--bg-card, #ffffff)', color: '#475569', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 2 } as React.CSSProperties,
+  v2ToolBtn: { flex: 1, minWidth: 56, padding: '6px 2px', borderRadius: 6, border: '1px solid var(--border-default, rgba(0,0,0,0.12))', background: 'var(--bg-card, #ffffff)', color: 'var(--text-secondary, #475569)', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 2 } as React.CSSProperties,
   v2ToolBtnActive: { background: PRIMARY, borderColor: PRIMARY, color: '#fff' } as React.CSSProperties,
   canvas: { width: '100%', borderRadius: 8, border: '1px solid var(--border-color)', cursor: 'crosshair', display: 'block' } as React.CSSProperties,
   propRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '3px 0', borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))', fontSize: 12 } as React.CSSProperties,
   propLabel: { color: 'var(--text-muted, #94a3b8)' } as React.CSSProperties,
   propValue: { fontWeight: 700, color: 'var(--color-primary-800)' } as React.CSSProperties,
   badge: { fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 8, whiteSpace: 'nowrap' } as React.CSSProperties,
-  smallBtn: { padding: '3px 8px', borderRadius: 5, border: '1px solid var(--border-color)', background: 'var(--bg-card)', fontSize: 11, fontWeight: 600, cursor: 'pointer', color: '#475569', display: 'flex', alignItems: 'center', gap: 3 } as React.CSSProperties,
+  smallBtn: { padding: '3px 8px', borderRadius: 5, border: '1px solid var(--border-color)', background: 'var(--bg-card)', fontSize: 11, fontWeight: 600, cursor: 'pointer', color: 'var(--text-secondary, #475569)', display: 'flex', alignItems: 'center', gap: 3 } as React.CSSProperties,
   smallBtnPrimary: { background: PRIMARY, borderColor: PRIMARY, color: '#fff' } as React.CSSProperties,
   smallBtnDanger: { background: '#fee2e2', borderColor: '#fecaca', color: 'var(--color-error-600)' } as React.CSSProperties,
-  input: { flex: 1, padding: '4px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 12, fontFamily: 'inherit' } as React.CSSProperties,
+  input: { flex: 1, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color, #cbd5e1)', fontSize: 12, fontFamily: 'inherit' } as React.CSSProperties,
   versionItem: { display: 'flex', alignItems: 'center', gap: 6, padding: '4px 8px', background: 'var(--bg-primary)', borderRadius: 6, marginBottom: 'var(--space-1, 4px)', fontSize: 11 } as React.CSSProperties,
   annItem: { display: 'flex', alignItems: 'center', gap: 6, padding: '5px 8px', background: 'var(--bg-primary)', borderRadius: 6, marginBottom: 'var(--space-1, 4px)', border: '1px solid var(--border-color)', fontSize: 11 } as React.CSSProperties,
 }
@@ -795,7 +795,7 @@ export default function MeasurementPanel(props: Props) {
                 {v2Versions.map(v => (
                   <div key={v.version} style={s.versionItem}>
                     <span style={{ fontWeight: 700, color: PRIMARY, width: 26 }}>v{v.version}</span>
-                    <span style={{ flex: 1, color: '#475569' }}>{v.label || `${v.value}${v.unit}`}</span>
+                    <span style={{ flex: 1, color: 'var(--text-secondary, #475569)' }}>{v.label || `${v.value}${v.unit}`}</span>
                     <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{v.note}</span>
                     <button style={{ ...s.smallBtn, padding: '1px 6px' }} onClick={() => void rollbackV2(selectedV2.id, v.version)}><RotateCcw size={10} />{t('measPanel.rollback')}</button>
                   </div>
@@ -898,7 +898,7 @@ export default function MeasurementPanel(props: Props) {
             {annVersions.map(v => (
               <div key={v.version} style={s.versionItem}>
                 <span style={{ fontWeight: 700, color: PRIMARY, width: 26 }}>v{v.version}</span>
-                <span style={{ flex: 1, color: '#475569' }}>{v.text || t(ANN_TYPE_LABEL[v.type])}</span>
+                <span style={{ flex: 1, color: 'var(--text-secondary, #475569)' }}>{v.text || t(ANN_TYPE_LABEL[v.type])}</span>
                 <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{v.note}</span>
                 <button style={{ ...s.smallBtn, padding: '1px 6px' }} onClick={() => void rollbackAnnotation(annVersionsFor, v.version)}><RotateCcw size={10} />{t('measPanel.rollback')}</button>
               </div>
@@ -925,7 +925,7 @@ export default function MeasurementPanel(props: Props) {
           })).map(meta => (
             <div key={meta.type} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 0', borderBottom: '1px solid #f0fdfa', fontSize: 11 }}>
               <span style={{ fontWeight: 700, color: '#0f766e', width: 90 }}>{meta.label}</span>
-              <span style={{ color: '#475569', width: 56 }}>{meta.unit}</span>
+              <span style={{ color: 'var(--text-secondary, #475569)', width: 56 }}>{meta.unit}</span>
               <span style={{ color: 'var(--text-muted, #94a3b8)', width: 74 }}>{meta.fixedPoints > 0 ? t('measPanel.pointsFixed', { n: meta.fixedPoints }) : t('measPanel.pointsMin', { n: meta.minPoints })}</span>
               <span style={{ color: meta.deterministic ? 'var(--color-success-600)' : 'var(--color-warning-600)', width: 64 }}>{meta.deterministic ? t('measPanel.deterministic') : t('measPanel.approximate')}</span>
               <span style={{ color: 'var(--text-muted, #94a3b8)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{meta.formula}</span>
@@ -1064,7 +1064,7 @@ export default function MeasurementPanel(props: Props) {
       </div>
 
       <div style={{ display: 'flex', gap: 6, marginTop: 'var(--space-2, 8px)' }}>
-        <button style={{ ...s.reportBtn, background: '#f0f4f8', color: '#475569', flex: 1 }} onClick={clearAllMeasures}><Trash2 size={14} />{t('measPanel.clearAll')}</button>
+        <button style={{ ...s.reportBtn, background: '#f0f4f8', color: 'var(--text-secondary, #475569)', flex: 1 }} onClick={clearAllMeasures}><Trash2 size={14} />{t('measPanel.clearAll')}</button>
         <button style={{ ...s.reportBtn, background: 'var(--color-success-500)', color: '#fff', flex: 1 }} onClick={() => {
           const allMeasures = [...interactiveMeasures]
           const reportText = allMeasures.length > 0 ? allMeasures.map(m => `${m.label}: ${m.value}${m.unit}`).join('\n') : t('measPanel.noMeasureData')

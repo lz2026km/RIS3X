@@ -752,7 +752,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
                 <input type="number" value={escForm.timeoutMinutes} onChange={e => setEscForm({ ...escForm, timeoutMinutes: Number(e.target.value) })} min={5} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box',}} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('cvModals.escalateTarget')}</label>
+                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-1, 4px)' }}>{t('cvModals.escalateTarget')}</label>
                 <input value={escForm.escalateTo} onChange={e => setEscForm({ ...escForm, escalateTo: e.target.value })} placeholder={t('cvModals.inputEscalateTargetPlain')} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box',}} />
               </div>
               <div>

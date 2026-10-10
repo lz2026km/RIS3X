@@ -538,7 +538,7 @@ export const DicomDimsePage: React.FC = () => {
       children: (
         <Card size="small" title={t('dicomDimse.deviceListTitle')} extra={
           <Space>
-            <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('dicomDimse.autoPoll')}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('dicomDimse.autoPoll')}</span>
             <Switch size="small" checked={autoPoll} onChange={setAutoPoll} />
             <Button icon={<RefreshCw size={14} />} loading={pollRunning} onClick={() => void pollDevices()}>{t('dicomDimse.refreshStatus')}</Button>
             <Button icon={<Plus size={14} />} onClick={() => setDeviceModal(true)}>{t('dicomDimse.addDevice')}</Button>
@@ -598,7 +598,7 @@ export const DicomDimsePage: React.FC = () => {
           extra={
             <Space>
               <Button icon={<Upload />} type="primary" onClick={() => setStoreModal(true)}>{t('dicomDimse.selectDcmFiles')}</Button>
-              <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('dicomDimse.fileSelectHint')}</span>
+              <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('dicomDimse.fileSelectHint')}</span>
             </Space>
           }>
           <Alert title={t('dicomDimse.fileUploadAlert')} type="info" showIcon style={{ marginBottom: 'var(--space-3, 12px)' }} />
@@ -649,7 +649,7 @@ export const DicomDimsePage: React.FC = () => {
               <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
                 <div style={{ fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('dicomDimse.enableDicomTls')}</div>
                 <Switch checked={tlsConfig.enabled} onChange={(v) => setTlsConfig(prev => ({ ...prev, enabled: v }))} />
-                <span style={{ marginLeft: 'var(--space-2, 8px)', color: '#64748b', fontSize: 12 }}>{t('dicomDimse.tlsHint')}</span>
+                <span style={{ marginLeft: 'var(--space-2, 8px)', color: 'var(--text-muted, #64748b)', fontSize: 12 }}>{t('dicomDimse.tlsHint')}</span>
               </div>
               <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
                 <div style={{ fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('dicomDimse.tlsPort')}</div>
@@ -746,7 +746,7 @@ export const DicomDimsePage: React.FC = () => {
                 { title: t('dicomDimse.colTaskId'), dataIndex: 'id', key: 'id', width: 90, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
                 { title: t('dicomDimse.colStudyUid'), dataIndex: 'studyUid', key: 'studyUid', ellipsis: true, render: (v: string, r: TransferRecord) => <Space size={4}>{v}<Tag color={r.source === 'seed' ? 'orange' : 'blue'} style={{ fontSize: 10 }}>{r.source === 'seed' ? t('dicomDimse.sourceSeed') : t('dicomDimse.sourceQueue')}</Tag></Space> },
                 // [v3.0.6.11-96 Wave 2B (D)] C-STORE worklist 联动: 关联检查列
-                { title: t('dicomDimse.colRelatedExam'), key: 'exam', width: 150, render: (_: unknown, r: TransferRecord) => r.examId ? <Tag color="geekblue">{r.examId}{r.accessionNumber ? ` · ${r.accessionNumber}` : ''}</Tag> : <span style={{ color: '#94a3b8', fontSize: 12 }}>-</span> },
+                { title: t('dicomDimse.colRelatedExam'), key: 'exam', width: 150, render: (_: unknown, r: TransferRecord) => r.examId ? <Tag color="geekblue">{r.examId}{r.accessionNumber ? ` · ${r.accessionNumber}` : ''}</Tag> : <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>-</span> },
                 { title: t('dicomDimse.colDestAe'), dataIndex: 'targetAe', key: 'targetAe', width: 150, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
                 { title: t('dicomDimse.colPriority'), dataIndex: 'priority', key: 'priority', width: 80, render: (v: string) => <Tag color={TRANSFER_PRIORITY_COLOR[v] ?? 'default'}>{TRANSFER_PRIORITY_LABEL[v] ?? v}</Tag> },
                 { title: t('dicomDimse.colStatus'), dataIndex: 'status', key: 'status', width: 90, render: (v: string) => { const meta = TRANSFER_STATUS_META[v] ?? { color: 'default', label: v }; return <Tag color={meta.color}>{meta.label}</Tag> } },
@@ -841,7 +841,7 @@ export const DicomDimsePage: React.FC = () => {
           onChange={(e) => onSelectStoreFiles(e.target.files)}
         />
         {storeItems.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '32px 0', color: '#94a3b8', fontSize: 12 }}>
+          <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>
             {t('dicomDimse.storeEmptyHint')}
           </div>
         ) : (
@@ -850,10 +850,10 @@ export const DicomDimsePage: React.FC = () => {
               const tagColor = item.status === 'success' ? 'green' : item.status === 'fail' ? 'red' : item.status === 'uploading' ? 'processing' : 'default'
               const tagLabel = item.status === 'success' ? t('dicomDimse.statusDone') : item.status === 'fail' ? t('dicomDimse.statusFail') : item.status === 'uploading' ? t('dicomDimse.statusUploading') : t('dicomDimse.statusPending')
               return (
-                <div key={item.uid} style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: '10px 12px' }}>
+                <div key={item.uid} style={{ border: '1px solid var(--border-color, #e2e8f0)', borderRadius: 8, padding: '10px 12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 6 }}>
                     <span style={{ fontSize: 12, fontWeight: 600, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</span>
-                    <span style={{ fontSize: 11, color: '#94a3b8' }}>{(item.size / 1024).toFixed(1)} KB</span>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{(item.size / 1024).toFixed(1)} KB</span>
                     <Tag color={tagColor}>{tagLabel}</Tag>
                     {item.status === 'fail' && (
                       <Button size="small" icon={<RotateCcw size={12} />} disabled={storeBatchRunning}
@@ -868,7 +868,7 @@ export const DicomDimsePage: React.FC = () => {
                 </div>
               )
             })}
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#475569', marginTop: 'var(--space-1, 4px)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-secondary, #475569)', marginTop: 'var(--space-1, 4px)' }}>
               <span>{t('dicomDimse.totalProgress', { done: storeItems.filter(i => i.status === 'success').length, total: storeItems.length })}</span>
               <span style={{ fontWeight: 700, color: 'var(--color-primary-800)' }}>{storeOverallPercent}%</span>
             </div>

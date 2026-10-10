@@ -190,7 +190,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
                         <Tag color={INSIGHT_COLORS[item.type] ?? 'orange'}>{item.type}</Tag>
                         <div>
                           <div style={{ fontSize: 12 }}>{item.finding}</div>
-                          <div style={{ fontSize: 11, color: '#94a3b8' }}>{item.modality} · {(item.confidence * 100).toFixed(0)}%</div>
+                          <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{item.modality} · {(item.confidence * 100).toFixed(0)}%</div>
                         </div>
                         {item.actionable && <Badge status="error" />}
                       </Space>

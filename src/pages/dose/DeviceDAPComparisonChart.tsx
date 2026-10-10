@@ -49,7 +49,7 @@ export default function DeviceDAPComparisonChart() {
           style={{
             background: "var(--bg-card)",
             padding: 'var(--space-3, 12px)',
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border-color, #e2e8f0)",
             borderRadius: 8,
             boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
           }}
@@ -57,7 +57,7 @@ export default function DeviceDAPComparisonChart() {
           <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 'var(--space-2, 8px)' }}>
             {data.device}
           </div>
-          <div style={{ fontSize: 12, color: "#64748b" }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
             <div>
               今日: <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{data.DAP} {data.unit}</span>
             </div>
@@ -83,7 +83,7 @@ export default function DeviceDAPComparisonChart() {
         background: "var(--bg-card)",
         borderRadius: 12,
         padding: 'var(--space-5, 20px)',
-        border: "1px solid #e2e8f0",
+        border: "1px solid var(--border-color, #e2e8f0)",
       }}
     >
       <div
@@ -98,7 +98,7 @@ export default function DeviceDAPComparisonChart() {
           <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>
             设备剂量占法规阈值对比
           </div>
-          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>
             [P0] 混合单位(DLP mGy·cm / DAP mGy·m²)归一化为占阈值百分比, 口径一致可比
           </div>
         </div>
@@ -150,7 +150,7 @@ export default function DeviceDAPComparisonChart() {
         }}
       >
         <ShieldAlert size={14} color="var(--color-warning-600)" />
-        <span style={{ fontSize: 12, color: "#64748b" }}>
+        <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
           法规阈值: CT DLP {"<"} 1000mGy·cm | DR DAP {"<"} 300mGy·m² | DSA DAP{" "}
           {"<"} 3000mGy·m² | MG AGD {"<"} 6mGy
         </span>
@@ -162,6 +162,6 @@ export default function DeviceDAPComparisonChart() {
 const Legend = ({ color, label }: { color: string; label: string }) => (
   <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
     <div style={{ width: 10, height: 10, borderRadius: 2, background: color }} />
-    <span style={{ fontSize: 12, color: "#64748b" }}>{label}</span>
+    <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{label}</span>
   </div>
 );

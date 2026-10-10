@@ -111,7 +111,7 @@ const MllpMonitorPage: React.FC = () => {
             <Activity size={18} color="#7c3aed" />
             <div>
               <div style={{ fontSize: 16, fontWeight: 700 }}>{t('mllpMon.title')}</div>
-              <div style={{ fontSize: 12, color: '#64748b' }}>{t('mllpMon.subtitle')} · TCP {status?.port ?? 2575}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('mllpMon.subtitle')} · TCP {status?.port ?? 2575}</div>
             </div>
           </Space>
           <Space wrap>

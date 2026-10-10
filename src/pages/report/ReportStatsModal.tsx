@@ -145,7 +145,7 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
       {loadError && !loading && <ErrorBanner message={loadError} />}
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 'var(--space-12, 48px)' }}><Spin /> <span style={{ marginLeft: 10, color: '#94a3b8', fontSize: 12 }}>{t('reportStats.loading')}</span></div>
+        <div style={{ textAlign: 'center', padding: 'var(--space-12, 48px)' }}><Spin /> <span style={{ marginLeft: 10, color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{t('reportStats.loading')}</span></div>
       ) : section === 'overview' ? (
         <div>
           {overview ? (
@@ -157,7 +157,7 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
                   { label: t('reportStats.todayCompleted'), value: overview.todayCompleted, color: '#059669', icon: <Clock size={16} /> },
                   { label: t('reportStats.critical'), value: overview.criticalCount, color: 'var(--color-error-600)', icon: <Zap size={16} /> },
                 ].map((c) => (
-                  <div key={c.label} style={{ background: 'var(--bg-card, #fff)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: 10, padding: '12px 14px' }}>
+                  <div key={c.label} style={{ background: 'var(--bg-card, #fff)', border: '1px solid var(--border-color, var(--border-color, #e2e8f0))', borderRadius: 10, padding: '12px 14px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', color: c.color, fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{c.icon}{c.label}</div>
                     <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-primary, #0f172a)' }}>{c.value}</div>
                   </div>
@@ -168,10 +168,10 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
                   { label: t('reportStats.pending'), value: overview.pendingCount, color: '#7c3aed' },
                   { label: t('reportStats.overdue'), value: overview.overdueCount, color: '#ea580c' },
                   { label: t('reportStats.todaySigned'), value: overview.todaySigned, color: '#0e7490' },
-                  { label: t('reportStats.avgTurnaround'), value: `${overview.avgTurnaroundHours}h`, color: '#334155' },
+                  { label: t('reportStats.avgTurnaround'), value: `${overview.avgTurnaroundHours}h`, color: 'var(--text-primary, #334155)' },
                 ].map((c) => (
-                  <div key={c.label} style={{ background: 'var(--bg-card, #fff)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: 10, padding: '10px 14px' }}>
-                    <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{c.label}</div>
+                  <div key={c.label} style={{ background: 'var(--bg-card, #fff)', border: '1px solid var(--border-color, var(--border-color, #e2e8f0))', borderRadius: 10, padding: '10px 14px' }}>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{c.label}</div>
                     <div style={{ fontSize: 18, fontWeight: 700, color: c.color }}>{c.value}</div>
                   </div>
                 ))}
@@ -187,7 +187,7 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
                       <div style={{ flex: 1, height: 14, background: 'var(--bg-secondary, #f1f5f9)', borderRadius: 7, overflow: 'hidden' }}>
                         <div style={{ height: '100%', width: `${overview.total > 0 ? (count / overview.total) * 100 : 0}%`, background: 'linear-gradient(90deg, var(--color-primary-800), var(--color-primary-500))', borderRadius: 7 }} />
                       </div>
-                      <span style={{ width: 40, textAlign: 'right', fontSize: 12, fontWeight: 700, color: '#334155' }}>{count}</span>
+                      <span style={{ width: 40, textAlign: 'right', fontSize: 12, fontWeight: 700, color: 'var(--text-primary, #334155)' }}>{count}</span>
                     </div>
                   ))}
                 </div>
@@ -203,11 +203,11 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
             <Empty description={t('reportStats.noData')} />
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2, 8px)', padding: '0 4px', fontSize: 12, color: '#94a3b8', fontWeight: 600 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2, 8px)', padding: '0 4px', fontSize: 12, color: 'var(--text-muted, #94a3b8)', fontWeight: 600 }}>
                 <span>{t('reportStats.doctor')}</span><span>{t('reportStats.total')}</span><span>{t('reportStats.published')}</span><span>{t('reportStats.pending')}</span>
               </div>
               {doctors.map((d) => (
-                <div key={d.id} style={{ background: 'var(--bg-card, #fff)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: 10, padding: '10px 14px' }}>
+                <div key={d.id} style={{ background: 'var(--bg-card, #fff)', border: '1px solid var(--border-color, var(--border-color, #e2e8f0))', borderRadius: 10, padding: '10px 14px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2, 8px)', alignItems: 'center', marginBottom: 6 }}>
                     <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{d.name}</span>
                     <span style={{ fontSize: 14, fontWeight: 700 }}>{d.total}</span>
@@ -218,7 +218,7 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
                     <div style={{ flex: 1, height: 8, background: 'var(--bg-secondary, #f1f5f9)', borderRadius: 4, overflow: 'hidden' }}>
                       <div style={{ height: '100%', width: `${(d.total / maxDoctor) * 100}%`, background: 'linear-gradient(90deg, #7c3aed, #a78bfa)', borderRadius: 4 }} />
                     </div>
-                    <span style={{ fontSize: 11, color: '#94a3b8' }}>{t('reportStats.avgTurnaround')} {d.avgTurnaroundHours}h</span>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{t('reportStats.avgTurnaround')} {d.avgTurnaroundHours}h</span>
                   </div>
                 </div>
               ))}
@@ -231,7 +231,7 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
             <Empty description={t('reportStats.noData')} />
           ) : (
             <>
-              <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', alignItems: 'center', marginBottom: 10, fontSize: 12, color: '#64748b' }}>
+              <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', alignItems: 'center', marginBottom: 10, fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 10, height: 10, borderRadius: 2, background: 'var(--color-primary-800)', display: 'inline-block' }} />{t('reportStats.created')}</span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 10, height: 10, borderRadius: 2, background: '#059669', display: 'inline-block' }} />{t('reportStats.published')}</span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 10, height: 10, borderRadius: 2, background: '#7c3aed', display: 'inline-block' }} />{t('reportStats.signed')}</span>
@@ -244,7 +244,7 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
                       <div style={{ width: 6, height: `${(d.published / maxTrend) * 180}px`, background: '#059669', borderRadius: '2px 2px 0 0' }} title={`${d.date} 发布 ${d.published}`} />
                       <div style={{ width: 6, height: `${(d.signed / maxTrend) * 180}px`, background: '#7c3aed', borderRadius: '2px 2px 0 0' }} title={`${d.date} 签署 ${d.signed}`} />
                     </div>
-                    <span style={{ fontSize: 10, color: '#94a3b8', transform: 'rotate(-60deg)', whiteSpace: 'nowrap', position: 'absolute', bottom: 0 }}>{d.date.slice(5)}</span>
+                    <span style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)', transform: 'rotate(-60deg)', whiteSpace: 'nowrap', position: 'absolute', bottom: 0 }}>{d.date.slice(5)}</span>
                   </div>
                 ))}
               </div>

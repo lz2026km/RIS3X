@@ -111,7 +111,7 @@ const IheIntegrationPage: React.FC = () => {
           >
             {loading ? <Spin /> : domain ? (
               <Space direction="vertical" size={8} style={{ width: '100%' }}>
-                <div><Tag color="blue">{t('iheInt.name')}</Tag> {domain.name} {domain.nameEn ? <span style={{ color: '#64748b' }}>({domain.nameEn})</span> : null}</div>
+                <div><Tag color="blue">{t('iheInt.name')}</Tag> {domain.name} {domain.nameEn ? <span style={{ color: 'var(--text-muted, #64748b)' }}>({domain.nameEn})</span> : null}</div>
                 <div><Tag>{t('iheInt.homeCommunityId')}</Tag> <code style={{ background: 'var(--bg-card)', padding: '2px 6px', borderRadius: 4 }}>{domain.homeCommunityId}</code></div>
                 <div><Tag>{t('iheInt.assigningAuthority')}</Tag> <code style={{ background: 'var(--bg-card)', padding: '2px 6px', borderRadius: 4 }}>{domain.assigningAuthorityId}</code></div>
                 <Divider style={{ margin: '4px 0' }} />
@@ -159,7 +159,7 @@ const IheIntegrationPage: React.FC = () => {
                 columns={[
                   { title: t('iheInt.colTransaction'), dataIndex: 'transaction', render: (v: string) => <Tag color="blue">{v}</Tag> },
                   { title: t('iheInt.colStandard'), render: (_, r) => <Tag color="purple">{TRANSACTION_STANDARD[r.transaction as string] ?? 'HL7 v2.x'}</Tag> },
-                  { title: t('iheInt.colDescription'), render: (_, r) => <span style={{ fontSize: 12, color: '#64748b' }}>{txnDesc(r.transaction as string)}</span> },
+                  { title: t('iheInt.colDescription'), render: (_, r) => <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{txnDesc(r.transaction as string)}</span> },
                   { title: t('iheInt.colStatus'), render: () => <Tag color="green">{t('iheInt.enabled')}</Tag> },
                   { title: t('iheInt.colActions'), render: (_, r) => <Button size="small" onClick={() => setDetailTxn(r.transaction as string)}>{t('iheInt.viewDetail')}</Button> },
                 ]}

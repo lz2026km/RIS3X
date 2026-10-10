@@ -122,7 +122,7 @@ const VR_SIZES = [
 const btnStyle: React.CSSProperties = {
   background: "transparent",
   border: "1px solid #334155",
-  color: "#94a3b8",
+  color: 'var(--text-muted, #94a3b8)',
   borderRadius: 4,
   padding: "4px 8px",
   fontSize: 11,
@@ -542,18 +542,18 @@ const VolumeStudioPage: React.FC = () => {
       children: (
         <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)', height: "100%" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>{t("vsPosition", "定位点")}</span>
-            <span style={{ fontSize: 11, color: "#64748b" }}>X</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t("vsPosition", "定位点")}</span>
+            <span style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>X</span>
             <Slider min={0} max={Math.max(1, maxPos.x - 1)} value={position.x} onChange={(v) => setPosition((p) => ({ ...p, x: v }))} style={{ width: 130 }} />
-            <span style={{ fontSize: 11, color: "#64748b" }}>Y</span>
+            <span style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>Y</span>
             <Slider min={0} max={Math.max(1, maxPos.y - 1)} value={position.y} onChange={(v) => setPosition((p) => ({ ...p, y: v }))} style={{ width: 130 }} />
-            <span style={{ fontSize: 11, color: "#64748b" }}>Z</span>
+            <span style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>Z</span>
             <Slider min={0} max={Math.max(1, maxPos.z - 1)} value={position.z} onChange={(v) => setPosition((p) => ({ ...p, z: v }))} style={{ width: 130 }} />
-            <span style={{ fontSize: 11, color: "#94a3b8" }}>{(mprResult?.position.x ?? 0)}, {(mprResult?.position.y ?? 0)}, {(mprResult?.position.z ?? 0)}</span>
+            <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{(mprResult?.position.x ?? 0)}, {(mprResult?.position.y ?? 0)}, {(mprResult?.position.z ?? 0)}</span>
             <div style={{ width: 1, height: 20, background: "#334155" }} />
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>WW</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>WW</span>
             <Slider min={1} max={4000} value={ww} onChange={setWw} style={{ width: 110 }} />
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>WL</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>WL</span>
             <Slider min={-1000} max={3000} value={wl} onChange={setWl} style={{ width: 110 }} />
             <Tag color="blue" icon={<Crosshair size={10} />}>{t("vsCrosshairHint", "点击画布十字线联动")}</Tag>
             {mprLoading && <Spin size="small" />}
@@ -566,7 +566,7 @@ const VolumeStudioPage: React.FC = () => {
                   style={{ width: "100%", height: "100%", imageRendering: "pixelated", cursor: "crosshair" }}
                   onClick={handleMprClick(plane)}
                 />
-                <span style={{ position: "absolute", top: 6, left: 8, fontSize: 10, color: "#64748b", background: "rgba(2,6,23,0.7)", padding: "2px 6px", borderRadius: 4 }}>
+                <span style={{ position: "absolute", top: 6, left: 8, fontSize: 10, color: 'var(--text-muted, #64748b)', background: "rgba(2,6,23,0.7)", padding: "2px 6px", borderRadius: 4 }}>
                   {plane === "axial" ? "A 轴向" : plane === "coronal" ? "C 冠状" : "S 矢状"} #{mprResult?.planes.find((p) => p.plane === plane)?.sliceIndex ?? "-"}
                 </span>
               </div>
@@ -581,18 +581,18 @@ const VolumeStudioPage: React.FC = () => {
       children: (
         <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)', height: "100%" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>{t("vsPreset", "传输函数")}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t("vsPreset", "传输函数")}</span>
             {VR_PRESETS.map((p) => (
               <button key={p.key} style={preset === p.key ? activeBtnStyle : btnStyle} onClick={() => setPreset(p.key)}>
                 {t(p.labelKey)}
               </button>
             ))}
             <div style={{ width: 1, height: 20, background: "#334155" }} />
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>{t("vsYaw", "Yaw")}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t("vsYaw", "Yaw")}</span>
             <Slider min={-180} max={180} value={yaw} onChange={setYaw} style={{ width: 130 }} />
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>{t("vsPitch", "Pitch")}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t("vsPitch", "Pitch")}</span>
             <Slider min={-180} max={180} value={pitch} onChange={setPitch} style={{ width: 130 }} />
-            <span style={{ fontSize: 11, color: "#94a3b8" }}>{t("vsQuality", "质量")}</span>
+            <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{t("vsQuality", "质量")}</span>
             {VR_SIZES.map((s) => (
               <button key={s.value} style={vrSize === s.value ? activeBtnStyle : btnStyle} onClick={() => setVrSize(s.value)}>
                 {t(s.labelKey)}
@@ -622,9 +622,9 @@ const VolumeStudioPage: React.FC = () => {
       children: (
         <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)', height: "100%" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>{t("vsSlice", "路径层位 Z")}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t("vsSlice", "路径层位 Z")}</span>
             <Slider min={0} max={Math.max(1, maxPos.z - 1)} value={cprSliceZ} onChange={(v) => { setCprSliceZ(v); setCprResult(null); }} style={{ width: 160 }} />
-            <span style={{ fontSize: 11, color: "#94a3b8" }}>{cprSliceZ}</span>
+            <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{cprSliceZ}</span>
             <Button size="small" onClick={() => setCprPoints([])} icon={<RotateCcw size={12} />}>{t("vsClearPath", "清空路径")}</Button>
             <Button size="small" type="primary" loading={cprLoading} onClick={rebuildCpr} icon={<Route size={12} />}>{t("vsRebuild", "重建拉直图")}</Button>
             {cprResult && (
@@ -632,7 +632,7 @@ const VolumeStudioPage: React.FC = () => {
                 {t("vsPathLength", "路径长度")}: {cprResult.totalLengthMm}mm · {t("vsSamples", "采样")}: {cprResult.sampleCount}
               </Tag>
             )}
-            <span style={{ fontSize: 11, color: "#64748b" }}>{t("vsCprHint", "点击画布添加路径点, 拖动移动")}</span>
+            <span style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>{t("vsCprHint", "点击画布添加路径点, 拖动移动")}</span>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-2, 8px)', flex: 1, minHeight: 0 }}>
             <div style={{ background: CARD_BG, borderRadius: 6, border: "1px solid #1e293b", overflow: "hidden", position: "relative" }}>
@@ -644,13 +644,13 @@ const VolumeStudioPage: React.FC = () => {
                 onMouseUp={handleCprUp}
                 onMouseLeave={handleCprUp}
               />
-              <span style={{ position: "absolute", top: 24, left: 8, fontSize: 10, color: "#64748b", background: "rgba(2,6,23,0.7)", padding: "2px 6px", borderRadius: 4 }}>
+              <span style={{ position: "absolute", top: 24, left: 8, fontSize: 10, color: 'var(--text-muted, #64748b)', background: "rgba(2,6,23,0.7)", padding: "2px 6px", borderRadius: 4 }}>
                 {t("vsCprAxial", "轴向定位图")}
               </span>
             </div>
             <div style={{ background: CARD_BG, borderRadius: 6, border: "1px solid #1e293b", overflow: "hidden", position: "relative" }}>
               <canvas ref={cprStraightRef} style={{ width: "100%", height: "100%", imageRendering: "pixelated" }} />
-              <span style={{ position: "absolute", top: 24, left: 8, fontSize: 10, color: "#64748b", background: "rgba(2,6,23,0.7)", padding: "2px 6px", borderRadius: 4 }}>
+              <span style={{ position: "absolute", top: 24, left: 8, fontSize: 10, color: 'var(--text-muted, #64748b)', background: "rgba(2,6,23,0.7)", padding: "2px 6px", borderRadius: 4 }}>
                 {t("vsCprStraight", "拉直图")}
               </span>
             </div>
@@ -664,14 +664,14 @@ const VolumeStudioPage: React.FC = () => {
       children: (
         <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)', height: "100%" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>{t("vsNormal", "法向量")}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t("vsNormal", "法向量")}</span>
             <InputNumber size="small" value={cutNormal.x} onChange={(v) => setCutNormal((n) => ({ ...n, x: v ?? 0 }))} style={numInputStyle} />
             <InputNumber size="small" value={cutNormal.y} onChange={(v) => setCutNormal((n) => ({ ...n, y: v ?? 0 }))} style={numInputStyle} />
             <InputNumber size="small" value={cutNormal.z} onChange={(v) => setCutNormal((n) => ({ ...n, z: v ?? 0 }))} style={numInputStyle} />
             <div style={{ width: 1, height: 20, background: "#334155" }} />
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>{t("vsOffset", "偏移")}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t("vsOffset", "偏移")}</span>
             <Slider min={-128} max={128} value={cutOffset} onChange={setCutOffset} style={{ width: 160 }} />
-            <span style={{ fontSize: 11, color: "#94a3b8" }}>{cutOffset}</span>
+            <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{cutOffset}</span>
             <Button size="small" type="primary" loading={cutLoading} onClick={applyCut} icon={<Scissors size={12} />}>{t("vsApplyCut", "应用切割")}</Button>
             {cutResult && (
               <Tag color="purple">
@@ -695,7 +695,7 @@ const VolumeStudioPage: React.FC = () => {
         <Tag color="cyan">MPR V2</Tag>
         {mode === "real" && <Tag color="green">{t("vsReal", "真实DICOM")}</Tag>}
         {mode === "synthetic" && <Tag>{t("vsSynthetic", "合成数据")}</Tag>}
-        {seriesInfo && <span style={{ fontSize: 11, color: "#64748b" }}>{seriesInfo}</span>}
+        {seriesInfo && <span style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>{seriesInfo}</span>}
       </div>
       <div style={{ flex: 1, minHeight: 0 }}>
         <Tabs

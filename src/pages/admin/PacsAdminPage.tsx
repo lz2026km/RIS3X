@@ -264,7 +264,7 @@ const PacsAdminPage: React.FC = () => {
     { title: t('pacsAdmin.port'), dataIndex: 'port', key: 'port', width: 80 },
     { title: t('pacsAdmin.aeTitle'), dataIndex: 'aeTitle', key: 'ae', width: 130, render: (v: string) => <Tag color="blue">{v}</Tag> },
     { title: t('pacsAdmin.status'), dataIndex: 'status', key: 'status', width: 100, render: (v: string) => <Tag color={v === 'online' ? 'green' : v === 'error' ? 'red' : 'default'} icon={v === 'online' ? <Wifi size={12} /> : <WifiOff size={12} />}>{v === 'online' ? t('pacsAdmin.online') : v === 'error' ? t('pacsAdmin.fault') : t('pacsAdmin.offline')}</Tag> },
-    { title: t('pacsAdmin.heartbeat'), dataIndex: 'lastHeartbeat', key: 'heartbeat', width: 170, render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
+    { title: t('pacsAdmin.heartbeat'), dataIndex: 'lastHeartbeat', key: 'heartbeat', width: 170, render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
     { title: t('pacsAdmin.studyCount'), dataIndex: 'studyCount', key: 'studies', width: 100, render: (v: number) => v?.toLocaleString() },
     { title: t('pacsAdmin.storage'), dataIndex: 'storageBytes', key: 'storage', width: 100, render: (v: number) => formatBytes(v ?? 0) },
     {
@@ -289,7 +289,7 @@ const PacsAdminPage: React.FC = () => {
     { title: t('pacsAdmin.status'), dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'connected' ? 'green' : v === 'failed' ? 'red' : 'default'}>{v === 'connected' ? t('pacsAdmin.connected') : v === 'failed' ? t('pacsAdmin.failed') : t('pacsAdmin.disconnected')}</Tag> },
     { title: t('pacsAdmin.requestCount'), dataIndex: 'requestCount', key: 'req', render: (v: number) => v?.toLocaleString() },
     { title: t('pacsAdmin.errorCount'), dataIndex: 'errorCount', key: 'err', render: (v: number) => <span style={{ color: (v ?? 0) > 20 ? '#ff4d4f' : '#52c41a' }}>{v ?? 0}</span> },
-    { title: t('pacsAdmin.lastActivity'), dataIndex: 'lastActivity', key: 'last', render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
+    { title: t('pacsAdmin.lastActivity'), dataIndex: 'lastActivity', key: 'last', render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
   ]
 
   // [G005 Wave1A P0-1] 节点 / 工作列表 / 归档 / 日志 / 配置 / 路由 列定义
@@ -301,7 +301,7 @@ const PacsAdminPage: React.FC = () => {
     { title: t('pacsAdmin.location'), dataIndex: 'location', key: 'location', render: (v: string) => <span style={{ fontSize: 12 }}>{v || '-'}</span> },
     { title: t('pacsAdmin.status'), dataIndex: 'status', key: 'status', width: 100, render: (v: string) => <Tag color={v === 'online' ? 'green' : v === 'error' ? 'red' : 'default'} icon={v === 'online' ? <Wifi size={12} /> : <WifiOff size={12} />}>{v === 'online' ? t('pacsAdmin.online') : v === 'error' ? t('pacsAdmin.fault') : t('pacsAdmin.offline')}</Tag> },
     { title: t('pacsAdmin.studyCount'), dataIndex: 'studyCount', key: 'studies', width: 90, render: (v: number) => v?.toLocaleString() },
-    { title: t('pacsAdmin.heartbeat'), dataIndex: 'lastHeartbeat', key: 'heartbeat', width: 170, render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
+    { title: t('pacsAdmin.heartbeat'), dataIndex: 'lastHeartbeat', key: 'heartbeat', width: 170, render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
     {
       title: t('pacsAdmin.actions'), key: 'ops', width: 150,
       render: (_: unknown, r: PacsNode) => (
@@ -316,11 +316,11 @@ const PacsAdminPage: React.FC = () => {
   const worklistColumns = [
     { title: t('pacsAdmin.accessionNumber'), dataIndex: 'accessionNumber', key: 'acc', render: (v: string) => <Typography.Text style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</Typography.Text> },
     { title: t('pacsAdmin.patient'), dataIndex: 'patientName', key: 'patient', render: (v: string) => <b>{v}</b> },
-    { title: t('pacsAdmin.patientId'), dataIndex: 'patientId', key: 'pid', render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v}</span> },
+    { title: t('pacsAdmin.patientId'), dataIndex: 'patientId', key: 'pid', render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{v}</span> },
     { title: t('pacsAdmin.modality'), dataIndex: 'modality', key: 'modality', width: 70, render: (v: string) => <Tag color="purple">{v}</Tag> },
     { title: t('pacsAdmin.bodyPart'), dataIndex: 'bodyPart', key: 'bodyPart', render: (v: string) => v || '-' },
     { title: t('pacsAdmin.status'), dataIndex: 'state', key: 'state', width: 120, render: (v: string) => <Tag color={v === 'COMPLETED' ? 'green' : v === 'IN_PROGRESS' ? 'blue' : 'orange'}>{displayExamStatus(v)}</Tag> },
-    { title: t('pacsAdmin.scheduledAt'), dataIndex: 'scheduledAt', key: 'scheduledAt', width: 170, render: (v?: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
+    { title: t('pacsAdmin.scheduledAt'), dataIndex: 'scheduledAt', key: 'scheduledAt', width: 170, render: (v?: string) => <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
   ]
 
   const archiveColumns = [
@@ -330,11 +330,11 @@ const PacsAdminPage: React.FC = () => {
     { title: t('pacsAdmin.modality'), dataIndex: 'modality', key: 'modality', width: 70, render: (v: string) => <Tag color="purple">{v}</Tag> },
     { title: t('pacsAdmin.size'), dataIndex: 'sizeBytes', key: 'size', render: (v: number) => formatBytes(v ?? 0) },
     { title: t('pacsAdmin.status'), dataIndex: 'status', key: 'status', width: 100, render: (v: string) => <Tag color={v === 'archived' ? 'green' : v === 'restoring' ? 'orange' : 'blue'}>{v === 'archived' ? t('pacsAdmin.archived') : v === 'restoring' ? t('pacsAdmin.restoring') : t('pacsAdmin.restored')}</Tag> },
-    { title: t('pacsAdmin.archivedAt'), dataIndex: 'archivedAt', key: 'time', width: 170, render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
+    { title: t('pacsAdmin.archivedAt'), dataIndex: 'archivedAt', key: 'time', width: 170, render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
   ]
 
   const logColumns = [
-    { title: t('pacsAdmin.time'), dataIndex: 'time', key: 'time', width: 170, render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
+    { title: t('pacsAdmin.time'), dataIndex: 'time', key: 'time', width: 170, render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
     { title: t('pacsAdmin.level'), dataIndex: 'level', key: 'level', width: 80, render: (v: string) => <Tag color={v === 'ERROR' ? 'red' : v === 'WARN' ? 'orange' : 'green'}>{v}</Tag> },
     { title: t('pacsAdmin.source'), dataIndex: 'source', key: 'source', width: 110, render: (v: string) => <Tag color="blue">{v}</Tag> },
     { title: t('pacsAdmin.message'), dataIndex: 'message', key: 'message', render: (v: string) => <span style={{ fontSize: 12 }}>{v}</span> },
@@ -417,7 +417,7 @@ const PacsAdminPage: React.FC = () => {
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-1, 4px)' }}>
                             <Space><HardDrive size={14} color="#13c2c2" /><b>{g.name}</b><Typography.Text code style={{ fontSize: 12 }}>{g.path}</Typography.Text></Space>
                             <Space>
-                              <span style={{ fontSize: 12, color: '#64748b' }}>{formatBytes(g.usedBytes)} / {formatBytes(g.totalBytes)} · {g.studyCount?.toLocaleString()} {t('pacsAdmin.studiesUnit')} · <Tag color={g.status === 'active' ? 'green' : g.status === 'readonly' ? 'orange' : 'default'}>{g.status === 'active' ? t('pacsAdmin.active') : g.status === 'readonly' ? t('pacsAdmin.readonly') : t('pacsAdmin.offline')}</Tag></span>
+                              <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{formatBytes(g.usedBytes)} / {formatBytes(g.totalBytes)} · {g.studyCount?.toLocaleString()} {t('pacsAdmin.studiesUnit')} · <Tag color={g.status === 'active' ? 'green' : g.status === 'readonly' ? 'orange' : 'default'}>{g.status === 'active' ? t('pacsAdmin.active') : g.status === 'readonly' ? t('pacsAdmin.readonly') : t('pacsAdmin.offline')}</Tag></span>
                               <Popconfirm title={t('pacsAdmin.confirmDeleteStorage')} onConfirm={() => void handleDeleteStorageGroup(g.id)}>
                                 <Button size="small" danger icon={<Trash2 size={12} />} loading={deletingStorageId === g.id} />
                               </Popconfirm>

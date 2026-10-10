@@ -413,7 +413,7 @@ export default function CriticalValuePage() {
           <Title level={4} style={{ margin: 0 }}>{t("criticalValuePage.title")}</Title>
           <span style={{ fontSize: 12, color: '#fff', background: 'linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-primary-500) 100%)', padding: '3px 10px', borderRadius: 10, fontWeight: 600 }}>{t("criticalValuePage.versionBadge")}</span>
         </div>
-        <p style={{ fontSize: 12, color: '#64748b', margin: 0, paddingLeft: 'var(--space-8, 32px)' }}>{t("criticalValuePage.subtitle")}</p>
+        <p style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', margin: 0, paddingLeft: 'var(--space-8, 32px)' }}>{t("criticalValuePage.subtitle")}</p>
       </div>
 
       {/* [v3.0.6.11-105 Wave 2C] 国标指标联动: RQI-RCV-04 危急值 10min 通报完成率 */}

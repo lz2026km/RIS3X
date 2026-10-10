@@ -33,12 +33,12 @@ export default function ForbiddenPage() {
         <Title level={4} style={{ margin: '0 0 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-2, 8px)' }}>
           <ShieldX size={20} color="#f87171" />{t('w8.forbidden.title')}
         </Title>
-        <p style={{ marginTop: 'var(--space-2, 8px)', marginBottom: 6, fontSize: 12, color: '#94a3b8', lineHeight: 1.7 }}>
+        <p style={{ marginTop: 'var(--space-2, 8px)', marginBottom: 6, fontSize: 12, color: 'var(--text-muted, #94a3b8)', lineHeight: 1.7 }}>
           {user
             ? t('w8.forbidden.hintLogged', { name: user.name, role: user.role })
             : t('w8.forbidden.hintGuest')}
         </p>
-        <p style={{ margin: '0 0 24px', fontSize: 12, color: '#64748b', lineHeight: 1.6 }}>
+        <p style={{ margin: '0 0 24px', fontSize: 12, color: 'var(--text-muted, #64748b)', lineHeight: 1.6 }}>
           {t('w8.forbidden.needPermission')}
         </p>
         <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', justifyContent: 'center' }}>

@@ -241,15 +241,15 @@ const SmartRoutePage: React.FC = () => {
                     style={{ borderColor: rec.qualified ? '#93c5fd' : '#e2e8f0', height: '100%' }}
                   >
                     <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
-                      <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('smartRoute.matchScore')} <b style={{ color: 'var(--color-primary-800)' }}>{Math.round(rec.matchScore * 100)}%</b></div>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-1, 4px)' }}>{t('smartRoute.matchScore')} <b style={{ color: 'var(--color-primary-800)' }}>{Math.round(rec.matchScore * 100)}%</b></div>
                       <Progress percent={Math.round(rec.matchScore * 100)} showInfo={false} size="small" strokeColor={rec.matchScore >= 1 ? 'var(--color-success-600)' : rec.matchScore >= 0.5 ? 'var(--color-warning-600)' : '#94a3b8'} />
                     </div>
                     <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
-                      <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{t('smartRoute.currentLoad')} <b style={{ color: 'var(--color-primary-800)' }}>{rec.currentLoad}/{rec.maxLoad}</b></div>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-1, 4px)' }}>{t('smartRoute.currentLoad')} <b style={{ color: 'var(--color-primary-800)' }}>{rec.currentLoad}/{rec.maxLoad}</b></div>
                       <Progress percent={Math.min(100, Math.round((rec.currentLoad / Math.max(1, rec.maxLoad)) * 100))} showInfo={false} size="small" strokeColor={rec.currentLoad < rec.maxLoad ? 'var(--color-primary-600)' : 'var(--color-error-600)'} />
                     </div>
-                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>{t('smartRoute.accuracy')} <b style={{ color: 'var(--color-success-600)' }}>{t('smartRoute.accuracyScore', { score: Math.round(rec.accuracy * 100) })}</b></div>
-                    <ul style={{ margin: '0 0 12px', paddingLeft: 'var(--space-4, 16px)', fontSize: 12, color: '#64748b', lineHeight: 1.8 }}>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-2, 8px)' }}>{t('smartRoute.accuracy')} <b style={{ color: 'var(--color-success-600)' }}>{t('smartRoute.accuracyScore', { score: Math.round(rec.accuracy * 100) })}</b></div>
+                    <ul style={{ margin: '0 0 12px', paddingLeft: 'var(--space-4, 16px)', fontSize: 12, color: 'var(--text-muted, #64748b)', lineHeight: 1.8 }}>
                       {rec.reasons.map((r, i) => <li key={i}>{r}</li>)}
                     </ul>
                     <Button type="primary" block size="small" icon={<Zap size={13} />} disabled={!rec.qualified} loading={assigningId === rec.doctorId} onClick={() => handleAssign(rec.doctorId)}>{t('smartRoute.oneClickAssign')}</Button>
@@ -257,7 +257,7 @@ const SmartRoutePage: React.FC = () => {
                 </Col>
               ))}
               {recommendations.length === 0 && !recommending && (
-                <Col span={24}><div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: '#94a3b8' }}>{t('smartRoute.emptyRecommend')}</div></Col>
+                <Col span={24}><div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: 'var(--text-muted, #94a3b8)' }}>{t('smartRoute.emptyRecommend')}</div></Col>
               )}
             </Row>
           </Card>

@@ -92,11 +92,11 @@ export default function StaffDoseMonitoring() {
         }}
       >
         <div style={kpiBox}>
-          <div style={{ fontSize: 12, color: "#64748b" }}>监测人数</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>监测人数</div>
           <div style={kpiVal("var(--color-primary-800)")}>{records.length}</div>
         </div>
         <div style={kpiBox}>
-          <div style={{ fontSize: 12, color: "#64748b" }}>最高年剂量</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>最高年剂量</div>
           <div
             style={kpiVal(
               Math.max(...records.map((s: StaffDoseRecord) => s.annualDose)) >
@@ -107,10 +107,10 @@ export default function StaffDoseMonitoring() {
           >
             {Math.max(...records.map((s: StaffDoseRecord) => s.annualDose))}
           </div>
-          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>mSv</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>mSv</div>
         </div>
         <div style={kpiBox}>
-          <div style={{ fontSize: 12, color: "#64748b" }}>平均合规率</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>平均合规率</div>
           <div style={kpiVal("var(--color-success-600)")}>
             {Math.round(
               records.reduce(
@@ -122,7 +122,7 @@ export default function StaffDoseMonitoring() {
           </div>
         </div>
         <div style={kpiBox}>
-          <div style={{ fontSize: 12, color: "#64748b" }}>高风险人员</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>高风险人员</div>
           <div
             style={kpiVal(
               records.filter(
@@ -144,7 +144,7 @@ export default function StaffDoseMonitoring() {
           background: "var(--bg-card)",
           borderRadius: 12,
           padding: 'var(--space-5, 20px)',
-          border: "1px solid #e2e8f0",
+          border: "1px solid var(--border-color, #e2e8f0)",
         }}
       >
         <div
@@ -192,7 +192,7 @@ export default function StaffDoseMonitoring() {
           background: "var(--bg-card)",
           borderRadius: 12,
           padding: 'var(--space-5, 20px)',
-          border: "1px solid #e2e8f0",
+          border: "1px solid var(--border-color, #e2e8f0)",
         }}
       >
         <div
@@ -214,14 +214,14 @@ export default function StaffDoseMonitoring() {
             showDensity={false}
             columns={[
               { title: "姓名", dataIndex: "staffName", key: "staffName", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{v}</span> },
-              { title: "科室", dataIndex: "department", key: "department", align: "center", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
-              { title: "岗位", dataIndex: "role", key: "role", align: "center", render: (v: string) => <span style={{ color: "#64748b" }}>{v}</span> },
+              { title: "科室", dataIndex: "department", key: "department", align: "center", render: (v: string) => <span style={{ color: 'var(--text-primary, #334155)' }}>{v}</span> },
+              { title: "岗位", dataIndex: "role", key: "role", align: "center", render: (v: string) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{v}</span> },
               { title: "本月剂量(mSv)", dataIndex: "monthlyDose", key: "monthlyDose", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "var(--color-primary-800)" }}>{v}</span> },
               {
                 title: "年累计(mSv)", dataIndex: "annualDose", key: "annualDose", align: "center",
                 render: (v: number) => <span style={{ color: v > 15 ? "var(--color-error-600)" : "#334155", fontWeight: 600 }}>{v}</span>,
               },
-              { title: "年限值(mSv)", dataIndex: "annualLimit", key: "annualLimit", align: "center", render: (v: number) => <span style={{ color: "#64748b" }}>{v}</span> },
+              { title: "年限值(mSv)", dataIndex: "annualLimit", key: "annualLimit", align: "center", render: (v: number) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{v}</span> },
               {
                 title: "合规率", dataIndex: "complianceRate", key: "complianceRate", align: "center",
                 render: (v: number) => {
@@ -258,7 +258,7 @@ const kpiBox: React.CSSProperties = {
   background: "var(--bg-card)",
   borderRadius: 10,
   padding: "14px 16px",
-  border: "1px solid #e2e8f0",
+  border: "1px solid var(--border-color, #e2e8f0)",
   textAlign: "center",
 };
 

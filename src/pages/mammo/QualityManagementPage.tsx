@@ -199,7 +199,7 @@ const QualityManagementPage = () => {
   const ruleColumns = useMemo<TableColumnsType<BreastQcRule>>(() => [
     { title: t('mammoQc.colRule'), key: 'rule', render: (_v, r) => <span style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{r.id} {r.name}</span> },
     { title: t('mammoQc.colCategory'), dataIndex: 'category', key: 'category', render: (v: string) => <span style={{ padding: '2px 8px', borderRadius: 10, background: v === '剂量' ? '#fef3c7' : v === '投照质量' ? '#dbeafe' : '#dcfce7', color: v === '剂量' ? '#b45309' : v === '投照质量' ? 'var(--color-primary-700)' : '#15803d', fontSize: 11, fontWeight: 600 }}>{v}</span> },
-    { title: t('mammoQc.colLevel'), dataIndex: 'level', key: 'level', render: (v: string) => v === 'required' ? <span style={{ color: 'var(--color-error-600)', fontWeight: 600 }}>{t('mammoQc.required')}</span> : <span style={{ color: '#64748b' }}>{t('mammoQc.suggested')}</span> },
+    { title: t('mammoQc.colLevel'), dataIndex: 'level', key: 'level', render: (v: string) => v === 'required' ? <span style={{ color: 'var(--color-error-600)', fontWeight: 600 }}>{t('mammoQc.required')}</span> : <span style={{ color: 'var(--text-muted, #64748b)' }}>{t('mammoQc.suggested')}</span> },
     { title: t('mammoQc.colRequirement'), dataIndex: 'description', key: 'description' },
   ], [])
 

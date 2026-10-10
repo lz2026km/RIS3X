@@ -57,7 +57,7 @@ const mockDualRead: DualReadAssignment[] = [
 ];
 
 const DUAL_STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  pending: { label: 'breastSpecialty.dualPending', color: '#64748b' },
+  pending: { label: 'breastSpecialty.dualPending', color: 'var(--text-muted, #64748b)' },
   reader1_done: { label: 'breastSpecialty.dualReader1Done', color: '#ca8a04' },
   reader2_done: { label: 'breastSpecialty.dualReader2Done', color: '#ca8a04' },
   both_done: { label: 'breastSpecialty.dualBothDone', color: '#ea580c' },
@@ -393,7 +393,7 @@ const BreastSpecialtyPage = () => {
     {
       title: t('breastSpecialty.colStatus'), key: 'status',
       render: (_v: unknown, a: DualReadAssignment) => {
-        const st = DUAL_STATUS_LABELS[a.status] ?? { label: a.status, color: '#64748b' };
+        const st = DUAL_STATUS_LABELS[a.status] ?? { label: a.status, color: 'var(--text-muted, #64748b)' };
         return (
           <>
             <SeverityTag tone={{ bg: `${st.color}18`, border: `${st.color}40`, color: st.color, dot: st.color }}>{t(st.label)}</SeverityTag>

@@ -18,7 +18,7 @@ const C = {
   primaryLighter: '#3182ce',
   white: '#ffffff',
   bg: '#f7fafc',
-  border: '#e2e8f0',
+  border: 'var(--border-color, #e2e8f0)',
   textDark: '#1a202c',
   textMid: '#4a5568',
   textLight: '#94a3b8',

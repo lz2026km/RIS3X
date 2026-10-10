@@ -3135,19 +3135,19 @@ export default function PrintManagementPage() {
               width: 340, background: 'linear-gradient(135deg, #f8fafc, #e2e8f0)', border: '2px solid #94a3b8',
               borderRadius: 4, padding: 14, display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)'
             }}>
-              <div style={{ fontSize: 10, color: '#64748b', fontFamily: 'monospace' }}>FILM SPEC: 14x17 · {tpl.type ?? 'CT'} {tpl.includeImages ? '· IMG' : ''}</div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted, #64748b)', fontFamily: 'monospace' }}>FILM SPEC: 14x17 · {tpl.type ?? 'CT'} {tpl.includeImages ? '· IMG' : ''}</div>
               <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 6 }}>
                 {Array.from({ length: cells }).map((_, i) => (
                   <div key={i} style={{
                     aspectRatio: '1/0.75', background: '#0f172a', borderRadius: 2,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: '#475569', fontSize: 10, fontFamily: 'monospace'
+                    color: 'var(--text-secondary, #475569)', fontSize: 10, fontFamily: 'monospace'
                   }}>
                     {i + 1}
                   </div>
                 ))}
               </div>
-              <div style={{ fontSize: 10, color: '#94a3b8', fontFamily: 'monospace' }}>
+              <div style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)', fontFamily: 'monospace' }}>
                 {tpl.name} · {tpl.copies} {t("printMgmt.copiesDot")} {tpl.includeLogo ? t("printMgmt.includeLogo") : t("printMgmt.noLogo")}
               </div>
             </div>

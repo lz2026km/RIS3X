@@ -191,7 +191,7 @@ export default function NurseMobileWorkstation() {
           ].map(stat => (
             <div key={stat.label} style={{ background: stat.bg, borderRadius: 8, padding: '8px', textAlign: 'center' }}>
               <div style={{ fontSize: 18, fontWeight: 800, color: stat.color }}>{stat.value}</div>
-              <div style={{ fontSize: 12, color: '#64748b' }}>{stat.label}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{stat.label}</div>
             </div>
           ))}
         </div>
@@ -244,11 +244,11 @@ export default function NurseMobileWorkstation() {
                       <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{item.patientName}</span>
                       {item.contrastRequired && <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: 'var(--color-error-bg)', color: 'var(--color-error)' }}>{t('nurse.contrast')}</span>}
                     </div>
-                    <div style={{ fontSize: 12, color: '#64748b', marginTop: 2, display: 'flex', gap: 6 }}>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginTop: 2, display: 'flex', gap: 6 }}>
                       <span>{item.gender}/{item.age}{t('nurse.ageSuffix')}</span>
                       <span>{item.modality}</span>
                     </div>
-                    <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 1 }}>{item.examItem} · {item.appointmentTime}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 1 }}>{item.examItem} · {item.appointmentTime}</div>
                     {item.notes && <div style={{ fontSize: 12, color: 'var(--color-warning-600)', marginTop: 2 }}>{item.notes}</div>}
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)', alignItems: 'flex-end' }}>
@@ -278,10 +278,10 @@ export default function NurseMobileWorkstation() {
                 <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: c.severity === 'CRITICAL' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: c.severity === 'CRITICAL' ? 'var(--color-error)' : 'var(--color-warning)' }}>
                   {c.severity === 'CRITICAL' ? t('nurse.sevCritical') : c.severity === 'URGENT' ? t('nurse.sevUrgent') : c.severity}
                 </span>
-                <span style={{ fontSize: 12, color: '#94a3b8' }}>{c.modality ?? ''} {c.accessionNumber ?? ''}</span>
+                <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{c.modality ?? ''} {c.accessionNumber ?? ''}</span>
               </div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.5 }}>{c.description}</div>
-              <div style={{ fontSize: 12, color: '#64748b', marginTop: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginTop: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>{c.createdAt ? new Date(c.createdAt).toLocaleString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : ''} · {c.notifiedTo ?? t('nurse.notNotified')}</span>
                 {isAcked(c) ? (
                   <span style={{ color: '#059669', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
@@ -299,20 +299,20 @@ export default function NurseMobileWorkstation() {
               </div>
             </div>
           ))}
-          {criticals.length === 0 && <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: '#94a3b8', fontSize: 12 }}>{t('nurse.noCriticals')}</div>}
+          {criticals.length === 0 && <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{t('nurse.noCriticals')}</div>}
         </div>
       ) : (
         <div style={{ padding: 'var(--space-4, 16px)' }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 'var(--space-3, 12px)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Syringe size={16} color="#7c3aed" /> {t('nurse.medTitle')}
-              <span style={{ fontSize: 11, fontWeight: 400, color: '#94a3b8' }}>{t('nurse.medNotice')}</span>
+              <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-muted, #94a3b8)' }}>{t('nurse.medNotice')}</span>
             </div>
             <div style={{ display: 'grid', gap: 'var(--space-2, 8px)' }}>
               {appointments.filter(a => a.contrastRequired || a.medications.length > 0).map(item => (
                 <div key={item.id} style={{ padding: '10px 12px', background: 'var(--bg-card)', borderRadius: 8 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{item.patientName} - {item.examItem}</div>
-                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 'var(--space-1, 4px)' }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginTop: 'var(--space-1, 4px)' }}>
                     {item.contrastRequired && <span>{t('nurse.needsContrastPrefix')}{item.medications.join(', ')}</span>}
                     {!item.contrastRequired && <span>{t('nurse.noContrast')}</span>}
                   </div>
@@ -322,7 +322,7 @@ export default function NurseMobileWorkstation() {
                 </div>
               ))}
               {appointments.filter(a => a.contrastRequired || a.medications.length > 0).length === 0 && medRecords.length === 0 && (
-                <div style={{ textAlign: 'center', padding: 'var(--space-5, 20px)', color: '#94a3b8', fontSize: 12 }}>{t('nurse.noMedPatients')}</div>
+                <div style={{ textAlign: 'center', padding: 'var(--space-5, 20px)', color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{t('nurse.noMedPatients')}</div>
               )}
             </div>
           </div>

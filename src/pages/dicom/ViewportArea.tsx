@@ -56,12 +56,12 @@ const s = {
   wlPopup: { position: 'absolute' as const, left: '50%', top: '50%', transform: 'translate(-50%,-50%)', width: 240, background: CARD_BG, borderRadius: 12, boxShadow: '0 12px 40px rgba(0,0,0,0.4)', zIndex: 100, padding: 14, border: '1px solid var(--border-color)' },
   wlPopupTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 },
   wlSliderRow: { display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 },
-  wlLabel: { fontSize: 12, color: '#64748b', flexShrink: 0, minWidth: 24 },
+  wlLabel: { fontSize: 12, color: 'var(--text-muted, #64748b)', flexShrink: 0, minWidth: 24 },
   wlSlider: { flex: 1, accentColor: PRIMARY } as React.CSSProperties,
   wlVal: { fontSize: 12, color: PRIMARY, fontWeight: 600, minWidth: 32, textAlign: 'right' as const },
   reportBtn: { padding: '6px 10px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', justifyContent: 'center' } as React.CSSProperties,
   measureMenu: { position: 'absolute' as const, left: 60, top: 300, width: 160, background: CARD_BG, borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid var(--border-color)', zIndex: 100, padding: 6 },
-  measureMenuItem: { width: '100%', padding: '6px 10px', borderRadius: 6, border: 'none', background: 'transparent', color: '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.15s' } as React.CSSProperties,
+  measureMenuItem: { width: '100%', padding: '6px 10px', borderRadius: 6, border: 'none', background: 'transparent', color: 'var(--text-secondary, #475569)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.15s' } as React.CSSProperties,
   pseudoColorPanel: { position: 'absolute' as const, left: 60, top: 320, width: 180, background: CARD_BG, borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid var(--border-color)', zIndex: 100, padding: 10 },
   pseudoColorPanelTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 6 },
   pseudoColorBtn: { width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-secondary)', transition: 'all 0.15s', marginBottom: 'var(--space-1, 4px)' },
@@ -361,7 +361,7 @@ export default function ViewportArea(props: Props) {
 
             <div style={s.overlayTL}>
               <span style={{ color: '#60a5fa', fontWeight: 700 }}>{exam.patientName}</span>
-              <span style={{ color: '#94a3b8' }}>#{exam.accessionNumber}</span>
+              <span style={{ color: 'var(--text-muted, #94a3b8)' }}>#{exam.accessionNumber}</span>
               <span style={{ color: '#86efac' }}>{exam.examItemName}</span>
               {viewMode !== 'MPR' && <span style={{ color: 'var(--color-warning-400)' }}>{t('dcmView.modeLabel', { mode: viewMode })}</span>}
             </div>

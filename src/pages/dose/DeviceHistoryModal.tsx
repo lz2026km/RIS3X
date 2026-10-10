@@ -120,7 +120,7 @@ export default function DeviceHistoryModal({ device, onClose }: Props) {
                 <span style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 11, padding: "2px 8px", borderRadius: 10, background: "#fffbeb", color: "var(--color-warning-600)", border: "1px solid #fcd34d", fontWeight: 600, verticalAlign: "middle" }}>{t("w8Dose.deviceHistoryDemo")}</span>
               )}
             </div>
-            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 'var(--space-1, 4px)' }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 'var(--space-1, 4px)' }}>
               近7日剂量趋势分析
             </div>
           </div>
@@ -189,7 +189,7 @@ const ModalStat = ({ label, value }: { label: string; value: string }) => (
       textAlign: "center",
     }}
   >
-    <div style={{ fontSize: 12, color: "#64748b" }}>{label}</div>
+    <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{label}</div>
     <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-primary-800)" }}>{value}</div>
   </div>
 );

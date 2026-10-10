@@ -97,7 +97,7 @@ export default function UserManagementPage() {
             <p style={{ fontSize: 20, fontWeight: 700, letterSpacing: 2, padding: '8px 0', color: fromApi ? 'var(--color-success-600)' : 'var(--color-warning-600)', fontFamily: 'monospace' }}>
               {temp}
             </p>
-            <p style={{ fontSize: 12, color: '#94a3b8' }}>
+            <p style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
               {fromApi
                 ? '临时密码仅显示一次, 请立即转交用户。失败登录计数已清零。'
                 : '后端重置密码接口待接入, 临时密码仅本地展示。失败登录计数已清零。'}

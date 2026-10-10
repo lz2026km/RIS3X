@@ -75,8 +75,8 @@ const CriticalItemsDirectory = () => {
                 >
                   <CategoryIcon size={14} style={{ color: PRIMARY_COLOR }} />
                   <span style={{ flex: 1, fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{CATEGORY_LABELS[category] ?? category}</span>
-                  <span style={{ fontSize: 12, color: '#64748b', background: 'var(--border-light)', padding: '2px 8px', borderRadius: 10 }}>{t('cvSection.itemCount', { count: items.length })}</span>
-                  <ChevronRight size={14} style={{ color: '#64748b', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
+                  <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', background: 'var(--border-light)', padding: '2px 8px', borderRadius: 10 }}>{t('cvSection.itemCount', { count: items.length })}</span>
+                  <ChevronRight size={14} style={{ color: 'var(--text-muted, #64748b)', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
                 </div>
                 {isExpanded && (
                   <div style={{ padding: '8px 12px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-2, 8px)', background: 'var(--bg-card)', borderRadius: '0 0 8px 8px', border: '1px solid var(--border-color)', borderTop: 'none' }}>
@@ -89,7 +89,7 @@ const CriticalItemsDirectory = () => {
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</div>
-                            <div style={{ fontSize: 12, color: '#94a3b8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.code}</div>
+                            <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.code}</div>
                           </div>
                         </div>
                       )
@@ -140,7 +140,7 @@ const CriticalItemsDirectory = () => {
                                 <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{item.name}</span>
                                 <span style={{ fontSize: 12, color: '#fff', background: item.color, padding: '1px 6px', borderRadius: 4 }}>{item.code}</span>
                               </div>
-                              <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>{item.description}</div>
+                              <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', lineHeight: 1.5 }}>{item.description}</div>
                             </div>
                           </div>
                         )
@@ -151,7 +151,7 @@ const CriticalItemsDirectory = () => {
               })}
             </div>
             <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'center', gap: 'var(--space-3, 12px)' }}>
-              <button onClick={() => setShowModal(false)} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('cvSection.close')}</button>
+              <button onClick={() => setShowModal(false)} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-muted, #64748b)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('cvSection.close')}</button>
               <button onClick={() => { const blob = new Blob([JSON.stringify(NATIONAL_CRITICAL_ITEMS, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = '危急值目录.json'; link.click(); URL.revokeObjectURL(url) }}
                 style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid ' + PRIMARY_COLOR, background: PRIMARY_COLOR, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Download size={14} />{t('cvSection.exportCatalog')}

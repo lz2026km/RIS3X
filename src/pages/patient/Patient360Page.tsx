@@ -503,7 +503,7 @@ export default function Patient360Page() {
                 ) : summary.recentExams.map((ex) => (
                   <div key={ex.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, padding: '4px 0' }}>
                     <Tag color="blue">{ex.modality}</Tag>
-                    <span style={{ color: '#334155' }}>{ex.bodyPart}</span>
+                    <span style={{ color: 'var(--text-primary, #334155)' }}>{ex.bodyPart}</span>
                     <span style={{ color: 'var(--text-muted, #94a3b8)', marginLeft: 'auto' }}>{String(ex.createdAt).slice(0, 10)}</span>
                   </div>
                 ))}
@@ -515,7 +515,7 @@ export default function Patient360Page() {
                 ) : summary.recentReports.map((r) => (
                   <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, padding: '4px 0' }}>
                     <Tag color="green">{r.state}</Tag>
-                    <span style={{ color: '#334155', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.conclusion || '—'}</span>
+                    <span style={{ color: 'var(--text-primary, #334155)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.conclusion || '—'}</span>
                     <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{String(r.createdAt).slice(0, 10)}</span>
                   </div>
                 ))}
@@ -949,7 +949,7 @@ export default function Patient360Page() {
                     <Tag color="blue">{ex.modality}</Tag>
                     <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginLeft: 'auto' }}>{String(ex.examDate || '').slice(0, 10)}</span>
                   </div>
-                  <div style={{ fontSize: 12, color: '#334155', lineHeight: 1.7, marginBottom: 'var(--space-2, 8px)', maxHeight: 84, overflow: 'hidden' }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-primary, #334155)', lineHeight: 1.7, marginBottom: 'var(--space-2, 8px)', maxHeight: 84, overflow: 'hidden' }}>
                     <strong style={{ color: 'var(--color-primary-800)' }}>{t('patient360.findingsLabel')}</strong> {ex.findings || t('patient360.notFilled')}
                   </div>
                   <div style={{

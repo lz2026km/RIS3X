@@ -125,7 +125,7 @@ function ReductionFactorCards() {
         background: "var(--bg-card)",
         borderRadius: 12,
         padding: 'var(--space-5, 20px)',
-        border: "1px solid #e2e8f0",
+        border: "1px solid var(--border-color, #e2e8f0)",
       }}
     >
       <div
@@ -188,7 +188,7 @@ function ReductionCard({
       )}
       <div style={{ fontSize: 14, fontWeight: 700, color }}>{age}</div>
       <div style={{ fontSize: 24, fontWeight: 800, color, marginTop: 'var(--space-1, 4px)' }}>{factor}</div>
-      <div style={{ fontSize: 12, color: "#64748b", marginTop: 'var(--space-1, 4px)' }}>{formula}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginTop: 'var(--space-1, 4px)' }}>{formula}</div>
     </div>
   );
 }
@@ -200,7 +200,7 @@ function RecordsTable({ records }: { records: PediatricDoseRecord[] }) {
         background: "var(--bg-card)",
         borderRadius: 12,
         padding: 'var(--space-5, 20px)',
-        border: "1px solid #e2e8f0",
+        border: "1px solid var(--border-color, #e2e8f0)",
       }}
     >
       <div
@@ -222,7 +222,7 @@ function RecordsTable({ records }: { records: PediatricDoseRecord[] }) {
           showDensity={false}
           columns={[
             { title: "患者姓名", dataIndex: "patientName", key: "patientName", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{v}</span> },
-            { title: "年龄", dataIndex: "age", key: "age", align: "center", render: (v: number) => <span style={{ color: "#334155" }}>{v}</span> },
+            { title: "年龄", dataIndex: "age", key: "age", align: "center", render: (v: number) => <span style={{ color: 'var(--text-primary, #334155)' }}>{v}</span> },
             {
               title: "年龄组", dataIndex: "ageGroup", key: "ageGroup", align: "center",
               render: (v: string) => {
@@ -231,10 +231,10 @@ function RecordsTable({ records }: { records: PediatricDoseRecord[] }) {
                 return <span style={{ padding: "2px 8px", background: ageGroupBg, color: ageGroupColor, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{v}</span>;
               },
             },
-            { title: "性别", dataIndex: "gender", key: "gender", align: "center", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
-            { title: "检查日期", dataIndex: "examDate", key: "examDate", align: "center", render: (v: string) => <span style={{ color: "#64748b" }}>{v}</span> },
-            { title: "设备", dataIndex: "device", key: "device", align: "center", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
-            { title: "检查项目", dataIndex: "examItem", key: "examItem", align: "center", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
+            { title: "性别", dataIndex: "gender", key: "gender", align: "center", render: (v: string) => <span style={{ color: 'var(--text-primary, #334155)' }}>{v}</span> },
+            { title: "检查日期", dataIndex: "examDate", key: "examDate", align: "center", render: (v: string) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{v}</span> },
+            { title: "设备", dataIndex: "device", key: "device", align: "center", render: (v: string) => <span style={{ color: 'var(--text-primary, #334155)' }}>{v}</span> },
+            { title: "检查项目", dataIndex: "examItem", key: "examItem", align: "center", render: (v: string) => <span style={{ color: 'var(--text-primary, #334155)' }}>{v}</span> },
             { title: "剂量值", dataIndex: "doseValue", key: "doseValue", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "var(--color-primary-800)" }}>{v}</span> },
             {
               title: "折扣系数", dataIndex: "doseReductionFactor", key: "doseReductionFactor", align: "center",
@@ -270,12 +270,12 @@ const Stat = ({
       background: "var(--bg-card)",
       borderRadius: 10,
       padding: "14px 16px",
-      border: "1px solid #e2e8f0",
+      border: "1px solid var(--border-color, #e2e8f0)",
       textAlign: "center",
     }}
   >
-    <div style={{ fontSize: 12, color: "#64748b" }}>{label}</div>
+    <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{label}</div>
     <div style={{ fontSize: 24, fontWeight: 800, color, marginTop: 'var(--space-1, 4px)' }}>{value}</div>
-    <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{suffix}</div>
+    <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>{suffix}</div>
   </div>
 );

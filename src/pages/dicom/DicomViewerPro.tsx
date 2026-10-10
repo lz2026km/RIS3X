@@ -543,7 +543,7 @@ const DicomViewerProPage: React.FC = () => {
       <div style={{ padding: 'var(--space-2, 8px)' }}>
         <Spin spinning={loading && studies.length === 0}>
           {studies.length === 0 && !loading ? (
-            <Empty image={<Inbox size={56} style={{opacity:0.4}}/>} description={t('dicomViewer.noStudyData')} style={{ padding: 60, color: '#64748b' }} />
+            <Empty image={<Inbox size={56} style={{opacity:0.4}}/>} description={t('dicomViewer.noStudyData')} style={{ padding: 60, color: 'var(--text-muted, #64748b)' }} />
           ) : (
             <div style={{ position: 'relative' }} data-testid="pro-viewer-area">
               {multiViewport ? (
@@ -593,7 +593,7 @@ const DicomViewerProPage: React.FC = () => {
                         <div style={{ position: 'absolute', top: 8, left: 10, fontSize: 12, color: '#60a5fa', fontWeight: 700 }}>
                           {i + 1}. {cell.series?.seriesDescription ?? t('dicomViewer.noMatchingSeries')}
                         </div>
-                        <div style={{ position: 'absolute', bottom: 8, right: 10, fontSize: 11, color: '#64748b' }}>
+                        <div style={{ position: 'absolute', bottom: 8, right: 10, fontSize: 11, color: 'var(--text-muted, #64748b)' }}>
                           {t('dicomViewer.frames', { count: cell.series?.numberOfSeriesRelatedInstances ?? 0 })}
                         </div>
                       </div>
@@ -660,7 +660,7 @@ const DicomViewerProPage: React.FC = () => {
       </div>
 
       {selectedSeries && (
-        <div style={{ padding: '4px 16px 10px', color: '#64748b', fontSize: 12 }}>
+        <div style={{ padding: '4px 16px 10px', color: 'var(--text-muted, #64748b)', fontSize: 12 }}>
           {t('dicomViewer.currentSeries')} {selectedSeries.seriesDescription} · {t('dicomViewer.instances')} {selectedSeries.numberOfSeriesRelatedInstances} ·
           {t('dicomViewer.sliceThickness')} {selectedSeries.sliceThickness ?? '-'}mm · {t('dicomViewer.frameCount')} {frameCount}
         </div>

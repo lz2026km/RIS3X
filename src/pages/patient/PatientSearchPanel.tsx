@@ -29,7 +29,7 @@ function AdvancedFilterPanel({ filters, onChange, onReset, presets, onApplyPrese
     }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-3, 12px)' }}>
         <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6, display: 'block' }}>性别</label>
+          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 6, display: 'block' }}>性别</label>
           <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
             {(['全部', '男', '女'] as GenderFilter[]).map(g => (
               <button
@@ -50,18 +50,18 @@ function AdvancedFilterPanel({ filters, onChange, onReset, presets, onApplyPrese
         </div>
 
         <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6, display: 'block' }}>年龄范围</label>
+          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 6, display: 'block' }}>年龄范围</label>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <input type="number" value={filters.ageMin} onChange={e => onChange({ ...filters, ageMin: e.target.value })} placeholder="最小"
               style={{ flex: 1, padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, width: '100%' }} />
-            <span style={{ color: '#64748b', fontSize: 12 }}>-</span>
+            <span style={{ color: 'var(--text-muted, #64748b)', fontSize: 12 }}>-</span>
             <input type="number" value={filters.ageMax} onChange={e => onChange({ ...filters, ageMax: e.target.value })} placeholder="最大"
               style={{ flex: 1, padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, width: '100%' }} />
           </div>
         </div>
 
         <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6, display: 'block' }}>患者类型</label>
+          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 6, display: 'block' }}>患者类型</label>
           <select value={filters.patientType} onChange={e => onChange({ ...filters, patientType: e.target.value as PatientTypeFilter })}
             style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)' }}>
             {(['全部', '门诊', '住院', '体检', '急诊'] as PatientTypeFilter[]).map(t => (
@@ -71,7 +71,7 @@ function AdvancedFilterPanel({ filters, onChange, onReset, presets, onApplyPrese
         </div>
 
         <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6, display: 'block' }}>检查设备</label>
+          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 6, display: 'block' }}>检查设备</label>
           <select value={filters.modality} onChange={e => onChange({ ...filters, modality: e.target.value })}
             style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)' }}>
             {modalities.map(m => <option key={m} value={m}>{m}</option>)}
@@ -79,19 +79,19 @@ function AdvancedFilterPanel({ filters, onChange, onReset, presets, onApplyPrese
         </div>
 
         <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6, display: 'block' }}>建档日期从</label>
+          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 6, display: 'block' }}>建档日期从</label>
           <input type="date" value={filters.dateFrom} onChange={e => onChange({ ...filters, dateFrom: e.target.value })}
             style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12,}} />
         </div>
 
         <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6, display: 'block' }}>建档日期至</label>
+          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 6, display: 'block' }}>建档日期至</label>
           <input type="date" value={filters.dateTo} onChange={e => onChange({ ...filters, dateTo: e.target.value })}
             style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12,}} />
         </div>
 
         <div>
-          <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6, display: 'block' }}>诊断分类</label>
+          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 6, display: 'block' }}>诊断分类</label>
           <select value={filters.diagnosisCategory || '全部'} onChange={e => onChange({ ...filters, diagnosisCategory: e.target.value })}
             style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)' }}>
             {diagnosisCategories.map(c => <option key={c} value={c}>{c}</option>)}
@@ -100,7 +100,7 @@ function AdvancedFilterPanel({ filters, onChange, onReset, presets, onApplyPrese
 
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 'var(--space-2, 8px)' }}>
           <button onClick={onReset}
-            style={{ flex: 1, padding: '6px 12px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-1, 4px)' }}>
+            style={{ flex: 1, padding: '6px 12px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-muted, #64748b)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-1, 4px)' }}>
             <RefreshCw size={12} />重置
           </button>
           <button onClick={onToggleSavePreset}
@@ -125,7 +125,7 @@ function AdvancedFilterPanel({ filters, onChange, onReset, presets, onApplyPrese
               {presets.map((p, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', padding: '4px 10px', background: 'var(--bg-card)', borderRadius: 6, border: '1px solid var(--border-color)' }}>
                   <button onClick={() => onApplyPreset?.(p)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, padding: 0 }}>{p.name}</button>
-                  <button onClick={() => onDeletePreset?.(i)} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: '#94a3b8' }}><X size={10} /></button>
+                  <button onClick={() => onDeletePreset?.(i)} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: 'var(--text-muted, #94a3b8)' }}><X size={10} /></button>
                 </div>
               ))}
             </div>
@@ -184,7 +184,7 @@ export function PatientSearchPanel(props: PatientSearchPanelProps) {
         display: 'flex', gap: 'var(--space-3, 12px)', alignItems: 'center',
         boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
       }}>
-        <Search size={16} style={{ color: '#94a3b8', flexShrink: 0 }} />
+        <Search size={16} style={{ color: 'var(--text-muted, #94a3b8)', flexShrink: 0 }} />
         <input
           value={props.search}
           onChange={e => props.onSearchChange(e.target.value)}

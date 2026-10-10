@@ -346,7 +346,7 @@ const LesionTrackingPage: React.FC = () => {
         return (
           <Space size={4} wrap>
             <Tag color={SOURCE_COLOR[s]} data-testid={`lt-source-${s}`}>{t(`lesionTrack.source.${s}`)}</Tag>
-            {r.reportId && <span style={{ fontSize: 11, color: '#64748b' }}>{r.reportId}</span>}
+            {r.reportId && <span style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>{r.reportId}</span>}
           </Space>
         )
       },
@@ -382,7 +382,7 @@ const LesionTrackingPage: React.FC = () => {
             <Crosshair size={22} color="#60a5fa" />
             <div>
               <div style={{ fontSize: 18, fontWeight: 700 }}>{t('lesionTrack.pageTitle')}</div>
-              <div style={{ fontSize: 12, color: '#64748b' }}>{t('lesionTrack.pageSubtitle')}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('lesionTrack.pageSubtitle')}</div>
             </div>
           </div>
         </Col>
@@ -404,18 +404,18 @@ const LesionTrackingPage: React.FC = () => {
           { title: t('lesionTrack.statNew'), value: stats?.new ?? 0, color: '#f97316' },
           { title: t('lesionTrack.statProgressed'), value: stats?.progressed ?? 0, color: 'var(--color-error-500)' },
           { title: t('lesionTrack.statStable'), value: stats?.stable ?? 0, color: 'var(--color-primary-500)' },
-          { title: t('lesionTrack.statDisappeared'), value: stats?.disappeared ?? 0, color: '#64748b' },
+          { title: t('lesionTrack.statDisappeared'), value: stats?.disappeared ?? 0, color: 'var(--text-muted, #64748b)' },
         ].map((s) => (
           <StatCard
             key={s.title}
-            title={<span style={{ fontSize: 12, color: '#94a3b8' }}>{s.title}</span>}
+            title={<span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{s.title}</span>}
             value={s.value}
             color={s.color}
             size="sm"
           />
         ))}
         <StatCard
-          title={<span style={{ fontSize: 12, color: '#94a3b8' }}>{t('lesionTrack.statShrunk')}</span>}
+          title={<span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('lesionTrack.statShrunk')}</span>}
           value={stats?.shrunk ?? 0}
           color="var(--color-success-500)"
           size="sm"
@@ -518,7 +518,7 @@ const LesionTrackingPage: React.FC = () => {
               </ChartContainer>
             </div>
           ) : (
-            <Empty description={t('lesionTrack.emptyTrend')} style={{ padding: 'var(--space-10, 40px)', color: '#64748b' }} />
+            <Empty description={t('lesionTrack.emptyTrend')} style={{ padding: 'var(--space-10, 40px)', color: 'var(--text-muted, #64748b)' }} />
           )}
         </Spin>
       </Card>
@@ -587,7 +587,7 @@ const LesionTrackingPage: React.FC = () => {
                     <div>
                       <div style={{ color: '#e2e8f0' }}>{m.date} · <b>{m.sizeMm.toFixed(1)}mm</b> <Text type="secondary">({m.studyId || '-'})</Text></div>
                       {m.response && <Tag color={RESPONSE_COLORS[m.response]} style={{ marginTop: 'var(--space-1, 4px)' }}>{t(`lesionTrack.response.${m.response}`)}</Tag>}
-                      {m.notes && <div style={{ fontSize: 12, color: '#94a3b8' }}>{m.notes}</div>}
+                      {m.notes && <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{m.notes}</div>}
                     </div>
                   ),
                 }))}

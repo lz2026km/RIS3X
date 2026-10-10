@@ -325,7 +325,7 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
                 />
               ))}
               {columnExams.length > 20 && (
-                <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: 11, padding: '8px 0' }}>
+                <div style={{ textAlign: 'center', color: 'var(--text-muted, #94a3b8)', fontSize: 11, padding: '8px 0' }}>
                   {t('worklistKanban.remaining', { count: columnExams.length - 20 })}
                 </div>
               )}

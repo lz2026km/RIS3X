@@ -178,21 +178,21 @@ export default function CvQcPage() {
         <div style={{ padding: 'var(--space-4, 16px)', background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid var(--color-success-border)' }}>
           <div style={{ fontSize: 12, color: 'var(--color-success)', fontWeight: 600, textTransform: 'uppercase' }}>{t('cvQc.overallPassRate')}</div>
           <div style={{ fontSize: 30, fontWeight: 'bold', marginTop: 'var(--space-1, 4px)' }}>{dashboard ? `${Math.round(dashboard.passedRate)}%` : `${Math.round(overallPass / overallTotal * 100)}%`}</div>
-          <div style={{ fontSize: 12, color: '#64748b' }}>{dashboard ? `检查 ${dashboard.totalInspected} 例 · 平均 ${dashboard.avgScore} 分` : `${overallPass}/${overallTotal} 项指标通过`}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{dashboard ? `检查 ${dashboard.totalInspected} 例 · 平均 ${dashboard.avgScore} 分` : `${overallPass}/${overallTotal} 项指标通过`}</div>
         </div>
         {MODALITY_QC.map((m, i) => (
           <div key={m.modality} onClick={() => setActiveModality(i)} style={{ padding: 'var(--space-4, 16px)', background: activeModality === i ? 'var(--color-info-bg)' : 'var(--bg-card)', borderRadius: 8, border: activeModality === i ? '2px solid var(--color-primary-800)' : '1px solid var(--border-color)', cursor: 'pointer' }}>
-            <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>{m.modalityKey ? t(m.modalityKey) : m.modality}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', fontWeight: 600, textTransform: 'uppercase' }}>{m.modalityKey ? t(m.modalityKey) : m.modality}</div>
             <div style={{ fontSize: 24, fontWeight: 'bold', marginTop: 'var(--space-1, 4px)' }}>{Math.round(m.metrics.filter(x => x.status !== 'fail').length / m.metrics.length * 100)}%</div>
-            <div style={{ fontSize: 12, color: '#64748b' }}>{m.metrics.filter(x => x.status === 'pass').length} {t('cvQc.statusPass')}, {m.metrics.filter(x => x.status === 'fail').length} {t('cvQc.statusFail')}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{m.metrics.filter(x => x.status === 'pass').length} {t('cvQc.statusPass')}, {m.metrics.filter(x => x.status === 'fail').length} {t('cvQc.statusFail')}</div>
           </div>
         ))}
       </div>
 
-      <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
+      <div style={{ border: '1px solid var(--border-color, #e2e8f0)', borderRadius: 8, overflow: 'hidden' }}>
         <div style={{ padding: '12px 16px', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', fontWeight: 600, fontSize: 14 }}>
           {MODALITY_QC[activeModality]?.modalityKey ? t(MODALITY_QC[activeModality].modalityKey!) : (MODALITY_QC[activeModality]?.modality ?? '')} — {t('cvQc.detailMetrics')}
-          <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400, marginLeft: 'var(--space-2, 8px)' }}>{t('cvQc.demoDataLabel')}</span>
+          <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', fontWeight: 400, marginLeft: 'var(--space-2, 8px)' }}>{t('cvQc.demoDataLabel')}</span>
         </div>
         <DataTable
           dataSource={MODALITY_QC[activeModality]?.metrics ?? []}
@@ -208,7 +208,7 @@ export default function CvQcPage() {
               ),
             },
             { title: t('cvQc.colCurrent'), dataIndex: 'current', align: 'center', render: (v: number) => <span style={{ fontWeight: 600 }}>{v}</span> },
-            { title: t('cvQc.colTarget'), dataIndex: 'target', align: 'center', render: (v: number) => <span style={{ color: '#64748b' }}>{v}</span> },
+            { title: t('cvQc.colTarget'), dataIndex: 'target', align: 'center', render: (v: number) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{v}</span> },
             {
               title: t('cvQc.colStatus'), dataIndex: 'status', align: 'center',
               render: (v: QcMetric['status']) => {

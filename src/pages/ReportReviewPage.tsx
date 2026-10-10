@@ -660,10 +660,10 @@ const ReviewTaskDetail: React.FC<{
             </button>
           </div>
           {diffLoading ? (
-            <div style={{ padding: 'var(--space-6, 24px)', textAlign: 'center', color: '#64748b', fontSize: 12 }}>{t('w12.review.diffLoading')}</div>
+            <div style={{ padding: 'var(--space-6, 24px)', textAlign: 'center', color: 'var(--text-muted, #64748b)', fontSize: 12 }}>{t('w12.review.diffLoading')}</div>
           ) : diffData && diffData.old !== diffData.cur ? (
             <div style={{ fontSize: 12, lineHeight: 1.8, color: 'var(--text-primary)' }}>
-              <div style={{ marginBottom: 6, color: '#64748b' }}>
+              <div style={{ marginBottom: 6, color: 'var(--text-muted, #64748b)' }}>
                 <span style={{ background: '#fef2f2', color: '#b91c1c', padding: '1px 6px', borderRadius: 3, marginRight: 'var(--space-2, 8px)' }}>{t('reportReviewPage.diffRemoved')}</span>
                 <span style={{ background: '#ecfdf5', color: '#047857', padding: '1px 6px', borderRadius: 3 }}>{t('reportReviewPage.diffAdded')}</span>
               </div>
@@ -726,7 +726,7 @@ const ReviewTaskDetail: React.FC<{
             )}
           </div>
           <div style={{ borderTop: '1px dashed var(--border-color)', paddingTop: 'var(--space-2, 8px)' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary, #475569)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
               <CalendarClock size={13} /> {t('w12.review.followupSuggest')}
             </div>
             <FollowupAutoBookPanel

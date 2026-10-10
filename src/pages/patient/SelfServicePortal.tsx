@@ -70,10 +70,10 @@ const styles = {
   title: { margin: 0 },
   subTitle: { fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', margin: 0, marginBottom: 'var(--space-4, 16px)' },
   grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' },
-  label: { fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' },
+  label: { fontSize: 12, color: 'var(--text-muted, #64748b)', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' },
   value: { fontSize: 14, color: 'var(--text-primary)' },
   table: { width: '100%', borderCollapse: 'collapse' as const },
-  th: { padding: '10px 12px', fontSize: 12, fontWeight: 600, color: '#64748b', textAlign: 'left' as const, borderBottom: '2px solid var(--border-color)' },
+  th: { padding: '10px 12px', fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', textAlign: 'left' as const, borderBottom: '2px solid var(--border-color)' },
   td: { padding: '10px 12px', fontSize: 12, color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-color)' },
   badge: (status: string) => ({
     padding: '3px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600,
@@ -84,7 +84,7 @@ const styles = {
   btnGreen: { padding: '6px 14px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: '#0d9488', color: '#fff' },
   imageGrid: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-3, 12px)' },
   imageCard: { background: 'var(--bg-card)', borderRadius: 8, padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)' },
-  imagePlaceholder: { width: '100%', aspectRatio: '1', background: 'var(--bg-elevated)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 12, marginBottom: 'var(--space-2, 8px)' },
+  imagePlaceholder: { width: '100%', aspectRatio: '1', background: 'var(--bg-elevated)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted, #94a3b8)', fontSize: 12, marginBottom: 'var(--space-2, 8px)' },
   slider: { width: '100%', margin: '4px 0' },
   voucherBtn: { padding: '12px 24px', borderRadius: 8, border: 'none', fontSize: 14, fontWeight: 600, cursor: 'pointer', background: '#059669', color: '#fff' },
   voucherCode: { marginTop: 'var(--space-3, 12px)', padding: 'var(--space-3, 12px)', background: 'var(--color-success-bg)', borderRadius: 8, fontSize: 16, fontWeight: 600, color: 'var(--color-success)', fontFamily: 'monospace', textAlign: 'center' as const, letterSpacing: 2 },
@@ -143,7 +143,7 @@ function MiniCalendar(props: {
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 'var(--space-1, 4px)', marginBottom: 'var(--space-1, 4px)' }}>
         {weekdayHeaders.map(w => (
-          <div key={w} style={{ textAlign: 'center', fontSize: 12, color: '#94a3b8', fontWeight: 600 }}>{w}</div>
+          <div key={w} style={{ textAlign: 'center', fontSize: 12, color: 'var(--text-muted, #94a3b8)', fontWeight: 600 }}>{w}</div>
         ))}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 'var(--space-1, 4px)' }}>
@@ -694,19 +694,19 @@ export default function SelfServicePortal() {
       <div style={styles.container}>
         <Card bordered={false} style={{ ...styles.card, maxWidth: 400, margin: '80px auto', textAlign: 'center' }} styles={{ body: { padding: 0 } }}>
           <Title level={5} style={{ marginBottom: 'var(--space-2, 8px)' }}>{t('selfService.login.title')}</Title>
-          <p style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-6, 24px)' }}>{t('selfService.login.hint')}</p>
+          <p style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-6, 24px)' }}>{t('selfService.login.hint')}</p>
           <input
             placeholder={t('selfService.login.placeholder')}
             value={loginId}
             onChange={e => setLoginId(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && !loginLoading && void handleLogin()}
-            style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, marginBottom: 'var(--space-4, 16px)', boxSizing: 'border-box' as const }}
+            style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color, #e2e8f0)', fontSize: 14, marginBottom: 'var(--space-4, 16px)', boxSizing: 'border-box' as const }}
           />
           <button style={{ ...styles.btn, width: '100%', padding: '12px', fontSize: 14 }} onClick={() => void handleLogin()} disabled={loginLoading}>
             {loginLoading ? t('selfService.login.searching') : t('selfService.login.search')}
           </button>
           {loginError && <Alert type="error" showIcon message={loginError} style={{ marginTop: 'var(--space-4, 16px)', textAlign: 'left' }} />}
-          <div style={{ marginTop: 'var(--space-4, 16px)', fontSize: 12, color: '#94a3b8' }}>{t('selfService.login.demo')}</div>
+          <div style={{ marginTop: 'var(--space-4, 16px)', fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('selfService.login.demo')}</div>
         </Card>
       </div>
     )
@@ -856,7 +856,7 @@ export default function SelfServicePortal() {
                       <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
                         {a.modality} · {a.bodyPart ?? t('ssp.unspecifiedPart')}
                       </div>
-                      <div style={{ fontSize: 12, color: '#64748b' }}>{fmtDateTime(a.scheduledAt)}{t('ssp.home.examSuffix')}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{fmtDateTime(a.scheduledAt)}{t('ssp.home.examSuffix')}</div>
                     </div>
                     <Tag color="processing">{t('selfService.home.appointmentReminder')}</Tag>
                   </div>
@@ -867,7 +867,7 @@ export default function SelfServicePortal() {
                       <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
                         {latestReport?.modality ?? ''} · {latestReport?.bodyPart ?? t('ssp.home.imageFallback')}{t('ssp.home.reportPublished')}
                       </div>
-                      <div style={{ fontSize: 12, color: '#64748b' }}>{t('selfService.home.signedTime')} {fmtDateTime(latestReport?.signedAt)}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('selfService.home.signedTime')} {fmtDateTime(latestReport?.signedAt)}</div>
                     </div>
                     <div>
                       <Tag color="success">{t('selfService.home.reportNotice')}</Tag>
@@ -885,7 +885,7 @@ export default function SelfServicePortal() {
                 <div key={a.id} style={styles.todoItem}>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{a.modality} · {a.bodyPart ?? '-'}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
-                    <span style={{ fontSize: 12, color: '#64748b' }}>{fmtDateTime(a.scheduledAt)}</span>
+                    <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{fmtDateTime(a.scheduledAt)}</span>
                     <Tag color={stateColor(a.state)}>{APPOINTMENT_STATE_LABEL[a.state] ?? a.state}</Tag>
                   </div>
                 </div>
@@ -929,7 +929,7 @@ export default function SelfServicePortal() {
                   }}
                 >
                   <div style={{ fontSize: 16, fontWeight: 600 }}>{m.value}</div>
-                  <div style={{ fontSize: 11, marginTop: 'var(--space-1, 4px)', color: '#94a3b8' }}>{m.label}</div>
+                  <div style={{ fontSize: 11, marginTop: 'var(--space-1, 4px)', color: 'var(--text-muted, #94a3b8)' }}>{m.label}</div>
                 </button>
               ))}
             </div>
@@ -993,7 +993,7 @@ export default function SelfServicePortal() {
                 <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
                   {booking.modality} · {booking.bodyPart} · {booking.date} {booking.slot}
                 </div>
-                <div style={{ fontSize: 12, color: '#64748b', marginTop: 'var(--space-1, 4px)' }}>{t('selfService.booking.confirmHint')}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginTop: 'var(--space-1, 4px)' }}>{t('selfService.booking.confirmHint')}</div>
               </div>
               <button style={{ ...styles.btn, padding: '12px 28px', fontSize: 14 }} onClick={() => void submitBooking()} disabled={bookingLoading}>
                 {bookingLoading ? t('selfService.booking.submitting') : t('selfService.booking.confirm')}
@@ -1051,7 +1051,7 @@ export default function SelfServicePortal() {
                   {t('ssp.reports.print')}
                 </button>
               </div>
-              <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 'var(--space-4, 16px)' }}>
+              <p style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 'var(--space-4, 16px)' }}>
                 {t('ssp.reports.legalNote')}
               </p>
             </Card>
@@ -1063,7 +1063,7 @@ export default function SelfServicePortal() {
                 <div key={exam.id} style={styles.todoItem}>
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{exam.examItem}</div>
-                    <div style={{ fontSize: 12, color: '#64748b' }}>{exam.examDate} · {exam.bodyPart}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{exam.examDate} · {exam.bodyPart}</div>
                   </div>
                   <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                     <button style={{ ...styles.btnGreen }} onClick={() => setExpandedReport(expandedReport === exam.id ? null : exam.id)}>
@@ -1113,13 +1113,13 @@ export default function SelfServicePortal() {
               <h3 style={styles.subTitle}>{t('selfService.images.electronicFilm')} — {selectedExam.examItem}</h3>
               {study && study.series.length > 0 && (
                 <div style={{ marginBottom: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-2, 8px)' }}>
                     {t('ssp.images.dicomExamNo')}{study.studyInstanceUid} · WADO-RS：<code style={{ fontSize: 11 }}>{study.wadoRs.study}</code>
                   </div>
                   {study.series.map(s => (
                     <div key={s.seriesInstanceUid} style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 'var(--space-1, 4px)' }}>
                       {t('ssp.images.seriesPrefix')}{s.seriesNumber ?? '-'}（{s.modality}）：{s.instanceCount}{t('ssp.images.framesSuffix')}
-                      <span style={{ color: '#94a3b8', marginLeft: 'var(--space-2, 8px)' }}>{s.wadoRs.instances}</span>
+                      <span style={{ color: 'var(--text-muted, #94a3b8)', marginLeft: 'var(--space-2, 8px)' }}>{s.wadoRs.instances}</span>
                     </div>
                   ))}
                 </div>
@@ -1150,14 +1150,14 @@ export default function SelfServicePortal() {
           )}
           <Card bordered={false} style={{ ...styles.card, textAlign: 'center' }} styles={{ body: { padding: 0 } }}>
             <h3 style={{ ...styles.subTitle, textAlign: 'left' }}>{t('selfService.voucher.title')}</h3>
-            <p style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-4, 16px)' }}>{t('selfService.voucher.hint')}</p>
+            <p style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-4, 16px)' }}>{t('selfService.voucher.hint')}</p>
             {!voucherCode ? (
               <button style={styles.voucherBtn} onClick={generateVoucher}>{t('selfService.voucher.generate')}</button>
             ) : (
               <div>
-                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>{t('selfService.voucher.yourVoucher')}：</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-2, 8px)' }}>{t('selfService.voucher.yourVoucher')}：</div>
                 <div style={styles.voucherCode}>{voucherCode}</div>
-                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 'var(--space-2, 8px)' }}>{t('selfService.voucher.validity')}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 'var(--space-2, 8px)' }}>{t('selfService.voucher.validity')}</div>
               </div>
             )}
           </Card>
@@ -1193,7 +1193,7 @@ export default function SelfServicePortal() {
                           {edu.category === 'pre_exam' && <Tag color="orange">{t('ssp.education.preExam')}</Tag>}
                           {edu.category === 'post_exam' && <Tag color="cyan">{t('ssp.education.postExam')}</Tag>}
                         </div>
-                        {summary && <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{summary}</div>}
+                        {summary && <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>{summary}</div>}
                       </div>
                       {body && (
                         <button style={{ ...styles.btn, background: '#475569' }} onClick={() => setExpandedEdu(isOpen ? null : id)}>
@@ -1204,7 +1204,7 @@ export default function SelfServicePortal() {
                     {isOpen && body && (
                       <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-4, 16px)', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', whiteSpace: 'pre-wrap', fontSize: 12, lineHeight: 1.7, color: 'var(--text-secondary)' }}>
                         {body}
-                        {edu.duration && <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#94a3b8' }}>{t('ssp.education.readTimePrefix')}{edu.duration}{t('ssp.education.readTimeSuffix')}</div>}
+                        {edu.duration && <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('ssp.education.readTimePrefix')}{edu.duration}{t('ssp.education.readTimeSuffix')}</div>}
                       </div>
                     )}
                   </div>
@@ -1263,12 +1263,12 @@ export default function SelfServicePortal() {
                   <div key={group.title} style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', padding: 14 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: group.color, marginBottom: 10 }}>{group.title}（{group.users.length}）</div>
                     {group.users.length === 0 ? (
-                      <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('selfService.contacts.noContacts')}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('selfService.contacts.noContacts')}</div>
                     ) : (
                       group.users.map(u => (
                         <div key={u.id} style={{ padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
                           <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{u.name}</div>
-                          <div style={{ fontSize: 12, color: '#64748b' }}>{u.title ?? u.role} · {u.department ?? '-'}</div>
+                          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{u.title ?? u.role} · {u.department ?? '-'}</div>
                           <div style={{ fontSize: 12, color: '#0d9488', fontFamily: 'monospace' }}>{u.phone ?? '-'}</div>
                         </div>
                       ))
@@ -1277,7 +1277,7 @@ export default function SelfServicePortal() {
                 ))}
               </div>
             )}
-            <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 'var(--space-3, 12px)' }}>{t('ssp.contacts.notice')}</p>
+            <p style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 'var(--space-3, 12px)' }}>{t('ssp.contacts.notice')}</p>
           </Card>
         </div>
       ),
@@ -1309,7 +1309,7 @@ export default function SelfServicePortal() {
                         {FOLLOWUP_STATE_LABEL[p.status] ?? p.status}
                       </Tag>
                     </div>
-                    <div style={{ fontSize: 12, color: '#64748b', display: 'flex', gap: 'var(--space-3, 12px)', flexWrap: 'wrap', marginBottom: 'var(--space-1, 4px)' }}>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', display: 'flex', gap: 'var(--space-3, 12px)', flexWrap: 'wrap', marginBottom: 'var(--space-1, 4px)' }}>
                       <span>{t('ssp.followup.planPrefix')}{p.planDate ? fmtDateTime(p.planDate) : '-'}</span>
                       <span>{t('ssp.followup.nextPrefix')}{p.nextDate ? fmtDateTime(p.nextDate) : '-'}</span>
                       {p.intervalDays ? <span>{t('ssp.followup.everyPrefix')}{p.intervalDays}{t('ssp.followup.daySuffix')}</span> : null}
@@ -1364,7 +1364,7 @@ export default function SelfServicePortal() {
                 {followupCreating ? t('selfService.followup.submitting') : t('selfService.followup.submit')}
               </button>
             </div>
-            <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 'var(--space-3, 12px)' }}>{t('ssp.followup.submitNotice')}</p>
+            <p style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 'var(--space-3, 12px)' }}>{t('ssp.followup.submitNotice')}</p>
           </Card>
         </div>
       ),
@@ -1375,7 +1375,7 @@ export default function SelfServicePortal() {
       children: (
         <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
           <h3 style={styles.subTitle}>{t('selfService.feedback.title')}</h3>
-          <p style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-5, 20px)' }}>{t('ssp.feedback.intro')}</p>
+          <p style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-5, 20px)' }}>{t('ssp.feedback.intro')}</p>
           <div style={{ marginBottom: 'var(--space-6, 24px)' }}>
             <div style={styles.label}>{t('selfService.feedback.overallSatisfaction')}</div>
             <Rate
@@ -1449,7 +1449,7 @@ export default function SelfServicePortal() {
               />
             )}
             {srIdentify && srIdentify.candidates.length > 1 && (
-              <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#64748b' }}>
+              <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
                 {t('w12Patient.sr.candidates')}: {srIdentify.candidates.map(c => c.name).join('、')}
               </div>
             )}
@@ -1507,7 +1507,7 @@ export default function SelfServicePortal() {
           </div>
           <div>
             <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>{user?.name ?? '-'}</div>
-            <div style={{ fontSize: 12, color: '#64748b' }}>{t('selfService.patientCard.patientId')}：{user?.id ?? '-'}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('selfService.patientCard.patientId')}：{user?.id ?? '-'}</div>
           </div>
         </div>
         <div style={styles.grid2}>

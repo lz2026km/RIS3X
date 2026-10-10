@@ -122,7 +122,7 @@ export default function AutoCodingPage() {
             { label: t('w17.coding.statsIcd10'), value: structuredPayload.icd10.length, color: '#f43f5e' },
           ].map((card) => (
             <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{card.label}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-1, 4px)' }}>{card.label}</div>
               <div style={{ fontSize: 24, fontWeight: 700, color: card.color }}>{card.value}</div>
             </div>
           ))}
@@ -131,14 +131,14 @@ export default function AutoCodingPage() {
         <div style={{ display: 'flex', gap: 'var(--space-5, 20px)', flexWrap: 'wrap' }}>
           {/* 输入 */}
           <div style={{ flex: 1, minWidth: 320, background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1e293b', margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #1e293b)', margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <FileText size={16} color="var(--color-primary-500)" />{t('w17.coding.input')}
             </h3>
             <textarea
               value={text}
               onChange={(e) => { setText(e.target.value); setResult(null); setWritten(false) }}
               rows={10}
-              style={{ width: '100%', padding: 'var(--space-3, 12px)', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, fontFamily: 'monospace', lineHeight: 1.7, resize: 'vertical' }}
+              style={{ width: '100%', padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color, #cbd5e1)', borderRadius: 6, fontSize: 12, fontFamily: 'monospace', lineHeight: 1.7, resize: 'vertical' }}
               placeholder={t('w17.coding.inputPlaceholder')}
             />
             <div style={{ marginTop: 10, display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -147,22 +147,22 @@ export default function AutoCodingPage() {
               </ActionButton>
               <button
                 onClick={() => setText(SAMPLE_REPORT)}
-                style={{ padding: '7px 14px', background: 'var(--bg-card)', color: '#475569', border: '1px solid #cbd5e1', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}
+                style={{ padding: '7px 14px', background: 'var(--bg-card)', color: 'var(--text-secondary, #475569)', border: '1px solid var(--border-color, #cbd5e1)', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}
               >
                 {t('w17.coding.sample')}
               </button>
               <div style={{ flex: 1 }} />
-              <span style={{ fontSize: 11, color: '#94a3b8' }}>{t('w17.coding.deterministic')}</span>
+              <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{t('w17.coding.deterministic')}</span>
             </div>
 
             {result && result.terms.length > 0 && (
               <div style={{ marginTop: 'var(--space-4, 16px)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: '#1e293b' }}>{t('w17.coding.termList')} ({result.terms.length})</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary, #1e293b)' }}>{t('w17.coding.termList')} ({result.terms.length})</span>
                   <button onClick={() => setConfirmed(new Set(result.terms.map((term) => term.keyword)))} style={{ fontSize: 11, color: 'var(--color-primary-700)', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 4, padding: '2px 8px', cursor: 'pointer' }}>
                     {t('w17.coding.confirmAll')}
                   </button>
-                  <button onClick={() => setConfirmed(new Set())} style={{ fontSize: 11, color: '#64748b', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: 4, padding: '2px 8px', cursor: 'pointer' }}>
+                  <button onClick={() => setConfirmed(new Set())} style={{ fontSize: 11, color: 'var(--text-muted, #64748b)', background: '#f1f5f9', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: 4, padding: '2px 8px', cursor: 'pointer' }}>
                     {t('w17.coding.clearAll')}
                   </button>
                 </div>
@@ -179,7 +179,7 @@ export default function AutoCodingPage() {
                             {isConfirmed && <CheckCircle2 size={14} />}
                           </button>
                           <span style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{term.keyword}</span>
-                          <span style={{ fontSize: 11, fontWeight: 600, color: SECTION_COLORS[term.section] ?? '#94a3b8', background: '#f8fafc', padding: '2px 8px', borderRadius: 10, border: '1px solid #e2e8f0' }}>
+                          <span style={{ fontSize: 11, fontWeight: 600, color: SECTION_COLORS[term.section] ?? '#94a3b8', background: '#f8fafc', padding: '2px 8px', borderRadius: 10, border: '1px solid var(--border-color, #e2e8f0)' }}>
                             {t(`w17.coding.section.${term.section}`)}
                           </span>
                           <span style={{ fontSize: 11, fontWeight: 600, color: term.confidence >= 0.9 ? '#059669' : 'var(--color-warning-600)', background: term.confidence >= 0.9 ? '#d1fae5' : '#fef3c7', padding: '2px 8px', borderRadius: 10 }}>
@@ -190,18 +190,18 @@ export default function AutoCodingPage() {
                           <div style={{ flex: 1, minWidth: 200 }}>
                             <div style={{ fontSize: 11, fontWeight: 600, color: '#8b5cf6', marginBottom: 3 }}>SNOMED CT</div>
                             {term.snomed.length > 0 ? term.snomed.map((c) => (
-                              <div key={c.conceptId} style={{ color: '#475569', marginBottom: 2 }}>
+                              <div key={c.conceptId} style={{ color: 'var(--text-secondary, #475569)', marginBottom: 2 }}>
                                 <code style={{ background: '#ede9fe', padding: '1px 5px', borderRadius: 3, fontSize: 11 }}>{c.conceptId}</code> {c.pt}
                               </div>
-                            )) : <span style={{ color: '#94a3b8' }}>—</span>}
+                            )) : <span style={{ color: 'var(--text-muted, #94a3b8)' }}>—</span>}
                           </div>
                           <div style={{ flex: 1, minWidth: 200 }}>
                             <div style={{ fontSize: 11, fontWeight: 600, color: '#f43f5e', marginBottom: 3 }}>ICD-10</div>
                             {term.icd10.length > 0 ? term.icd10.map((c) => (
-                              <div key={c.code} style={{ color: '#475569', marginBottom: 2 }}>
+                              <div key={c.code} style={{ color: 'var(--text-secondary, #475569)', marginBottom: 2 }}>
                                 <code style={{ background: '#ffe4e6', padding: '1px 5px', borderRadius: 3, fontSize: 11 }}>{c.code}</code> {c.title}
                               </div>
-                            )) : <span style={{ color: '#94a3b8' }}>—</span>}
+                            )) : <span style={{ color: 'var(--text-muted, #94a3b8)' }}>—</span>}
                           </div>
                         </div>
                       </div>
@@ -211,7 +211,7 @@ export default function AutoCodingPage() {
               </div>
             )}
             {result && result.terms.length === 0 && (
-              <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-4, 16px)', textAlign: 'center', color: '#94a3b8', fontSize: 12, background: '#f8fafc', borderRadius: 8 }}>
+              <div style={{ marginTop: 'var(--space-3, 12px)', padding: 'var(--space-4, 16px)', textAlign: 'center', color: 'var(--text-muted, #94a3b8)', fontSize: 12, background: '#f8fafc', borderRadius: 8 }}>
                 {t('w17.coding.noTerms')}
               </div>
             )}
@@ -219,17 +219,17 @@ export default function AutoCodingPage() {
 
           {/* 结构化写入 */}
           <div style={{ flex: 1, minWidth: 320, background: 'var(--bg-card)', borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1e293b', margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #1e293b)', margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <ShieldCheck size={16} color="#10b981" />{t('w17.coding.writeTitle')}
             </h3>
-            <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('w17.coding.reportId')}</label>
+            <label style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('w17.coding.reportId')}</label>
             <input
               value={reportId}
               onChange={(e) => { setReportId(e.target.value); setWritten(false) }}
               placeholder={t('w17.coding.reportIdPlaceholder')}
-              style={{ width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, marginBottom: 10,}}
+              style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color, #cbd5e1)', borderRadius: 6, fontSize: 12, marginBottom: 10,}}
             />
-            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 6 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 6 }}>
               {t('w17.coding.confirmedCount')}: <strong>{confirmedTerms.length}</strong>
             </div>
             <pre style={{ background: '#0f172a', color: '#e2e8f0', borderRadius: 8, padding: 14, fontSize: 11, lineHeight: 1.7, minHeight: 240, maxHeight: 380, overflow: 'auto', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>

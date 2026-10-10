@@ -42,7 +42,7 @@ function TimelineView({ logs, onViewDetail }: { logs: OperationLog[]; onViewDeta
                     position: 'absolute', left: -32, top: 8,
                     width: 12, height: 12, borderRadius: '50%',
                     background: ACTION_COLORS[log.action] || ACCENT,
-                    border: '2px solid #e2e8f0', boxShadow: '0 0 0 3px #e2e8f0',
+                    border: '2px solid var(--border-color, #e2e8f0)', boxShadow: '0 0 0 3px #e2e8f0',
                     zIndex: 1,
                   }} />
                   {!isLast && (
@@ -54,7 +54,7 @@ function TimelineView({ logs, onViewDetail }: { logs: OperationLog[]; onViewDeta
                   )}
 
                   <div style={{
-                    flex: 1, background: WHITE, border: '1px solid #e2e8f0',
+                    flex: 1, background: WHITE, border: '1px solid var(--border-color, #e2e8f0)',
                     borderRadius: 10, padding: 14, marginLeft: 'var(--space-4, 16px)',
                     cursor: 'pointer', transition: 'all 0.2s',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
@@ -132,7 +132,7 @@ function Pagination({
   return (
     <div style={{
       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-      padding: '12px 16px', borderTop: '1px solid #e2e8f0',
+      padding: '12px 16px', borderTop: '1px solid var(--border-color, #e2e8f0)',
     }}>
       <div style={{ fontSize: 12, color: GRAY }}>
         显示 {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, total)} 条，共 {total} 条
@@ -143,7 +143,7 @@ function Pagination({
           <select
             value={pageSize}
             onChange={e => onPageSizeChange(Number(e.target.value))}
-            style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #e2e8f0', fontSize: 12 }}
+            style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border-color, #e2e8f0)', fontSize: 12 }}
           >
             {PAGE_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
@@ -154,7 +154,7 @@ function Pagination({
             onClick={() => onPageChange(Math.max(1, currentPage - 1))}
             disabled={currentPage === 1}
             style={{
-              padding: '4px 10px', borderRadius: 4, border: '1px solid #e2e8f0',
+              padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color, #e2e8f0)',
               background: WHITE, color: currentPage === 1 ? '#cbd5e1' : PRIMARY,
               fontSize: 12, cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
             }}
@@ -165,7 +165,7 @@ function Pagination({
             onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage === totalPages}
             style={{
-              padding: '4px 10px', borderRadius: 4, border: '1px solid #e2e8f0',
+              padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color, #e2e8f0)',
               background: WHITE, color: currentPage === totalPages ? '#cbd5e1' : PRIMARY,
               fontSize: 12, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
             }}
@@ -256,7 +256,7 @@ function TableView({ logs, onViewDetail }: { logs: OperationLog[]; onViewDetail:
               {log.source}
             </span>
           </div>
-          <div style={{ color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={log.targetDesc}>
+          <div style={{ color: 'var(--text-secondary, #475569)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={log.targetDesc}>
             {log.targetDesc}
           </div>
           <div style={{ color: GRAY }}>{log.ipAddress}</div>
@@ -264,7 +264,7 @@ function TableView({ logs, onViewDetail }: { logs: OperationLog[]; onViewDetail:
             <button
               onClick={() => onViewDetail(log)}
               style={{
-                padding: '4px 8px', borderRadius: 4, border: '1px solid #e2e8f0',
+                padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border-color, #e2e8f0)',
                 background: WHITE, color: ACCENT, fontSize: 12, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
               }}
@@ -285,7 +285,7 @@ export default function LogTable({
 }: LogTableProps) {
   return (
     <div style={{
-      background: WHITE, borderRadius: 10, border: '1px solid #e2e8f0',
+      background: WHITE, borderRadius: 10, border: '1px solid var(--border-color, #e2e8f0)',
       boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
     }}>
       <TableView logs={logs} onViewDetail={onViewDetail} />

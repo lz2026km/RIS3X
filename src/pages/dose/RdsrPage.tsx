@@ -88,26 +88,26 @@ export default function RdsrPage() {
     { title: t("bodyPart"), dataIndex: "bodyPart", key: "bodyPart", render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
     { title: "CTDIvol DRL", dataIndex: "ctdivolDrl", key: "ctdivolDrl", render: (v: number) => `${v} mGy` },
     { title: "DLP DRL", dataIndex: "dlpDrl", key: "dlpDrl", render: (v: number) => `${v} mGy·cm` },
-    { title: t("source"), dataIndex: "source", key: "source", render: (v: string) => <span style={{ color: "#64748b" }}>{v}</span> },
+    { title: t("source"), dataIndex: "source", key: "source", render: (v: string) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{v}</span> },
   ]
 
   const patientColumns: TableColumnsType<PatientDoseSummary> = [
     { title: tApp("rdsr.patientName"), dataIndex: "patientName", key: "patientName", render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
-    { title: tApp("rdsr.patientId"), dataIndex: "patientId", key: "patientId", render: (v: string) => <span style={{ color: "#64748b" }}>{v}</span> },
+    { title: tApp("rdsr.patientId"), dataIndex: "patientId", key: "patientId", render: (v: string) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{v}</span> },
     { title: tApp("rdsr.examCount"), dataIndex: "examCount", key: "examCount" },
     { title: tApp("rdsr.dlp30d"), dataIndex: "totalDlp30d", key: "totalDlp30d", render: (v: number) => Number(v ?? 0).toFixed(0) },
     { title: tApp("rdsr.dlp1y"), dataIndex: "totalDlp1y", key: "totalDlp1y", render: (v: number) => Number(v ?? 0).toFixed(0) },
     { title: tApp("rdsr.overDrl"), dataIndex: "overDrlCount", key: "overDrlCount", render: (v: number) => <span style={{ fontWeight: 700, color: (v ?? 0) > 0 ? "var(--color-error-600)" : "var(--color-success-600)" }}>{v ?? 0}</span> },
-    { title: tApp("rdsr.lastExam"), dataIndex: "lastExamDate", key: "lastExamDate", render: (v: string) => <span style={{ color: "#64748b" }}>{v}</span> },
+    { title: tApp("rdsr.lastExam"), dataIndex: "lastExamDate", key: "lastExamDate", render: (v: string) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{v}</span> },
   ]
 
   const alertColumns: TableColumnsType<DoseAlert> = [
     { title: tApp("rdsr.patientName"), dataIndex: "patientName", key: "patientName", render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
     { title: tApp("rdsr.modalityShort"), dataIndex: "modality", key: "modality" },
     { title: tApp("rdsr.bodyPartShort"), dataIndex: "bodyPart", key: "bodyPart" },
-    { title: "CTDIvol", key: "ctdivol", render: (_v, a) => <span>{a.ctdivol}<span style={{ color: "#94a3b8" }}>/{a.ctdivolDrl}</span></span> },
-    { title: "DLP", key: "dlp", render: (_v, a) => <span>{a.dlp}<span style={{ color: "#94a3b8" }}>/{a.dlpDrl}</span></span> },
-    { title: tApp("rdsr.date"), dataIndex: "date", key: "date", render: (v: string) => <span style={{ color: "#64748b" }}>{v}</span> },
+    { title: "CTDIvol", key: "ctdivol", render: (_v, a) => <span>{a.ctdivol}<span style={{ color: 'var(--text-muted, #94a3b8)' }}>/{a.ctdivolDrl}</span></span> },
+    { title: "DLP", key: "dlp", render: (_v, a) => <span>{a.dlp}<span style={{ color: 'var(--text-muted, #94a3b8)' }}>/{a.dlpDrl}</span></span> },
+    { title: tApp("rdsr.date"), dataIndex: "date", key: "date", render: (v: string) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{v}</span> },
     {
       title: tApp("rdsr.level"), dataIndex: "level", key: "level",
       render: (v: string) => (
@@ -154,22 +154,22 @@ export default function RdsrPage() {
               <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#dbeafe", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}>
                 <Upload size={28} color="var(--color-primary-500)" />
               </div>
-              <div style={{ fontSize: 14, color: "#64748b", marginBottom: 'var(--space-4, 16px)' }}>{t("uploadHint")}</div>
+              <div style={{ fontSize: 14, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-4, 16px)' }}>{t("uploadHint")}</div>
               <button onClick={handleParse} disabled={loading} style={{ padding: "10px 28px", background: "var(--color-primary-800)", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 14, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
                 <Zap size={16} />{loading ? t("parsing") : t("parseRdsr")}
               </button>
             </div>
 
             {rdsrResult && (
-              <div style={{ marginTop: 'var(--space-4, 16px)', borderTop: "1px solid #e2e8f0", paddingTop: 'var(--space-4, 16px)' }}>
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px" }}>{t("parseResult")}</h3>
+              <div style={{ marginTop: 'var(--space-4, 16px)', borderTop: "1px solid var(--border-color, #e2e8f0)", paddingTop: 'var(--space-4, 16px)' }}>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #1e293b)', margin: "0 0 12px" }}>{t("parseResult")}</h3>
                 <StatCardGrid minWidth={190} gap={12}>
                   <StatCard title="CTDIvol" value={`${rdsrResult.ctdivol} mGy`} icon={<Activity size={20} />} color={rdsrResult.alertLevel === "critical" ? "var(--color-error-600)" : rdsrResult.alertLevel === "warning" ? "var(--color-warning-500)" : "#10b981"} />
                   <StatCard title="DLP" value={`${rdsrResult.dlp} mGy·cm`} icon={<BarChart3 size={20} />} color="var(--color-primary-500)" />
                   <StatCard title="SSDE" value={rdsrResult.ssde ? `${rdsrResult.ssde} mGy` : "—"} icon={<Calculator size={20} />} color="#8b5cf6" />
                   <StatCard title={t("alertLevel")} value={<span style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>{alertColor(rdsrResult.alertLevel).icon}{t(rdsrResult.alertLevel)}</span>} icon={<AlertTriangle size={20} />} color={rdsrResult.alertLevel === "critical" ? "var(--color-error-600)" : rdsrResult.alertLevel === "warning" ? "var(--color-warning-500)" : "#10b981"} />
                 </StatCardGrid>
-                <div style={{ marginTop: 'var(--space-3, 12px)', display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-2, 8px)', fontSize: 12, color: "#475569" }}>
+                <div style={{ marginTop: 'var(--space-3, 12px)', display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-secondary, #475569)' }}>
                   <div><strong>{t("modality")}:</strong> {rdsrResult.modality}</div>
                   <div><strong>{t("bodyPart")}:</strong> {rdsrResult.bodyPart}</div>
                   <div><strong>{t("events")}:</strong> {rdsrResult.numberOfEvents}</div>
@@ -193,7 +193,7 @@ export default function RdsrPage() {
 
         {activeTab === "drls" && (
           <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #1e293b)', margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
               <BarChart3 size={16} color="#10b981" />{t("drlComparison")}
             </h3>
             <div style={{ overflowX: "auto" }}>
@@ -206,7 +206,7 @@ export default function RdsrPage() {
             {rdsrResult && (
               <div style={{ marginTop: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: "#f0fdf4", borderRadius: 6 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: "#065f46", marginBottom: 'var(--space-2, 8px)' }}>{t("currentComparison")}</div>
-                <div style={{ fontSize: 12, color: "#475569" }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)' }}>
                   <div>CTDIvol: {rdsrResult.ctdivol} mGy vs DRL {drls.find(d => d.bodyPart === rdsrResult.bodyPart)?.ctdivolDrl ?? "?"} mGy</div>
                   <div>DLP: {rdsrResult.dlp} mGy·cm vs DRL {drls.find(d => d.bodyPart === rdsrResult.bodyPart)?.dlpDrl ?? "?"} mGy·cm</div>
                 </div>
@@ -217,7 +217,7 @@ export default function RdsrPage() {
 
         {activeTab === "stats" && (
           <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #1e293b)', margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
               <TrendingUp size={16} color="#8b5cf6" />{t("doseStats")}
             </h3>
             {stats ? (
@@ -231,7 +231,7 @@ export default function RdsrPage() {
 
                 {Array.isArray(stats.trend) && stats.trend.length > 0 && (
                   <div style={{ marginTop: 'var(--space-4, 16px)' }}>
-                    <h4 style={{ fontSize: 12, fontWeight: 700, color: "#1e293b", margin: "0 0 8px" }}>{t("trend")}</h4>
+                    <h4 style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary, #1e293b)', margin: "0 0 8px" }}>{t("trend")}</h4>
                     <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 100, padding: "0 8px" }}>
                       {stats.trend.map((p, i) => {
                         const h = (Number(p.avgCtdivol ?? 0) / (Number(stats.maxCtdivol) || 1)) * 80
@@ -246,12 +246,12 @@ export default function RdsrPage() {
                               <span style={{ fontSize: 10, color: "var(--color-primary-500)" }}>{Number(p.avgCtdivol ?? 0).toFixed(0)}</span>
                               <span style={{ fontSize: 10, color: "#10b981" }}>{Number(p.avgDlp ?? 0).toFixed(0)}</span>
                             </div>
-                            <span style={{ fontSize: 10, color: "#94a3b8" }}>{String(p.date ?? "").slice(5)}</span>
+                            <span style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)' }}>{String(p.date ?? "").slice(5)}</span>
                           </div>
                         )
                       })}
                     </div>
-                    <div style={{ display: "flex", gap: 'var(--space-4, 16px)', marginTop: 'var(--space-1, 4px)', fontSize: 10, color: "#64748b" }}>
+                    <div style={{ display: "flex", gap: 'var(--space-4, 16px)', marginTop: 'var(--space-1, 4px)', fontSize: 10, color: 'var(--text-muted, #64748b)' }}>
                       <span style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}><span style={{ width: 8, height: 8, background: "var(--color-primary-500)", borderRadius: 2, display: "inline-block" }} />CTDIvol</span>
                       <span style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}><span style={{ width: 8, height: 8, background: "#10b981", borderRadius: 2, display: "inline-block" }} />DLP</span>
                     </div>
@@ -268,7 +268,7 @@ export default function RdsrPage() {
                 )}
               </>
             ) : (
-              <div style={{ padding: 'var(--space-10, 40px)', textAlign: "center", color: "#94a3b8" }}>{t("noStatsData")}</div>
+              <div style={{ padding: 'var(--space-10, 40px)', textAlign: "center", color: 'var(--text-muted, #94a3b8)' }}>{t("noStatsData")}</div>
             )}
           </div>
         )}
@@ -276,7 +276,7 @@ export default function RdsrPage() {
         {/* [v3.0.6.11-104 Wave 2A] GET /rdsr/patients — 患者累积剂量列表 */}
         {activeTab === "patients" && (
           <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #1e293b)', margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
               <Users size={16} color="var(--color-primary-500)" />{tApp("rdsr.patients")}
             </h3>
             <div style={{ display: "flex", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)' }}>
@@ -285,16 +285,16 @@ export default function RdsrPage() {
                 onChange={(e) => setPatientSearch(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") void handleLoadPatients() }}
                 placeholder={tApp("rdsr.patientSearchPlaceholder")}
-                style={{ flex: 1, maxWidth: 320, padding: "7px 10px", borderRadius: 6, border: "1px solid #cbd5e1", fontSize: 12, background: "var(--bg-card)", color: "var(--text-primary)" }}
+                style={{ flex: 1, maxWidth: 320, padding: "7px 10px", borderRadius: 6, border: "1px solid var(--border-color, #cbd5e1)", fontSize: 12, background: "var(--bg-card)", color: "var(--text-primary)" }}
               />
               <button onClick={() => void handleLoadPatients()} disabled={patientsLoading} style={{ padding: "7px 18px", background: "var(--color-primary-800)", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
                 {tApp("rdsr.search")}
               </button>
             </div>
             {patientsLoading ? (
-              <div style={{ padding: 'var(--space-8, 32px)', textAlign: "center", color: "#94a3b8" }}>{tApp("rdsr.loading")}</div>
+              <div style={{ padding: 'var(--space-8, 32px)', textAlign: "center", color: 'var(--text-muted, #94a3b8)' }}>{tApp("rdsr.loading")}</div>
             ) : patients.length === 0 ? (
-              <div style={{ padding: 'var(--space-8, 32px)', textAlign: "center", color: "#94a3b8" }}>{tApp("rdsr.noData")}</div>
+              <div style={{ padding: 'var(--space-8, 32px)', textAlign: "center", color: 'var(--text-muted, #94a3b8)' }}>{tApp("rdsr.noData")}</div>
             ) : (
               <div style={{ overflowX: "auto" }}>
                 <DataTable<PatientDoseSummary>
@@ -310,16 +310,16 @@ export default function RdsrPage() {
         {/* [v3.0.6.11-104 Wave 2A] GET /rdsr/alerts — 超阈值告警 */}
         {activeTab === "alerts" && (
           <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 'var(--space-5, 20px)', boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #1e293b)', margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
               <ShieldAlert size={16} color="var(--color-error-600)" />{tApp("rdsr.alertsTab")}
               {alerts.length > 0 && (
                 <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-error-600)", background: "#fee2e2", padding: "2px 8px", borderRadius: 8 }}>{alerts.length}</span>
               )}
             </h3>
             {alertsLoading ? (
-              <div style={{ padding: 'var(--space-8, 32px)', textAlign: "center", color: "#94a3b8" }}>{tApp("rdsr.loading")}</div>
+              <div style={{ padding: 'var(--space-8, 32px)', textAlign: "center", color: 'var(--text-muted, #94a3b8)' }}>{tApp("rdsr.loading")}</div>
             ) : alerts.length === 0 ? (
-              <div style={{ padding: 'var(--space-8, 32px)', textAlign: "center", color: "#94a3b8", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+              <div style={{ padding: 'var(--space-8, 32px)', textAlign: "center", color: 'var(--text-muted, #94a3b8)', display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
                 <CheckCircle size={16} color="var(--color-success-600)" />{tApp("rdsr.noData")}
               </div>
             ) : (

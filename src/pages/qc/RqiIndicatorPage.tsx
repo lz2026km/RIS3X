@@ -366,7 +366,7 @@ export default function RqiIndicatorPage() {
         render: (v: string, r) => (
           <Space direction="vertical" size={2}>
             <span style={{ fontWeight: 500 }}>{v}</span>
-            <span style={{ color: '#94a3b8', fontSize: 12 }}>{r.nameEn}</span>
+            <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{r.nameEn}</span>
           </Space>
         ),
       },
@@ -532,7 +532,7 @@ export default function RqiIndicatorPage() {
             disabled={rangeActive}
           />
           <Space size={6}>
-            <span style={{ color: '#64748b', fontSize: 12 }}>{t('rqi2024.dateRange')}</span>
+            <span style={{ color: 'var(--text-muted, #64748b)', fontSize: 12 }}>{t('rqi2024.dateRange')}</span>
             <Input
               size="small"
               type="date"
@@ -540,7 +540,7 @@ export default function RqiIndicatorPage() {
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
             />
-            <span style={{ color: '#94a3b8' }}>~</span>
+            <span style={{ color: 'var(--text-muted, #94a3b8)' }}>~</span>
             <Input
               size="small"
               type="date"
@@ -562,7 +562,7 @@ export default function RqiIndicatorPage() {
             )}
           </Space>
           {source !== 'offline' && period && !rangeActive && (
-            <span style={{ color: '#94a3b8', fontSize: 12, marginLeft: 'auto' }}>
+            <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12, marginLeft: 'auto' }}>
               {t('rqi2024.period')}: {period}
             </span>
           )}
@@ -597,7 +597,7 @@ export default function RqiIndicatorPage() {
                   title={
                     <span>
                       {ind.name}{' '}
-                      <span style={{ color: '#94a3b8', fontSize: 11, marginLeft: 'var(--space-1, 4px)' }}>{ind.code}</span>
+                      <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 11, marginLeft: 'var(--space-1, 4px)' }}>{ind.code}</span>
                     </span>
                   }
                   value={ind.rate}
@@ -681,7 +681,7 @@ export default function RqiIndicatorPage() {
                 selectedIndicator ? (
                   <Space size={6}>
                     <Tag color={STATUS_META[selectedIndicator.status].tag}>{statusLabel(selectedIndicator.status)}</Tag>
-                    <span style={{ color: '#94a3b8', fontSize: 12 }}>{selectedIndicator.code}</span>
+                    <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{selectedIndicator.code}</span>
                   </Space>
                 ) : null
               }
@@ -711,7 +711,7 @@ export default function RqiIndicatorPage() {
                   : t('rqi2024.trendTitle')
               }
               icon={<TrendingUp size={15} />}
-              extra={<span style={{ color: '#94a3b8', fontSize: 12 }}>{t('rqi2024.trendMonths')}</span>}
+              extra={<span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{t('rqi2024.trendMonths')}</span>}
             >
               {selectedIndicator ? (
                 <TrendChart
@@ -865,9 +865,9 @@ export default function RqiIndicatorPage() {
           </Space>
         }
       >
-        <div style={{ color: '#64748b', fontSize: 12, marginBottom: 'var(--space-4, 16px)' }}>{t('rqi2024.configHint')}</div>
+        <div style={{ color: 'var(--text-muted, #64748b)', fontSize: 12, marginBottom: 'var(--space-4, 16px)' }}>{t('rqi2024.configHint')}</div>
         {configLoading ? (
-          <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: '#94a3b8' }}>{t('rqi2024.loading')}</div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: 'var(--text-muted, #94a3b8)' }}>{t('rqi2024.loading')}</div>
         ) : (
           <Space direction="vertical" size={16} style={{ width: '100%' }}>
             {configItems.map((c) => (
@@ -881,7 +881,7 @@ export default function RqiIndicatorPage() {
                 }}
               >
                 <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 10 }}>
-                  {c.name} <span style={{ color: '#94a3b8', fontSize: 11, marginLeft: 'var(--space-1, 4px)' }}>{c.code}</span>
+                  {c.name} <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 11, marginLeft: 'var(--space-1, 4px)' }}>{c.code}</span>
                 </div>
                 <Space direction="vertical" size={10} style={{ width: '100%' }}>
                   <FormField label={`${t('rqi2024.configTarget')} (${c.unit})`} labelWidth={110}>
@@ -979,7 +979,7 @@ function OverviewStat({
         {icon}
       </span>
       <div>
-        <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{label}</div>
         <div style={{ fontSize: 20, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color }}>{value}</div>
       </div>
     </div>

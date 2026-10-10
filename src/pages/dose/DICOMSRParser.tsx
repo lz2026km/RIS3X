@@ -108,7 +108,7 @@ export default function DICOMSRParser() {
           background: "var(--bg-card)",
           borderRadius: 12,
           padding: 'var(--space-5, 20px)',
-          border: "1px solid #e2e8f0",
+          border: "1px solid var(--border-color, #e2e8f0)",
         }}
       >
         <div
@@ -123,7 +123,7 @@ export default function DICOMSRParser() {
             <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>
               DICOM SR RDSR 解析
             </div>
-            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>
               导入 DICOM JSON 文件, 调用 /rdsr/parse 真实解析并提取关键参数
             </div>
           </div>
@@ -233,7 +233,7 @@ export default function DICOMSRParser() {
           background: "var(--bg-card)",
           borderRadius: 12,
           padding: 'var(--space-5, 20px)',
-          border: "1px solid #e2e8f0",
+          border: "1px solid var(--border-color, #e2e8f0)",
         }}
       >
         <div
@@ -255,13 +255,13 @@ export default function DICOMSRParser() {
             showDensity={false}
             columns={[
               { title: "患者", dataIndex: "patientName", key: "patientName", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{v}</span> },
-              { title: "检查日期", dataIndex: "studyDate", key: "studyDate", align: "center", render: (v: string) => <span style={{ color: "#94a3b8" }}>{v}</span> },
-              { title: "设备", dataIndex: "device", key: "device", align: "center", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
-              { title: "检查项目", dataIndex: "examItem", key: "examItem", align: "center", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
+              { title: "检查日期", dataIndex: "studyDate", key: "studyDate", align: "center", render: (v: string) => <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{v}</span> },
+              { title: "设备", dataIndex: "device", key: "device", align: "center", render: (v: string) => <span style={{ color: 'var(--text-primary, #334155)' }}>{v}</span> },
+              { title: "检查项目", dataIndex: "examItem", key: "examItem", align: "center", render: (v: string) => <span style={{ color: 'var(--text-primary, #334155)' }}>{v}</span> },
               { title: "CTDIvol", dataIndex: "ctdivol", key: "ctdivol", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "var(--color-primary-800)" }}>{v || "-"}</span> },
               { title: "DLP", dataIndex: "dlp", key: "dlp", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "var(--color-primary-800)" }}>{v || "-"}</span> },
-              { title: "总剂量", key: "totalDose", align: "center", render: (_: unknown, r: DICOMSRRecord) => <span style={{ color: "#334155" }}>{r.totalDose} {r.doseUnit}</span> },
-              { title: "DRL参考值", dataIndex: "drlReference", key: "drlReference", align: "center", render: (v: number) => <span style={{ color: "#94a3b8" }}>{v || "-"}</span> },
+              { title: "总剂量", key: "totalDose", align: "center", render: (_: unknown, r: DICOMSRRecord) => <span style={{ color: 'var(--text-primary, #334155)' }}>{r.totalDose} {r.doseUnit}</span> },
+              { title: "DRL参考值", dataIndex: "drlReference", key: "drlReference", align: "center", render: (v: number) => <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{v || "-"}</span> },
               {
                 title: "DRL合规", dataIndex: "drlCompliant", key: "drlCompliant", align: "center",
                 render: (v: boolean) => (

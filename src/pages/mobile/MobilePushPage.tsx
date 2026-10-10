@@ -315,11 +315,11 @@ export default function MobilePushPage() {
             {pushEnabled ? <CheckCircle size={14} /> : <Bell size={14} />}
             {pushEnabled ? t('mobilePush.enabled') : t('mobilePush.enablePush')}
           </button>
-          <button onClick={() => setShowTestPanel(!showTestPanel)} style={{ ...btnBase, background: 'var(--bg-card)', color: '#64748b', gap: 6 }}>
+          <button onClick={() => setShowTestPanel(!showTestPanel)} style={{ ...btnBase, background: 'var(--bg-card)', color: 'var(--text-muted, #64748b)', gap: 6 }}>
             <Send size={14} />{t('mobilePush.testPush')}
           </button>
         </div>
-        <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 'var(--space-2, 8px)' }}>
+        <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 'var(--space-2, 8px)' }}>
           {t('mobilePush.pushStatus')} <span style={{ color: pushPermission === 'granted' ? '#059669' : 'var(--color-error-600)', fontWeight: 600 }}>
             {pushPermission === 'granted' ? t('mobilePush.authorized') : pushPermission === 'denied' ? t('mobilePush.denied') : pushPermission === 'unsupported' ? t('mobilePush.unsupported') : t('mobilePush.unauthorized')}
           </span>
@@ -331,7 +331,7 @@ export default function MobilePushPage() {
         <div style={{ ...cardStyle, padding: 'var(--space-3, 12px)', border: '1px solid var(--color-info-border)', background: 'var(--color-info-bg)' }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10 }}>{t('mobilePush.testPanel')}</div>
           <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
-            <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('mobilePush.formTitle')}</label>
+            <label style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('mobilePush.formTitle')}</label>
             <input
               value={testTitle}
               onChange={(e) => setTestTitle(e.target.value)}
@@ -339,7 +339,7 @@ export default function MobilePushPage() {
             />
           </div>
           <div style={{ marginBottom: 'var(--space-2, 8px)' }}>
-            <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('mobilePush.formBody')}</label>
+            <label style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', display: 'block', marginBottom: 'var(--space-1, 4px)' }}>{t('mobilePush.formBody')}</label>
             <textarea
               value={testBody}
               onChange={(e) => setTestBody(e.target.value)}
@@ -375,7 +375,7 @@ export default function MobilePushPage() {
             )
           })}
         </div>
-        <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 'var(--space-2, 8px)' }}>
+        <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginTop: 'var(--space-2, 8px)' }}>
           {t('mobilePush.subscriptionHint')}
         </div>
       </div>
@@ -383,7 +383,7 @@ export default function MobilePushPage() {
       <div style={{ display: 'flex', gap: 6, marginBottom: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           <Filter size={12} color="#64748b" />
-          <span style={{ fontSize: 12, color: '#64748b' }}>{t('mobilePush.category')}</span>
+          <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('mobilePush.category')}</span>
         </div>
         {['all', 'critical', 'report', 'appointment', 'system'].map((topic) => (
           <button
@@ -401,11 +401,11 @@ export default function MobilePushPage() {
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2, 8px)' }}>
-        <span style={{ fontSize: 12, color: '#64748b' }}>
+        <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
           {t('mobilePush.totalPrefix')} <span style={{ fontWeight: 700, color: 'var(--color-primary-800)' }}>{filtered.length}</span> {t('mobilePush.totalSuffix')}
         </span>
         <div style={{ display: 'flex', gap: 6 }}>
-          <button onClick={handleMarkAllRead} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 11, cursor: 'pointer' }}>
+          <button onClick={handleMarkAllRead} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-muted, #64748b)', fontSize: 11, cursor: 'pointer' }}>
             <CheckCircle size={11} style={{ marginRight: 3 }} />{t('mobilePush.markAllRead')}
           </button>
           <button onClick={handleClearAll} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid var(--color-error-border)', background: 'var(--bg-card)', color: 'var(--color-error-600)', fontSize: 11, cursor: 'pointer' }}>
@@ -446,9 +446,9 @@ export default function MobilePushPage() {
                     {topicLabel(n.topic || 'system')}
                   </span>
                 </div>
-                <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>{n.body}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', lineHeight: 1.5 }}>{n.body}</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginTop: 'var(--space-1, 4px)' }}>
-                  <span style={{ fontSize: 11, color: '#94a3b8' }}>
+                  <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>
                     <Clock size={10} style={{ marginRight: 2 }} />
                     {n.receivedAt}
                   </span>
@@ -466,14 +466,14 @@ export default function MobilePushPage() {
       })}
 
       {filtered.length === 0 && (
-        <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: '#94a3b8' }}>
+        <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: 'var(--text-muted, #94a3b8)' }}>
           <BellOff size={32} style={{ marginBottom: 'var(--space-2, 8px)', opacity: 0.5 }} />
           <div style={{ fontSize: 14 }}>{t('mobilePush.noNotifications')}</div>
         </div>
       )}
 
       <div style={{ marginTop: 'var(--space-4, 16px)', padding: 'var(--space-3, 12px)', background: 'var(--bg-card)', borderRadius: 8 }}>
-        <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.8 }}>
+        <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', lineHeight: 1.8 }}>
           <strong>{t('mobilePush.configTitle')}</strong><br />
           {t('mobilePush.configLine1')}<br />
           {t('mobilePush.configLine2')}<br />

@@ -394,7 +394,7 @@ const CadDetectPanel: React.FC = () => {
           <Button type="primary" icon={<Crosshair size={14} />} loading={detecting} onClick={() => void runDetect(instanceId)}>
             {t('aiCad.startDetect')}
           </Button>
-          <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('aiCad.examples')}</span>
+          <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{t('aiCad.examples')}</span>
           {SAMPLE_INSTANCES.map((s) => (
             <Button key={s} size="small" onClick={() => { setInstanceId(s); void runDetect(s) }}>{s}</Button>
           ))}
@@ -413,7 +413,7 @@ const CadDetectPanel: React.FC = () => {
             </Row>
             <DataTable scroll={{ x: 'max-content' }} rowKey={(f) => `${f.x}-${f.y}`} dataSource={current.findings} columns={findingColumns} pagination={false}/>
             {current.heatmapUrl && (
-              <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#64748b' }}>
+              <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
                 {t('aiCad.heatmap')}: <code>{current.heatmapUrl}</code>
               </div>
             )}
@@ -451,7 +451,7 @@ const CadDetectPanel: React.FC = () => {
             <>
               <Space style={{ marginBottom: 'var(--space-3, 12px)' }}>
                 <Tag color="blue">{detail.instanceId}</Tag>
-                <span style={{ fontSize: 12, color: '#64748b' }}>{t('aiCad.detectedAt')} {detail.detectedAt.slice(0, 19).replace('T', ' ')}</span>
+                <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('aiCad.detectedAt')} {detail.detectedAt.slice(0, 19).replace('T', ' ')}</span>
                 {detail.simulated && <Tag color="gold">{t('aiCad.simulatedFallback')}</Tag>}
               </Space>
               <DataTable scroll={{ x: 'max-content' }} rowKey={(f) => `${f.x}-${f.y}`} dataSource={detail.findings} columns={findingColumns} pagination={false}/>

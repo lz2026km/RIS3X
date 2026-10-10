@@ -342,12 +342,12 @@ export default function RetakeRateAnalyticsPage() {
                         )
                       })}
                     </div>
-                    <span style={{ width: 96, fontSize: 11, color: '#94a3b8', textAlign: 'right' }}>
+                    <span style={{ width: 96, fontSize: 11, color: 'var(--text-muted, #94a3b8)', textAlign: 'right' }}>
                       {b.completed} {t('retakeAnalytics.examUnit')} / {b.retakes} {t('retakeAnalytics.retakeUnit')}
                     </span>
                   </div>
                 ))}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 'var(--space-1, 4px)', fontSize: 11, color: '#94a3b8' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 'var(--space-1, 4px)', fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>
                   {t('retakeAnalytics.low')}
                   {[0, 20, 40, 60, 80, 100].map((v) => (
                     <span key={v} style={{ width: 14, height: 12, borderRadius: 2, background: heatBg(v), border: '1px solid var(--border-color)' }} />

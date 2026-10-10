@@ -514,7 +514,7 @@ export default function FusionPage() {
   const btnStyle: React.CSSProperties = {
     background: 'transparent',
     border: '1px solid #334155',
-    color: '#94a3b8',
+    color: 'var(--text-muted, #94a3b8)',
     borderRadius: 4,
     padding: '4px 8px',
     fontSize: 11,
@@ -585,7 +585,7 @@ export default function FusionPage() {
         <span style={{ fontSize: 12, fontWeight: 600, color: '#facc15', minWidth: 44, textAlign: 'right' }}>
           {Math.round(fusionAlpha * 100)}%
         </span>
-        <span style={{ fontSize: 11, color: '#64748b' }}>
+        <span style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>
           {primaryLabel} 0% <Layers size={10} style={{ display: 'inline', verticalAlign: 'middle' }} /> {fusionLabel} 100%
         </span>
       </div>
@@ -615,7 +615,7 @@ export default function FusionPage() {
           </div>
           <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', alignItems: 'center', background: PANEL_BG, borderRadius: 4, padding: '4px 8px' }}>
             <Sun size={10} color={BLUE} />
-            <span style={{ fontSize: 10, color: '#94a3b8' }}>{primaryLabel}</span>
+            <span style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)' }}>{primaryLabel}</span>
             <Minus size={8} />
             <input
               type="range" min={100} max={4000} value={wwl.ww}
@@ -623,13 +623,13 @@ export default function FusionPage() {
               aria-label={`${primaryLabel}-${t('w9d.fusion.windowWidth')}`}
               style={{ flex: 1, height: 3, accentColor: BLUE }}
             />
-            <span style={{ fontSize: 10, color: '#94a3b8', minWidth: 60, textAlign: 'right' }}>WW:{wwl.ww} WL:{wwl.wl}</span>
+            <span style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)', minWidth: 60, textAlign: 'right' }}>WW:{wwl.ww} WL:{wwl.wl}</span>
             <Plus size={8} />
           </div>
           {fusionAlpha > 0 && (
             <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', alignItems: 'center', background: PANEL_BG, borderRadius: 4, padding: '4px 8px' }}>
               <Sun size={10} color="#facc15" />
-              <span style={{ fontSize: 10, color: '#94a3b8' }}>{fusionLabel}</span>
+              <span style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)' }}>{fusionLabel}</span>
               <Minus size={8} />
               <input
                 type="range" min={100} max={4000} value={fusionWWL.ww}
@@ -637,12 +637,12 @@ export default function FusionPage() {
                 aria-label={`${fusionLabel}-${t('w9d.fusion.fusionWindowWidth')}`}
                 style={{ flex: 1, height: 3, accentColor: '#facc15' }}
               />
-              <span style={{ fontSize: 10, color: '#94a3b8', minWidth: 60, textAlign: 'right' }}>WW:{fusionWWL.ww} WL:{fusionWWL.wl}</span>
+              <span style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)', minWidth: 60, textAlign: 'right' }}>WW:{fusionWWL.ww} WL:{fusionWWL.wl}</span>
               <Plus size={8} />
             </div>
           )}
           <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', alignItems: 'center', background: PANEL_BG, borderRadius: 4, padding: '4px 8px' }}>
-            <span style={{ fontSize: 10, color: '#64748b' }}>{t('fusion.slice')}</span>
+            <span style={{ fontSize: 10, color: 'var(--text-muted, #64748b)' }}>{t('fusion.slice')}</span>
             <Minus size={8} />
             <input
               type="range" min={0} max={127} value={sliceIndex}
@@ -650,7 +650,7 @@ export default function FusionPage() {
               aria-label={t('fusionPage.sliceIndex')}
               style={{ flex: 1, height: 3, accentColor: BLUE }}
             />
-            <span style={{ fontSize: 10, color: '#94a3b8', minWidth: 30, textAlign: 'right' }}>{sliceIndex}</span>
+            <span style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)', minWidth: 30, textAlign: 'right' }}>{sliceIndex}</span>
             <Plus size={8} />
           </div>
         </div>
@@ -660,12 +660,12 @@ export default function FusionPage() {
           <div style={{ background: PANEL_BG, borderRadius: 6, padding: 'var(--space-3, 12px)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 10 }}>
               <span style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0' }}>{t('fusionPage.suvQuant')}</span>
-              <span style={{ fontSize: 10, color: '#64748b' }}>PET-CT</span>
+              <span style={{ fontSize: 10, color: 'var(--text-muted, #64748b)' }}>PET-CT</span>
               <div style={{ flex: 1 }} />
               {suvLoading ? (
-                <span style={{ fontSize: 10, color: '#64748b' }}>{t('common.loading')}</span>
+                <span style={{ fontSize: 10, color: 'var(--text-muted, #64748b)' }}>{t('common.loading')}</span>
               ) : !suvResult?.hasPet ? (
-                <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#64748b22', color: '#94a3b8', border: '1px solid #64748b55' }}>{t('fusionPage.noPetModal')}</span>
+                <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#64748b22', color: 'var(--text-muted, #94a3b8)', border: '1px solid #64748b55' }}>{t('fusionPage.noPetModal')}</span>
               ) : suvResult.source === 'exam' && !suvFallback ? (
                 <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#16a34a22', color: 'var(--color-success-600)', border: '1px solid #16a34a55' }}>{t('fusionPage.realData')}</span>
               ) : (
@@ -674,8 +674,8 @@ export default function FusionPage() {
             </div>
 
             {!suvLoading && (!suvResult || !suvResult.hasPet) ? (
-              <div style={{ textAlign: 'center', padding: '28px 8px', color: '#475569', fontSize: 12 }}>
-                <p style={{ margin: 0, fontWeight: 600, color: '#64748b' }}>{t('fusionPage.noPetData')}</p>
+              <div style={{ textAlign: 'center', padding: '28px 8px', color: 'var(--text-secondary, #475569)', fontSize: 12 }}>
+                <p style={{ margin: 0, fontWeight: 600, color: 'var(--text-muted, #64748b)' }}>{t('fusionPage.noPetData')}</p>
                 <p style={{ margin: 0, marginTop: 'var(--space-1, 4px)', fontSize: 11 }}>{t('fusionPage.noPetDesc')}</p>
               </div>
             ) : suvResult && suvResult.suv ? (
@@ -687,13 +687,13 @@ export default function FusionPage() {
                     ['SUVpeak', suvResult.suv.peak, '#a78bfa'],
                   ] as const).map(([label, value, color]) => (
                     <div key={label} style={{ background: '#0f172a', borderRadius: 6, padding: '8px 6px', textAlign: 'center' }}>
-                      <div style={{ fontSize: 10, color: '#64748b', marginBottom: 2 }}>{label}</div>
+                      <div style={{ fontSize: 10, color: 'var(--text-muted, #64748b)', marginBottom: 2 }}>{label}</div>
                       <div style={{ fontSize: 16, fontWeight: 800, color }}>{value.toFixed(1)}</div>
                     </div>
                   ))}
                 </div>
 
-                <div style={{ fontSize: 10, color: '#64748b', lineHeight: 1.6, marginBottom: 10 }}>
+                <div style={{ fontSize: 10, color: 'var(--text-muted, #64748b)', lineHeight: 1.6, marginBottom: 10 }}>
                   {suvResult.suv.normalization.formula}
                   <div>{t('fusionPage.suvParams', { weight: suvResult.suv.normalization.weightKg, dose: suvResult.suv.normalization.injectedDoseMbg, scan: suvResult.suv.normalization.injectionToScanMin })}</div>
                   {/* [G005 Wave3A G-06] 换算参数来源标注: 真实接口回包即检查数据派生, 本地回退为默认值 */}
@@ -702,12 +702,12 @@ export default function FusionPage() {
                   </div>
                 </div>
 
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', marginBottom: 6 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted, #94a3b8)', marginBottom: 6 }}>
                   {t('fusionPage.lesionList', { count: suvResult.lesions.length })}<span style={{ fontWeight: 400 }}>{t('fusionPage.clickOverlay')}</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
                   {suvResult.lesions.length === 0 && (
-                    <div style={{ fontSize: 11, color: '#475569' }}>{t('fusionPage.noLesion')}</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-secondary, #475569)' }}>{t('fusionPage.noLesion')}</div>
                   )}
                   {suvResult.lesions.map(l => (
                     <button
@@ -721,10 +721,10 @@ export default function FusionPage() {
                       }}
                     >
                       <span style={{ fontWeight: 700, color: '#22d3ee' }}>{l.label}</span>
-                      <span style={{ fontSize: 11, color: '#64748b' }}>{l.diameterMm.toFixed(1)}mm</span>
+                      <span style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>{l.diameterMm.toFixed(1)}mm</span>
                       <div style={{ flex: 1 }} />
                       <span style={{ fontWeight: 700, color: '#facc15' }}>SUV {l.suvMax.toFixed(1)}</span>
-                      {l.slice !== undefined && <span style={{ fontSize: 10, color: '#475569' }}>S{l.slice}</span>}
+                      {l.slice !== undefined && <span style={{ fontSize: 10, color: 'var(--text-secondary, #475569)' }}>S{l.slice}</span>}
                     </button>
                   ))}
                 </div>
@@ -734,7 +734,7 @@ export default function FusionPage() {
         </div>
       </div>
 
-      <div style={{ marginTop: 6, fontSize: 10, color: '#475569', textAlign: 'center' }}>
+      <div style={{ marginTop: 6, fontSize: 10, color: 'var(--text-secondary, #475569)', textAlign: 'center' }}>
         {t('fusion.hint')}
       </div>
     </div>

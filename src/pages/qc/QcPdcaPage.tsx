@@ -319,7 +319,7 @@ export default function QcPdcaPage() {
       render: (v: string, r) => (
         <Space direction="vertical" size={2}>
           <span style={{ fontWeight: 600 }}>{v}</span>
-          <span style={{ color: '#94a3b8', fontSize: 12 }}>{r.id}</span>
+          <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{r.id}</span>
         </Space>
       ),
     },
@@ -529,7 +529,7 @@ export default function QcPdcaPage() {
                 <Tag color={PHASE_META[detail.phase]?.color}>{PHASE_META[detail.phase]?.label}</Tag>
                 <Tag color={detail.status === '已完成' ? 'green' : 'blue'}>{detail.status}</Tag>
               </Space>
-              <div style={{ marginTop: 10, color: '#475569', fontSize: 12, lineHeight: 1.7 }}>
+              <div style={{ marginTop: 10, color: 'var(--text-secondary, #475569)', fontSize: 12, lineHeight: 1.7 }}>
                 <div><b>{t('qcPdca.detailDescription')}</b> {detail.description || '-'}</div>
                 <div><b>{t('qcPdca.detailTarget')}</b> {detail.target || '-'}</div>
                 <div><b>{t('qcPdca.detailOwner')}</b> {detail.ownerName} · <b>{t('qcPdca.detailStart')}</b> {fmtDate(detail.startDate)} · <b>{t('qcPdca.detailDue')}</b> {fmtDate(detail.dueDate)}</div>
@@ -565,7 +565,7 @@ export default function QcPdcaPage() {
                         <Tag color={PHASE_META[p.phase]?.color} style={{ marginTop: 1, flexShrink: 0 }}>{PHASE_META[p.phase]?.label}</Tag>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: 12 }}>{p.content}</div>
-                          <div style={{ color: '#94a3b8', fontSize: 11, marginTop: 2 }}>
+                          <div style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 11, marginTop: 2 }}>
                             {fmtDate(p.createdAt)}{p.updatedAt !== p.createdAt ? ` · ${t('qcPdca.updatedAt', { date: fmtDate(p.updatedAt) })}` : ''}
                           </div>
                         </div>
@@ -614,9 +614,9 @@ export default function QcPdcaPage() {
                   {defects.map((d) => (
                     <div key={d.id} style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center', border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 12 }}>
                       <Tag color={CATEGORY_COLORS[d.defectType] ?? 'default'} style={{ flexShrink: 0 }}>{CATEGORY_LABELS[d.defectType] ?? d.defectType}</Tag>
-                      <span style={{ flex: 1, color: '#475569' }}>{d.description}</span>
+                      <span style={{ flex: 1, color: 'var(--text-secondary, #475569)' }}>{d.description}</span>
                       <Tag color={STATUS_COLORS[d.status] ?? 'default'}>{STATUS_LABELS[d.status] ?? d.status}</Tag>
-                      <span style={{ color: '#94a3b8' }}>{d.reportedBy}</span>
+                      <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{d.reportedBy}</span>
                     </div>
                   ))}
                 </Space>
@@ -668,7 +668,7 @@ export default function QcPdcaPage() {
           <Form.Item name="summary" label={t('qcPdca.formSummary')} rules={[{ required: true, message: t('qcPdca.requiredSummary') }]}>
             <Input.TextArea rows={4} placeholder={t('qcPdca.placeholderSummary')} maxLength={300} />
           </Form.Item>
-          <div style={{ color: '#94a3b8', fontSize: 12 }}>
+          <div style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>
             {t('qcPdca.completeHint')}
           </div>
         </Form>

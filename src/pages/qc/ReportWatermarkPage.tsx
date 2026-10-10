@@ -392,7 +392,7 @@ export default function ReportWatermarkPage() {
                       height: 360,
                       overflow: 'hidden',
                       borderRadius: 8,
-                      border: '1px solid #e5e7eb',
+                      border: '1px solid var(--border-color, #e5e7eb)',
                       background: 'linear-gradient(180deg, #ffffff, #f3f4f6)',
                       padding: 'var(--space-4, 16px)',
                     }}

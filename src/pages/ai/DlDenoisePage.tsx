@@ -222,7 +222,7 @@ const DlDenoisePage: React.FC = () => {
   }, [noiseLevel, model])
 
   const btnStyle: React.CSSProperties = {
-    background: 'transparent', border: '1px solid #334155', color: '#94a3b8',
+    background: 'transparent', border: '1px solid #334155', color: 'var(--text-muted, #94a3b8)',
     borderRadius: 4, padding: '4px 8px', fontSize: 11, cursor: 'pointer',
     display: 'inline-flex', alignItems: 'center', gap: 3,
   }
@@ -335,7 +335,7 @@ const DlDenoisePage: React.FC = () => {
         {dataSource === 'real' && <Tag color="green">{t('dlDenoisePage.realBackend')} · {serverResult?.algorithm ?? t('dlDenoisePage.kernelMedian')}{serverResult?.backend ? ` · ${serverResult.backend}` : ''}</Tag>}
         {dataSource === 'fallback' && <Tag color="orange">{t('dlDenoisePage.fallbackRender')}</Tag>}
         {dataSource === 'preview' && <Tag color="gold">{t('dlDenoisePage.localPreview')}</Tag>}
-        <span style={{ marginLeft: 'auto', fontSize: 11, color: '#64748b' }}>
+        <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-muted, #64748b)' }}>
           {t('dlDenoisePage.dataNote')} {noiseLevel}% · {KERNEL_LABELS[kernel]} · {PRESET_LABELS[preset]}
           {localEstimate ? t('w9d.dlDenoise.localNoise', { type: localEstimate.type, sigma: localEstimate.sigma }) : ''}
           {serverResult ? t('w9d.dlDenoise.serverMetrics', { psnr: serverResult.psnr, ssim: serverResult.ssim }) : t('w9d.dlDenoise.modelMetrics', { psnr: currentModel.psnr, ssim: currentModel.ssim })}
@@ -350,7 +350,7 @@ const DlDenoisePage: React.FC = () => {
         <StatCard title={t('dlDenoisePage.denoiseRate')} value={`${serverResult ? Math.round((serverResult.noiseReduction ?? 0) * 100) : Math.round((1 - noiseLevel / 100) * 100)}%`} icon={<Save size={18} />} color="success" />
       </StatCardGrid>
       <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('dlDenoisePage.model')}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('dlDenoisePage.model')}</span>
         {(Object.keys(MODELS) as ModelType[]).map(m => (
           <button key={m} style={model === m ? activeBtnStyle : btnStyle} onClick={() => setModel(m)}>
             {MODELS[m].label}
@@ -358,7 +358,7 @@ const DlDenoisePage: React.FC = () => {
         ))}
         <div style={{ width: 1, height: 20, background: '#334155' }} />
         {/* [G-10] 可配置核 */}
-        <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('dlDenoisePage.kernel')}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('dlDenoisePage.kernel')}</span>
         {(Object.keys(KERNEL_LABELS) as DenoiseKernel[]).map(k => (
           <button key={k} style={kernel === k ? activeBtnStyle : btnStyle} onClick={() => setKernel(k)}>
             {KERNEL_LABELS[k]}
@@ -366,7 +366,7 @@ const DlDenoisePage: React.FC = () => {
         ))}
         <div style={{ width: 1, height: 20, background: '#334155' }} />
         {/* [G-10] 3 档强度预设 */}
-        <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('dlDenoisePage.preset')}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('dlDenoisePage.preset')}</span>
         {(Object.keys(PRESET_LABELS) as DenoisePreset[]).map(p => (
           <button key={p} style={preset === p ? activeBtnStyle : btnStyle} onClick={() => setPreset(p)}>
             {PRESET_LABELS[p]}
@@ -377,9 +377,9 @@ const DlDenoisePage: React.FC = () => {
         <button onClick={handleEstimateNoise} style={btnStyle} title={t('dlDenoisePage.estimateHint')}>
           <Contrast size={12} /> {t('dlDenoisePage.estimateNoise')}
         </button>
-        <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('dlDenoisePage.noiseLevel')}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('dlDenoisePage.noiseLevel')}</span>
         <Slider min={0} max={100} value={noiseLevel} onChange={setNoiseLevel} style={{ width: 160 }} />
-        <span style={{ fontSize: 11, color: '#94a3b8' }}>{noiseLevel}%</span>
+        <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{noiseLevel}%</span>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-2, 8px)', height: 'calc(100vh - 260px)' }}>
         <div style={{ position: 'relative' }}>
@@ -425,7 +425,7 @@ const DlDenoisePage: React.FC = () => {
       <Card
         size="small"
         title={
-          <span style={{ fontSize: 12, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <History size={12} /> {t('dlDenoisePage.history')} ({history.length})
           </span>
         }
@@ -439,15 +439,15 @@ const DlDenoisePage: React.FC = () => {
         bodyStyle={{ padding: '8px 10px', maxHeight: 140, overflowY: 'auto' }}
       >
         {history.length === 0 ? (
-          <div style={{ fontSize: 11, color: '#475569' }}>{t('dlDenoisePage.historyEmpty')}</div>
+          <div style={{ fontSize: 11, color: 'var(--text-secondary, #475569)' }}>{t('dlDenoisePage.historyEmpty')}</div>
         ) : (
           <List
             size="small"
             dataSource={history}
             renderItem={(item, idx) => (
               <List.Item style={{ padding: '4px 0', border: 'none' }}>
-                <div style={{ fontSize: 11, color: '#94a3b8', display: 'flex', gap: 10, alignItems: 'center', width: '100%', flexWrap: 'wrap' }}>
-                  <span style={{ color: '#64748b', minWidth: 20 }}>{idx + 1}</span>
+                <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', display: 'flex', gap: 10, alignItems: 'center', width: '100%', flexWrap: 'wrap' }}>
+                  <span style={{ color: 'var(--text-muted, #64748b)', minWidth: 20 }}>{idx + 1}</span>
                   <Tag style={{ marginRight: 0 }}>{item.kernel ?? 'median'}</Tag>
                   <span>{item.source === 'msw' ? 'MSW' : item.source}</span>
                   <span>{t('dlDenoisePage.strength')} {item.strength ?? '-'}</span>
@@ -455,7 +455,7 @@ const DlDenoisePage: React.FC = () => {
                   <span>SSIM {item.ssim}</span>
                   {item.noiseEstimate && <span style={{ color: '#facc15' }}>σ={item.noiseEstimate.sigma}</span>}
                   {item.backend && <span style={{ color: 'var(--color-success-500)' }}>{item.backend}</span>}
-                  <span style={{ marginLeft: 'auto', color: '#475569', fontSize: 10 }}>
+                  <span style={{ marginLeft: 'auto', color: 'var(--text-secondary, #475569)', fontSize: 10 }}>
                     {new Date(item.createdAt).toLocaleTimeString()}
                   </span>
                 </div>

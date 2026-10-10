@@ -118,12 +118,12 @@ const usageTrend = [120, 135, 142, 138, 150, 155, 160, 175, 180, 185, 190, 200]
 
 // [v3.0.6.11-98 Wave2A P1] 模板审批状态展示 (草稿/待审批/已批准/已驳回, 兼容旧 启用/停用)
 const STATUS_META: Record<string, { labelKey: string; color: string; bg: string }> = {
-  draft: { labelKey: 'templateMgmt.statusDraft', color: '#94a3b8', bg: '#94a3b81f' },
+  draft: { labelKey: 'templateMgmt.statusDraft', color: 'var(--text-muted, #94a3b8)', bg: '#94a3b81f' },
   pending: { labelKey: 'templateMgmt.statusPending', color: 'var(--color-warning-600)', bg: '#f59e0b20' },
   approved: { labelKey: 'templateMgmt.statusApproved', color: '#059669', bg: '#22c55e20' },
   rejected: { labelKey: 'templateMgmt.statusRejected', color: 'var(--color-error-600)', bg: '#ef444420' },
   active: { labelKey: 'templateMgmt.statusActive', color: '#059669', bg: '#22c55e20' },
-  inactive: { labelKey: 'templateMgmt.statusInactive', color: '#94a3b8', bg: '#94a3b81f' },
+  inactive: { labelKey: 'templateMgmt.statusInactive', color: 'var(--text-muted, #94a3b8)', bg: '#94a3b81f' },
 }
 
 

@@ -415,7 +415,7 @@ export default function TatDashboardPage() {
               <Clock size={24} />
               {t('tatDashboard.title')}
             </Title>
-            <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>
+            <p style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', margin: 0 }}>
               Turnaround Time Analytics Dashboard · OLAP 实时统计
             </p>
           </div>
@@ -502,7 +502,7 @@ export default function TatDashboardPage() {
                 size="small"
                 style={{ borderRadius: 8 }}
                 extra={
-                  <span style={{ fontSize: 12, color: "#94a3b8" }}>
+                  <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
                     {t('tatDashboard.byModalityAvg')}
                   </span>
                 }
@@ -526,7 +526,7 @@ export default function TatDashboardPage() {
                           style={{
                             width: 44,
                             fontSize: 12,
-                            color: "#64748b",
+                            color: 'var(--text-muted, #64748b)',
                             textAlign: "right",
                           }}
                         >
@@ -558,13 +558,13 @@ export default function TatDashboardPage() {
                             width: 40,
                             fontSize: 12,
                             fontWeight: 600,
-                            color: "#334155",
+                            color: 'var(--text-primary, #334155)',
                           }}
                         >
                           {d.examCount}
                         </span>
                         <span
-                          style={{ width: 60, fontSize: 12, color: "#64748b" }}
+                          style={{ width: 60, fontSize: 12, color: 'var(--text-muted, #64748b)' }}
                         >
                           {d.avgTatMinutes > 0 ? `${d.avgTatMinutes}min` : "-"}
                         </span>
@@ -580,7 +580,7 @@ export default function TatDashboardPage() {
                 size="small"
                 style={{ borderRadius: 8 }}
                 extra={
-                  <span style={{ fontSize: 12, color: "#94a3b8" }}>
+                  <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
                     {t('tatDashboard.lowerBetter')}
                   </span>
                 }
@@ -604,7 +604,7 @@ export default function TatDashboardPage() {
                           style={{
                             width: 80,
                             fontSize: 12,
-                            color: "#334155",
+                            color: 'var(--text-primary, #334155)',
                             fontWeight: 600,
                             overflow: "hidden",
                             textOverflow: "ellipsis",
@@ -621,7 +621,7 @@ export default function TatDashboardPage() {
                               marginBottom: 2,
                             }}
                           >
-                            <span style={{ fontSize: 11, color: "#64748b" }}>
+                            <span style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>
                               {d.count}{t('tatDashboard.caseUnit')} · {t('tatDashboard.timelyRateLabel')} {d.timelyRate}%
                             </span>
                             <span
@@ -733,18 +733,18 @@ export default function TatDashboardPage() {
             ) : (
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: 'var(--space-4, 16px)' }}>
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 'var(--space-2, 8px)' }}>{t('tatDashboard.barChart')}: {chartMeasure}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-2, 8px)' }}>{t('tatDashboard.barChart')}: {chartMeasure}</div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-2, 8px)' }}>
                     {drillRows.slice(0, 15).map((r, i) => {
                       const label = String(r[drillColumns[0]?.code ?? "dimension"] ?? r.dimension ?? `行${i + 1}`)
                       const val = Number(r[chartMeasure]) || 0
                       return (
                         <div key={i} style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
-                          <span style={{ width: 90, fontSize: 12, color: "#334155", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
+                          <span style={{ width: 90, fontSize: 12, color: 'var(--text-primary, #334155)', overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
                           <div style={{ flex: 1, height: 16, background: "var(--bg-primary)", borderRadius: 4, overflow: "hidden" }}>
                             <div style={{ width: `${(val / drillChartMax) * 100}%`, height: "100%", background: "var(--color-primary-600)", borderRadius: 4, transition: "width 0.3s" }} />
                           </div>
-                          <span style={{ width: 60, fontSize: 12, fontWeight: 600, color: "#334155", textAlign: "right" }}>{val}</span>
+                          <span style={{ width: 60, fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #334155)', textAlign: "right" }}>{val}</span>
                         </div>
                       )
                     })}

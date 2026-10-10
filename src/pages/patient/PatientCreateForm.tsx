@@ -244,7 +244,7 @@ function RegistrationWizard({
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    color: "#334155",
+                    color: 'var(--text-primary, #334155)',
                     marginBottom: 6,
                     display: "block",
                   }}
@@ -270,7 +270,7 @@ function RegistrationWizard({
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    color: "#334155",
+                    color: 'var(--text-primary, #334155)',
                     marginBottom: 6,
                     display: "block",
                   }}
@@ -291,7 +291,7 @@ function RegistrationWizard({
                         gap: 6,
                         cursor: "pointer",
                         fontSize: 12,
-                        color: "#334155",
+                        color: 'var(--text-primary, #334155)',
                       }}
                     >
                       <input
@@ -313,7 +313,7 @@ function RegistrationWizard({
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    color: "#334155",
+                    color: 'var(--text-primary, #334155)',
                     marginBottom: 6,
                     display: "block",
                   }}
@@ -335,7 +335,7 @@ function RegistrationWizard({
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    color: "#334155",
+                    color: 'var(--text-primary, #334155)',
                     marginBottom: 6,
                     display: "block",
                   }}
@@ -362,7 +362,7 @@ function RegistrationWizard({
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    color: "#334155",
+                    color: 'var(--text-primary, #334155)',
                     marginBottom: 6,
                     display: "block",
                   }}
@@ -389,7 +389,7 @@ function RegistrationWizard({
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    color: "#334155",
+                    color: 'var(--text-primary, #334155)',
                     marginBottom: 6,
                     display: "block",
                   }}
@@ -420,7 +420,7 @@ function RegistrationWizard({
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    color: "#334155",
+                    color: 'var(--text-primary, #334155)',
                     marginBottom: 6,
                     display: "block",
                   }}
@@ -452,7 +452,7 @@ function RegistrationWizard({
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    color: "#334155",
+                    color: 'var(--text-primary, #334155)',
                     marginBottom: 6,
                     display: "block",
                   }}
@@ -491,7 +491,7 @@ function RegistrationWizard({
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    color: "#334155",
+                    color: 'var(--text-primary, #334155)',
                     marginBottom: 6,
                     display: "block",
                   }}
@@ -516,7 +516,7 @@ function RegistrationWizard({
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    color: "#334155",
+                    color: 'var(--text-primary, #334155)',
                     marginBottom: 6,
                     display: "block",
                   }}
@@ -546,7 +546,7 @@ function RegistrationWizard({
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    color: "#334155",
+                    color: 'var(--text-primary, #334155)',
                     marginBottom: 6,
                     display: "block",
                   }}
@@ -567,7 +567,7 @@ function RegistrationWizard({
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    color: "#334155",
+                    color: 'var(--text-primary, #334155)',
                     marginBottom: 6,
                     display: "block",
                   }}
@@ -593,7 +593,7 @@ function RegistrationWizard({
                 </div>
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6, display: "block" }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #334155)', marginBottom: 6, display: "block" }}>
                   {t('patientForm.idType')}
                 </label>
                 <select
@@ -609,7 +609,7 @@ function RegistrationWizard({
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6, display: "block" }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #334155)', marginBottom: 6, display: "block" }}>
                   {t('patientForm.empiId')}
                 </label>
                 <input
@@ -620,7 +620,7 @@ function RegistrationWizard({
                 />
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6, display: "block" }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #334155)', marginBottom: 6, display: "block" }}>
                   {t('patientForm.insuranceNo')}
                 </label>
                 <input
@@ -631,7 +631,7 @@ function RegistrationWizard({
                 />
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6, display: "block" }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #334155)', marginBottom: 6, display: "block" }}>
                   {t('patientForm.pregnancyStatus')}
                 </label>
                 <select
@@ -647,7 +647,7 @@ function RegistrationWizard({
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6, display: "block" }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #334155)', marginBottom: 6, display: "block" }}>
                   {t('patientForm.heightCm')}
                 </label>
                 <input
@@ -658,7 +658,7 @@ function RegistrationWizard({
                 />
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6, display: "block" }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #334155)', marginBottom: 6, display: "block" }}>
                   {t('patientForm.weightKg')}
                 </label>
                 <input
@@ -669,7 +669,7 @@ function RegistrationWizard({
                 />
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6, display: "block" }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #334155)', marginBottom: 6, display: "block" }}>
                   {t('patientForm.egfr')}
                 </label>
                 <input
@@ -680,7 +680,7 @@ function RegistrationWizard({
                 />
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6, display: "block" }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #334155)', marginBottom: 6, display: "block" }}>
                   {t('patientForm.creatinine')}
                 </label>
                 <input
@@ -691,7 +691,7 @@ function RegistrationWizard({
                 />
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6, display: "block" }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #334155)', marginBottom: 6, display: "block" }}>
                   {t('patientForm.egfrSource')}
                 </label>
                 <select
@@ -705,7 +705,7 @@ function RegistrationWizard({
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6, display: "block" }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #334155)', marginBottom: 6, display: "block" }}>
                   {t('patientForm.isolationFlag')}
                 </label>
                 <select
@@ -722,7 +722,7 @@ function RegistrationWizard({
               </div>
               <div style={{ gridColumn: "1 / -1" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #334155)' }}>
                     {t('patientForm.structuredAllergy')}
                   </label>
                   <button
@@ -809,7 +809,7 @@ function RegistrationWizard({
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    color: "#334155",
+                    color: 'var(--text-primary, #334155)',
                     marginBottom: 6,
                     display: "block",
                   }}
@@ -838,7 +838,7 @@ function RegistrationWizard({
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    color: "#334155",
+                    color: 'var(--text-primary, #334155)',
                     marginBottom: 6,
                     display: "block",
                   }}
@@ -897,7 +897,7 @@ function RegistrationWizard({
               borderRadius: 8,
               border: "1px solid var(--border-color)",
               background: "var(--bg-card)",
-              color: "#64748b",
+              color: 'var(--text-muted, #64748b)',
               fontSize: 12,
               fontWeight: 600,
               cursor: "pointer",
@@ -914,7 +914,7 @@ function RegistrationWizard({
                   borderRadius: 8,
                   border: "1px solid var(--border-color)",
                   background: "var(--bg-card)",
-                  color: "#64748b",
+                  color: 'var(--text-muted, #64748b)',
                   fontSize: 12,
                   fontWeight: 600,
                   cursor: "pointer",
@@ -1029,7 +1029,7 @@ export function PatientCreateForm({
           <div style={{ fontSize: 16, fontWeight: 700, color: "var(--color-primary-800)" }}>
             {selectedPatientForEdit ? t('patientForm.editRecord') : t('patientForm.newRecord')}
           </div>
-          <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginTop: 2 }}>
             {selectedPatientForEdit
               ? `患者ID: ${selectedPatientForEdit.id}`
               : t('patientForm.fillInfo')}
@@ -1070,7 +1070,7 @@ export function PatientCreateForm({
                   gap: 6,
                   cursor: "pointer",
                   fontSize: 12,
-                  color: "#334155",
+                  color: 'var(--text-primary, #334155)',
                 }}
               >
                 <input
@@ -1092,7 +1092,7 @@ export function PatientCreateForm({
             style={{
               fontSize: 12,
               fontWeight: 600,
-              color: "#334155",
+              color: 'var(--text-primary, #334155)',
               marginBottom: 6,
               display: "block",
             }}
@@ -1156,7 +1156,7 @@ export function PatientCreateForm({
             style={{
               fontSize: 12,
               fontWeight: 600,
-              color: "#334155",
+              color: 'var(--text-primary, #334155)',
               marginBottom: 6,
               display: "block",
             }}
@@ -1194,7 +1194,7 @@ export function PatientCreateForm({
             style={{
               fontSize: 12,
               fontWeight: 600,
-              color: "#334155",
+              color: 'var(--text-primary, #334155)',
               marginBottom: 6,
               display: "block",
             }}
@@ -1226,7 +1226,7 @@ export function PatientCreateForm({
             style={{
               fontSize: 12,
               fontWeight: 600,
-              color: "#334155",
+              color: 'var(--text-primary, #334155)',
               marginBottom: 6,
               display: "block",
             }}
@@ -1262,7 +1262,7 @@ export function PatientCreateForm({
             style={{
               fontSize: 12,
               fontWeight: 600,
-              color: "#334155",
+              color: 'var(--text-primary, #334155)',
               marginBottom: 6,
               display: "block",
             }}
@@ -1296,7 +1296,7 @@ export function PatientCreateForm({
             style={{
               fontSize: 12,
               fontWeight: 600,
-              color: "#334155",
+              color: 'var(--text-primary, #334155)',
               marginBottom: 6,
               display: "block",
             }}
@@ -1329,7 +1329,7 @@ export function PatientCreateForm({
             style={{
               fontSize: 12,
               fontWeight: 600,
-              color: "#334155",
+              color: 'var(--text-primary, #334155)',
               marginBottom: 6,
               display: "block",
             }}
@@ -1357,7 +1357,7 @@ export function PatientCreateForm({
             style={{
               fontSize: 12,
               fontWeight: 600,
-              color: "#334155",
+              color: 'var(--text-primary, #334155)',
               marginBottom: 6,
               display: "block",
             }}
@@ -1385,7 +1385,7 @@ export function PatientCreateForm({
             style={{
               fontSize: 12,
               fontWeight: 600,
-              color: "#334155",
+              color: 'var(--text-primary, #334155)',
               marginBottom: 6,
               display: "block",
             }}
@@ -1417,7 +1417,7 @@ export function PatientCreateForm({
             style={{
               fontSize: 12,
               fontWeight: 600,
-              color: "#334155",
+              color: 'var(--text-primary, #334155)',
               marginBottom: 6,
               display: "block",
             }}

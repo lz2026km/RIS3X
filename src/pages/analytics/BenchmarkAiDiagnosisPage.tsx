@@ -163,7 +163,7 @@ export default function BenchmarkAiDiagnosisPage() {
               {t('benchmarkAi.title')}
               <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f5f3ff', color: '#9333ea', border: '1px solid #e9d5ff', fontWeight: 600 }}>{t('benchmarkAi.demoData')}</span>
             </Title>
-            <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('benchmarkAi.subtitle')} <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: '#fef3c7', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t('benchmarkAi.demoNote')}</span></span>
+            <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{t('benchmarkAi.subtitle')} <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: '#fef3c7', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t('benchmarkAi.demoNote')}</span></span>
           </div>
         </Space>
       </div>
@@ -225,7 +225,7 @@ export default function BenchmarkAiDiagnosisPage() {
               <text x={w - 60} y={pad.top + 34} fontSize={9} fill="#10b981">{t('benchmarkAi.specificity')}</text>
             </svg>
           ) : (
-            <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: '#94a3b8' }}>{t('benchmarkAi.noTrend')}</div>
+            <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: 'var(--text-muted, #94a3b8)' }}>{t('benchmarkAi.noTrend')}</div>
           )}
         </Card>
 

@@ -133,7 +133,7 @@ export default function DoseControlCharts() {
           background: "var(--bg-card)",
           borderRadius: 12,
           padding: 'var(--space-5, 20px)',
-          border: "1px solid #e2e8f0",
+          border: "1px solid var(--border-color, #e2e8f0)",
         }}
       >
         <div
@@ -148,7 +148,7 @@ export default function DoseControlCharts() {
             <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>
               X-bar 控制图（CTDIvol均值）
             </div>
-            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>
               7日CTDIvol均值监控 · UCL: {ucl} · LCL: {lcl} · CL: {Math.round(cl)}
             </div>
           </div>
@@ -221,7 +221,7 @@ export default function DoseControlCharts() {
           background: "var(--bg-card)",
           borderRadius: 12,
           padding: 'var(--space-5, 20px)',
-          border: "1px solid #e2e8f0",
+          border: "1px solid var(--border-color, #e2e8f0)",
         }}
       >
         <div
@@ -271,19 +271,19 @@ export default function DoseControlCharts() {
         }}
       >
         <div style={kpiBox}>
-          <div style={{ fontSize: 12, color: "#64748b" }}>均值偏移</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>均值偏移</div>
           <div style={{ fontSize: 16, fontWeight: 800, color: "var(--color-primary-800)", marginTop: 'var(--space-1, 4px)' }}>
             {meanShift}
           </div>
         </div>
         <div style={kpiBox}>
-          <div style={{ fontSize: 12, color: "#64748b" }}>过程能力Cp</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>过程能力Cp</div>
           <div style={{ fontSize: 16, fontWeight: 800, color: "var(--color-success-600)", marginTop: 'var(--space-1, 4px)' }}>
             {processCp}
           </div>
         </div>
         <div style={kpiBox}>
-          <div style={{ fontSize: 12, color: "#64748b" }}>失控点数</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>失控点数</div>
           <div
             style={{
               fontSize: 16,
@@ -296,7 +296,7 @@ export default function DoseControlCharts() {
           </div>
         </div>
         <div style={kpiBox}>
-          <div style={{ fontSize: 12, color: "#64748b" }}>过程状态</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>过程状态</div>
           <div
             style={{
               fontSize: 16,
@@ -341,6 +341,6 @@ const kpiBox: React.CSSProperties = {
   background: "var(--bg-card)",
   borderRadius: 10,
   padding: 'var(--space-3, 12px)',
-  border: "1px solid #e2e8f0",
+  border: "1px solid var(--border-color, #e2e8f0)",
   textAlign: "center",
 };

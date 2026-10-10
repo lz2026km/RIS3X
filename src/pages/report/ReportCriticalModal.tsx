@@ -110,7 +110,7 @@ export default function ReportCriticalModal({ report, submitting, onClose, onSub
         </div>
 
         <div style={{ padding: '12px 20px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2, 8px)' }}>
-          <button onClick={onClose} style={{ padding: '8px 20px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+          <button onClick={onClose} style={{ padding: '8px 20px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-muted, #64748b)', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>取消</button>
           <button
             onClick={() => onSubmit(severity, description.trim() || (report.diagnosis || report.examFindings || '危急值报告'), method)}
             disabled={submitting}

@@ -411,7 +411,7 @@ export default function RqiReportCenterPage() {
         render: (v: string, r) => (
           <Space direction="vertical" size={0}>
             <span style={{ fontWeight: 600 }}>{v}</span>
-            <span style={{ fontSize: 11, color: '#94a3b8' }}>
+            <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>
               {t(`rqiReport.granularity.${r.granularity}`)}
             </span>
           </Space>
@@ -547,7 +547,7 @@ export default function RqiReportCenterPage() {
         render: (v: string, r) => (
           <Space direction="vertical" size={0}>
             <span style={{ fontWeight: 600 }}>{v}</span>
-            <span style={{ fontSize: 11, color: '#94a3b8' }}>
+            <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>
               {t(`rqiReport.granularity.${r.granularity}`)}
             </span>
           </Space>
@@ -757,7 +757,7 @@ export default function RqiReportCenterPage() {
                 <div>
                   <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
                     <Space size={8}>
-                      <span style={{ fontSize: 12, color: '#64748b' }}>
+                      <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
                         {t('rqiReport.filter.status')}
                       </span>
                       <Select
@@ -899,7 +899,7 @@ export default function RqiReportCenterPage() {
         width={820}
       >
         {detailLoading && !detailBatch ? (
-          <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: '#94a3b8' }}>
+          <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: 'var(--text-muted, #94a3b8)' }}>
             {t('rqiReport.loading')}
           </div>
         ) : detailBatch ? (
@@ -1046,7 +1046,7 @@ export default function RqiReportCenterPage() {
 function InfoItem({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div>
-      <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 2 }}>{label}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginBottom: 2 }}>{label}</div>
       <div style={{ fontSize: 12, color: 'var(--text-primary, #0f172a)', wordBreak: 'break-all' }}>
         {value}
       </div>

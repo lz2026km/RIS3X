@@ -21,10 +21,10 @@ const s = {
   container: { background: '#0f172a', color: '#e2e8f0', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', padding: '24px', fontFamily: '-apple-system, sans-serif' },
   card: { background: '#1e293b', borderRadius: 16, padding: 'var(--space-10, 40px)', maxWidth: 520, width: '100%', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' },
   title: { fontSize: 30, fontWeight: 700, textAlign: 'center' as const, marginBottom: 'var(--space-2, 8px)' },
-  subtitle: { fontSize: 14, color: '#94a3b8', textAlign: 'center' as const, marginBottom: 'var(--space-8, 32px)' },
+  subtitle: { fontSize: 14, color: 'var(--text-muted, #94a3b8)', textAlign: 'center' as const, marginBottom: 'var(--space-8, 32px)' },
   input: { width: '100%', padding: '14px 16px', fontSize: 18, background: '#0f172a', border: '1px solid #334155', borderRadius: 10, color: '#f8fafc', textAlign: 'center' as const, letterSpacing: 4, boxSizing: 'border-box' as const,},
   btn: { width: '100%', padding: '14px', fontSize: 16, fontWeight: 600, border: 'none', borderRadius: 10, cursor: 'pointer', transition: 'all 0.2s' },
-  label: { fontSize: 12, color: '#94a3b8', marginBottom: 'var(--space-2, 8px)', display: 'block' },
+  label: { fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginBottom: 'var(--space-2, 8px)', display: 'block' },
   value: { fontSize: 16, color: '#f8fafc', fontWeight: 500 },
   row: { display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #334155' },
   badge: (isPrimary: boolean) => ({
@@ -136,7 +136,7 @@ const s = {
                 ].map(it => (
                   <div key={it.label} style={{ background: '#0f172a', borderRadius: 10, padding: '10px 8px', textAlign: 'center', border: '1px solid #334155' }}>
                     <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-primary-500)' }}>{it.value}</div>
-                    <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>{it.label}</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-muted, #64748b)', marginTop: 2 }}>{it.label}</div>
                   </div>
                 ))}
               </div>
@@ -156,12 +156,12 @@ const s = {
             )}
             {announcement && (
               <div style={{ background: '#0f172a', borderRadius: 10, padding: '10px 14px', marginBottom: 'var(--space-4, 16px)', border: '1px solid #334155' }}>
-                <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 2 }}>{t('kiosk.announcementLabel')}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginBottom: 2 }}>{t('kiosk.announcementLabel')}</div>
                 <div style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.6 }}>{announcement}</div>
               </div>
             )}
             <div style={{ background: '#0f172a', borderRadius: 10, padding: 'var(--space-3, 12px)', marginBottom: 'var(--space-5, 20px)', border: '1px solid #334155' }}>
-              <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 6 }}>{t('kiosk.processLabel')}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginBottom: 6 }}>{t('kiosk.processLabel')}</div>
               <div style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.7 }}>
                 {t('kiosk.processSteps')}
               </div>
@@ -177,7 +177,7 @@ const s = {
               disabled={idInput.length !== 4 || loading} onClick={() => void handleIdSubmit()}>
               {loading ? t('kiosk.querying') : t('kiosk.confirmCheckIn')}
             </button>
-            <div style={{ marginTop: 'var(--space-4, 16px)', fontSize: 12, color: '#64748b', textAlign: 'center' }}>
+            <div style={{ marginTop: 'var(--space-4, 16px)', fontSize: 12, color: 'var(--text-muted, #64748b)', textAlign: 'center' }}>
               {t('kiosk.helpHint')}
             </div>
           </>
@@ -193,7 +193,7 @@ const s = {
               <div style={s.row}><span style={s.label}>{t('kiosk.examItem')}</span><span style={s.value}>{selectedPatient.exams[0]?.name || t('kiosk.imagingExam')}</span></div>
             </div>
             <div style={{ display: 'flex', gap: 'var(--space-3, 12px)' }}>
-              <button style={{ ...s.btn, flex: 1, background: '#334155', color: '#94a3b8' }} onClick={handleReset}>{t('kiosk.back')}</button>
+              <button style={{ ...s.btn, flex: 1, background: '#334155', color: 'var(--text-muted, #94a3b8)' }} onClick={handleReset}>{t('kiosk.back')}</button>
               <button style={{ ...s.btn, flex: 2, background: 'var(--color-primary-500)', color: '#fff', opacity: loading ? 0.7 : 1 }}
                 disabled={loading} onClick={() => void handleConfirm()}>{loading ? t('kiosk.processing') : t('kiosk.confirmCheckIn')}</button>
             </div>
@@ -205,17 +205,17 @@ const s = {
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 60, marginBottom: 'var(--space-2, 8px)' }}></div>
               <div style={s.title}>{t('kiosk.successTitle')}</div>
-              <div style={{ fontSize: 14, color: '#94a3b8', marginTop: 'var(--space-1, 4px)' }}>{result.patientName} · {t('kiosk.keepQueueNumber')}</div>
+              <div style={{ fontSize: 14, color: 'var(--text-muted, #94a3b8)', marginTop: 'var(--space-1, 4px)' }}>{result.patientName} · {t('kiosk.keepQueueNumber')}</div>
             </div>
             <div style={s.queueNumber}>{result.queueNumber}</div>
             <div style={{ textAlign: 'center', marginBottom: 'var(--space-5, 20px)' }}>
-              <div style={{ color: '#94a3b8', fontSize: 12 }}>{t('kiosk.estimatedWait')}</div>
+              <div style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{t('kiosk.estimatedWait')}</div>
               <div style={{ fontSize: 24, fontWeight: 700, color: '#f8fafc' }}>{t('kiosk.minutes', { count: result.estimatedWaitMinutes })}</div>
             </div>
             <div style={{ textAlign: 'center', padding: 'var(--space-3, 12px)', background: '#0f172a', borderRadius: 8, marginBottom: 'var(--space-5, 20px)' }}>
-              <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('kiosk.goTo')}</span>
+              <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{t('kiosk.goTo')}</span>
               <span style={{ color: 'var(--color-primary-500)', fontWeight: 700 }}>{result.roomName}</span>
-              <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('kiosk.waitForCall')}</span>
+              <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{t('kiosk.waitForCall')}</span>
             </div>
             <button style={{ ...s.btn, background: 'var(--color-primary-500)', color: '#fff' }} onClick={handleReset}>{t('kiosk.done')}</button>
           </>
@@ -226,10 +226,10 @@ const s = {
         <Card bordered={false} style={{ maxWidth: 520, width: '100%', marginTop: 'var(--space-4, 16px)', background: '#1e293b', borderRadius: 12, padding: 'var(--space-4, 16px)', border: '1px solid #334155' }} styles={{ body: { padding: 0 } }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
             <span style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0' }}>{t('kiosk.queueTitle')}</span>
-            {queueLoading && <span style={{ fontSize: 11, color: '#64748b' }}>{t('kiosk.loading')}</span>}
+            {queueLoading && <span style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>{t('kiosk.loading')}</span>}
           </div>
           {waitingQueue.length === 0 && !queueLoading ? (
-            <div style={{ fontSize: 12, color: '#64748b', textAlign: 'center', padding: 'var(--space-2, 8px)' }}>{t('kiosk.noWaiting')}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', textAlign: 'center', padding: 'var(--space-2, 8px)' }}>{t('kiosk.noWaiting')}</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {waitingQueue.map(q => (

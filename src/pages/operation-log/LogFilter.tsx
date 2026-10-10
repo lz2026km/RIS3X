@@ -32,12 +32,12 @@ const filterBtnStyle = (active: boolean) => ({
 })
 
 const inputStyle = {
-  padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0',
+  padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color, #e2e8f0)',
   background: WHITE, color: 'var(--color-primary-800)', fontSize: 12, width: '100%' as const,
 }
 
 const selectStyle = {
-  padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0',
+  padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color, #e2e8f0)',
   background: WHITE, color: 'var(--color-primary-800)', fontSize: 12, cursor: 'pointer' as const,
 }
 
@@ -54,7 +54,7 @@ export default function LogFilter({
 }: LogFilterProps) {
   return (
     <div style={{
-      background: WHITE, borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid #e2e8f0',
+      background: WHITE, borderRadius: 10, padding: 'var(--space-4, 16px)', border: '1px solid var(--border-color, #e2e8f0)',
       marginBottom: 'var(--space-4, 16px)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
@@ -81,9 +81,9 @@ export default function LogFilter({
       <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', flexWrap: 'wrap' }}>
         <div style={{
           flex: 1, minWidth: 220, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)',
-          border: '1px solid #e2e8f0', borderRadius: 8, padding: '6px 12px', background: '#fafbfc',
+          border: '1px solid var(--border-color, #e2e8f0)', borderRadius: 8, padding: '6px 12px', background: '#fafbfc',
         }}>
-          <Search size={14} style={{ color: '#94a3b8', flexShrink: 0 }} />
+          <Search size={14} style={{ color: 'var(--text-muted, #94a3b8)', flexShrink: 0 }} />
           <input
             value={searchText}
             onChange={e => onSearchChange(e.target.value)}
@@ -171,7 +171,7 @@ export default function LogFilter({
         <button
           onClick={onReset}
           style={{
-            padding: '6px 12px', borderRadius: 6, border: '1px solid #e2e8f0',
+            padding: '6px 12px', borderRadius: 6, border: '1px solid var(--border-color, #e2e8f0)',
             background: WHITE, color: GRAY, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)',
           }}
         >

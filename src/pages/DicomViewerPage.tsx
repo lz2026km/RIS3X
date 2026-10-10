@@ -26,7 +26,7 @@ import { HangingProtocolPanel } from '../components/dicom/HangingProtocolPanel'
 const s = {
   root: { display: 'flex', flexDirection: 'column' as const, height: '100vh', background: '#0f172a', color: '#e2e8f0', overflow: 'hidden', fontFamily: "'PingFang SC','Microsoft YaHei',sans-serif" },
   body: { flex: 1, display: 'flex', overflow: 'hidden' },
-  statusBar: { display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '4px 12px', background: '#1e293b', borderTop: '1px solid #334155', fontSize: 12, color: '#94a3b8', flexShrink: 0 },
+  statusBar: { display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '4px 12px', background: '#1e293b', borderTop: '1px solid #334155', fontSize: 12, color: 'var(--text-muted, #94a3b8)', flexShrink: 0 },
   layoutBtn: { width: 28, height: 28, borderRadius: 6, border: '1px solid var(--border-color)', background: THEME_TOKENS.bgCard, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' } as React.CSSProperties,
   reportBtn: { padding: '6px 10px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', justifyContent: 'center' } as React.CSSProperties,
 }
@@ -714,7 +714,7 @@ export default function DicomViewerPage() {
             </div>
           </div>
           <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', padding: '12px 0 0', fontSize: 12 }}>
-            <label style={{ color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <label style={{ color: 'var(--text-muted, #94a3b8)', display: 'flex', alignItems: 'center', gap: 6 }}>
               {t('dicomViewer.filmSize')}
               <select value={printFilmSpec} onChange={e => setPrintFilmSpec(e.target.value as typeof printFilmSpec)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #334155', background: '#1e293b', color: '#e2e8f0', fontSize: 12 }}>
                 <option value="14x17">{t('dicomViewer.film14x17')}</option>
@@ -722,7 +722,7 @@ export default function DicomViewerPage() {
                 <option value="8x10">{t('dicomViewer.film8x10')}</option>
               </select>
             </label>
-            <label style={{ color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <label style={{ color: 'var(--text-muted, #94a3b8)', display: 'flex', alignItems: 'center', gap: 6 }}>
               {t('dicomViewer.copies')}
               <input type="number" min={1} max={5} value={printCopies} onChange={e => setPrintCopies(Math.max(1, Math.min(5, Number(e.target.value) || 1)))} style={{ width: 60, padding: '4px 8px', borderRadius: 4, border: '1px solid #334155', background: '#1e293b', color: '#e2e8f0', fontSize: 12 }} />
             </label>
@@ -744,27 +744,27 @@ export default function DicomViewerPage() {
             </>
           }
         >
-          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-3, 12px)' }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-3, 12px)' }}>
             {t('dicomViewer.basedOnCurrent')} {exam.patientName} · {exam.modality} · {exam.bodyPart}
           </div>
           {similarLoading ? (
-            <div style={{ textAlign: 'center', padding: 'var(--space-8, 32px)' }}><div style={{ display: 'inline-block', width: 28, height: 28, border: '3px solid #334155', borderTopColor: 'var(--color-primary-500)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />                <div style={{ marginTop: 'var(--space-3, 12px)', color: '#64748b', fontSize: 12 }}>{t('dicomViewer.searchingSimilar')}</div></div>
+            <div style={{ textAlign: 'center', padding: 'var(--space-8, 32px)' }}><div style={{ display: 'inline-block', width: 28, height: 28, border: '3px solid #334155', borderTopColor: 'var(--color-primary-500)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />                <div style={{ marginTop: 'var(--space-3, 12px)', color: 'var(--text-muted, #64748b)', fontSize: 12 }}>{t('dicomViewer.searchingSimilar')}</div></div>
           ) : similarResults.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 'var(--space-8, 32px)', color: '#94a3b8', fontSize: 12 }}>{t('dicomViewer.noSimilarRetry')}</div>
+            <div style={{ textAlign: 'center', padding: 'var(--space-8, 32px)', color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{t('dicomViewer.noSimilarRetry')}</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 420, overflow: 'auto' }}>
               {similarResults.map((r) => (
                 <div key={r.id} style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 'var(--space-3, 12px)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: '#1e293b' }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary, #1e293b)' }}>
                       {r.modality} · {r.bodyPart}
-                      <span style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 12, color: '#94a3b8' }}>{r.gender} {r.age}{t('dicomViewer.yearsOld')} · {r.studyDate}</span>
+                      <span style={{ marginLeft: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{r.gender} {r.age}{t('dicomViewer.yearsOld')} · {r.studyDate}</span>
                     </span>
                     <span style={{ fontSize: 12, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: r.similarity >= 70 ? '#dcfce7' : r.similarity >= 40 ? '#fef3c7' : '#f1f5f9', color: r.similarity >= 70 ? 'var(--color-success-600)' : r.similarity >= 40 ? 'var(--color-warning-600)' : '#64748b' }}>
                       {t('dicomViewer.similarity')} {r.similarity}%
                     </span>
                   </div>
-                  {r.findings && <div style={{ fontSize: 12, color: '#475569', lineHeight: 1.5, marginBottom: 'var(--space-1, 4px)' }}>{t('dicomViewer.findings')} {r.findings}</div>}
+                  {r.findings && <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', lineHeight: 1.5, marginBottom: 'var(--space-1, 4px)' }}>{t('dicomViewer.findings')} {r.findings}</div>}
                   {r.impression && <div style={{ fontSize: 12, color: '#059669', lineHeight: 1.5 }}>{t('dicomViewer.impression')} {r.impression}</div>}
                   {r.keywords?.length > 0 && (
                     <div style={{ marginTop: 6, display: 'flex', gap: 'var(--space-1, 4px)', flexWrap: 'wrap' }}>

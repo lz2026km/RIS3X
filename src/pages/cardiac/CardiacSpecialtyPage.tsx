@@ -247,7 +247,7 @@ const CardiacSpecialtyPage = () => {
           padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-info-bg)',
           color: dataSource === 'real' ? 'var(--color-success-600)' : 'var(--color-primary-800)', border: `1px solid ${dataSource === 'real' ? 'var(--color-success-border)' : 'var(--color-pending-border)'}`  }}>{dataSource === 'real' ? t('cardiacSpec.dataRealtime') : t('cardiacSpec.dataDemo')}</span>
           </Title>
-          <p style={{ fontSize: 12, color: "#64748b", marginTop: 'var(--space-1, 4px)' }}>
+          <p style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginTop: 'var(--space-1, 4px)' }}>
             {t('cardiacSpec.subtitle')}
           </p>
         </div>
@@ -368,7 +368,7 @@ const CardiacSpecialtyPage = () => {
                 <div style={{ fontSize: 24, fontWeight: 700, color: "var(--color-primary-800)" }}>
                 {k.value}
               </div>
-              <div style={{ fontSize: 12, color: "#64748b", marginTop: 'var(--space-1, 4px)' }}>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginTop: 'var(--space-1, 4px)' }}>
                 {t(k.label)}
               </div>
             </div>
@@ -488,7 +488,7 @@ const CardiacSpecialtyPage = () => {
                       <div style={{ fontWeight: 600 }}>
                         {a.patientName}
                         <br />
-                        <span style={{ fontSize: 11, color: "#94a3b8" }}>{a.patientId}</span>
+                        <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{a.patientId}</span>
                       </div>
                     ),
                   },
@@ -607,7 +607,7 @@ const CardiacSpecialtyPage = () => {
                     title: t('cardiacSpec.colDate'),
                     dataIndex: 'studyDate',
                     key: 'studyDate',
-                    render: (v: string) => <span style={{ color: "#64748b" }}>{v}</span>,
+                    render: (v: string) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{v}</span>,
                   },
                 ]}
               />
@@ -671,7 +671,7 @@ const CardiacSpecialtyPage = () => {
                       <div style={{ fontSize: 12, fontWeight: 600 }}>
                         {a.patientName}
                       </div>
-                      <div style={{ fontSize: 12, color: "#94a3b8" }}>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
                         {a.id} · {a.modality}
                       </div>
                     </div>
@@ -690,7 +690,7 @@ const CardiacSpecialtyPage = () => {
                       >
                         {a.lvFunction?.efPercent}%
                       </div>
-                      <div style={{ fontSize: 11, color: "#94a3b8" }}>LVEF</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>LVEF</div>
                     </div>
                   </div>
                 ))}
@@ -738,7 +738,7 @@ const CardiacSpecialtyPage = () => {
                         gridTemplateColumns: "repeat(3, 1fr)",
                         gap: 6,
                         fontSize: 12,
-                        color: "#64748b",
+                        color: 'var(--text-muted, #64748b)',
                       }}
                     >
                       <span>EDV {a.lvFunction?.edvMl ?? "-"} ml</span>
@@ -1021,7 +1021,7 @@ const CardiacSpecialtyPage = () => {
                       <span
                         style={{
                           fontSize: 12,
-                          color: "#64748b",
+                          color: 'var(--text-muted, #64748b)',
                           width: 30,
                           textAlign: "right",
                         }}
@@ -1064,7 +1064,7 @@ const CardiacSpecialtyPage = () => {
                       marginBottom: 10,
                     }}
                   >
-                    <span style={{ width: 80, fontSize: 12, color: "#64748b" }}>
+                    <span style={{ width: 80, fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
                       {tr.month}
                     </span>
                     <div

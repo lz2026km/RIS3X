@@ -266,7 +266,7 @@ export default function TeachingCaseLibraryPage() {
     const icons = [<FolderOpen key="0" size={13} />, <Scan key="1" size={13} />, <Award key="2" size={13} />, <TagIcon key="3" size={13} />]
     return groups.map((g, gi) => (
       <div key={g.name} style={{ marginBottom: 'var(--space-2, 8px)' }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 'var(--space-1, 4px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #334155)', marginBottom: 'var(--space-1, 4px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           {icons[gi % icons.length]}
           {g.name}
           <span style={{ color: 'var(--text-muted, #94a3b8)', fontWeight: 400 }}>{g.count}</span>
@@ -369,7 +369,7 @@ export default function TeachingCaseLibraryPage() {
           <div style={{ display: 'flex', gap: 14 }}>
             {/* 分类树 */}
             <div style={{ width: 250, flexShrink: 0, borderRight: '1px solid var(--border-default, rgba(0,0,0,0.12))', paddingRight: 'var(--space-3, 12px)' }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #334155)', marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
                 <Filter size={13} />
                 {t('categories', '分类')}
               </div>
@@ -433,7 +433,7 @@ export default function TeachingCaseLibraryPage() {
                               </div>
                             </div>
                           </div>
-                          <div style={{ fontSize: 11, color: '#475569', marginTop: 'var(--space-2, 8px)', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          <div style={{ fontSize: 11, color: 'var(--text-secondary, #475569)', marginTop: 'var(--space-2, 8px)', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                             {c.diagnosis}
                           </div>
                           {c.keyPoints.length > 0 && (
@@ -517,7 +517,7 @@ export default function TeachingCaseLibraryPage() {
               <Space direction="vertical" style={{ width: '100%' }} size={12}>
                 {paper.questions.map((q, qi) => (
                   <Card key={q.caseId} size="small" title={<span style={{ fontSize: 12 }}>{qi + 1}. {q.title}</span>}>
-                    <div style={{ fontSize: 12, color: '#475569', background: 'var(--bg-primary, #f8fafc)', padding: 10, borderRadius: 6, marginBottom: 10, whiteSpace: 'pre-wrap' }}>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', background: 'var(--bg-primary, #f8fafc)', padding: 10, borderRadius: 6, marginBottom: 10, whiteSpace: 'pre-wrap' }}>
                       {q.findings}
                     </div>
                     <Radio.Group
@@ -561,7 +561,7 @@ export default function TeachingCaseLibraryPage() {
                       </div>
                       <Tag color="red" style={{ fontSize: 11 }}>{t('wrongTimes', '错 {{count}} 次', { count: w.wrongCount })}</Tag>
                     </div>
-                    <div style={{ fontSize: 12, color: '#475569', marginTop: 6 }}>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginTop: 6 }}>
                       {t('wrongAnswer', '正确答案')}: <b style={{ color: '#52c41a' }}>{w.diagnosis}</b>
                       <span style={{ color: 'var(--text-muted, #94a3b8)' }}> · {w.lastWrongAt}</span>
                     </div>
@@ -660,7 +660,7 @@ export default function TeachingCaseLibraryPage() {
                 <span style={{ fontWeight: 600, fontSize: 12, color: '#1677ff' }}>{cm.user}</span>
                 <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{cm.time}</span>
               </div>
-              <div style={{ fontSize: 12, color: '#334155', marginTop: 2 }}>{cm.content}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-primary, #334155)', marginTop: 2 }}>{cm.content}</div>
             </div>
           ))}
         </div>

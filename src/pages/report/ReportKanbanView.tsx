@@ -57,7 +57,7 @@ const KANBAN_COLUMNS = [
   {
     key: '特殊', label: '特殊', Icon: Settings,
     subStatus: ['修订中', '已修订', '已撤回', '已驳回', '已归档'] as readonly string[],
-    color: '#475569', bg: 'var(--bg-card)', border: 'var(--border-color)',
+    color: 'var(--text-secondary, #475569)', bg: 'var(--bg-card)', border: 'var(--border-color)',
   },
 ]
 

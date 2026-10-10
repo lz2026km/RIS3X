@@ -90,7 +90,7 @@ const s = {
   select: { width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)' },
   grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' },
   grid3: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-3, 12px)' },
-  label: { fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 'var(--space-1, 4px)', display: 'block' as const },
+  label: { fontSize: 12, color: 'var(--text-muted, #64748b)', fontWeight: 600, marginBottom: 'var(--space-1, 4px)', display: 'block' as const },
   badge: (status: string) => ({
     padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
     background: status === '已确认' ? 'var(--color-success-bg)' : status === '已取消' ? 'var(--color-error-bg)' : status === '已完成' ? 'var(--color-info-bg)' : 'var(--color-warning-bg)',
@@ -274,13 +274,13 @@ export default function ServiceManagement() {
 
           {appointments.length > 0 && (
             <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
-              <h3 style={s.title}>{t('serviceMgmt.myAppointments')} <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{source === 'api' ? t('serviceMgmt.apptRealtime') : t('serviceMgmt.demo')}</span></h3>
+              <h3 style={s.title}>{t('serviceMgmt.myAppointments')} <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', fontWeight: 400 }}>{source === 'api' ? t('serviceMgmt.apptRealtime') : t('serviceMgmt.demo')}</span></h3>
               {appointments.map(a => (
                 <div key={a.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--border-color)' }}>
                   <div>
                     <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>{a.department}</div>
-                    <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{a.date} {a.timeSlot}</div>
-                    <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{t('serviceMgmt.codePrefix')}{a.code}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginTop: 2 }}>{a.date} {a.timeSlot}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>{t('serviceMgmt.codePrefix')}{a.code}</div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                     <span style={s.badge(a.status)}>{a.status}</span>
@@ -298,7 +298,7 @@ export default function ServiceManagement() {
       {/* Push Templates Tab */}
       {activeTab === 'push' && (
         <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
-          <h3 style={s.title}>{t('serviceMgmt.pushTemplates')} <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{source === 'api' ? t('serviceMgmt.templatesRealtime') : t('serviceMgmt.demo')}</span></h3>
+          <h3 style={s.title}>{t('serviceMgmt.pushTemplates')} <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', fontWeight: 400 }}>{source === 'api' ? t('serviceMgmt.templatesRealtime') : t('serviceMgmt.demo')}</span></h3>
           {templates.map(tpl => (
             <div key={tpl.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', padding: '14px 16px', marginBottom: 'var(--space-2, 8px)', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
               <div style={{ flex: 1 }}>
@@ -309,7 +309,7 @@ export default function ServiceManagement() {
                     color: tpl.channel === '短信' ? 'var(--color-info)' : tpl.channel === '微信' ? 'var(--color-success)' : 'var(--color-warning)',
                   }}>{tpl.channel}</span>
                 </div>
-                <div style={{ fontSize: 12, color: '#64748b', marginTop: 'var(--space-1, 4px)' }}>{tpl.content}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginTop: 'var(--space-1, 4px)' }}>{tpl.content}</div>
               </div>
               <button onClick={() => toggleTemplate(tpl.id)} style={{
                 ...s.btnSmall, minWidth: 48,
@@ -320,14 +320,14 @@ export default function ServiceManagement() {
               </button>
             </div>
           ))}
-          <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 'var(--space-2, 8px)' }}>{t('serviceMgmt.templatesNote')}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 'var(--space-2, 8px)' }}>{t('serviceMgmt.templatesNote')}</div>
         </Card>
       )}
 
       {/* Preference Tab */}
       {activeTab === 'preference' && (
         <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
-          <h3 style={s.title}>{t('serviceMgmt.notifyPrefs')} <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{t('serviceMgmt.localStorage')}</span></h3>
+          <h3 style={s.title}>{t('serviceMgmt.notifyPrefs')} <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', fontWeight: 400 }}>{t('serviceMgmt.localStorage')}</span></h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
             {[
               { key: 'smsNotify' as const, label: t('serviceMgmt.notifySms') },

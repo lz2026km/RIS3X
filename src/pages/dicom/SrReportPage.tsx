@@ -311,7 +311,7 @@ const SrReportPage: React.FC = () => {
   // ───────────────────────── 结构化树渲染 ─────────────────────────
 
   const renderConcept = (c: SrConceptName) => (
-    <Text style={{ fontSize: 11, fontFamily: "monospace", color: "#64748b" }}>
+    <Text style={{ fontSize: 11, fontFamily: "monospace", color: 'var(--text-muted, #64748b)' }}>
       {c.scheme}:{c.code}
     </Text>
   );
@@ -362,7 +362,7 @@ const SrReportPage: React.FC = () => {
       <Space style={{ marginBottom: 'var(--space-4, 16px)' }} wrap>
         <FileText size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t("srReport.title")}</span>
-        <span style={{ fontSize: 12, color: "#94a3b8" }}>
+        <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
           {t("srReport.subtitle")}
         </span>
         <Button
@@ -629,7 +629,7 @@ const SrReportPage: React.FC = () => {
         <Spin spinning={backfillLoading}>
           {backfillData && (
             <>
-              <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 10 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginBottom: 10 }}>
                 {t("srReport.backfillPrefix")} {backfillData.measurements.length} {t("srReport.backfillItems")} (SR {backfillData.srId} · {backfillData.templateId}){t("srReport.backfillSuffix")}
               </div>
               {backfillData.measurements.length > 0 && (
@@ -647,7 +647,7 @@ const SrReportPage: React.FC = () => {
                   scroll={{ x: "max-content" }}
                 />
               )}
-              <div style={{ fontSize: 12, color: "#334155", lineHeight: 1.8, background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: 8, padding: "12px 14px", whiteSpace: "pre-wrap" }}>
+              <div style={{ fontSize: 12, color: 'var(--text-primary, #334155)', lineHeight: 1.8, background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: 8, padding: "12px 14px", whiteSpace: "pre-wrap" }}>
                 {backfillData.paragraph}
               </div>
             </>
@@ -767,10 +767,10 @@ const GenerateSrModal: React.FC<{
         </Form.Item>
         {selectedReport && (
           <Card size="small" style={{ marginBottom: 'var(--space-3, 12px)' }}>
-            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 'var(--space-1, 4px)' }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-1, 4px)' }}>
               {selectedReport.patientName} - {t("srReport.findingsLabel")} {selectedReport.findings || t("srReport.emptyPlaceholder")}
             </div>
-            <div style={{ fontSize: 12, color: "#64748b" }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
               {t("srReport.impressionLabel")} {selectedReport.impression || t("srReport.emptyPlaceholder")}
             </div>
           </Card>
@@ -788,7 +788,7 @@ const GenerateSrModal: React.FC<{
           <Input.TextArea rows={2} placeholder={t("srReport.impressionOverridePlaceholder")} />
         </Form.Item>
       </Form>
-      <div style={{ fontSize: 12, color: "#94a3b8", display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
+      <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
         <ChevronRight size={12} /> {t("srReport.generateHint")}
       </div>
     </Modal>

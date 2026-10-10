@@ -289,7 +289,7 @@ function EvaluationResultView({ result }: { result: RubricEvaluationResult }) {
           {result.hardFailTriggered.length > 0 && (
             <Space wrap>{result.hardFailTriggered.map((h) => <Tag key={h} color="red">{t('w9Qc.rubric.hardFail')}: {h}</Tag>)}</Space>
           )}
-          <span style={{ color: '#94a3b8', fontSize: 12 }}>{result.standard} · v{result.rubricVersion}</span>
+          <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{result.standard} · v{result.rubricVersion}</span>
         </div>
       </Space>
 
@@ -880,7 +880,7 @@ function EquipmentTab() {
             pagination={false}
             showHeader={false}
             columns={[
-              { dataIndex: 'k', width: 140, render: (v: string) => <span style={{ color: '#64748b' }}>{v}</span> },
+              { dataIndex: 'k', width: 140, render: (v: string) => <span style={{ color: 'var(--text-muted, #64748b)' }}>{v}</span> },
               { dataIndex: 'v' },
             ]}
             dataSource={[
@@ -893,7 +893,7 @@ function EquipmentTab() {
             ]}
           />
         ) : (
-          <span style={{ color: '#94a3b8' }}>{t('w4b.eqc.loadFailed')}</span>
+          <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{t('w4b.eqc.loadFailed')}</span>
         )}
       </Drawer>
     </div>

@@ -13,7 +13,7 @@ import { t } from "../../i18n/appI18n";
 const C = {
   primary: "var(--color-primary-800)", primaryLight: "var(--color-primary-500)", primaryLighter: "#dbeafe",
   accent: "var(--color-info-600)", white: "#ffffff", bg: "#e8e8e8", border: "#d1d5db",
-  borderLight: "#e5e7eb", textDark: "#1f2937", textMid: "#4b5563", textLight: "#9ca3af",
+  borderLight: "var(--border-color, #e5e7eb)", textDark: "#1f2937", textMid: "#4b5563", textLight: "#9ca3af",
   success: "#059669", successBg: "#d1fae5", warning: "var(--color-warning-600)", warningBg: "#fef3c7",
   danger: "var(--color-error-600)", dangerBg: "#fee2e2", info: "var(--color-primary-600)", infoBg: "#dbeafe",
   purple: "#7c3aed", purpleBg: "#ede9fe",

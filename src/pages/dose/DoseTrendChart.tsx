@@ -26,7 +26,7 @@ export default function DoseTrendChart({
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-4, 16px)' }}>
-        <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid #e2e8f0" }}>
+        <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid var(--border-color, #e2e8f0)" }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 'var(--space-4, 16px)' }}>
             {t("doseTrack.trend.overview") || "各类设备剂量趋势（本周DLP合计）"}
           </div>
@@ -44,7 +44,7 @@ export default function DoseTrendChart({
           </ChartContainer>
         </div>
 
-        <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid #e2e8f0" }}>
+        <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid var(--border-color, #e2e8f0)" }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 'var(--space-4, 16px)' }}>
             {t("doseTrack.ctdiTrend.title")}
           </div>
@@ -62,11 +62,11 @@ export default function DoseTrendChart({
         </div>
       </div>
 
-      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid #e2e8f0" }}>
+      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid var(--border-color, #e2e8f0)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 'var(--space-4, 16px)' }}>
           <div>
             <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>{t("doseTrack.deviceDap.title")}</div>
-            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{t("doseTrack.deviceDap.subtitle")}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>{t("doseTrack.deviceDap.subtitle")}</div>
           </div>
         </div>
         <ChartContainer height={240} state={deviceDAPComparison.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无设备DAP对比数据">
@@ -81,7 +81,7 @@ export default function DoseTrendChart({
         </ChartContainer>
       </div>
 
-      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid #e2e8f0" }}>
+      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid var(--border-color, #e2e8f0)" }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 'var(--space-4, 16px)' }}>
           {t("doseTrack.device.statusLabel") || "设备今日剂量状态"}
         </div>
@@ -96,7 +96,7 @@ export default function DoseTrendChart({
                   <Monitor size={14} color="#64748b" />
                   <div>
                     <div style={{ fontSize: 12, fontWeight: 600, color: "var(--color-primary-800)" }}>{d.device}</div>
-                    <div style={{ fontSize: 12, color: "#94a3b8" }}>DLP: {d.todayDLP} mGy·cm · CTDI: {d.todayCTDI} mGy</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>DLP: {d.todayDLP} mGy·cm · CTDI: {d.todayCTDI} mGy</div>
                   </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>

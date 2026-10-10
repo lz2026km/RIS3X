@@ -176,12 +176,12 @@ export default function ReportAuditTrailDrawer({ report, onClose }: ReportAuditT
                 {e.fromState && e.toState && (
                   <div style={{ marginTop: 'var(--space-1, 4px)' }}>
                     <Tag color={STATE_COLORS[e.fromState.toUpperCase()] ?? 'default'} style={{ fontSize: 11, marginRight: 'var(--space-1, 4px)' }}>{e.fromState}</Tag>
-                    <span style={{ color: '#94a3b8', fontSize: 11 }}>→</span>
+                    <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 11 }}>→</span>
                     <Tag color={STATE_COLORS[e.toState.toUpperCase()] ?? 'default'} style={{ fontSize: 11, marginLeft: 'var(--space-1, 4px)' }}>{e.toState}</Tag>
                   </div>
                 )}
                 {e.reason && (
-                  <div style={{ marginTop: 'var(--space-1, 4px)', fontSize: 12, color: '#64748b', background: 'var(--bg-card)', padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)' }}>
+                  <div style={{ marginTop: 'var(--space-1, 4px)', fontSize: 12, color: 'var(--text-muted, #64748b)', background: 'var(--bg-card)', padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)' }}>
                     原因: {e.reason}
                   </div>
                 )}

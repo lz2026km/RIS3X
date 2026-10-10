@@ -63,23 +63,23 @@ export const FilterBar = ({
   <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 20px', border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: 'var(--space-4, 16px)' }}>
     <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', flex: 1, background: 'var(--bg-card)', borderRadius: 8, padding: '8px 14px', border: '1px solid var(--border-color)' }}>
-        <Search size={16} style={{ color: '#94a3b8' }} />
+        <Search size={16} style={{ color: 'var(--text-muted, #94a3b8)' }} />
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('cvList.searchPlaceholder')} style={{ border: 'none', fontSize: 12, width: '100%', background: 'transparent' }} />
-        {search && <X size={14} style={{ color: '#94a3b8', cursor: 'pointer' }} onClick={() => setSearch('')} />}
+        {search && <X size={14} style={{ color: 'var(--text-muted, #94a3b8)', cursor: 'pointer' }} onClick={() => setSearch('')} />}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <Calendar size={14} style={{ color: '#64748b' }} />
+        <Calendar size={14} style={{ color: 'var(--text-muted, #64748b)' }} />
         <input type="date" value={dateRange} onChange={e => setDateRange(e.target.value)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 12, color: 'var(--text-primary)',}} />
       </div>
-      <button onClick={onOpenSettings} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+      <button onClick={onOpenSettings} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-muted, #64748b)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
         <Settings size={14} />
         {t('cvList.rulesSettings')}
       </button>
     </div>
     <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', alignItems: 'center', marginBottom: 10, flexWrap: 'wrap' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginRight: 'var(--space-2, 8px)' }}>
-        <Filter size={14} style={{ color: '#64748b' }} />
-        <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>{t('cvList.statusLabel')}</span>
+        <Filter size={14} style={{ color: 'var(--text-muted, #64748b)' }} />
+        <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', fontWeight: 600 }}>{t('cvList.statusLabel')}</span>
       </div>
       {STATUS_LIST.map(s => (
         <button key={s} onClick={() => setStatusFilter(s)} style={filterBtnStyle(statusFilter === s)}>
@@ -89,19 +89,19 @@ export const FilterBar = ({
     </div>
     <div style={{ display: 'flex', gap: 'var(--space-4, 16px)', flexWrap: 'wrap', alignItems: 'center' }}>
       <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-        <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>{t('cvList.modalityLabel')}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', fontWeight: 600 }}>{t('cvList.modalityLabel')}</span>
         {MODALITY_LIST.map(m => (
           <button key={m} onClick={() => setModalityFilter(m)} style={filterBtnStyle(modalityFilter === m)}>{MODALITY_I18N[m] ? t(MODALITY_I18N[m]) : m}</button>
         ))}
       </div>
       <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-        <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>{t('cvList.severityLabel')}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', fontWeight: 600 }}>{t('cvList.severityLabel')}</span>
         {SEVERITY_LIST.map(s => (
           <button key={s} onClick={() => setSeverityFilter(s)} style={filterBtnStyle(severityFilter === s)}>{t(SEVERITY_I18N[s] ?? s)}</button>
         ))}
       </div>
       <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-        <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>{t('cvList.timeRangeLabel')}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', fontWeight: 600 }}>{t('cvList.timeRangeLabel')}</span>
         {TIME_RANGE_LIST.map(tr => (
           <button key={tr} onClick={() => setTimeRangeFilter(tr)} style={filterBtnStyle(timeRangeFilter === tr)}>{t(TIME_RANGE_I18N[tr] ?? tr)}</button>
         ))}
@@ -158,30 +158,30 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
           {isSelected ? <CheckSquare size={18} /> : <Square size={18} />}
         </div>
       </div>
-      <div style={{ fontSize: 12, color: '#64748b', fontFamily: 'monospace' }}>{cv.id}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', fontFamily: 'monospace' }}>{cv.id}</div>
       <div>
         <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{cv.patientName}</div>
-        <div style={{ fontSize: 12, color: '#94a3b8' }}>{cv.gender}·{cv.age}岁</div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{cv.gender}·{cv.age}岁</div>
       </div>
       <div>
         <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{cv.examItemName}</div>
-        <div style={{ fontSize: 12, color: '#94a3b8' }}>{cv.modality}</div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{cv.modality}</div>
       </div>
-      <div style={{ fontSize: 12, color: '#64748b' }}>{cv.deviceName?.split('（')[0] || cv.modality}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{cv.deviceName?.split('（')[0] || cv.modality}</div>
       <div>
         <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-error-600)' }}>{cv.resultValue} {cv.resultUnit}</div>
-        <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('cvList.criticalPrefix')} {cv.criticalRange}</div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('cvList.criticalPrefix')} {cv.criticalRange}</div>
       </div>
       <div>
         <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{cv.reportedByName}</div>
-        <div style={{ fontSize: 12, color: '#94a3b8' }}>{(cv.reportedTime || '').split(' ')[1] || cv.reportedTime}</div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{(cv.reportedTime || '').split(' ')[1] || cv.reportedTime}</div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <StatusIcon size={14} style={{ color: statusCfg.color }} />
         <span style={{ fontSize: 12, fontWeight: 700, color: statusCfg.color, background: statusCfg.bg, padding: '2px 10px', borderRadius: 10 }}>{t(STATUS_LABEL[cv.status] ?? cv.status)}</span>
       </div>
-      <div style={{ fontSize: 12, color: '#64748b' }}>{cv.processingTime ? (cv.processingTime || '').split(' ')[1] || cv.processingTime : '-'}</div>
-      <div style={{ fontSize: 12, color: '#64748b' }}>{cv.processingDuration || '-'}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{cv.processingTime ? (cv.processingTime || '').split(' ')[1] || cv.processingTime : '-'}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{cv.processingDuration || '-'}</div>
       <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', flexWrap: 'wrap' }}>
         {(cv.status === '待处理' || cv.status === 'pending' || cv.status === 'notified' || cv.status === 'voice_called' || cv.status === 'acknowledged' || cv.status === 'receipted') && (
           <button onClick={onProcess} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #059669', background: 'var(--color-success-bg)', color: '#059669', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
@@ -285,7 +285,7 @@ export const CriticalValueList = ({
 
   return (
     <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-      <div style={{ padding: '10px 16px', fontSize: 12, fontWeight: 700, color: '#64748b', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center' }}>
+      <div style={{ padding: '10px 16px', fontSize: 12, fontWeight: 700, color: 'var(--text-muted, #64748b)', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center' }}>
         <div style={{ width: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div onClick={onToggleSelectAll} style={{ cursor: 'pointer', color: allSelected ? 'var(--color-primary-800)' : '#cbd5e1' }}>
             {allSelected ? <CheckSquare size={16} /> : <Square size={16} />}
@@ -328,13 +328,13 @@ export const CriticalValueList = ({
       ) : (
         <div style={{ padding: '48px 24px', textAlign: 'center' }}>
           <ShieldAlert size={40} style={{ color: '#cbd5e1', marginBottom: 'var(--space-3, 12px)' }} />
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#94a3b8' }}>{t('cvList.emptyTitle')}</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-muted, #94a3b8)' }}>{t('cvList.emptyTitle')}</div>
           <div style={{ fontSize: 12, color: '#cbd5e1', marginTop: 'var(--space-1, 4px)' }}>{t('cvList.emptyDesc')}</div>
         </div>
       )}
 
       <div style={{ padding: '12px 16px', borderTop: '1px solid var(--border-color)', background: 'var(--bg-card)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontSize: 12, color: '#64748b' }}>
+        <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
           {t('cvList.totalRecordsPrefix')} <span style={{ fontWeight: 700, color: 'var(--color-primary-800)' }}>{filtered.length}</span> {t('cvList.totalRecordsMid')}
           {t('cvList.selectedPrefix')} <span style={{ fontWeight: 700, color: 'var(--color-primary-800)' }}>{selectedIds.size}</span> {t('cvList.selectedSuffix')}
         </div>
@@ -343,14 +343,14 @@ export const CriticalValueList = ({
           {Object.entries(STATUS_CONFIG).filter(([key]) => !CN_STATUS_TO_STORE[key] && key !== '待处理' && key !== '处理中' && key !== '已处理' && key !== '超时').map(([key, cfg]) => (
             <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
               <div style={{ width: 8, height: 8, borderRadius: '50%', background: cfg.color }} />
-              <span style={{ fontSize: 12, color: '#64748b' }}>
+              <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
                 {t(STATUS_LABEL[key] ?? key)}: {machineStatusCounts[key] ?? criticalValues.filter(c => c.status === key).length}
               </span>
             </div>
           ))}
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)', marginLeft: 'var(--space-2, 8px)' }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#7c3aed' }} />
-            <span style={{ fontSize: 12, color: '#64748b' }}>{t('cvList.transferredLabel')} {criticalValues.filter(c => c.transferredToFollowUp).length}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('cvList.transferredLabel')} {criticalValues.filter(c => c.transferredToFollowUp).length}</span>
           </div>
         </div>
       </div>

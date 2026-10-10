@@ -51,7 +51,7 @@ function MiniHistogram({ hist, height = 28 }: { hist: number[]; height?: number 
 function FeatureSummaryBlock({ summary }: { summary: { mean: number; std: number; skew: number; kurtosis: number; min: number; max: number; percentiles: number[]; textureEnergy: number; highDensityRatio: number; lowDensityRatio: number; histogram: number[] } }) {
   const [p5, , p50, , p95] = summary.percentiles
   return (
-    <div style={{ fontSize: 11, color: '#475569' }}>
+    <div style={{ fontSize: 11, color: 'var(--text-secondary, #475569)' }}>
       <MiniHistogram hist={summary.histogram} />
       <div style={{ marginTop: 6, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px 12px', lineHeight: 1.8 }}>
         <span>{t('similarCase.featMean')} <Text strong>{summary.mean}</Text></span>
@@ -171,13 +171,13 @@ function ImageSearchTab() {
                     percent={r.similarity}
                     size="small"
                     strokeColor={r.similarity >= 70 ? 'var(--color-success-600)' : r.similarity >= 40 ? 'var(--color-warning-500)' : '#94a3b8'}
-                    format={(p) => <Text strong style={{ color: '#334155' }}>{p}%</Text>}
+                    format={(p) => <Text strong style={{ color: 'var(--text-primary, #334155)' }}>{p}%</Text>}
                   />
                   <div style={{ marginTop: 'var(--space-2, 8px)' }}>
                     <MiniHistogram hist={r.featureSummary.histogram} height={24} />
                   </div>
                   <Divider style={{ margin: '8px 0' }} />
-                  <div style={{ fontSize: 11, color: '#64748b' }}>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>
                     {t('similarCase.featureCosine')} {r.featureScore.toFixed(0)}% · {t('similarCase.modalityPart')} {r.matchScore.toFixed(0)}% · {t('similarCase.featMean')} {r.featureSummary.mean} · p50 {r.featureSummary.percentiles[2]}
                   </div>
                 </Card>
@@ -325,13 +325,13 @@ function HybridSearchTab() {
                     percent={r.similarity}
                     size="small"
                     strokeColor={r.similarity >= 70 ? 'var(--color-success-600)' : r.similarity >= 40 ? 'var(--color-warning-500)' : '#94a3b8'}
-                    format={(p) => <Text strong style={{ color: '#334155' }}>{p}%</Text>}
+                    format={(p) => <Text strong style={{ color: 'var(--text-primary, #334155)' }}>{p}%</Text>}
                   />
-                  <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#334155', lineHeight: 1.6, minHeight: 38 }}>
+                  <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-primary, #334155)', lineHeight: 1.6, minHeight: 38 }}>
                     {r.impression || `${r.modality} ${r.bodyPart} ${t('similarCase.imageSeriesSuffix')}`}
                   </div>
                   <Divider style={{ margin: '8px 0' }} />
-                  <div style={{ fontSize: 11, color: '#64748b', display: 'flex', gap: 'var(--space-3, 12px)' }}>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted, #64748b)', display: 'flex', gap: 'var(--space-3, 12px)' }}>
                     <span>{t('similarCase.textScore')} <Text strong>{r.textScore !== null ? `${Math.round(r.textScore * 100)}%` : '—'}</Text></span>
                     <span>{t('similarCase.imageScore')} <Text strong>{r.imageScore !== null ? `${Math.round(r.imageScore * 100)}%` : '—'}</Text></span>
                     {r.featureSummary && <span>{t('similarCase.featMean')} {r.featureSummary.mean}</span>}
@@ -527,13 +527,13 @@ const SimilarCasePage: React.FC = () => {
                     percent={c.similarity}
                     size="small"
                     strokeColor={c.similarity >= 70 ? 'var(--color-success-600)' : c.similarity >= 40 ? 'var(--color-warning-500)' : '#94a3b8'}
-                    format={(p) => <Text strong style={{ color: '#334155' }}>{p}%</Text>}
+                    format={(p) => <Text strong style={{ color: 'var(--text-primary, #334155)' }}>{p}%</Text>}
                   />
-                  <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: '#334155', lineHeight: 1.7, minHeight: 54 }}>
+                  <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-primary, #334155)', lineHeight: 1.7, minHeight: 54 }}>
                     {highlight(c.impression || c.conclusion, c.keywords)}
                   </div>
                   <Divider style={{ margin: '8px 0' }} />
-                  <div style={{ fontSize: 11, color: '#64748b' }}>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>
                     {t('similarCase.textLabel')} {Math.round(c.textScore * 100)}% · {t('similarCase.featureLabel')} {Math.round(c.featureScore * 100)}% · SNOMED {Math.round(c.snomedScore * 100)}%
                   </div>
                 </Card>

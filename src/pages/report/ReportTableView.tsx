@@ -173,7 +173,7 @@ export default function ReportTableView({
           <span style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--color-info-bg)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}><User size={14} color={PRIMARY} /></span>
           <span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, color: 'var(--text-primary)' }}>{String(value)} {report.criticalFinding && <Zap size={11} color={DANGER} />}</span>
-            <span style={{ display: 'block', fontSize: 12, color: '#94a3b8' }}>{report.gender} · {report.age}{t('rptTable.yearsOld')} · {report.patientType}</span>
+            <span style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{report.gender} · {report.age}{t('rptTable.yearsOld')} · {report.patientType}</span>
           </span>
         </span>
       ),
@@ -185,7 +185,7 @@ export default function ReportTableView({
       width: 180,
       searchable: true,
       sorter: (a, b) => a.examItemName.localeCompare(b.examItemName, 'zh-CN'),
-      render: (value, report) => <span><span style={{ display: 'block', fontWeight: 500, color: 'var(--text-secondary)' }}>{String(value)}</span><span style={{ display: 'block', fontSize: 12, color: '#94a3b8' }}>{report.modality} · {report.bodyPart}</span></span>,
+      render: (value, report) => <span><span style={{ display: 'block', fontWeight: 500, color: 'var(--text-secondary)' }}>{String(value)}</span><span style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{report.modality} · {report.bodyPart}</span></span>,
     },
     {
       title: t('rptTable.col.status'),
@@ -327,15 +327,15 @@ export default function ReportTableView({
           <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 'var(--space-3, 12px)', background: 'var(--bg-card)' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)', marginBottom: 10 }}>
               <div>
-                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('rptTable.findings')}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('rptTable.findings')}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6, background: 'var(--bg-card)', borderRadius: 6, padding: '6px 10px', border: '1px solid var(--border-color)', maxHeight: 80, overflow: 'auto' }}>{highlightAnomalies(report.examFindings) || t('rptTable.notFilled')}</div>
               </div>
               <div>
-                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('rptTable.diagnosis')}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', fontWeight: 600, marginBottom: 'var(--space-1, 4px)' }}>{t('rptTable.diagnosis')}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6, background: 'var(--bg-card)', borderRadius: 6, padding: '6px 10px', border: '1px solid var(--border-color)', maxHeight: 80, overflow: 'auto' }}>{highlightAnomalies(report.diagnosis) || t('rptTable.notFilled')}</div>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', alignItems: 'center', fontSize: 12, color: '#64748b' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-3, 12px)', alignItems: 'center', fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
               <StatusTimeline report={report} />
               <span style={{ marginLeft: 'auto' }}>{t('rptTable.reportLabel')} {report.reportDoctorName || '-'}</span>
               {report.auditorName && <span>{t('rptTable.auditorLabel')} {report.auditorName}</span>}
@@ -344,7 +344,7 @@ export default function ReportTableView({
           </div>
         ),
       }}
-      locale={{ emptyText: <Empty image={<Search size={32} style={{ color: "#94a3b8" }} />} description={<span style={{ fontSize: 12, color: "#94a3b8" }}>{t('rptTable.empty')}</span>} /> }}
+      locale={{ emptyText: <Empty image={<Search size={32} style={{ color: 'var(--text-muted, #94a3b8)' }} />} description={<span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('rptTable.empty')}</span>} /> }}
       onRow={(report) => ({ onClick: () => onView(report), style: { cursor: 'pointer' } })}
     />
   )

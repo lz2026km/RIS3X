@@ -1545,7 +1545,7 @@ export function ExamDetailView({
                             </div>
                           )}
                           {ev.actor && (
-                            <div style={{ fontSize: 11, color: "#64748b" }}>{t("examDetail.operator")}: {ev.actor}</div>
+                            <div style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>{t("examDetail.operator")}: {ev.actor}</div>
                           )}
                         </div>
                       </div>

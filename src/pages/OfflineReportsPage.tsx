@@ -116,12 +116,12 @@ export default function OfflineReportsPage() {
         </div>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 60, color: '#94a3b8', fontSize: 12 }}>{t('offlineReports.loading')}</div>
+          <div style={{ textAlign: 'center', padding: 60, color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{t('offlineReports.loading')}</div>
         ) : items.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 60, background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)' }}>
             <FileText size={36} style={{ margin: '0 auto 12px', display: 'block', opacity: 0.4 }} />
-            <div style={{ fontSize: 14, color: '#64748b', marginBottom: 6 }}>{t('offlineReports.empty')}</div>
-            <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('offlineReports.emptyHint')}</div>
+            <div style={{ fontSize: 14, color: 'var(--text-muted, #64748b)', marginBottom: 6 }}>{t('offlineReports.empty')}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('offlineReports.emptyHint')}</div>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 'var(--space-3, 12px)' }}>
@@ -131,15 +131,15 @@ export default function OfflineReportsPage() {
                   <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{r.patientName || t('offlineReports.unknownPatient')}</div>
                   <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning)', border: '1px solid #fcd34d' }}>{t('offlineReports.offlineCopy')}</span>
                 </div>
-                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>
+                <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-1, 4px)' }}>
                   {r.modality ? `${r.modality}${r.bodyPart ? ` · ${r.bodyPart}` : ''}` : '-'} · {r.reportNo || r.id}
                 </div>
                 {r.state && (
-                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-1, 4px)' }}>
                     {t('offlineReports.statusLabel')} {STATE_LABELS[r.state] ?? r.state}
                   </div>
                 )}
-                <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 10 }}>{t('offlineReports.savedAt', { time: formatDateTime(r.savedAt ?? r.updatedAt) })}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginBottom: 10 }}>{t('offlineReports.savedAt', { time: formatDateTime(r.savedAt ?? r.updatedAt) })}</div>
                 <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                   <button onClick={() => setPreview(r)} style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', background: PRIMARY, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
                     <CheckCircle size={12} /> {t('offlineReports.browse')}
@@ -167,7 +167,7 @@ export default function OfflineReportsPage() {
               </div>
               <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
                 <button onClick={() => { setPreview(null); navigate('/reports') }} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: PRIMARY, color: '#fff', fontSize: 12, cursor: 'pointer' }}>{t('offlineReports.viewOnline')}</button>
-                <button onClick={() => setPreview(null)} style={{ padding: '5px 12px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 12, cursor: 'pointer' }}>{t('offlineReports.close')}</button>
+                <button onClick={() => setPreview(null)} style={{ padding: '5px 12px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-muted, #64748b)', fontSize: 12, cursor: 'pointer' }}>{t('offlineReports.close')}</button>
               </div>
             </div>
             <div style={{ flex: 1, overflow: 'auto', padding: 'var(--space-5, 20px)' }}>

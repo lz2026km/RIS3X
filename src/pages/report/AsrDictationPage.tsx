@@ -266,7 +266,7 @@ export default function AsrDictationPage() {
               value={reportId}
               onChange={(e) => setReportId(e.target.value)}
               placeholder={t('w17.asr.reportIdPlaceholder')}
-              style={{ padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, width: 220 }}
+              style={{ padding: '8px 12px', border: '1px solid var(--border-color, #cbd5e1)', borderRadius: 6, fontSize: 12, width: 220 }}
             />
             {!streaming ? (
               <button onClick={() => void handleStart()} disabled={loading} style={{ padding: '10px 22px', background: 'var(--color-primary-500)', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -294,7 +294,7 @@ export default function AsrDictationPage() {
           {session && (
             <div style={{ marginTop: 'var(--space-4, 16px)', display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 14 }}>
               <div style={{ border: '1px solid var(--border-default, rgba(0,0,0,0.12))', borderRadius: 8, padding: 'var(--space-3, 12px)', background: 'var(--bg-primary, #f8fafc)', minHeight: 160 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-2, 8px)', fontSize: 12, fontWeight: 600, color: '#334155' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 'var(--space-2, 8px)', fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #334155)' }}>
                   <Activity size={13} color="var(--color-primary-500)" />{t('w17.asr.realtimeText')}
                   {streaming && <span style={{ color: 'var(--color-error-600)', fontSize: 11, animation: 'pulse 1.2s infinite' }}>●</span>}
                 </div>
@@ -308,7 +308,7 @@ export default function AsrDictationPage() {
                 )}
               </div>
               <div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6 }}>{t('w17.asr.sections')}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #334155)', marginBottom: 6 }}>{t('w17.asr.sections')}</div>
                 {SECTION_ORDER.map((key) => {
                   const text = session.sections.find((s) => s.key === key)?.text ?? ''
                   const active = key === activeSection
@@ -369,12 +369,12 @@ export default function AsrDictationPage() {
               value={hotwordForm.term}
               onChange={(e) => setHotwordForm((f) => ({ ...f, term: e.target.value }))}
               placeholder={t('w17.asr.hotwordTerm')}
-              style={{ padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, width: 180 }}
+              style={{ padding: '6px 10px', border: '1px solid var(--border-color, #cbd5e1)', borderRadius: 6, fontSize: 12, width: 180 }}
             />
             <select
               value={hotwordForm.category}
               onChange={(e) => setHotwordForm((f) => ({ ...f, category: e.target.value as DictationHotwordCategory }))}
-              style={{ padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12 }}
+              style={{ padding: '6px 10px', border: '1px solid var(--border-color, #cbd5e1)', borderRadius: 6, fontSize: 12 }}
             >
               {Object.keys(CATEGORY_COLORS).map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
@@ -383,13 +383,13 @@ export default function AsrDictationPage() {
               value={hotwordForm.priority}
               onChange={(e) => setHotwordForm((f) => ({ ...f, priority: Number(e.target.value) || 0 }))}
               placeholder={t('w17.asr.priority')}
-              style={{ padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, width: 80 }}
+              style={{ padding: '6px 10px', border: '1px solid var(--border-color, #cbd5e1)', borderRadius: 6, fontSize: 12, width: 80 }}
             />
             <button onClick={() => void handleHotwordSubmit()} style={{ padding: '6px 14px', background: editingHotwordId ? 'var(--color-warning-500)' : 'var(--color-primary-500)', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
               {editingHotwordId ? <Save size={14} /> : <Plus size={14} />}{editingHotwordId ? t('w17.asr.saveEdit') : t('w17.asr.addHotword')}
             </button>
             {editingHotwordId && (
-              <button onClick={() => { setEditingHotwordId(null); setHotwordForm({ term: '', category: '影像', priority: 1 }) }} style={{ padding: '6px 14px', background: 'var(--bg-card)', color: '#475569', border: '1px solid #cbd5e1', borderRadius: 6, cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <button onClick={() => { setEditingHotwordId(null); setHotwordForm({ term: '', category: '影像', priority: 1 }) }} style={{ padding: '6px 14px', background: 'var(--bg-card)', color: 'var(--text-secondary, #475569)', border: '1px solid var(--border-color, #cbd5e1)', borderRadius: 6, cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <X size={14} />{t('w17.asr.cancel')}
               </button>
             )}
@@ -400,7 +400,7 @@ export default function AsrDictationPage() {
               <thead style={{ position: 'sticky', top: 0, background: 'var(--bg-primary, #f8fafc)' }}>
                 <tr>
                   {[t('w17.asr.colTerm'), t('w17.asr.colCategory'), t('w17.asr.colPriority'), t('w17.asr.colType'), t('w17.asr.colActions')].map((h) => (
-                    <th key={h} style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap', borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>{h}</th>
+                    <th key={h} style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: 'var(--text-secondary, #475569)', whiteSpace: 'nowrap', borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>{h}</th>
                   ))}
                 </tr>
               </thead>

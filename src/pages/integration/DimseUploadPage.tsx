@@ -45,7 +45,7 @@ const uploadColumns = () => [
   { title: t('dimseUpload.colArchivePath'), dataIndex: 's3Url', key: 's3Url', ellipsis: true, render: (v?: string) => v ? <Typography.Text copyable style={{ fontSize: 11 }}>{v}</Typography.Text> : '-' },
   { title: t('dimseUpload.colDestination'), dataIndex: 'destination', key: 'destination', width: 120, render: (v?: string) => <Tag color="geekblue">{destOptions().find(o => o.value === v)?.label ?? v}</Tag> },
   { title: t('dimseUpload.colStatus'), dataIndex: 'status', key: 'status', width: 100, render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : v === 'UPLOADING' ? 'processing' : 'red'}>{v === 'UPLOADING' ? t('dimseUpload.statusUploading') : v === 'SUCCESS' ? t('dimseUpload.statusSuccess') : t('dimseUpload.statusFail')}</Tag> },
-  { title: t('dimseUpload.colTime'), dataIndex: 'uploadedAt', key: 'uploadedAt', width: 140, render: (v: string) => <span style={{ fontSize: 11, color: '#64748b' }}>{v}</span> },
+  { title: t('dimseUpload.colTime'), dataIndex: 'uploadedAt', key: 'uploadedAt', width: 140, render: (v: string) => <span style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>{v}</span> },
 ];
 
 export const DimseUploadPage: React.FC = () => {
@@ -182,7 +182,7 @@ export const DimseUploadPage: React.FC = () => {
       <Card size="small" title={t('dimseUpload.cardUpload')}>
         <Space direction="vertical" style={{ width: '100%' }}>
           <Space wrap>
-            <span style={{ fontSize: 12, color: '#475569' }}>{t('dimseUpload.archiveTarget')}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary, #475569)' }}>{t('dimseUpload.archiveTarget')}</span>
             <Select value={destination} onChange={setDestination} options={destOptions()} style={{ width: 180 }} />
             <Upload
               accept=".dcm"
@@ -199,7 +199,7 @@ export const DimseUploadPage: React.FC = () => {
           </Space>
           {uploading && (
             <div>
-              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-1, 4px)' }}>{stage}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-1, 4px)' }}>{stage}</div>
               <Progress percent={progress} status="active" />
             </div>
           )}

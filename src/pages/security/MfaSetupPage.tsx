@@ -243,7 +243,7 @@ export default function MfaSetupPage() {
                     padding: "12px 24px",
                     background: THEME_TOKENS.bgCard,
                     borderRadius: 8,
-                    border: "1px solid #e2e8f0",
+                    border: "1px solid var(--border-color, #e2e8f0)",
                     marginBottom: 'var(--space-3, 12px)',
                   }}
                 >

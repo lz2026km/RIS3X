@@ -371,7 +371,7 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
         data-testid="critical-aggregate"
       >
         {aggregateLoading && aggregate.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 'var(--space-4, 16px)', color: '#94a3b8' }}><Spin size="small" /> {tr('criticalAgg.loading')}</div>
+          <div style={{ textAlign: 'center', padding: 'var(--space-4, 16px)', color: 'var(--text-muted, #94a3b8)' }}><Spin size="small" /> {tr('criticalAgg.loading')}</div>
         ) : aggregateError ? (
           <Alert
             type="warning"

@@ -253,19 +253,19 @@ const ScoreForm: React.FC<{ submitting: boolean; onSubmit: (v: { examId: string;
   return (
     <div>
       <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
-        <div style={{ fontSize: 12, color: '#475569', marginBottom: 'var(--space-1, 4px)' }}>{t('aiTriage.examIdOptional')}</div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginBottom: 'var(--space-1, 4px)' }}>{t('aiTriage.examIdOptional')}</div>
         <input className="ant-input" style={{ width: '100%' }} value={examId} onChange={(e) => setExamId(e.target.value)} placeholder="EXAM-20260807-005" />
       </div>
       <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
-        <div style={{ fontSize: 12, color: '#475569', marginBottom: 'var(--space-1, 4px)' }}>{t('aiTriage.patientName')}</div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginBottom: 'var(--space-1, 4px)' }}>{t('aiTriage.patientName')}</div>
         <input className="ant-input" style={{ width: '100%' }} value={patientName} onChange={(e) => setPatientName(e.target.value)} placeholder={t('aiTriage.patientNamePlaceholder')} />
       </div>
       <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
-        <div style={{ fontSize: 12, color: '#475569', marginBottom: 'var(--space-1, 4px)' }}>{t('aiTriage.examType')}</div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginBottom: 'var(--space-1, 4px)' }}>{t('aiTriage.examType')}</div>
         <Segmented options={['CT', 'MR', 'X-ray', 'US']} value={examType} onChange={(v) => setExamType(v as string)} />
       </div>
       <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
-        <div style={{ fontSize: 12, color: '#475569', marginBottom: 'var(--space-1, 4px)' }}>{t('aiTriage.symptoms')}</div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginBottom: 'var(--space-1, 4px)' }}>{t('aiTriage.symptoms')}</div>
         <textarea className="ant-input" rows={2} style={{ width: '100%' }} value={symptoms} onChange={(e) => setSymptoms(e.target.value)} placeholder={t('aiTriage.symptomsPlaceholder')} />
       </div>
       <Button type="primary" block loading={submitting} icon={<Zap size={14} />} onClick={() => onSubmit({ examId, patientName, examType, symptoms })}>{t('aiTriage.startScore')}</Button>

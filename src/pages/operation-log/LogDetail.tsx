@@ -11,14 +11,14 @@ interface LogDetailProps {
 
 function renderDiff(log: OperationLog) {
   if (!log.beforeData && !log.afterData) {
-    return <div style={{ color: '#64748b', fontStyle: 'italic', textAlign: 'center', padding: '20px' }}>{t('logDetail.noDataCompare')}</div>
+    return <div style={{ color: 'var(--text-muted, #64748b)', fontStyle: 'italic', textAlign: 'center', padding: '20px' }}>{t('logDetail.noDataCompare')}</div>
   }
 
   return (
     <div style={{ marginTop: 'var(--space-3, 12px)' }}>
       <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 'var(--space-2, 8px)', fontSize: 12 }}>{t('logDetail.dataCompare')}</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
-        <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
+        <div style={{ border: '1px solid var(--border-color, #e2e8f0)', borderRadius: 8, overflow: 'hidden' }}>
           <div style={{ background: 'var(--color-error-bg)', padding: '8px 12px', fontWeight: 600, fontSize: 12, color: DANGER, borderBottom: '1px solid #fecaca' }}>
             {t('logDetail.beforeEdit')}
           </div>
@@ -26,7 +26,7 @@ function renderDiff(log: OperationLog) {
             {log.beforeData || t('logDetail.emptyCell')}
           </pre>
         </div>
-        <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
+        <div style={{ border: '1px solid var(--border-color, #e2e8f0)', borderRadius: 8, overflow: 'hidden' }}>
           <div style={{ background: '#ecfdf5', padding: '8px 12px', fontWeight: 600, fontSize: 12, color: SUCCESS, borderBottom: '1px solid #a7f3d0' }}>
             {t('logDetail.afterEdit')}
           </div>
@@ -70,15 +70,15 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
 
         <div style={{ padding: 'var(--space-5, 20px)' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-5, 20px)' }}>
-            <div style={{ background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid var(--border-color, #e2e8f0)' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t('logDetail.logId')}</div>
               <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{log.id}</div>
             </div>
-            <div style={{ background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid var(--border-color, #e2e8f0)' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t('logDetail.opTime')}</div>
               <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{formatDateTime(log.timestamp)}</div>
             </div>
-            <div style={{ background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid var(--border-color, #e2e8f0)' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t('logDetail.opType')}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{
@@ -90,21 +90,21 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
                 </span>
               </div>
             </div>
-            <div style={{ background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid var(--border-color, #e2e8f0)' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t('logDetail.opUser')}</div>
               <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{log.userName}</div>
             </div>
-            <div style={{ background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid var(--border-color, #e2e8f0)' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t('logDetail.userId')}</div>
               <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{log.userId}</div>
             </div>
-            <div style={{ background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--bg-card)', padding: 'var(--space-3, 12px)', borderRadius: 8, border: '1px solid var(--border-color, #e2e8f0)' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 'var(--space-1, 4px)' }}>{t('logDetail.opModule')}</div>
               <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{log.module}</div>
             </div>
           </div>
 
-          <div style={{ background: 'var(--bg-card)', padding: 'var(--space-4, 16px)', borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ background: 'var(--bg-card)', padding: 'var(--space-4, 16px)', borderRadius: 8, border: '1px solid var(--border-color, #e2e8f0)', marginBottom: 'var(--space-4, 16px)' }}>
             <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 10, fontSize: 12 }}>{t('logDetail.opTarget')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 'var(--space-3, 12px)' }}>
               <div>
@@ -124,7 +124,7 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
             )}
           </div>
 
-          <div style={{ background: 'var(--bg-card)', padding: 'var(--space-4, 16px)', borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 'var(--space-4, 16px)' }}>
+          <div style={{ background: 'var(--bg-card)', padding: 'var(--space-4, 16px)', borderRadius: 8, border: '1px solid var(--border-color, #e2e8f0)', marginBottom: 'var(--space-4, 16px)' }}>
             <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 10, fontSize: 12 }}>{t('logDetail.envInfo')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
@@ -184,9 +184,9 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
           {renderDiff(log)}
         </div>
 
-        <div style={{ padding: '12px 20px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+        <div style={{ padding: '12px 20px', borderTop: '1px solid var(--border-color, #e2e8f0)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
           <button onClick={onClose} style={{
-            padding: '8px 20px', borderRadius: 6, border: '1px solid #e2e8f0',
+            padding: '8px 20px', borderRadius: 6, border: '1px solid var(--border-color, #e2e8f0)',
             background: WHITE, color: GRAY, fontSize: 12, cursor: 'pointer',
           }}>
             {t('common.action.close')}

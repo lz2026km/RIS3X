@@ -1016,7 +1016,7 @@ export default function EquipmentLifecyclePage() {
                   { label: t('equipLifecycle.phasePurchase'), date: d.purchaseDate, done: true, color: 'var(--color-primary-800)' },
                   { label: t('equipLifecycle.phaseActive'), date: d.purchaseDate, done: !d.isRetired, color: '#059669' },
                   { label: t('equipLifecycle.phaseMaint'), date: d.nextMaint, done: d.isMaint || true, color: 'var(--color-warning-600)', highlight: d.isMaint },
-                  { label: t('equipLifecycle.phaseRetired'), date: d.retireAt ?? '—', done: d.isRetired, color: '#94a3b8' },
+                  { label: t('equipLifecycle.phaseRetired'), date: d.retireAt ?? '—', done: d.isRetired, color: 'var(--text-muted, #94a3b8)' },
                 ]
                 return (
                   <div key={d.id} style={{ padding: '12px 16px', background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)' }}>

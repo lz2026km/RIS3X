@@ -126,7 +126,7 @@ export default function PediatricProtocolOptimization() {
           background: "var(--bg-card)",
           borderRadius: 12,
           padding: 'var(--space-5, 20px)',
-          border: "1px solid #e2e8f0",
+          border: "1px solid var(--border-color, #e2e8f0)",
         }}
       >
         <div
@@ -167,10 +167,10 @@ export default function PediatricProtocolOptimization() {
           showDensity={false}
           columns={[
             { title: "协议名称", dataIndex: "protocolName", key: "protocolName", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{v}</span> },
-            { title: "年龄组", dataIndex: "ageGroup", key: "ageGroup", align: "center", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
+            { title: "年龄组", dataIndex: "ageGroup", key: "ageGroup", align: "center", render: (v: string) => <span style={{ color: 'var(--text-primary, #334155)' }}>{v}</span> },
             {
               title: "体重范围(kg)", key: "weightRange", align: "center",
-              render: (_: unknown, p: PediatricProtocol) => <span style={{ color: "#334155" }}>{p.weightMin}-{p.weightMax}</span>,
+              render: (_: unknown, p: PediatricProtocol) => <span style={{ color: 'var(--text-primary, #334155)' }}>{p.weightMin}-{p.weightMax}</span>,
             },
             { title: "推荐KVP", dataIndex: "recommendedKVP", key: "recommendedKVP", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "var(--color-primary-800)" }}>{v} kVp</span> },
             { title: "推荐mAs", dataIndex: "recommendedMAS", key: "recommendedMAS", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "#7c3aed" }}>{v} mAs</span> },
@@ -180,7 +180,7 @@ export default function PediatricProtocolOptimization() {
             },
             {
               title: "说明", key: "note", align: "center",
-              render: (_: unknown, p: PediatricProtocol) => <span style={{ color: "#64748b" }}>成人剂量×{p.doseReductionFactor}</span>,
+              render: (_: unknown, p: PediatricProtocol) => <span style={{ color: 'var(--text-muted, #64748b)' }}>成人剂量×{p.doseReductionFactor}</span>,
             },
           ]}
         />
@@ -191,7 +191,7 @@ export default function PediatricProtocolOptimization() {
           background: "var(--bg-card)",
           borderRadius: 12,
           padding: 'var(--space-5, 20px)',
-          border: "1px solid #e2e8f0",
+          border: "1px solid var(--border-color, #e2e8f0)",
         }}
       >
         <div

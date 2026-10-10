@@ -163,7 +163,7 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
               icon={<TrendingUp size={15} />}
               bodyPadding={12}
               flat
-              style={{ border: '1px solid var(--border-color, #e2e8f0)' }}
+              style={{ border: '1px solid var(--border-color, var(--border-color, #e2e8f0))' }}
             >
               <TrendChart
                 type="area"
@@ -180,7 +180,7 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
               icon={<Monitor size={15} />}
               bodyPadding={0}
               flat
-              style={{ border: '1px solid var(--border-color, #e2e8f0)' }}
+              style={{ border: '1px solid var(--border-color, var(--border-color, #e2e8f0))' }}
             >
               <div style={{ overflowX: 'auto' }}>
                 <DataTable
@@ -207,7 +207,7 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
               icon={<CalendarDays size={15} />}
               bodyPadding={12}
               flat
-              style={{ border: '1px solid var(--border-color, #e2e8f0)' }}
+              style={{ border: '1px solid var(--border-color, var(--border-color, #e2e8f0))' }}
               extra={
                 calendar ? (
                   <span style={{ fontSize: 12, color: 'var(--text-secondary, #64748b)' }}>
@@ -256,12 +256,12 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
               icon={<Wrench size={15} />}
               bodyPadding={12}
               flat
-              style={{ border: '1px solid var(--border-color, #e2e8f0)' }}
+              style={{ border: '1px solid var(--border-color, var(--border-color, #e2e8f0))' }}
             >
               <select
                 value={selectedDeviceId}
                 onChange={(e) => setSelectedDeviceId(e.target.value)}
-                style={{ width: '100%', padding: '7px 10px', borderRadius: 6, border: '1px solid var(--border-color, #e2e8f0)', fontSize: 12, marginBottom: 'var(--space-3, 12px)', background: 'var(--bg-card)' }}
+                style={{ width: '100%', padding: '7px 10px', borderRadius: 6, border: '1px solid var(--border-color, var(--border-color, #e2e8f0))', fontSize: 12, marginBottom: 'var(--space-3, 12px)', background: 'var(--bg-card)' }}
               >
                 <option value="">{t('deviceMgmtBoard.selectDevice')}</option>
                 {devices.map((d) => (

@@ -59,7 +59,7 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
             <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-primary-800)" }}>
               {patient.patientName}
             </div>
-            <div style={{ fontSize: 12, color: "#64748b" }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
               {patient.gender} · {patient.age}岁 · ID: {patient.patientId}
             </div>
           </div>
@@ -90,14 +90,14 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
         >
           <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
             <Monitor size={14} color="#64748b" />
-            <span style={{ fontSize: 12, color: "#64748b" }}>设备:</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>设备:</span>
             <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-primary-800)" }}>
               {patient.device}
             </span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
             <Calendar size={14} color="#64748b" />
-            <span style={{ fontSize: 12, color: "#64748b" }}>日期:</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>日期:</span>
             <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-primary-800)" }}>
               {patient.examDate}
             </span>
@@ -123,25 +123,25 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
           }}
         >
           <div style={doseBox}>
-            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 'var(--space-1, 4px)' }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-1, 4px)' }}>
               本次剂量
             </div>
             <div style={{ fontSize: 18, fontWeight: 800, color: badge.color }}>
               {patient.doseValue}
             </div>
-            <div style={{ fontSize: 12, color: "#94a3b8" }}>{patient.doseUnit}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{patient.doseUnit}</div>
           </div>
           <div style={doseBox}>
-            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 'var(--space-1, 4px)' }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-1, 4px)' }}>
               法规阈值
             </div>
             <div style={{ fontSize: 18, fontWeight: 800, color: "var(--color-primary-800)" }}>
               {patient.threshold}
             </div>
-            <div style={{ fontSize: 12, color: "#94a3b8" }}>{patient.doseUnit}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{patient.doseUnit}</div>
           </div>
           <div style={doseBox}>
-            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 'var(--space-1, 4px)' }}>占比</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-1, 4px)' }}>占比</div>
             <div
               style={{
                 fontSize: 18,
@@ -151,7 +151,7 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
             >
               {Math.round(doseRatio * 100)}%
             </div>
-            <div style={{ fontSize: 12, color: "#94a3b8" }}>阈值比</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>阈值比</div>
           </div>
         </div>
 
@@ -163,7 +163,7 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
               marginBottom: 6,
             }}
           >
-            <span style={{ fontSize: 12, color: "#64748b" }}>剂量安全指标</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>剂量安全指标</span>
             <span
               style={{
                 fontSize: 12,
@@ -201,9 +201,9 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
               marginTop: 'var(--space-1, 4px)',
             }}
           >
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>0%</span>
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>80%</span>
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>100%</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>0%</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>80%</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>100%</span>
           </div>
         </div>
 
@@ -221,19 +221,19 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
             <div style={{ fontSize: 16, fontWeight: 800, color: "var(--color-primary-800)" }}>
               {patient.examCount}
             </div>
-            <div style={{ fontSize: 12, color: "#64748b" }}>累计检查</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>累计检查</div>
           </div>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 16, fontWeight: 800, color: "var(--color-primary-800)" }}>
               {patient.cumulativeDLP}
             </div>
-            <div style={{ fontSize: 12, color: "#64748b" }}>累计DLP</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>累计DLP</div>
           </div>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 16, fontWeight: 800, color: "var(--color-primary-800)" }}>
               {referenceValue}
             </div>
-            <div style={{ fontSize: 12, color: "#64748b" }}>参考值</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>参考值</div>
           </div>
         </div>
       </div>

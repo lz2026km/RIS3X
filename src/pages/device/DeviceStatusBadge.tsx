@@ -56,7 +56,7 @@ export function StatusBadge({ status }: { status: string }) {
 }
 
 export function ModalityBadge({ modality }: { modality: string }) {
-  const cfg = MODALITY_LABELS[modality] || { label: modality, color: '#94a3b8' }
+  const cfg = MODALITY_LABELS[modality] || { label: modality, color: 'var(--text-muted, #94a3b8)' }
   return (
     <span style={{
       display: 'inline-block', padding: '2px 8px', borderRadius: 6,

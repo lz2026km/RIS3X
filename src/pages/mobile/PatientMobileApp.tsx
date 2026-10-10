@@ -299,7 +299,7 @@ export default function PatientMobileApp() {
       <Card bordered={false} style={{ ...s.card, background: 'linear-gradient(135deg, #eff6ff, #dbeafe)', border: 'none' }} styles={{ body: { padding: 0 } }}>
         <div style={{ fontSize: 12, color: 'var(--color-primary-800)', fontWeight: 600 }}>{t('mobileApp.welcomeBack')}</div>
         <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: '4px 0' }}>{mobileUser.name}</div>
-        <div style={{ fontSize: 12, color: '#64748b' }}>{t('mobileApp.newReports', { count: mobileReports.filter(r => r.status === 'ready').length })}</div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('mobileApp.newReports', { count: mobileReports.filter(r => r.status === 'ready').length })}</div>
       </Card>
 
       {/* Quick Actions */}
@@ -313,7 +313,7 @@ export default function PatientMobileApp() {
             onClick={() => setActiveTab(action.tab)}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab(action.tab) } }}>
             <div style={{ fontSize: 24, marginBottom: 'var(--space-1, 4px)' }}>{action.icon}</div>
-            <div style={{ fontSize: 12, color: '#64748b' }}>{t(action.labelKey)}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t(action.labelKey)}</div>
           </div>
         ))}
       </div>
@@ -329,8 +329,8 @@ export default function PatientMobileApp() {
             onClick={() => setSelectedReport(r)}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedReport(r) } }}>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{r.examType}</div>
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.examDate}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #1e293b)' }}>{r.examType}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{r.examDate}</div>
             </div>
             <span style={s.badge(r.status)}>{r.status === 'ready' ? t('mobileApp.status.ready') : t('mobileApp.status.pending')}</span>
           </div>
@@ -348,7 +348,7 @@ export default function PatientMobileApp() {
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--color-primary-500)', marginTop: 'var(--space-1, 4px)', flexShrink: 0 }} />
             <div>
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{n.title}</div>
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>{n.body}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{n.body}</div>
             </div>
           </div>
         ))}
@@ -364,7 +364,7 @@ export default function PatientMobileApp() {
             {t('mobileApp.backToList')}
           </button>
           <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 'var(--space-1, 4px)' }}>{selectedReport.examType}</div>
-          <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 'var(--space-3, 12px)' }}>{selectedReport.examDate} · {selectedReport.doctorName}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginBottom: 'var(--space-3, 12px)' }}>{selectedReport.examDate} · {selectedReport.doctorName}</div>
           <div style={{ padding: 'var(--space-3, 12px)', background: 'var(--bg-card)', borderRadius: 8, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 'var(--space-4, 16px)' }}>
             检查描述：双肺野清晰，肺纹理走行自然。\n诊断意见：未见明显异常。
           </div>
@@ -405,7 +405,7 @@ export default function PatientMobileApp() {
             <div key={r.id} role="button" tabIndex={0} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' }} onClick={() => setSelectedReport(r)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedReport(r) } }}>
               <div>
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{r.examType}</div>
-                <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.examDate}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{r.examDate}</div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
                 <span style={s.badge(r.status)}>{r.status === 'ready' ? t('mobileApp.status.ready') : t('mobileApp.status.pending')}</span>
@@ -425,8 +425,8 @@ export default function PatientMobileApp() {
         <div key={n.id} style={{ display: 'flex', gap: 10, padding: '10px 0', borderBottom: '1px solid var(--border-color)' }}>
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: n.read ? 'var(--border-color)' : 'var(--color-primary-500)', marginTop: 5, flexShrink: 0 }} />
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{n.title}</div>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{n.body}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #1e293b)' }}>{n.title}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>{n.body}</div>
             <div style={{ fontSize: 12, color: '#cbd5e1', marginTop: 'var(--space-1, 4px)' }}>{n.time}</div>
           </div>
         </div>
@@ -441,7 +441,7 @@ export default function PatientMobileApp() {
           <div style={{ ...s.avatar, width: 56, height: 56, fontSize: 24, background: 'var(--color-info-bg)' }}>{mobileUser.avatar}</div>
           <div>
             <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{mobileUser.name}</div>
-            <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{mobileUser.phone}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginTop: 2 }}>{mobileUser.phone}</div>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>
@@ -478,10 +478,10 @@ export default function PatientMobileApp() {
       <div style={{ ...s.cardTitle, display: 'flex', alignItems: 'center', gap: 6 }}>
         <Smartphone size={16} color="var(--color-primary-800)" /> {t('mobileApp.phoneLogin')}
       </div>
-      <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-3, 12px)' }}>
+      <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-3, 12px)' }}>
         {t('mobileApp.phoneLoginHint')}
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: 8, marginBottom: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '10px 12px', border: '1px solid var(--border-color, #cbd5e1)', borderRadius: 8, marginBottom: 10 }}>
         <Phone size={14} color="#64748b" />
         <input
           value={phoneInput}
@@ -491,7 +491,7 @@ export default function PatientMobileApp() {
           inputMode="numeric"
         />
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: 8, marginBottom: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', padding: '10px 12px', border: '1px solid var(--border-color, #cbd5e1)', borderRadius: 8, marginBottom: 10 }}>
         <MessageSquare size={14} color="#64748b" />
         <input
           value={smsCode}
@@ -539,7 +539,7 @@ export default function PatientMobileApp() {
       >
         <Lock size={14} /> {loginState === 'verifying' ? t('mobileApp.verifying') : t('mobileApp.login')}
       </button>
-      <div style={{ marginTop: 10, fontSize: 11, color: '#94a3b8', textAlign: 'center' }}>
+      <div style={{ marginTop: 10, fontSize: 11, color: 'var(--text-muted, #94a3b8)', textAlign: 'center' }}>
         {t('mobileApp.agreement')}
       </div>
     </Card>
@@ -605,10 +605,10 @@ export default function PatientMobileApp() {
           <div style={{ maxWidth: 420, width: '92%', background: '#0f172a', borderRadius: 16, padding: 'var(--space-4, 16px)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3, 12px)' }}>
               <span style={{ color: '#fff', fontSize: 14, fontWeight: 600 }}>{imageViewer.report.examType} {t('mobileApp.imageSuffix')}</span>
-              <button onClick={() => setImageViewer(null)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
+              <button onClick={() => setImageViewer(null)} style={{ background: 'none', border: 'none', color: 'var(--text-muted, #94a3b8)', cursor: 'pointer', padding: 'var(--space-1, 4px)' }}><X size={18} /></button>
             </div>
             {imageLoading ? (
-              <div style={{ height: 260, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: 12 }}>{t('mobileApp.imageLoading')}</div>
+              <div style={{ height: 260, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted, #64748b)', fontSize: 12 }}>{t('mobileApp.imageLoading')}</div>
             ) : (
               <>
                 <div style={{ height: 260, background: 'linear-gradient(135deg,#1e293b,#0f172a)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #334155' }}>

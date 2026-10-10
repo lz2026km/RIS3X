@@ -158,7 +158,7 @@ export default function ReceiverPortalPage() {
       render: (v: string, r: ReceiverItem) => (
         <div>
           <div style={{ fontWeight: 600 }}>{v ?? t('receiverPortal.unknownPatient')}</div>
-          {r.patientId && <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.patientId}</div>}
+          {r.patientId && <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{r.patientId}</div>}
         </div>
       ),
     },
@@ -182,7 +182,7 @@ export default function ReceiverPortalPage() {
       render: (_: unknown, r: ReceiverItem) => (
         <div>
           <div style={{ fontSize: 12 }}>{r.receiverName ?? '-'}</div>
-          <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.receiverDept ?? ''}{r.receiverPhone ? ` · ${r.receiverPhone}` : ''}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{r.receiverDept ?? ''}{r.receiverPhone ? ` · ${r.receiverPhone}` : ''}</div>
         </div>
       ),
     },
@@ -240,7 +240,7 @@ export default function ReceiverPortalPage() {
         <StatCard title={t('receiverPortal.pendingNotifications')} value={pendingCount} color="error" icon={<Bell size={14} />} />
         <StatCard title={t('receiverPortal.todayNotifications')} value={items.length} icon={<ShieldAlert size={14} />} />
         <Card size="small">
-          <div style={{ fontSize: 12, color: '#64748b' }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
             {t('receiverPortal.sourceHint')}
           </div>
         </Card>
@@ -272,7 +272,7 @@ export default function ReceiverPortalPage() {
           <div>
             <div style={{ marginBottom: 'var(--space-3, 12px)', padding: '10px 12px', background: 'var(--color-error-bg)', borderRadius: 8, border: '1px solid var(--color-error-border)' }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-error-600)' }}>{receiptItem.patientName ?? t('receiverPortal.unknownPatient')} · {receiptItem.finding ?? t('receiverPortal.criticalValue')}</div>
-              <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{receiptItem.id ?? ''}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginTop: 2 }}>{receiptItem.id ?? ''}</div>
             </div>
             <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
               <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12, color: '#666' }}>{t('receiverPortal.confirmDoctor')}</div>

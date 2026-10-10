@@ -198,7 +198,7 @@ export default function RadiologistAnnualQCPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('annualQc.searchDoctor')}
-            style={{ width: "100%", padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12, marginBottom: 'var(--space-3, 12px)' }}
+            style={{ width: "100%", padding: "8px 12px", border: "1px solid var(--border-color, #cbd5e1)", borderRadius: 6, fontSize: 12, marginBottom: 'var(--space-3, 12px)' }}
           />
           {filteredDoctors.slice(0, 50).map((d) => (
             <button
@@ -269,11 +269,11 @@ export default function RadiologistAnnualQCPage() {
                       <div key={h.id} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
                         <div style={{ fontSize: 10, color: "var(--text-primary)", fontWeight: 700 }}>{h.qcScore}</div>
                         <div style={{ width: "100%", height: `${(h.qcScore / 100) * 160}px`, background: h.qcScore >= 90 ? "linear-gradient(180deg, #10b981, #059669)" : h.qcScore >= 80 ? "linear-gradient(180deg, var(--color-warning-500), var(--color-warning-600))" : "linear-gradient(180deg, var(--color-error-600), #991b1b)", borderRadius: "4px 4px 0 0", minHeight: 4 }} />
-                        <div style={{ fontSize: 10, color: "#94a3b8" }}>{h.month.slice(5)}</div>
+                        <div style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)' }}>{h.month.slice(5)}</div>
                       </div>
                     ))}
                   </div>
-                  <div style={{ marginTop: 'var(--space-4, 16px)', fontSize: 12, color: "#475569" }}>
+                  <div style={{ marginTop: 'var(--space-4, 16px)', fontSize: 12, color: 'var(--text-secondary, #475569)' }}>
                     <strong>{t('annualQc.sixMonthCumulative')}</strong> {t('annualQc.summary', { months: selectedHistory.length, avg: (selectedHistory.reduce((s, h) => s + h.qcScore, 0) / selectedHistory.length).toFixed(1), trend: selectedHistory[selectedHistory.length - 1]!.qcScore > selectedHistory[0]!.qcScore ? t('annualQc.trendUp') : t('annualQc.trendDown') })}
                   </div>
                 </div>

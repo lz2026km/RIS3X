@@ -521,7 +521,7 @@ export default function FusionV2Page() {
   }, [])
 
   const btnStyle: React.CSSProperties = {
-    background: 'transparent', border: '1px solid #334155', color: '#94a3b8',
+    background: 'transparent', border: '1px solid #334155', color: 'var(--text-muted, #94a3b8)',
     borderRadius: 4, padding: '4px 8px', fontSize: 11, cursor: 'pointer',
     display: 'inline-flex', alignItems: 'center', gap: 3,
   }
@@ -563,7 +563,7 @@ export default function FusionV2Page() {
 
         {/* Modal selection */}
         <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
-          <span style={{ fontSize: 10, color: '#64748b', whiteSpace: 'nowrap' }}>{t('fusion.modeSelect')}:</span>
+          <span style={{ fontSize: 10, color: 'var(--text-muted, #64748b)', whiteSpace: 'nowrap' }}>{t('fusion.modeSelect')}:</span>
           {(['pet-ct', 'mr-dwi', 'mr-mr'] as const).map(m => (
             <button key={m} style={fusionMode === m ? activeBtnStyle : btnStyle} onClick={() => setFusionMode(m)}>
               {m === 'pet-ct' ? 'PET/CT' : m === 'mr-dwi' ? 'MR/DWI' : 'MR/MR'}
@@ -640,7 +640,7 @@ export default function FusionV2Page() {
           style={{ flex: 1, accentColor: BLUE, height: 3 }}
         />
         <span style={{ fontSize: 11, fontWeight: 600, color: '#facc15', minWidth: 40, textAlign: 'right' }}>{Math.round(fusionAlpha * 100)}%</span>
-        <span style={{ fontSize: 10, color: '#64748b' }}>{primaryLabel} 0% <Layers size={8} style={{ display: 'inline', verticalAlign: 'middle' }} /> {fusionLabel} 100%</span>
+        <span style={{ fontSize: 10, color: 'var(--text-muted, #64748b)' }}>{primaryLabel} 0% <Layers size={8} style={{ display: 'inline', verticalAlign: 'middle' }} /> {fusionLabel} 100%</span>
       </div>
 
       {/* Viewport area */}
@@ -673,7 +673,7 @@ export default function FusionV2Page() {
                   </button>
                 </div>
                 {studies.length === 0 ? (
-                  <div style={{ fontSize: 11, color: '#64748b', padding: '8px 0', textAlign: 'center' }}>{t('w9d.fusionV2.noStudy')}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted, #64748b)', padding: '8px 0', textAlign: 'center' }}>{t('w9d.fusionV2.noStudy')}</div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
                     {studies.map(s => (
@@ -694,7 +694,7 @@ export default function FusionV2Page() {
                   </div>
                 )}
                 {selectedStudy && (
-                  <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 10, color: '#64748b', lineHeight: 1.7 }}>
+                  <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 10, color: 'var(--text-muted, #64748b)', lineHeight: 1.7 }}>
                     Study: {selectedStudy.studyUid}<br />
                     {t('w9d.fusionV2.series')} {selectedStudy.fixedModality} + {selectedStudy.movingModality}<br />
                     {t('w9d.fusionV2.date')} {selectedStudy.studyDate}
@@ -710,7 +710,7 @@ export default function FusionV2Page() {
               {t('fusion.registerResult')}
             </div>
             {!registration ? (
-              <div style={{ fontSize: 11, color: '#64748b' }}>{t('w9d.fusionV2.notRegistered')}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>{t('w9d.fusionV2.notRegistered')}</div>
             ) : (
               <>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginBottom: 'var(--space-2, 8px)' }}>
@@ -721,11 +721,11 @@ export default function FusionV2Page() {
                   ].map(m => (
                     <div key={m.label} style={{ background: '#0f172a', borderRadius: 4, padding: '6px 4px', textAlign: 'center' }}>
                       <div style={{ fontSize: 14, fontWeight: 700, color: m.color }}>{m.value}</div>
-                      <div style={{ fontSize: 10, color: '#64748b' }}>{m.label}</div>
+                      <div style={{ fontSize: 10, color: 'var(--text-muted, #64748b)' }}>{m.label}</div>
                     </div>
                   ))}
                 </div>
-                <div style={{ fontSize: 10, color: '#64748b', marginBottom: 6 }}>
+                <div style={{ fontSize: 10, color: 'var(--text-muted, #64748b)', marginBottom: 6 }}>
                   {t('w9d.fusionV2.transformType')} {transformType} · {t('w9d.fusionV2.elapsed')} {registration.processingTimeMs || '-'}ms
                 </div>
                 <div style={{ display: 'flex', gap: 'var(--space-1, 4px)' }}>
@@ -755,34 +755,34 @@ export default function FusionV2Page() {
           {/* WWL sliders */}
           <div style={{ display: 'flex', gap: 6, alignItems: 'center', background: PANEL_BG, borderRadius: 4, padding: '3px 8px' }}>
             <Sun size={10} color={BLUE} />
-            <span style={{ fontSize: 10, color: '#94a3b8' }}>{primaryLabel}</span>
+            <span style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)' }}>{primaryLabel}</span>
             <Minus size={8} />
             <input type="range" min={100} max={4000} value={wwl.ww} onChange={e => setWWL(p => ({ ...p, ww: parseInt(e.target.value) }))} style={{ flex: 1, height: 3, accentColor: BLUE }} />
-            <span style={{ fontSize: 10, color: '#94a3b8', minWidth: 58, textAlign: 'right' }}>WW:{wwl.ww} WL:{wwl.wl}</span>
+            <span style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)', minWidth: 58, textAlign: 'right' }}>WW:{wwl.ww} WL:{wwl.wl}</span>
             <Plus size={8} />
           </div>
           {fusionAlpha > 0 && (
             <div style={{ display: 'flex', gap: 6, alignItems: 'center', background: PANEL_BG, borderRadius: 4, padding: '3px 8px' }}>
               <Sun size={10} color="#facc15" />
-              <span style={{ fontSize: 10, color: '#94a3b8' }}>{fusionLabel}</span>
+              <span style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)' }}>{fusionLabel}</span>
               <Minus size={8} />
               <input type="range" min={100} max={4000} value={fusionWWL.ww} onChange={e => setFusionWWL(p => ({ ...p, ww: parseInt(e.target.value) }))} style={{ flex: 1, height: 3, accentColor: '#facc15' }} />
-              <span style={{ fontSize: 10, color: '#94a3b8', minWidth: 58, textAlign: 'right' }}>WW:{fusionWWL.ww} WL:{fusionWWL.wl}</span>
+              <span style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)', minWidth: 58, textAlign: 'right' }}>WW:{fusionWWL.ww} WL:{fusionWWL.wl}</span>
               <Plus size={8} />
             </div>
           )}
           <div style={{ display: 'flex', gap: 6, alignItems: 'center', background: PANEL_BG, borderRadius: 4, padding: '3px 8px' }}>
-            <span style={{ fontSize: 10, color: '#64748b' }}>{t('fusion.slice')}</span>
+            <span style={{ fontSize: 10, color: 'var(--text-muted, #64748b)' }}>{t('fusion.slice')}</span>
             <Minus size={8} />
             <input type="range" min={0} max={127} value={sliceIndex} onChange={e => setSliceIndex(parseInt(e.target.value))} style={{ flex: 1, height: 3, accentColor: BLUE }} />
-            <span style={{ fontSize: 10, color: '#94a3b8', minWidth: 28, textAlign: 'right' }}>{sliceIndex}</span>
+            <span style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)', minWidth: 28, textAlign: 'right' }}>{sliceIndex}</span>
             <Plus size={8} />
           </div>
 
           {/* ROI stats */}
           {showRoiStats && roiAnnotations.length > 0 && (
             <div style={{ background: PANEL_BG, borderRadius: 4, padding: '4px 8px', display: 'flex', gap: 'var(--space-3, 12px)', flexWrap: 'wrap', fontSize: 10 }}>
-              <span style={{ color: '#94a3b8' }}>{t('fusion.roiOverlay')}: {roiAnnotations.length}</span>
+              <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{t('fusion.roiOverlay')}: {roiAnnotations.length}</span>
               {roiAnnotations.map((ann, i) => (
                 <span key={ann.id} style={{ color: ann.color }}>
                   #{i + 1}: {ann.tool === 'rectangle' ? <Square size={10} /> : ann.tool === 'ellipse' ? <Circle size={10} /> : <Pen size={10} />} ({ann.points.length} pts)
@@ -793,7 +793,7 @@ export default function FusionV2Page() {
         </div>
       </div>
 
-      <div style={{ marginTop: 'var(--space-1, 4px)', fontSize: 10, color: '#475569', textAlign: 'center' }}>
+      <div style={{ marginTop: 'var(--space-1, 4px)', fontSize: 10, color: 'var(--text-secondary, #475569)', textAlign: 'center' }}>
         {t('fusion.hint')}
       </div>
     </div>

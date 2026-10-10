@@ -349,7 +349,7 @@ const FieldEncryptionTab: React.FC = () => {
             {demo ? <DataTable rowKey="field" pagination={false} dataSource={demo.samples} columns={demoColumns} /> : <LoadingBanner />}
             {selfTestResult && (
               <div style={{ marginTop: 'var(--space-3, 12px)' }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 6 }}>
                   {t('w4b.fe.selftestResult')} · <Tag color="purple">{selfTestResult.algorithm}</Tag>
                 </div>
                 <DataTable rowKey="field" pagination={false} dataSource={selfTestResult.samples} columns={demoColumns} />

@@ -264,7 +264,7 @@ export default function BenchmarkPageV2() {
     {
       title: '院区', dataIndex: 'siteName', key: 'siteName', width: 100,
       fixed: 'left',
-      render: (v: string) => <span style={{ fontWeight: 600, color: '#1e293b' }}>{v}</span>,
+      render: (v: string) => <span style={{ fontWeight: 600, color: 'var(--text-primary, #1e293b)' }}>{v}</span>,
     },
     ...allMetricCodes.map((code) => ({
       title: metricNames[code] ?? code,
@@ -315,7 +315,7 @@ export default function BenchmarkPageV2() {
           </div>
           <div>
             <Title level={4} style={{ margin: 0 }}>报表同比环比分析</Title>
-            <span style={{ color: '#94a3b8', fontSize: 12 }}>跨院区对比 · 指标矩阵 · 趋势分析</span>
+            <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>跨院区对比 · 指标矩阵 · 趋势分析</span>
           </div>
         </Space>
       </div>
@@ -342,7 +342,7 @@ export default function BenchmarkPageV2() {
         </StatCardGrid>
 
         <div style={{ marginTop: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)', display: 'flex', gap: 'var(--space-3, 12px)', flexWrap: 'wrap', alignItems: 'center' }}>
-          <span style={{ fontSize: 12, fontWeight: 600, color: '#475569' }}>院区选择:</span>
+          <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary, #475569)' }}>院区选择:</span>
           <Select
             mode="multiple"
             value={selectedSites}

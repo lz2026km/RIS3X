@@ -74,27 +74,27 @@ export default function RuleConfigPanel() {
             <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 12px" }}>{t("evalParams")}</h3>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 'var(--space-3, 12px)' }}>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#475569", display: "block", marginBottom: 'var(--space-1, 4px)' }}>{t("examType")}</label>
-                <input value={evalParams.examType ?? ""} onChange={e => setEvalParams(p => ({ ...p, examType: e.target.value }))} style={{ width: "100%", padding: "6px 10px", border: "1px solid #cbd5e1", borderRadius: 4, fontSize: 12 }} />
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary, #475569)', display: "block", marginBottom: 'var(--space-1, 4px)' }}>{t("examType")}</label>
+                <input value={evalParams.examType ?? ""} onChange={e => setEvalParams(p => ({ ...p, examType: e.target.value }))} style={{ width: "100%", padding: "6px 10px", border: "1px solid var(--border-color, #cbd5e1)", borderRadius: 4, fontSize: 12 }} />
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#475569", display: "block", marginBottom: 'var(--space-1, 4px)' }}>{t("modality")}</label>
-                <input value={evalParams.modality ?? ""} onChange={e => setEvalParams(p => ({ ...p, modality: e.target.value }))} style={{ width: "100%", padding: "6px 10px", border: "1px solid #cbd5e1", borderRadius: 4, fontSize: 12 }} />
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary, #475569)', display: "block", marginBottom: 'var(--space-1, 4px)' }}>{t("modality")}</label>
+                <input value={evalParams.modality ?? ""} onChange={e => setEvalParams(p => ({ ...p, modality: e.target.value }))} style={{ width: "100%", padding: "6px 10px", border: "1px solid var(--border-color, #cbd5e1)", borderRadius: 4, fontSize: 12 }} />
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#475569", display: "block", marginBottom: 'var(--space-1, 4px)' }}>{t("age")}</label>
-                <input type="number" value={evalParams.age ?? ""} onChange={e => setEvalParams(p => ({ ...p, age: parseInt(e.target.value) || 0 }))} style={{ width: "100%", padding: "6px 10px", border: "1px solid #cbd5e1", borderRadius: 4, fontSize: 12 }} />
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary, #475569)', display: "block", marginBottom: 'var(--space-1, 4px)' }}>{t("age")}</label>
+                <input type="number" value={evalParams.age ?? ""} onChange={e => setEvalParams(p => ({ ...p, age: parseInt(e.target.value) || 0 }))} style={{ width: "100%", padding: "6px 10px", border: "1px solid var(--border-color, #cbd5e1)", borderRadius: 4, fontSize: 12 }} />
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#475569", display: "block", marginBottom: 'var(--space-1, 4px)' }}>{t("gender")}</label>
-                <select value={evalParams.gender ?? ""} onChange={e => setEvalParams(p => ({ ...p, gender: e.target.value }))} style={{ width: "100%", padding: "6px 10px", border: "1px solid #cbd5e1", borderRadius: 4, fontSize: 12 }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary, #475569)', display: "block", marginBottom: 'var(--space-1, 4px)' }}>{t("gender")}</label>
+                <select value={evalParams.gender ?? ""} onChange={e => setEvalParams(p => ({ ...p, gender: e.target.value }))} style={{ width: "100%", padding: "6px 10px", border: "1px solid var(--border-color, #cbd5e1)", borderRadius: 4, fontSize: 12 }}>
                   <option value="男">男</option>
                   <option value="女">女</option>
                 </select>
               </div>
               <div style={{ gridColumn: "1 / -1" }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#475569", display: "block", marginBottom: 'var(--space-1, 4px)' }}>{t("clinicalInfo")}</label>
-                <input value={evalParams.clinicalInfo ?? ""} onChange={e => setEvalParams(p => ({ ...p, clinicalInfo: e.target.value }))} style={{ width: "100%", padding: "6px 10px", border: "1px solid #cbd5e1", borderRadius: 4, fontSize: 12 }} />
+                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary, #475569)', display: "block", marginBottom: 'var(--space-1, 4px)' }}>{t("clinicalInfo")}</label>
+                <input value={evalParams.clinicalInfo ?? ""} onChange={e => setEvalParams(p => ({ ...p, clinicalInfo: e.target.value }))} style={{ width: "100%", padding: "6px 10px", border: "1px solid var(--border-color, #cbd5e1)", borderRadius: 4, fontSize: 12 }} />
               </div>
             </div>
             <button onClick={handleEvaluate} disabled={loading} style={{ marginTop: 'var(--space-3, 12px)', padding: "8px 20px", background: "var(--color-primary-800)", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
@@ -109,11 +109,11 @@ export default function RuleConfigPanel() {
                     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 'var(--space-1, 4px)' }}>
                       {severityIcon(r.severity)}
                       <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>{r.ruleName}</span>
-                      <span style={{ fontSize: 11, color: "#64748b", marginLeft: "auto" }}>{r.source}</span>
+                      <span style={{ fontSize: 11, color: 'var(--text-muted, #64748b)', marginLeft: "auto" }}>{r.source}</span>
                     </div>
-                    <div style={{ fontSize: 12, color: "#475569", marginBottom: 'var(--space-1, 4px)' }}>{r.message}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginBottom: 'var(--space-1, 4px)' }}>{r.message}</div>
                     {r.suggestions.length > 0 && (
-                      <div style={{ fontSize: 11, color: "#64748b" }}>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>
                         {r.suggestions.map((s, si) => <span key={si} style={{ display: "inline-block", padding: "1px 6px", background: "var(--bg-card)", borderRadius: 3, margin: "1px 2px" }}>{s}</span>)}
                       </div>
                     )}
@@ -134,7 +134,7 @@ export default function RuleConfigPanel() {
                   <Icon size={16} color="#8b5cf6" />
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>{r.ruleName}</div>
-                    <div style={{ fontSize: 11, color: "#64748b" }}>ID: {r.ruleId}</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>ID: {r.ruleId}</div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
                     <button onClick={() => handlePriorityChange(r.ruleId, -1)} style={{ padding: "2px 6px", background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: 4, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>-</button>

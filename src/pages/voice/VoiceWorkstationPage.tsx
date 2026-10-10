@@ -512,7 +512,7 @@ export default function VoiceWorkstationPage() {
             value={editingText}
             onChange={(e) => setEditingText(e.target.value)}
             rows={7}
-            style={{ width: '100%', padding: 'var(--space-3, 12px)', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, fontFamily: 'monospace', lineHeight: 1.7, resize: 'vertical' }}
+            style={{ width: '100%', padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color, #cbd5e1)', borderRadius: 6, fontSize: 12, fontFamily: 'monospace', lineHeight: 1.7, resize: 'vertical' }}
             placeholder={t('voiceWs.transcriptPlaceholder')}
           />
 
@@ -521,7 +521,7 @@ export default function VoiceWorkstationPage() {
             <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary, #475569)', marginBottom: 2 }}>{t('voiceWs.segmentConfidence')}</div>
               {transcript.segments.map((seg, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, color: '#475569' }}>
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-secondary, #475569)' }}>
                   <span style={{ color: 'var(--text-muted, #94a3b8)', width: 60, flexShrink: 0 }}>{seg.start}s-{seg.end}s</span>
                   <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seg.text}</span>
                   <span style={{ color: seg.confidence > 0.9 ? '#10b981' : 'var(--color-warning-500)', fontWeight: 600, flexShrink: 0 }}>{(seg.confidence * 100).toFixed(0)}%</span>
@@ -669,7 +669,7 @@ export default function VoiceWorkstationPage() {
           <thead style={{ position: 'sticky', top: 0, background: 'var(--bg-primary, #f8fafc)', zIndex: 1 }}>
             <tr>
               {[t('voiceWs.colTerm'), t('voiceWs.colCategory'), t('voiceWs.colPriority'), t('voiceWs.colAliases'), t('voiceWs.colActions')].map((h) => (
-                <th key={h} style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap', borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>{h}</th>
+                <th key={h} style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: 'var(--text-secondary, #475569)', whiteSpace: 'nowrap', borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -859,7 +859,7 @@ export default function VoiceWorkstationPage() {
             </div>
             <div style={{ background: 'var(--bg-primary, #f8fafc)', borderRadius: 8, padding: 14, border: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary, #475569)', marginBottom: 'var(--space-2, 8px)' }}>{t('voiceWs.transcriptContent')}</div>
-              <div style={{ fontSize: 12, lineHeight: 1.8, color: '#334155', whiteSpace: 'pre-wrap' }}>
+              <div style={{ fontSize: 12, lineHeight: 1.8, color: 'var(--text-primary, #334155)', whiteSpace: 'pre-wrap' }}>
                 {sessionTranscripts[viewSession.id] ?? t('voiceWs.sessionArchived', { reportId: viewSession.reportId })}
               </div>
             </div>
@@ -886,10 +886,10 @@ export default function VoiceWorkstationPage() {
         width={460}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 'var(--space-2, 8px)' }}>
-          <div style={{ fontSize: 12, color: '#475569' }}>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)' }}>
             {t('voiceWs.insertTranscriptHint')}
           </div>
-          <div style={{ background: 'var(--bg-primary, #f8fafc)', border: '1px solid var(--border-default, rgba(0,0,0,0.12))', borderRadius: 8, padding: 10, fontSize: 12, color: '#334155', maxHeight: 120, overflowY: 'auto', lineHeight: 1.7 }}>
+          <div style={{ background: 'var(--bg-primary, #f8fafc)', border: '1px solid var(--border-default, rgba(0,0,0,0.12))', borderRadius: 8, padding: 10, fontSize: 12, color: 'var(--text-primary, #334155)', maxHeight: 120, overflowY: 'auto', lineHeight: 1.7 }}>
             {transcript?.correctedText || '—'}
           </div>
           <Input

@@ -299,26 +299,26 @@ export default function DRLManagement() {
       <style>{`.drl-row-critical td { background: #fef2f2 !important; } .drl-row-warning td { background: #fffbeb !important; }`}</style>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 'var(--space-3, 12px)' }}>
         <div style={kpiBox}>
-          <div style={{ fontSize: 12, color: "#64748b" }}>{t('drl.kpiThresholds')}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('drl.kpiThresholds')}</div>
           <div style={{ fontSize: 24, fontWeight: 800, color: "var(--color-primary-800)", marginTop: 'var(--space-1, 4px)' }}>{rows.length}</div>
         </div>
         <div style={kpiBox}>
-          <div style={{ fontSize: 12, color: "#64748b" }}>{t('drl.kpiOverLimitAlerts')}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('drl.kpiOverLimitAlerts')}</div>
           <div style={{ fontSize: 24, fontWeight: 800, color: alerts.length > 0 ? "var(--color-error-600)" : "var(--color-success-600)", marginTop: 'var(--space-1, 4px)' }}>{alerts.length}</div>
-          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{t('drl.records')}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>{t('drl.records')}</div>
         </div>
         <div style={kpiBox}>
-          <div style={{ fontSize: 12, color: "#64748b" }}>{t('drl.kpiCriticalAlerts')}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('drl.kpiCriticalAlerts')}</div>
           <div style={{ fontSize: 24, fontWeight: 800, color: "var(--color-error-600)", marginTop: 'var(--space-1, 4px)' }}>{alerts.filter((a) => a.level === "critical" && !a.acknowledged).length}</div>
-          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{t('drl.notClosed')}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>{t('drl.notClosed')}</div>
         </div>
         <div style={kpiBox}>
-          <div style={{ fontSize: 12, color: "#64748b" }}>{t('drl.kpiChildThreshold')}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('drl.kpiChildThreshold')}</div>
           <div style={{ fontSize: 24, fontWeight: 800, color: "var(--color-warning-600)", marginTop: 'var(--space-1, 4px)' }}>{rows.filter((r) => r.ageGroup === "child").length}</div>
         </div>
       </div>
 
-      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid #e2e8f0" }}>
+      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid var(--border-color, #e2e8f0)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 'var(--space-4, 16px)' }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
             <Zap size={16} color="var(--color-primary-600)" />
@@ -336,7 +336,7 @@ export default function DRLManagement() {
         />
       </div>
 
-      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid #e2e8f0" }}>
+      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid var(--border-color, #e2e8f0)" }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 'var(--space-4, 16px)', display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
           <AlertTriangle size={16} color="var(--color-error-600)" />
           {t('drl.loopCheckTitle')}
@@ -370,7 +370,7 @@ export default function DRLManagement() {
         )}
       </div>
 
-      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid #e2e8f0" }}>
+      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-5, 20px)', border: "1px solid var(--border-color, #e2e8f0)" }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 'var(--space-4, 16px)', display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
           <ShieldAlert size={16} color="var(--color-success-600)" />
           {t('drl.alertHistoryTitle')}
@@ -392,7 +392,7 @@ const kpiBox: React.CSSProperties = {
   background: "var(--bg-card)",
   borderRadius: 10,
   padding: "14px 16px",
-  border: "1px solid #e2e8f0",
+  border: "1px solid var(--border-color, #e2e8f0)",
   textAlign: "center",
 };
 

@@ -48,7 +48,7 @@ const s = {
   historyListItem: { display: 'flex', alignItems: 'flex-start', gap: 'var(--space-2, 8px)', padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', marginBottom: 6, cursor: 'pointer', transition: 'all 0.15s' },
   historyListItemSelected: { border: '2px solid var(--color-primary-500)', background: 'var(--color-info-bg)' },
   historyListItemChecked: { border: '2px solid var(--color-success-500)', background: 'var(--color-success-bg)' },
-  historyCheckbox: { width: 16, height: 16, borderRadius: 4, border: '2px solid #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2, cursor: 'pointer' },
+  historyCheckbox: { width: 16, height: 16, borderRadius: 4, border: '2px solid var(--border-color, #cbd5e1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2, cursor: 'pointer' },
   historyCheckboxChecked: { background: 'var(--color-success-500)', borderColor: 'var(--color-success-500)' },
   historyListItemContent: { flex: 1, minWidth: 0 },
   historyListItemHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-1, 4px)' },

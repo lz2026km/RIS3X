@@ -39,7 +39,7 @@ function Pagination({
         alignItems: "center",
         justifyContent: "space-between",
         padding: "12px 16px",
-        borderTop: "1px solid #e2e8f0",
+        borderTop: "1px solid var(--border-color, #e2e8f0)",
         background: "var(--bg-primary)",
       }}
     >
@@ -49,7 +49,7 @@ function Pagination({
           alignItems: "center",
           gap: 'var(--space-3, 12px)',
           fontSize: 12,
-          color: "#64748b",
+          color: 'var(--text-muted, #64748b)',
         }}
       >
         {onPageSizeChange && (
@@ -61,11 +61,11 @@ function Pagination({
               onChange={(e) => onPageSizeChange(Number(e.target.value))}
               style={{
                 padding: "2px 6px",
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-color, #e2e8f0)",
                 borderRadius: 4,
                 fontSize: 12,
                 background: "var(--bg-card)",
-                color: "#334155",
+                color: 'var(--text-primary, #334155)',
                 cursor: "pointer",
               }}
             >
@@ -90,7 +90,7 @@ function Pagination({
             width: 32,
             height: 32,
             borderRadius: 6,
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border-color, #e2e8f0)",
             background: "var(--bg-card)",
             cursor: currentPage === 1 ? "not-allowed" : "pointer",
             opacity: currentPage === 1 ? 0.5 : 1,
@@ -140,7 +140,7 @@ function Pagination({
             width: 32,
             height: 32,
             borderRadius: 6,
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border-color, #e2e8f0)",
             background: "var(--bg-card)",
             cursor: currentPage === totalPages ? "not-allowed" : "pointer",
             opacity: currentPage === totalPages ? 0.5 : 1,
@@ -290,7 +290,7 @@ export function PatientTable({
       key: "id",
       width: 110,
       render: (value) => (
-        <span style={{ fontFamily: "monospace", fontSize: 12, color: "#64748b" }}>
+        <span style={{ fontFamily: "monospace", fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
           {String(value)}
         </span>
       ),
@@ -354,7 +354,7 @@ export function PatientTable({
       width: 70,
       align: "right",
       render: (value) => (
-        <span style={{ color: "#334155", fontWeight: 500 }}>{String(value)}{t("patientTable.ageSuffix")}</span>
+        <span style={{ color: 'var(--text-primary, #334155)', fontWeight: 500 }}>{String(value)}{t("patientTable.ageSuffix")}</span>
       ),
     },
     {
@@ -363,7 +363,7 @@ export function PatientTable({
       key: "idCard",
       width: 180,
       render: (value) => (
-        <span style={{ fontFamily: "monospace", fontSize: 12, color: "#64748b" }}>
+        <span style={{ fontFamily: "monospace", fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
           {String(value)}
         </span>
       ),
@@ -373,7 +373,7 @@ export function PatientTable({
       dataIndex: "phone",
       key: "phone",
       width: 130,
-      render: (value) => <span style={{ color: "#334155" }}>{String(value)}</span>,
+      render: (value) => <span style={{ color: 'var(--text-primary, #334155)' }}>{String(value)}</span>,
     },
     {
       title: t("patientTable.col.patientType"),
@@ -389,7 +389,7 @@ export function PatientTable({
             fontSize: 12,
             fontWeight: 600,
             background: "var(--bg-primary)",
-            color: "#475569",
+            color: 'var(--text-secondary, #475569)',
           }}
         >
           {String(value)}
@@ -402,7 +402,7 @@ export function PatientTable({
       key: "registrationDate",
       width: 110,
       render: (value) => (
-        <span style={{ color: "#64748b", fontSize: 12 }}>{String(value)}</span>
+        <span style={{ color: 'var(--text-muted, #64748b)', fontSize: 12 }}>{String(value)}</span>
       ),
     },
     {
@@ -423,7 +423,7 @@ export function PatientTable({
       key: "lastExamDate",
       width: 110,
       render: (value) => (
-        <span style={{ color: "#64748b", fontSize: 12 }}>{String(value || "-")}</span>
+        <span style={{ color: 'var(--text-muted, #64748b)', fontSize: 12 }}>{String(value || "-")}</span>
       ),
     },
     {
@@ -615,11 +615,11 @@ export function PatientTable({
               style={{
                 padding: "4px 10px",
                 borderRadius: 6,
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-color, #e2e8f0)",
                 background: "var(--bg-card)",
                 fontSize: 12,
                 cursor: "pointer",
-                color: "#64748b",
+                color: 'var(--text-muted, #64748b)',
               }}
             >
               <X size={14} /> {t("patientTable.duplicates.ignore")}
@@ -727,7 +727,7 @@ export function PatientTable({
         style={{
           background: "var(--bg-card)",
           borderRadius: 12,
-          border: "1px solid #e2e8f0",
+          border: "1px solid var(--border-color, #e2e8f0)",
           overflow: "hidden",
           boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
         }}
@@ -785,7 +785,7 @@ export function PatientTable({
             marginTop: 'var(--space-4, 16px)',
             background: "var(--bg-card)",
             borderRadius: 12,
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border-color, #e2e8f0)",
             padding: 'var(--space-5, 20px)',
             boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
           }}
@@ -820,7 +820,7 @@ export function PatientTable({
                 >
                   {selectedPatient.name}
                 </div>
-                <div style={{ fontSize: 12, color: "#64748b" }}>
+                <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
                   {selectedPatient.gender} · {selectedPatient.age}{t("patientTable.ageSuffix")} ·{" "}
                   {selectedPatient.patientType}
                 </div>
@@ -832,7 +832,7 @@ export function PatientTable({
                 width: 32,
                 height: 32,
                 borderRadius: 8,
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-color, #e2e8f0)",
                 background: "var(--bg-card)",
                 cursor: "pointer",
                 display: "flex",
@@ -904,13 +904,13 @@ export function PatientTable({
                     marginBottom: 'var(--space-1, 4px)',
                   }}
                 >
-                  <span style={{ color: "#94a3b8" }}>{item.icon}</span>
-                  <span style={{ fontSize: 12, color: "#94a3b8" }}>
+                  <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{item.icon}</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
                     {t(item.labelKey)}
                   </span>
                 </div>
                 <div
-                  style={{ fontSize: 12, color: "#334155", fontWeight: 500 }}
+                  style={{ fontSize: 12, color: 'var(--text-primary, #334155)', fontWeight: 500 }}
                 >
                   {item.value}
                 </div>
@@ -956,7 +956,7 @@ export function PatientTable({
             <div
               style={{
                 fontSize: 12,
-                color: "#334155",
+                color: 'var(--text-primary, #334155)',
                 padding: 'var(--space-3, 12px)',
                 background: "var(--bg-primary)",
                 borderRadius: 8,

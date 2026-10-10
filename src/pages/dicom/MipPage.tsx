@@ -126,7 +126,7 @@ const MipPage: React.FC = () => {
   }, [mode, jobId, thickness, ww, wl, tick])
 
   const btnStyle: React.CSSProperties = {
-    background: 'transparent', border: '1px solid #334155', color: '#94a3b8',
+    background: 'transparent', border: '1px solid #334155', color: 'var(--text-muted, #94a3b8)',
     borderRadius: 4, padding: '4px 8px', fontSize: 11, cursor: 'pointer',
     display: 'inline-flex', alignItems: 'center', gap: 3,
   }
@@ -140,19 +140,19 @@ const MipPage: React.FC = () => {
         <Tag color="cyan">{t('w9d.mip.tag')}</Tag>
         {mode === 'real' && <Tag color="green">{t('w9d.realDicom')}</Tag>}
         {mode === 'synthetic' && <Tag>{t('w9d.syntheticData')}</Tag>}
-        {seriesInfo && <span style={{ fontSize: 11, color: '#64748b' }}>{seriesInfo}</span>}
+        {seriesInfo && <span style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>{seriesInfo}</span>}
       </div>
       <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('w9d.mip.thicknessLabel')}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('w9d.mip.thicknessLabel')}</span>
         <Slider min={1} max={mode === 'real' ? (dims?.z ?? 20) : 128} value={thickness} onChange={setThickness} style={{ width: 200 }} />
-        <span style={{ fontSize: 11, color: '#94a3b8' }}>{thickness}</span>
+        <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{thickness}</span>
         <div style={{ width: 1, height: 20, background: '#334155' }} />
-        <span style={{ fontSize: 12, color: '#94a3b8' }}>WW:</span>
+        <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>WW:</span>
         <Slider min={1} max={4000} value={ww} onChange={setWw} style={{ width: 120 }} />
-        <span style={{ fontSize: 11, color: '#94a3b8' }}>{ww}</span>
-        <span style={{ fontSize: 12, color: '#94a3b8' }}>WL:</span>
+        <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{ww}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>WL:</span>
         <Slider min={-1000} max={3000} value={wl} onChange={setWl} style={{ width: 120 }} />
-        <span style={{ fontSize: 11, color: '#94a3b8' }}>{wl}</span>
+        <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{wl}</span>
         <div style={{ width: 1, height: 20, background: '#334155' }} />
         <button style={btnStyle} onClick={() => { setThickness(80); setWw(400); setWl(40) }}><RotateCcw size={12} /> {t('w9d.resetView')}</button>
       </div>

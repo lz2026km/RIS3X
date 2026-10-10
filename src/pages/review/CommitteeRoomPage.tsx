@@ -283,7 +283,7 @@ const CommitteeRoomPage: React.FC = () => {
       title: t("committeeRoom.colMeta"),
       key: "meta",
       render: (_: unknown, r: CommitteeDto) => (
-        <div style={{ fontSize: 12, color: "#64748b" }}>
+        <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
           <div>{r.createdBy}</div>
           <div>{new Date(r.createdAt).toLocaleString()}</div>
         </div>
@@ -365,7 +365,7 @@ const CommitteeRoomPage: React.FC = () => {
               <Empty
                 image={<Landmark size={64} style={{ opacity: 0.25 }} />}
                 description={
-                  <div style={{ fontSize: 12, color: "#64748b" }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
                     {t("committeeRoom.selectHint")}
                     {reportIdParam && (
                       <div style={{ marginTop: 'var(--space-2, 8px)', fontSize: 12 }}>
@@ -457,7 +457,7 @@ const CommitteeRoomPage: React.FC = () => {
                         <Avatar size="small" style={{ background: "var(--color-primary-800)" }}>{m.name.slice(0, 1)}</Avatar>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: 12, fontWeight: 700 }}>{m.name}</div>
-                          <div style={{ fontSize: 11, color: "#64748b" }}>
+                          <div style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>
                             {m.title ?? t("committeeRoom.doctor")} · {m.department ?? "—"}
                           </div>
                         </div>
@@ -469,7 +469,7 @@ const CommitteeRoomPage: React.FC = () => {
                           <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--color-warning-500)", animation: "cmtBreath 1.2s infinite" }} title={t("committeeRoom.pendingVote")} />
                         )}
                       </div>
-                      <div style={{ fontSize: 12, color: "#475569", marginTop: 'var(--space-2, 8px)', lineHeight: 1.6, minHeight: 36 }}>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginTop: 'var(--space-2, 8px)', lineHeight: 1.6, minHeight: 36 }}>
                         {voted ? m.opinion : t("committeeRoom.notVoted")}
                       </div>
                       {m.suggestion && (
@@ -478,7 +478,7 @@ const CommitteeRoomPage: React.FC = () => {
                         </div>
                       )}
                       {m.votedAt && (
-                        <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 'var(--space-1, 4px)' }}>{t("committeeRoom.votedAt")} {new Date(m.votedAt).toLocaleString()}</div>
+                        <div style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)', marginTop: 'var(--space-1, 4px)' }}>{t("committeeRoom.votedAt")} {new Date(m.votedAt).toLocaleString()}</div>
                       )}
                       <div style={{ marginTop: 'var(--space-2, 8px)', textAlign: "right" }}>
                         {detail.status === "voting" && !voted && (
@@ -499,20 +499,20 @@ const CommitteeRoomPage: React.FC = () => {
                   <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', marginBottom: 6 }}>
                     <BadgeCheck size={15} color="#10b981" />
                     <strong style={{ color: "#047857", fontSize: 12 }}>{t("committeeRoom.resolutionGeneratedLabel")}</strong>
-                    <span style={{ fontSize: 11, color: "#94a3b8" }}>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>
                       {new Date(detail.resolution.generatedAt).toLocaleString()}
                       {detail.resolution.appendedToReport && (
                         <Tag color="green" style={{ marginLeft: 6 }}>{t("committeeRoom.appendedReportWith")} {detail.resolution.appendedToReport}</Tag>
                       )}
                     </span>
                   </div>
-                  <div style={{ fontSize: 12, color: "#334155", lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{detail.resolution.resolution}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-primary, #334155)', lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{detail.resolution.resolution}</div>
                 </div>
               ) : (
                 <Empty
                   image={<MessageSquareQuote size={40} style={{ opacity: 0.3 }} />}
                   description={
-                    <span style={{ fontSize: 12, color: "#94a3b8" }}>
+                    <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
                       {detail.status === "voting" ? t("committeeRoom.resolutionHintVoting") : t("committeeRoom.resolutionHintNone")}
                     </span>
                   }
@@ -564,7 +564,7 @@ const CommitteeRoomPage: React.FC = () => {
               data-testid="committee-create-members"
             />
           </Form.Item>
-          <div style={{ fontSize: 12, color: "#94a3b8" }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
             {t("committeeRoom.noteText")}
           </div>
         </Form>
@@ -584,7 +584,7 @@ const CommitteeRoomPage: React.FC = () => {
       >
         {voteTarget && (
           <div style={{ marginTop: 'var(--space-2, 8px)' }}>
-            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 6 }}>
               {t("committeeRoom.consultationLabel")} {detail?.title} · {t("committeeRoom.reportLabel")} {detail?.reportId}
             </div>
             <div style={{ marginBottom: 'var(--space-3, 12px)' }}>

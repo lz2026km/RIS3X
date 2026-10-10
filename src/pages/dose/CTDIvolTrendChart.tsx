@@ -44,7 +44,7 @@ export default function CTDIvolTrendChart() {
           style={{
             background: "var(--bg-card)",
             padding: 'var(--space-3, 12px)',
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border-color, #e2e8f0)",
             borderRadius: 8,
             boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
           }}
@@ -52,7 +52,7 @@ export default function CTDIvolTrendChart() {
           <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 'var(--space-2, 8px)' }}>
             {label}
           </div>
-          <div style={{ fontSize: 12, color: "#64748b" }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
             <div>
               CT-1:{" "}
               <span style={{ fontWeight: 600, color: "var(--color-primary-500)" }}>
@@ -93,7 +93,7 @@ export default function CTDIvolTrendChart() {
         background: "var(--bg-card)",
         borderRadius: 12,
         padding: 'var(--space-5, 20px)',
-        border: "1px solid #e2e8f0",
+        border: "1px solid var(--border-color, #e2e8f0)",
       }}
     >
       <div
@@ -108,7 +108,7 @@ export default function CTDIvolTrendChart() {
           <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>
             CTDIvol 趋势监控
           </div>
-          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>
             CT设备7日CTDIvol趋势及法规阈值
           </div>
         </div>
@@ -182,13 +182,13 @@ export default function CTDIvolTrendChart() {
 const LineLegend = ({ color, label }: { color: string; label: string }) => (
   <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-1, 4px)' }}>
     <div style={{ width: 10, height: 3, background: color, borderRadius: 2 }} />
-    <span style={{ fontSize: 12, color: "#64748b" }}>{label}</span>
+    <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{label}</span>
   </div>
 );
 
 const Stat = ({ color, value, label }: { color: string; value: string; label: string }) => (
   <div style={{ textAlign: "center" }}>
     <div style={{ fontSize: 16, fontWeight: 800, color }}>{value}</div>
-    <div style={{ fontSize: 12, color: "#64748b" }}>{label}</div>
+    <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{label}</div>
   </div>
 );

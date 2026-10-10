@@ -107,7 +107,7 @@ const PostProcessingPage: React.FC = () => {
   }
 
   const btnStyle: React.CSSProperties = {
-    background: 'transparent', border: '1px solid #334155', color: '#94a3b8',
+    background: 'transparent', border: '1px solid #334155', color: 'var(--text-muted, #94a3b8)',
     borderRadius: 4, padding: '4px 8px', fontSize: 11, cursor: 'pointer',
     display: 'inline-flex', alignItems: 'center', gap: 3,
   }
@@ -122,7 +122,7 @@ const PostProcessingPage: React.FC = () => {
         <Tag color="gold">{t('w9d.postproc.demoTag')}</Tag>
         {/* [G005 W7] 明确的「演示模拟」徽标 (合成影像 + 确定性噪声) */}
         <Tag color="volcano">{t('w7demo.simulatedBadge')}</Tag>
-        <span style={{ marginLeft: 'auto', fontSize: 11, color: '#64748b' }}>
+        <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-muted, #64748b)' }}>
           {t('w9d.postproc.dataNote', { mean: sliceStats?.mean ?? '-', sigma: sliceStats?.sigma ?? '-', count: history.length })}
         </span>
       </div>
@@ -135,7 +135,7 @@ const PostProcessingPage: React.FC = () => {
         <Col span={6}>
           <Card size="small" title={t('w9d.postproc.params')} style={{ background: PANEL_BG, border: '1px solid #334155' }}>
             <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
-              <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 6 }}>{t('w9d.postproc.type')}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginBottom: 6 }}>{t('w9d.postproc.type')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1, 4px)' }}>
                 {(Object.keys(PROCESSING_OPTIONS) as ProcessingType[]).map(p => (
                   <button key={p} style={processingType === p ? activeBtnStyle : { ...btnStyle, width: '100%', justifyContent: 'flex-start' }}
@@ -146,12 +146,12 @@ const PostProcessingPage: React.FC = () => {
               </div>
             </div>
             <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#94a3b8', marginBottom: 'var(--space-1, 4px)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginBottom: 'var(--space-1, 4px)' }}>
                 <span>{t('w9d.postproc.intensity')}</span><span style={{ color: '#facc15' }}>{intensity}%</span>
               </div>
               <Slider min={0} max={100} value={intensity} onChange={setIntensity} />
             </div>
-            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 'var(--space-3, 12px)' }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-3, 12px)' }}>
               {procDesc(processingType)}
             </div>
             <div style={{ display: 'flex', gap: 6 }}>

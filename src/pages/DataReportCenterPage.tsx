@@ -226,7 +226,7 @@ function ReportChart({ type, data, xKey, yKeys, height = 280, title }: ReportCha
           </RadialBarChart>
         )
       default:
-        return <div style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: '#94a3b8' }}>不支持的图表类型: {type}</div>
+        return <div style={{ padding: 'var(--space-10, 40px)', textAlign: 'center', color: 'var(--text-muted, #94a3b8)' }}>不支持的图表类型: {type}</div>
     }
   })()
 

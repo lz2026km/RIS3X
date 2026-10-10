@@ -234,7 +234,7 @@ const VISUAL_SECTION_PRESETS = [
   { name: t("templateDesigner.section.impression"), color: "#7c3aed" },
   { name: t("templateDesigner.section.recommendation"), color: "var(--color-info-600)" },
   { name: t("templateDesigner.section.conclusion"), color: "var(--color-warning-500)" },
-  { name: t("templateDesigner.section.comparison"), color: "#475569" },
+  { name: t("templateDesigner.section.comparison"), color: 'var(--text-secondary, #475569)' },
 ];
 
 const defaultVisualBlocks = (): TemplateStructure => [

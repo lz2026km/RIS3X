@@ -55,7 +55,7 @@ export default function ReportToolbar({
         background: WHITE,
         borderRadius: 10,
         padding: "10px 14px",
-        border: "1px solid #e2e8f0",
+        border: "1px solid var(--border-color, #e2e8f0)",
         marginBottom: 14,
         display: "flex",
         alignItems: "center",
@@ -108,7 +108,7 @@ export default function ReportToolbar({
           gap: 6,
           marginLeft: 'var(--space-2, 8px)',
           paddingLeft: 'var(--space-3, 12px)',
-          borderLeft: "1px solid #e2e8f0",
+          borderLeft: "1px solid var(--border-color, #e2e8f0)",
         }}
       >
         <div
@@ -119,11 +119,11 @@ export default function ReportToolbar({
             padding: "4px 10px",
             borderRadius: 6,
             background: "var(--bg-card)",
-            border: "1px solid #e2e8f0",
+            border: "1px solid var(--border-color, #e2e8f0)",
           }}
         >
-          <BarChart3 size={13} style={{ color: "#64748b" }} />
-          <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>
+          <BarChart3 size={13} style={{ color: 'var(--text-muted, #64748b)' }} />
+          <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', fontWeight: 600 }}>
             质量
           </span>
           <span
@@ -148,7 +148,7 @@ export default function ReportToolbar({
           >
             {avgQuality}
           </span>
-          <span style={{ fontSize: 12, color: "#94a3b8" }}>/100</span>
+          <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>/100</span>
         </div>
 
         {criticalCount > 0 && (
@@ -266,7 +266,7 @@ export default function ReportToolbar({
               style={{
                 padding: "5px 12px",
                 borderRadius: 6,
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-color, #e2e8f0)",
                 background: WHITE,
                 color: GRAY,
                 fontSize: 12,
@@ -312,7 +312,7 @@ export default function ReportToolbar({
               style={{
                 padding: "5px 12px",
                 borderRadius: 6,
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-color, #e2e8f0)",
                 background: WHITE,
                 color: GRAY,
                 fontSize: 12,
@@ -337,7 +337,7 @@ export default function ReportToolbar({
               style={{
                 padding: "5px 12px",
                 borderRadius: 6,
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-color, #e2e8f0)",
                 background: WHITE,
                 color: "#6d28d9",
                 fontSize: 12,
@@ -362,7 +362,7 @@ export default function ReportToolbar({
               style={{
                 padding: "5px 12px",
                 borderRadius: 6,
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-color, #e2e8f0)",
                 background: WHITE,
                 color: "#0284c7",
                 fontSize: 12,
@@ -387,7 +387,7 @@ export default function ReportToolbar({
               style={{
                 padding: "5px 12px",
                 borderRadius: 6,
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-color, #e2e8f0)",
                 background: WHITE,
                 color: SUCCESS,
                 fontSize: 12,
@@ -412,7 +412,7 @@ export default function ReportToolbar({
               style={{
                 padding: "5px 12px",
                 borderRadius: 6,
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-color, #e2e8f0)",
                 background: WHITE,
                 color: "#4338ca",
                 fontSize: 12,
@@ -438,7 +438,7 @@ export default function ReportToolbar({
               style={{
                 padding: "5px 12px",
                 borderRadius: 6,
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-color, #e2e8f0)",
                 background: WHITE,
                 color: "#57534e",
                 fontSize: 12,
@@ -464,7 +464,7 @@ export default function ReportToolbar({
               style={{
                 padding: "5px 12px",
                 borderRadius: 6,
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-color, #e2e8f0)",
                 background: WHITE,
                 color: DANGER,
                 fontSize: 12,

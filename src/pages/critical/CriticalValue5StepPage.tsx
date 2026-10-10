@@ -218,7 +218,7 @@ export default function CriticalValue5StepPage() {
                     <Icon size={20} style={{ color: step.color }} />
                   </div>
                   <div style={{ fontSize: 12, fontWeight: 700, color: step.color }}>{t(step.titleKey)}</div>
-                  <div style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', maxWidth: 80 }}>{t(step.descKey)}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', textAlign: 'center', maxWidth: 80 }}>{t(step.descKey)}</div>
                 </div>
                 {idx < STEP_CONFIG.length - 1 && (
                   <div style={{ flex: 1, height: 2, background: 'var(--border-color)', margin: '0 4px', marginBottom: 'var(--space-10, 40px)' }} />

@@ -553,7 +553,7 @@ export const DicomSrPage: React.FC = () => {
         >
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-2, 8px)' }}>
                 {t('dicomSrPage.srDocuments')} ({genHistory.length})
               </div>
               {genHistory.map(h => (
@@ -562,18 +562,18 @@ export const DicomSrPage: React.FC = () => {
                   borderBottom: '1px solid var(--border-color)', fontSize: 12,
                 }}>
                   <Tag color="purple" style={{ fontSize: 10, margin: 0 }}>{h.tid}</Tag>
-                  <span style={{ color: '#334155', fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <span style={{ color: 'var(--text-primary, #334155)', fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {t('dicomSrPage.report')} {h.reportId}
                   </span>
                   <Tag color={h.status === 'draft' ? 'orange' : 'green'} style={{ fontSize: 10, margin: 0 }}>
                     {h.status === 'draft' ? t('dicomSrPage.draft') : h.status === 'finalized' ? t('dicomSrPage.finalized') : h.status}
                   </Tag>
-                  <span style={{ fontSize: 11, color: '#94a3b8' }}>{String(h.generatedAt || '').slice(5, 16).replace('T', ' ')}</span>
+                  <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{String(h.generatedAt || '').slice(5, 16).replace('T', ' ')}</span>
                 </div>
               ))}
             </div>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-2, 8px)' }}>
                 {t('dicomSrPage.pdfEncapsulation')} ({pdfHistory.length})
               </div>
               {pdfHistory.map(h => (
@@ -582,11 +582,11 @@ export const DicomSrPage: React.FC = () => {
                   borderBottom: '1px solid var(--border-color)', fontSize: 12,
                 }}>
                   <Tag color="geekblue" style={{ fontSize: 10, margin: 0 }}>PDF</Tag>
-                  <span style={{ color: '#334155', fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <span style={{ color: 'var(--text-primary, #334155)', fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {t('dicomSrPage.report')} {h.reportId}
                   </span>
-                  <span style={{ fontSize: 11, color: '#94a3b8' }}>{h.size} B</span>
-                  <span style={{ fontSize: 11, color: '#94a3b8' }}>{String(h.generatedAt || '').slice(5, 16).replace('T', ' ')}</span>
+                  <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{h.size} B</span>
+                  <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{String(h.generatedAt || '').slice(5, 16).replace('T', ' ')}</span>
                 </div>
               ))}
             </div>
@@ -672,7 +672,7 @@ export const DicomSrPage: React.FC = () => {
 
           {/* [v3.0.6.11-103 Wave 2B] 已封装 PDF 查询 (GET /dicom-sr/encapsulated/:id) */}
           <Divider style={{ margin: '8px 0' }} />
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 6 }}>
             {t('dicomSr.pdfLookup') || '查询已封装 PDF'} <Tag color="purple" style={{ fontSize: 10 }}>GET /dicom-sr/encapsulated/:id</Tag>
           </div>
           <Space>
@@ -729,7 +729,7 @@ export const DicomSrPage: React.FC = () => {
           <Database size={12} />
           SR {t('dicomSrPage.statsSource')}: {statsSource === 'real' ? t('dicomSrPage.sourceReal') : t('dicomSrPage.sourceDemo')}
         </span>
-        {statsLoading && <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('dicomSrPage.syncing')}</span>}
+        {statsLoading && <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('dicomSrPage.syncing')}</span>}
         <Button size="small" icon={<RefreshCcw size={12} />} onClick={loadSrStats}>{t('dicomSrPage.refresh')}</Button>
         {statsError && <span style={{ fontSize: 11, color: 'var(--color-warning-600)' }}>{statsError}</span>}
       </div>
@@ -744,7 +744,7 @@ export const DicomSrPage: React.FC = () => {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-4, 16px)' }}>
           {/* 按模板类型 */}
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>{t('dicomSrPage.byTemplateType')} (TID)</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-2, 8px)' }}>{t('dicomSrPage.byTemplateType')} (TID)</div>
             {srStats.byTid.map((entry: [string, number]) => {
               const [tid, count] = entry
               const cnt = Number(count ?? 0)
@@ -752,7 +752,7 @@ export const DicomSrPage: React.FC = () => {
               return (
                 <div key={tid} style={{ marginBottom: 'var(--space-2, 8px)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
-                    <span style={{ color: '#334155', fontWeight: 500 }}>{tid}</span>
+                    <span style={{ color: 'var(--text-primary, #334155)', fontWeight: 500 }}>{tid}</span>
                     <span style={{ color: 'var(--color-primary-800)', fontWeight: 700 }}>{cnt}</span>
                   </div>
                   <div style={{ height: 6, background: '#f1f5f9', borderRadius: 3, overflow: 'hidden' }}>
@@ -764,7 +764,7 @@ export const DicomSrPage: React.FC = () => {
           </div>
           {/* 按模态 */}
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>{t('dicomSrPage.byModality')}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-2, 8px)' }}>{t('dicomSrPage.byModality')}</div>
             {srStats.byModality.map((entry: [string, number]) => {
               const [mod, count] = entry
               const cnt = Number(count ?? 0)
@@ -773,7 +773,7 @@ export const DicomSrPage: React.FC = () => {
               return (
                 <div key={mod} style={{ marginBottom: 'var(--space-2, 8px)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
-                    <span style={{ color: '#334155', fontWeight: 500 }}>{mod}</span>
+                    <span style={{ color: 'var(--text-primary, #334155)', fontWeight: 500 }}>{mod}</span>
                     <span style={{ color: colors[mod] || '#64748b', fontWeight: 700 }}>{cnt}</span>
                   </div>
                   <div style={{ height: 6, background: '#f1f5f9', borderRadius: 3, overflow: 'hidden' }}>
@@ -785,7 +785,7 @@ export const DicomSrPage: React.FC = () => {
           </div>
           {/* 按状态 */}
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>{t('dicomSrPage.byStatus')}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-2, 8px)' }}>{t('dicomSrPage.byStatus')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-2, 8px)' }}>
               <div style={{ textAlign: 'center', padding: 'var(--space-3, 12px)', background: 'var(--color-warning-bg)', borderRadius: 8 }}>
                 <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-warning-600)' }}>{srStats.draft}</div>
@@ -800,7 +800,7 @@ export const DicomSrPage: React.FC = () => {
                 <div style={{ fontSize: 11, color: '#065f46' }}>{t('dicomSrPage.pushedOru')}</div>
               </div>
             </div>
-            <div style={{ marginTop: 10, fontSize: 11, color: '#94a3b8' }}>
+            <div style={{ marginTop: 10, fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>
               {t('w9d.dicomSr.rateLine', { finalized: srStats.total > 0 ? Math.round((srStats.finalized / srStats.total) * 100) : 0, pushed: srStats.total > 0 ? Math.round((srStats.pushed / srStats.total) * 100) : 0 })}
             </div>
           </div>
@@ -850,16 +850,16 @@ export const DicomSrPage: React.FC = () => {
                 <div key={node.code} style={{ marginBottom: 'var(--space-2, 8px)' }}>
                   <div style={{
                     fontSize: 12, fontWeight: 600, padding: '5px 10px', borderRadius: 6,
-                    background: '#f1f5f9', color: '#334155', borderLeft: '3px solid var(--color-primary-800)',
+                    background: '#f1f5f9', color: 'var(--text-primary, #334155)', borderLeft: '3px solid var(--color-primary-800)',
                   }}>
                     {node.label}
-                    <span style={{ fontSize: 10, color: '#94a3b8', marginLeft: 6, fontFamily: 'monospace' }}>{node.code}</span>
+                    <span style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)', marginLeft: 6, fontFamily: 'monospace' }}>{node.code}</span>
                   </div>
                   {node.children && (
                     <div style={{ marginTop: 'var(--space-1, 4px)', paddingLeft: 'var(--space-4, 16px)' }}>
                       {node.children.map(child => (
                         <div key={child.code} style={{
-                          fontSize: 11, color: '#64748b', padding: '3px 8px', marginBottom: 2,
+                          fontSize: 11, color: 'var(--text-muted, #64748b)', padding: '3px 8px', marginBottom: 2,
                           display: 'flex', alignItems: 'center', gap: 6,
                         }}>
                           <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--color-primary-500)', flexShrink: 0 }} />
@@ -874,7 +874,7 @@ export const DicomSrPage: React.FC = () => {
             </div>
           ))}
         </div>
-        <div style={{ marginTop: 10, fontSize: 11, color: '#94a3b8', lineHeight: 1.6 }}>
+        <div style={{ marginTop: 10, fontSize: 11, color: 'var(--text-muted, #94a3b8)', lineHeight: 1.6 }}>
           {t('dicomSrPage.tidExplanation')}
         </div>
       </Card>
@@ -945,7 +945,7 @@ export const DicomSrPage: React.FC = () => {
               {t('dicomSrPage.linkQueryFailed')}
             </div>
           )}
-          <div style={{ fontSize: 11, color: '#94a3b8' }}>
+          <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>
             {t('dicomSrPage.linkHint')}
           </div>
         </Space>
@@ -967,12 +967,12 @@ export const DicomSrPage: React.FC = () => {
         style={{ marginBottom: 'var(--space-4, 16px)' }}
         extra={<Tag color="geekblue">GET /dicom-sr/measurement-templates*</Tag>}
       >
-        <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 10 }}>
+        <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginBottom: 10 }}>
           {t('dicomSr.mtSub') || '20 个完整测量模板 (SNOMED 编码 + 单位 + 正常参考范围 + 测量说明), 覆盖 CT 胸腹 / MR 脑脊柱 / DR 骨折 / MG 乳腺'}
         </div>
 
         {/* 分类统计 */}
-        <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-2, 8px)' }}>
           {t('dicomSr.mtCategories') || '模板分类'}
         </div>
         <Space wrap size={[8, 8]} style={{ marginBottom: 'var(--space-3, 12px)' }}>
@@ -990,7 +990,7 @@ export const DicomSrPage: React.FC = () => {
 
         {/* 过滤 + 刷新 */}
         <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
-          <span style={{ fontSize: 12, color: '#64748b' }}>{t('dicomSr.mtModality') || '模态'}:</span>
+          <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{t('dicomSr.mtModality') || '模态'}:</span>
           <Select
             allowClear
             style={{ width: 140 }}
@@ -1059,7 +1059,7 @@ export const DicomSrPage: React.FC = () => {
               <Descriptions.Item label={t('dicomSrPage.category')}>{mtDetail.category}</Descriptions.Item>
               <Descriptions.Item label={t('dicomSr.mtPurpose') || '用途'} span={2}>{mtDetail.purpose}</Descriptions.Item>
             </Descriptions>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 'var(--space-2, 8px)' }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-2, 8px)' }}>
               {t('dicomSr.mtMeasurements') || '测量项'} ({mtDetail.measurements?.length ?? 0})
             </div>
             <DataTable
@@ -1084,7 +1084,7 @@ export const DicomSrPage: React.FC = () => {
               ]}
             />
             <div style={{ marginTop: 10 }}>
-              <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>{t('dicomSr.mtSnomed') || 'SNOMED 发现编码'}:</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #64748b)' }}>{t('dicomSr.mtSnomed') || 'SNOMED 发现编码'}:</span>
               <Space wrap size={4} style={{ marginTop: 'var(--space-1, 4px)' }}>
                 {(mtDetail.snomedFindings ?? []).map((c) => <Tag key={c} style={{ fontSize: 10, fontFamily: 'monospace' }}>{c}</Tag>)}
               </Space>

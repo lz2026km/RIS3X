@@ -258,7 +258,7 @@ const RadPathPage: React.FC = () => {
               <Col span={12}>
                 <Card size="small" title={t('radPath.imagingReport')}>
                   <div
-                    style={{ fontSize: 12, color: "#64748b", marginBottom: 'var(--space-1, 4px)' }}
+                    style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-1, 4px)' }}
                   >
                     {t('radPath.findings')}
                   </div>
@@ -277,7 +277,7 @@ const RadPathPage: React.FC = () => {
                   <div
                     style={{
                       fontSize: 12,
-                      color: "#64748b",
+                      color: 'var(--text-muted, #64748b)',
                       margin: "12px 0 4px",
                     }}
                   >
@@ -298,7 +298,7 @@ const RadPathPage: React.FC = () => {
               <Col span={12}>
                 <Card size="small" title={t('radPath.pathologyReport')}>
                   <div
-                    style={{ fontSize: 12, color: "#64748b", marginBottom: 'var(--space-1, 4px)' }}
+                    style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', marginBottom: 'var(--space-1, 4px)' }}
                   >
                     {t('radPath.pathResult')}
                   </div>

@@ -431,7 +431,7 @@ export default function AIReportDraftPage() {
           }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-2, 8px)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <FileText size={13} /> {t('aiDraft.selectPatientExam')}
-              {dataLoading && <span style={{ marginLeft: 'auto', fontSize: 11, color: '#94a3b8' }}>{t('aiDraft.loading')}</span>}
+              {dataLoading && <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{t('aiDraft.loading')}</span>}
               {!dataLoading && patientSource === 'api' && (
                 <span style={{ marginLeft: 'auto', fontSize: 11, padding: '1px 6px', borderRadius: 8, background: 'rgba(16,185,129,0.15)', color: '#059669', fontWeight: 600 }}>{t('aiDraft.realData')}</span>
               )}
@@ -679,7 +679,7 @@ export default function AIReportDraftPage() {
                       {ragSources.map((s) => (
                         <div key={s.reportId} style={{ color: 'var(--text-secondary)' }}>
                           <strong style={{ color: '#0e7490' }}>{s.reportId}</strong>
-                          <span style={{ margin: '0 4px', color: '#94a3b8' }}>{s.date}</span>
+                          <span style={{ margin: '0 4px', color: 'var(--text-muted, #94a3b8)' }}>{s.date}</span>
                           <span>{s.snippet}</span>
                         </div>
                       ))}

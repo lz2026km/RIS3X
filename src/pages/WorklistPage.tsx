@@ -1757,7 +1757,7 @@ export default function WorklistPage() {
               <CheckCircle2 size={12} /> {t('worklistPage.prefetch.done')}
             </span>
           )}
-          {prefetchBusy && <span style={{ color: '#64748b', whiteSpace: 'nowrap' }}>{t('worklistPage.prefetch.submitting')}</span>}
+          {prefetchBusy && <span style={{ color: 'var(--text-muted, #64748b)', whiteSpace: 'nowrap' }}>{t('worklistPage.prefetch.submitting')}</span>}
         </div>
       )}
       {prefetchMsg && (

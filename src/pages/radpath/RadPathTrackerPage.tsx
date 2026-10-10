@@ -69,7 +69,7 @@ export default function RadPathTrackerPage() {
       {/* 搜索 */}
       <div style={{ display: 'flex', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
         <input value={reportId} onChange={e => setReportId(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSearch()}
-          placeholder={t('radpath.searchPlaceholder')} style={{ flex: 1, padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 14 }} />
+          placeholder={t('radpath.searchPlaceholder')} style={{ flex: 1, padding: '8px 12px', border: '1px solid var(--border-color, #cbd5e1)', borderRadius: 6, fontSize: 14 }} />
         <button onClick={handleSearch} disabled={loading} style={{ padding: '8px 16px', background: '#8b5cf6', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Search size={14} /> {loading ? t('radpath.searching') : t('radpath.search')}
         </button>
@@ -80,7 +80,7 @@ export default function RadPathTrackerPage() {
       {record && (
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden', marginBottom: 'var(--space-4, 16px)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-            <thead><tr style={{ background: 'var(--bg-card)', color: '#64748b', fontWeight: 600 }}>
+            <thead><tr style={{ background: 'var(--bg-card)', color: 'var(--text-muted, #64748b)', fontWeight: 600 }}>
               <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>{t('radpath.colReportId')}</th>
               <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>{t('radpath.colPathId')}</th>
               <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>{t('radpath.colPatient')}</th>
@@ -95,18 +95,18 @@ export default function RadPathTrackerPage() {
                 <td style={{ padding: '10px 12px', fontFamily: 'monospace', fontSize: 12 }}>{record.reportId}</td>
                 <td style={{ padding: '10px 12px', fontFamily: 'monospace', fontSize: 12 }}>{record.pathologyId}</td>
                 <td style={{ padding: '10px 12px' }}>{record.report.patient.name}</td>
-                <td style={{ padding: '10px 12px', color: '#64748b' }}>{record.report.exam ? `${record.report.exam.modality}/${record.report.exam.bodyPart}` : '-'}</td>
+                <td style={{ padding: '10px 12px', color: 'var(--text-muted, #64748b)' }}>{record.report.exam ? `${record.report.exam.modality}/${record.report.exam.bodyPart}` : '-'}</td>
                 <td style={{ padding: '10px 12px', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{record.radFinding}</td>
                 <td style={{ padding: '10px 12px', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{record.pathResult}</td>
                 <td style={{ padding: '10px 12px', textAlign: 'center' }}><Badge consistency={record.consistency} /></td>
-                <td style={{ padding: '10px 12px', color: '#64748b' }}>{record.notes ?? '-'}</td>
+                <td style={{ padding: '10px 12px', color: 'var(--text-muted, #64748b)' }}>{record.notes ?? '-'}</td>
               </tr>
             </tbody>
           </table>
         </div>
       )}
 
-      {!record && !error && <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: '#94a3b8', fontSize: 14 }}>
+      {!record && !error && <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: 'var(--text-muted, #94a3b8)', fontSize: 14 }}>
         <Microscope size={32} style={{ marginBottom: 'var(--space-2, 8px)', opacity: 0.3 }} />
         <div>{t('radpath.emptyHint')}</div>
       </div>}
@@ -124,7 +124,7 @@ export default function RadPathTrackerPage() {
                   <div style={{ width: '100%', background: 'var(--bg-card)', borderRadius: '4px 4px 0 0', position: 'relative', height: 100 }}>
                     <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: `${(tr.rate / maxRate) * 100}%`, background: '#8b5cf6', borderRadius: '4px 4px 0 0', transition: 'height 0.3s' }} />
                   </div>
-                  <span style={{ fontSize: 10, color: '#64748b', transform: 'rotate(-30deg)', whiteSpace: 'nowrap' }}>{tr.month.slice(5)}</span>
+                  <span style={{ fontSize: 10, color: 'var(--text-muted, #64748b)', transform: 'rotate(-30deg)', whiteSpace: 'nowrap' }}>{tr.month.slice(5)}</span>
                   <span style={{ fontSize: 10, fontWeight: 600, color: '#8b5cf6' }}>{tr.rate}%</span>
                 </div>
               ))}
@@ -168,18 +168,18 @@ export default function RadPathTrackerPage() {
                 {[
                   { label: 'radpath.consistency.concordant', count: stats.concordant, color: '#10b981' },
                   { label: 'radpath.consistency.discordant', count: stats.discordant, color: 'var(--color-error-500)' },
-                  { label: 'radpath.consistency.pending', count: stats.pending, color: '#94a3b8' },
+                  { label: 'radpath.consistency.pending', count: stats.pending, color: 'var(--text-muted, #94a3b8)' },
                 ].map(s => (
                   <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12 }}>
                     <span style={{ width: 8, height: 8, borderRadius: 2, background: s.color }} />
-                    <span style={{ color: '#64748b', flex: 1 }}>{t(s.label)}</span>
+                    <span style={{ color: 'var(--text-muted, #64748b)', flex: 1 }}>{t(s.label)}</span>
                     <strong style={{ color: 'var(--text-primary)' }}>{s.count}</strong>
-                    <span style={{ color: '#94a3b8' }}>({total > 0 ? (s.count / total * 100).toFixed(1) : 0}%)</span>
+                    <span style={{ color: 'var(--text-muted, #94a3b8)' }}>({total > 0 ? (s.count / total * 100).toFixed(1) : 0}%)</span>
                   </div>
                 ))}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, borderTop: '1px solid #e2e8f0', paddingTop: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, borderTop: '1px solid var(--border-color, #e2e8f0)', paddingTop: 6 }}>
                   <AlertTriangle size={12} color="#8b5cf6" />
-                  <span style={{ color: '#64748b' }}>{t('radpath.kpi.overallRate')}</span>
+                  <span style={{ color: 'var(--text-muted, #64748b)' }}>{t('radpath.kpi.overallRate')}</span>
                   <strong style={{ color: '#8b5cf6', fontSize: 16 }}>{stats.positiveConsistency}%</strong>
                 </div>
               </div>

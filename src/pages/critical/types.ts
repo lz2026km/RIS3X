@@ -132,7 +132,7 @@ export const STATUS_CONFIG: Record<string, { bg: string; color: string; label: s
   resolved: { bg: '#d1fae5', color: '#059669', label: '已处理' },
   closed_loop: { bg: '#dcfce7', color: '#047857', label: '已闭环' },
   escalated: { bg: '#fecaca', color: '#991b1b', label: '已升级' },
-  cancelled: { bg: '#f1f5f9', color: '#64748b', label: '已取消' },
+  cancelled: { bg: '#f1f5f9', color: 'var(--text-muted, #64748b)', label: '已取消' },
   overdue: { bg: '#fecaca', color: '#991b1b', label: '超时' },
   // legacy Chinese keys → 兼容
   '待处理': { bg: '#fee2e2', color: 'var(--color-error-600)', label: '待处理' },

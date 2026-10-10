@@ -685,17 +685,17 @@ export const RegionalStatsDashboard: React.FC = () => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '20px' }}>
           <div style={{ background: '#f0f9ff', padding: '16px', borderRadius: '8px', textAlign: 'center', borderLeft: '4px solid var(--color-primary-500)' }}>
             <div style={{ fontSize: '30px', fontWeight: 700, color: 'var(--color-primary-500)' }}>{institutions.reduce((s, i) => s + i.reportCount, 0).toLocaleString()}</div>
-            <div style={{ fontSize: '12px', color: '#64748b' }}>{t('regionalReport.regionalTotalExams')}</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)' }}>{t('regionalReport.regionalTotalExams')}</div>
             <div style={{ fontSize: '11px', color: 'var(--color-success-600)', marginTop: '4px' }}><TrendingUp size={11} /> +8.2% {t('regionalReportList.vsLastMonth')}</div>
           </div>
           <div style={{ background: '#ecfdf5', padding: '16px', borderRadius: '8px', textAlign: 'center', borderLeft: '4px solid #10b981' }}>
             <div style={{ fontSize: '30px', fontWeight: 700, color: '#10b981' }}>18 {t('regionalReport.minutesUnit')}</div>
-            <div style={{ fontSize: '12px', color: '#64748b' }}>{t('regionalReport.avgReportTat')}</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)' }}>{t('regionalReport.avgReportTat')}</div>
             <div style={{ fontSize: '11px', color: '#10b981', marginTop: '4px' }}><TrendingDown size={11} /> -5% {t('regionalReportList.vsLastMonth')}</div>
           </div>
           <div style={{ background: 'var(--color-warning-bg)', padding: '16px', borderRadius: '8px', textAlign: 'center', borderLeft: '4px solid var(--color-warning-500)' }}>
             <div style={{ fontSize: '30px', fontWeight: 700, color: 'var(--color-warning-500)' }}>96.8%</div>
-            <div style={{ fontSize: '12px', color: '#64748b' }}>{t('regionalReport.regionalAvgQuality')}</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)' }}>{t('regionalReport.regionalAvgQuality')}</div>
             <div style={{ fontSize: '11px', color: 'var(--color-success-600)', marginTop: '4px' }}><TrendingUp size={11} /> +0.3% {t('regionalReportList.vsLastMonth')}</div>
           </div>
         </div>

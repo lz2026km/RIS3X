@@ -176,8 +176,8 @@ export default function MobileApprovalPage() {
     return (
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 16px', marginTop: 6 }}>
         {rows.map(([k, v]) => (
-          <span key={k} style={{ fontSize: 11, color: '#64748b' }}>
-            <span style={{ color: '#94a3b8' }}>{k}:</span> {String(v ?? '-')}
+          <span key={k} style={{ fontSize: 11, color: 'var(--text-muted, #64748b)' }}>
+            <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{k}:</span> {String(v ?? '-')}
           </span>
         ))}
       </div>
@@ -215,9 +215,9 @@ export default function MobileApprovalPage() {
         <Tag color={TYPE_COLORS[item.type] ?? 'default'} icon={TYPE_ICONS[item.type]} style={{ margin: 0, flexShrink: 0 }}>{item.type}</Tag>
         {renderStatusTag(item)}
       </div>
-      <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b', lineHeight: 1.45 }}>{item.title}</div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 3, fontSize: 12, color: '#64748b' }}>
-        <span>{t('mobileApproval.applicant')}: <b style={{ color: '#334155' }}>{item.applicant}</b></span>
+      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary, #1e293b)', lineHeight: 1.45 }}>{item.title}</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 3, fontSize: 12, color: 'var(--text-muted, #64748b)' }}>
+        <span>{t('mobileApproval.applicant')}: <b style={{ color: 'var(--text-primary, #334155)' }}>{item.applicant}</b></span>
         <span>{t('mobileApproval.submitted')}: {fmtTime(item.submittedAt)} · {t('mobileApproval.owner')}: {item.assignee}</span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
           <Clock size={12} />{t('mobileApproval.due')}: {fmtTime(item.dueAt)}
@@ -239,7 +239,7 @@ export default function MobileApprovalPage() {
       key={item.id}
       style={{
         background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-4, 16px)',
-        boxShadow: '0 1px 4px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.06)', border: '1px solid var(--border-color, #e2e8f0)',
         display: 'flex', flexDirection: 'column', gap: 10,
       }}
     >
@@ -247,9 +247,9 @@ export default function MobileApprovalPage() {
         <Tag color={TYPE_COLORS[item.type] ?? 'default'} icon={TYPE_ICONS[item.type]} style={{ margin: 0 }}>{item.type}</Tag>
         {renderStatusTag(item)}
       </div>
-      <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b', lineHeight: 1.45 }}>{item.title}</div>
-      <div style={{ fontSize: 12, color: '#64748b', display: 'flex', flexDirection: 'column', gap: 3 }}>
-        <span>{t('mobileApproval.applicant')}: <b style={{ color: '#334155' }}>{item.applicant}</b> · {t('mobileApproval.submitted')}: {fmtTime(item.submittedAt)}</span>
+      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary, #1e293b)', lineHeight: 1.45 }}>{item.title}</div>
+      <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <span>{t('mobileApproval.applicant')}: <b style={{ color: 'var(--text-primary, #334155)' }}>{item.applicant}</b> · {t('mobileApproval.submitted')}: {fmtTime(item.submittedAt)}</span>
         <span>{t('mobileApproval.processedBy')}: {item.processedBy ?? '-'} · {t('mobileApproval.processedAt')}: {fmtTime(item.processedAt)}</span>
         {item.comment && (
           <span style={{ color: '#059669', background: '#ecfdf5', padding: '4px 8px', borderRadius: 6 }}>{t('mobileApproval.comment')}: {item.comment}</span>
@@ -276,7 +276,7 @@ export default function MobileApprovalPage() {
             <div key={card.key} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ width: 38, height: 38, borderRadius: 10, background: card.bg, color: card.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{card.icon}</div>
               <div>
-                <div style={{ fontSize: 12, color: '#64748b' }}>{card.label}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>{card.label}</div>
                 <div style={{ fontSize: 20, fontWeight: 700, color: card.color }}>{card.value}</div>
               </div>
             </div>
@@ -286,11 +286,11 @@ export default function MobileApprovalPage() {
         {/* 类型分布 */}
         {stats && (
           <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '12px 16px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>{t('mobileApproval.distribution')}:</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #64748b)', fontWeight: 600 }}>{t('mobileApproval.distribution')}:</span>
             {stats.byType.map((t) => (
               <Tag key={t.type} color={TYPE_COLORS[t.type] ?? 'default'} style={{ margin: 0 }}>{t.type} {t.count}</Tag>
             ))}
-            <span style={{ marginLeft: 'auto', fontSize: 11, color: '#94a3b8' }}>{t('mobileApproval.dataSource')}</span>
+            <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{t('mobileApproval.dataSource')}</span>
           </div>
         )}
 
@@ -365,7 +365,7 @@ export default function MobileApprovalPage() {
         </div>
 
         {/* 数据源徽标 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, color: '#64748b', padding: '0 4px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-muted, #64748b)', padding: '0 4px' }}>
           <Tag color="blue" style={{ margin: 0 }}>{t('mobileApproval.dataSourceTag')}</Tag>
           <span>{t('mobileApproval.dataSourceDesc')}</span>
         </div>
@@ -385,7 +385,7 @@ export default function MobileApprovalPage() {
       >
         {acting && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', paddingTop: 'var(--space-2, 8px)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, color: '#475569' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', fontSize: 12, color: 'var(--text-secondary, #475569)' }}>
               <Tag color={TYPE_COLORS[acting.type] ?? 'default'} icon={TYPE_ICONS[acting.type]} style={{ margin: 0 }}>{acting.type}</Tag>
               <span>{acting.applicant} · {t('mobileApproval.submittedAt')} {fmtTime(acting.submittedAt)}</span>
             </div>
@@ -426,7 +426,7 @@ export default function MobileApprovalPage() {
                   showSearch
                   optionFilterProp="label"
                 />
-                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>{t('mobileApproval.delegateNote')}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginTop: 6 }}>{t('mobileApproval.delegateNote')}</div>
               </div>
             )}
           </div>

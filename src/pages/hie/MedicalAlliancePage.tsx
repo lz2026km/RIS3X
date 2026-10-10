@@ -460,7 +460,7 @@ const MedicalAlliancePage: React.FC = () => {
                 active: { label: t('medicalAlliance.online'), color: 'var(--color-success-600)', bg: 'var(--color-success-bg)' },
                 offline: { label: t('medicalAlliance.offline'), color: 'var(--color-error-600)', bg: 'var(--color-error-bg)' },
                 syncing: { label: t('medicalAlliance.syncing'), color: 'var(--color-warning-600)', bg: 'var(--color-warning-bg)' },
-                maintenance: { label: t('medicalAlliance.maintenance'), color: '#64748b', bg: 'var(--bg-card)' },
+                maintenance: { label: t('medicalAlliance.maintenance'), color: 'var(--text-muted, #64748b)', bg: 'var(--bg-card)' },
               }
               const st = statusMap[s.status] ?? statusMap.offline ?? { label: t('medicalAlliance.offline'), color: 'var(--color-error-600)', bg: 'var(--color-error-bg)' }
               const lagHours = s.lastSync ? Math.floor((Date.now() - new Date(s.lastSync).getTime()) / 3600000) : -1

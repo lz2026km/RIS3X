@@ -59,7 +59,7 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
         {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
-        <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-10, 40px)', border: "1px solid #e2e8f0", textAlign: "center", color: "#94a3b8", fontSize: 12 }}>
+        <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 'var(--space-10, 40px)', border: "1px solid var(--border-color, #e2e8f0)", textAlign: "center", color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>
           暂无累计剂量数据
         </div>
       </div>
@@ -75,7 +75,7 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
           background: "var(--bg-card)",
           borderRadius: 12,
           padding: 'var(--space-5, 20px)',
-          border: "1px solid #e2e8f0",
+          border: "1px solid var(--border-color, #e2e8f0)",
         }}
       >
         <div
@@ -87,7 +87,7 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
           }}
         >
           患者累计剂量时间线 - {patientInfo.name} ({patientInfo.id})
-          <span style={{ fontSize: 11, color: "#94a3b8", marginLeft: 'var(--space-2, 8px)' }}>
+          <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginLeft: 'var(--space-2, 8px)' }}>
             {source === "api" ? "· 数据源: /rdsr/patients/cumulative" : "· 演示数据"}
           </span>
         </div>
@@ -141,19 +141,19 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
           <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-primary-800)" }}>
             {lastPoint.cumulativeDLP}
           </div>
-          <div style={{ fontSize: 12, color: "#64748b" }}>当前累计DLP</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>当前累计DLP</div>
         </div>
         <div style={statBox}>
           <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-success-600)" }}>
             {lastPoint.examCount}
           </div>
-          <div style={{ fontSize: 12, color: "#64748b" }}>累计检查次数</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>累计检查次数</div>
         </div>
         <div style={statBox}>
           <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-warning-600)" }}>
             {Math.round(lastPoint.cumulativeDLP / examCountSafe)}
           </div>
-          <div style={{ fontSize: 12, color: "#64748b" }}>次均剂量</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>次均剂量</div>
         </div>
         <div style={statBox}>
           <div
@@ -165,7 +165,7 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
           >
             {nearLimit ? "接近阈值" : "安全"}
           </div>
-          <div style={{ fontSize: 12, color: "#64748b" }}>状态</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #64748b)' }}>状态</div>
         </div>
       </div>
       <div
@@ -198,6 +198,6 @@ const statBox: React.CSSProperties = {
   background: "var(--bg-card)",
   borderRadius: 10,
   padding: 'var(--space-4, 16px)',
-  border: "1px solid #e2e8f0",
+  border: "1px solid var(--border-color, #e2e8f0)",
   textAlign: "center",
 };
