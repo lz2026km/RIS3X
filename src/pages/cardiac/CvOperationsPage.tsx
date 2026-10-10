@@ -97,7 +97,7 @@ export default function CvOperationsPage() {
   const tabStyle = (tab: typeof selectedTab) => ({
     padding: '8px 20px',
     border: 'none',
-    background: selectedTab === tab ? '#1e40af' : 'var(--bg-card)',
+    background: selectedTab === tab ? 'var(--color-primary-800)' : 'var(--bg-card)',
     color: selectedTab === tab ? '#fff' : 'var(--text-secondary)',
     borderRadius: 6,
     cursor: 'pointer',
@@ -141,7 +141,7 @@ export default function CvOperationsPage() {
 
   const contrastColumns: TableColumnsType<{ agent: string; stock: number; reorder: number }> = [
     { title: t('cvOps.colOperator'), dataIndex: 'agent', key: 'agent' },
-    { title: t('cvOps.colStock'), dataIndex: 'stock', key: 'stock', align: 'center', render: (v: number, r) => <span style={{ color: v < r.reorder ? '#dc2626' : '#16a34a', fontWeight: 600 }}>{v}</span> },
+    { title: t('cvOps.colStock'), dataIndex: 'stock', key: 'stock', align: 'center', render: (v: number, r) => <span style={{ color: v < r.reorder ? 'var(--color-error-600)' : 'var(--color-success-600)', fontWeight: 600 }}>{v}</span> },
     { title: t('cvOps.colReorder'), dataIndex: 'reorder', key: 'reorder', align: 'center', render: (v: number) => <span style={{ color: '#64748b' }}>{v}</span> },
   ]
 
@@ -179,7 +179,7 @@ export default function CvOperationsPage() {
                   <span style={{ color: '#64748b' }}>{k.icon}</span>
                 </div>
                 <div style={{ fontSize: 24, fontWeight: 'bold' }}>{k.value}</div>
-                <div style={{ fontSize: 12, color: k.changeType === 'up' ? '#16a34a' : k.changeType === 'down' ? '#dc2626' : '#64748b', marginTop: 4 }}>{k.change}</div>
+                <div style={{ fontSize: 12, color: k.changeType === 'up' ? 'var(--color-success-600)' : k.changeType === 'down' ? 'var(--color-error-600)' : '#64748b', marginTop: 4 }}>{k.change}</div>
               </div>
             ))}
           </div>
@@ -189,7 +189,7 @@ export default function CvOperationsPage() {
             <div style={{ fontSize: 14, color: '#64748b' }}>
               {['08:00 — CCTA: 三联排除 (患者 #P1023)', '08:30 — CMR: 心肌病 (患者 #P1045)', '09:00 — 导管室: STEMI急诊PCI (患者 #P1067)', '10:00 — 超声: 负荷超声 (患者 #P1082)', '11:30 — 血管超声: 颈动脉超声 (患者 #P1095)', '13:00 — CMR: 心肌存活 (患者 #P1101)', '14:00 — CCTA: TAVR规划 (患者 #P1118)', '15:00 — 导管室: 分期PCI (患者 #P1132)'].map((e, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: i < 7 ? '1px solid var(--border-color)' : 'none' }}>
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#1e40af', flexShrink: 0 }} />
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--color-primary-800)', flexShrink: 0 }} />
                   <span>{e}</span>
                 </div>
               ))}

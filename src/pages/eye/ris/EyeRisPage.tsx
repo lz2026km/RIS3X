@@ -534,7 +534,7 @@ const EyeRisPage: React.FC = () => {
                   dataIndex: "overdue",
                   key: "overdue",
                   width: 40,
-                  render: (v: boolean) => v && <Badge dot color="#ef4444" />,
+                  render: (v: boolean) => v && <Badge dot color="var(--color-error-500)" />,
                 },
               ]}
             />

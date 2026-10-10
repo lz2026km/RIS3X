@@ -163,7 +163,7 @@ export default function ReceiverPortalPage() {
       title: t('receiverPortal.colFinding'),
       dataIndex: 'finding',
       key: 'finding',
-      render: (v: string) => (v ? <span style={{ fontWeight: 600, color: '#dc2626' }}>{v}</span> : '-'),
+      render: (v: string) => (v ? <span style={{ fontWeight: 600, color: 'var(--color-error-600)' }}>{v}</span> : '-'),
     },
     {
       title: t('receiverPortal.colSeverity'),
@@ -226,7 +226,7 @@ export default function ReceiverPortalPage() {
     <PageContainer padding={24}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <ShieldAlert size={22} style={{ color: '#dc2626' }} />
+          <ShieldAlert size={22} style={{ color: 'var(--color-error-600)' }} />
           <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{t('receiverPortal.title')}</h1>
           <Tag color="red">{t('receiverPortal.clinicalReceiptTag')}</Tag>
         </div>
@@ -268,7 +268,7 @@ export default function ReceiverPortalPage() {
         {receiptItem && (
           <div>
             <div style={{ marginBottom: 12, padding: '10px 12px', background: 'var(--color-error-bg)', borderRadius: 8, border: '1px solid var(--color-error-border)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#dc2626' }}>{receiptItem.patientName ?? t('receiverPortal.unknownPatient')} · {receiptItem.finding ?? t('receiverPortal.criticalValue')}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-error-600)' }}>{receiptItem.patientName ?? t('receiverPortal.unknownPatient')} · {receiptItem.finding ?? t('receiverPortal.criticalValue')}</div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{receiptItem.id ?? ''}</div>
             </div>
             <div style={{ marginBottom: 12 }}>

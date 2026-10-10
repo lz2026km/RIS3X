@@ -39,9 +39,9 @@ export const TEXT_COLOR: Record<AppTextColor, string> = {
   primary: "var(--text-primary, #1e293b)",
   secondary: "var(--text-secondary, #475569)",
   muted: "var(--text-muted, #94a3b8)",
-  success: "var(--color-success-600, #16a34a)",
-  error: "var(--color-error-600, #dc2626)",
-  warning: "var(--color-warning-600, #d97706)",
+  success: "var(--color-success-600, var(--color-success-600))",
+  error: "var(--color-error-600, var(--color-error-600))",
+  warning: "var(--color-warning-600, var(--color-warning-600))",
 };
 
 export function AppText({

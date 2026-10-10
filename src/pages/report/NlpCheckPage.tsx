@@ -65,12 +65,12 @@ export default function NlpCheckPage() {
     const markers: { offset: number; length: number; color: string; title: string }[] = []
     if (spellResult) {
       for (const s of spellResult.suggestions) {
-        markers.push({ offset: s.offset, length: s.length, color: "#f59e0b", title: s.word })
+        markers.push({ offset: s.offset, length: s.length, color: "var(--color-warning-500)", title: s.word })
       }
     }
     if (termResult) {
       for (const n of termResult.normalized) {
-        markers.push({ offset: n.offset, length: n.term.length, color: "#3b82f6", title: n.term })
+        markers.push({ offset: n.offset, length: n.term.length, color: "var(--color-primary-500)", title: n.term })
       }
     }
     markers.sort((a, b) => a.offset - b.offset)
@@ -105,13 +105,13 @@ export default function NlpCheckPage() {
 
   return (
     <PageContainer background="slate" maxWidth="wide">
-      <PageHeader icon={<FileText size={20} color="#3b82f6" />} title={t("title")} subtitle={t("subtitle")} />
+      <PageHeader icon={<FileText size={20} color="var(--color-primary-500)" />} title={t("title")} subtitle={t("subtitle")} />
       <div style={{ padding: 24 }}>
         <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-          <button onClick={() => setActiveTab("spell")} style={{ padding: "6px 16px", background: activeTab === "spell" ? "#1e40af" : "#fff", color: activeTab === "spell" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "spell" ? "#1e40af" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+          <button onClick={() => setActiveTab("spell")} style={{ padding: "6px 16px", background: activeTab === "spell" ? "var(--color-primary-800)" : "#fff", color: activeTab === "spell" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "spell" ? "var(--color-primary-800)" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
             <SpellCheck size={14} />{t("spellCheck")}
           </button>
-          <button onClick={() => setActiveTab("term")} style={{ padding: "6px 16px", background: activeTab === "term" ? "#1e40af" : "#fff", color: activeTab === "term" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "term" ? "#1e40af" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+          <button onClick={() => setActiveTab("term")} style={{ padding: "6px 16px", background: activeTab === "term" ? "var(--color-primary-800)" : "#fff", color: activeTab === "term" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "term" ? "var(--color-primary-800)" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
             <BookOpen size={14} />{t("terminology")}
           </button>
         </div>
@@ -127,7 +127,7 @@ export default function NlpCheckPage() {
           />
           {renderHighlighted()}
           <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
-            <button onClick={handleCheck} disabled={loading || !text.trim()} style={{ padding: "8px 20px", background: "#1e40af", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+            <button onClick={handleCheck} disabled={loading || !text.trim()} style={{ padding: "8px 20px", background: "var(--color-primary-800)", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
               <CheckCircle size={14} />{loading ? t("checking") : t("check")}
             </button>
             {(spellResult || termResult) && (
@@ -140,14 +140,14 @@ export default function NlpCheckPage() {
 
         {spellResult && spellResult.suggestions.length > 0 && (
           <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}><AlertTriangle size={16} color="#f59e0b" />{t("suggestions")} ({spellResult.suggestions.length})</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}><AlertTriangle size={16} color="var(--color-warning-500)" />{t("suggestions")} ({spellResult.suggestions.length})</h3>
             {spellResult.suggestions.map((s, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid #f1f5f9" }}>
                 <span style={{ background: "#fef3c7", color: "#92400e", padding: "2px 8px", borderRadius: 4, fontWeight: 600, fontSize: 12 }}>{s.word}</span>
                 <span style={{ color: "#64748b", fontSize: 12 }}>→</span>
                 <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
                   {s.candidates.map((c, ci) => (
-                    <button key={ci} onClick={() => applySuggestion(s.offset, s.length, c)} style={{ padding: "2px 10px", background: "#dbeafe", color: "#1e40af", border: "1px solid #bfdbfe", borderRadius: 4, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
+                    <button key={ci} onClick={() => applySuggestion(s.offset, s.length, c)} style={{ padding: "2px 10px", background: "#dbeafe", color: "var(--color-primary-800)", border: "1px solid #bfdbfe", borderRadius: 4, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
                       <Replace size={10} style={{ marginRight: 4 }} />{c}
                     </button>
                   ))}
@@ -165,10 +165,10 @@ export default function NlpCheckPage() {
 
         {termResult && termResult.normalized.length > 0 && (
           <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}><BookOpen size={16} color="#3b82f6" />{t("termNormalization")} ({termResult.normalized.length})</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}><BookOpen size={16} color="var(--color-primary-500)" />{t("termNormalization")} ({termResult.normalized.length})</h3>
             {termResult.normalized.map((n, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid #f1f5f9" }}>
-                <span style={{ background: "#dbeafe", color: "#1e40af", padding: "2px 8px", borderRadius: 4, fontWeight: 600, fontSize: 12 }}>{n.term}</span>
+                <span style={{ background: "#dbeafe", color: "var(--color-primary-800)", padding: "2px 8px", borderRadius: 4, fontWeight: 600, fontSize: 12 }}>{n.term}</span>
                 <span style={{ color: "#64748b", fontSize: 12 }}>→</span>
                 <span style={{ background: "#d1fae5", color: "#065f46", padding: "2px 8px", borderRadius: 4, fontWeight: 600, fontSize: 12 }}>{n.preferred}</span>
                 <button onClick={() => applyTerminology(n.offset, n.length, n.preferred)} style={{ marginLeft: "auto", padding: "2px 10px", background: "#10b981", color: "#fff", border: "none", borderRadius: 4, cursor: "pointer", fontSize: 11, fontWeight: 600 }}>

@@ -95,26 +95,26 @@ const STATUS_CONFIG: Record<
   string,
   { bg: string; color: string; label: string }
 > = {
-  SCHEDULED: { bg: "#3b82f622", color: "#3b82f6", label: "examDetail.statusScheduled" },
+  SCHEDULED: { bg: "#3b82f622", color: "var(--color-primary-500)", label: "examDetail.statusScheduled" },
   ARRIVED: { bg: "#8b5cf622", color: "#7c3aed", label: "examDetail.statusArrived" },
   IN_PROGRESS: { bg: "#ec489922", color: "#db2777", label: "examDetail.statusInProgress" },
   // [v3.0.6.11-95 Wave 1A P1] 暂停态 (backend PAUSED)
-  PAUSED: { bg: "#f59e0b22", color: "#f59e0b", label: "examDetail.statusPaused" },
+  PAUSED: { bg: "#f59e0b22", color: "var(--color-warning-500)", label: "examDetail.statusPaused" },
   COMPLETED: { bg: "#22c55e22", color: "#059669", label: "examDetail.statusCompleted" },
-  CANCELLED: { bg: "#ef444422", color: "#ef4444", label: "examDetail.statusCancelled" },
+  CANCELLED: { bg: "#ef444422", color: "var(--color-error-500)", label: "examDetail.statusCancelled" },
   // [v3.0.6.11-92 Wave1B P0] 影像质控回写状态 (backend worklist PATCH :id/state)
   IMAGE_READY: { bg: "#10b98122", color: "#0f766e", label: "examDetail.statusImageReady" },
-  QC_REJECT: { bg: "#ef444422", color: "#dc2626", label: "examDetail.statusQcReject" },
+  QC_REJECT: { bg: "#ef444422", color: "var(--color-error-600)", label: "examDetail.statusQcReject" },
   QC_PASS: { bg: "#0ea5e922", color: "#0369a1", label: "examDetail.statusPendingReport" },
   PENDING_REPORT: { bg: "#0ea5e922", color: "#0369a1", label: "examDetail.statusPendingReport" },
-  已登记: { bg: "#3b82f622", color: "#3b82f6", label: "examDetail.statusScheduled" },
+  已登记: { bg: "#3b82f622", color: "var(--color-primary-500)", label: "examDetail.statusScheduled" },
   待检查: { bg: "#8b5cf622", color: "#7c3aed", label: "examDetail.statusPendingExam" },
   检查中: { bg: "#ec489922", color: "#db2777", label: "examDetail.statusInProgress" },
   待报告: { bg: "#f59e0b22", color: "#ca8a04", label: "examDetail.statusPendingReport" },
   已报告: { bg: "#22c55e22", color: "#059669", label: "examDetail.statusReported" },
   已发布: { bg: "#22c55e22", color: "#047857", label: "examDetail.statusPublished" },
-  已暂停: { bg: "#f59e0b22", color: "#f59e0b", label: "examDetail.statusPaused" },
-  质控退回: { bg: "#ef444422", color: "#ef4444", label: "examDetail.statusQcReject" },
+  已暂停: { bg: "#f59e0b22", color: "var(--color-warning-500)", label: "examDetail.statusPaused" },
+  质控退回: { bg: "#ef444422", color: "var(--color-error-500)", label: "examDetail.statusQcReject" },
   图像可用: { bg: "#10b98122", color: "#0f766e", label: "examDetail.statusImageReady" },
 };
 
@@ -123,8 +123,8 @@ const PRIORITY_CONFIG: Record<
   { bg: string; color: string; label: string }
 > = {
   普通: { bg: "var(--bg-deep)", color: "var(--text-secondary)", label: "examDetail.priorityNormal" },
-  紧急: { bg: "#f59e0b22", color: "#f59e0b", label: "examDetail.priorityUrgent" },
-  危重: { bg: "#ef444422", color: "#ef4444", label: "examDetail.priorityCritical" },
+  紧急: { bg: "#f59e0b22", color: "var(--color-warning-500)", label: "examDetail.priorityUrgent" },
+  危重: { bg: "#ef444422", color: "var(--color-error-500)", label: "examDetail.priorityCritical" },
   会诊: { bg: "#8b5cf622", color: "#7c3aed", label: "examDetail.priorityConsult" },
 };
 
@@ -592,7 +592,7 @@ export function ExamDetailView({
       style={{
         padding: "8px 14px",
         border: "none",
-        background: activeTab === tabKey ? "#1e40af" : "transparent",
+        background: activeTab === tabKey ? "var(--color-primary-800)" : "transparent",
         color: activeTab === tabKey ? "#fff" : "#64748b",
         fontSize: 12,
         fontWeight: 600,
@@ -630,7 +630,7 @@ export function ExamDetailView({
               style={{
                 fontSize: 18,
                 fontWeight: 700,
-                color: "#1e40af",
+                color: "var(--color-primary-800)",
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
@@ -638,10 +638,10 @@ export function ExamDetailView({
             >
               {exam.patientName}
               {exam.priority === "危重" && (
-                <AlertTriangle size={18} style={{ color: "#dc2626" }} />
+                <AlertTriangle size={18} style={{ color: "var(--color-error-600)" }} />
               )}
               {exam.priority === "紧急" && (
-                <Zap size={18} style={{ color: "#d97706" }} />
+                <Zap size={18} style={{ color: "var(--color-warning-600)" }} />
               )}
             </div>
             <div
@@ -675,9 +675,9 @@ export function ExamDetailView({
                         : "var(--bg-deep)",
                   color:
                     exam.patientType === "急诊"
-                      ? "#dc2626"
+                      ? "var(--color-error-600)"
                       : exam.patientType === "住院"
-                        ? "#2563eb"
+                        ? "var(--color-primary-600)"
                         : "#64748b",
                   borderRadius: 6,
                   fontSize: 12,
@@ -769,7 +769,7 @@ export function ExamDetailView({
                 style={{
                   fontSize: 12,
                   fontWeight: 600,
-                  color: "#1e40af",
+                  color: "var(--color-primary-800)",
                   marginBottom: 12,
                   display: "flex",
                   alignItems: "center",
@@ -829,7 +829,7 @@ export function ExamDetailView({
                 style={{
                   fontSize: 12,
                   fontWeight: 600,
-                  color: "#1e40af",
+                  color: "var(--color-primary-800)",
                   marginBottom: 12,
                   display: "flex",
                   alignItems: "center",
@@ -887,7 +887,7 @@ export function ExamDetailView({
                 style={{
                   fontSize: 12,
                   fontWeight: 600,
-                  color: "#1e40af",
+                  color: "var(--color-primary-800)",
                   marginBottom: 12,
                   display: "flex",
                   alignItems: "center",
@@ -908,7 +908,7 @@ export function ExamDetailView({
                       <span
                         style={{
                           padding: "2px 10px", borderRadius: 999, fontSize: 12, fontWeight: 600,
-                          background: "#2563eb22", color: "#2563eb",
+                          background: "#2563eb22", color: "var(--color-primary-600)",
                         }}
                         data-testid="tech-primary-tag"
                       >
@@ -939,7 +939,7 @@ export function ExamDetailView({
                       onClick={() => { setTechEditorMode("assign"); setTechEditorOpen(true) }}
                       style={{
                         padding: "4px 12px", borderRadius: 6, border: "none", cursor: "pointer",
-                        fontSize: 12, fontWeight: 600, background: "#2563eb", color: "#fff",
+                        fontSize: 12, fontWeight: 600, background: "var(--color-primary-600)", color: "#fff",
                         display: "flex", alignItems: "center", gap: 4,
                       }}
                       data-testid="tech-assign-btn"
@@ -949,8 +949,8 @@ export function ExamDetailView({
                     <button
                       onClick={() => { setTechEditorMode("handover"); setTechEditorOpen(true) }}
                       style={{
-                        padding: "4px 12px", borderRadius: 6, border: "1px solid #d97706", cursor: "pointer",
-                        fontSize: 12, fontWeight: 600, background: "#f59e0b18", color: "#d97706",
+                        padding: "4px 12px", borderRadius: 6, border: "1px solid var(--color-warning-600)", cursor: "pointer",
+                        fontSize: 12, fontWeight: 600, background: "#f59e0b18", color: "var(--color-warning-600)",
                         display: "flex", alignItems: "center", gap: 4,
                       }}
                       data-testid="tech-handover-btn"
@@ -968,7 +968,7 @@ export function ExamDetailView({
                 style={{
                   fontSize: 12,
                   fontWeight: 600,
-                  color: "#1e40af",
+                  color: "var(--color-primary-800)",
                   marginBottom: 12,
                   display: "flex",
                   alignItems: "center",
@@ -984,7 +984,7 @@ export function ExamDetailView({
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
                   <div>
                     <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4 }}>
-                      DLP (mGy·cm) {exam.modality === "CT" && <span style={{ color: "#dc2626" }}>*</span>}
+                      DLP (mGy·cm) {exam.modality === "CT" && <span style={{ color: "var(--color-error-600)" }}>*</span>}
                     </div>
                     <InputNumber
                       style={{ width: "100%" }} min={0} max={100000}
@@ -995,7 +995,7 @@ export function ExamDetailView({
                   </div>
                   <div>
                     <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4 }}>
-                      CTDIvol (mGy) {exam.modality === "CT" && <span style={{ color: "#dc2626" }}>*</span>}
+                      CTDIvol (mGy) {exam.modality === "CT" && <span style={{ color: "var(--color-error-600)" }}>*</span>}
                     </div>
                     <InputNumber
                       style={{ width: "100%" }} min={0} max={10000}
@@ -1036,7 +1036,7 @@ export function ExamDetailView({
                 style={{
                   fontSize: 12,
                   fontWeight: 600,
-                  color: "#1e40af",
+                  color: "var(--color-primary-800)",
                   marginBottom: 12,
                   display: "flex",
                   alignItems: "center",
@@ -1095,7 +1095,7 @@ export function ExamDetailView({
                     disabled={notesSaving}
                     style={{
                       padding: "6px 16px", borderRadius: 6, border: "none", cursor: "pointer",
-                      fontSize: 12, fontWeight: 600, background: "#1e40af", color: "#fff",
+                      fontSize: 12, fontWeight: 600, background: "var(--color-primary-800)", color: "#fff",
                       display: "flex", alignItems: "center", gap: 4,
                     }}
                     data-testid="tech-notes-save-btn"
@@ -1114,7 +1114,7 @@ export function ExamDetailView({
               style={{
                 fontSize: 12,
                 fontWeight: 600,
-                color: "#1e40af",
+                color: "var(--color-primary-800)",
                 marginBottom: 12,
                 display: "flex",
                 alignItems: "center",
@@ -1146,7 +1146,7 @@ export function ExamDetailView({
               >
                 <Image size={32} style={{ color: "var(--text-secondary)" }} />
               </div>
-              <div style={{ fontSize: 24, fontWeight: 800, color: "#1e40af" }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: "var(--color-primary-800)" }}>
                 {exam.imagesAcquired}
               </div>
               <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
@@ -1175,7 +1175,7 @@ export function ExamDetailView({
               style={{
                 fontSize: 12,
                 fontWeight: 600,
-                color: "#1e40af",
+                color: "var(--color-primary-800)",
                 marginBottom: 12,
                 display: "flex",
                 alignItems: "center",
@@ -1195,7 +1195,7 @@ export function ExamDetailView({
                 {t("examDetail.loadingHistory")}
               </div>
             ) : historyError ? (
-              <div style={{ background: "var(--color-error-bg)", borderRadius: 10, padding: 40, textAlign: "center", color: "#dc2626", fontSize: 12 }}>
+              <div style={{ background: "var(--color-error-bg)", borderRadius: 10, padding: 40, textAlign: "center", color: "var(--color-error-600)", fontSize: 12 }}>
                 {historyError}
               </div>
             ) : historyExams.length > 0 ? (
@@ -1288,7 +1288,7 @@ export function ExamDetailView({
               style={{
                 fontSize: 12,
                 fontWeight: 600,
-                color: "#1e40af",
+                color: "var(--color-primary-800)",
                 marginBottom: 12,
                 display: "flex",
                 alignItems: "center",
@@ -1355,7 +1355,7 @@ export function ExamDetailView({
                         width: 24,
                         height: 24,
                         borderRadius: "50%",
-                        background: "#1e40af",
+                        background: "var(--color-primary-800)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -1416,7 +1416,7 @@ export function ExamDetailView({
               style={{
                 fontSize: 12,
                 fontWeight: 600,
-                color: "#1e40af",
+                color: "var(--color-primary-800)",
                 marginBottom: 12,
                 display: "flex",
                 alignItems: "center",
@@ -1459,7 +1459,7 @@ export function ExamDetailView({
                     borderRadius: 10,
                     padding: 40,
                     textAlign: "center",
-                    color: "#dc2626",
+                    color: "var(--color-error-600)",
                   }}
                 >
                   <div style={{ fontSize: 12 }}>{timelineError}</div>
@@ -1494,7 +1494,7 @@ export function ExamDetailView({
                           width: 24,
                           height: 24,
                           borderRadius: "50%",
-                          background: idx === timelineEvents.length - 1 ? "#059669" : "#1e40af",
+                          background: idx === timelineEvents.length - 1 ? "#059669" : "var(--color-primary-800)",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -1566,7 +1566,7 @@ export function ExamDetailView({
         }}
       >
         {/* [G005 Wave1A W9] 状态流转: worklistApi (POST /worklist/:id/checkin|start|complete|cancel) */}
-        <div style={{ fontSize: 12, fontWeight: 600, color: "#1e40af", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: "var(--color-primary-800)", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
           <ArrowLeftRight size={12} /> {t("examDetail.statusFlow")}
         </div>
         <div
@@ -1649,7 +1649,7 @@ export function ExamDetailView({
               borderRadius: 8,
               fontSize: 12,
               fontWeight: 600,
-              color: ["SCHEDULED", "ARRIVED", "IN_PROGRESS", "PAUSED"].includes(normalizeExamStatus(exam.status)) ? "#dc2626" : "#94a3b8",
+              color: ["SCHEDULED", "ARRIVED", "IN_PROGRESS", "PAUSED"].includes(normalizeExamStatus(exam.status)) ? "var(--color-error-600)" : "#94a3b8",
               cursor: ["SCHEDULED", "ARRIVED", "IN_PROGRESS", "PAUSED"].includes(normalizeExamStatus(exam.status)) ? "pointer" : "not-allowed",
               display: "flex",
               alignItems: "center",
@@ -1671,7 +1671,7 @@ export function ExamDetailView({
               borderRadius: 8,
               fontSize: 12,
               fontWeight: 600,
-              color: normalizeExamStatus(exam.status) === "IN_PROGRESS" ? "#d97706" : "#94a3b8",
+              color: normalizeExamStatus(exam.status) === "IN_PROGRESS" ? "var(--color-warning-600)" : "#94a3b8",
               cursor: normalizeExamStatus(exam.status) === "IN_PROGRESS" ? "pointer" : "not-allowed",
               display: "flex",
               alignItems: "center",
@@ -1693,7 +1693,7 @@ export function ExamDetailView({
               borderRadius: 8,
               fontSize: 12,
               fontWeight: 600,
-              color: normalizeExamStatus(exam.status) === "PAUSED" ? "#16a34a" : "#94a3b8",
+              color: normalizeExamStatus(exam.status) === "PAUSED" ? "var(--color-success-600)" : "#94a3b8",
               cursor: normalizeExamStatus(exam.status) === "PAUSED" ? "pointer" : "not-allowed",
               display: "flex",
               alignItems: "center",
@@ -1708,7 +1708,7 @@ export function ExamDetailView({
         {/* [v3.0.6.11-104 Wave 3D] QC_REJECT → 重拍申请/审批 (未审批不得流转 IN_PROGRESS) */}
         {normalizeExamStatus(exam.status) === "QC_REJECT" && (
           retakeStatus === "pending" ? (
-            <div style={{ marginTop: 10, width: "100%", padding: "10px 16px", background: "#f59e0b18", border: "1px solid #f59e0b40", borderRadius: 8, fontSize: 12, fontWeight: 600, color: "#d97706", textAlign: "center" }}>
+            <div style={{ marginTop: 10, width: "100%", padding: "10px 16px", background: "#f59e0b18", border: "1px solid #f59e0b40", borderRadius: 8, fontSize: 12, fontWeight: 600, color: "var(--color-warning-600)", textAlign: "center" }}>
               {t("examDetail.retakeRequestPending")}
             </div>
           ) : retakeStatus === "approved" ? (
@@ -1723,7 +1723,7 @@ export function ExamDetailView({
                 setStatusBusy(null)
               })()}
               disabled={statusBusy !== null}
-              style={{ marginTop: 10, width: "100%", padding: "10px 16px", background: "#16a34a", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 600, color: "#fff", cursor: statusBusy !== null ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+              style={{ marginTop: 10, width: "100%", padding: "10px 16px", background: "var(--color-success-600)", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 600, color: "#fff", cursor: statusBusy !== null ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
             >
               <RefreshCw size={12} />
               {t("examDetail.executeRetake")}
@@ -1736,7 +1736,7 @@ export function ExamDetailView({
                 marginTop: 10,
                 width: "100%",
                 padding: "10px 16px",
-                background: "#dc2626",
+                background: "var(--color-error-600)",
                 border: "none",
                 borderRadius: 8,
                 fontSize: 12,
@@ -1850,7 +1850,7 @@ export function ExamDetailView({
           onClick={() => onWriteReport?.(exam)}
           style={{
             padding: "10px 16px",
-            background: normalizeExamStatus(exam.status) === "COMPLETED" ? "#1e40af" : "#e2e8f0",
+            background: normalizeExamStatus(exam.status) === "COMPLETED" ? "var(--color-primary-800)" : "#e2e8f0",
             border: "none",
             borderRadius: 8,
             fontSize: 12,
@@ -1895,7 +1895,7 @@ export function ExamDetailView({
             borderRadius: 8,
             fontSize: 12,
             fontWeight: 600,
-            color: "#dc2626",
+            color: "var(--color-error-600)",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",

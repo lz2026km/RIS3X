@@ -1,6 +1,6 @@
 // G005 放射科RIS - 叫号管理页面
 // 检查室状态面板 + 叫号队列列表 + 呼叫/重呼/完成按钮 + 统计面板
-// 深蓝主色 #1e40af
+// 深蓝主色 var(--color-primary-800)
 
 import { Card } from 'antd'
 import { useState, useEffect, useCallback } from 'react'
@@ -55,12 +55,12 @@ interface ExamRoomStatus {
 // ============================================================
 // 样式常量
 // ============================================================
-const PRIMARY = '#1e40af'
-const PRIMARY_LIGHT = '#3b82f6'
+const PRIMARY = 'var(--color-primary-800)'
+const PRIMARY_LIGHT = 'var(--color-primary-500)'
 const PRIMARY_DARK = '#1e3a8a'
-const ACCENT_GREEN = '#22c55e'
-const ACCENT_YELLOW = '#f59e0b'
-const ACCENT_RED = '#ef4444'
+const ACCENT_GREEN = 'var(--color-success-500)'
+const ACCENT_YELLOW = 'var(--color-warning-500)'
+const ACCENT_RED = 'var(--color-error-500)'
 const ACCENT_ORANGE = '#f97316'
 const BG_LIGHT = 'var(--bg-card)'
 const BG_CARD = '#ffffff'
@@ -521,10 +521,10 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 12,
     fontWeight: 600,
   },
-  typeEmergency: { background: 'var(--color-error-bg)', color: '#dc2626' },
-  typeInpatient: { background: 'var(--color-info-bg)', color: '#2563eb' },
-  typeOutpatient: { background: 'var(--color-success-bg)', color: '#16a34a' },
-  typeCheckup: { background: 'var(--color-warning-bg)', color: '#d97706' },
+  typeEmergency: { background: 'var(--color-error-bg)', color: 'var(--color-error-600)' },
+  typeInpatient: { background: 'var(--color-info-bg)', color: 'var(--color-primary-600)' },
+  typeOutpatient: { background: 'var(--color-success-bg)', color: 'var(--color-success-600)' },
+  typeCheckup: { background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)' },
 
   // 状态标签
   statusBadge: {
@@ -534,9 +534,9 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
   },
   statusWaiting: { background: 'var(--border-color)', color: 'var(--text-secondary)' },
-  statusCalled: { background: 'var(--color-info-bg)', color: '#2563eb' },
-  statusExamining: { background: 'var(--color-warning-bg)', color: '#d97706' },
-  statusDone: { background: 'var(--color-success-bg)', color: '#16a34a' },
+  statusCalled: { background: 'var(--color-info-bg)', color: 'var(--color-primary-600)' },
+  statusExamining: { background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)' },
+  statusDone: { background: 'var(--color-success-bg)', color: 'var(--color-success-600)' },
   statusSkipped: { background: '#8b5cf622', color: '#7c3aed' },
 
   // 工具栏

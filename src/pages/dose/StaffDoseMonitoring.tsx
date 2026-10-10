@@ -18,7 +18,7 @@ import { LoadingBanner, ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
 import ChartContainer from "../../components/charts/ChartContainer";
 
-const STAFF_COLORS = ["#3b82f6", "#8b5cf6", "#ef4444", "#10b981", "#f59e0b", "#6366f1"];
+const STAFF_COLORS = ["var(--color-primary-500)", "#8b5cf6", "var(--color-error-500)", "#10b981", "var(--color-warning-500)", "#6366f1"];
 
 // [G005 W8-Dose] 工作人员剂量: 优先取 /rdsr/staff, 端点不可用/返回空时回退内置演示数据。
 export default function StaffDoseMonitoring() {
@@ -73,7 +73,7 @@ export default function StaffDoseMonitoring() {
         style={{
           padding: "8px 12px",
           background: "#fef3c7",
-          color: "#d97706",
+          color: "var(--color-warning-600)",
           borderRadius: 8,
           fontSize: 12,
           display: "flex",
@@ -93,7 +93,7 @@ export default function StaffDoseMonitoring() {
       >
         <div style={kpiBox}>
           <div style={{ fontSize: 12, color: "#64748b" }}>监测人数</div>
-          <div style={kpiVal("#1e40af")}>{records.length}</div>
+          <div style={kpiVal("var(--color-primary-800)")}>{records.length}</div>
         </div>
         <div style={kpiBox}>
           <div style={{ fontSize: 12, color: "#64748b" }}>最高年剂量</div>
@@ -101,8 +101,8 @@ export default function StaffDoseMonitoring() {
             style={kpiVal(
               Math.max(...records.map((s: StaffDoseRecord) => s.annualDose)) >
                 10
-                ? "#dc2626"
-                : "#1e40af",
+                ? "var(--color-error-600)"
+                : "var(--color-primary-800)",
             )}
           >
             {Math.max(...records.map((s: StaffDoseRecord) => s.annualDose))}
@@ -111,7 +111,7 @@ export default function StaffDoseMonitoring() {
         </div>
         <div style={kpiBox}>
           <div style={{ fontSize: 12, color: "#64748b" }}>平均合规率</div>
-          <div style={kpiVal("#16a34a")}>
+          <div style={kpiVal("var(--color-success-600)")}>
             {Math.round(
               records.reduce(
                 (s: number, r: StaffDoseRecord) => s + r.complianceRate,
@@ -128,8 +128,8 @@ export default function StaffDoseMonitoring() {
               records.filter(
                 (s: StaffDoseRecord) => s.complianceRate < 60,
               ).length > 0
-                ? "#dc2626"
-                : "#16a34a",
+                ? "var(--color-error-600)"
+                : "var(--color-success-600)",
             )}
           >
             {records.filter(
@@ -151,7 +151,7 @@ export default function StaffDoseMonitoring() {
           style={{
             fontSize: 12,
             fontWeight: 700,
-            color: "#1e40af",
+            color: "var(--color-primary-800)",
             marginBottom: 16,
           }}
         >
@@ -166,13 +166,13 @@ export default function StaffDoseMonitoring() {
             <Legend iconSize={10} wrapperStyle={{ fontSize: 12 }} />
             <ReferenceLine
               y={0.5}
-              stroke="#d97706"
+              stroke="var(--color-warning-600)"
               strokeDasharray="3 3"
               label={{
                 value: "关注线",
                 position: "right",
                 fontSize: 12,
-                fill: "#d97706",
+                fill: "var(--color-warning-600)",
               }}
             />
             {records.map((s: StaffDoseRecord, idx: number) => (
@@ -199,7 +199,7 @@ export default function StaffDoseMonitoring() {
           style={{
             fontSize: 12,
             fontWeight: 700,
-            color: "#1e40af",
+            color: "var(--color-primary-800)",
             marginBottom: 16,
           }}
         >
@@ -213,13 +213,13 @@ export default function StaffDoseMonitoring() {
             showExport={false}
             showDensity={false}
             columns={[
-              { title: "姓名", dataIndex: "staffName", key: "staffName", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "#1e40af" }}>{v}</span> },
+              { title: "姓名", dataIndex: "staffName", key: "staffName", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{v}</span> },
               { title: "科室", dataIndex: "department", key: "department", align: "center", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
               { title: "岗位", dataIndex: "role", key: "role", align: "center", render: (v: string) => <span style={{ color: "#64748b" }}>{v}</span> },
-              { title: "本月剂量(mSv)", dataIndex: "monthlyDose", key: "monthlyDose", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "#1e40af" }}>{v}</span> },
+              { title: "本月剂量(mSv)", dataIndex: "monthlyDose", key: "monthlyDose", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "var(--color-primary-800)" }}>{v}</span> },
               {
                 title: "年累计(mSv)", dataIndex: "annualDose", key: "annualDose", align: "center",
-                render: (v: number) => <span style={{ color: v > 15 ? "#dc2626" : "#334155", fontWeight: 600 }}>{v}</span>,
+                render: (v: number) => <span style={{ color: v > 15 ? "var(--color-error-600)" : "#334155", fontWeight: 600 }}>{v}</span>,
               },
               { title: "年限值(mSv)", dataIndex: "annualLimit", key: "annualLimit", align: "center", render: (v: number) => <span style={{ color: "#64748b" }}>{v}</span> },
               {
@@ -227,7 +227,7 @@ export default function StaffDoseMonitoring() {
                 render: (v: number) => {
                   const isHighRisk = v < 60;
                   const badgeBg = isHighRisk ? "#fef2f2" : v < 80 ? "#fffbeb" : "#f0fdf4";
-                  const badgeColor = isHighRisk ? "#dc2626" : v < 80 ? "#d97706" : "#16a34a";
+                  const badgeColor = isHighRisk ? "var(--color-error-600)" : v < 80 ? "var(--color-warning-600)" : "var(--color-success-600)";
                   return (
                     <div style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 8px", background: badgeBg, color: badgeColor, borderRadius: 4, fontSize: 12, fontWeight: 700 }}>
                       {v}%
@@ -240,7 +240,7 @@ export default function StaffDoseMonitoring() {
                 render: (v: number) => {
                   const isHighRisk = v < 60;
                   return (
-                    <span style={{ padding: "2px 8px", background: isHighRisk ? "#fef2f2" : "#f0fdf4", color: isHighRisk ? "#dc2626" : "#16a34a", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>
+                    <span style={{ padding: "2px 8px", background: isHighRisk ? "#fef2f2" : "#f0fdf4", color: isHighRisk ? "var(--color-error-600)" : "var(--color-success-600)", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>
                       {isHighRisk ? "高风险" : "正常"}
                     </span>
                   );

@@ -16,12 +16,12 @@ interface ViewState { zoom: number; panX: number; panY: number }
 interface RoiPoint { x: number; y: number }
 interface RoiAnnotation { id: string; tool: RoiTool; points: RoiPoint[]; color: string }
 
-const BLUE = '#3b82f6'
-const GREEN = '#22c55e'
+const BLUE = 'var(--color-primary-500)'
+const GREEN = 'var(--color-success-500)'
 const CARD_BG = '#0f172a'
 const PANEL_BG = '#1e293b'
 
-const ROI_COLORS = ['#facc15', '#ef4444', '#22c55e', '#3b82f6', '#a855f7']
+const ROI_COLORS = ['#facc15', 'var(--color-error-500)', 'var(--color-success-500)', 'var(--color-primary-500)', '#a855f7']
 
 function generateFallbackSlice(_plane: ViewPlane, slice: number, modality: 'ct' | 'pet' | 'mr' | 'dwi'): number[][] {
   const size = 256
@@ -582,7 +582,7 @@ export default function FusionV2Page() {
           ))}
         </div>
 
-        <button style={registering ? greenBtnStyle : registerDone ? { ...btnStyle, background: '#22c55e', borderColor: '#22c55e', color: '#fff' } : btnStyle} onClick={handleRegister} disabled={registering}>
+        <button style={registering ? greenBtnStyle : registerDone ? { ...btnStyle, background: 'var(--color-success-500)', borderColor: 'var(--color-success-500)', color: '#fff' } : btnStyle} onClick={handleRegister} disabled={registering}>
           {registering ? t('fusion.registerRunning') : registerDone ? t('fusion.registerDone') : t('fusion.register')}
         </button>
 
@@ -715,8 +715,8 @@ export default function FusionV2Page() {
               <>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginBottom: 8 }}>
                   {[
-                    { label: 'Dice', value: registration.metrics.dice, color: '#22c55e' },
-                    { label: 'HD95(mm)', value: registration.metrics.hd95, color: '#3b82f6' },
+                    { label: 'Dice', value: registration.metrics.dice, color: 'var(--color-success-500)' },
+                    { label: 'HD95(mm)', value: registration.metrics.hd95, color: 'var(--color-primary-500)' },
                     { label: 'RMSE', value: registration.metrics.rmse, color: '#facc15' },
                   ].map(m => (
                     <div key={m.label} style={{ background: '#0f172a', borderRadius: 4, padding: '6px 4px', textAlign: 'center' }}>

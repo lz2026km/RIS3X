@@ -78,7 +78,7 @@ export function CostFilter({ activeTab, onTabChange, timeRange, onTimeRangeChang
             style={{
               padding: '10px 16px',
               border: 'none',
-              borderBottom: activeTab === tab.key ? '2px solid #3b82f6' : '2px solid transparent',
+              borderBottom: activeTab === tab.key ? '2px solid var(--color-primary-500)' : '2px solid transparent',
               background: 'transparent',
               color: activeTab === tab.key ? 'var(--text-primary, #f0f6fc)' : 'var(--text-muted, #8b949e)',
               fontSize: 12,

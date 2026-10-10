@@ -155,7 +155,7 @@ export default function DoctorWorkloadPage() {
   const selected = doctors.find(d => d.doctorId === selectedDoctorId);
 
   if (loading) return <div role="status" data-testid="workload-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('dw2.loading')}</div>;
-  if (error) return <div role="alert" data-testid="workload-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
+  if (error) return <div role="alert" data-testid="workload-error" style={{ padding: 40, textAlign: 'center', color: 'var(--color-error-600)' }}>{error}</div>;
   if (doctors.length === 0) {
     return (
       <div data-testid="workload-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
@@ -209,13 +209,13 @@ export default function DoctorWorkloadPage() {
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Users size={20} color="#7c3aed" /> {t('dw2.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
-            <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, fontWeight: 600, background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: source === 'api' ? '#16a34a' : '#d97706' }}>
+            <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, fontWeight: 600, background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: source === 'api' ? 'var(--color-success-600)' : 'var(--color-warning-600)' }}>
               {source === 'api' ? t('dw2.sourceApi') : t('dw2.sourceDemo')}
             </span>
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('dw2.subtitle')}
-            {error && <span style={{ color: '#dc2626', marginLeft: 8 }}>{error}</span>}
+            {error && <span style={{ color: 'var(--color-error-600)', marginLeft: 8 }}>{error}</span>}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 4, background: 'var(--bg-card)', borderRadius: 6, padding: 3, border: '1px solid var(--border-color)' }}>
@@ -245,10 +245,10 @@ export default function DoctorWorkloadPage() {
       {/* 团队 KPI */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 16 }}>
         <Kpi icon={Users} label={t('dw2.kpiDoctors')} value={doctors.length} color="#7c3aed" />
-        <Kpi icon={FileText} label={t('dw2.kpiMonthlyReports')} value={doctors.reduce((s, d) => s + d.totalReports, 0)} color="#3b82f6" />
+        <Kpi icon={FileText} label={t('dw2.kpiMonthlyReports')} value={doctors.reduce((s, d) => s + d.totalReports, 0)} color="var(--color-primary-500)" />
         <Kpi icon={Award} label={t('dw2.kpiAvgQuality')} value={(doctors.reduce((s, d) => s + d.qualityScore, 0) / doctors.length).toFixed(1)} color="#10b981" />
-        <Kpi icon={AlertCircle} label={t('dw2.kpiCritical')} value={doctors.reduce((s, d) => s + d.criticalValueHandled, 0)} color="#dc2626" />
-        <Kpi icon={Stethoscope} label={t('dw2.kpiConsulting')} value={`${doctors.reduce((s, d) => s + d.consultingHours, 0)}h`} color="#0891b2" />
+        <Kpi icon={AlertCircle} label={t('dw2.kpiCritical')} value={doctors.reduce((s, d) => s + d.criticalValueHandled, 0)} color="var(--color-error-600)" />
+        <Kpi icon={Stethoscope} label={t('dw2.kpiConsulting')} value={`${doctors.reduce((s, d) => s + d.consultingHours, 0)}h`} color="var(--color-info-600)" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '480px 1fr', gap: 12 }}>
@@ -277,7 +277,7 @@ export default function DoctorWorkloadPage() {
           {/* [v3.0.6.11-92] W2-B P2: 合计行 (报告数 + RVU); [v3.0.6.11-99] + 总奖金 */}
           <div style={{ padding: 10, borderTop: '2px solid var(--border-color)', background: 'var(--bg-card)', fontSize: 12, display: 'flex', gap: 16, color: 'var(--text-secondary)' }}>
             <span><strong style={{ color: 'var(--text-primary)' }}>{t('dw2.total')}</strong> · {filtered.length} {t('dw2.unitPeople')}</span>
-            <span>{t('dw2.reportLabel')} <strong style={{ color: '#1e40af' }}>{doctors.reduce((s, d) => s + d.totalReports, 0)}</strong> {t('dw2.unitReports')}</span>
+            <span>{t('dw2.reportLabel')} <strong style={{ color: 'var(--color-primary-800)' }}>{doctors.reduce((s, d) => s + d.totalReports, 0)}</strong> {t('dw2.unitReports')}</span>
             <span>RVU <strong style={{ color: '#b45309' }}>{totalRvu}</strong></span>
             <span>{t('dw2.totalBonus')} <strong style={{ color: '#059669' }}>¥{totalBonus.toLocaleString()}</strong></span>
           </div>
@@ -308,9 +308,9 @@ export default function DoctorWorkloadPage() {
 
             {/* 4 维度 KPI */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
-              <BigKpi icon={FileText} label={t('dw2.reportCount')} value={selected.totalReports} sub={t('dw2.unitReports')} color="#3b82f6" />
+              <BigKpi icon={FileText} label={t('dw2.reportCount')} value={selected.totalReports} sub={t('dw2.unitReports')} color="var(--color-primary-500)" />
               <BigKpi icon={Clock} label={t('dw2.dailyAvg')} value={selected.avgPerDay} sub={t('dw2.unitPerDay')} color="#7c3aed" />
-              <BigKpi icon={Clock} label={t('dw2.avgSign')} value={selected.avgSignTime} sub={t('dw2.unitMinutes')} color="#f59e0b" />
+              <BigKpi icon={Clock} label={t('dw2.avgSign')} value={selected.avgSignTime} sub={t('dw2.unitMinutes')} color="var(--color-warning-500)" />
               <BigKpi icon={Award} label={t('dw2.qualityScore')} value={selected.qualityScore} sub="0-100" color="#10b981" />
             </div>
 
@@ -333,21 +333,21 @@ export default function DoctorWorkloadPage() {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
               <BigKpi icon={Target} label={t('dw2.approvalRate')} value={`${selected.approvedRate}%`} sub={t('dw2.subApproved')} color="#10b981" />
-              <BigKpi icon={AlertCircle} label={t('dw2.rejectRate')} value={`${selected.rejectRate}%`} sub={t('dw2.subRejected')} color="#dc2626" />
+              <BigKpi icon={AlertCircle} label={t('dw2.rejectRate')} value={`${selected.rejectRate}%`} sub={t('dw2.subRejected')} color="var(--color-error-600)" />
               <BigKpi icon={AlertCircle} label={t('dw2.criticalValue')} value={selected.criticalValueHandled} sub={t('dw2.subThisMonth')} color="#7f1d1d" />
-              <BigKpi icon={Stethoscope} label={t('dw2.consulting')} value={`${selected.consultingHours}h`} sub={t('dw2.subConsultingDuration')} color="#0891b2" />
+              <BigKpi icon={Stethoscope} label={t('dw2.consulting')} value={`${selected.consultingHours}h`} sub={t('dw2.subConsultingDuration')} color="var(--color-info-600)" />
             </div>
 
             {/* 设备分布 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Database size={13} /> {t('dw2.modalityDist')}
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
                 {Object.entries(selected.byModality).map(([mod, count]) => {
                   const total = Object.values(selected.byModality).reduce((a, b) => a + b, 0);
                   const pct = (count / total) * 100;
-                  const colors: Record<string, string> = { CT: '#3b82f6', MR: '#7c3aed', DR: '#0891b2', US: '#10b981', MG: '#ec4899' };
+                  const colors: Record<string, string> = { CT: 'var(--color-primary-500)', MR: '#7c3aed', DR: 'var(--color-info-600)', US: '#10b981', MG: '#ec4899' };
                   return (
                     <div key={mod} style={{ textAlign: 'center' }}>
                       <div style={{ fontSize: 12, color: colors[mod], fontWeight: 600 }}>{mod}</div>

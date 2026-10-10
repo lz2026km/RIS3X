@@ -10,7 +10,7 @@ type FusionMode = 'pet-ct' | 'mr-dwi'
 interface WWWL { ww: number; wl: number }
 interface ViewState { zoom: number; panX: number; panY: number }
 
-const BLUE = '#3b82f6'
+const BLUE = 'var(--color-primary-500)'
 const CARD_BG = '#0f172a'
 const PANEL_BG = '#1e293b'
 
@@ -667,7 +667,7 @@ export default function FusionPage() {
               ) : !suvResult?.hasPet ? (
                 <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#64748b22', color: '#94a3b8', border: '1px solid #64748b55' }}>{t('fusionPage.noPetModal')}</span>
               ) : suvResult.source === 'exam' && !suvFallback ? (
-                <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#16a34a22', color: '#16a34a', border: '1px solid #16a34a55' }}>{t('fusionPage.realData')}</span>
+                <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#16a34a22', color: 'var(--color-success-600)', border: '1px solid #16a34a55' }}>{t('fusionPage.realData')}</span>
               ) : (
                 <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#ea580c22', color: '#ea580c', border: '1px solid #ea580c55' }}>{t('fusionPage.demoFallback')}</span>
               )}
@@ -697,7 +697,7 @@ export default function FusionPage() {
                   {suvResult.suv.normalization.formula}
                   <div>{t('fusionPage.suvParams', { weight: suvResult.suv.normalization.weightKg, dose: suvResult.suv.normalization.injectedDoseMbg, scan: suvResult.suv.normalization.injectionToScanMin })}</div>
                   {/* [G005 Wave3A G-06] 换算参数来源标注: 真实接口回包即检查数据派生, 本地回退为默认值 */}
-                  <div style={{ marginTop: 2, color: suvResult.source === 'exam' && !suvFallback ? '#16a34a' : '#ea580c' }}>
+                  <div style={{ marginTop: 2, color: suvResult.source === 'exam' && !suvFallback ? 'var(--color-success-600)' : '#ea580c' }}>
                     {t('fusionPage.paramSource')} {suvResult.source === 'exam' && !suvFallback ? t('fusionPage.examDerived') : t('fusionPage.defaultFallback')}
                   </div>
                 </div>

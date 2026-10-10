@@ -359,7 +359,7 @@ describe('CollaborativeReportEditor', () => {
     render(
       <Editor
         reportId="test-report-1"
-        user={{ id: 'u1', name: 'Dr. Test', role: 'doctor', color: '#3b82f6' }}
+        user={{ id: 'u1', name: 'Dr. Test', role: 'doctor', color: 'var(--color-primary-500)' }}
       />,
     );
     expect(screen.getByTestId('collab-editor')).toBeTruthy();
@@ -387,7 +387,7 @@ describe('CollaborativeReportEditor', () => {
     render(
       <Editor
         reportId="test-report-3"
-        user={{ id: 'u3', name: 'Dr. Y', role: 'resident', color: '#f59e0b' }}
+        user={{ id: 'u3', name: 'Dr. Y', role: 'resident', color: 'var(--color-warning-500)' }}
         initialText="hello"
       />,
     );

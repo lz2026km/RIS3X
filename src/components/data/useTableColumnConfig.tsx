@@ -314,7 +314,7 @@ export function useTableColumnConfig<T extends ColumnLike>(
 
       <div style={{ borderTop: "1px solid var(--border-subtle, rgba(0,0,0,0.08))", marginTop: 10, paddingTop: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-          <Bookmark size={13} style={{ color: "var(--color-primary-600, #2563eb)" }} />
+          <Bookmark size={13} style={{ color: "var(--color-primary-600, var(--color-primary-600))" }} />
           <span style={{ fontWeight: 700, fontSize: 12 }}>{t("w14Ux.views.title")}</span>
         </div>
         <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
@@ -358,7 +358,7 @@ export function useTableColumnConfig<T extends ColumnLike>(
                         type="button"
                         aria-label={`${t("w14Ux.views.delete")}: ${v.name}`}
                         onClick={() => removeView(v.id)}
-                        style={{ border: "none", background: "none", cursor: "pointer", color: "var(--color-error, #dc2626)", display: "flex" }}
+                        style={{ border: "none", background: "none", cursor: "pointer", color: "var(--color-error, var(--color-error-600))", display: "flex" }}
                       >
                         <Trash2 size={12} />
                       </button>
@@ -378,7 +378,7 @@ export function useTableColumnConfig<T extends ColumnLike>(
       <Button size="small" icon={<Columns3 size={13} />} data-testid="column-config-button">
         {t("w14Ux.columns.configure")}
         {hiddenCount > 0 && (
-          <span style={{ color: "var(--color-warning-600, #d97706)", marginLeft: 4 }}>
+          <span style={{ color: "var(--color-warning-600, var(--color-warning-600))", marginLeft: 4 }}>
             ({hiddenCount})
           </span>
         )}

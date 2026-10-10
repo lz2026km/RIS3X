@@ -112,7 +112,7 @@ export default function DoseTrendAnalysis() {
             style={{
               fontSize: 12,
               fontWeight: 700,
-              color: "#1e40af",
+              color: "var(--color-primary-800)",
               marginBottom: 8,
             }}
           >
@@ -121,19 +121,19 @@ export default function DoseTrendAnalysis() {
           <div style={{ fontSize: 12, color: "#64748b" }}>
             <div>
               CT平均DLP:{" "}
-              <span style={{ fontWeight: 600, color: "#1e40af" }}>
+              <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>
                 {payload[0]?.value} mGy·cm
               </span>
             </div>
             <div>
               胸部CT:{" "}
-              <span style={{ fontWeight: 600, color: "#dc2626" }}>
+              <span style={{ fontWeight: 600, color: "var(--color-error-600)" }}>
                 {payload[1]?.value} mGy·cm
               </span>
             </div>
             <div>
               腹部CT:{" "}
-              <span style={{ fontWeight: 600, color: "#d97706" }}>
+              <span style={{ fontWeight: 600, color: "var(--color-warning-600)" }}>
                 {payload[2]?.value} mGy·cm
               </span>
             </div>
@@ -165,7 +165,7 @@ export default function DoseTrendAnalysis() {
           }}
         >
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>
               每月CT剂量平均值趋势
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
@@ -178,7 +178,7 @@ export default function DoseTrendAnalysis() {
                 style={{
                   width: 10,
                   height: 3,
-                  background: "#1e40af",
+                  background: "var(--color-primary-800)",
                   borderRadius: 2,
                 }}
               />
@@ -189,7 +189,7 @@ export default function DoseTrendAnalysis() {
                 style={{
                   width: 10,
                   height: 3,
-                  background: "#dc2626",
+                  background: "var(--color-error-600)",
                   borderRadius: 2,
                 }}
               />
@@ -200,7 +200,7 @@ export default function DoseTrendAnalysis() {
                 style={{
                   width: 10,
                   height: 3,
-                  background: "#d97706",
+                  background: "var(--color-warning-600)",
                   borderRadius: 2,
                 }}
               />
@@ -220,36 +220,36 @@ export default function DoseTrendAnalysis() {
             <Line
               type="monotone"
               dataKey="ctAvgDLP"
-              stroke="#1e40af"
+              stroke="var(--color-primary-800)"
               strokeWidth={2}
-              dot={{ fill: "#1e40af", strokeWidth: 2, r: 3 }}
+              dot={{ fill: "var(--color-primary-800)", strokeWidth: 2, r: 3 }}
               name="CT平均DLP"
             />
             <Line
               type="monotone"
               dataKey="chestCTAvgDLP"
-              stroke="#dc2626"
+              stroke="var(--color-error-600)"
               strokeWidth={2}
-              dot={{ fill: "#dc2626", strokeWidth: 2, r: 3 }}
+              dot={{ fill: "var(--color-error-600)", strokeWidth: 2, r: 3 }}
               name="胸部CT"
             />
             <Line
               type="monotone"
               dataKey="abdomenCTAvgDLP"
-              stroke="#d97706"
+              stroke="var(--color-warning-600)"
               strokeWidth={2}
-              dot={{ fill: "#d97706", strokeWidth: 2, r: 3 }}
+              dot={{ fill: "var(--color-warning-600)", strokeWidth: 2, r: 3 }}
               name="腹部CT"
             />
             <ReferenceLine
               y={560}
-              stroke="#dc2626"
+              stroke="var(--color-error-600)"
               strokeDasharray="5 5"
               label={{
                 value: "AAPM胸部参考值",
                 position: "right",
                 fontSize: 12,
-                fill: "#dc2626",
+                fill: "var(--color-error-600)",
               }}
             />
           </LineChart>
@@ -268,25 +268,25 @@ export default function DoseTrendAnalysis() {
           }}
         >
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 18, fontWeight: 800, color: ctDrop.startsWith('-') ? "#16a34a" : "#dc2626" }}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: ctDrop.startsWith('-') ? "var(--color-success-600)" : "var(--color-error-600)" }}>
               {ctDrop}
             </div>
             <div style={{ fontSize: 12, color: "#64748b" }}>CT剂量优化幅度</div>
           </div>
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 18, fontWeight: 800, color: "#1e40af" }}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: "var(--color-primary-800)" }}>
               {ctRange}
             </div>
             <div style={{ fontSize: 12, color: "#64748b" }}>DLP降低趋势</div>
           </div>
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 18, fontWeight: 800, color: "#dc2626" }}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: "var(--color-error-600)" }}>
               {chestRange}
             </div>
             <div style={{ fontSize: 12, color: "#64748b" }}>胸部CT降幅</div>
           </div>
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 18, fontWeight: 800, color: chestBelowRef ? "#16a34a" : "#dc2626" }}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: chestBelowRef ? "var(--color-success-600)" : "var(--color-error-600)" }}>
               {chestBelowRef ? "达标" : "超标"}
             </div>
             <div style={{ fontSize: 12, color: "#64748b" }}>当前胸部CT状态</div>
@@ -312,7 +312,7 @@ export default function DoseTrendAnalysis() {
           }}
         >
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>
               新设备换装前后剂量对比
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
@@ -323,7 +323,7 @@ export default function DoseTrendAnalysis() {
             style={{
               padding: "4px 12px",
               background: "#ecfdf5",
-              color: "#16a34a",
+              color: "var(--color-success-600)",
               borderRadius: 6,
               fontSize: 12,
               fontWeight: 700,
@@ -353,7 +353,7 @@ export default function DoseTrendAnalysis() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#dc2626",
+                color: "var(--color-error-600)",
                 marginBottom: 12,
               }}
             >
@@ -371,7 +371,7 @@ export default function DoseTrendAnalysis() {
                   CT-1 平均DLP
                 </span>
                 <span
-                  style={{ fontSize: 14, fontWeight: 700, color: "#dc2626" }}
+                  style={{ fontSize: 14, fontWeight: 700, color: "var(--color-error-600)" }}
                 >
                   920 mGy·cm
                 </span>
@@ -387,7 +387,7 @@ export default function DoseTrendAnalysis() {
                   CT-2 平均DLP
                 </span>
                 <span
-                  style={{ fontSize: 14, fontWeight: 700, color: "#dc2626" }}
+                  style={{ fontSize: 14, fontWeight: 700, color: "var(--color-error-600)" }}
                 >
                   880 mGy·cm
                 </span>
@@ -405,7 +405,7 @@ export default function DoseTrendAnalysis() {
                   全院平均DLP
                 </span>
                 <span
-                  style={{ fontSize: 16, fontWeight: 800, color: "#dc2626" }}
+                  style={{ fontSize: 16, fontWeight: 800, color: "var(--color-error-600)" }}
                 >
                   900 mGy·cm
                 </span>
@@ -426,7 +426,7 @@ export default function DoseTrendAnalysis() {
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#16a34a",
+                color: "var(--color-success-600)",
                 marginBottom: 12,
               }}
             >
@@ -444,7 +444,7 @@ export default function DoseTrendAnalysis() {
                   CT-1 平均DLP
                 </span>
                 <span
-                  style={{ fontSize: 14, fontWeight: 700, color: "#16a34a" }}
+                  style={{ fontSize: 14, fontWeight: 700, color: "var(--color-success-600)" }}
                 >
                   720 mGy·cm
                 </span>
@@ -460,7 +460,7 @@ export default function DoseTrendAnalysis() {
                   CT-2 平均DLP
                 </span>
                 <span
-                  style={{ fontSize: 14, fontWeight: 700, color: "#16a34a" }}
+                  style={{ fontSize: 14, fontWeight: 700, color: "var(--color-success-600)" }}
                 >
                   680 mGy·cm
                 </span>
@@ -478,7 +478,7 @@ export default function DoseTrendAnalysis() {
                   全院平均DLP
                 </span>
                 <span
-                  style={{ fontSize: 16, fontWeight: 800, color: "#16a34a" }}
+                  style={{ fontSize: 16, fontWeight: 800, color: "var(--color-success-600)" }}
                 >
                   695 mGy·cm
                 </span>
@@ -498,8 +498,8 @@ export default function DoseTrendAnalysis() {
             gap: 8,
           }}
         >
-          <TrendingUpCircle size={14} color="#1e40af" />
-          <span style={{ fontSize: 12, color: "#1e40af" }}>
+          <TrendingUpCircle size={14} color="var(--color-primary-800)" />
+          <span style={{ fontSize: 12, color: "var(--color-primary-800)" }}>
             设备换装后，CT-1剂量降低21.7%，CT-2剂量降低22.7%，全院平均剂量降低22.8%，达到预期优化目标
           </span>
         </div>

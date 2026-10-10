@@ -390,11 +390,11 @@ export default function DicomViewerPro({
         {/* [G005 v3.0.6.11-86 Wave 4B] cine 播放控制 */}
         <button
           onClick={toggleCine}
-          style={{ ...iconBtnStyle, border: cinePlaying ? '1px solid #fbbf24' : 'none' }}
+          style={{ ...iconBtnStyle, border: cinePlaying ? '1px solid var(--color-warning-400)' : 'none' }}
           title={cinePlaying ? t('w9d.viewerPro.pausePlayback') : t('w9d.viewerPro.play')}
           data-testid="cine-toggle"
         >
-          {cinePlaying ? <PauseCircle size={16} color="#fbbf24" /> : <PlayCircle size={16} color="#94a3b8" />}
+          {cinePlaying ? <PauseCircle size={16} color="var(--color-warning-400)" /> : <PlayCircle size={16} color="#94a3b8" />}
         </button>
         <select
           value={cineSpeed}
@@ -409,7 +409,7 @@ export default function DicomViewerPro({
           <option value={4}>4x</option>
         </select>
         {cinePlaying && (
-          <span style={{ color: '#fbbf24', fontFamily: 'monospace', minWidth: 64 }} data-testid="cine-status">
+          <span style={{ color: 'var(--color-warning-400)', fontFamily: 'monospace', minWidth: 64 }} data-testid="cine-status">
             {currentIndex + 1}/{imageIds.length}
           </span>
         )}
@@ -425,8 +425,8 @@ export default function DicomViewerPro({
                 key={s.id}
                 onClick={() => { setSelectedSampleId(s.id); jumpTo(0); }}
                 style={{
-                  background: s.id === currentSample?.id ? '#1e40af' : '#0a0a0a',
-                  border: s.id === currentSample?.id ? '1px solid #3b82f6' : '1px solid #333',
+                  background: s.id === currentSample?.id ? 'var(--color-primary-800)' : '#0a0a0a',
+                  border: s.id === currentSample?.id ? '1px solid var(--color-primary-500)' : '1px solid #333',
                   borderRadius: 4, padding: 4, marginBottom: 4, cursor: 'pointer', fontSize: 12, color: '#cbd5e1',
                 }}
               >
@@ -462,7 +462,7 @@ export default function DicomViewerPro({
             }}>
               {displayError ? (
                 <>
-                  <div style={{ color: '#ef4444', fontSize: 14, display: 'flex', alignItems: 'center', gap: 4 }}><AlertTriangle size={14} /> {displayError}</div>
+                  <div style={{ color: 'var(--color-error-500)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 4 }}><AlertTriangle size={14} /> {displayError}</div>
                   <div style={{ fontSize: 12 }}>{t('w9d.viewerPro.usingPlaceholder')}</div>
                 </>
               ) : (
@@ -482,7 +482,7 @@ export default function DicomViewerPro({
               <rect width="100%" height="100%" fill="black" opacity="0" />
               {/* 实际 DICOM 像素渲染（这里仅显示占位 + 测量）*/}
               {currentMeta && (
-                <text x="20" y="30" fontSize="12" fill="#fbbf24" fontFamily="monospace">
+                <text x="20" y="30" fontSize="12" fill="var(--color-warning-400)" fontFamily="monospace">
                   {currentSample?.modality} | {currentMeta.rows}×{currentMeta.columns} | W:{ww} L:{wc} | {(currentSample as any)?.thickness ?? 0}mm
                 </text>
               )}
@@ -498,8 +498,8 @@ export default function DicomViewerPro({
               {/* 十字线 */}
               {showCrosshair && hoverPos && (
                 <>
-                  <line x1={hoverPos.x} y1="0" x2={hoverPos.x} y2="100%" stroke="#3b82f6" strokeWidth="0.5" strokeDasharray="2,2" />
-                  <line x1="0" y1={hoverPos.y} x2="100%" y2={hoverPos.y} stroke="#3b82f6" strokeWidth="0.5" strokeDasharray="2,2" />
+                  <line x1={hoverPos.x} y1="0" x2={hoverPos.x} y2="100%" stroke="var(--color-primary-500)" strokeWidth="0.5" strokeDasharray="2,2" />
+                  <line x1="0" y1={hoverPos.y} x2="100%" y2={hoverPos.y} stroke="var(--color-primary-500)" strokeWidth="0.5" strokeDasharray="2,2" />
                 </>
               )}
 
@@ -510,10 +510,10 @@ export default function DicomViewerPro({
                   const p1 = m.points[1]!
                   return (
                     <g key={m.id}>
-                      <line x1={p0.x} y1={p0.y} x2={p1.x} y2={p1.y} stroke="#fbbf24" strokeWidth="2" />
-                      <circle cx={p0.x} cy={p0.y} r="4" fill="#fbbf24" />
-                      <circle cx={p1.x} cy={p1.y} r="4" fill="#fbbf24" />
-                      <text x={(p0.x + p1.x) / 2} y={(p0.y + p1.y) / 2 - 8} fontSize="14" fill="#fbbf24" textAnchor="middle" fontWeight="600">{m.value.toFixed(1)} mm</text>
+                      <line x1={p0.x} y1={p0.y} x2={p1.x} y2={p1.y} stroke="var(--color-warning-400)" strokeWidth="2" />
+                      <circle cx={p0.x} cy={p0.y} r="4" fill="var(--color-warning-400)" />
+                      <circle cx={p1.x} cy={p1.y} r="4" fill="var(--color-warning-400)" />
+                      <text x={(p0.x + p1.x) / 2} y={(p0.y + p1.y) / 2 - 8} fontSize="14" fill="var(--color-warning-400)" textAnchor="middle" fontWeight="600">{m.value.toFixed(1)} mm</text>
                     </g>
                   );
                 }
@@ -523,9 +523,9 @@ export default function DicomViewerPro({
                   const a2 = m.points[2]!
                   return (
                     <g key={m.id}>
-                      <polyline points={`${a0.x},${a0.y} ${a1.x},${a1.y} ${a2.x},${a2.y}`} fill="none" stroke="#fbbf24" strokeWidth="2" />
-                      {m.points.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="4" fill="#fbbf24" />)}
-                      <text x={a1.x + 15} y={a1.y - 8} fontSize="14" fill="#fbbf24" fontWeight="600">{m.value.toFixed(1)}°</text>
+                      <polyline points={`${a0.x},${a0.y} ${a1.x},${a1.y} ${a2.x},${a2.y}`} fill="none" stroke="var(--color-warning-400)" strokeWidth="2" />
+                      {m.points.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="4" fill="var(--color-warning-400)" />)}
+                      <text x={a1.x + 15} y={a1.y - 8} fontSize="14" fill="var(--color-warning-400)" fontWeight="600">{m.value.toFixed(1)}°</text>
                     </g>
                   );
                 }
@@ -538,8 +538,8 @@ export default function DicomViewerPro({
                   const ry = Math.abs(e1.y - e0.y) / 2;
                   return (
                     <g key={m.id}>
-                      <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="rgba(251, 191, 36, 0.15)" stroke="#fbbf24" strokeWidth="2" />
-                      <text x={cx} y={cy - ry - 8} fontSize="14" fill="#fbbf24" textAnchor="middle" fontWeight="600">S={m.value.toFixed(1)} mm²</text>
+                      <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="rgba(251, 191, 36, 0.15)" stroke="var(--color-warning-400)" strokeWidth="2" />
+                      <text x={cx} y={cy - ry - 8} fontSize="14" fill="var(--color-warning-400)" textAnchor="middle" fontWeight="600">S={m.value.toFixed(1)} mm²</text>
                     </g>
                   );
                 }
@@ -547,7 +547,7 @@ export default function DicomViewerPro({
                   const ar0 = m.points[0]!
                   const ar1 = m.points[1]!
                   return (
-                    <line key={m.id} x1={ar0.x} y1={ar0.y} x2={ar1.x} y2={ar1.y} stroke="#22c55e" strokeWidth="2" markerEnd="url(#arrowhead-pro)" />
+                    <line key={m.id} x1={ar0.x} y1={ar0.y} x2={ar1.x} y2={ar1.y} stroke="var(--color-success-500)" strokeWidth="2" markerEnd="url(#arrowhead-pro)" />
                   );
                 }
                 return null;
@@ -555,13 +555,13 @@ export default function DicomViewerPro({
 
               {/* 正在绘制 */}
               {drawing && drawing.type === 'length' && drawing.points.length === 1 && hoverPos && (
-                <line x1={drawing.points[0]!.x} y1={drawing.points[0]!.y} x2={hoverPos.x} y2={hoverPos.y} stroke="#fbbf24" strokeWidth="2" strokeDasharray="4,4" />
+                <line x1={drawing.points[0]!.x} y1={drawing.points[0]!.y} x2={hoverPos.x} y2={hoverPos.y} stroke="var(--color-warning-400)" strokeWidth="2" strokeDasharray="4,4" />
               )}
 
               {/* 箭头 marker 定义 */}
               <defs>
                 <marker id="arrowhead-pro" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                  <polygon points="0 0, 10 3, 0 6" fill="#22c55e" />
+                  <polygon points="0 0, 10 3, 0 6" fill="var(--color-success-500)" />
                 </marker>
               </defs>
             </svg>
@@ -571,7 +571,7 @@ export default function DicomViewerPro({
           {hoverPos && (
             <div style={{
               position: 'absolute', bottom: 8, right: 8,
-              background: 'rgba(0,0,0,0.7)', color: '#fbbf24', fontSize: 12, padding: '2px 6px',
+              background: 'rgba(0,0,0,0.7)', color: 'var(--color-warning-400)', fontSize: 12, padding: '2px 6px',
               borderRadius: 2, fontFamily: 'monospace',
             }}>
               X: {hoverPos.x.toFixed(0)} Y: {hoverPos.y.toFixed(0)} | {imageIds.length > 0 ? `${currentIndex + 1}/${imageIds.length}` : ''} | W:{ww} L:{wc}
@@ -585,9 +585,9 @@ export default function DicomViewerPro({
             borderRadius: 4, fontFamily: 'monospace',
           }}>
             <div style={{ fontWeight: 600, color: '#fff' }}>{currentSample?.studyDescription || 'DICOM Viewer Pro'}</div>
-            <div>{t('w9d.viewerPro.modalityLabel')}<span style={{ color: '#fbbf24' }}>{currentSample?.modality}</span> | {t('w9d.viewerPro.bodyPartLabel')}{currentSample?.bodyPart}</div>
+            <div>{t('w9d.viewerPro.modalityLabel')}<span style={{ color: 'var(--color-warning-400)' }}>{currentSample?.modality}</span> | {t('w9d.viewerPro.bodyPartLabel')}{currentSample?.bodyPart}</div>
             <div>{t('w9d.viewerPro.acquisitionTimeLabel')}{currentSample?.acquisitionDate} | ID: {currentSample?.studyId}</div>
-            <div style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>{t('w9d.viewerPro.engineLabel')}Cornerstone3D {cornerstoneReady ? <CheckCircle2 size={11} color="#16a34a" /> : <XCircle size={11} color="#dc2626" />}</div>
+            <div style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>{t('w9d.viewerPro.engineLabel')}Cornerstone3D {cornerstoneReady ? <CheckCircle2 size={11} color="var(--color-success-600)" /> : <XCircle size={11} color="var(--color-error-600)" />}</div>
           </div>
         </div>
 
@@ -595,9 +595,9 @@ export default function DicomViewerPro({
         {showMeasurementPanel && measurements.length > 0 && (
           <div style={{ width: 200, background: '#1a1a1a', borderLeft: '1px solid #333', padding: 8, overflowY: 'auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <div style={{ fontSize: 12, color: '#fbbf24', fontWeight: 700 }}>{t('w9d.viewerPro.measurementsCount', { count: measurements.length })}</div>
+              <div style={{ fontSize: 12, color: 'var(--color-warning-400)', fontWeight: 700 }}>{t('w9d.viewerPro.measurementsCount', { count: measurements.length })}</div>
               <button onClick={clearMeasurements} style={{ ...iconBtnStyle, padding: 2 }} title={t('w9d.viewerPro.clear')}>
-                <Trash2 size={11} color="#ef4444" />
+                <Trash2 size={11} color="var(--color-error-500)" />
               </button>
             </div>
             {measurements.map(m => (
@@ -606,7 +606,7 @@ export default function DicomViewerPro({
                   <span style={{ fontWeight: 600 }}>{m.label}</span>
                   <button onClick={() => removeMeasurement(m.id)} style={{ ...iconBtnStyle, padding: 0 }}>×</button>
                 </div>
-                <div style={{ color: '#fbbf24', marginTop: 2, fontFamily: 'monospace' }}>
+                <div style={{ color: 'var(--color-warning-400)', marginTop: 2, fontFamily: 'monospace' }}>
                   {m.value.toFixed(2)} {m.unit}
                 </div>
                 <div style={{ color: '#64748b', fontSize: 12, marginTop: 2 }}>
@@ -615,7 +615,7 @@ export default function DicomViewerPro({
               </div>
             ))}
             <div style={{ marginTop: 12, fontSize: 12, color: '#64748b' }}>
-              {t('w9d.viewerPro.toolLabel')} <span style={{ color: '#fbbf24' }}>{t('w9d.tool.' + activeTool)}</span><br />
+              {t('w9d.viewerPro.toolLabel')} <span style={{ color: 'var(--color-warning-400)' }}>{t('w9d.tool.' + activeTool)}</span><br />
               {t('w9d.viewerPro.shortcutLabel')} {TOOLS[activeTool].shortcut}
             </div>
           </div>
@@ -660,7 +660,7 @@ function ToolButton({ icon: Icon, active, onClick, title }: { icon: any; active:
       title={title}
       style={{
         ...iconBtnStyle,
-        background: active ? '#1e40af' : 'transparent',
+        background: active ? 'var(--color-primary-800)' : 'transparent',
       }}
     >
       {typeof Icon === 'string' ? (

@@ -149,7 +149,7 @@ const MedicalAlliancePage: React.FC = () => {
     return modalities.map((m, i) => {
       const factor = sites.length > 0 ? 1 + sites.length * 0.12 : 1
       const count = Math.round((base[i] ?? 0) * factor)
-      return { modality: m, count, pct: 0, color: ['#3b82f6', '#8b5cf6', '#22c55e', '#14b8a6', '#f59e0b', '#ec4899'][i] }
+      return { modality: m, count, pct: 0, color: ['var(--color-primary-500)', '#8b5cf6', 'var(--color-success-500)', '#14b8a6', 'var(--color-warning-500)', '#ec4899'][i] }
     }).map(d => ({ ...d }))
   }, [sites.length])
 
@@ -263,13 +263,13 @@ const MedicalAlliancePage: React.FC = () => {
       <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>{t('medicalAlliance.title')}</h1>
       <p style={{ color: 'var(--text-secondary, #475569)', marginBottom: 24 }}>{t('medicalAlliance.subtitle')}
         {/* [v3.0.6.11-88 Round10] /regional/alliance-referrals 后端未实现, MSW 演示数据 */}
-        <span style={{ marginLeft: 12, fontSize: 12, padding: '2px 8px', background: '#fef3c7', color: '#d97706', borderRadius: 10 }}>{t('medicalAlliance.mswDemoTag')}</span>
+        <span style={{ marginLeft: 12, fontSize: 12, padding: '2px 8px', background: '#fef3c7', color: 'var(--color-warning-600)', borderRadius: 10 }}>{t('medicalAlliance.mswDemoTag')}</span>
       </p>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 24, borderBottom: '2px solid var(--border-default, rgba(0,0,0,0.12))', paddingBottom: 8 }}>
         {(['members', 'referrals', 'dashboard', 'ops'] as const).map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)}
-            style={{ padding: '8px 16px', border: 'none', background: activeTab === tab ? '#3b82f6' : 'transparent', color: activeTab === tab ? '#fff' : '#374151', borderRadius: 6, cursor: 'pointer', fontWeight: activeTab === tab ? 600 : 400 }}>
+            style={{ padding: '8px 16px', border: 'none', background: activeTab === tab ? 'var(--color-primary-500)' : 'transparent', color: activeTab === tab ? '#fff' : '#374151', borderRadius: 6, cursor: 'pointer', fontWeight: activeTab === tab ? 600 : 400 }}>
             {tab === 'members' ? t('medicalAlliance.membersTab') : tab === 'referrals' ? t('medicalAlliance.referralsTab') : tab === 'dashboard' ? t('medicalAlliance.dashboardTab') : t('medicalAlliance.opsTab')}
           </button>
         ))}
@@ -310,8 +310,8 @@ const MedicalAlliancePage: React.FC = () => {
           </div>
           <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
             <div style={{ flex: 1, padding: 16, background: 'var(--color-info-bg)', borderRadius: 8, border: '1px solid var(--color-info-border)' }}>
-              <div style={{ fontSize: 12, color: '#1e40af' }}>{t('medicalAlliance.sharedResources')}</div>
-              <div style={{ fontSize: 20, fontWeight: 600, color: '#1e40af' }}>{t('medicalAlliance.sharedResourcesValue')}</div>
+              <div style={{ fontSize: 12, color: 'var(--color-primary-800)' }}>{t('medicalAlliance.sharedResources')}</div>
+              <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--color-primary-800)' }}>{t('medicalAlliance.sharedResourcesValue')}</div>
             </div>
             <div style={{ flex: 1, padding: 16, background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid var(--color-success-border)' }}>
               <div style={{ fontSize: 12, color: '#166534' }}>{t('medicalAlliance.coverageArea')}</div>
@@ -325,7 +325,7 @@ const MedicalAlliancePage: React.FC = () => {
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <h2 style={{ fontSize: 16, fontWeight: 600 }}>{t('medicalAlliance.referralsTitle', { count: allianceReferrals.length })}</h2>
-                <button onClick={handleCreateReferral} style={{ padding: '8px 16px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Plus size={14} />{t('medicalAlliance.newReferral')}</button>
+                <button onClick={handleCreateReferral} style={{ padding: '8px 16px', background: 'var(--color-primary-500)', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Plus size={14} />{t('medicalAlliance.newReferral')}</button>
           </div>
           <div style={{ overflowX: "auto" }}>
             <DataTable
@@ -361,7 +361,7 @@ const MedicalAlliancePage: React.FC = () => {
                   render: (_: unknown, r: AllianceReferral) => (
                     <>
                       {r.status === 'pending' && <button onClick={() => handleAcceptReferral(r.id)} style={{ padding: '4px 12px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', marginRight: 4 }}>{t('medicalAlliance.accept')}</button>}
-                      {r.status === 'accepted' && <button onClick={() => handleCompleteReferral(r.id)} style={{ padding: '4px 12px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}>{t('medicalAlliance.complete')}</button>}
+                      {r.status === 'accepted' && <button onClick={() => handleCompleteReferral(r.id)} style={{ padding: '4px 12px', background: 'var(--color-primary-500)', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}>{t('medicalAlliance.complete')}</button>}
                     </>
                   ),
                 },
@@ -379,10 +379,10 @@ const MedicalAlliancePage: React.FC = () => {
           <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16 }}>{t('medicalAlliance.dashboardTitle')}</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
             {[
-              { label: t('medicalAlliance.memberOrgs'), value: allianceMembers.filter(m => m.status === 'active').length, color: '#3b82f6' },
+              { label: t('medicalAlliance.memberOrgs'), value: allianceMembers.filter(m => m.status === 'active').length, color: 'var(--color-primary-500)' },
               { label: t('medicalAlliance.monthReferrals'), value: 8, color: '#10b981' },
               { label: t('medicalAlliance.resourceShared'), value: '1,256', color: '#8b5cf6' },
-              { label: t('medicalAlliance.referralCompletion'), value: '87.5%', color: '#f59e0b' },
+              { label: t('medicalAlliance.referralCompletion'), value: '87.5%', color: 'var(--color-warning-500)' },
             ].map((card, i) => (
               <div key={i} style={{ padding: 20, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', textAlign: 'center' }}>
                 <div style={{ fontSize: 24, fontWeight: 700, color: card.color }}>{card.value}</div>
@@ -397,7 +397,7 @@ const MedicalAlliancePage: React.FC = () => {
                 <div key={i} style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ width: 80, fontSize: 12 }}>{res}</span>
                   <div style={{ flex: 1, height: 8, background: '#f3f4f6', borderRadius: 4 }}>
-                    <div style={{ width: `${60 + i * 8}%`, height: 8, background: '#3b82f6', borderRadius: 4 }} />
+                    <div style={{ width: `${60 + i * 8}%`, height: 8, background: 'var(--color-primary-500)', borderRadius: 4 }} />
                   </div>
                   <span style={{ fontSize: 12, color: '#6b7280' }}>{t('medicalAlliance.orgCount', { count: 2 + i * 2 })}</span>
                 </div>
@@ -434,7 +434,7 @@ const MedicalAlliancePage: React.FC = () => {
                 : t('medicalAlliance.sourceFallback')}
             </div>
             <button onClick={() => setOpsRefreshKey(k => k + 1)} style={{
-              padding: '8px 14px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 6,
+              padding: '8px 14px', background: 'var(--color-primary-500)', color: '#fff', border: 'none', borderRadius: 6,
               cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 5,
             }}><RefreshCw size={13} /> {t('medicalAlliance.refresh')}</button>
           </div>
@@ -442,9 +442,9 @@ const MedicalAlliancePage: React.FC = () => {
           {/* F1. 成员机构状态看板 */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
             {[
-              { label: t('medicalAlliance.onlineOrgs'), value: siteSummary.byStatus['active'] ?? 0, color: '#16a34a', bg: 'var(--color-success-bg)' },
-              { label: t('medicalAlliance.offlineOrgs'), value: siteSummary.byStatus['offline'] ?? 0, color: '#dc2626', bg: 'var(--color-error-bg)' },
-              { label: t('medicalAlliance.syncLagOrgs'), value: siteSummary.syncLag, color: '#d97706', bg: 'var(--color-warning-bg)' },
+              { label: t('medicalAlliance.onlineOrgs'), value: siteSummary.byStatus['active'] ?? 0, color: 'var(--color-success-600)', bg: 'var(--color-success-bg)' },
+              { label: t('medicalAlliance.offlineOrgs'), value: siteSummary.byStatus['offline'] ?? 0, color: 'var(--color-error-600)', bg: 'var(--color-error-bg)' },
+              { label: t('medicalAlliance.syncLagOrgs'), value: siteSummary.syncLag, color: 'var(--color-warning-600)', bg: 'var(--color-warning-bg)' },
             ].map(c => (
               <div key={c.label} style={{ padding: 14, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', textAlign: 'center' }}>
                 <div style={{ fontSize: 24, fontWeight: 800, color: c.color }}>{c.value}</div>
@@ -455,32 +455,32 @@ const MedicalAlliancePage: React.FC = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12, marginBottom: 20 }}>
             {sites.map((s: any) => {
               const statusMap: Record<string, { label: string; color: string; bg: string }> = {
-                active: { label: t('medicalAlliance.online'), color: '#16a34a', bg: 'var(--color-success-bg)' },
-                offline: { label: t('medicalAlliance.offline'), color: '#dc2626', bg: 'var(--color-error-bg)' },
-                syncing: { label: t('medicalAlliance.syncing'), color: '#d97706', bg: 'var(--color-warning-bg)' },
+                active: { label: t('medicalAlliance.online'), color: 'var(--color-success-600)', bg: 'var(--color-success-bg)' },
+                offline: { label: t('medicalAlliance.offline'), color: 'var(--color-error-600)', bg: 'var(--color-error-bg)' },
+                syncing: { label: t('medicalAlliance.syncing'), color: 'var(--color-warning-600)', bg: 'var(--color-warning-bg)' },
                 maintenance: { label: t('medicalAlliance.maintenance'), color: '#64748b', bg: 'var(--bg-card)' },
               }
-              const st = statusMap[s.status] ?? statusMap.offline ?? { label: t('medicalAlliance.offline'), color: '#dc2626', bg: 'var(--color-error-bg)' }
+              const st = statusMap[s.status] ?? statusMap.offline ?? { label: t('medicalAlliance.offline'), color: 'var(--color-error-600)', bg: 'var(--color-error-bg)' }
               const lagHours = s.lastSync ? Math.floor((Date.now() - new Date(s.lastSync).getTime()) / 3600000) : -1
               const lag = s.status !== 'offline' && lagHours > 6
               return (
                 <div key={s.id} style={{ padding: 14, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: `1px solid ${st.color}22` }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                    {s.status === 'offline' ? <WifiOff size={15} color="#dc2626" /> : <Wifi size={15} color="#16a34a" />}
+                    {s.status === 'offline' ? <WifiOff size={15} color="var(--color-error-600)" /> : <Wifi size={15} color="var(--color-success-600)" />}
                     <b style={{ fontSize: 12, color: 'var(--text-primary, #1e293b)' }}>{s.name}</b>
-                    {s.primary && <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 999, background: '#dbeafe', color: '#1e40af', fontWeight: 700 }}>{t('medicalAlliance.mainSite')}</span>}
+                    {s.primary && <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 999, background: '#dbeafe', color: 'var(--color-primary-800)', fontWeight: 700 }}>{t('medicalAlliance.mainSite')}</span>}
                     <span style={{ marginLeft: 'auto', padding: '2px 10px', borderRadius: 999, fontSize: 11, fontWeight: 700, background: st.bg, color: st.color }}>{st.label}</span>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, fontSize: 11, color: '#6b7280' }}>
                     <span>{t('medicalAlliance.studiesLabel')} <b style={{ color: 'var(--text-primary, #1e293b)' }}>{Number(s.studies ?? 0).toLocaleString()}</b></span>
                     <span>{t('medicalAlliance.storageLabel')} <b style={{ color: 'var(--text-primary, #1e293b)' }}>{s.storage ?? '-'} TB</b></span>
-                    <span>{t('medicalAlliance.uptimeLabel')} <b style={{ color: Number(s.uptimePct ?? 0) >= 95 ? '#16a34a' : '#dc2626' }}>{s.uptimePct ?? '-'}%</b></span>
+                    <span>{t('medicalAlliance.uptimeLabel')} <b style={{ color: Number(s.uptimePct ?? 0) >= 95 ? 'var(--color-success-600)' : 'var(--color-error-600)' }}>{s.uptimePct ?? '-'}%</b></span>
                     <span>{t('medicalAlliance.latencyLabel')} <b style={{ color: 'var(--text-primary, #1e293b)' }}>{s.latencyMs ?? '-'} ms</b></span>
                   </div>
-                  <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: lag ? '#d97706' : 'var(--text-secondary)' }}>
+                  <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: lag ? 'var(--color-warning-600)' : 'var(--text-secondary)' }}>
                     <Clock size={11} />
                     {t('medicalAlliance.lastSyncLabel')} {s.lastSync ? new Date(s.lastSync).toLocaleString('zh-CN') : t('medicalAlliance.unknown')}
-                    {lag && <b style={{ color: '#d97706' }}>{t('medicalAlliance.lagSuffix', { hours: lagHours })}</b>}
+                    {lag && <b style={{ color: 'var(--color-warning-600)' }}>{t('medicalAlliance.lagSuffix', { hours: lagHours })}</b>}
                   </div>
                 </div>
               )
@@ -490,7 +490,7 @@ const MedicalAlliancePage: React.FC = () => {
           {/* F2. 转诊流向图 (机构间) */}
           <div style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: 16 }}>
             <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <ArrowRight size={15} color="#3b82f6" /> {t('medicalAlliance.referralFlowTitle')}
+              <ArrowRight size={15} color="var(--color-primary-500)" /> {t('medicalAlliance.referralFlowTitle')}
             </h3>
             {referralFlow.length === 0 ? (
               <div style={{ padding: 20, textAlign: 'center', color: '#6b7280', fontSize: 12 }}>
@@ -506,7 +506,7 @@ const MedicalAlliancePage: React.FC = () => {
                       <span style={{ width: 130, fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #1e293b)', textAlign: 'right', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.from}</span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
                         <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-                          <div style={{ width: `${(f.count / max) * 90}%`, height: 10, background: '#3b82f6', borderRadius: '4px 0 0 4px', opacity: 0.5 + (f.count / max) * 0.5 }} />
+                          <div style={{ width: `${(f.count / max) * 90}%`, height: 10, background: 'var(--color-primary-500)', borderRadius: '4px 0 0 4px', opacity: 0.5 + (f.count / max) * 0.5 }} />
                         </div>
                         <ArrowRight size={13} color="var(--text-muted, #94a3b8)" />
                         <div style={{ flex: 1 }}>
@@ -514,8 +514,8 @@ const MedicalAlliancePage: React.FC = () => {
                         </div>
                       </div>
                       <span style={{ width: 130, fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #1e293b)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.to}</span>
-                      <b style={{ width: 46, fontSize: 12, color: '#1e40af', textAlign: 'right' }}>{t('medicalAlliance.caseCount', { count: f.count })}</b>
-                      <span style={{ width: 52, fontSize: 11, color: rate >= 80 ? '#16a34a' : '#d97706', textAlign: 'right' }}>{t('medicalAlliance.closureRate', { rate })}</span>
+                      <b style={{ width: 46, fontSize: 12, color: 'var(--color-primary-800)', textAlign: 'right' }}>{t('medicalAlliance.caseCount', { count: f.count })}</b>
+                      <span style={{ width: 52, fontSize: 11, color: rate >= 80 ? 'var(--color-success-600)' : 'var(--color-warning-600)', textAlign: 'right' }}>{t('medicalAlliance.closureRate', { rate })}</span>
                     </div>
                   )
                 })}
@@ -543,24 +543,24 @@ const MedicalAlliancePage: React.FC = () => {
                 ))}
               </div>
               <div style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#6b7280' }}>
-                <span>{t('medicalAlliance.sharedTotalLabel')} <b style={{ color: '#1e40af' }}>{sharedTotal.toLocaleString()}</b></span>
+                <span>{t('medicalAlliance.sharedTotalLabel')} <b style={{ color: 'var(--color-primary-800)' }}>{sharedTotal.toLocaleString()}</b></span>
                 <span>{t('medicalAlliance.coverageOrgs', { count: sites.length })}</span>
               </div>
             </div>
 
             <div style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
               <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <ShieldCheck size={15} color="#16a34a" /> {t('medicalAlliance.slaTitle')}
+                <ShieldCheck size={15} color="var(--color-success-600)" /> {t('medicalAlliance.slaTitle')}
               </h3>
               <div style={{ textAlign: 'center', marginBottom: 14 }}>
                 <div style={{ position: 'relative', width: 120, height: 120, margin: '0 auto' }}>
                   <svg width="120" height="120" viewBox="0 0 120 120">
                     <circle cx="60" cy="60" r="52" fill="none" stroke="#e5e7eb" strokeWidth="12" />
-                    <circle cx="60" cy="60" r="52" fill="none" stroke={slaMetrics.compliance >= 90 ? '#16a34a' : slaMetrics.compliance >= 75 ? '#f59e0b' : '#dc2626'} strokeWidth="12"
+                    <circle cx="60" cy="60" r="52" fill="none" stroke={slaMetrics.compliance >= 90 ? 'var(--color-success-600)' : slaMetrics.compliance >= 75 ? 'var(--color-warning-500)' : 'var(--color-error-600)'} strokeWidth="12"
                       strokeDasharray={`${(slaMetrics.compliance / 100) * 326.7} 326.7`} strokeLinecap="round" transform="rotate(-90 60 60)" />
                   </svg>
                   <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                    <b style={{ fontSize: 24, color: slaMetrics.compliance >= 90 ? '#16a34a' : '#d97706' }}>{slaMetrics.compliance}%</b>
+                    <b style={{ fontSize: 24, color: slaMetrics.compliance >= 90 ? 'var(--color-success-600)' : 'var(--color-warning-600)' }}>{slaMetrics.compliance}%</b>
                     <span style={{ fontSize: 10, color: '#6b7280' }}>{t('medicalAlliance.overallCompliance')}</span>
                   </div>
                 </div>
@@ -592,7 +592,7 @@ const MedicalAlliancePage: React.FC = () => {
 
           {/* 在线率总览 */}
           <div style={{ marginTop: 16, padding: '10px 14px', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 11, color: '#6b7280', lineHeight: 1.7 }}>
-            <b style={{ color: '#1e40af' }}>{t('medicalAlliance.metricsNote')}</b> {t('medicalAlliance.metricsNoteBody', { uptime: siteSummary.avgUptime, studies: siteSummary.totalStudies.toLocaleString(), lag: siteSummary.syncLag })}
+            <b style={{ color: 'var(--color-primary-800)' }}>{t('medicalAlliance.metricsNote')}</b> {t('medicalAlliance.metricsNoteBody', { uptime: siteSummary.avgUptime, studies: siteSummary.totalStudies.toLocaleString(), lag: siteSummary.syncLag })}
           </div>
 
           {/* F6. 月度转诊趋势 */}
@@ -600,7 +600,7 @@ const MedicalAlliancePage: React.FC = () => {
             <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Activity size={15} color="#10b981" /> {t('medicalAlliance.monthlyTrendTitle')}
               <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: '#6b7280' }}>
-                {t('medicalAlliance.peakLabel')} <b style={{ color: '#d97706' }}>{trendPeak.month}</b> {t('medicalAlliance.caseCount', { count: trendPeak.count })}
+                {t('medicalAlliance.peakLabel')} <b style={{ color: 'var(--color-warning-600)' }}>{trendPeak.month}</b> {t('medicalAlliance.caseCount', { count: trendPeak.count })}
               </span>
             </h3>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, height: 140, padding: '0 8px' }}>
@@ -610,10 +610,10 @@ const MedicalAlliancePage: React.FC = () => {
                 const isPeak = pt.month === trendPeak.month && pt.count > 0
                 return (
                   <div key={pt.month} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: isPeak ? '#d97706' : '#1e40af' }}>{pt.count}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: isPeak ? 'var(--color-warning-600)' : 'var(--color-primary-800)' }}>{pt.count}</span>
                     <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                       <div style={{ width: '62%', height: 4, background: '#10b981', borderRadius: 2, opacity: 0.6 }} />
-                      <div style={{ width: '62%', height: hgt, background: isPeak ? '#d97706' : '#3b82f6', borderRadius: '4px 4px 0 0' }} />
+                      <div style={{ width: '62%', height: hgt, background: isPeak ? 'var(--color-warning-600)' : 'var(--color-primary-500)', borderRadius: '4px 4px 0 0' }} />
                     </div>
                     <span style={{ fontSize: 11, color: '#6b7280' }}>{t('medicalAlliance.monthSuffix', { month: pt.month })}</span>
                   </div>
@@ -623,7 +623,7 @@ const MedicalAlliancePage: React.FC = () => {
             <div style={{ marginTop: 10, display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#6b7280' }}>
               <span>{t('medicalAlliance.totalReferrals', { count: referralTrend.reduce((s, pt) => s + pt.count, 0) })}</span>
               <span>{t('medicalAlliance.totalClosed', { count: referralTrend.reduce((s, pt) => s + pt.completed, 0) })}</span>
-              <span>{t('medicalAlliance.mom')} <b style={{ color: '#16a34a' }}>+18.2%</b></span>
+              <span>{t('medicalAlliance.mom')} <b style={{ color: 'var(--color-success-600)' }}>+18.2%</b></span>
             </div>
           </div>
 
@@ -631,7 +631,7 @@ const MedicalAlliancePage: React.FC = () => {
           <div style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginTop: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
               <h3 style={{ fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, margin: 0 }}>
-                <RefreshCw size={15} color="#3b82f6" /> {t('medicalAlliance.syncEventStream')}
+                <RefreshCw size={15} color="var(--color-primary-500)" /> {t('medicalAlliance.syncEventStream')}
               </h3>
               <span style={{ marginLeft: 12, fontSize: 11, padding: '2px 10px', borderRadius: 999, background: syncEventsReal ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: syncEventsReal ? '#15803d' : '#92400e' }}>
                 {syncEventsReal ? t('medicalAlliance.realApi') : t('medicalAlliance.demoFallback')}
@@ -650,13 +650,13 @@ const MedicalAlliancePage: React.FC = () => {
                   <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', background: 'var(--bg-primary, #f8fafc)', borderRadius: 6, fontSize: 12, border: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>
                     <span style={{
                       width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
-                      background: ok ? '#16a34a' : '#dc2626',
+                      background: ok ? 'var(--color-success-600)' : 'var(--color-error-600)',
                     }} />
                     <b style={{ color: 'var(--text-primary, #1e293b)', width: 90 }}>{typeMap[e.type] ?? e.type}</b>
                     <code style={{ fontSize: 11, color: '#6b7280', fontFamily: 'monospace' }}>{e.siteId}</code>
                     <span style={{ color: '#6b7280' }}>{t('medicalAlliance.eventData', { count: Number(e.count ?? 0), mb: Number(e.bytes ?? 0) })}</span>
                     <span style={{ color: '#6b7280' }}>{t('medicalAlliance.durationSuffix', { seconds: e.duration })}</span>
-                    <span style={{ marginLeft: 'auto', color: ok ? '#16a34a' : '#dc2626', fontWeight: 700 }}>{ok ? t('medicalAlliance.success') : t('medicalAlliance.failed')}</span>
+                    <span style={{ marginLeft: 'auto', color: ok ? 'var(--color-success-600)' : 'var(--color-error-600)', fontWeight: 700 }}>{ok ? t('medicalAlliance.success') : t('medicalAlliance.failed')}</span>
                     <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 11 }}>{e.timestamp ? new Date(e.timestamp).toLocaleString('zh-CN') : ''}</span>
                   </div>
                 )
@@ -667,7 +667,7 @@ const MedicalAlliancePage: React.FC = () => {
           <div style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginTop: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
               <h3 style={{ fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, margin: 0 }}>
-                <AlertTriangle size={15} color="#d97706" /> {t('medicalAlliance.healthScoreTitle')}
+                <AlertTriangle size={15} color="var(--color-warning-600)" /> {t('medicalAlliance.healthScoreTitle')}
               </h3>
               <span style={{ marginLeft: 'auto', fontSize: 11, color: '#6b7280' }}>
                 {t('medicalAlliance.healthScoreFormula')}
@@ -679,7 +679,7 @@ const MedicalAlliancePage: React.FC = () => {
                 const lagHours = s.lastSync ? Math.floor((Date.now() - new Date(s.lastSync).getTime()) / 3600000) : 99
                 const latency = Number(s.latencyMs ?? 99)
                 const score = Math.max(0, Math.min(100, Math.round(uptime * 0.5 + Math.max(0, 100 - lagHours * 5) * 0.3 + Math.max(0, 100 - latency) * 0.2)))
-                const color = score >= 90 ? '#16a34a' : score >= 75 ? '#d97706' : '#dc2626'
+                const color = score >= 90 ? 'var(--color-success-600)' : score >= 75 ? 'var(--color-warning-600)' : 'var(--color-error-600)'
                 return (
                   <div key={s.id} style={{ padding: 12, background: 'var(--bg-primary, #f8fafc)', borderRadius: 8, border: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>

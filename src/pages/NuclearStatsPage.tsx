@@ -23,9 +23,9 @@ import {
 // 样式常量
 // ============================================================
 const C = {
-  primary: '#1e40af',
-  primaryLight: '#2563eb',
-  accent: '#0891b2',       // cyan-600 核医学主题色
+  primary: 'var(--color-primary-800)',
+  primaryLight: 'var(--color-primary-600)',
+  accent: 'var(--color-info-600)',       // cyan-600 核医学主题色
   accentLight: '#ecfeff',  // cyan-50
   white: '#ffffff',
   background: 'var(--bg-card)',
@@ -35,17 +35,17 @@ const C = {
   border: 'var(--border-color)',
   success: '#059669',
   successBg: 'var(--color-success-bg)',
-  warning: '#d97706',
+  warning: 'var(--color-warning-600)',
   warningBg: 'var(--color-warning-bg)',
-  danger: '#dc2626',
+  danger: 'var(--color-error-600)',
   dangerBg: 'var(--color-error-bg)',
-  info: '#0891b2',
+  info: 'var(--color-info-600)',
   infoBg: 'var(--color-info-bg)',
   purple: '#7c3aed',
   purpleBg: 'var(--color-info-bg)',
 }
 
-const DEVICE_COLORS = ['#0891b2', '#3b82f6', '#60a5fa', '#22c55e', '#f59e0b', '#ec4899']
+const DEVICE_COLORS = ['var(--color-info-600)', 'var(--color-primary-500)', '#60a5fa', 'var(--color-success-500)', 'var(--color-warning-500)', '#ec4899']
 
 // ============================================================
 // 12月每日统计数据（模拟数据）
@@ -127,10 +127,10 @@ interface DeviceStat {
 
 // 药物消耗数据
 const DRUG_DATA: DrugStat[] = [
-  { name: '¹⁸F-FDG', consumption: 48520, unit: 'mCi', percent: 62, color: '#0891b2' },
-  { name: '⁹⁹mTc-MDP', consumption: 18250, unit: 'mCi', percent: 23, color: '#3b82f6' },
+  { name: '¹⁸F-FDG', consumption: 48520, unit: 'mCi', percent: 62, color: 'var(--color-info-600)' },
+  { name: '⁹⁹mTc-MDP', consumption: 18250, unit: 'mCi', percent: 23, color: 'var(--color-primary-500)' },
   { name: '¹³¹I', consumption: 5800, unit: 'mCi', percent: 7, color: '#8b5cf6' },
-  { name: '¹¹C-PIB', consumption: 3200, unit: 'mCi', percent: 4, color: '#22c55e' },
+  { name: '¹¹C-PIB', consumption: 3200, unit: 'mCi', percent: 4, color: 'var(--color-success-500)' },
   { name: '其他', consumption: 2430, unit: 'mCi', percent: 4, color: 'var(--text-secondary)' },
 ]
 
@@ -498,7 +498,7 @@ export default function NuclearStatsPage() {
   ]
 
   if (loading) return <div role="status" data-testid="nuclear-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('nuclearStats.loading')}</div>;
-  if (error) return <div role="alert" data-testid="nuclear-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
+  if (error) return <div role="alert" data-testid="nuclear-error" style={{ padding: 40, textAlign: 'center', color: 'var(--color-error-600)' }}>{error}</div>;
   if (!daily || daily.length === 0) {
     return (
       <div data-testid="nuclear-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
@@ -519,7 +519,7 @@ export default function NuclearStatsPage() {
             </div>
             <div>
               <h1 style={{ fontSize: 20, fontWeight: 700, color: C.primary, margin: '0 0 4px' }}>{t('nuclearStats.title')}
-                {usingFallback && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600, marginLeft: 8, verticalAlign: 'middle' }}>{t('nuclearStats.demoTag')}</span>}
+                {usingFallback && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontWeight: 600, marginLeft: 8, verticalAlign: 'middle' }}>{t('nuclearStats.demoTag')}</span>}
               </h1>
               <p style={{ fontSize: 12, color: C.textMuted, margin: 0 }}>{t('nuclearStats.subtitle')}</p>
             </div>
@@ -576,9 +576,9 @@ export default function NuclearStatsPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16 }}>
             {[
               { label: t('nuclearStats.statTotalExams'), value: totalExams.toLocaleString(), sub: t('nuclearStats.momCompare', { value: summary?.examMoM != null ? (summary.examMoM > 0 ? '+' : '') + summary.examMoM + '%' : '-7.6%' }), icon: <Activity size={20} />, color: C.accent, bg: C.accentLight, trend: 'down' },
-              { label: t('nuclearStats.statDrugConsumption'), value: (totalDrug / 1000).toFixed(1), unit: 'Ci', sub: t('nuclearStats.dailyAvg'), icon: <Droplets size={20} />, color: '#3b82f6', bg: '#3b82f622', trend: 'up' },
-              { label: t('nuclearStats.statEquipmentUtilization'), value: `${avgUtilization}%`, sub: t('nuclearStats.target80'), icon: <Gauge size={20} />, color: '#22c55e', bg: '#22c55e22', trend: 'up' },
-              { label: t('nuclearStats.statPositiveRate'), value: `${avgPositive}%`, sub: t('nuclearStats.momUp'), icon: <Target size={20} />, color: '#f59e0b', bg: '#f59e0b22', trend: 'up' },
+              { label: t('nuclearStats.statDrugConsumption'), value: (totalDrug / 1000).toFixed(1), unit: 'Ci', sub: t('nuclearStats.dailyAvg'), icon: <Droplets size={20} />, color: 'var(--color-primary-500)', bg: '#3b82f622', trend: 'up' },
+              { label: t('nuclearStats.statEquipmentUtilization'), value: `${avgUtilization}%`, sub: t('nuclearStats.target80'), icon: <Gauge size={20} />, color: 'var(--color-success-500)', bg: '#22c55e22', trend: 'up' },
+              { label: t('nuclearStats.statPositiveRate'), value: `${avgPositive}%`, sub: t('nuclearStats.momUp'), icon: <Target size={20} />, color: 'var(--color-warning-500)', bg: '#f59e0b22', trend: 'up' },
               { label: t('nuclearStats.statAvgSuv'), value: (suv?.avg ?? 0).toFixed(1), sub: t('nuclearStats.rangeSub', { min: suv?.min ?? 2.1, max: suv?.max ?? 12.8 }), icon: <TrendingUp size={20} />, color: '#8b5cf6', bg: '#8b5cf622', trend: 'stable' },
             ].map((card, i) => (
               <div key={i} style={{ background: C.white, borderRadius: 12, padding: 16, borderTop: `3px solid ${card.color}` }}>
@@ -586,8 +586,8 @@ export default function NuclearStatsPage() {
                   <div style={{ background: card.bg, padding: 10, borderRadius: 8 }}>
                     <div style={{ color: card.color }}>{card.icon}</div>
                   </div>
-                  {card.trend === 'up' && <TrendingUp size={16} color="#22c55e" />}
-                  {card.trend === 'down' && <TrendingDown size={16} color="#dc2626" />}
+                  {card.trend === 'up' && <TrendingUp size={16} color="var(--color-success-500)" />}
+                  {card.trend === 'down' && <TrendingDown size={16} color="var(--color-error-600)" />}
                   {card.trend === 'stable' && <div style={{ width: 16, height: 2, background: C.textMuted, borderRadius: 1 }} />}
                 </div>
                 <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 4px' }}>{card.label}</p>
@@ -607,8 +607,8 @@ export default function NuclearStatsPage() {
               <div style={{ display: 'flex', gap: 16 }}>
                 {[
                   { label: t('nuclearStats.legendExams'), color: C.accent },
-                  { label: t('nuclearStats.legendPositive'), color: '#f59e0b' },
-                  { label: t('nuclearStats.legendUtilization'), color: '#22c55e' },
+                  { label: t('nuclearStats.legendPositive'), color: 'var(--color-warning-500)' },
+                  { label: t('nuclearStats.legendUtilization'), color: 'var(--color-success-500)' },
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <div style={{ width: 12, height: 3, background: item.color, borderRadius: 2 }} />
@@ -627,8 +627,8 @@ export default function NuclearStatsPage() {
                 <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
                 <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
                 <Bar yAxisId="left" dataKey="exams" name={t('nuclearStats.legendExams')} fill={C.accent} radius={[3, 3, 0, 0]} opacity={0.7} />
-                <Line yAxisId="right" type="monotone" dataKey="positive" name={t('nuclearStats.legendPositive')} stroke="#f59e0b" strokeWidth={2} dot={false} />
-                <Line yAxisId="right" type="monotone" dataKey="utilization" name={t('nuclearStats.legendUtilization')} stroke="#22c55e" strokeWidth={2} dot={false} />
+                <Line yAxisId="right" type="monotone" dataKey="positive" name={t('nuclearStats.legendPositive')} stroke="var(--color-warning-500)" strokeWidth={2} dot={false} />
+                <Line yAxisId="right" type="monotone" dataKey="utilization" name={t('nuclearStats.legendUtilization')} stroke="var(--color-success-500)" strokeWidth={2} dot={false} />
               </ComposedChart>
             </ChartContainer>
           </div>
@@ -687,9 +687,9 @@ export default function NuclearStatsPage() {
               <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 16 }}>
                 {[
                   { name: 'PET-CT', count: 356, color: C.accent, percent: 42 },
-                  { name: 'SPECT', count: 248, color: '#3b82f6', percent: 29 },
+                  { name: 'SPECT', count: 248, color: 'var(--color-primary-500)', percent: 29 },
                   { name: t('nuclearStats.boneDensity'), count: 156, color: '#8b5cf6', percent: 19 },
-                  { name: t('nuclearStats.renalDynamic'), count: 98, color: '#22c55e', percent: 12 },
+                  { name: t('nuclearStats.renalDynamic'), count: 98, color: 'var(--color-success-500)', percent: 12 },
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <div style={{ width: 12, height: 12, borderRadius: 3, background: item.color }} />
@@ -728,7 +728,7 @@ export default function NuclearStatsPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
             {[
               { label: '¹⁸F-FDG', value: 48520, unit: 'mCi', usage: t('nuclearStats.usagePetCtImaging'), color: C.accent },
-              { label: '⁹⁹mTc-MDP', value: 18250, unit: 'mCi', usage: t('nuclearStats.usageBoneScan'), color: '#3b82f6' },
+              { label: '⁹⁹mTc-MDP', value: 18250, unit: 'mCi', usage: t('nuclearStats.usageBoneScan'), color: 'var(--color-primary-500)' },
               { label: '¹³¹I', value: 5800, unit: 'mCi', usage: t('nuclearStats.usageThyroid'), color: '#8b5cf6' },
             ].map((item, i) => (
               <div key={i} style={{ background: C.white, borderRadius: 12, padding: 20, borderLeft: `4px solid ${item.color}` }}>
@@ -819,7 +819,7 @@ export default function NuclearStatsPage() {
             <LineChartSVG
               data={daily.map(d => ({ label: d.date, value: d.utilization }))}
               width={1100} height={220}
-              lineColor="#22c55e"
+              lineColor="var(--color-success-500)"
               valueKey="value"
               labelKey="label"
             />
@@ -852,7 +852,7 @@ export default function NuclearStatsPage() {
             <LineChartSVG
               data={daily.map(d => ({ label: d.date, value: d.positive }))}
               width={1100} height={220}
-              lineColor="#f59e0b"
+              lineColor="var(--color-warning-500)"
               valueKey="value"
               labelKey="label"
             />

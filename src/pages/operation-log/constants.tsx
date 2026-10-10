@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react'
 import { Edit3, CheckCircle, AlertCircle, LogIn, LogOut, Download, Settings, MonitorSmartphone, Monitor, Server, Zap, Wrench, CheckSquare, Printer, Upload } from 'lucide-react'
 
-export const PRIMARY = '#1e40af'
+export const PRIMARY = 'var(--color-primary-800)'
 export const PRIMARY_LIGHT = '#2c5282'
 export const ACCENT = '#3182ce'
 export const SUCCESS = '#059669'
-export const WARNING = '#d97706'
-export const DANGER = '#dc2626'
+export const WARNING = 'var(--color-warning-600)'
+export const DANGER = 'var(--color-error-600)'
 export const PURPLE = '#7c3aed'
 export const GRAY = 'var(--text-secondary, #475569)'
 export const BG = 'var(--bg-primary, #f8fafc)'
@@ -24,15 +24,15 @@ export const QUICK_TIME_FILTERS = [
 ]
 
 export const ACTION_COLORS: Record<string, string> = {
-  '修改报告': '#3b82f6',
+  '修改报告': 'var(--color-primary-500)',
   '审核通过': '#059669',
-  '审核驳回': '#dc2626',
+  '审核驳回': 'var(--color-error-600)',
   '登录': '#8b5cf6',
   '登出': '#6b7280',
-  '导出数据': '#f59e0b',
+  '导出数据': 'var(--color-warning-500)',
   '修改设置': '#14b8a6',
   '批量审核': '#ec4899',
-  '打印报告': '#06b6d4',
+  '打印报告': 'var(--color-info-500)',
   '数据导入': '#84cc16',
   '系统维护': '#f97316',
 }
@@ -52,10 +52,10 @@ export const ACTION_ICONS: Record<string, ReactNode> = {
 }
 
 export const SOURCE_COLORS: Record<string, string> = {
-  'Web端': '#3b82f6',
+  'Web端': 'var(--color-primary-500)',
   '移动端': '#10b981',
   'API接口': '#8b5cf6',
-  '系统自动': '#f59e0b',
+  '系统自动': 'var(--color-warning-500)',
 }
 
 export const SOURCE_ICONS: Record<string, ReactNode> = {

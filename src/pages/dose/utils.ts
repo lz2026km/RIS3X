@@ -2,18 +2,18 @@ import type { PatientDoseRecord, DeviceDoseData } from "./types";
 
 export const getAlertBadge = (level: string) => {
   if (level === "critical")
-    return { bg: "#fef2f2", color: "#dc2626", label: "危", border: "#fecaca" };
+    return { bg: "#fef2f2", color: "var(--color-error-600)", label: "危", border: "#fecaca" };
   if (level === "warning")
-    return { bg: "#fffbeb", color: "#d97706", label: "警", border: "#fde68a" };
-  return { bg: "#f0fdf4", color: "#16a34a", label: "正", border: "#bbf7d0" };
+    return { bg: "#fffbeb", color: "var(--color-warning-600)", label: "警", border: "#fde68a" };
+  return { bg: "#f0fdf4", color: "var(--color-success-600)", label: "正", border: "#bbf7d0" };
 };
 
 export const getStatusBadge = (status: string) => {
   if (status === "critical")
-    return { bg: "#fef2f2", color: "#dc2626", label: "超标" };
+    return { bg: "#fef2f2", color: "var(--color-error-600)", label: "超标" };
   if (status === "warning")
-    return { bg: "#fffbeb", color: "#d97706", label: "预警" };
-  return { bg: "#f0fdf4", color: "#16a34a", label: "正常" };
+    return { bg: "#fffbeb", color: "var(--color-warning-600)", label: "预警" };
+  return { bg: "#f0fdf4", color: "var(--color-success-600)", label: "正常" };
 };
 
 export const exportDoseDataToCSV = (

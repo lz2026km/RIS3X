@@ -113,8 +113,8 @@ export interface FollowUpRecord {
   followUpDate?: string
 }
 
-export const PRIMARY_COLOR = '#1e40af'
-export const PRIMARY_LIGHT = '#3b82f6'
+export const PRIMARY_COLOR = 'var(--color-primary-800)'
+export const PRIMARY_LIGHT = 'var(--color-primary-500)'
 export const PRIMARY_BG = '#eff6ff'
 
 /**
@@ -123,20 +123,20 @@ export const PRIMARY_BG = '#eff6ff'
  * '已处理'→'resolved' / '超时'→'overdue'
  */
 export const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
-  pending: { bg: '#fee2e2', color: '#dc2626', label: '待处理' },
-  notified: { bg: '#fef3c7', color: '#d97706', label: '已通知' },
+  pending: { bg: '#fee2e2', color: 'var(--color-error-600)', label: '待处理' },
+  notified: { bg: '#fef3c7', color: 'var(--color-warning-600)', label: '已通知' },
   voice_called: { bg: '#fef2f2', color: '#ea580c', label: '电话通知' },
-  acknowledged: { bg: '#dbeafe', color: '#2563eb', label: '已接收' },
-  receipted: { bg: '#f0fdf4', color: '#16a34a', label: '已回执' },
-  resolving: { bg: '#fef3c7', color: '#d97706', label: '处理中' },
+  acknowledged: { bg: '#dbeafe', color: 'var(--color-primary-600)', label: '已接收' },
+  receipted: { bg: '#f0fdf4', color: 'var(--color-success-600)', label: '已回执' },
+  resolving: { bg: '#fef3c7', color: 'var(--color-warning-600)', label: '处理中' },
   resolved: { bg: '#d1fae5', color: '#059669', label: '已处理' },
   closed_loop: { bg: '#dcfce7', color: '#047857', label: '已闭环' },
   escalated: { bg: '#fecaca', color: '#991b1b', label: '已升级' },
   cancelled: { bg: '#f1f5f9', color: '#64748b', label: '已取消' },
   overdue: { bg: '#fecaca', color: '#991b1b', label: '超时' },
   // legacy Chinese keys → 兼容
-  '待处理': { bg: '#fee2e2', color: '#dc2626', label: '待处理' },
-  '处理中': { bg: '#fef3c7', color: '#d97706', label: '处理中' },
+  '待处理': { bg: '#fee2e2', color: 'var(--color-error-600)', label: '待处理' },
+  '处理中': { bg: '#fef3c7', color: 'var(--color-warning-600)', label: '处理中' },
   '已处理': { bg: '#d1fae5', color: '#059669', label: '已处理' },
   '超时': { bg: '#fecaca', color: '#991b1b', label: '超时' },
 }
@@ -156,9 +156,9 @@ export function toStoreStatus(raw: string): string {
 }
 
 export const SEVERITY_CONFIG: Record<string, { bg: string; color: string; borderColor: string; slaMinutes: number; label: string }> = {
-  '危及生命': { bg: '#fef2f2', color: '#dc2626', borderColor: '#dc2626', slaMinutes: 5, label: '危及生命' },
-  '危急': { bg: '#fee2e2', color: '#ef4444', borderColor: '#ef4444', slaMinutes: 10, label: '危急' },
+  '危及生命': { bg: '#fef2f2', color: 'var(--color-error-600)', borderColor: 'var(--color-error-600)', slaMinutes: 5, label: '危及生命' },
+  '危急': { bg: '#fee2e2', color: 'var(--color-error-500)', borderColor: 'var(--color-error-500)', slaMinutes: 10, label: '危急' },
   '高危': { bg: '#fffbeb', color: '#f97316', borderColor: '#f97316', slaMinutes: 30, label: '高危' },
   '紧急': { bg: '#eff6ff', color: '#eab308', borderColor: '#eab308', slaMinutes: 120, label: '紧急' },
-  '警告': { bg: '#f0f9ff', color: '#3b82f6', borderColor: '#3b82f6', slaMinutes: 1440, label: '警告' },
+  '警告': { bg: '#f0f9ff', color: 'var(--color-primary-500)', borderColor: 'var(--color-primary-500)', slaMinutes: 1440, label: '警告' },
 }

@@ -20,8 +20,8 @@ import { BarChart3, TrendingUp, TrendingDown, Activity, Users, DollarSign, Smile
 import React, { useCallback, useEffect, useState } from 'react'
 import { t } from '../../i18n/appI18n'
 
-const categoryIcons: Record<string, React.ReactNode> = { productivity: <Activity size={16} color="#2563eb" />, clinical: <BarChart3 size={16} color="#22c55e" />, operational: <Users size={16} color="#f59e0b" />, financial: <DollarSign size={16} color="#10b981" />, satisfaction: <Smile size={16} color="#8b5cf6" /> }
-const categoryColors: Record<string, string> = { productivity: '#2563eb', clinical: '#22c55e', operational: '#f59e0b', financial: '#10b981', satisfaction: '#8b5cf6' }
+const categoryIcons: Record<string, React.ReactNode> = { productivity: <Activity size={16} color="var(--color-primary-600)" />, clinical: <BarChart3 size={16} color="var(--color-success-500)" />, operational: <Users size={16} color="var(--color-warning-500)" />, financial: <DollarSign size={16} color="#10b981" />, satisfaction: <Smile size={16} color="#8b5cf6" /> }
+const categoryColors: Record<string, string> = { productivity: 'var(--color-primary-600)', clinical: 'var(--color-success-500)', operational: 'var(--color-warning-500)', financial: '#10b981', satisfaction: '#8b5cf6' }
 const CATEGORY_LABELS_DICT: Record<string, string> = { productivity: 'eyeKpi.cat.productivity', clinical: 'eyeKpi.cat.clinical', operational: 'eyeKpi.cat.operational', financial: 'eyeKpi.cat.financial', satisfaction: 'eyeKpi.cat.satisfaction' }
 
 interface KpiMetric {
@@ -104,7 +104,7 @@ const EyeKpiDashboardPage: React.FC = () => {
     <PageContainer background="slate" maxWidth="full" padding={16} testId="eye-kpi-dashboard-page">
       <PageHeader
         title={t('eyeKpi.title')}
-        icon={<BarChart3 size={24} color="#2563eb" />}
+        icon={<BarChart3 size={24} color="var(--color-primary-600)" />}
         variant="inline"
         actions={
           <Space>
@@ -126,10 +126,10 @@ const EyeKpiDashboardPage: React.FC = () => {
         <>
           <StatCardGrid minWidth={200} gap={12} testId="eye-kpi-grid" style={{ marginBottom: 12 }}>
             <StatCard title={t('eyeKpi.dailyExams')} value={kpiData.dailyExams} suffix={t('eyeKpi.unitVisits')} icon={<Activity size={16} />} />
-            <StatCard title={t('eyeKpi.aiAdoption')} value={kpiData.aiAdoption} suffix="%" icon={<BarChart3 size={16} />} color="#22c55e" />
-            <StatCard title={t('eyeKpi.monthlySurgery')} value={kpiData.surgeryCount ?? 0} suffix={t('eyeKpi.unitCases')} icon={<Users size={16} color="#f59e0b" />} />
+            <StatCard title={t('eyeKpi.aiAdoption')} value={kpiData.aiAdoption} suffix="%" icon={<BarChart3 size={16} />} color="var(--color-success-500)" />
+            <StatCard title={t('eyeKpi.monthlySurgery')} value={kpiData.surgeryCount ?? 0} suffix={t('eyeKpi.unitCases')} icon={<Users size={16} color="var(--color-warning-500)" />} />
             <StatCard title={t('eyeKpi.satisfaction')} value={avgSat.toFixed(1)} suffix={t('eyeKpi.unitPoints')} icon={<Smile size={16} color="#8b5cf6" />} />
-            <StatCard title={t('eyeKpi.avgWait')} value={kpiData.avgWait} suffix="min" icon={<AlertTriangle size={16} color="#f59e0b" />} />
+            <StatCard title={t('eyeKpi.avgWait')} value={kpiData.avgWait} suffix="min" icon={<AlertTriangle size={16} color="var(--color-warning-500)" />} />
             <StatCard title={t('eyeKpi.monthlyRevenue')} value={kpiData.revenue ?? 0} suffix={t('eyeKpi.unitTenThousand')} icon={<DollarSign size={16} color="#10b981" />} />
           </StatCardGrid>
 
@@ -138,7 +138,7 @@ const EyeKpiDashboardPage: React.FC = () => {
               activeKey={tab}
               onChange={setTab}
               tabBarExtraContent={
-                <Badge count={filtered.length} title={t('eyeKpi.currentMetrics', { count: filtered.length })} style={{ backgroundColor: '#2563eb' }} />
+                <Badge count={filtered.length} title={t('eyeKpi.currentMetrics', { count: filtered.length })} style={{ backgroundColor: 'var(--color-primary-600)' }} />
               }
               items={[
                 { key: 'all', label: t('eyeKpi.allMetrics') },
@@ -153,7 +153,7 @@ const EyeKpiDashboardPage: React.FC = () => {
                   { title: t('eyeKpi.colValue'), dataIndex: 'value', key: 'value', width: 90, render: (v: number, r: KpiMetric) => <span style={{ fontWeight: 600 }}>{v}{r.unit}</span> },
                   { title: t('eyeKpi.colTarget'), dataIndex: 'target', key: 'target', width: 70, render: (v: number) => v },
                   { title: t('eyeKpi.colRate'), key: 'rate', width: 140, render: (_, r: KpiMetric) => <PercentBar value={r.value} target={r.target} /> },
-                  { title: t('eyeKpi.colTrend'), dataIndex: 'trend', key: 'trend', width: 70, render: (v: string) => v === 'up' ? <TrendingUp size={14} color="#22c55e" /> : v === 'down' ? <TrendingDown size={14} color="#ef4444" /> : <span style={{ color: 'var(--text-secondary)' }}>→</span> },
+                  { title: t('eyeKpi.colTrend'), dataIndex: 'trend', key: 'trend', width: 70, render: (v: string) => v === 'up' ? <TrendingUp size={14} color="var(--color-success-500)" /> : v === 'down' ? <TrendingDown size={14} color="var(--color-error-500)" /> : <span style={{ color: 'var(--text-secondary)' }}>→</span> },
                   { title: t('eyeKpi.colPeriod'), dataIndex: 'period', key: 'period', width: 60 },
                 ]} 
               scroll={{ x: 'max-content' }}/>
@@ -165,7 +165,7 @@ const EyeKpiDashboardPage: React.FC = () => {
               <Row gutter={12}>{['eyeKpi.sat.communication', 'eyeKpi.sat.wait', 'eyeKpi.sat.environment', 'eyeKpi.sat.recommend'].map((s, i) => {
                 const scores = patientSatisfaction.map(p => [p.communicationScore, p.waitTimeScore, p.facilityScore, p.recommendationScore][i] ?? 0)
                 const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-                return <Col span={6} key={s}><div style={{ textAlign: 'center' }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t(s)}</div><Progress type="dashboard" percent={avg} size={60} strokeColor={avg >= 90 ? '#22c55e' : avg >= 80 ? '#2563eb' : '#f59e0b'} /><div style={{ fontSize: 12, fontWeight: 600 }}>{avg}{t('eyeKpi.unitPoints')}</div></div></Col>
+                return <Col span={6} key={s}><div style={{ textAlign: 'center' }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t(s)}</div><Progress type="dashboard" percent={avg} size={60} strokeColor={avg >= 90 ? 'var(--color-success-500)' : avg >= 80 ? 'var(--color-primary-600)' : 'var(--color-warning-500)'} /><div style={{ fontSize: 12, fontWeight: 600 }}>{avg}{t('eyeKpi.unitPoints')}</div></div></Col>
               })}</Row>
             )}
           </Card>
@@ -177,7 +177,7 @@ const EyeKpiDashboardPage: React.FC = () => {
 
 const PercentBar: React.FC<{ value: number; target: number }> = ({ value, target }) => {
   const pct = Math.min(Math.round((value / target) * 100), 100)
-  return <Progress percent={pct} size="small" strokeColor={pct >= 90 ? '#22c55e' : pct >= 70 ? '#f59e0b' : '#ef4444'} style={{ margin: 0 }} />
+  return <Progress percent={pct} size="small" strokeColor={pct >= 90 ? 'var(--color-success-500)' : pct >= 70 ? 'var(--color-warning-500)' : 'var(--color-error-500)'} style={{ margin: 0 }} />
 }
 export default EyeKpiDashboardPage
 

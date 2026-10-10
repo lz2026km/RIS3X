@@ -12,9 +12,9 @@ import { t } from '../i18n/appI18n';
 
 const MODALITIES = ['CT', 'MR', 'DR', 'US', 'DSA', 'MG', 'PET-CT'];
 const PRIORITIES = [
-  { value: 'critical', label: t('sla.priority.critical'), color: '#ef4444' },
-  { value: 'urgent', label: t('sla.priority.urgent'), color: '#f59e0b' },
-  { value: 'normal', label: t('sla.priority.normal'), color: '#3b82f6' },
+  { value: 'critical', label: t('sla.priority.critical'), color: 'var(--color-error-500)' },
+  { value: 'urgent', label: t('sla.priority.urgent'), color: 'var(--color-warning-500)' },
+  { value: 'normal', label: t('sla.priority.normal'), color: 'var(--color-primary-500)' },
 ];
 
 export default function SlaPolicyPage() {
@@ -173,7 +173,7 @@ export default function SlaPolicyPage() {
 
   return (
     <div style={{ padding: 24, background: 'var(--bg-card)',}} data-testid="sla-policy-page">
-      <header style={{ background: 'linear-gradient(135deg,#dc2626 0%,#f59e0b 100%)', color: '#fff', padding: '14px 24px', borderRadius: 10, marginBottom: 16 }}>
+      <header style={{ background: 'linear-gradient(135deg,var(--color-error-600) 0%,var(--color-warning-500) 100%)', color: '#fff', padding: '14px 24px', borderRadius: 10, marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Clock size={20} />
           <div>

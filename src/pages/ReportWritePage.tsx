@@ -239,7 +239,7 @@ function SimilarTab({ reportText, modality, bodyPart }: { reportText: string; mo
               {c.featureSummary != null && <span>{t("reportWrite.average")} {c.featureSummary.mean}</span>}
             </div>
           )}
-          <Progress percent={c.similarity} size="small" strokeColor={c.similarity >= 70 ? '#16a34a' : '#f59e0b'} showInfo={false} style={{ marginTop: 4 }} />
+          <Progress percent={c.similarity} size="small" strokeColor={c.similarity >= 70 ? 'var(--color-success-600)' : 'var(--color-warning-500)'} showInfo={false} style={{ marginTop: 4 }} />
         </div>
       ))}
       </>
@@ -302,7 +302,7 @@ function ScoreTab({ preScore, source, loading }: { preScore: any; source: 'api' 
   return (
     <>
       <div className="text-center mb-3">
-        <Progress type="circle" percent={preScore.score} size={80} strokeColor={preScore.passed ? '#10b981' : '#f59e0b'} format={(p) => <span className="text-2xl font-bold">{p}</span>} />
+        <Progress type="circle" percent={preScore.score} size={80} strokeColor={preScore.passed ? '#10b981' : 'var(--color-warning-500)'} format={(p) => <span className="text-2xl font-bold">{p}</span>} />
         <div className="text-xs text-slate-500 mt-1">
           {preScore.passed ? t("reportWrite.submittable") : t("reportWrite.needsWork")}
           <span className="ml-1">{loading ? t("reportWrite.scoring2") : ''}</span>
@@ -573,13 +573,13 @@ function TemplateSmartPanel({ templates, loading, favIds, recentIds, modality, b
 .v3-topbar-left, .v3-topbar-right { display: flex; align-items: center; gap: 8px; }
 .v3-topbar-title { font-weight: 600; white-space: nowrap; }
 .v3-topbar-stats { font-size: 12px; color: #64748b; white-space: nowrap; }
-.v3-topbar-autosave { font-size: 11px; color: #22c55e; white-space: nowrap; }
+.v3-topbar-autosave { font-size: 11px; color: var(--color-success-500); white-space: nowrap; }
 .v3-content { padding: 12px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; max-height: calc(100vh - 53px); background: var(--bg-primary); }
 .v3-content .v3-card { box-shadow: 0 1px 2px rgba(0,0,0,0.04); border-radius: 8px; }
 .v3-clinical-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; font-size: 12px; }
 .v3-clinical-item { padding: 6px; background: var(--bg-card); border-radius: 4px; }
 .v3-clinical-label { color: #64748b; font-size: 10px; }
-.v3-clinical-code { font-family: monospace; color: #3b82f6; }
+.v3-clinical-code { font-family: monospace; color: var(--color-primary-500); }
 .v3-clinical-full { grid-column: 1 / -1; font-size: 12px; line-height: 1.6; background: var(--bg-card); padding: 6px 8px; border-radius: 4px; }
 .v3-sider { overflow-y: auto; max-height: calc(100vh - 53px); border-left: 1px solid #e2e8f0; }
 .v3-sider .ant-tabs-nav { margin-bottom: 0 !important; padding-top: 4px; }
@@ -715,7 +715,7 @@ export default function ReportWritePage() {
             term: k,
             termEn: '',
             category: 'finding',
-            color: i % 2 ? '#3b82f6' : '#dc2626',
+            color: i % 2 ? 'var(--color-primary-500)' : 'var(--color-error-600)',
             bg: i % 2 ? '#dbeafe' : '#fee2e2',
             weight: 5,
           }));
@@ -1516,7 +1516,7 @@ export default function ReportWritePage() {
     const figNo = existingImgs + 1;
     const html = thumb
       ? `<figure style="margin:10px 0;text-align:center;"><img src="${thumb}" alt="${safeLabel}" style="max-width:100%;border:1px solid #cbd5e1;border-radius:4px;" /><figcaption style="font-size:12px;color:#475569;margin-top:4px;">${t("w9a.reportWrite.figureCaption", { no: figNo, label: safeLabel })}</figcaption></figure>`
-      : `<div style="border:2px dashed #0891b2;border-radius:8px;padding:12px;margin:8px 0;background:#f0f9ff;text-align:center;font-size:13px;color:#0891b2;">${t("w9a.reportWrite.anchorPlaceholder", { label: safeLabel })}</div>`;
+      : `<div style="border:2px dashed var(--color-info-600);border-radius:8px;padding:12px;margin:8px 0;background:#f0f9ff;text-align:center;font-size:13px;color:var(--color-info-600);">${t("w9a.reportWrite.anchorPlaceholder", { label: safeLabel })}</div>`;
     editorRef.current?.insertHtml(html);
     message.success(t("reportWrite.anchorInserted"));
   }, [context.document.html]);
@@ -2578,7 +2578,7 @@ export default function ReportWritePage() {
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="p-3 bg-slate-50 rounded text-center">
               <div className="text-slate-500">{t("reportWrite.preScore")}</div>
-              <div className="text-lg font-semibold" style={{ color: preScore.passed ? '#10b981' : '#f59e0b' }}>{preScore.score} / 100</div>
+              <div className="text-lg font-semibold" style={{ color: preScore.passed ? '#10b981' : 'var(--color-warning-500)' }}>{preScore.score} / 100</div>
               <Tag color={preScoreSource === 'api' ? 'green' : 'orange'} className="mt-1 text-[10px]" title={t("reportWrite.preScoreSource")}>
                 {preScoreSource === 'api' ? t("reportWrite.realScore") : t("reportWrite.demoFallback")}
               </Tag>
@@ -2667,7 +2667,7 @@ export default function ReportWritePage() {
               role="button"
               tabIndex={0}
               className="p-3 border rounded cursor-pointer flex items-start gap-3 transition-colors"
-              style={{ borderColor: printLayoutId === l.id ? '#2563eb' : '#e2e8f0', background: printLayoutId === l.id ? '#eff6ff' : '#fff' }}
+              style={{ borderColor: printLayoutId === l.id ? 'var(--color-primary-600)' : '#e2e8f0', background: printLayoutId === l.id ? '#eff6ff' : '#fff' }}
               onClick={() => setPrintLayoutId(l.id)}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setPrintLayoutId(l.id) } }}
             >
@@ -3035,7 +3035,7 @@ function PhraseLibraryModal({ open, phrases, loading, dataSource = 'api', favIds
 
   return (
     <Modal
-      title={<Space><BookMarked className="w-4 h-4" style={{ color: '#0891b2' }} /><span>{t("reportWrite.phraseLibrary")}</span><Tag color="cyan">{filtered.length} {t("reportWrite.recordUnit")}</Tag>{favIds.length > 0 && <Tag color="amber" className="m-0 text-[10px]">{t("reportWrite.favorite")} {favIds.length}</Tag>}{dataSource === 'fallback' && <Tag color="orange" title={t("reportWrite.snippetsFallback")}>{t("reportWrite.demoFallback")}</Tag>}</Space>}
+      title={<Space><BookMarked className="w-4 h-4" style={{ color: 'var(--color-info-600)' }} /><span>{t("reportWrite.phraseLibrary")}</span><Tag color="cyan">{filtered.length} {t("reportWrite.recordUnit")}</Tag>{favIds.length > 0 && <Tag color="amber" className="m-0 text-[10px]">{t("reportWrite.favorite")} {favIds.length}</Tag>}{dataSource === 'fallback' && <Tag color="orange" title={t("reportWrite.snippetsFallback")}>{t("reportWrite.demoFallback")}</Tag>}</Space>}
       open={open}
       onCancel={onClose}
       footer={null}
@@ -3227,7 +3227,7 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
 
   return (
     <Modal
-      title={<Space><BookMarked className="w-4 h-4" style={{ color: '#0891b2' }} /><span>{t("reportWrite.templateLibrary")}</span><Tag color="cyan">{filteredTemplates.length} {t("reportWrite.templateDot")} {filteredPhrases.length} 短语</Tag>{phraseSource === 'fallback' && <Tag color="orange" title={t("reportWrite.snippetsPhraseFallback")}>{t("reportWrite.demoFallback")}</Tag>}{favSource === 'api' ? <Tag color="green" title={t("reportWrite.favoriteServerNote2")}>{t("reportWrite.serverFavorite")}</Tag> : <Tag color="orange" title={t("reportWrite.favoriteFallbackNote")}>{t("reportWrite.localFavoriteFallback")}</Tag>}</Space>}
+      title={<Space><BookMarked className="w-4 h-4" style={{ color: 'var(--color-info-600)' }} /><span>{t("reportWrite.templateLibrary")}</span><Tag color="cyan">{filteredTemplates.length} {t("reportWrite.templateDot")} {filteredPhrases.length} 短语</Tag>{phraseSource === 'fallback' && <Tag color="orange" title={t("reportWrite.snippetsPhraseFallback")}>{t("reportWrite.demoFallback")}</Tag>}{favSource === 'api' ? <Tag color="green" title={t("reportWrite.favoriteServerNote2")}>{t("reportWrite.serverFavorite")}</Tag> : <Tag color="orange" title={t("reportWrite.favoriteFallbackNote")}>{t("reportWrite.localFavoriteFallback")}</Tag>}</Space>}
       open={open}
       onCancel={onClose}
       footer={null}

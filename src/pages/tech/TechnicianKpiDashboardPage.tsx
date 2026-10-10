@@ -101,7 +101,7 @@ export default function TechnicianKpiDashboardPage() {
     <div style={{ padding: 20, maxWidth: 1240, margin: '0 auto' }}>
       {/* 头部 */}
       <PageHeader
-        icon={<BarChart3 size={18} color="#1e40af" />}
+        icon={<BarChart3 size={18} color="var(--color-primary-800)" />}
         title="技师 KPI 看板"
         subtitle={<Tag color="blue" style={{ fontSize: 11 }}>Wave 1A</Tag>}
         actions={
@@ -157,7 +157,7 @@ export default function TechnicianKpiDashboardPage() {
         display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, fontSize: 12,
         padding: '6px 12px', borderRadius: 8,
         background: dataSource === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-        color: dataSource === 'api' ? '#059669' : '#d97706',
+        color: dataSource === 'api' ? '#059669' : 'var(--color-warning-600)',
         border: `1px solid ${dataSource === 'api' ? '#bbf7d0' : '#fde68a'}`,
       }} data-testid="tech-kpi-data-source-badge">
         <Wifi size={12} />
@@ -182,7 +182,7 @@ export default function TechnicianKpiDashboardPage() {
               padding: '14px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-                <TrendingUp size={13} color="#2563eb" />
+                <TrendingUp size={13} color="var(--color-primary-600)" />
                 <AppText size="sm" weight={700} color="primary" style={{ color: THEME_TOKENS.textPrimary }}>完成量趋势</AppText>
                 <AppText size="xs" color="secondary" style={{ marginLeft: 'auto' }}>
                   区间 {from || '全部'} ~ {to || '今天'} · 近 7/30 日完成量
@@ -198,7 +198,7 @@ export default function TechnicianKpiDashboardPage() {
                     contentStyle={{ fontSize: 12, borderRadius: 8 }}
                   />
                   <Line
-                    type="monotone" dataKey="completed" name="完成量" stroke="#2563eb" strokeWidth={2}
+                    type="monotone" dataKey="completed" name="完成量" stroke="var(--color-primary-600)" strokeWidth={2}
                     dot={{ r: 2.5 }} activeDot={{ r: 4 }}
                   />
                 </LineChart>
@@ -222,10 +222,10 @@ export default function TechnicianKpiDashboardPage() {
                 { title: '完成数', dataIndex: 'completedCount', key: 'completedCount', render: (v: number) => <span style={{ fontWeight: 600, color: '#059669' }}>{v}</span> },
                 { title: '平均时长', dataIndex: 'avgDurationMin', key: 'avgDurationMin', render: (v: number) => `${v} min` },
                 { title: '重拍数', dataIndex: 'retakeCount', key: 'retakeCount' },
-                { title: '重拍率', dataIndex: 'retakeRate', key: 'retakeRate', render: (v: number) => <span style={{ color: v > 20 ? '#dc2626' : 'var(--text-primary)' }}>{v}%</span> },
+                { title: '重拍率', dataIndex: 'retakeRate', key: 'retakeRate', render: (v: number) => <span style={{ color: v > 20 ? 'var(--color-error-600)' : 'var(--text-primary)' }}>{v}%</span> },
                 { title: '平均等待', dataIndex: 'avgWaitTime', key: 'avgWaitTime', render: (v: number) => `${v} min` },
                 { title: '设备占用率', dataIndex: 'deviceUtilization', key: 'deviceUtilization', render: (v: number) => `${v}%` },
-                { title: '按时签到率', dataIndex: 'onTimeRate', key: 'onTimeRate', render: (v: number) => <span style={{ color: v >= 80 ? '#059669' : v >= 60 ? '#d97706' : '#dc2626' }}>{v}%</span> },
+                { title: '按时签到率', dataIndex: 'onTimeRate', key: 'onTimeRate', render: (v: number) => <span style={{ color: v >= 80 ? '#059669' : v >= 60 ? 'var(--color-warning-600)' : 'var(--color-error-600)' }}>{v}%</span> },
               ]}
             />
           </div>

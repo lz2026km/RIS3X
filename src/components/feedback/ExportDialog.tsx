@@ -109,9 +109,9 @@ export function ExportDialog({ reportId, open, onCancel }: ExportDialogProps) {
             status={result.success ? "success" : "error"}
             icon={
               result.success ? (
-                <CheckCircle2 style={{ color: "#22c55e" }} />
+                <CheckCircle2 style={{ color: "var(--color-success-500)" }} />
               ) : (
-                <XCircle style={{ color: "#ef4444" }} />
+                <XCircle style={{ color: "var(--color-error-500)" }} />
               )
             }
             title={

@@ -26,9 +26,9 @@ import { ChartContainer } from '../../../charts';
 
 const GRADE_COLOR: Record<QualityGrade, string> = {
   '甲': '#10b981',
-  '乙': '#3b82f6',
-  '丙': '#f59e0b',
-  '丁': '#dc2626',
+  '乙': 'var(--color-primary-500)',
+  '丙': 'var(--color-warning-500)',
+  '丁': 'var(--color-error-600)',
 };
 
 export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> = ({ year, month }) => {
@@ -109,7 +109,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
     <div data-testid="quality-monthly-report" role="region" aria-label={t('qualityMonthly.ariaLabel')}>
       <div
         style={{
-          background: 'linear-gradient(135deg, #1e40af 0%, #7c3aed 100%)',
+          background: 'linear-gradient(135deg, var(--color-primary-800) 0%, #7c3aed 100%)',
           color: '#fff',
           padding: '14px 18px',
           borderRadius: 8,
@@ -241,7 +241,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                           percent={Math.round(
                             ((report.gradeDistribution['乙'] ?? 0) / Math.max(1, report.totalReports)) * 100,
                           )}
-                          strokeColor="#3b82f6"
+                          strokeColor="var(--color-primary-500)"
                         />
                       </div>
                       <div>
@@ -250,7 +250,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                           percent={Math.round(
                             ((report.gradeDistribution['丙'] ?? 0) / Math.max(1, report.totalReports)) * 100,
                           )}
-                          strokeColor="#f59e0b"
+                          strokeColor="var(--color-warning-500)"
                         />
                       </div>
                       <div>
@@ -259,7 +259,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                           percent={Math.round(
                             ((report.gradeDistribution['丁'] ?? 0) / Math.max(1, report.totalReports)) * 100,
                           )}
-                          strokeColor="#dc2626"
+                          strokeColor="var(--color-error-600)"
                         />
                       </div>
                     </Space>
@@ -275,9 +275,9 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                         <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} />
                         <RTooltip />
                         <Legend wrapperStyle={{ fontSize: 12 }} />
-                        <Line yAxisId="left" type="monotone" dataKey="avgScore" stroke="#3b82f6" strokeWidth={2} name={t('qualityMonthly.series.avgScore')} />
+                        <Line yAxisId="left" type="monotone" dataKey="avgScore" stroke="var(--color-primary-500)" strokeWidth={2} name={t('qualityMonthly.series.avgScore')} />
                         <Line yAxisId="right" type="monotone" dataKey="evaluated" stroke="#10b981" strokeWidth={2} name={t('qualityMonthly.series.evaluated')} />
-                        <Line yAxisId="right" type="monotone" dataKey="defects" stroke="#dc2626" strokeWidth={2} name={t('qualityMonthly.series.defects')} />
+                        <Line yAxisId="right" type="monotone" dataKey="defects" stroke="var(--color-error-600)" strokeWidth={2} name={t('qualityMonthly.series.defects')} />
                       </LineChart>
                     </ChartContainer>
                   </Card>
@@ -300,7 +300,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                         </div>
                         <div>
                           <span style={{ color: '#64748b', fontSize: 12 }}>{t('qualityMonthly.criticalMissed')}</span>
-                          <strong style={{ color: kpi.criticalMissedCount > 0 ? '#dc2626' : '#10b981' }}>
+                          <strong style={{ color: kpi.criticalMissedCount > 0 ? 'var(--color-error-600)' : '#10b981' }}>
                             {kpi.criticalMissedCount}
                           </strong>
                         </div>
@@ -395,7 +395,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                             <Tag color={d.rank === 1 ? 'gold' : d.rank <= 3 ? 'blue' : 'default'}>#{d.rank}</Tag>
                             <strong>{d.doctorName}</strong>
                             <span>
-                              {t('qualityMonthly.avgScoreLabel')} <strong style={{ color: '#3b82f6' }}>{d.avgScore}</strong>
+                              {t('qualityMonthly.avgScoreLabel')} <strong style={{ color: 'var(--color-primary-500)' }}>{d.avgScore}</strong>
                             </span>
                             <Tag>{d.total} {t('qualityMonthly.casesUnit')}</Tag>
                           </Space>
@@ -414,7 +414,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                             <Tag color={d.rank === 1 ? 'gold' : d.rank <= 3 ? 'blue' : 'default'}>#{d.rank}</Tag>
                             <strong>{d.department}</strong>
                             <span>
-                              {t('qualityMonthly.avgScoreLabel')} <strong style={{ color: '#3b82f6' }}>{d.avgScore}</strong>
+                              {t('qualityMonthly.avgScoreLabel')} <strong style={{ color: 'var(--color-primary-500)' }}>{d.avgScore}</strong>
                             </span>
                             <Tag>{d.total} {t('qualityMonthly.casesUnit')}</Tag>
                           </Space>
@@ -433,7 +433,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
               <Card size="small">
                 {report.sections.map((s) => (
                   <div key={s.key} style={{ marginBottom: 16 }}>
-                    <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1e40af', margin: 0 }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-primary-800)', margin: 0 }}>
                       {s.title} · {s.titleEn}
                     </h3>
                     <p style={{ fontSize: 12, color: '#475569', marginTop: 4, lineHeight: 1.6 }}>{s.content}</p>

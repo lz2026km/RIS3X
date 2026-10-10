@@ -74,7 +74,7 @@ const CATEGORY_CONFIG: Record<
 > = {
   description: {
     labelKey: "reportDefect.cat.description",
-    color: "#3b82f6",
+    color: "var(--color-primary-500)",
     bg: "#3b82f622",
     icon: FileText,
   },
@@ -84,10 +84,10 @@ const CATEGORY_CONFIG: Record<
     bg: "#8b5cf622",
     icon: BookOpen,
   },
-  format: { labelKey: "reportDefect.cat.format", color: "#0891b2", bg: "#06b6d422", icon: Hash },
+  format: { labelKey: "reportDefect.cat.format", color: "var(--color-info-600)", bg: "#06b6d422", icon: Hash },
   logic: {
     labelKey: "reportDefect.cat.logic",
-    color: "#ef4444", bg: "#ef444422",
+    color: "var(--color-error-500)", bg: "#ef444422",
     icon: AlertOctagon,
   },
   critical: {
@@ -98,15 +98,15 @@ const CATEGORY_CONFIG: Record<
   },
   completeness: {
     labelKey: "reportDefect.cat.completeness",
-    color: "#f59e0b", bg: "#f59e0b22",
+    color: "var(--color-warning-500)", bg: "#f59e0b22",
     icon: ListChecks,
   },
 };
 
 const SEVERITY_CONFIG = {
-  minor: { labelKey: "reportDefect.sev.minor", color: "#3b82f6", bg: "#3b82f622" },
-  major: { labelKey: "reportDefect.sev.major", color: "#f59e0b", bg: "#f59e0b22" },
-  critical: { labelKey: "reportDefect.sev.critical", color: "#ef4444", bg: "#ef444422" },
+  minor: { labelKey: "reportDefect.sev.minor", color: "var(--color-primary-500)", bg: "#3b82f622" },
+  major: { labelKey: "reportDefect.sev.major", color: "var(--color-warning-500)", bg: "#f59e0b22" },
+  critical: { labelKey: "reportDefect.sev.critical", color: "var(--color-error-500)", bg: "#ef444422" },
 };
 
 // ============================================================
@@ -399,7 +399,7 @@ export default function ReportDefectLibraryPage() {
               gap: 8,
             }}
           >
-            <AlertOctagon size={20} color="#dc2626" /> {t('reportDefect.title')}
+            <AlertOctagon size={20} color="var(--color-error-600)" /> {t('reportDefect.title')}
             <span
               style={{
                 fontSize: 12,
@@ -424,7 +424,7 @@ export default function ReportDefectLibraryPage() {
               padding: "6px 12px",
               border: "none",
               borderRadius: 6,
-              background: "#3b82f6",
+              background: "var(--color-primary-500)",
               color: "#fff",
               fontSize: 12,
               fontWeight: 600,
@@ -547,7 +547,7 @@ export default function ReportDefectLibraryPage() {
                   background: "var(--bg-card)",
                   borderRadius: 6,
                   padding: 8,
-                  border: "1px solid #fbbf24",
+                  border: "1px solid var(--color-warning-400)",
                 }}
               >
                 <div style={{ fontSize: 12, color: "#92400e", fontWeight: 700 }}>
@@ -568,7 +568,7 @@ export default function ReportDefectLibraryPage() {
                   style={{
                     fontSize: 18,
                     fontWeight: 700,
-                    color: "#dc2626",
+                    color: "var(--color-error-600)",
                     marginTop: 4,
                   }}
                 >
@@ -654,7 +654,7 @@ export default function ReportDefectLibraryPage() {
               </select>
             </div>
             <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-              <strong style={{ color: "#1e40af" }}>
+              <strong style={{ color: "var(--color-primary-800)" }}>
                 {filteredDefects.length}
               </strong>{" "}
               {t('reportDefect.ofItems', { count: defects.length })}
@@ -672,7 +672,7 @@ export default function ReportDefectLibraryPage() {
               style: {
                 cursor: "pointer",
                 background: selectedDefect?.id === d.id ? "var(--color-info-bg)" : undefined,
-                borderLeft: selectedDefect?.id === d.id ? "3px solid #3b82f6" : "3px solid transparent",
+                borderLeft: selectedDefect?.id === d.id ? "3px solid var(--color-primary-500)" : "3px solid transparent",
               },
             })}
             scroll={{ x: "max-content" }}
@@ -727,7 +727,7 @@ export default function ReportDefectLibraryPage() {
               <div style={{ textAlign: "right" }}>
                 <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t('reportDefect.triggerCount')}</div>
                 <div
-                  style={{ fontSize: 24, fontWeight: 700, color: "#dc2626" }}
+                  style={{ fontSize: 24, fontWeight: 700, color: "var(--color-error-600)" }}
                 >
                   {selectedDefect.count}
                 </div>
@@ -792,7 +792,7 @@ export default function ReportDefectLibraryPage() {
                 style={{
                   fontSize: 12,
                   fontWeight: 700,
-                  color: "#1e40af",
+                  color: "var(--color-primary-800)",
                   marginBottom: 6,
                   display: "flex",
                   alignItems: "center",
@@ -808,7 +808,7 @@ export default function ReportDefectLibraryPage() {
                     padding: 8,
                     marginBottom: 4,
                     background: "var(--color-error-bg)",
-                    borderLeft: "3px solid #dc2626",
+                    borderLeft: "3px solid var(--color-error-600)",
                     borderRadius: 4,
                     fontSize: 12,
                     color: "#7f1d1d",
@@ -915,10 +915,10 @@ export default function ReportDefectLibraryPage() {
                 onClick={() => confirmDeleteDefect(selectedDefect)}
                 style={{
                   padding: "5px 10px",
-                  border: "1px solid #dc2626",
+                  border: "1px solid var(--color-error-600)",
                   borderRadius: 4,
                   background: "var(--bg-card)",
-                  color: "#dc2626",
+                  color: "var(--color-error-600)",
                   fontSize: 12,
                   fontWeight: 600,
                   cursor: "pointer",
@@ -984,7 +984,7 @@ export default function ReportDefectLibraryPage() {
         title={t('reportDefect.addTitle')}
         icon={<Plus size={18} />}
         iconBg="var(--color-info-bg)"
-        iconColor="#1e40af"
+        iconColor="var(--color-primary-800)"
         size="md"
         footer={
           <>
@@ -1008,7 +1008,7 @@ export default function ReportDefectLibraryPage() {
               style={{
                 padding: "8px 18px",
                 border: "none",
-                background: "#3b82f6",
+                background: "var(--color-primary-500)",
                 color: "#fff",
                 borderRadius: 8,
                 fontSize: 12,
@@ -1062,7 +1062,7 @@ export default function ReportDefectLibraryPage() {
               style={{
                 padding: "8px 18px",
                 border: "none",
-                background: "#3b82f6",
+                background: "var(--color-primary-500)",
                 color: "#fff",
                 borderRadius: 8,
                 fontSize: 12,
@@ -1185,7 +1185,7 @@ export default function ReportDefectLibraryPage() {
             top: 24,
             left: "50%",
             transform: "translateX(-50%)",
-            background: toast.type === "success" ? "#059669" : "#dc2626",
+            background: toast.type === "success" ? "#059669" : "var(--color-error-600)",
             color: "#fff",
             padding: "10px 20px",
             borderRadius: 8,

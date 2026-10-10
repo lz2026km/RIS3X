@@ -80,16 +80,16 @@ function reportToReviewTask(r: ReportDto): ReviewTask | null {
 // 阶段配置
 // ============================================================
 const STAGE_CONFIG: Record<ReviewStage, { label: string; color: string; bg: string; icon: any; description: string }> = {
-  initial: { label: t('reportReviewPage.stageInitial'), color: '#f59e0b', bg: '#f59e0b22', icon: Eye,         description: t('reportReviewPage.stageInitialDesc') },
+  initial: { label: t('reportReviewPage.stageInitial'), color: 'var(--color-warning-500)', bg: '#f59e0b22', icon: Eye,         description: t('reportReviewPage.stageInitialDesc') },
   final:   { label: t('reportReviewPage.stageFinal'), color: '#7c2d12', bg: '#f9731622', icon: ShieldCheck, description: t('reportReviewPage.stageFinalDesc') },
   sign:    { label: t('reportReviewPage.stageSign'), color: '#be185d', bg: '#ec489922', icon: Award,        description: t('reportReviewPage.stageSignDesc') },
 };
 
 const STATUS_CONFIG: Record<ReviewStatus, { label: string; color: string; bg: string; border: string }> = {
-  'pending':     { label: t('reportReviewPage.statusPending'), color: '#f59e0b', bg: '#f59e0b22', border: '#fcd34d' },
-  'in-progress': { label: t('reportReviewPage.statusInProgress'), color: '#0891b2', bg: '#06b6d422', border: '#67e8f9' },
+  'pending':     { label: t('reportReviewPage.statusPending'), color: 'var(--color-warning-500)', bg: '#f59e0b22', border: '#fcd34d' },
+  'in-progress': { label: t('reportReviewPage.statusInProgress'), color: 'var(--color-info-600)', bg: '#06b6d422', border: '#67e8f9' },
   'completed':   { label: t('reportReviewPage.statusCompleted'), color: '#10b981', bg: '#22c55e22', border: '#6ee7b7' },
-  'rejected':    { label: t('reportReviewPage.statusRejected'), color: '#ef4444', bg: '#ef444422', border: '#fca5a5' },
+  'rejected':    { label: t('reportReviewPage.statusRejected'), color: 'var(--color-error-500)', bg: '#ef444422', border: '#fca5a5' },
   'overdue':     { label: t('reportReviewPage.statusOverdue'), color: '#7f1d1d', bg: '#ef444422', border: '#f87171' },
 };
 
@@ -107,9 +107,9 @@ function timeAgo(iso: string): string {
 
 function deadlineInfo(_deadline: string, isOverdue: boolean, hoursToDeadline: number): { label: string; color: string } {
   if (isOverdue) {
-    return { label: t('w9c.reportReview.overdueH', { hours: Math.abs(hoursToDeadline) }), color: '#dc2626' };
+    return { label: t('w9c.reportReview.overdueH', { hours: Math.abs(hoursToDeadline) }), color: 'var(--color-error-600)' };
   }
-  if (hoursToDeadline < 2) return { label: t('w9c.reportReview.hoursWithin', { hours: hoursToDeadline }), color: '#f59e0b' };
+  if (hoursToDeadline < 2) return { label: t('w9c.reportReview.hoursWithin', { hours: hoursToDeadline }), color: 'var(--color-warning-500)' };
   return { label: t('w9c.reportReview.hoursAfter', { hours: hoursToDeadline }), color: 'var(--text-secondary)' };
 }
 
@@ -301,7 +301,7 @@ export default function ReportReviewPage() {
               <StageIcon size={9} /> {stageConf.label}
             </span>
             <span style={{ padding: '1px 6px', borderRadius: 3, background: statusConf.bg, color: statusConf.color, border: `1px solid ${statusConf.border}`, fontSize: 12, fontWeight: 600 }}>{statusConf.label}</span>
-            {task.criticalFinding && <span style={{ fontSize: 12, padding: '1px 4px', background: '#dc2626', color: '#fff', borderRadius: 2, fontWeight: 700 }}>{t('reportReviewPage.critical')}</span>}
+            {task.criticalFinding && <span style={{ fontSize: 12, padding: '1px 4px', background: 'var(--color-error-600)', color: '#fff', borderRadius: 2, fontWeight: 700 }}>{t('reportReviewPage.critical')}</span>}
           </div>
         );
       },
@@ -316,7 +316,7 @@ export default function ReportReviewPage() {
               const idx = ['initial', 'final', 'sign'];
               const isPast = idx.indexOf(s) < idx.indexOf(task.stage);
               const isCurrent = s === task.stage;
-              return <div key={s} style={{ flex: 1, height: 3, borderRadius: 2, background: isPast ? '#10b981' : isCurrent ? '#3b82f6' : '#e2e8f0' }} />;
+              return <div key={s} style={{ flex: 1, height: 3, borderRadius: 2, background: isPast ? '#10b981' : isCurrent ? 'var(--color-primary-500)' : '#e2e8f0' }} />;
             })}
           </div>
         </div>
@@ -335,7 +335,7 @@ export default function ReportReviewPage() {
   ];
 
   if (loading) return <div role="status" data-testid="review-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('reportReviewPage.loading')}</div>;
-  if (error) return <div role="alert" data-testid="review-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
+  if (error) return <div role="alert" data-testid="review-error" style={{ padding: 40, textAlign: 'center', color: 'var(--color-error-600)' }}>{error}</div>;
   if (tasks.length === 0) {
     return (
       <div data-testid="review-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
@@ -349,7 +349,7 @@ export default function ReportReviewPage() {
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 100px)', background: 'var(--content-bg)' }}>
       {/* 顶部 KPI */}
       <div style={{
-        background: 'linear-gradient(135deg, #1e40af 0%, #7c3aed 100%)',
+        background: 'linear-gradient(135deg, var(--color-primary-800) 0%, #7c3aed 100%)',
         color: '#fff', padding: '12px 20px', flexShrink: 0,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -401,10 +401,10 @@ export default function ReportReviewPage() {
               onClick={() => setStage(tab.key as any)}
               style={{
                 padding: '10px 16px', border: 'none', background: 'transparent',
-                color: stage === tab.key ? '#1e40af' : '#64748b',
+                color: stage === tab.key ? 'var(--color-primary-800)' : '#64748b',
                 fontWeight: stage === tab.key ? 700 : 500,
                 fontSize: 12, cursor: 'pointer',
-                borderBottom: `2px solid ${stage === tab.key ? '#3b82f6' : 'transparent'}`,
+                borderBottom: `2px solid ${stage === tab.key ? 'var(--color-primary-500)' : 'transparent'}`,
                 display: 'flex', alignItems: 'center', gap: 6,
               }}
             >
@@ -453,7 +453,7 @@ export default function ReportReviewPage() {
             padding: '8px 12px', borderBottom: '1px solid var(--border-color)',
             fontSize: 12, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
-            <span><strong style={{ color: '#1e40af' }}>{filteredTasks.length}</strong> {t('reportReviewPage.taskUnit')}</span>
+            <span><strong style={{ color: 'var(--color-primary-800)' }}>{filteredTasks.length}</strong> {t('reportReviewPage.taskUnit')}</span>
             <span>{t('reportReviewPage.totalPrefix')} {tasks.length} {t('reportReviewPage.recordUnit')}</span>
           </div>
           <DataTable<ReviewTask>
@@ -651,7 +651,7 @@ const ReviewTaskDetail: React.FC<{
           border: '1px solid var(--border-color)',
         }} data-testid="review-diff-view">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <History size={14} /> {t('w12.review.modificationView')}
               <Tag color="green" style={{ margin: 0 }}>{task.reportId}</Tag>
             </div>
@@ -691,7 +691,7 @@ const ReviewTaskDetail: React.FC<{
           background: 'var(--bg-card)', borderRadius: 8, padding: 16, marginBottom: 12,
           border: '1px solid var(--border-color)',
         }} data-testid="post-publish-panel">
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
             <ShieldCheck size={14} /> {t('w12.review.postPublish')}
           </div>
           <div style={{ marginBottom: 10 }}>
@@ -701,7 +701,7 @@ const ReviewTaskDetail: React.FC<{
                 border: '1px solid #fca5a5', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap',
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Siren size={16} color="#dc2626" />
+                  <Siren size={16} color="var(--color-error-600)" />
                   <div>
                     <div style={{ fontSize: 12, fontWeight: 700, color: '#b91c1c' }}>
                       {t('w12.review.criticalDetected')}: {criticalHits.join('、')}
@@ -818,7 +818,7 @@ const ReviewTaskDetail: React.FC<{
         border: '1px solid var(--border-color)',
       }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <FileText size={14} /> {t('reportReviewPage.reportContent')}
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -826,9 +826,9 @@ const ReviewTaskDetail: React.FC<{
               <button
                 onClick={() => void loadDiff()}
                 style={{
-                  padding: '4px 8px', border: `1px solid ${diffOpen ? '#1e40af' : 'var(--border-color)'}`, borderRadius: 4,
+                  padding: '4px 8px', border: `1px solid ${diffOpen ? 'var(--color-primary-800)' : 'var(--border-color)'}`, borderRadius: 4,
                   background: diffOpen ? 'var(--color-info-bg)' : 'var(--bg-card)',
-                  color: diffOpen ? '#1e40af' : 'var(--text-secondary)', fontSize: 12, cursor: 'pointer',
+                  color: diffOpen ? 'var(--color-primary-800)' : 'var(--text-secondary)', fontSize: 12, cursor: 'pointer',
                   display: 'flex', alignItems: 'center', gap: 4, fontWeight: diffOpen ? 700 : 400,
                 }}
               >
@@ -846,19 +846,19 @@ const ReviewTaskDetail: React.FC<{
           </div>
         <div style={{ fontSize: 12, lineHeight: 1.8, color: 'var(--text-primary)' }}>
           <div style={{ marginBottom: 8 }}>
-            <strong style={{ color: '#1e40af' }}>{t('reportReviewPage.sectionFindings')}</strong>
+            <strong style={{ color: 'var(--color-primary-800)' }}>{t('reportReviewPage.sectionFindings')}</strong>
             <div style={{ marginTop: 4, padding: 8, background: 'var(--content-bg)', borderRadius: 4 }}>
               {findingsText}
             </div>
           </div>
           <div style={{ marginBottom: 8 }}>
-            <strong style={{ color: '#1e40af' }}>{t('reportReviewPage.sectionImpression')}</strong>
+            <strong style={{ color: 'var(--color-primary-800)' }}>{t('reportReviewPage.sectionImpression')}</strong>
             <div style={{ marginTop: 4, padding: 8, background: 'var(--content-bg)', borderRadius: 4 }}>
               {impressionText}
             </div>
           </div>
           <div>
-            <strong style={{ color: '#1e40af' }}>{t('reportReviewPage.sectionRecommendation')}</strong>
+            <strong style={{ color: 'var(--color-primary-800)' }}>{t('reportReviewPage.sectionRecommendation')}</strong>
             <div style={{ marginTop: 4, padding: 8, background: 'var(--content-bg)', borderRadius: 4 }}>
               {(task as any).recommendationsText || t('reportReviewPage.followupAdvice')}
             </div>
@@ -885,15 +885,15 @@ const ReviewTaskDetail: React.FC<{
             </div>
           </div>
           <div style={{ marginBottom: 12 }}>
-            <strong style={{ color: '#1e40af' }}>{t('reportReviewPage.sectionFindings')}</strong>
+            <strong style={{ color: 'var(--color-primary-800)' }}>{t('reportReviewPage.sectionFindings')}</strong>
             <div style={{ marginTop: 4, padding: 12, background: 'var(--content-bg)', borderRadius: 4 }}>{findingsText}</div>
           </div>
           <div style={{ marginBottom: 12 }}>
-            <strong style={{ color: '#1e40af' }}>{t('reportReviewPage.sectionImpression')}</strong>
+            <strong style={{ color: 'var(--color-primary-800)' }}>{t('reportReviewPage.sectionImpression')}</strong>
             <div style={{ marginTop: 4, padding: 12, background: 'var(--content-bg)', borderRadius: 4 }}>{impressionText}</div>
           </div>
           <div>
-            <strong style={{ color: '#1e40af' }}>{t('reportReviewPage.sectionRecommendation')}</strong>
+            <strong style={{ color: 'var(--color-primary-800)' }}>{t('reportReviewPage.sectionRecommendation')}</strong>
             <div style={{ marginTop: 4, padding: 12, background: 'var(--content-bg)', borderRadius: 4 }}>
               {(task as any).recommendationsText || t('reportReviewPage.followupAdvice')}
             </div>
@@ -907,7 +907,7 @@ const ReviewTaskDetail: React.FC<{
           background: 'var(--bg-card)', borderRadius: 8, padding: 16, marginBottom: 12,
           border: '1px solid var(--border-color)',
         }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
             <History size={14} /> {t('reportReviewPage.auditHistory')}
           </div>
           {task.initialAuditCompletedAt && (
@@ -959,7 +959,7 @@ const ReviewTaskDetail: React.FC<{
           background: 'var(--bg-card)', borderRadius: 8, padding: 16,
           border: '1px solid var(--border-color)',
         }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Edit2 size={14} /> {stageConf.label}{t('reportReviewPage.actions')}
           </div>
 
@@ -971,7 +971,7 @@ const ReviewTaskDetail: React.FC<{
                 onChange={e => setAuditScore(Number(e.target.value))}
                 style={{ width: '100%' }}
               />
-              <div style={{ textAlign: 'center', fontSize: 16, fontWeight: 700, color: auditScore >= 90 ? '#10b981' : auditScore >= 75 ? '#f59e0b' : '#dc2626' }}>
+              <div style={{ textAlign: 'center', fontSize: 16, fontWeight: 700, color: auditScore >= 90 ? '#10b981' : auditScore >= 75 ? 'var(--color-warning-500)' : 'var(--color-error-600)' }}>
                 {auditScore} {t('reportReviewPage.scoreUnit')}
               </div>
             </div>
@@ -985,9 +985,9 @@ const ReviewTaskDetail: React.FC<{
                     style={{
                       flex: 1, padding: '6px 4px',
                       background: auditScore === s ? 'var(--color-info-bg)' : 'var(--bg-card)',
-                      border: `1px solid ${auditScore === s ? '#3b82f6' : '#cbd5e1'}`,
+                      border: `1px solid ${auditScore === s ? 'var(--color-primary-500)' : '#cbd5e1'}`,
                       borderRadius: 4, fontSize: 12, fontWeight: 600,
-                      color: auditScore === s ? '#1e40af' : '#475569',
+                      color: auditScore === s ? 'var(--color-primary-800)' : '#475569',
                       cursor: 'pointer',
                     }}
                   >
@@ -1051,11 +1051,11 @@ const ReviewTaskDetail: React.FC<{
               onClick={() => setAuditDecision('reject')}
               style={{
                 flex: 1, padding: 10, border: 'none', borderRadius: 6,
-                background: auditDecision === 'reject' ? '#dc2626' : 'var(--color-error-bg)',
+                background: auditDecision === 'reject' ? 'var(--color-error-600)' : 'var(--color-error-bg)',
                 color: auditDecision === 'reject' ? '#fff' : '#b91c1c',
                 fontSize: 12, fontWeight: 700, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                borderBottom: auditDecision === 'reject' ? 'none' : '2px solid #dc2626',
+                borderBottom: auditDecision === 'reject' ? 'none' : '2px solid var(--color-error-600)',
               }}
             >
               <ThumbsDown size={14} /> {t('reportReviewPage.rejectBtn')}
@@ -1085,7 +1085,7 @@ const ReviewTaskDetail: React.FC<{
 const InfoCell: React.FC<{ label: string; value: string; alert?: boolean }> = ({ label, value, alert }) => (
   <div>
     <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</div>
-    <div style={{ fontSize: 12, color: alert ? '#dc2626' : 'var(--text-primary)', fontWeight: 600, marginTop: 1 }}>{value}</div>
+    <div style={{ fontSize: 12, color: alert ? 'var(--color-error-600)' : 'var(--text-primary)', fontWeight: 600, marginTop: 1 }}>{value}</div>
   </div>
 );
 

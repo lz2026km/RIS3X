@@ -185,7 +185,7 @@ const DicomSharePage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <PageHeader
-        icon={<Share2 size={20} color="#2563eb" />}
+        icon={<Share2 size={20} color="var(--color-primary-600)" />}
         title={t('dicomShare.pageTitle')}
         subtitle={t('dicomShare.pageSubtitle')}
         actions={

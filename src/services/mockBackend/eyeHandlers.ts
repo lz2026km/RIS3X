@@ -680,7 +680,7 @@ const eyeAiModule = [
           metrics: { auc: 0.94, sensitivity: 0.91, specificity: 0.93, f1: 0.92 },
           grades: [
             { grade: 0, label: '无 DR', color: '#52c41a' },
-            { grade: 1, label: '轻度 NPDR', color: '#2563eb' },
+            { grade: 1, label: '轻度 NPDR', color: 'var(--color-primary-600)' },
             { grade: 2, label: '中度 NPDR', color: '#faad14' },
             { grade: 3, label: '重度 NPDR', color: '#fa541c' },
             { grade: 4, label: '增殖性 PDR', color: '#f5222d' },
@@ -2517,7 +2517,7 @@ const eyeCaseLibraryModule = [
         annotationType: body.annotationType,
         coordinates: body.coordinates,
         label: body.label,
-        color: body.color || '#2563eb',
+        color: body.color || 'var(--color-primary-600)',
         createdAt: new Date().toISOString(),
       },
     });
@@ -2535,7 +2535,7 @@ const eyeCaseLibraryModule = [
         annotationType: body.annotationType ?? 'roi',
         coordinates: body.coordinates ?? [],
         label: body.label ?? '',
-        color: body.color || '#2563eb',
+        color: body.color || 'var(--color-primary-600)',
         createdAt: new Date().toISOString(),
       },
     });

@@ -12,7 +12,7 @@ import { MEASURE_V2_META, MEASURE_V2_META_LABEL_KEYS, MEASURE_V2_TOOL_ORDER, com
 import { measurementV2Api, type MeasurementTypeMeta, type ComputeResult, type ConvertCoordinatesResult } from '../../services/api/measurementV2Api'
 import { t } from '../../i18n/appI18n'
 
-const PRIMARY = '#1e40af'
+const PRIMARY = 'var(--color-primary-800)'
 
 // 默认同步目标检查 (后端 seed 检查 / 无真实检查时的演示值)
 const DEFAULT_STUDY_UID = '1.2.826.0.1.3680043.10.155.3.0.6.11.CT.1'
@@ -190,7 +190,7 @@ function drawV2Scene(ctx: CanvasRenderingContext2D, o: V2SceneOptions) {
   // 草稿点 (V2 测量绘制中)
   if (o.v2Draft.length > 0) {
     o.v2Draft.forEach((p, i) => {
-      dot(p, '#22c55e', 5)
+      dot(p, 'var(--color-success-500)', 5)
       if (i > 0) {
         ctx.strokeStyle = '#22c55e'
         ctx.lineWidth = 1.5
@@ -255,10 +255,10 @@ function drawV2Scene(ctx: CanvasRenderingContext2D, o: V2SceneOptions) {
     ctx.moveTo(o.annDraft[0]!.x, o.annDraft[0]!.y)
     for (let i = 1; i < o.annDraft.length; i++) ctx.lineTo(o.annDraft[i]!.x, o.annDraft[i]!.y)
     ctx.stroke()
-    o.annDraft.forEach((p) => dot(p, '#fbbf24', 4))
+    o.annDraft.forEach((p) => dot(p, 'var(--color-warning-400)', 4))
     ctx.setLineDash([])
     if (o.annType === 'text' && o.annText) {
-      text(o.annDraft[0]!.x + 8, o.annDraft[0]!.y + 4, o.annText, '#fbbf24', 12)
+      text(o.annDraft[0]!.x + 8, o.annDraft[0]!.y + 4, o.annText, 'var(--color-warning-400)', 12)
     }
     text(6, CANVAS_SIZE - 8, `${t('measPanel.drawingAnnotation')} (${o.annType ? t(ANN_TYPE_LABEL[o.annType]) : ''}) · ${o.annDraft.length} ${t('measPanel.points')}`, '#fbbf24')
   }
@@ -285,11 +285,11 @@ const s = {
   canvas: { width: '100%', borderRadius: 8, border: '1px solid var(--border-color)', cursor: 'crosshair', display: 'block' } as React.CSSProperties,
   propRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '3px 0', borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))', fontSize: 12 } as React.CSSProperties,
   propLabel: { color: 'var(--text-muted, #94a3b8)' } as React.CSSProperties,
-  propValue: { fontWeight: 700, color: '#1e40af' } as React.CSSProperties,
+  propValue: { fontWeight: 700, color: 'var(--color-primary-800)' } as React.CSSProperties,
   badge: { fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 8, whiteSpace: 'nowrap' } as React.CSSProperties,
   smallBtn: { padding: '3px 8px', borderRadius: 5, border: '1px solid var(--border-color)', background: 'var(--bg-card)', fontSize: 11, fontWeight: 600, cursor: 'pointer', color: '#475569', display: 'flex', alignItems: 'center', gap: 3 } as React.CSSProperties,
   smallBtnPrimary: { background: PRIMARY, borderColor: PRIMARY, color: '#fff' } as React.CSSProperties,
-  smallBtnDanger: { background: '#fee2e2', borderColor: '#fecaca', color: '#dc2626' } as React.CSSProperties,
+  smallBtnDanger: { background: '#fee2e2', borderColor: '#fecaca', color: 'var(--color-error-600)' } as React.CSSProperties,
   input: { flex: 1, padding: '4px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 12, fontFamily: 'inherit' } as React.CSSProperties,
   versionItem: { display: 'flex', alignItems: 'center', gap: 6, padding: '4px 8px', background: 'var(--bg-primary)', borderRadius: 6, marginBottom: 4, fontSize: 11 } as React.CSSProperties,
   annItem: { display: 'flex', alignItems: 'center', gap: 6, padding: '5px 8px', background: 'var(--bg-primary)', borderRadius: 6, marginBottom: 4, border: '1px solid var(--border-color)', fontSize: 11 } as React.CSSProperties,
@@ -456,7 +456,7 @@ export default function MeasurementPanel(props: Props) {
       value: result.value,
       unit: result.unit,
       label: `${MEASURE_V2_META[type].label} ${result.value} ${result.unit}`,
-      color: '#22c55e',
+      color: 'var(--color-success-500)',
       visible: true,
       formula: result.formula,
       deterministic: result.deterministic,
@@ -729,7 +729,7 @@ export default function MeasurementPanel(props: Props) {
       <div style={{ ...s.infoSection, border: '1px solid #bfdbfe', borderRadius: 10, padding: 10, background: '#f8fbff' }}>
         <div style={{ ...s.infoSectionTitle, justifyContent: 'space-between' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><PenTool size={12} />{t('measPanel.measureV2')}</span>
-          <span style={{ ...s.badge, background: v2Synced ? '#dcfce7' : '#fef3c7', color: v2Synced ? '#16a34a' : '#d97706' }}>
+          <span style={{ ...s.badge, background: v2Synced ? '#dcfce7' : '#fef3c7', color: v2Synced ? 'var(--color-success-600)' : 'var(--color-warning-600)' }}>
             {v2Synced ? t('measPanel.backendSynced') : t('measPanel.localMode')}
           </span>
         </div>
@@ -774,7 +774,7 @@ export default function MeasurementPanel(props: Props) {
             </div>
             <div style={s.propRow}><span style={s.propLabel}>{t('measPanel.value')}</span><span style={s.propValue}>{selectedV2.value} {selectedV2.unit}</span></div>
             <div style={s.propRow}><span style={s.propLabel}>{t('measPanel.formula')}</span><span style={{ fontSize: 11, color: 'var(--text-secondary, #475569)' }}>{selectedV2.formula}</span></div>
-            <div style={s.propRow}><span style={s.propLabel}>{t('measPanel.deterministic')}</span><span style={{ color: selectedV2.deterministic ? '#16a34a' : '#d97706', fontWeight: 700 }}>{selectedV2.deterministic ? t('measPanel.deterministicCheck') : t('measPanel.approximate')}</span></div>
+            <div style={s.propRow}><span style={s.propLabel}>{t('measPanel.deterministic')}</span><span style={{ color: selectedV2.deterministic ? 'var(--color-success-600)' : 'var(--color-warning-600)', fontWeight: 700 }}>{selectedV2.deterministic ? t('measPanel.deterministicCheck') : t('measPanel.approximate')}</span></div>
             <div style={s.propRow}><span style={s.propLabel}>{t('measPanel.version')}</span><span style={{ color: 'var(--text-secondary, #475569)', fontWeight: 700 }}>v{selectedV2.version}</span></div>
             <div style={s.propRow}>
               <span style={s.propLabel}>{t('measPanel.worldCoords')}</span>
@@ -826,7 +826,7 @@ export default function MeasurementPanel(props: Props) {
                   <div style={{ fontSize: 11, color: 'var(--text-secondary, #475569)' }}>{m.value} {m.unit} · v{m.version}{m.annotationId ? ' · ' : ''}</div>
                 </div>
                 <button style={{ width: 22, height: 22, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                  onClick={e => { e.stopPropagation(); void removeV2Measurement(m.id) }}><Trash2 size={12} color="#ef4444" /></button>
+                  onClick={e => { e.stopPropagation(); void removeV2Measurement(m.id) }}><Trash2 size={12} color="var(--color-error-500)" /></button>
               </div>
             ))
           )}
@@ -837,7 +837,7 @@ export default function MeasurementPanel(props: Props) {
       <div style={{ ...s.infoSection, border: '1px solid #ddd6fe', borderRadius: 10, padding: 10, background: '#fdfaff' }}>
         <div style={{ ...s.infoSectionTitle, justifyContent: 'space-between' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Link2 size={12} />{t('measPanel.annSync')}</span>
-          <span style={{ ...s.badge, background: annSynced ? '#dcfce7' : '#fef3c7', color: annSynced ? '#16a34a' : '#d97706' }}>
+          <span style={{ ...s.badge, background: annSynced ? '#dcfce7' : '#fef3c7', color: annSynced ? 'var(--color-success-600)' : 'var(--color-warning-600)' }}>
             {annSynced ? t('measPanel.backendSynced') : t('measPanel.localMode')}
           </span>
         </div>
@@ -911,7 +911,7 @@ export default function MeasurementPanel(props: Props) {
       <div style={{ ...s.infoSection, border: '1px solid #ccfbf1', borderRadius: 10, padding: 10, background: '#f0fdfa' }}>
         <div style={{ ...s.infoSectionTitle, justifyContent: 'space-between' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Database size={12} />{t('measurementV2.serverCap') || 'V2 服务端能力'}</span>
-          <span style={{ ...s.badge, background: v2MetaLoaded ? '#dcfce7' : '#fef3c7', color: v2MetaLoaded ? '#16a34a' : '#d97706' }}>
+          <span style={{ ...s.badge, background: v2MetaLoaded ? '#dcfce7' : '#fef3c7', color: v2MetaLoaded ? 'var(--color-success-600)' : 'var(--color-warning-600)' }}>
             {v2MetaLoaded ? (t('measurementV2.metaLoaded') || 'GET /types 已加载') : (t('measurementV2.localMeta') || '前端元数据')}
           </span>
         </div>
@@ -927,7 +927,7 @@ export default function MeasurementPanel(props: Props) {
               <span style={{ fontWeight: 700, color: '#0f766e', width: 90 }}>{meta.label}</span>
               <span style={{ color: '#475569', width: 56 }}>{meta.unit}</span>
               <span style={{ color: 'var(--text-muted, #94a3b8)', width: 74 }}>{meta.fixedPoints > 0 ? t('measPanel.pointsFixed', { n: meta.fixedPoints }) : t('measPanel.pointsMin', { n: meta.minPoints })}</span>
-              <span style={{ color: meta.deterministic ? '#16a34a' : '#d97706', width: 64 }}>{meta.deterministic ? t('measPanel.deterministic') : t('measPanel.approximate')}</span>
+              <span style={{ color: meta.deterministic ? 'var(--color-success-600)' : 'var(--color-warning-600)', width: 64 }}>{meta.deterministic ? t('measPanel.deterministic') : t('measPanel.approximate')}</span>
               <span style={{ color: 'var(--text-muted, #94a3b8)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{meta.formula}</span>
             </div>
           ))}
@@ -1009,19 +1009,19 @@ export default function MeasurementPanel(props: Props) {
         ) : (
           interactiveMeasures.map(measure => (
             <div key={measure.id} style={s.measureItem}>
-              <div style={{ ...s.measureItemColor, background: (measure as any).color || '#22c55e' }} />
+              <div style={{ ...s.measureItemColor, background: (measure as any).color || 'var(--color-success-500)' }} />
               <div style={s.measureItemInfo}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span style={s.measureItemValue}>{measure.label || `${measure.value} ${measure.unit}`}</span>
-                  <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 8, background: '#dbeafe', color: '#1e40af', whiteSpace: 'nowrap' }}>{getMeasureTypeLabel(measure.type)}</span>
+                  <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 8, background: '#dbeafe', color: 'var(--color-primary-800)', whiteSpace: 'nowrap' }}>{getMeasureTypeLabel(measure.type)}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{measure.value} {measure.unit}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{measure.value} {measure.unit}</span>
                   {measure.location && <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>· {measure.location}</span>}
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 4 }}>
-                <button style={{ width: 24, height: 24, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => deleteMeasure(measure.id)}><Trash2 size={12} color="#ef4444" /></button>
+                <button style={{ width: 24, height: 24, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => deleteMeasure(measure.id)}><Trash2 size={12} color="var(--color-error-500)" /></button>
               </div>
             </div>
           ))
@@ -1039,7 +1039,7 @@ export default function MeasurementPanel(props: Props) {
             measurements.length.map((m: any) => (
               <div key={m.id} style={s.measureListItem}>
                 <div style={s.measureListItemLeft}>
-                  <div style={{ ...s.measureListItemDot, background: '#22c55e' }} />
+                  <div style={{ ...s.measureListItemDot, background: 'var(--color-success-500)' }} />
                   <div><div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #1e293b)' }}>{m.value} {m.unit}</div><div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{m.location}</div></div>
                 </div>
               </div>
@@ -1054,7 +1054,7 @@ export default function MeasurementPanel(props: Props) {
             measurements.ct.map((m: any) => (
               <div key={m.id} style={s.measureListItem}>
                 <div style={s.measureListItemLeft}>
-                  <div style={{ ...s.measureListItemDot, background: '#3b82f6' }} />
+                  <div style={{ ...s.measureListItemDot, background: 'var(--color-primary-500)' }} />
                   <div><div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #1e293b)' }}>{m.value} {m.unit}</div><div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{m.location}</div></div>
                 </div>
               </div>
@@ -1065,7 +1065,7 @@ export default function MeasurementPanel(props: Props) {
 
       <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
         <button style={{ ...s.reportBtn, background: '#f0f4f8', color: '#475569', flex: 1 }} onClick={clearAllMeasures}><Trash2 size={14} />{t('measPanel.clearAll')}</button>
-        <button style={{ ...s.reportBtn, background: '#22c55e', color: '#fff', flex: 1 }} onClick={() => {
+        <button style={{ ...s.reportBtn, background: 'var(--color-success-500)', color: '#fff', flex: 1 }} onClick={() => {
           const allMeasures = [...interactiveMeasures]
           const reportText = allMeasures.length > 0 ? allMeasures.map(m => `${m.label}: ${m.value}${m.unit}`).join('\n') : t('measPanel.noMeasureData')
           navigator.clipboard.writeText(reportText); showToast(t('measPanel.reportCopied'))

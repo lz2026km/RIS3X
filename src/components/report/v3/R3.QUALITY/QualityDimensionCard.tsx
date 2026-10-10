@@ -67,14 +67,14 @@ const CATEGORY_META: Record<
   ScoringDimensionCategory,
   { label: string; labelEn: string; color: string; icon: React.ReactNode }
 > = {
-  completeness: { label: t('w9e.qualityDimensionCard.dimCompleteness'), labelEn: 'Completeness', color: '#3b82f6', icon: <FileText size={14} /> },
+  completeness: { label: t('w9e.qualityDimensionCard.dimCompleteness'), labelEn: 'Completeness', color: 'var(--color-primary-500)', icon: <FileText size={14} /> },
   accuracy: { label: t('w9e.qualityDimensionCard.dimAccuracy'), labelEn: 'Accuracy', color: '#10b981', icon: <Target size={14} /> },
-  timeliness: { label: t('w9e.qualityDimensionCard.dimTimeliness'), labelEn: 'Timeliness', color: '#f59e0b', icon: <TrendingUp size={14} /> },
+  timeliness: { label: t('w9e.qualityDimensionCard.dimTimeliness'), labelEn: 'Timeliness', color: 'var(--color-warning-500)', icon: <TrendingUp size={14} /> },
 };
 
 const GRADE_COLOR: Record<ScoringGrade, string> = {
   A: '#047857',
-  B: '#1e40af',
+  B: 'var(--color-primary-800)',
   C: '#92400e',
   D: '#7f1d1d',
 };
@@ -90,7 +90,7 @@ export const QualityDimensionCard: React.FC<{
     <div data-testid="quality-dimension-card" role="region" aria-label={t('reportQuality.dimensionConfig')}>
       <Card
         size="small"
-        style={{ marginBottom: 8, background: 'linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%)', border: 'none' }}
+        style={{ marginBottom: 8, background: 'linear-gradient(135deg, #7c3aed 0%, var(--color-primary-500) 100%)', border: 'none' }}
         styles={{ body: { padding: 12 } }}
       >
         <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
@@ -224,7 +224,7 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
     <div data-testid="weights-tab">
       <Card
         size="small"
-        style={{ marginBottom: 12, background: 'linear-gradient(135deg, #1e40af 0%, #7c3aed 100%)' }}
+        style={{ marginBottom: 12, background: 'linear-gradient(135deg, var(--color-primary-800) 0%, #7c3aed 100%)' }}
         styles={{ body: { padding: 12 } }}
       >
         <Row gutter={12}>
@@ -352,7 +352,7 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
             background: 'var(--color-error-bg)',
             border: '1px solid var(--color-error-border)',
             borderRadius: 4,
-            color: '#dc2626',
+            color: 'var(--color-error-600)',
             fontSize: 12,
           }}
         >
@@ -677,7 +677,7 @@ const HistoryTab: React.FC = () => {
     <div data-testid="history-tab">
       <Card
         size="small"
-        style={{ marginBottom: 12, background: 'linear-gradient(135deg, #0e7490 0%, #1e40af 100%)' }}
+        style={{ marginBottom: 12, background: 'linear-gradient(135deg, #0e7490 0%, var(--color-primary-800) 100%)' }}
         styles={{ body: { padding: 12 } }}
       >
         <Row gutter={12}>
@@ -751,7 +751,7 @@ const HistoryTab: React.FC = () => {
                 {new Date(detail.entry.evaluatedAt).toLocaleString('zh-CN')}
               </Descriptions.Item>
               <Descriptions.Item label={t('reportQuality.totalScore')}>
-                <strong style={{ color: (detail.result?.totalScore ?? detail.entry.totalScore) >= 90 ? '#16a34a' : (detail.result?.totalScore ?? detail.entry.totalScore) >= 75 ? '#2563eb' : '#dc2626' }}>
+                <strong style={{ color: (detail.result?.totalScore ?? detail.entry.totalScore) >= 90 ? 'var(--color-success-600)' : (detail.result?.totalScore ?? detail.entry.totalScore) >= 75 ? 'var(--color-primary-600)' : 'var(--color-error-600)' }}>
                   {detail.result?.totalScore ?? detail.entry.totalScore}
                 </strong>
               </Descriptions.Item>
@@ -974,12 +974,12 @@ const ReportTab: React.FC = () => {
       <Card size="small" title={t('reportQuality.reportPreview')} style={{ marginTop: 12 }}>
         <Row gutter={[12, 12]}>
           {[
-            { k: t('reportQuality.preview.totalScore'), v: t('reportQuality.preview.totalScoreRange'), c: '#3b82f6' },
+            { k: t('reportQuality.preview.totalScore'), v: t('reportQuality.preview.totalScoreRange'), c: 'var(--color-primary-500)' },
             { k: t('reportQuality.preview.grade'), v: t('reportQuality.preview.gradeRange'), c: '#10b981' },
             { k: t('reportQuality.preview.dimension15'), v: t('reportQuality.preview.dimension15Count'), c: '#7c3aed' },
-            { k: t('reportQuality.preview.evidenceChain'), v: t('reportQuality.preview.evidenceCount'), c: '#f59e0b' },
-            { k: t('reportQuality.preview.hardFail'), v: t('reportQuality.visible'), c: '#dc2626' },
-            { k: t('reportQuality.preview.bonus'), v: t('reportQuality.visible'), c: '#0891b2' },
+            { k: t('reportQuality.preview.evidenceChain'), v: t('reportQuality.preview.evidenceCount'), c: 'var(--color-warning-500)' },
+            { k: t('reportQuality.preview.hardFail'), v: t('reportQuality.visible'), c: 'var(--color-error-600)' },
+            { k: t('reportQuality.preview.bonus'), v: t('reportQuality.visible'), c: 'var(--color-info-600)' },
           ].map((item, i) => (
             <Col xs={12} sm={8} md={4} key={i}>
               <Card size="small" style={{ borderLeft: `3px solid ${item.c}` }}>
@@ -1043,7 +1043,7 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
     <div data-testid="bonus-tab">
       <Card
         size="small"
-        style={{ marginBottom: 12, background: 'linear-gradient(135deg, #d97706 0%, #dc2626 100%)' }}
+        style={{ marginBottom: 12, background: 'linear-gradient(135deg, var(--color-warning-600) 0%, var(--color-error-600) 100%)' }}
         styles={{ body: { padding: 12 } }}
       >
         <Row gutter={12}>
@@ -1244,7 +1244,7 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
               <Col xs={12} sm={4}>
                 <Card size="small">
                   <div style={{ fontSize: 12, color: '#64748b' }}>{t('reportQuality.baseScore')}</div>
-                  <div style={{ fontSize: 30, fontWeight: 700, color: '#3b82f6' }}>{result.baseScore}</div>
+                  <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-primary-500)' }}>{result.baseScore}</div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
@@ -1256,7 +1256,7 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
               <Col xs={12} sm={4}>
                 <Card size="small">
                   <div style={{ fontSize: 12, color: '#64748b' }}>{t('reportQuality.penaltyScore')}</div>
-                  <div style={{ fontSize: 30, fontWeight: 700, color: '#dc2626' }}>-{result.penaltyApplied}</div>
+                  <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-error-600)' }}>-{result.penaltyApplied}</div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
@@ -1282,7 +1282,7 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
             </Row>
             <Progress
               percent={result.finalScore}
-              strokeColor={result.passed ? '#10b981' : '#dc2626'}
+              strokeColor={result.passed ? '#10b981' : 'var(--color-error-600)'}
               style={{ marginTop: 12 }}
             />
             {result.details.length > 0 && (
@@ -1296,7 +1296,7 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
                   { title: t('reportQuality.dimension'), dataIndex: 'dimension', key: 'dimension' },
                   { title: t('reportQuality.baseScore'), dataIndex: 'base', key: 'base' },
                   { title: t('reportQuality.bonusScore'), dataIndex: 'bonus', key: 'bonus', render: (v: number) => <span style={{ color: v > 0 ? '#10b981' : '#64748b' }}>+{v}</span> },
-                  { title: t('reportQuality.penaltyScore'), dataIndex: 'penalty', key: 'penalty', render: (v: number) => <span style={{ color: v > 0 ? '#dc2626' : '#64748b' }}>-{v}</span> },
+                  { title: t('reportQuality.penaltyScore'), dataIndex: 'penalty', key: 'penalty', render: (v: number) => <span style={{ color: v > 0 ? 'var(--color-error-600)' : '#64748b' }}>-{v}</span> },
                   { title: t('reportQuality.finalScore'), dataIndex: 'final', key: 'final', render: (v: number) => <strong>{v}</strong> },
                 ]}
               />

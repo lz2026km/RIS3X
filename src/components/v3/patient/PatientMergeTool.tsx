@@ -133,7 +133,7 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title={t('w9e.patientMerge.statHigh')} value={stats.highRisk} styles={{ content: {  color: '#dc2626'  } }} />
+            <Statistic title={t('w9e.patientMerge.statHigh')} value={stats.highRisk} styles={{ content: {  color: 'var(--color-error-600)'  } }} />
           </Card>
         </Col>
         <Col span={6}>
@@ -165,14 +165,14 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
           <Card
             key={idx}
             size="small"
-            style={{ marginBottom: 12, borderColor: d.score >= 80 ? '#dc2626' : '#fcd34d' }}
+            style={{ marginBottom: 12, borderColor: d.score >= 80 ? 'var(--color-error-600)' : '#fcd34d' }}
             data-testid={`merge-row-${idx}`}
             title={
               <Space>
                 <Tag color={d.score >= 80 ? 'red' : 'orange'} data-testid={`merge-score-${idx}`}>
                   {t('w9e.patientMerge.matchScore', { score: d.score })}
                 </Tag>
-                <Progress percent={d.score} size="small" showInfo={false} style={{ width: 100 }} strokeColor={d.score >= 80 ? '#dc2626' : '#ca8a04'} />
+                <Progress percent={d.score} size="small" showInfo={false} style={{ width: 100 }} strokeColor={d.score >= 80 ? 'var(--color-error-600)' : '#ca8a04'} />
                 <span style={{ fontSize: 12, color: '#94a3b8' }}>
                   {t('w9e.patientMerge.matchedFields', { fields: d.matchedFields.join('、') })}
                 </span>

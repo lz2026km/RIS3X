@@ -360,7 +360,7 @@ const SrReportPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
-        <FileText size={20} color="#2563eb" />
+        <FileText size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t("srReport.title")}</span>
         <span style={{ fontSize: 12, color: "#94a3b8" }}>
           {t("srReport.subtitle")}

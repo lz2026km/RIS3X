@@ -367,7 +367,7 @@ const AutoCollectionPage: React.FC = () => {
         description={t('autoCollection.sourceNote')}
         style={{ marginBottom: 16 }}
       />      <Space style={{ marginBottom: 16 }}>
-        <Settings size={20} color="#2563eb" />
+        <Settings size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('autoCollection.title')}</span>
       </Space>
       {error && <Alert type="warning" showIcon message={t('autoCollection.loadFailed')} description={error} action={<Button size="small" onClick={fetchRules}><RefreshCw size={14} /> {t('autoCollection.retry')}</Button>} style={{ marginBottom: 16 }} />}

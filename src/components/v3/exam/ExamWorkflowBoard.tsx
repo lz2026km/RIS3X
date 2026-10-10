@@ -97,12 +97,12 @@ export const ExamWorkflowBoard: React.FC<ExamWorkflowBoardProps> = ({ items, onA
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title={t('w9e.examWorkflow.statStat')} value={stats.stat} styles={{ content: {  color: '#dc2626'  } }} />
+            <Statistic title={t('w9e.examWorkflow.statStat')} value={stats.stat} styles={{ content: {  color: 'var(--color-error-600)'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title={t('w9e.examWorkflow.statCritical')} value={stats.critical} styles={{ content: {  color: '#dc2626'  } }} />
+            <Statistic title={t('w9e.examWorkflow.statCritical')} value={stats.critical} styles={{ content: {  color: 'var(--color-error-600)'  } }} />
           </Card>
         </Col>
         <Col span={6}>
@@ -159,7 +159,7 @@ export const ExamWorkflowBoard: React.FC<ExamWorkflowBoardProps> = ({ items, onA
                       size="small"
                       hoverable
                       onClick={() => onView?.(i.id)}
-                      style={{ marginBottom: 6, borderColor: i.critical ? '#dc2626' : undefined }}
+                      style={{ marginBottom: 6, borderColor: i.critical ? 'var(--color-error-600)' : undefined }}
                       data-testid={`wf-item-${i.id}`}
                     >
                       <Space size={4} wrap>

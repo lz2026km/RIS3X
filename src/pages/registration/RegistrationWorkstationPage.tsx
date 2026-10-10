@@ -303,7 +303,7 @@ const RegistrationWorkstationPage: React.FC = () => {
     <PageContainer padding={24} data-testid="registration-page">
       <Card style={{ marginBottom: 16 }}>
         <Space align="center" style={{ marginBottom: 4 }}>
-          <ClipboardCheck size={24} color="#1e40af" />
+          <ClipboardCheck size={24} color="var(--color-primary-800)" />
           <Title level={4} style={{ margin: 0 }}>{t('w6Reg.title')}</Title>
           <Tag color="blue">G005 W6</Tag>
         </Space>

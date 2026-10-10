@@ -216,7 +216,7 @@ const SmartRoutingPage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <Route size={20} color="#2563eb" />
+        <Route size={20} color="var(--color-primary-600)" />
         <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{t('smartRouting.title')}</h1>
         <Tag color="blue">{t('smartRouting.tagQualificationAware')}</Tag>
         <Tag color="purple">{t('smartRouting.tagPipeline')}</Tag>

@@ -73,7 +73,7 @@ export default function DiagnosisAccuracyPage() {
       title: t('w1tables.dx.level'), key: 'level', align: 'center' as const,
       render: (_: unknown, r: { accuracy: number }) => {
         const level = r.accuracy >= 98 ? t('w1tables.dx.levelHigh') : r.accuracy >= 95 ? t('w1tables.dx.levelMid') : t('w1tables.dx.levelLow');
-        const color = r.accuracy >= 98 ? '#10b981' : r.accuracy >= 95 ? '#f59e0b' : '#dc2626';
+        const color = r.accuracy >= 98 ? '#10b981' : r.accuracy >= 95 ? 'var(--color-warning-500)' : 'var(--color-error-600)';
         return <span style={{ color, fontWeight: 600 }}>{level}</span>;
       },
     },
@@ -96,7 +96,7 @@ export default function DiagnosisAccuracyPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12 }}>
             <Calendar size={12} color="var(--text-secondary)" /> 期间：<strong>{data.period}</strong>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: source === 'demo' ? 'var(--color-warning-bg)' : 'var(--color-success-bg)', border: `1px solid ${source === 'demo' ? '#f59e0b' : '#10b981'}`, borderRadius: 6, fontSize: 12, color: source === 'demo' ? '#b45309' : '#047857' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: source === 'demo' ? 'var(--color-warning-bg)' : 'var(--color-success-bg)', border: `1px solid ${source === 'demo' ? 'var(--color-warning-500)' : '#10b981'}`, borderRadius: 6, fontSize: 12, color: source === 'demo' ? '#b45309' : '#047857' }}>
             <DatabaseZap size={12} />
             {source === 'demo' ? (usingFallback ? '演示数据（接口失败回退）' : '演示数据（MSW，后端待实现）') : '真实数据（数据库聚合）'}
           </div>
@@ -116,21 +116,21 @@ export default function DiagnosisAccuracyPage() {
       {/* 核心 KPI */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10, marginBottom: 16 }}>
         <BigKpi icon={Target} label="总符合率" value={data.accuracyRate} suffix="%" color="#10b981" />
-        <BigKpi icon={CheckCircle2} label="灵敏度" value={data.sensitivity} suffix="%" color="#3b82f6" />
+        <BigKpi icon={CheckCircle2} label="灵敏度" value={data.sensitivity} suffix="%" color="var(--color-primary-500)" />
         <BigKpi icon={CheckCircle2} label="特异度" value={data.specificity} suffix="%" color="#7c3aed" />
-        <BigKpi icon={TrendingUp} label="PPV" value={data.positivePredictiveValue} suffix="%" color="#f59e0b" />
-        <BigKpi icon={TrendingUp} label="NPV" value={data.negativePredictiveValue} suffix="%" color="#0891b2" />
+        <BigKpi icon={TrendingUp} label="PPV" value={data.positivePredictiveValue} suffix="%" color="var(--color-warning-500)" />
+        <BigKpi icon={TrendingUp} label="NPV" value={data.negativePredictiveValue} suffix="%" color="var(--color-info-600)" />
       </div>
 
       {/* 确认来源统计 */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Microscope size={13} /> 确认来源分布
           </div>
           {[
-            { name: '病理证实', count: data.pathConfirmed, color: '#dc2626', icon: FlaskConical },
-            { name: '临床证实', count: data.clinicalConfirmed, color: '#3b82f6', icon: Stethoscope },
+            { name: '病理证实', count: data.pathConfirmed, color: 'var(--color-error-600)', icon: FlaskConical },
+            { name: '临床证实', count: data.clinicalConfirmed, color: 'var(--color-primary-500)', icon: Stethoscope },
             { name: '影像随访证实', count: data.imagingFollowupConfirmed, color: '#7c3aed', icon: Activity },
             { name: '未证实', count: data.totalReports - data.totalConfirmed, color: 'var(--text-secondary)', icon: FileText },
           ].map(s => {
@@ -153,19 +153,19 @@ export default function DiagnosisAccuracyPage() {
         </div>
 
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Database size={13} /> 按设备符合率
           </div>
           {data.byModality.map(m => {
-            const colors: Record<string, string> = { CT: '#3b82f6', MR: '#7c3aed', DR: '#0891b2', US: '#10b981', MG: '#ec4899' };
+            const colors: Record<string, string> = { CT: 'var(--color-primary-500)', MR: '#7c3aed', DR: 'var(--color-info-600)', US: '#10b981', MG: '#ec4899' };
             return (
               <div key={m.modality} style={{ marginBottom: 8 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
                   <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{m.modality}</span>
-                  <span><strong style={{ color: colors[m.modality] || '#3b82f6' }}>{m.accuracy}%</strong> <span style={{ color: 'var(--text-secondary)' }}>· {m.count} 例</span></span>
+                  <span><strong style={{ color: colors[m.modality] || 'var(--color-primary-500)' }}>{m.accuracy}%</strong> <span style={{ color: 'var(--text-secondary)' }}>· {m.count} 例</span></span>
                 </div>
                 <div style={{ height: 14, background: 'var(--bg-card)', borderRadius: 4, overflow: 'hidden' }}>
-                  <div style={{ width: `${m.accuracy}%`, height: '100%', background: colors[m.modality] || '#3b82f6' }} />
+                  <div style={{ width: `${m.accuracy}%`, height: '100%', background: colors[m.modality] || 'var(--color-primary-500)' }} />
                 </div>
               </div>
             );
@@ -175,12 +175,12 @@ export default function DiagnosisAccuracyPage() {
 
       {/* 按病种符合率 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Sparkles size={13} /> 按疾病符合率
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
           {data.byDisease.map(d => {
-            const colors: Record<string, string> = { high: '#10b981', mid: '#f59e0b', low: '#dc2626' };
+            const colors: Record<string, string> = { high: '#10b981', mid: 'var(--color-warning-500)', low: 'var(--color-error-600)' };
             const level = d.accuracy >= 98 ? 'high' : d.accuracy >= 95 ? 'mid' : 'low';
             return (
               <div key={d.disease} style={{ padding: 10, background: 'var(--bg-card)', border: `1px solid ${colors[level]}30`, borderRadius: 6 }}>
@@ -200,7 +200,7 @@ export default function DiagnosisAccuracyPage() {
 
       {/* 病种符合率明细表 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)', marginTop: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Sparkles size={13} /> {t('w1tables.dx.title')}
         </div>
         <DataTable dataSource={data.byDisease} rowKey="disease" columns={dxColumns} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('w1tables.noData')} />

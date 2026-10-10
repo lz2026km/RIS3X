@@ -124,7 +124,7 @@ export const FhirServerPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <Globe size={20} color="#2563eb" />
+        <Globe size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fhirServer.title')}</span>
         <Tag color="cyan">v3.0.6.8-61</Tag>
         <Tag color="purple">SMART on FHIR R4</Tag>

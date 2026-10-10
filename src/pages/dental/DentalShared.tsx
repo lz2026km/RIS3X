@@ -22,7 +22,7 @@ export const DentalPageHeader: React.FC<DentalHeaderProps> = ({
 }) => (
   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
     <Space>
-      {icon || <Activity size={20} color="#2563eb" />}
+      {icon || <Activity size={20} color="var(--color-primary-600)" />}
       <span style={{ fontSize: 18, fontWeight: 600 }}>{title}</span>
       <Tag color="cyan">{version}</Tag>
       {tags}

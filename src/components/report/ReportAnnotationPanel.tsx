@@ -243,7 +243,7 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
     >
       <div style={{ padding: '8px 12px', borderBottom: '1px solid #e2e8f0', background: 'var(--bg-card)' }}>
         <Space>
-          <MessageSquareText size={14} color="#3b82f6" />
+          <MessageSquareText size={14} color="var(--color-primary-500)" />
           <strong style={{ fontSize: 12 }}>{t('reportAnnotation.title')}</strong>
           {stats ? (
             <Space size={2}>
@@ -359,7 +359,7 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
                     width: 28,
                     height: 28,
                     borderRadius: '50%',
-                    background: isMine(a) ? '#3b82f6' : '#64748b',
+                    background: isMine(a) ? 'var(--color-primary-500)' : '#64748b',
                     color: 'white',
                     fontWeight: 600,
                     fontSize: 12,

@@ -57,7 +57,7 @@ const factorCell = (f: SmartFactorDetail | undefined, raw: React.ReactNode) => (
     {f && (
       <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
         {(f.score * 100).toFixed(0)}{t('smartMwl.pointsUnit')} × {(f.weight * 100).toFixed(0)}%{t('smartMwl.weightUnit')}
-        {f.source && <div style={{ color: f.source === '真实分检记录' ? '#16a34a' : undefined }}>{f.source}</div>}
+        {f.source && <div style={{ color: f.source === '真实分检记录' ? 'var(--color-success-600)' : undefined }}>{f.source}</div>}
       </div>
     )}
   </span>
@@ -246,8 +246,8 @@ const SmartMwlPage: React.FC = () => {
         const score = r.result?.score ?? 0
         return (
           <Space size={8}>
-            <strong style={{ color: score >= 70 ? '#cf1322' : score >= 45 ? '#fa8c16' : '#2563eb' }}>{score}</strong>
-            <Progress percent={Math.min(100, score)} size="small" style={{ width: 70 }} showInfo={false} strokeColor={score >= 70 ? '#cf1322' : score >= 45 ? '#fa8c16' : '#2563eb'} />
+            <strong style={{ color: score >= 70 ? '#cf1322' : score >= 45 ? '#fa8c16' : 'var(--color-primary-600)' }}>{score}</strong>
+            <Progress percent={Math.min(100, score)} size="small" style={{ width: 70 }} showInfo={false} strokeColor={score >= 70 ? '#cf1322' : score >= 45 ? '#fa8c16' : 'var(--color-primary-600)'} />
           </Space>
         )
       },
@@ -267,7 +267,7 @@ const SmartMwlPage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <BarChart3 size={20} color="#2563eb" />
+        <BarChart3 size={20} color="var(--color-primary-600)" />
         <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{t('smartMwl.title')}</h1>
         <Tag color="blue">{t('smartMwl.tagMultiFactor')}</Tag>
         <Tag color="purple">{t('smartMwl.tagConfigurable')}</Tag>
@@ -330,10 +330,10 @@ const SmartMwlPage: React.FC = () => {
             <Card size="small" style={{ marginBottom: 16 }}>
               <Row gutter={16}>
                 <Col span={8}>
-                  <Statistic title={t('smartMwl.colScore')} value={detail.result.score} styles={{ content: { color: detail.result.score >= 70 ? '#cf1322' : '#2563eb' } }} />
+                  <Statistic title={t('smartMwl.colScore')} value={detail.result.score} styles={{ content: { color: detail.result.score >= 70 ? '#cf1322' : 'var(--color-primary-600)' } }} />
                 </Col>
                 <Col span={8}>
-                  <Statistic title={t('smartMwl.colLevel')} value={levelMeta[detail.result.level] ? t(levelMeta[detail.result.level]!.labelKey) : '-'} styles={{ content: { color: levelMeta[detail.result.level]?.color ?? '#2563eb' } }} />
+                  <Statistic title={t('smartMwl.colLevel')} value={levelMeta[detail.result.level] ? t(levelMeta[detail.result.level]!.labelKey) : '-'} styles={{ content: { color: levelMeta[detail.result.level]?.color ?? 'var(--color-primary-600)' } }} />
                 </Col>
                 <Col span={8}>
                   <Statistic title={t('smartMwl.colWait')} value={detail.input.waitingMinutes} suffix="min" />
@@ -350,7 +350,7 @@ const SmartMwlPage: React.FC = () => {
                   <Slider style={{ flex: 1 }} value={f.score * 100} disabled tooltip={{ formatter: () => `${f.label}${t('smartMwl.scoreSuffix')} ${(f.score * 100).toFixed(0)}${t('smartMwl.pointsUnit')}` }} />
                   <span style={{ width: 200, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'right' }}>
                     {(f.score * 100).toFixed(0)}{t('smartMwl.pointsUnit')} × {(f.weight * 100).toFixed(0)}% = {(f.contribution * 100).toFixed(1)}
-                    {f.source && <div style={{ color: f.source === '真实分检记录' ? '#16a34a' : undefined }}>{f.source}</div>}
+                    {f.source && <div style={{ color: f.source === '真实分检记录' ? 'var(--color-success-600)' : undefined }}>{f.source}</div>}
                   </span>
                 </div>
               ))}

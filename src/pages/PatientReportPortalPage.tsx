@@ -255,7 +255,7 @@ export default function PatientReportPortalPage() {
                 message.warning(`${t('patientPortal.offlinePreview')}: ${e?.message || String(e)}`);
               }
             }}
-            style={{ padding: '6px 12px', border: '1px solid #3b82f6', borderRadius: 6, background: 'var(--bg-card)', color: '#1e40af', fontSize: 12, cursor: 'pointer' }}
+            style={{ padding: '6px 12px', border: '1px solid var(--color-primary-500)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--color-primary-800)', fontSize: 12, cursor: 'pointer' }}
           >
             {t('patientPortal.previewH5')}
           </button>
@@ -277,13 +277,13 @@ export default function PatientReportPortalPage() {
         <KpiCard icon={FileText} label={t('patientPortal.statReports')} value={access.length} color="#0ea5e9" />
         <KpiCard icon={Eye} label={t('patientPortal.statViews')} value={access.reduce((s, a) => s + a.viewCount, 0)} color="#10b981" />
         <KpiCard icon={Download} label={t('patientPortal.statDownloads')} value={access.reduce((s, a) => s + a.downloadCount, 0)} color="#7c3aed" />
-        <KpiCard icon={Share2} label={t('patientPortal.statShares')} value={access.reduce((s, a) => s + a.shareCount, 0)} color="#f59e0b" />
+        <KpiCard icon={Share2} label={t('patientPortal.statShares')} value={access.reduce((s, a) => s + a.shareCount, 0)} color="var(--color-warning-500)" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 12 }}>
         {/* 左：访问列表 */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-          <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)', fontSize: 12, fontWeight: 700, color: '#1e40af' }}>
+          <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)', fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>
             {t('patientPortal.accessList')}
           </div>
           <DataTable<PatientReportAccess>
@@ -331,9 +331,9 @@ export default function PatientReportPortalPage() {
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 12 }}>
                 <InfoCell icon={Eye} label={t('patientPortal.view')} value={selectedAccess.viewCount} color="#10b981" />
-                <InfoCell icon={Download} label={t('patientPortal.download')} value={selectedAccess.downloadCount} color="#3b82f6" />
+                <InfoCell icon={Download} label={t('patientPortal.download')} value={selectedAccess.downloadCount} color="var(--color-primary-500)" />
                 <InfoCell icon={Share2} label={t('patientPortal.share')} value={selectedAccess.shareCount} color="#7c3aed" />
-                <InfoCell icon={Smartphone} label={t('patientPortal.device')} value={selectedAccess.deviceFingerprint.split('-')[0] ?? ''} color="#f59e0b" />
+                <InfoCell icon={Smartphone} label={t('patientPortal.device')} value={selectedAccess.deviceFingerprint.split('-')[0] ?? ''} color="var(--color-warning-500)" />
               </div>
 
               {/* [G005 Wave1B] 报告详情: patientPortalApi.getReport */}
@@ -366,7 +366,7 @@ export default function PatientReportPortalPage() {
 
             {/* 模拟 H5 预览 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Smartphone size={13} /> {t('patientPortal.h5Preview')}
               </div>
               <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -379,7 +379,7 @@ export default function PatientReportPortalPage() {
       {/* [G005 Wave1B] 宣教材料卡: patientPortalApi.listEducation / getEducation */}
       {educationItems.length > 0 && (
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 12, marginBottom: 16 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
             <FileText size={13} /> {t('patientPortal.educationMaterials')} ({educationItems.length}) <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>patient-portal/education</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 8 }}>
@@ -620,7 +620,7 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
                   <button onClick={() => setTab('image')} style={{ flex: 1, padding: '4px 8px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12 }}>
                     {t('patientPortal.image')}
                   </button>
-                  <button onClick={() => void handleShare()} style={{ flex: 1, padding: '4px 8px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12 }}>
+                  <button onClick={() => void handleShare()} style={{ flex: 1, padding: '4px 8px', background: 'var(--color-warning-500)', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12 }}>
                     {t('patientPortal.share')}
                   </button>
                 </div>
@@ -702,10 +702,10 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
 // ============================================================
 const KpiCard: React.FC<{ icon: any; label: string; value: number | string; color: string }> = ({ icon: Icon, label, value, color }) => {
   const c = ({
-    '#dc2626': 'error', '#ef4444': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
-    '#f59e0b': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
-    '#16a34a': 'success', '#22c55e': 'success', '#52c41a': 'success', '#10b981': 'success',
-    '#2563eb': 'primary', '#1890ff': 'primary', '#1d4ed8': 'primary',
+    'var(--color-error-600)': 'error', 'var(--color-error-500)': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
+    'var(--color-warning-500)': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
+    'var(--color-success-600)': 'success', 'var(--color-success-500)': 'success', '#52c41a': 'success', '#10b981': 'success',
+    'var(--color-primary-600)': 'primary', '#1890ff': 'primary', 'var(--color-primary-700)': 'primary',
   } as Record<string, string>)[color] ?? color;
   return <StatCard title={label} value={value} icon={<Icon size={18} />} color={c} />;
 };
@@ -725,7 +725,7 @@ const InfoCell: React.FC<{ icon: any; label: string; value: number | string; col
 // [G005 Wave1B] 报告详情文本块
 const DetailBlock: React.FC<{ label: string; value: string }> = ({ label, value }) => (
   <div style={{ marginBottom: 10 }}>
-    <div style={{ fontSize: 12, fontWeight: 600, color: '#1e40af', marginBottom: 4 }}>{label}</div>
+    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)', marginBottom: 4 }}>{label}</div>
     <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.7, background: 'var(--bg-card)', padding: 8, borderRadius: 6, border: '1px solid var(--border-color)', whiteSpace: 'pre-wrap' }}>{value}</div>
   </div>
 );

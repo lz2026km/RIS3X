@@ -333,7 +333,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
                         justifyContent: 'center',
                       }}
                     >
-                      <ArrowUp size={20} color={rule.fromLevel === 'critical' ? '#dc2626' : '#f59e0b'} />
+                      <ArrowUp size={20} color={rule.fromLevel === 'critical' ? 'var(--color-error-600)' : 'var(--color-warning-500)'} />
                     </div>
                   }
                   title={

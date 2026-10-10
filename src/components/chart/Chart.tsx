@@ -34,8 +34,8 @@ export interface ChartProps {
 const { Text } = Typography
 
 const DEFAULT_COLORS = [
-  '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
-  '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1',
+  'var(--color-primary-500)', '#10b981', 'var(--color-warning-500)', 'var(--color-error-500)', '#8b5cf6',
+  '#ec4899', 'var(--color-info-500)', '#84cc16', '#f97316', '#6366f1',
   '#14b8a6', '#e11d48', '#a855f7', '#0ea5e9', '#d946ef',
 ]
 

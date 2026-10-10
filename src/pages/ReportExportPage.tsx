@@ -53,8 +53,8 @@ import { t } from '../i18n/appI18n';
 void FileType; void FileText; void Globe; void FileCode;
 
 const FORMAT_COLOR: Record<ExportFormat, string> = {
-  pdf: '#dc2626',
-  word: '#2563eb',
+  pdf: 'var(--color-error-600)',
+  word: 'var(--color-primary-600)',
   html: '#7c3aed',
   'dicom-sr': '#475569',
 };
@@ -231,7 +231,7 @@ export default function ReportExportPage() {
       <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Download size={20} color="#dc2626" /> {t('rex.title')}
+            <Download size={20} color="var(--color-error-600)" /> {t('rex.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#7c3aed', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3.INTEGRATION v3.0.5.1</span>
           </h1>
@@ -247,7 +247,7 @@ export default function ReportExportPage() {
               <Badge
                 count={EXPORT_TEMPLATES.length}
                 title={`导出模板 ${EXPORT_TEMPLATES.length} 个`}
-                style={{ backgroundColor: '#dc2626' }}
+                style={{ backgroundColor: 'var(--color-error-600)' }}
               />
             }
             items={[
@@ -306,10 +306,10 @@ export default function ReportExportPage() {
 
       {/* KPI 卡片 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
-        <KpiCard icon={Download} label={t('rex.kpiTotal')} value={deliveryKpi.totalThisMonth} color="#3b82f6" />
+        <KpiCard icon={Download} label={t('rex.kpiTotal')} value={deliveryKpi.totalThisMonth} color="var(--color-primary-500)" />
         <KpiCard icon={CheckCircle2} label={t('rex.kpiSuccessRate')} value={`${deliveryKpi.successRate}%`} color="#10b981" />
         <KpiCard icon={Zap} label={t('rex.kpiAvgTime')} value={deliveryKpi.avgDeliveryTime} color="#7c3aed" />
-        <KpiCard icon={Eye} label={t('rex.kpiPublishedRate')} value={`${deliveryKpi.readRate}%`} color="#f59e0b" />
+        <KpiCard icon={Eye} label={t('rex.kpiPublishedRate')} value={`${deliveryKpi.readRate}%`} color="var(--color-warning-500)" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 12 }}>
@@ -317,8 +317,8 @@ export default function ReportExportPage() {
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
           <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-              <Layers size={13} color="#1e40af" />
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{t('rex.templatesTitle')} ({filteredTemplates.length})</span>
+              <Layers size={13} color="var(--color-primary-800)" />
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('rex.templatesTitle')} ({filteredTemplates.length})</span>
             </div>
             <select value={filterFormat} onChange={e => setFilterFormat(e.target.value)} style={selectStyle}>
               <option value="all">{t('rex.allFormats')}</option>
@@ -338,21 +338,21 @@ export default function ReportExportPage() {
                   style={{
                     padding: 12, borderBottom: '1px solid var(--border-light)',
                     background: isSelected ? '#fef2f2' : 'transparent',
-                    borderLeft: isSelected ? '3px solid #dc2626' : '3px solid transparent',
+                    borderLeft: isSelected ? '3px solid var(--color-error-600)' : '3px solid transparent',
                     cursor: 'pointer',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                     <span style={{ fontSize: 18 }}>{tpl.icon}</span>
                     <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', flex: 1 }}>{tpl.name}</span>
-                    {isSelected && <CheckCircle2 size={14} color="#dc2626" />}
+                    {isSelected && <CheckCircle2 size={14} color="var(--color-error-600)" />}
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{tpl.description}</div>
                   <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                    {tpl.hasImages && <Tag color="#3b82f6">{t('rex.tagImage')}</Tag>}
+                    {tpl.hasImages && <Tag color="var(--color-primary-500)">{t('rex.tagImage')}</Tag>}
                     {tpl.hasSignature && <Tag color="#7c3aed">{t('rex.tagSignature')}</Tag>}
                     {tpl.hasQRCode && <Tag color="#10b981">{t('rex.tagQr')}</Tag>}
-                    {tpl.hasWatermark && <Tag color="#f59e0b">{t('rex.tagWatermark')}</Tag>}
+                    {tpl.hasWatermark && <Tag color="var(--color-warning-500)">{t('rex.tagWatermark')}</Tag>}
                   </div>
                 </div>
               );
@@ -394,7 +394,7 @@ export default function ReportExportPage() {
                 {/* 报告选择 */}
                 <div style={{ marginBottom: 12 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <FileText size={13} /> {t('rex.selectReports')}（{selectedReports.size}）
                     </div>
                     <button
@@ -434,13 +434,13 @@ export default function ReportExportPage() {
                 {/* 进度条 */}
                 {exporting && (
                   <div style={{ marginBottom: 12, padding: 10, background: 'var(--color-info-bg)', borderRadius: 6 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12, color: '#1e40af' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12, color: 'var(--color-primary-800)' }}>
                       <Loader2 size={11} className="spin" />
                       {t('rex.generating', { name: selectedTemplate.name, percent: exportProgress })}
                       {batchTaskId && <span style={{ marginLeft: 'auto', color: 'var(--text-secondary)' }}>{t('rex.taskNo')}{batchTaskId}</span>}
                     </div>
                     <div style={{ height: 6, background: 'var(--color-info-bg)', borderRadius: 3, overflow: 'hidden' }}>
-                      <div style={{ width: `${exportProgress}%`, height: '100%', background: 'linear-gradient(90deg, #3b82f6, #dc2626)', transition: 'width 0.15s' }} />
+                      <div style={{ width: `${exportProgress}%`, height: '100%', background: 'linear-gradient(90deg, var(--color-primary-500), var(--color-error-600))', transition: 'width 0.15s' }} />
                     </div>
                   </div>
                 )}
@@ -472,7 +472,7 @@ export default function ReportExportPage() {
                           <span style={{ color: 'var(--text-secondary)' }}>{(d.sizeBytes / 1024).toFixed(0)} KB</span>
                           <button
                             onClick={() => void downloadBatchFile(d)}
-                            style={{ padding: '2px 8px', border: 'none', borderRadius: 4, background: '#16a34a', color: '#fff', fontSize: 11, cursor: 'pointer' }}
+                            style={{ padding: '2px 8px', border: 'none', borderRadius: 4, background: 'var(--color-success-600)', color: '#fff', fontSize: 11, cursor: 'pointer' }}
                           >
                             {t('rex.download')}
                           </button>
@@ -491,7 +491,7 @@ export default function ReportExportPage() {
                         message.warning(t('rex.selectTemplateAndReport'));
                         return;
                       }
-                      const previewHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>预览 · ${selectedTemplate.name}</title></head><body style="font-family:'PingFang SC','Microsoft YaHei',sans-serif;padding:24px;color:#1e293b"><h2 style="color:#1e40af;border-bottom:2px solid #1e40af;padding-bottom:8px">${sampleReport.patientName} · ${sampleReport.modality} ${sampleReport.bodyPart}</h2><div><strong>报告ID:</strong> ${sampleReport.reportId || sampleReport.id}</div><div><strong>模板:</strong> ${selectedTemplate.name} (${selectedTemplate.format})</div><div><strong>预估大小:</strong> ${selectedTemplate.estimatedSize}</div><h3>所见</h3><pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:6px">${(sampleReport.findings || '暂无').slice(0, 400)}...</pre><h3>诊断</h3><pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:6px">${(sampleReport.diagnosis || '暂无').slice(0, 300)}</pre><p style="margin-top:24px;color:#94a3b8;font-size:12px">这是预览样例 · 仅用于检查版式与字段</p></body></html>`;
+                      const previewHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>预览 · ${selectedTemplate.name}</title></head><body style="font-family:'PingFang SC','Microsoft YaHei',sans-serif;padding:24px;color:#1e293b"><h2 style="color:var(--color-primary-800);border-bottom:2px solid var(--color-primary-800);padding-bottom:8px">${sampleReport.patientName} · ${sampleReport.modality} ${sampleReport.bodyPart}</h2><div><strong>报告ID:</strong> ${sampleReport.reportId || sampleReport.id}</div><div><strong>模板:</strong> ${selectedTemplate.name} (${selectedTemplate.format})</div><div><strong>预估大小:</strong> ${selectedTemplate.estimatedSize}</div><h3>所见</h3><pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:6px">${(sampleReport.findings || '暂无').slice(0, 400)}...</pre><h3>诊断</h3><pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:6px">${(sampleReport.diagnosis || '暂无').slice(0, 300)}</pre><p style="margin-top:24px;color:#94a3b8;font-size:12px">这是预览样例 · 仅用于检查版式与字段</p></body></html>`;
                       const blob = new Blob([previewHtml], { type: 'text/html;charset=utf-8' });
                       const url = URL.createObjectURL(blob);
                       const win = window.open(url, '_blank');
@@ -511,7 +511,7 @@ export default function ReportExportPage() {
                     disabled={exporting || selectedReports.size === 0}
                     style={{
                       flex: 2, padding: '8px 12px', border: 'none', borderRadius: 6,
-                      background: exporting || selectedReports.size === 0 ? '#cbd5e1' : 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                      background: exporting || selectedReports.size === 0 ? '#cbd5e1' : 'linear-gradient(135deg, var(--color-error-600), #b91c1c)',
                       color: '#fff', fontSize: 12, fontWeight: 600,
                       cursor: exporting || selectedReports.size === 0 ? 'not-allowed' : 'pointer',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
@@ -525,7 +525,7 @@ export default function ReportExportPage() {
 
               {/* 模板对比 */}
               <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Sparkles size={13} /> {t('rex.templateQuickRef')}
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
@@ -593,10 +593,10 @@ const Tag: React.FC<{ color: string; children: React.ReactNode }> = ({ color, ch
 // ============================================================
 const KpiCard: React.FC<{ icon: any; label: string; value: number | string; color: string }> = ({ icon: Icon, label, value, color }) => {
   const c = ({
-    '#dc2626': 'error', '#ef4444': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
-    '#f59e0b': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
-    '#16a34a': 'success', '#22c55e': 'success', '#52c41a': 'success', '#10b981': 'success',
-    '#2563eb': 'primary', '#1890ff': 'primary', '#1d4ed8': 'primary',
+    'var(--color-error-600)': 'error', 'var(--color-error-500)': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
+    'var(--color-warning-500)': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
+    'var(--color-success-600)': 'success', 'var(--color-success-500)': 'success', '#52c41a': 'success', '#10b981': 'success',
+    'var(--color-primary-600)': 'primary', '#1890ff': 'primary', 'var(--color-primary-700)': 'primary',
   } as Record<string, string>)[color] ?? color;
   return <StatCard title={label} value={value} icon={<Icon size={18} />} color={c} />;
 };
@@ -612,7 +612,7 @@ const SpecCell: React.FC<{ label: string; value: string; color?: string }> = ({ 
 );
 
 const btnOutlinePrimary: React.CSSProperties = {
-  padding: '6px 12px', border: '1px solid #dc2626', borderRadius: 6,
-  background: 'var(--color-error-bg)', color: '#dc2626', fontSize: 12, cursor: 'pointer',
+  padding: '6px 12px', border: '1px solid var(--color-error-600)', borderRadius: 6,
+  background: 'var(--color-error-bg)', color: 'var(--color-error-600)', fontSize: 12, cursor: 'pointer',
   display: 'flex', alignItems: 'center', gap: 4,
 };

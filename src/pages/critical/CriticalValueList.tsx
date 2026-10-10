@@ -50,8 +50,8 @@ interface FilterBarProps {
 }
 
 const filterBtnStyle = (isActive: boolean): React.CSSProperties => ({
-  padding: '6px 14px', borderRadius: 8, border: `1px solid ${isActive ? '#1e40af' : 'var(--border-color)'}`,
-  background: isActive ? '#1e40af' : 'var(--bg-card)', color: isActive ? '#fff' : '#64748b',
+  padding: '6px 14px', borderRadius: 8, border: `1px solid ${isActive ? 'var(--color-primary-800)' : 'var(--border-color)'}`,
+  background: isActive ? 'var(--color-primary-800)' : 'var(--bg-card)', color: isActive ? '#fff' : '#64748b',
   fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
 })
 
@@ -109,8 +109,8 @@ export const FilterBar = ({
     </div>
     {selectedCount > 0 && (
       <div style={{ display: 'flex', gap: 10, marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--border-color)' }}>
-        <span style={{ fontSize: 12, color: '#1e40af', fontWeight: 700 }}>{t('cvList.selectedCount', { count: selectedCount })}</span>
-        <button onClick={onBatchNotify} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid #d97706', background: 'var(--color-warning-bg)', color: '#d97706', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+        <span style={{ fontSize: 12, color: 'var(--color-primary-800)', fontWeight: 700 }}>{t('cvList.selectedCount', { count: selectedCount })}</span>
+        <button onClick={onBatchNotify} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid var(--color-warning-600)', background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
           <Send size={13} />{t('cvList.batchNotify')}
         </button>
         <button onClick={onBatchProcess} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid #059669', background: 'var(--color-success-bg)', color: '#059669', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
@@ -154,13 +154,13 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
     onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = 'var(--bg-card)' }}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div onClick={onSelect} style={{ cursor: 'pointer', color: isSelected ? '#1e40af' : '#cbd5e1' }}>
+        <div onClick={onSelect} style={{ cursor: 'pointer', color: isSelected ? 'var(--color-primary-800)' : '#cbd5e1' }}>
           {isSelected ? <CheckSquare size={18} /> : <Square size={18} />}
         </div>
       </div>
       <div style={{ fontSize: 12, color: '#64748b', fontFamily: 'monospace' }}>{cv.id}</div>
       <div>
-        <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{cv.patientName}</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{cv.patientName}</div>
         <div style={{ fontSize: 12, color: '#94a3b8' }}>{cv.gender}·{cv.age}岁</div>
       </div>
       <div>
@@ -169,7 +169,7 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
       </div>
       <div style={{ fontSize: 12, color: '#64748b' }}>{cv.deviceName?.split('（')[0] || cv.modality}</div>
       <div>
-        <div style={{ fontSize: 12, fontWeight: 800, color: '#dc2626' }}>{cv.resultValue} {cv.resultUnit}</div>
+        <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--color-error-600)' }}>{cv.resultValue} {cv.resultUnit}</div>
         <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('cvList.criticalPrefix')} {cv.criticalRange}</div>
       </div>
       <div>
@@ -188,7 +188,7 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
             <Edit3 size={10} />{t('cvList.process')}
           </button>
         )}
-        <button onClick={onViewDetail} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #1e40af', background: 'var(--bg-card)', color: '#1e40af', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+        <button onClick={onViewDetail} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid var(--color-primary-800)', background: 'var(--bg-card)', color: 'var(--color-primary-800)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
           <Eye size={10} />{t('cvList.detail')}
         </button>
         {(cv.status === 'notified' || cv.status === '已通知') && (
@@ -197,16 +197,16 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
           </button>
         )}
         {(cv.status === 'voice_called') && (
-          <button onClick={onAcknowledge} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #2563eb', background: 'var(--color-info-bg)', color: '#2563eb', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+          <button onClick={onAcknowledge} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid var(--color-primary-600)', background: 'var(--color-info-bg)', color: 'var(--color-primary-600)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
             <CheckCircle size={10} />{t('cvList.confirm')}
           </button>
         )}
         {(cv.status === 'acknowledged' || cv.status === '已接收') && (
-          <button onClick={onClinicalReceipt} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #16a34a', background: 'var(--color-success-bg)', color: '#16a34a', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+          <button onClick={onClinicalReceipt} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid var(--color-success-600)', background: 'var(--color-success-bg)', color: 'var(--color-success-600)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
             <Edit3 size={10} />{t('cvList.receipt')}
           </button>
         )}
-        <button onClick={onContactClinical} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #d97706', background: 'var(--bg-card)', color: '#d97706', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+        <button onClick={onContactClinical} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid var(--color-warning-600)', background: 'var(--bg-card)', color: 'var(--color-warning-600)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
           <Phone size={10} />{t('cvList.contact')}
         </button>
         {cv.status !== 'closed_loop' && cv.status !== 'resolved' && cv.status !== '已处理' && (
@@ -219,11 +219,11 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
             <ArrowUp size={10} />{t('cvList.escalate')}
           </button>
         )}
-        <button onClick={onGo5Step} title={t('cvList.fiveStepWorkflow')} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #2563eb', background: 'var(--color-info-bg)', color: '#2563eb', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+        <button onClick={onGo5Step} title={t('cvList.fiveStepWorkflow')} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid var(--color-primary-600)', background: 'var(--color-info-bg)', color: 'var(--color-primary-600)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
           <CheckCircle size={10} />{t('cvList.fiveStep')}
         </button>
         <Popconfirm title={t('cvList.deleteTitle')} description={t('cvList.deleteDesc')} onConfirm={onDelete} okText={t('cvList.deleteOk')} cancelText={t('cvList.deleteCancel')} okButtonProps={{ danger: true }}>
-          <button style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #dc2626', background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+          <button style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid var(--color-error-600)', background: 'var(--bg-card)', color: 'var(--color-error-600)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
             <Trash2 size={10} />{t('cvList.delete')}
           </button>
         </Popconfirm>
@@ -287,7 +287,7 @@ export const CriticalValueList = ({
     <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
       <div style={{ padding: '10px 16px', fontSize: 12, fontWeight: 700, color: '#64748b', background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center' }}>
         <div style={{ width: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div onClick={onToggleSelectAll} style={{ cursor: 'pointer', color: allSelected ? '#1e40af' : '#cbd5e1' }}>
+          <div onClick={onToggleSelectAll} style={{ cursor: 'pointer', color: allSelected ? 'var(--color-primary-800)' : '#cbd5e1' }}>
             {allSelected ? <CheckSquare size={16} /> : <Square size={16} />}
           </div>
         </div>
@@ -335,8 +335,8 @@ export const CriticalValueList = ({
 
       <div style={{ padding: '12px 16px', borderTop: '1px solid var(--border-color)', background: 'var(--bg-card)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ fontSize: 12, color: '#64748b' }}>
-          {t('cvList.totalRecordsPrefix')} <span style={{ fontWeight: 700, color: '#1e40af' }}>{filtered.length}</span> {t('cvList.totalRecordsMid')}
-          {t('cvList.selectedPrefix')} <span style={{ fontWeight: 700, color: '#1e40af' }}>{selectedIds.size}</span> {t('cvList.selectedSuffix')}
+          {t('cvList.totalRecordsPrefix')} <span style={{ fontWeight: 700, color: 'var(--color-primary-800)' }}>{filtered.length}</span> {t('cvList.totalRecordsMid')}
+          {t('cvList.selectedPrefix')} <span style={{ fontWeight: 700, color: 'var(--color-primary-800)' }}>{selectedIds.size}</span> {t('cvList.selectedSuffix')}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           {/* v3.0.6.11: STATUS_CONFIG 中英文键(pending/...)优先显示 machine-derived counts */}

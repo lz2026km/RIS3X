@@ -39,7 +39,7 @@ export default function ReportCriticalModal({ report, submitting, onClose, onSub
       onClick={onClose}
     >
       <div onClick={e => e.stopPropagation()} style={{ background: 'var(--bg-card)', borderRadius: 14, width: '100%', maxWidth: 540, boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
-        <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 10, background: '#dc2626', borderRadius: '14px 14px 0 0' }}>
+        <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 10, background: 'var(--color-error-600)', borderRadius: '14px 14px 0 0' }}>
           <Zap size={18} style={{ color: '#fff' }} />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>危急值一键转入</div>
@@ -80,9 +80,9 @@ export default function ReportCriticalModal({ report, submitting, onClose, onSub
                   key={m.value}
                   onClick={() => setMethod(m.value)}
                   style={{
-                    padding: '6px 12px', borderRadius: 6, border: `1px solid ${method === m.value ? '#dc2626' : 'var(--border-color)'}`,
+                    padding: '6px 12px', borderRadius: 6, border: `1px solid ${method === m.value ? 'var(--color-error-600)' : 'var(--border-color)'}`,
                     background: method === m.value ? 'var(--color-error-bg)' : 'var(--bg-card)',
-                    color: method === m.value ? '#dc2626' : '#64748b', fontWeight: 600, fontSize: 12, cursor: 'pointer',
+                    color: method === m.value ? 'var(--color-error-600)' : '#64748b', fontWeight: 600, fontSize: 12, cursor: 'pointer',
                   }}
                 >
                   {m.label}
@@ -115,7 +115,7 @@ export default function ReportCriticalModal({ report, submitting, onClose, onSub
             onClick={() => onSubmit(severity, description.trim() || (report.diagnosis || report.examFindings || '危急值报告'), method)}
             disabled={submitting}
             style={{
-              padding: '8px 24px', border: 'none', background: submitting ? '#f87171' : '#dc2626',
+              padding: '8px 24px', border: 'none', background: submitting ? '#f87171' : 'var(--color-error-600)',
               color: '#fff', borderRadius: 8, fontSize: 12, fontWeight: 700,
               cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 6, opacity: submitting ? 0.7 : 1,
             }}

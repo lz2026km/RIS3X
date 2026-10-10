@@ -3,18 +3,18 @@ import React from 'react'
 import { t } from '../../i18n/appI18n'
 
 export const COLORS = {
-  primary: '#1e40af',
-  secondary: '#0891b2',
-  success: '#16a34a',
-  warning: '#d97706',
-  danger: '#dc2626',
+  primary: 'var(--color-primary-800)',
+  secondary: 'var(--color-info-600)',
+  success: 'var(--color-success-600)',
+  warning: 'var(--color-warning-600)',
+  danger: 'var(--color-error-600)',
   bgGray: '#e8e8e8',
   cardWhite: 'var(--bg-card)',
   textDark: 'var(--text-primary)',
   textMuted: 'var(--text-secondary)',
   border: '#d1d5db',
-  pending: '#f59e0b',
-  inProgress: '#3b82f6',
+  pending: 'var(--color-warning-500)',
+  inProgress: 'var(--color-primary-500)',
   completed: '#10b981',
 }
 

@@ -6,10 +6,10 @@ import { toEnState } from '../../components/report/statusMeta'
 import { isDraftOverdue } from './reportUtils'
 
 
-const PRIMARY = '#1e40af'
+const PRIMARY = 'var(--color-primary-800)'
 const WHITE = 'var(--bg-card, #ffffff)'
 const GRAY = 'var(--text-secondary, #475569)'
-const DANGER = '#dc2626'
+const DANGER = 'var(--color-error-600)'
 
 const ANOMALY_KEYWORDS = [
   '结节', '血肿', '占位', '狭窄', '肿块', '转移', '骨折', '渗出',
@@ -37,7 +37,7 @@ const KANBAN_COLUMNS = [
   {
     key: '草稿组', label: '草稿', Icon: FileText,
     subStatus: ['待分配', '已分配', '书写中'] as readonly string[],
-    color: '#1e40af', bg: 'var(--color-info-bg)', border: 'var(--color-info-border)',
+    color: 'var(--color-primary-800)', bg: 'var(--color-info-bg)', border: 'var(--color-info-border)',
   },
   {
     key: '审核组', label: '审核', Icon: Eye,

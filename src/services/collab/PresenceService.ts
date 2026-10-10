@@ -63,7 +63,7 @@ const notify = (): void => {
   });
 };
 
-const defaultColors = ['#dc2626', '#7c3aed', '#0891b2', '#10b981', '#f59e0b'];
+const defaultColors = ['var(--color-error-600)', '#7c3aed', 'var(--color-info-600)', '#10b981', 'var(--color-warning-500)'];
 
 const ensureDefaults = (u: Partial<CollabUser> & { id: string }): CollabUser => {
   const idx = Array.from(presenceMap.keys()).length % defaultColors.length;

@@ -22,14 +22,14 @@ import {
 
 // ============ 样式常量 ============
 const COLORS = {
-  primary: '#1e40af',
-  primaryLight: '#3b82f6',
-  secondary: '#0891b2',
-  success: '#16a34a',
+  primary: 'var(--color-primary-800)',
+  primaryLight: 'var(--color-primary-500)',
+  secondary: 'var(--color-info-600)',
+  success: 'var(--color-success-600)',
   successLight: '#dcfce7',
-  warning: '#d97706',
+  warning: 'var(--color-warning-600)',
   warningLight: '#fef3c7',
-  danger: '#dc2626',
+  danger: 'var(--color-error-600)',
   dangerLight: '#fee2e2',
   bgGray: 'var(--bg-primary)',
   cardWhite: 'var(--bg-card)',
@@ -37,23 +37,23 @@ const COLORS = {
   textMuted: '#6b7280',
   border: 'var(--border-color)',
   // 设备颜色
-  ct: '#3b82f6',
+  ct: 'var(--color-primary-500)',
   mri: '#8b5cf6',
   dr: '#10b981',
-  mg: '#f59e0b',
-  dsa: '#ef4444',
-  cr: '#3b82f6',
+  mg: 'var(--color-warning-500)',
+  dsa: 'var(--color-error-500)',
+  cr: 'var(--color-primary-500)',
 }
 
 const MODALITY_COLORS: Record<string, string> = {
-  'CT': '#3b82f6',
+  'CT': 'var(--color-primary-500)',
   'MR': '#8b5cf6',
   'DR': '#10b981',
-  'DSA': '#ef4444',
+  'DSA': 'var(--color-error-500)',
   'MG': '#ec4899',
   'GI': '#14b8a6',
-  'CR': '#3b82f6',
-  'RF': '#f59e0b',
+  'CR': 'var(--color-primary-500)',
+  'RF': 'var(--color-warning-500)',
 }
 
 // ============ 模拟数据 ============
@@ -110,7 +110,7 @@ const styles = {
   },
   // 顶部标题栏
   header: {
-    background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)',
+    background: 'linear-gradient(135deg, var(--color-primary-800) 0%, #1e3a8a 100%)',
     color: 'white',
     padding: '16px 24px',
     display: 'flex',
@@ -347,7 +347,7 @@ const styles = {
   },
   badgePrimary: {
     backgroundColor: 'var(--color-info-bg)',
-    color: '#1e40af',
+    color: 'var(--color-primary-800)',
   },
   badgeSuccess: {
     backgroundColor: COLORS.successLight,
@@ -768,10 +768,10 @@ export default function StatsReportPage() {
         <title>统计报表 - ${activeTab === 'device' ? '设备' : activeTab === 'doctor' ? '医生' : '日期'}</title>
         <style>
           body { font-family: Arial, sans-serif; padding: 20px; }
-          h1 { color: #1e40af; }
+          h1 { color: var(--color-primary-800); }
           table { width: 100%; border-collapse: collapse; margin-top: 20px; }
           th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-          th { background-color: #1e40af; color: white; }
+          th { background-color: var(--color-primary-800); color: white; }
           tr:nth-child(even) { background-color: #f9f9f9; }
         </style>
       </head>
@@ -1244,9 +1244,9 @@ export default function StatsReportPage() {
                         <div style={{
                           width: '100%',
                           height: `${Math.max((val / max) * 100, 3)}%`,
-                          background: isForecast ? '#fbbf24' : COLORS.primaryLight,
+                          background: isForecast ? 'var(--color-warning-400)' : COLORS.primaryLight,
                           opacity: isForecast ? 0.7 : 1,
-                          borderTop: isForecast ? '2px dashed #d97706' : 'none',
+                          borderTop: isForecast ? '2px dashed var(--color-warning-600)' : 'none',
                           borderRadius: '4px 4px 0 0',
                         }} />
                       </div>
@@ -1456,10 +1456,10 @@ export default function StatsReportPage() {
                         <title>统计报表</title>
                         <style>
                           body { font-family: Arial, sans-serif; padding: 20px; }
-                          h1 { color: #1e40af; }
+                          h1 { color: var(--color-primary-800); }
                           table { width: 100%; border-collapse: collapse; margin-top: 20px; }
                           th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
-                          th { background-color: #1e40af; color: white; }
+                          th { background-color: var(--color-primary-800); color: white; }
                           tr:nth-child(even) { background-color: #f9f9f9; }
                         </style>
                       </head>

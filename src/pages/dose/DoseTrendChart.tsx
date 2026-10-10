@@ -27,7 +27,7 @@ export default function DoseTrendChart({
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", marginBottom: 16 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 16 }}>
             {t("doseTrack.trend.overview") || "各类设备剂量趋势（本周DLP合计）"}
           </div>
           <ChartContainer height={220} state={doseHistoryData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无剂量趋势数据">
@@ -37,15 +37,15 @@ export default function DoseTrendChart({
               <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} tickFormatter={(v) => `${v}`} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v: number) => [`${v} mGy·cm`, "DLP"]} />
               <Legend iconSize={10} />
-              <Bar dataKey="CT" fill="#3b82f6" name="CT" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="DR" fill="#22c55e" name="DR" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="DSA" fill="#f59e0b" name="DSA" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="CT" fill="var(--color-primary-500)" name="CT" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="DR" fill="var(--color-success-500)" name="DR" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="DSA" fill="var(--color-warning-500)" name="DSA" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ChartContainer>
         </div>
 
         <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", marginBottom: 16 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 16 }}>
             {t("doseTrack.ctdiTrend.title")}
           </div>
           <ChartContainer height={220} state={ctdivolTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无CTDI趋势数据">
@@ -54,9 +54,9 @@ export default function DoseTrendChart({
               <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#94a3b8" }} />
               <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} domain={[0, 60]} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
-              <Line type="monotone" dataKey="CT1" stroke="#3b82f6" strokeWidth={2} dot={{ fill: "#3b82f6", r: 3 }} name="CT-1" />
+              <Line type="monotone" dataKey="CT1" stroke="var(--color-primary-500)" strokeWidth={2} dot={{ fill: "var(--color-primary-500)", r: 3 }} name="CT-1" />
               <Line type="monotone" dataKey="CT2" stroke="#8b5cf6" strokeWidth={2} dot={{ fill: "#8b5cf6", r: 3 }} name="CT-2" />
-              <Line type="monotone" dataKey="threshold" stroke="#dc2626" strokeWidth={2} strokeDasharray="5 5" dot={false} name={t("doseTrack.ctdiTrend.threshold")} />
+              <Line type="monotone" dataKey="threshold" stroke="var(--color-error-600)" strokeWidth={2} strokeDasharray="5 5" dot={false} name={t("doseTrack.ctdiTrend.threshold")} />
             </LineChart>
           </ChartContainer>
         </div>
@@ -65,7 +65,7 @@ export default function DoseTrendChart({
       <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>{t("doseTrack.deviceDap.title")}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>{t("doseTrack.deviceDap.title")}</div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{t("doseTrack.deviceDap.subtitle")}</div>
           </div>
         </div>
@@ -75,33 +75,33 @@ export default function DoseTrendChart({
             <XAxis dataKey="device" tick={{ fontSize: 12, fill: "#94a3b8" }} />
             <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} />
             <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
-            <Bar dataKey="DAP" fill="#3b82f6" radius={[4, 4, 0, 0]} name="今日DAP" />
+            <Bar dataKey="DAP" fill="var(--color-primary-500)" radius={[4, 4, 0, 0]} name="今日DAP" />
             <Bar dataKey="avgDAP" fill="#94a3b8" radius={[4, 4, 0, 0]} name="平均DAP" />
           </BarChart>
         </ChartContainer>
       </div>
 
       <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", marginBottom: 16 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 16 }}>
           {t("doseTrack.device.statusLabel") || "设备今日剂量状态"}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {deviceDoseData.map((d) => {
             const badge = d.status === "warning"
-              ? { bg: "#fffbeb", color: "#d97706" }
-              : { bg: "#f0fdf4", color: "#16a34a" };
+              ? { bg: "#fffbeb", color: "var(--color-warning-600)" }
+              : { bg: "#f0fdf4", color: "var(--color-success-600)" };
             return (
               <div key={d.device} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", background: "var(--bg-primary)", borderRadius: 8 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <Monitor size={14} color="#64748b" />
                   <div>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: "#1e40af" }}>{d.device}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: "var(--color-primary-800)" }}>{d.device}</div>
                     <div style={{ fontSize: 12, color: "#94a3b8" }}>DLP: {d.todayDLP} mGy·cm · CTDI: {d.todayCTDI} mGy</div>
                   </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   {d.alertCount > 0 && (
-                    <span style={{ padding: "2px 6px", background: "#fef2f2", color: "#dc2626", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>
+                    <span style={{ padding: "2px 6px", background: "#fef2f2", color: "var(--color-error-600)", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>
                       {d.alertCount}
                     </span>
                   )}
@@ -110,7 +110,7 @@ export default function DoseTrendChart({
                   </span>
                   <button
                     onClick={() => onViewDeviceHistory(d.device)}
-                    style={{ padding: "4px 8px", background: "#eff6ff", color: "#2563eb", border: "none", borderRadius: 4, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 2 }}
+                    style={{ padding: "4px 8px", background: "#eff6ff", color: "var(--color-primary-600)", border: "none", borderRadius: 4, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 2 }}
                   >
                     <Clock size={10} /> {t("doseTrack.device.history")}
                   </button>

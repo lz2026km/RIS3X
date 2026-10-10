@@ -181,7 +181,7 @@ export default function ImageQualityControlPage() {
     { title: t('imageQualityControl.colExamDate'), dataIndex: 'examDate', width: 100 },
     { title: t('imageQualityControl.colAiScore'), dataIndex: 'score', width: 130, render: (v: number, r: QcImageAiResult) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Progress percent={Math.round((v / (r.maxScore || 5)) * 100)} size="small" style={{ flex: 1, margin: 0 }} strokeColor={v >= 4 ? '#10b981' : v >= 3 ? '#f59e0b' : '#ef4444'} />
+          <Progress percent={Math.round((v / (r.maxScore || 5)) * 100)} size="small" style={{ flex: 1, margin: 0 }} strokeColor={v >= 4 ? '#10b981' : v >= 3 ? 'var(--color-warning-500)' : 'var(--color-error-500)'} />
           <span style={{ fontSize: 12, fontWeight: 600 }}>{v}</span>
         </div>
       ) },
@@ -205,7 +205,7 @@ export default function ImageQualityControlPage() {
   return (
     <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
       <PageHeader
-        icon={<Camera size={20} color="#3b82f6" />}
+        icon={<Camera size={20} color="var(--color-primary-500)" />}
         title={t('imageQualityControl.title')}
         subtitle={t('imageQualityControl.subtitle')}
         actions={
@@ -225,7 +225,7 @@ export default function ImageQualityControlPage() {
       <div style={{ marginBottom: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         {['all', 'CT', 'MR', 'DR', 'US', 'MG', 'DSA'].map((m) => (
           <button key={m} onClick={() => setModality(m)}
-            style={{ padding: '6px 14px', background: modality === m ? '#1e40af' : 'var(--bg-card)', color: modality === m ? '#fff' : '#475569', border: '1px solid ' + (modality === m ? '#1e40af' : 'var(--border-color)'), borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+            style={{ padding: '6px 14px', background: modality === m ? 'var(--color-primary-800)' : 'var(--bg-card)', color: modality === m ? '#fff' : '#475569', border: '1px solid ' + (modality === m ? 'var(--color-primary-800)' : 'var(--border-color)'), borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
             {m === 'all' ? t('imageQualityControl.all') : m}
           </button>
         ))}
@@ -309,7 +309,7 @@ export default function ImageQualityControlPage() {
               render: (v: number) => (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                   <div style={{ width: 60, height: 6, background: 'var(--border-color)', borderRadius: 3, overflow: 'hidden' }}>
-                    <div style={{ width: `${v}%`, height: '100%', background: v >= 90 ? '#10b981' : v >= 80 ? '#f59e0b' : '#dc2626' }} />
+                    <div style={{ width: `${v}%`, height: '100%', background: v >= 90 ? '#10b981' : v >= 80 ? 'var(--color-warning-500)' : 'var(--color-error-600)' }} />
                   </div>
                   <span style={{ fontSize: 11, color: '#475569' }}>{v}%</span>
                 </div>

@@ -123,10 +123,10 @@ export const neuroHandlers = [
     return HttpResponse.json({
       success: true,
       data: [
-        { window: '0-3h (IV tPA)', count: 5, color: '#16a34a' },
+        { window: '0-3h (IV tPA)', count: 5, color: 'var(--color-success-600)' },
         { window: '3-6h (MT)', count: 3, color: '#ca8a04' },
         { window: '6-24h (MT)', count: 2, color: '#ea580c' },
-        { window: '>24h (保守)', count: 1, color: '#dc2626' },
+        { window: '>24h (保守)', count: 1, color: 'var(--color-error-600)' },
       ],
     });
   }),

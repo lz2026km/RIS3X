@@ -313,7 +313,7 @@ export function CommandPalette({
                     <IconComp
                       size={16}
                       style={{
-                        color: isSelected ? "#3b82f6" : "#64748b",
+                        color: isSelected ? "var(--color-primary-500)" : "#64748b",
                         flexShrink: 0,
                       }}
                     />

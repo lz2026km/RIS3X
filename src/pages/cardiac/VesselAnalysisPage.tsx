@@ -160,10 +160,10 @@ const VesselAnalysisPage: React.FC = () => {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Heart size={22} color="#dc2626" /> {t('vesselAnalysis.title')}
+            <Heart size={22} color="var(--color-error-600)" /> {t('vesselAnalysis.title')}
             <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, fontWeight: 700,
               background: dataSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-info-bg)',
-              color: dataSource === 'real' ? '#16a34a' : '#1e40af',
+              color: dataSource === 'real' ? 'var(--color-success-600)' : 'var(--color-primary-800)',
               border: `1px solid ${dataSource === 'real' ? 'var(--color-success-border)' : 'var(--color-pending-border)'}` }}>
               {dataSource === 'real' ? t('vesselAnalysis.realData') : t('vesselAnalysis.demoData')}
             </span>
@@ -201,9 +201,9 @@ const VesselAnalysisPage: React.FC = () => {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
               {[
                 { label: t('vesselAnalysis.lesionCount'), value: String(lesions.length), color: '#ea580c', icon: AlertTriangle },
-                { label: t('vesselAnalysis.severeStenosis'), value: String(severeCount), color: '#dc2626', icon: AlertTriangle },
+                { label: t('vesselAnalysis.severeStenosis'), value: String(severeCount), color: 'var(--color-error-600)', icon: AlertTriangle },
                 { label: t('vesselAnalysis.calciumScore'), value: String(calciumDerived), color: '#7c3aed', icon: Activity },
-                { label: 'CAD-RADS', value: selected.cadRads ?? 'N', color: '#0891b2', icon: Stethoscope },
+                { label: 'CAD-RADS', value: selected.cadRads ?? 'N', color: 'var(--color-info-600)', icon: Stethoscope },
               ].map((k) => {
                 const Icon = k.icon
                 return (

@@ -11,7 +11,7 @@ import {
   drawImageDataCentered,
 } from './volumeReal'
 
-const BLUE = '#3b82f6'
+const BLUE = 'var(--color-primary-500)'
 const CARD_BG = '#0f172a'
 
 function generateMipData(sliceRange: [number, number], size: number): number[][] {

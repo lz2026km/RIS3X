@@ -135,7 +135,7 @@ export default function TermSynonymGraphPage() {
             <span style={{
               fontSize: 11, padding: '2px 8px', borderRadius: 10,
               background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-              color: source === 'api' ? '#16a34a' : '#92400e',
+              color: source === 'api' ? 'var(--color-success-600)' : '#92400e',
               border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
               fontWeight: 500,
             }}>
@@ -144,7 +144,7 @@ export default function TermSynonymGraphPage() {
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('termSyn.summary', { count: totalCount })}
-            {apiError && <span style={{ color: '#dc2626', marginLeft: 8 }}>{apiError}</span>}
+            {apiError && <span style={{ color: 'var(--color-error-600)', marginLeft: 8 }}>{apiError}</span>}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -226,7 +226,7 @@ export default function TermSynonymGraphPage() {
         {/* 中：图谱 */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Network size={13} /> {t('termSyn.graphTitle')}
             </div>
             <div style={{ display: 'flex', gap: 4, alignItems: 'center', fontSize: 12, color: 'var(--text-secondary)' }}>
@@ -256,13 +256,13 @@ export default function TermSynonymGraphPage() {
 
             {selected.abbreviation && (
               <div style={{ marginBottom: 8, padding: 6, background: 'var(--color-info-bg)', borderRadius: 4, fontSize: 12 }}>
-                <strong style={{ color: '#1e40af' }}>{t('termSyn.abbreviation')}：</strong>
+                <strong style={{ color: 'var(--color-primary-800)' }}>{t('termSyn.abbreviation')}：</strong>
                 <code style={{ background: 'var(--bg-card)', padding: '1px 6px', borderRadius: 3, fontWeight: 700 }}>{selected.abbreviation}</code>
               </div>
             )}
 
             <div style={{ marginBottom: 8, padding: 8, background: 'var(--bg-card)', borderRadius: 6, fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6 }}>
-              <strong style={{ color: '#1e40af' }}>{t('termSyn.definition')}：</strong> {selected.definition || '—'}
+              <strong style={{ color: 'var(--color-primary-800)' }}>{t('termSyn.definition')}：</strong> {selected.definition || '—'}
             </div>
 
             {selected.exampleSentence && (
@@ -287,7 +287,7 @@ export default function TermSynonymGraphPage() {
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>{t('termSyn.relatedTerms')}</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                   {selected.relatedTerms.map(r => (
-                    <span key={r} style={{ padding: '2px 8px', background: 'var(--color-info-bg)', color: '#1e40af', fontSize: 12, borderRadius: 10 }}>{r}</span>
+                    <span key={r} style={{ padding: '2px 8px', background: 'var(--color-info-bg)', color: 'var(--color-primary-800)', fontSize: 12, borderRadius: 10 }}>{r}</span>
                   ))}
                 </div>
               </div>
@@ -329,7 +329,7 @@ const SynonymGraph: React.FC<{ focusTerm: TermEntry }> = ({ focusTerm }) => {
       id: `syn-${i}`, label: s, type: 'synonym' as const, color: '#a855f7',
     }));
     const related = focusTerm.relatedTerms.map((r, i) => ({
-      id: `rel-${i}`, label: r, type: 'related' as const, color: '#3b82f6',
+      id: `rel-${i}`, label: r, type: 'related' as const, color: 'var(--color-primary-500)',
     }));
     return [center, ...synonyms, ...related];
   }, [focusTerm]);
@@ -357,7 +357,7 @@ const SynonymGraph: React.FC<{ focusTerm: TermEntry }> = ({ focusTerm }) => {
             key={`line-${i}`}
             x1={centerX} y1={centerY}
             x2={node.x} y2={node.y}
-            stroke={node.type === 'synonym' ? '#a855f7' : '#3b82f6'}
+            stroke={node.type === 'synonym' ? '#a855f7' : 'var(--color-primary-500)'}
             strokeWidth={node.type === 'synonym' ? 2 : 1.5}
             strokeDasharray={node.type === 'related' ? '4 2' : '0'}
             opacity={0.5}
@@ -393,7 +393,7 @@ const SynonymGraph: React.FC<{ focusTerm: TermEntry }> = ({ focusTerm }) => {
           <rect width="120" height="60" fill="var(--bg-card)" stroke="#e2e8f0" rx={4} />
           <line x1={8} y1={14} x2={28} y2={14} stroke="#a855f7" strokeWidth={2} />
           <text x={32} y={17} fontSize={10} fill="var(--text-primary)">{t('termSyn.legendSynonym')}</text>
-          <line x1={8} y1={32} x2={28} y2={32} stroke="#3b82f6" strokeWidth={1.5} strokeDasharray="4 2" />
+          <line x1={8} y1={32} x2={28} y2={32} stroke="var(--color-primary-500)" strokeWidth={1.5} strokeDasharray="4 2" />
           <text x={32} y={35} fontSize={10} fill="var(--text-primary)">{t('termSyn.legendRelated')}</text>
           <circle cx={18} cy={48} r={5} fill="#7c3aed" />
           <text x={32} y={51} fontSize={10} fill="var(--text-primary)">{t('termSyn.legendCenter')}</text>

@@ -179,7 +179,7 @@ export const RemoteWriting: React.FC<DetailProps> = ({
             <span style={{ color: 'white', fontSize: '12px' }}>{t('regionalReport.dicomViewerSim')}</span>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button
-                style={{ ...styles.button, padding: '4px 8px', fontSize: '11px', backgroundColor: zoom !== 100 ? 'rgba(59,130,246,0.35)' : 'rgba(255,255,255,0.1)', color: 'white', border: zoom !== 100 ? '1px solid #3b82f6' : 'none' }}
+                style={{ ...styles.button, padding: '4px 8px', fontSize: '11px', backgroundColor: zoom !== 100 ? 'rgba(59,130,246,0.35)' : 'rgba(255,255,255,0.1)', color: 'white', border: zoom !== 100 ? '1px solid var(--color-primary-500)' : 'none' }}
                 onClick={() => setZoom(z => Math.min(300, z + 25))}
                 title={t('regionalReport.zoomIn')}
               >
@@ -193,7 +193,7 @@ export const RemoteWriting: React.FC<DetailProps> = ({
                 <SlidersHorizontal size={12} /> {t('regionalReport.windowWidth')} {ww} L:{wc}
               </button>
               <button
-                style={{ ...styles.button, padding: '4px 8px', fontSize: '11px', backgroundColor: measuring ? 'rgba(59,130,246,0.35)' : 'rgba(255,255,255,0.1)', color: 'white', border: measuring ? '1px solid #3b82f6' : 'none' }}
+                style={{ ...styles.button, padding: '4px 8px', fontSize: '11px', backgroundColor: measuring ? 'rgba(59,130,246,0.35)' : 'rgba(255,255,255,0.1)', color: 'white', border: measuring ? '1px solid var(--color-primary-500)' : 'none' }}
                 onClick={() => { setMeasuring(m => !m); setMeasureResult(null) }}
                 title={t('regionalReport.measure')}
               >
@@ -210,7 +210,7 @@ export const RemoteWriting: React.FC<DetailProps> = ({
             </div>
           </div>
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-            <div style={{ width: 200, height: 200, borderRadius: '8px', background: 'linear-gradient(135deg, #2d2d44 0%, #1a1a2e 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `scale(${zoom / 100})`, transition: 'transform 0.15s', border: measuring ? '2px dashed #3b82f6' : 'none' }}>
+            <div style={{ width: 200, height: 200, borderRadius: '8px', background: 'linear-gradient(135deg, #2d2d44 0%, #1a1a2e 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `scale(${zoom / 100})`, transition: 'transform 0.15s', border: measuring ? '2px dashed var(--color-primary-500)' : 'none' }}>
               <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}><Monitor size={48} style={{ marginBottom: '8px', opacity: 0.5 }} /><div style={{ fontSize: '12px' }}>{t('regionalReport.ctChest')}</div><div style={{ fontSize: '10px', marginTop: '4px' }}>{t('regionalReport.imageLoadArea')}</div></div>
             </div>
             {measuring && <div style={{ position: 'absolute', width: 120, height: 60, border: '1px solid rgba(59,130,246,0.9)', borderRadius: 2 }} />}

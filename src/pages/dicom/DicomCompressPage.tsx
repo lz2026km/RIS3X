@@ -1,9 +1,9 @@
 import { usePagination } from "../../hooks/usePagination";
 const STAT_COLOR_MAP: Record<string, string> = {
-  '#cf1322': 'error', '#dc2626': 'error', '#f5222d': 'error', '#ff4d4f': 'error',
-  '#fa8c16': 'warning', '#faad14': 'warning', '#d97706': 'warning', '#ff7a45': 'warning',
-  '#52c41a': 'success', '#16a34a': 'success', '#059669': 'success',
-  '#1890ff': 'primary', '#2563eb': 'primary', '#1d4ed8': 'primary',
+  '#cf1322': 'error', 'var(--color-error-600)': 'error', '#f5222d': 'error', '#ff4d4f': 'error',
+  '#fa8c16': 'warning', '#faad14': 'warning', 'var(--color-warning-600)': 'warning', '#ff7a45': 'warning',
+  '#52c41a': 'success', 'var(--color-success-600)': 'success', '#059669': 'success',
+  '#1890ff': 'primary', 'var(--color-primary-600)': 'primary', 'var(--color-primary-700)': 'primary',
   '#13c2c2': 'info',
 };
 const mapColor = (c?: string): string | undefined => (c ? STAT_COLOR_MAP[c.toLowerCase()] ?? c : c);

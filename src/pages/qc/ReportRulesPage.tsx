@@ -603,10 +603,10 @@ export default function ReportRulesPage() {
   const statsCards = useMemo(() => {
     const s = stats
     return [
-      { label: t('reportRules.kpiTotal'), value: s?.totalRules ?? rules.length, icon: <ShieldCheck size={18} />, color: '#3b82f6' },
+      { label: t('reportRules.kpiTotal'), value: s?.totalRules ?? rules.length, icon: <ShieldCheck size={18} />, color: 'var(--color-primary-500)' },
       { label: t('reportRules.kpiBuiltIn'), value: s?.builtInRules ?? 0, icon: <FileCheck2 size={18} />, color: '#10b981' },
       { label: t('reportRules.kpiCustom'), value: s?.customRules ?? 0, icon: <Plus size={18} />, color: '#8b5cf6' },
-      { label: t('reportRules.kpiViolations'), value: s?.totalViolations ?? 0, icon: <AlertTriangle size={18} />, color: '#f59e0b' },
+      { label: t('reportRules.kpiViolations'), value: s?.totalViolations ?? 0, icon: <AlertTriangle size={18} />, color: 'var(--color-warning-500)' },
     ]
   }, [stats, rules.length])
 
@@ -973,9 +973,9 @@ export default function ReportRulesPage() {
       {/* 违规统计小标 */}
       {result && result.violations.length > 0 && (
         <div style={{ marginTop: 8, fontSize: 12, color: '#666', display: 'flex', gap: 12, alignItems: 'center' }}>
-          <ScrollText size={14} /> {t('reportRules.evalThisRun')}: <AlertOctagon size={12} color="#ef4444" /> {severityCount('error')} {t('reportRules.errorUnit')} ·
-          <AlertTriangle size={12} color="#f59e0b" /> {severityCount('warning')} {t('reportRules.warningUnit')} ·
-          <Info size={12} color="#3b82f6" /> {severityCount('info')} {t('reportRules.infoUnit')}
+          <ScrollText size={14} /> {t('reportRules.evalThisRun')}: <AlertOctagon size={12} color="var(--color-error-500)" /> {severityCount('error')} {t('reportRules.errorUnit')} ·
+          <AlertTriangle size={12} color="var(--color-warning-500)" /> {severityCount('warning')} {t('reportRules.warningUnit')} ·
+          <Info size={12} color="var(--color-primary-500)" /> {severityCount('info')} {t('reportRules.infoUnit')}
         </div>
       )}
     </PageContainer>

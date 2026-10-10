@@ -94,7 +94,7 @@ function fmtMetric(value: number, kind: "percent" | "auc"): string {
 
 const MetricBar: React.FC<{ value: number; color?: string }> = ({
   value,
-  color = "#2563eb",
+  color = "var(--color-primary-600)",
 }) => (
   <Space size={6} style={{ width: "100%" }}>
     <span style={{ width: 44, display: "inline-block", fontWeight: 600 }}>
@@ -297,7 +297,7 @@ const AiModelRegistryPage: React.FC = () => {
         key: "auc",
         width: 80,
         render: (_: unknown, r: AiModelEntry) => (
-          <Text strong style={{ color: "#2563eb" }}>
+          <Text strong style={{ color: "var(--color-primary-600)" }}>
             {r.metrics.auc.toFixed(3)}
           </Text>
         ),
@@ -406,7 +406,7 @@ const AiModelRegistryPage: React.FC = () => {
   return (
     <PageContainer testId="ai-model-registry">
       <PageHeader
-        icon={<Boxes size={22} color="#2563eb" />}
+        icon={<Boxes size={22} color="var(--color-primary-600)" />}
         title={t("w4ai.reg.title")}
         subtitle={t("w4ai.reg.subtitle")}
         actions={
@@ -573,7 +573,7 @@ const AiModelRegistryPage: React.FC = () => {
                   key: "delta",
                   render: (v: number, r) => {
                     const abs = r.kind === "auc" ? Math.abs(v).toFixed(3) : `${Math.abs(v).toFixed(1)}%`;
-                    const color = v > 0 ? "#16a34a" : v < 0 ? "#dc2626" : "#8c8c8c";
+                    const color = v > 0 ? "var(--color-success-600)" : v < 0 ? "var(--color-error-600)" : "#8c8c8c";
                     return (
                       <span style={{ color, fontWeight: 600 }}>
                         {v > 0 ? "+" : v < 0 ? "-" : ""}
@@ -637,7 +637,7 @@ const AiModelRegistryPage: React.FC = () => {
 
             <div>
               <Space size={6} style={{ marginBottom: 8 }}>
-                <ShieldCheck size={15} color="#2563eb" />
+                <ShieldCheck size={15} color="var(--color-primary-600)" />
                 <Text strong>{t("w4ai.detail.metrics")}</Text>
               </Space>
               <DataTable
@@ -657,7 +657,7 @@ const AiModelRegistryPage: React.FC = () => {
 
             <div>
               <Space size={6} style={{ marginBottom: 8 }}>
-                <Cpu size={15} color="#2563eb" />
+                <Cpu size={15} color="var(--color-primary-600)" />
                 <Text strong>{t("w4ai.detail.versionHistory")}</Text>
               </Space>
               <DataTable

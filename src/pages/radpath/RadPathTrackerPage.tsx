@@ -5,7 +5,7 @@ import { StatCard } from '../../components/common';
 import { t } from '../../i18n/appI18n';
 
 const consistencyColor: Record<string, string> = {
-  concordant: '#10b981', discordant: '#ef4444', pending: '#94a3b8',
+  concordant: '#10b981', discordant: 'var(--color-error-500)', pending: '#94a3b8',
 };
 const consistencyLabel: Record<string, string> = {
   concordant: 'radpath.consistency.concordant', discordant: 'radpath.consistency.discordant', pending: 'radpath.consistency.pending',
@@ -60,7 +60,7 @@ export default function RadPathTrackerPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10, marginBottom: 16 }}>
         <KpiCard icon={FileText} label={t('radpath.kpi.total')} value={stats?.total ?? '-'} color="#8b5cf6" />
         <KpiCard icon={CheckCircle2} label={t('radpath.kpi.concordant')} value={stats?.concordant ?? '-'} color="#10b981" />
-        <KpiCard icon={XCircle} label={t('radpath.kpi.discordant')} value={stats?.discordant ?? '-'} color="#ef4444" />
+        <KpiCard icon={XCircle} label={t('radpath.kpi.discordant')} value={stats?.discordant ?? '-'} color="var(--color-error-500)" />
         <KpiCard icon={Clock} label={t('radpath.kpi.pending')} value={stats?.pending ?? '-'} color="#94a3b8" />
         <KpiCard icon={TrendingUp} label={t('radpath.kpi.overallRate')} value={stats ? `${stats.positiveConsistency}%` : '-'} color="#8b5cf6" />
       </div>
@@ -114,7 +114,7 @@ export default function RadPathTrackerPage() {
       {stats && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
               <TrendingUp size={13} /> {t('radpath.trendTitle')}
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 120, padding: '0 4px' }}>
@@ -131,7 +131,7 @@ export default function RadPathTrackerPage() {
           </div>
 
           <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
               <PieChart size={13} /> {t('radpath.distributionTitle')}
             </div>
             <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
@@ -146,7 +146,7 @@ export default function RadPathTrackerPage() {
                         const slices: Array<[number, number, string]> = [];
                         let start = 0;
                         if (c > 0) { slices.push([start, start + c, '#10b981']); start += c }
-                        if (d > 0) { slices.push([start, start + d, '#ef4444']); start += d }
+                        if (d > 0) { slices.push([start, start + d, 'var(--color-error-500)']); start += d }
                         if (p > 0) { slices.push([start, start + p, '#94a3b8']); start += p }
                         const toRad = (deg: number) => (deg - 90) * Math.PI / 180;
                         return slices.map(([s, e, color], i) => {
@@ -166,7 +166,7 @@ export default function RadPathTrackerPage() {
               <div style={{ flex: 1 }}>
                 {[
                   { label: 'radpath.consistency.concordant', count: stats.concordant, color: '#10b981' },
-                  { label: 'radpath.consistency.discordant', count: stats.discordant, color: '#ef4444' },
+                  { label: 'radpath.consistency.discordant', count: stats.discordant, color: 'var(--color-error-500)' },
                   { label: 'radpath.consistency.pending', count: stats.pending, color: '#94a3b8' },
                 ].map(s => (
                   <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12 }}>
@@ -192,10 +192,10 @@ export default function RadPathTrackerPage() {
 
 const KpiCard: React.FC<{ icon: any; label: string; value: string | number; color: string }> = ({ icon: Icon, label, value, color }) => {
   const c = ({
-    '#dc2626': 'error', '#ef4444': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
-    '#f59e0b': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
-    '#16a34a': 'success', '#22c55e': 'success', '#52c41a': 'success', '#10b981': 'success',
-    '#2563eb': 'primary', '#1890ff': 'primary', '#1d4ed8': 'primary',
+    'var(--color-error-600)': 'error', 'var(--color-error-500)': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
+    'var(--color-warning-500)': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
+    'var(--color-success-600)': 'success', 'var(--color-success-500)': 'success', '#52c41a': 'success', '#10b981': 'success',
+    'var(--color-primary-600)': 'primary', '#1890ff': 'primary', 'var(--color-primary-700)': 'primary',
   } as Record<string, string>)[color] ?? color;
   return <StatCard title={label} value={value} icon={<Icon size={18} />} color={c} />;
 };

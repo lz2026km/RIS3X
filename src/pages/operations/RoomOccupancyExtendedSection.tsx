@@ -112,8 +112,8 @@ export function RoomOccupancyExtendedSection() {
             percent
             height={220}
             series={[
-              { key: 'occupancyRate', name: t('occExt.occupancyRate'), color: '#2563eb' },
-              { key: 'exams', name: t('occExt.exams'), color: '#16a34a' },
+              { key: 'occupancyRate', name: t('occExt.occupancyRate'), color: 'var(--color-primary-600)' },
+              { key: 'exams', name: t('occExt.exams'), color: 'var(--color-success-600)' },
             ]}
           />
         </DashboardCard>

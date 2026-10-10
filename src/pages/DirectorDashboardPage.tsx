@@ -173,10 +173,10 @@ interface LiveDirectorData {
 const staticTodayStats: StatCardData[] = [
   { label: t('directorDash.statTodayExams'), value: '856', subValue: 'CT: 285 | MR: 198 | DXR: 373' },
   { label: t('directorDash.statReports'), value: '782', subValue: `${t('directorDash.todayShort')}: 142 | ${t('directorDash.weekShort')}: 856 | ${t('directorDash.monthShort')}: 3248` },
-  { label: t('directorDash.statPositiveRate'), value: '58.6%', subValue: t('directorDash.vsLastMonth'), color: '#22c55e' },
-  { label: t('directorDash.statCriticalRate'), value: '98.2%', subValue: t('directorDash.pending2'), color: '#1e40af' },
-  { label: t('directorDash.statDeviceUsage'), value: '77.8%', subValue: t('directorDash.running68'), color: '#f59e0b' },
-  { label: t('directorDash.statRevenueToday'), value: '¥142,850', subValue: t('directorDash.vsYesterday'), color: '#22c55e' },
+  { label: t('directorDash.statPositiveRate'), value: '58.6%', subValue: t('directorDash.vsLastMonth'), color: 'var(--color-success-500)' },
+  { label: t('directorDash.statCriticalRate'), value: '98.2%', subValue: t('directorDash.pending2'), color: 'var(--color-primary-800)' },
+  { label: t('directorDash.statDeviceUsage'), value: '77.8%', subValue: t('directorDash.running68'), color: 'var(--color-warning-500)' },
+  { label: t('directorDash.statRevenueToday'), value: '¥142,850', subValue: t('directorDash.vsYesterday'), color: 'var(--color-success-500)' },
 ];
 
 // ============================================================
@@ -307,10 +307,10 @@ const DirectorDashboardPage: React.FC = () => {
       const liveTodayStats: StatCardData[] = [
         { label: t('directorDash.statTodayExams'), value: daily ? String(dailyExams) : '—', subValue: modSub || '—' },
         { label: t('directorDash.statReports'), value: daily ? String(dailyReports) : '—', subValue: daily ? `${t('directorDash.todoWrite')}: ${Math.max(0, dailyExams - dailyReports)} ${t('directorDash.copies')}` : '—' },
-        { label: t('directorDash.statCriticalRate'), value: sla ? `${sla.complianceRate}%` : '—', subValue: sla ? `${t('directorDash.todoHandle')}: ${(sla.overdue ?? []).length} ${t('directorDash.casesUnit')}` : '—', color: '#1e40af' },
-        { label: t('directorDash.statCompletionRate'), value: kpi ? `${kpi.completionRate}%` : '—', subValue: kpi ? `${t('directorDash.avgLabel')} ${kpi.avgReportMinutes} min` : '—', color: '#22c55e' },
-        { label: t('directorDash.statAvgOee'), value: oeeAvg ? `${oeeAvg}%` : '—', subValue: oeeDevices.length ? `${t('directorDash.monitorLabel')} ${oeeDevices.length} ${t('directorDash.unitsUnit')}` : '—', color: '#f59e0b' },
-        { label: t('directorDash.statRevenueEst'), value: daily ? `¥${(dailyExams * 400).toLocaleString()}` : '—', subValue: t('directorDash.estimateNote'), color: '#22c55e' },
+        { label: t('directorDash.statCriticalRate'), value: sla ? `${sla.complianceRate}%` : '—', subValue: sla ? `${t('directorDash.todoHandle')}: ${(sla.overdue ?? []).length} ${t('directorDash.casesUnit')}` : '—', color: 'var(--color-primary-800)' },
+        { label: t('directorDash.statCompletionRate'), value: kpi ? `${kpi.completionRate}%` : '—', subValue: kpi ? `${t('directorDash.avgLabel')} ${kpi.avgReportMinutes} min` : '—', color: 'var(--color-success-500)' },
+        { label: t('directorDash.statAvgOee'), value: oeeAvg ? `${oeeAvg}%` : '—', subValue: oeeDevices.length ? `${t('directorDash.monitorLabel')} ${oeeDevices.length} ${t('directorDash.unitsUnit')}` : '—', color: 'var(--color-warning-500)' },
+        { label: t('directorDash.statRevenueEst'), value: daily ? `¥${(dailyExams * 400).toLocaleString()}` : '—', subValue: t('directorDash.estimateNote'), color: 'var(--color-success-500)' },
       ];
 
       setLive({ doctors: liveDoctors, devices: liveDevices, dailyRevenue: liveDailyRevenue, examRevenue: liveExamRevenue, todayStats: liveTodayStats });
@@ -516,7 +516,7 @@ const DirectorDashboardPage: React.FC = () => {
   };
 
   // 颜色
-  const colors = ['#1e40af', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+  const colors = ['var(--color-primary-800)', 'var(--color-primary-500)', 'var(--color-info-500)', '#10b981', 'var(--color-warning-500)', 'var(--color-error-500)', '#8b5cf6', '#ec4899'];
   const utilizationColor = (rate: number) => {
     if (rate > 85) return severityColor('success');
     if (rate > 70) return severityColor('warning');
@@ -690,7 +690,7 @@ const DirectorDashboardPage: React.FC = () => {
             value: d.utilization,
           }))}
           xKey="name"
-          series={[{ key: 'value', name: t('directorDash.usageRate'), color: '#3b82f6' }]}
+          series={[{ key: 'value', name: t('directorDash.usageRate'), color: 'var(--color-primary-500)' }]}
           height={220}
           percent
         />
@@ -840,7 +840,7 @@ const DirectorDashboardPage: React.FC = () => {
               dataIndex: 'formatScore',
               align: 'right',
               render: (value: number) => (
-                <div style={styles.scoreItem('#3b82f6')}>
+                <div style={styles.scoreItem('var(--color-primary-500)')}>
                   <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary)' }}>{value}</div>
                   <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{t('directorDash.points')}</div>
                 </div>
@@ -862,7 +862,7 @@ const DirectorDashboardPage: React.FC = () => {
               dataIndex: 'timeScore',
               align: 'right',
               render: (value: number) => (
-                <div style={styles.scoreItem('#f59e0b')}>
+                <div style={styles.scoreItem('var(--color-warning-500)')}>
                   <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-warning)' }}>{value}</div>
                   <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{t('directorDash.points')}</div>
                 </div>
@@ -873,9 +873,9 @@ const DirectorDashboardPage: React.FC = () => {
               key: 'threeDim',
               render: () => (
                 <div style={{ display: 'flex', gap: 4 }}>
-                  <div style={{ width: 6, height: 24, backgroundColor: '#3b82f6', borderRadius: 2 }} />
+                  <div style={{ width: 6, height: 24, backgroundColor: 'var(--color-primary-500)', borderRadius: 2 }} />
                   <div style={{ width: 6, height: 24, backgroundColor: '#10b981', borderRadius: 2 }} />
-                  <div style={{ width: 6, height: 24, backgroundColor: '#f59e0b', borderRadius: 2 }} />
+                  <div style={{ width: 6, height: 24, backgroundColor: 'var(--color-warning-500)', borderRadius: 2 }} />
                 </div>
               ),
             },
@@ -923,7 +923,7 @@ const DirectorDashboardPage: React.FC = () => {
             type="line"
             data={dailyRevenue.map(d => ({ day: `D${d.day}`, revenue: d.revenue }))}
             xKey="day"
-            series={[{ key: 'revenue', name: t('directorDash.revenue'), color: '#1e40af' }]}
+            series={[{ key: 'revenue', name: t('directorDash.revenue'), color: 'var(--color-primary-800)' }]}
             height={200}
             yTickFormatter={(v) => `¥${(v / 10000).toFixed(0)}${t('directorDash.wan')}`}
           />
@@ -1052,7 +1052,7 @@ const DirectorDashboardPage: React.FC = () => {
       {/* 顶部 KPI 卡行 (v3.0.6.11-103 Wave 6: KpiCard 卡片化) */}
       <KpiCardGrid minWidth={230} style={{ marginBottom: 24 }}>
         {todayStats.map((stat, idx) => {
-          const color = stat.color === '#22c55e' ? 'success' : stat.color === '#f59e0b' ? 'warning' : stat.color === '#1e40af' ? 'primary' : 'primary';
+          const color = stat.color === 'var(--color-success-500)' ? 'success' : stat.color === 'var(--color-warning-500)' ? 'warning' : stat.color === 'var(--color-primary-800)' ? 'primary' : 'primary';
           const icons = [<Scan size={20} key="i" />, <FileText size={20} key="i" />, <AlertOctagon size={20} key="i" />, <CheckCircle2 size={20} key="i" />, <Gauge size={20} key="i" />, <DollarSign size={20} key="i" />];
           return (
             <KpiCard

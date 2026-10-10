@@ -135,7 +135,7 @@ export const ClinicalPathwayPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
-        <Route size={20} color="#2563eb" />
+        <Route size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('clinicalPathway.title')}</span>
         <Tag color="cyan">v3.0.6.11-60</Tag>
         <Tag color="green" icon={<Activity size={10} />}>{t('clinicalPathway.tagEvidenceBased')}</Tag>

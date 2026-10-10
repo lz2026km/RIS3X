@@ -95,22 +95,22 @@ const COLORS = {
   textSecondary: '#64748b',
   border: 'var(--border-color)',
   success: '#10b981',
-  warning: '#f59e0b',
-  danger: '#ef4444',
-  info: '#3b82f6',
+  warning: 'var(--color-warning-500)',
+  danger: 'var(--color-error-500)',
+  info: 'var(--color-primary-500)',
 }
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string; border: string }> = {
   pending: { label: '待确认', bg: '#f59e0b22', color: '#ca8a04', border: '#fef08a' },
   confirmed: { label: '已确认', bg: '#22c55e22', color: '#059669', border: '#6ee7b7' },
-  'checked-in': { label: '已到检', bg: '#3b82f622', color: '#3b82f6', border: '#93c5fd' },
+  'checked-in': { label: '已到检', bg: '#3b82f622', color: 'var(--color-primary-500)', border: '#93c5fd' },
   cancelled: { label: '已取消', bg: 'var(--bg-deep)', color: 'var(--text-secondary)', border: 'var(--border-color)' },
   completed: { label: '已完成', bg: '#22c55e22', color: '#059669', border: '#6ee7b7' },
 }
 
 const PRIORITY_CONFIG: Record<string, { label: string; bg: string; color: string }> = {
-  critical: { label: '危重', bg: '#ef444422', color: '#ef4444' },
-  urgent: { label: '紧急', bg: '#f59e0b22', color: '#f59e0b' },
+  critical: { label: '危重', bg: '#ef444422', color: 'var(--color-error-500)' },
+  urgent: { label: '紧急', bg: '#f59e0b22', color: 'var(--color-warning-500)' },
   normal: { label: '普通', bg: 'var(--bg-deep)', color: 'var(--text-secondary)' },
 }
 
@@ -835,12 +835,12 @@ export default function AppointmentManagementPage() {
             fontSize: '12px', fontWeight: 600, padding: '3px 12px', borderRadius: 12,
             background: dataSource === 'real' ? 'rgba(22,163,74,0.25)' : 'rgba(245,158,11,0.3)',
             color: dataSource === 'real' ? '#d1fae5' : '#fde68a',
-            border: `1px solid ${dataSource === 'real' ? '#34d399' : '#fbbf24'}`,
+            border: `1px solid ${dataSource === 'real' ? '#34d399' : 'var(--color-warning-400)'}`,
             display: 'inline-flex', alignItems: 'center', gap: 6,
           }}>
             <span style={{
               width: 8, height: 8, borderRadius: '50%',
-              background: dataSource === 'real' ? '#34d399' : '#fbbf24',
+              background: dataSource === 'real' ? '#34d399' : 'var(--color-warning-400)',
             }} />
             {dataSource === 'real' ? t('apptMgmt.realData') : t('apptMgmt.demoData')}
           </span>

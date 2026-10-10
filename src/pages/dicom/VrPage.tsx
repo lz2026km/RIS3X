@@ -6,7 +6,7 @@ import { volumeApi } from '../../services/api/volumeApi'
 import { setupRealVolume, decodeRgbaBase64, drawImageDataCentered } from './volumeReal'
 import { t } from '../../i18n/appI18n'
 
-const BLUE = '#3b82f6'
+const BLUE = 'var(--color-primary-500)'
 const CARD_BG = '#0f172a'
 
 type PresetType = 'default' | 'bone' | 'softTissue' | 'vessel' | 'lung'

@@ -31,9 +31,9 @@ import { t } from '../i18n/appI18n';
 // 状态配置
 // ============================================================
 const STATUS_CONFIG: Record<CriticalStatus, { label: string; color: string; bg: string; border: string; icon: any }> = {
-  pending:      { label: '待通报', color: '#ef4444', bg: '#ef444422', border: '#fca5a5', icon: AlertCircle },
-  notified:     { label: '已通报', color: '#f59e0b', bg: '#f59e0b22', border: '#fcd34d', icon: Bell },
-  acknowledged: { label: '已接收', color: '#0891b2', bg: '#06b6d422', border: '#67e8f9', icon: CheckCircle2 },
+  pending:      { label: '待通报', color: 'var(--color-error-500)', bg: '#ef444422', border: '#fca5a5', icon: AlertCircle },
+  notified:     { label: '已通报', color: 'var(--color-warning-500)', bg: '#f59e0b22', border: '#fcd34d', icon: Bell },
+  acknowledged: { label: '已接收', color: 'var(--color-info-600)', bg: '#06b6d422', border: '#67e8f9', icon: CheckCircle2 },
   resolved:     { label: '已处理', color: '#10b981', bg: '#22c55e22', border: '#6ee7b7', icon: CheckCircle2 },
   overdue:      { label: '已超时', color: '#7f1d1d', bg: '#ef444422', border: '#f87171', icon: AlertOctagon },
 };
@@ -88,7 +88,7 @@ export default function CriticalValueStatsPage() {
       category: cat,
       label: { neuro: '神经', cardio: '心血管', pulmo: '胸部', abdomen: '腹部', trauma: '创伤', vascular: '血管', contrast: '造影剂' }[cat] || cat,
       count,
-      color: { neuro: '#7c3aed', cardio: '#dc2626', pulmo: '#0891b2', abdomen: '#f59e0b', trauma: '#7f1d1d', vascular: '#3b82f6', contrast: '#a855f7' }[cat] || '#94a3b8',
+      color: { neuro: '#7c3aed', cardio: 'var(--color-error-600)', pulmo: 'var(--color-info-600)', abdomen: 'var(--color-warning-500)', trauma: '#7f1d1d', vascular: 'var(--color-primary-500)', contrast: '#a855f7' }[cat] || '#94a3b8',
     }));
   }, [kpi]);
 
@@ -150,17 +150,17 @@ export default function CriticalValueStatsPage() {
 
       {/* 大字 KPI */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 16 }}>
-        <BigKpi icon={AlertOctagon} label={liveStats ? '危急值总数' : '本月危急值'} value={totalThisMonth} color="#dc2626" />
-        <BigKpi icon={Zap} label="10分钟通报率" value={`${onTimeRate}%`} color={onTimeRate >= 90 ? '#10b981' : '#f59e0b'} trend={onTimeRate >= 90 ? 'up' : 'down'} trendValue="3.2%" />
+        <BigKpi icon={AlertOctagon} label={liveStats ? '危急值总数' : '本月危急值'} value={totalThisMonth} color="var(--color-error-600)" />
+        <BigKpi icon={Zap} label="10分钟通报率" value={`${onTimeRate}%`} color={onTimeRate >= 90 ? '#10b981' : 'var(--color-warning-500)'} trend={onTimeRate >= 90 ? 'up' : 'down'} trendValue="3.2%" />
         <BigKpi icon={Activity} label="平均响应时间" value={`${avgResponseTimeMinutes}m`} color="#7c3aed" trend="down" trendValue="1.5m" />
         <BigKpi icon={CheckCircle2} label="已闭环" value={resolvedCount} color="#10b981" trend="up" trendValue="12%" />
-        <BigKpi icon={AlertCircle} label="未超时/超时" value={`${onTimeCount}/${overdueCount}`} color="#f59e0b" />
+        <BigKpi icon={AlertCircle} label="未超时/超时" value={`${onTimeCount}/${overdueCount}`} color="var(--color-warning-500)" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
         {/* 按病种分桶 */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Tag size={13} /> 按病种分桶（7 类别）
           </div>
           {byCategory.map(c => {
@@ -186,7 +186,7 @@ export default function CriticalValueStatsPage() {
 
         {/* 按设备分桶 */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Layers size={13} /> 按检查设备分桶
           </div>
           {byModality.map(m => {
@@ -201,7 +201,7 @@ export default function CriticalValueStatsPage() {
                 <div style={{ height: 14, background: 'var(--bg-card)', borderRadius: 4, overflow: 'hidden' }}>
                   <div style={{
                     width: `${pct}%`, height: '100%',
-                    background: 'linear-gradient(90deg, #3b82f6, #7c3aed)',
+                    background: 'linear-gradient(90deg, var(--color-primary-500), #7c3aed)',
                   }} />
                 </div>
               </div>
@@ -213,7 +213,7 @@ export default function CriticalValueStatsPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
         {/* Top 5 规则 */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
             <ListOrdered size={13} /> Top 5 危急值规则（本月）
           </div>
           {kpi.topRules.map((r, i) => {
@@ -231,11 +231,11 @@ export default function CriticalValueStatsPage() {
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
                       <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{r.ruleName}</span>
-                      <span style={{ color: '#dc2626', fontWeight: 700 }}>{r.count}</span>
+                      <span style={{ color: 'var(--color-error-600)', fontWeight: 700 }}>{r.count}</span>
                     </div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{r.ruleCode}</div>
                     <div style={{ marginTop: 3, height: 4, background: 'var(--bg-card)', borderRadius: 2, overflow: 'hidden' }}>
-                      <div style={{ width: `${(r.count / maxCount) * 100}%`, height: '100%', background: '#dc2626' }} />
+                      <div style={{ width: `${(r.count / maxCount) * 100}%`, height: '100%', background: 'var(--color-error-600)' }} />
                     </div>
                   </div>
                 </div>
@@ -246,7 +246,7 @@ export default function CriticalValueStatsPage() {
 
         {/* 医生排行 */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Stethoscope size={13} /> 报告医生排行
           </div>
           {byDoctor.map((d, i) => (
@@ -267,7 +267,7 @@ export default function CriticalValueStatsPage() {
                   {d.reportedCount} 例 · 平均 {d.avgTime}m 响应
                 </div>
               </div>
-              {i === 0 && <Award size={14} color="#f59e0b" />}
+              {i === 0 && <Award size={14} color="var(--color-warning-500)" />}
             </div>
           ))}
         </div>
@@ -275,7 +275,7 @@ export default function CriticalValueStatsPage() {
 
       {/* 最近事件 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Activity size={13} /> 最近危急值事件（{events.length} 条）
         </div>
         <div style={{ maxHeight: 400, overflowY: 'auto' }}>
@@ -319,7 +319,7 @@ export default function CriticalValueStatsPage() {
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{e.reportedAt}</div>
                   {e.responseTimeMinutes !== undefined && (
                     <div style={{
-                      fontSize: 12, fontWeight: 700, color: e.responseTimeMinutes <= 10 ? '#10b981' : '#dc2626',
+                      fontSize: 12, fontWeight: 700, color: e.responseTimeMinutes <= 10 ? '#10b981' : 'var(--color-error-600)',
                     }}>{e.responseTimeMinutes}m</div>
                   )}
                 </div>
@@ -351,7 +351,7 @@ const BigKpi: React.FC<{ icon: any; label: string; value: number | string; color
         <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</span>
       </div>
       {trend && trendValue && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 12, color: trend === 'up' ? '#10b981' : '#dc2626' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 12, color: trend === 'up' ? '#10b981' : 'var(--color-error-600)' }}>
           {trend === 'up' ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
           <span style={{ fontWeight: 600 }}>{trendValue}</span>
         </div>

@@ -83,12 +83,12 @@ function TabButton({ label, icon, isActive, onClick, badge }: TabButtonProps) {
         gap: 8,
         padding: "10px 20px",
         border: "none",
-        borderBottom: isActive ? "3px solid #1e40af" : "3px solid transparent",
+        borderBottom: isActive ? "3px solid var(--color-primary-800)" : "3px solid transparent",
         background: "none",
         cursor: "pointer",
         fontSize: 12,
         fontWeight: isActive ? 700 : 500,
-        color: isActive ? "#1e40af" : "#64748b",
+        color: isActive ? "var(--color-primary-800)" : "#64748b",
       }}
     >
       {icon}
@@ -96,7 +96,7 @@ function TabButton({ label, icon, isActive, onClick, badge }: TabButtonProps) {
       {badge !== undefined && (
         <span
           style={{
-            background: isActive ? "#1e40af" : "#e2e8f0",
+            background: isActive ? "var(--color-primary-800)" : "#e2e8f0",
             color: isActive ? "#fff" : "#64748b",
             borderRadius: 10,
             padding: "1px 6px",
@@ -132,7 +132,7 @@ function PieChartSimple({ data, title }: PieChartSimpleProps) {
         style={{
           fontSize: 14,
           fontWeight: 700,
-          color: "#1e40af",
+          color: "var(--color-primary-800)",
           marginBottom: 16,
         }}
       >
@@ -206,7 +206,7 @@ function PieChartSimple({ data, title }: PieChartSimpleProps) {
               <AppText size="xs" color="secondary" as="div" style={{ flex: 1 }}>
                 {d.label}
               </AppText>
-              <AppText size="xs" weight={700} as="div" style={{ color: "#1e40af" }}>
+              <AppText size="xs" weight={700} as="div" style={{ color: "var(--color-primary-800)" }}>
                 {d.value}
               </AppText>
               <div
@@ -250,7 +250,7 @@ function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
         style={{
           fontSize: 14,
           fontWeight: 700,
-          color: "#1e40af",
+          color: "var(--color-primary-800)",
           marginBottom: 16,
         }}
       >
@@ -270,7 +270,7 @@ function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
               gap: 4,
             }}
           >
-            <AppText size="xs" weight={700} as="div" style={{ color: "#1e40af" }}>
+            <AppText size="xs" weight={700} as="div" style={{ color: "var(--color-primary-800)" }}>
               {d.value}
             </AppText>
             <div
@@ -715,11 +715,11 @@ export default function PatientPage() {
     const todayNew = 3;
 
     const ageGroups = [
-      { label: "0-18", value: 0, color: "#3b82f6" },
+      { label: "0-18", value: 0, color: "var(--color-primary-500)" },
       { label: "19-35", value: 0, color: "#8b5cf6" },
-      { label: "36-50", value: 0, color: "#06b6d4" },
-      { label: "51-65", value: 0, color: "#f59e0b" },
-      { label: "65+", value: 0, color: "#ef4444" },
+      { label: "36-50", value: 0, color: "var(--color-info-500)" },
+      { label: "51-65", value: 0, color: "var(--color-warning-500)" },
+      { label: "65+", value: 0, color: "var(--color-error-500)" },
     ];
     patients.forEach((p) => {
       if (p.age <= 18) ageGroups[0]!.value++;
@@ -730,13 +730,13 @@ export default function PatientPage() {
     });
 
     const typeDistribution = [
-      { label: t("w9c.patient.typeOutpatient"), value: outpatients, color: "#3b82f6" },
+      { label: t("w9c.patient.typeOutpatient"), value: outpatients, color: "var(--color-primary-500)" },
       { label: t("w9c.patient.typeInpatient"), value: inpatients, color: "#8b5cf6" },
-      { label: t("w9c.patient.typePhysical"), value: healthCheck, color: "#06b6d4" },
-      { label: t("w9c.patient.typeEmergency"), value: emergency, color: "#f59e0b" },
+      { label: t("w9c.patient.typePhysical"), value: healthCheck, color: "var(--color-info-500)" },
+      { label: t("w9c.patient.typeEmergency"), value: emergency, color: "var(--color-warning-500)" },
     ];
     const genderDistribution = [
-      { label: t("w9c.patient.genderMale"), value: males, color: "#3b82f6" },
+      { label: t("w9c.patient.genderMale"), value: males, color: "var(--color-primary-500)" },
       { label: t("w9c.patient.genderFemale"), value: females, color: "#ec4899" },
     ];
     const returnRate = (
@@ -750,7 +750,7 @@ export default function PatientPage() {
       const c = p.totalExamCount || 1;
       freqMap[c] = (freqMap[c] || 0) + 1;
     });
-    const colors = ["#3b82f6", "#8b5cf6", "#06b6d4", "#10b981", "#f59e0b"];
+    const colors = ["var(--color-primary-500)", "#8b5cf6", "var(--color-info-500)", "#10b981", "var(--color-warning-500)"];
     Object.keys(freqMap)
       .sort((a, b) => parseInt(a) - parseInt(b))
       .forEach((key, i) => {
@@ -1057,7 +1057,7 @@ export default function PatientPage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            background: "linear-gradient(135deg, #1e40af, #3b82f6)",
+            background: "linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -1107,13 +1107,13 @@ export default function PatientPage() {
               gap: 12,
               background: "var(--bg-card)",
               borderRadius: 10,
-              border: "2px solid #1e40af",
+              border: "2px solid var(--color-primary-800)",
               boxShadow: pmiSearchFocused ? "0 0 0 4px rgba(30,64,175,0.18)" : "none",
               transition: "box-shadow 0.15s",
               padding: "12px 16px",
             }}
           >
-            <Search size={20} style={{ color: "#1e40af", flexShrink: 0 }} />
+            <Search size={20} style={{ color: "var(--color-primary-800)", flexShrink: 0 }} />
             <FieldGate field="patientName" permission="patient.view" resourceType="patient" mode="disable">
               <input
                 value={pmiSearchQuery}
@@ -1197,7 +1197,7 @@ export default function PatientPage() {
               }}
               onMouseEnter={(e) =>
                 ((e.currentTarget as HTMLDivElement).style.borderColor =
-                  "#1e40af")
+                  "var(--color-primary-800)")
               }
               onMouseLeave={(e) =>
                 ((e.currentTarget as HTMLDivElement).style.borderColor =
@@ -1219,7 +1219,7 @@ export default function PatientPage() {
                     borderRadius: "50%",
                     background:
                       result.gender === "男"
-                        ? "linear-gradient(135deg, #1e40af, #3b82f6)"
+                        ? "linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))"
                         : "linear-gradient(135deg, #be185d, #ec4899)",
                     display: "flex",
                     alignItems: "center",
@@ -1240,7 +1240,7 @@ export default function PatientPage() {
                       style={{
                         fontSize: 16,
                         fontWeight: 700,
-                        color: "#1e40af",
+                        color: "var(--color-primary-800)",
                       }}
                     >
                       {result.name}
@@ -1253,7 +1253,7 @@ export default function PatientPage() {
                         fontWeight: 600,
                         background:
                           result.gender === "男" ? "#dbeafe" : "#fce7f3",
-                        color: result.gender === "男" ? "#1e40af" : "#be185d",
+                        color: result.gender === "男" ? "var(--color-primary-800)" : "#be185d",
                       }}
                     >
                       {result.gender} · {result.age}{t('patientPage.ageUnit')}
@@ -1282,10 +1282,10 @@ export default function PatientPage() {
                       fontWeight: 700,
                       color:
                         result.confidence >= 90
-                          ? "#16a34a"
+                          ? "var(--color-success-600)"
                           : result.confidence >= 70
-                            ? "#f59e0b"
-                            : "#dc2626",
+                            ? "var(--color-warning-500)"
+                            : "var(--color-error-600)",
                     }}
                   >
                     {result.confidence}%
@@ -1315,7 +1315,7 @@ export default function PatientPage() {
                     style={{
                       fontSize: 12,
                       fontWeight: 600,
-                      color: "#1e40af",
+                      color: "var(--color-primary-800)",
                       fontFamily: "monospace",
                     }}
                   >
@@ -1370,8 +1370,8 @@ export default function PatientPage() {
                       fontWeight: 600,
                       color:
                         result.examStats.positiveRate > 30
-                          ? "#dc2626"
-                          : "#16a34a",
+                          ? "var(--color-error-600)"
+                          : "var(--color-success-600)",
                     }}
                   >
                     {result.examStats.positiveRate}%
@@ -1399,7 +1399,7 @@ export default function PatientPage() {
                         fontSize: 12,
                         fontWeight: 600,
                         background: "var(--color-info-bg)",
-                        color: "#2563eb",
+                        color: "var(--color-primary-600)",
                       }}
                     >
                       {f}
@@ -1410,7 +1410,7 @@ export default function PatientPage() {
                   <div
                     style={{ display: "flex", alignItems: "center", gap: 6 }}
                   >
-                    <Link size={12} color="#f59e0b" />
+                    <Link size={12} color="var(--color-warning-500)" />
                     <AppText size="xs" weight={600} color="warning" as="span">
                       {t('patientPage.hasMergeHistory')}
                     </AppText>
@@ -1435,7 +1435,7 @@ export default function PatientPage() {
                       marginBottom: 8,
                     }}
                   >
-                    <History size={14} color="#f59e0b" />
+                    <History size={14} color="var(--color-warning-500)" />
                     <AppText size="xs" weight={700} as="span" style={{ color: "#92400e" }}>
                       {t('patientPage.patientMergeHistory')}
                     </AppText>
@@ -1493,7 +1493,7 @@ export default function PatientPage() {
               borderRadius: "50%",
               background:
                 result.gender === "男"
-                  ? "linear-gradient(135deg, #1e40af, #3b82f6)"
+                  ? "linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))"
                   : "linear-gradient(135deg, #be185d, #ec4899)",
               display: "flex",
               alignItems: "center",
@@ -1506,7 +1506,7 @@ export default function PatientPage() {
             {result.name.slice(0, 1)}
           </div>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: "#1e40af" }}>
+            <div style={{ fontSize: 18, fontWeight: 700, color: "var(--color-primary-800)" }}>
               {result.name}
             </div>
             <AppText size="xs" color="secondary" as="div" style={{ marginTop: 2 }}>
@@ -1532,10 +1532,10 @@ export default function PatientPage() {
                 fontWeight: 700,
                 color:
                   result.confidence >= 90
-                    ? "#16a34a"
+                    ? "var(--color-success-600)"
                     : result.confidence >= 70
-                      ? "#f59e0b"
-                      : "#dc2626",
+                      ? "var(--color-warning-500)"
+                      : "var(--color-error-600)",
               }}
             >
               {result.confidence}%
@@ -1646,8 +1646,8 @@ export default function PatientPage() {
             textAlign: "center",
           }}
         >
-          <Gauge size={24} color="#3b82f6" style={{ marginBottom: 8 }} />
-          <div style={{ fontSize: 30, fontWeight: 700, color: "#1e40af" }}>
+          <Gauge size={24} color="var(--color-primary-500)" style={{ marginBottom: 8 }} />
+          <div style={{ fontSize: 30, fontWeight: 700, color: "var(--color-primary-800)" }}>
             {result.examStats.totalExams}
           </div>
           <AppText size="xs" color="secondary" as="div">{t('patientPage.totalExamTimes')}</AppText>
@@ -1660,12 +1660,12 @@ export default function PatientPage() {
             textAlign: "center",
           }}
         >
-          <Percent size={24} color="#16a34a" style={{ marginBottom: 8 }} />
+          <Percent size={24} color="var(--color-success-600)" style={{ marginBottom: 8 }} />
           <div
             style={{
               fontSize: 30,
               fontWeight: 700,
-              color: result.examStats.positiveRate > 30 ? "#dc2626" : "#16a34a",
+              color: result.examStats.positiveRate > 30 ? "var(--color-error-600)" : "var(--color-success-600)",
             }}
           >
             {result.examStats.positiveRate}%
@@ -1681,7 +1681,7 @@ export default function PatientPage() {
           }}
         >
           <Clock size={24} color="var(--text-secondary)" style={{ marginBottom: 8 }} />
-          <div style={{ fontSize: 14, fontWeight: 700, color: "#1e40af" }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-primary-800)" }}>
             {result.examStats.lastExamDate}
           </div>
           <AppText size="xs" color="secondary" as="div">{t('patientPage.lastExamDate')}</AppText>
@@ -1705,7 +1705,7 @@ export default function PatientPage() {
               marginBottom: 12,
             }}
           >
-            <History size={16} color="#f59e0b" />
+            <History size={16} color="var(--color-warning-500)" />
             <span style={{ fontSize: 14, fontWeight: 700, color: "#92400e" }}>
               {t('patientPage.patientMergeHistory')}
             </span>
@@ -1715,7 +1715,7 @@ export default function PatientPage() {
                 borderRadius: 10,
                 fontSize: 12,
                 fontWeight: 600,
-                background: "#f59e0b",
+                background: "var(--color-warning-500)",
                 color: "#fff",
               }}
             >
@@ -1787,7 +1787,7 @@ export default function PatientPage() {
           icon={<Users size={14} />}
           extra={
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              {statsLoading && <span style={{ fontSize: 12, color: '#d97706' }}>{t("examPage.syncing")}</span>}
+              {statsLoading && <span style={{ fontSize: 12, color: 'var(--color-warning-600)' }}>{t("examPage.syncing")}</span>}
               <ActionButton
                 action="refresh"
                 size="compact"
@@ -1803,11 +1803,11 @@ export default function PatientPage() {
           testId="patient-overview-card"
         >
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
-            <StatCard label={t("patientPage.overviewTotal")} value={patientOverview.total} icon={<Users size={22} />} color="#1e40af" bgColor="#eff6ff" />
-            <StatCard label={t("patientPage.overviewTodayNew")} value={patientOverview.todayNew} icon={<PlusCircle size={22} />} color="#16a34a" bgColor="#f0fdf4" />
+            <StatCard label={t("patientPage.overviewTotal")} value={patientOverview.total} icon={<Users size={22} />} color="var(--color-primary-800)" bgColor="#eff6ff" />
+            <StatCard label={t("patientPage.overviewTodayNew")} value={patientOverview.todayNew} icon={<PlusCircle size={22} />} color="var(--color-success-600)" bgColor="#f0fdf4" />
             <StatCard label={t("patientPage.overviewMonthlyNew")} value={patientOverview.monthlyNew} icon={<TrendingUp size={22} />} color="#0ea5e9" bgColor="#f0f9ff" />
             <StatCard label={t("patientPage.overviewActive")} value={patientOverview.active} icon={<Activity size={22} />} color="#8b5cf6" bgColor="#f5f3ff" />
-            <StatCard label={t("patientPage.overviewActiveRate")} value={`${patientOverview.activeRate}%`} icon={<Percent size={22} />} color="#f59e0b" bgColor="#fffbeb" />
+            <StatCard label={t("patientPage.overviewActiveRate")} value={`${patientOverview.activeRate}%`} icon={<Percent size={22} />} color="var(--color-warning-500)" bgColor="#fffbeb" />
           </div>
         </DashboardCard>
       </div>
@@ -1820,8 +1820,8 @@ export default function PatientPage() {
             data={ageDistribution.map((b) => ({ bucket: b.bucket, total: b.count, male: b.male, female: b.female }))}
             xKey="bucket"
             series={[
-              { key: 'total', name: t("patientPage.overviewTotal"), color: '#2563eb' },
-              { key: 'male', name: t("patientPage.ageMale"), color: '#0891b2' },
+              { key: 'total', name: t("patientPage.overviewTotal"), color: 'var(--color-primary-600)' },
+              { key: 'male', name: t("patientPage.ageMale"), color: 'var(--color-info-600)' },
               { key: 'female', name: t("patientPage.ageFemale"), color: '#db2777' },
             ]}
             height={220}
@@ -1842,14 +1842,14 @@ export default function PatientPage() {
           label={t("patientPage.totalPatients")}
           value={statistics.totalPatients}
           icon={<Users size={24} />}
-          color="#1e40af"
+          color="var(--color-primary-800)"
           bgColor="#eff6ff"
         />
         <StatCard
           label={t("patientPage.outpatientPatients")}
           value={statistics.outpatients}
           icon={<UserCheck size={24} />}
-          color="#3b82f6"
+          color="var(--color-primary-500)"
           bgColor="#eff6ff"
         />
         <StatCard
@@ -1863,7 +1863,7 @@ export default function PatientPage() {
           label={t("patientPage.todayNew")}
           value={statistics.todayNew}
           icon={<PlusCircle size={24} />}
-          color="#16a34a"
+          color="var(--color-success-600)"
           bgColor="#f0fdf4"
         />
       </div>
@@ -1879,21 +1879,21 @@ export default function PatientPage() {
           label={t("patientPage.checkupPatients")}
           value={statistics.healthCheck}
           icon={<Heart size={24} />}
-          color="#06b6d4"
+          color="var(--color-info-500)"
           bgColor="#ecfeff"
         />
         <StatCard
           label={t("patientPage.emergencyPatients")}
           value={statistics.emergency}
           icon={<AlertCircle size={24} />}
-          color="#f59e0b"
+          color="var(--color-warning-500)"
           bgColor="#fffbeb"
         />
         <StatCard
           label={t("patientPage.withAllergy")}
           value={statistics.withAllergy}
           icon={<AlertTriangle size={24} />}
-          color="#dc2626"
+          color="var(--color-error-600)"
           bgColor="#fef2f2"
         />
         <StatCard
@@ -1950,7 +1950,7 @@ export default function PatientPage() {
           style={{
             fontSize: 14,
             fontWeight: 700,
-            color: "#1e40af",
+            color: "var(--color-primary-800)",
             marginBottom: 16,
           }}
         >
@@ -1979,16 +1979,16 @@ export default function PatientPage() {
                   background: p.gender === "男" ? "#dbeafe" : "#fce7f3",
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 12, fontWeight: 700,
-                  color: p.gender === "男" ? "#1e40af" : "#be185d",
+                  color: p.gender === "男" ? "var(--color-primary-800)" : "#be185d",
                 }}>{v.slice(0, 1)}</div>
-                <span style={{ fontWeight: 600, color: "#1e40af" }}>{v}</span>
+                <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{v}</span>
               </div>
             ) },
-            { title: t('patientPage.gender'), dataIndex: 'gender', key: 'gender', width: 80, align: 'center', render: (v: string) => (<span style={{ padding: "2px 6px", borderRadius: 4, fontSize: 12, fontWeight: 600, background: v === "男" ? "#dbeafe" : "#fce7f3", color: v === "男" ? "#1e40af" : "#be185d" }}>{v}</span>) },
+            { title: t('patientPage.gender'), dataIndex: 'gender', key: 'gender', width: 80, align: 'center', render: (v: string) => (<span style={{ padding: "2px 6px", borderRadius: 4, fontSize: 12, fontWeight: 600, background: v === "男" ? "#dbeafe" : "#fce7f3", color: v === "男" ? "var(--color-primary-800)" : "#be185d" }}>{v}</span>) },
             { title: t('patientPage.age'), dataIndex: 'age', key: 'age', width: 80, align: 'center', sorter: (a: Patient, b: Patient) => (a.age || 0) - (b.age || 0), render: (v: number) => <span style={{ color: "var(--text-secondary)" }}>{v}{t('patientPage.ageUnit')}</span> },
             { title: t('patientPage.type'), dataIndex: 'patientType', key: 'patientType', width: 90, align: 'center', render: (v: string) => (<span style={{ padding: "2px 6px", borderRadius: 4, fontSize: 12, fontWeight: 600, background: "var(--content-bg)", color: "var(--text-secondary)" }}>{v}</span>) },
-            { title: t('patientPage.allergyHistory'), dataIndex: 'allergyHistory', key: 'allergyHistory', render: (v: string) => (v && v !== "无" ? (<span style={{ color: "#dc2626", fontWeight: 600, fontSize: 12 }}>{v}</span>) : (<span style={{ color: "var(--text-secondary)", fontSize: 12 }}>{t('patientPage.noAllergy')}</span>)) },
-            { title: t('patientPage.cumulativeExam'), dataIndex: 'totalExamCount', key: 'totalExamCount', width: 100, align: 'center', sorter: (a: Patient, b: Patient) => (a.totalExamCount || 0) - (b.totalExamCount || 0), render: (v: number) => <span style={{ fontWeight: 600, color: "#1e40af" }}>{v || 0}</span> },
+            { title: t('patientPage.allergyHistory'), dataIndex: 'allergyHistory', key: 'allergyHistory', render: (v: string) => (v && v !== "无" ? (<span style={{ color: "var(--color-error-600)", fontWeight: 600, fontSize: 12 }}>{v}</span>) : (<span style={{ color: "var(--text-secondary)", fontSize: 12 }}>{t('patientPage.noAllergy')}</span>)) },
+            { title: t('patientPage.cumulativeExam'), dataIndex: 'totalExamCount', key: 'totalExamCount', width: 100, align: 'center', sorter: (a: Patient, b: Patient) => (a.totalExamCount || 0) - (b.totalExamCount || 0), render: (v: number) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{v || 0}</span> },
             { title: t('patientPage.lastExam'), dataIndex: 'lastExamDate', key: 'lastExamDate', width: 110, align: 'center', render: (v: string) => <span style={{ color: "var(--text-secondary)", fontSize: 12 }}>{v || "-"}</span> },
             { title: t('patientPage.actions'), key: 'actions', width: 150, render: (_: unknown, p: Patient) => (
               <div style={{ display: 'flex', gap: 4 }}>
@@ -2050,14 +2050,14 @@ export default function PatientPage() {
             style={{
               fontSize: 20,
               fontWeight: 700,
-              color: "#1e40af",
+              color: "var(--color-primary-800)",
               margin: "0 0 4px",
               display: "flex",
               alignItems: "center",
               gap: 8,
             }}
           >
-            <Stethoscope size={22} color="#1e40af" />
+            <Stethoscope size={22} color="var(--color-primary-800)" />
             {t('patientPage.patientManagement')}
           </h1>
           <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: 0 }}>
@@ -2124,8 +2124,8 @@ export default function PatientPage() {
               toast.type === "success"
                 ? "#059669"
                 : toast.type === "error"
-                  ? "#dc2626"
-                  : "#2563eb",
+                  ? "var(--color-error-600)"
+                  : "var(--color-primary-600)",
             color: "#fff",
             boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
             display: "flex",
@@ -2154,7 +2154,7 @@ export default function PatientPage() {
             label={t("patientPage.totalPatients")}
             value={statistics.totalPatients}
             icon={<Users size={22} />}
-            color="#1e40af"
+            color="var(--color-primary-800)"
             bgColor="#eff6ff"
           />
           <StatCard
@@ -2168,14 +2168,14 @@ export default function PatientPage() {
             label={t("patientPage.todayNew")}
             value={statistics.todayNew}
             icon={<PlusCircle size={22} />}
-            color="#16a34a"
+            color="var(--color-success-600)"
             bgColor="#f0fdf4"
           />
           <StatCard
             label={t("patientPage.withAllergy")}
             value={statistics.withAllergy}
             icon={<AlertTriangle size={22} />}
-            color="#dc2626"
+            color="var(--color-error-600)"
             bgColor="#fef2f2"
           />
         </div>
@@ -2382,7 +2382,7 @@ export default function PatientPage() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                background: "#1e40af",
+                background: "var(--color-primary-800)",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -2477,7 +2477,7 @@ export default function PatientPage() {
                   {importResult.errors.length > 0 && (
                     <div style={{ marginTop: 6, maxHeight: 120, overflowY: "auto" }}>
                       {importResult.errors.map((err, i) => (
-                        <div key={i} style={{ fontSize: 12, color: "#d97706" }}>
+                        <div key={i} style={{ fontSize: 12, color: "var(--color-warning-600)" }}>
                           • {err.message}
                         </div>
                       ))}

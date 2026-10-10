@@ -24,9 +24,9 @@ export interface ProgressRingProps {
 }
 
 function autoColor(percent: number): string {
-  if (percent >= 85) return "var(--color-success-600, #16a34a)";
-  if (percent >= 70) return "var(--color-warning-600, #d97706)";
-  return "var(--color-error-600, #dc2626)";
+  if (percent >= 85) return "var(--color-success-600, var(--color-success-600))";
+  if (percent >= 70) return "var(--color-warning-600, var(--color-warning-600))";
+  return "var(--color-error-600, var(--color-error-600))";
 }
 
 export function ProgressRing({

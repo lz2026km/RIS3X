@@ -392,7 +392,7 @@ export default function CriticalValuePage() {
       {loadError && !loading && <ErrorBanner message={loadError} />}
       <style>{'@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.1); } }'}</style>
 
-      <div style={{ background: 'linear-gradient(135deg, #7c2d12 0%, #dc2626 100%)', borderRadius: 10, padding: 12, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12, color: '#fff' }}>
+      <div style={{ background: 'linear-gradient(135deg, #7c2d12 0%, var(--color-error-600) 100%)', borderRadius: 10, padding: 12, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12, color: '#fff' }}>
         <div style={{ fontSize: 18 }}></div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 12, fontWeight: 700 }}>{t("criticalValuePage.bannerTitle")}</div>
@@ -401,15 +401,15 @@ export default function CriticalValuePage() {
         <div style={{ display: 'flex', gap: 6 }}>
           <button onClick={() => navigate('/critical-value-rule')} style={{ padding: '5px 10px', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 4, background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t("criticalValuePage.ruleConfig")}</button>
           <button onClick={() => setActiveTab('stats')} style={{ padding: '5px 10px', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 4, background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t("criticalValuePage.statsBoard")}</button>
-          <button onClick={() => navigate('/special-assessment?system=birads')} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t("criticalValuePage.assessment8")}</button>
+          <button onClick={() => navigate('/special-assessment?system=birads')} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--color-error-600)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t("criticalValuePage.assessment8")}</button>
         </div>
       </div>
 
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-          <ShieldAlert size={22} style={{ color: '#dc2626' }} />
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1e40af', margin: 0 }}>{t("criticalValuePage.title")}</h1>
-          <span style={{ fontSize: 12, color: '#fff', background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)', padding: '3px 10px', borderRadius: 10, fontWeight: 600 }}>{t("criticalValuePage.versionBadge")}</span>
+          <ShieldAlert size={22} style={{ color: 'var(--color-error-600)' }} />
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0 }}>{t("criticalValuePage.title")}</h1>
+          <span style={{ fontSize: 12, color: '#fff', background: 'linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-primary-500) 100%)', padding: '3px 10px', borderRadius: 10, fontWeight: 600 }}>{t("criticalValuePage.versionBadge")}</span>
         </div>
         <p style={{ fontSize: 12, color: '#64748b', margin: 0, paddingLeft: 32 }}>{t("criticalValuePage.subtitle")}</p>
       </div>
@@ -427,7 +427,7 @@ export default function CriticalValuePage() {
               onClick={() => setActiveTab(tab.key)}
               style={{
                 flex: 1, padding: '10px 16px', borderRadius: 8, border: 'none',
-                background: isActive ? '#dc2626' : 'transparent',
+                background: isActive ? 'var(--color-error-600)' : 'transparent',
                 color: isActive ? '#fff' : '#64748b',
                 fontSize: 12, fontWeight: 600, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,

@@ -32,13 +32,13 @@ interface RemoteCursor {
 }
 
 const COLLAB_PALETTE = [
-  '#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#6366f1', '#8b5cf6', '#ec4899', '#14b8a6',
+  'var(--color-error-500)', 'var(--color-warning-500)', '#10b981', 'var(--color-primary-500)', '#6366f1', '#8b5cf6', '#ec4899', '#14b8a6',
 ];
 
 export function pickUserColor(userId: string): string {
   let h = 0;
   for (let i = 0; i < userId.length; i++) h = (h * 31 + userId.charCodeAt(i)) >>> 0;
-  return COLLAB_PALETTE[h % COLLAB_PALETTE.length] ?? '#3b82f6';
+  return COLLAB_PALETTE[h % COLLAB_PALETTE.length] ?? 'var(--color-primary-500)';
 }
 
 export default function CollaborativeReportEditor({

@@ -189,7 +189,7 @@ export const DentalTreatmentPage: React.FC = () => {
       header={{
         title: t('dentalTreatment.title'),
         version: 'v3.0.6.11-54',
-        icon: <Stethoscope size={20} color="#2563eb" />,
+        icon: <Stethoscope size={20} color="var(--color-primary-600)" />,
         extra: (
           <Space>
             <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>{t('dentalTreatment.refresh')}</Button>

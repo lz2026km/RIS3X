@@ -246,7 +246,7 @@ export const ToricPlannerPage: React.FC = () => {
                           avatar={
                             <div style={{
                               width: 80, height: 80, borderRadius: 8,
-                              background: 'linear-gradient(135deg, #2563eb, #69b1ff)',
+                              background: 'linear-gradient(135deg, var(--color-primary-600), #69b1ff)',
                               color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
                               flexDirection: 'column',
                             }}>
@@ -324,7 +324,7 @@ export const ToricPlannerPage: React.FC = () => {
                       <Statistic
                         title={t('eyeToric.cornealAstPreop')}
                         value={toricPlan.preOpCornealAstigmatism}
-                        styles={{ content: {  color: '#2563eb', fontSize: 18  } }}
+                        styles={{ content: {  color: 'var(--color-primary-600)', fontSize: 18  } }}
                       />
                     </Col>
                     <Col span={12}>
@@ -434,7 +434,7 @@ export const ToricPlannerPage: React.FC = () => {
                       <Statistic
                         title={t('eyeToric.predictedSE')}
                         value={postopPrediction.predictedSE}
-                        styles={{ content: {  color: '#2563eb', fontSize: 24  } }}
+                        styles={{ content: {  color: 'var(--color-primary-600)', fontSize: 24  } }}
                         suffix="D"
                       />
                     </Col>

@@ -27,27 +27,27 @@ import { t } from '../../../i18n/appI18n'
 const { TextArea } = Input
 
 const LEVEL_META: Record<string, { color: string; label: string; bg: string }> = {
-  critical: { color: '#dc2626', label: t('criticalValue.level.critical'), bg: 'var(--color-error-bg)' },
-  urgent: { color: '#f59e0b', label: t('criticalValue.level.urgent'), bg: 'var(--color-warning-bg)' },
-  warning: { color: '#3b82f6', label: t('criticalValue.level.warning'), bg: 'var(--color-info-bg)' },
+  critical: { color: 'var(--color-error-600)', label: t('criticalValue.level.critical'), bg: 'var(--color-error-bg)' },
+  urgent: { color: 'var(--color-warning-500)', label: t('criticalValue.level.urgent'), bg: 'var(--color-warning-bg)' },
+  warning: { color: 'var(--color-primary-500)', label: t('criticalValue.level.warning'), bg: 'var(--color-info-bg)' },
 }
 
 const CHANNEL_META: Record<string, { color: string; label: string; icon: React.ReactNode }> = {
   phone: { color: '#10b981', label: t('criticalValue.channel.phone'), icon: <Phone size={12} /> },
-  sms: { color: '#3b82f6', label: t('criticalValue.channel.sms'), icon: <MessageSquare size={12} /> },
+  sms: { color: 'var(--color-primary-500)', label: t('criticalValue.channel.sms'), icon: <MessageSquare size={12} /> },
   message: { color: '#7c3aed', label: t('criticalValueV2.channel.message'), icon: <Bell size={12} /> },
 }
 
 const NOTIF_STATUS_META: Record<string, { color: string; label: string }> = {
-  sent: { color: '#3b82f6', label: t('criticalValueV2.notifStatus.sent') },
-  failed: { color: '#dc2626', label: t('criticalValueV2.notifStatus.failed') },
+  sent: { color: 'var(--color-primary-500)', label: t('criticalValueV2.notifStatus.sent') },
+  failed: { color: 'var(--color-error-600)', label: t('criticalValueV2.notifStatus.failed') },
   accepted: { color: '#10b981', label: t('criticalValueV2.notifStatus.accepted') },
-  rejected: { color: '#f59e0b', label: t('criticalValueV2.notifStatus.rejected') },
+  rejected: { color: 'var(--color-warning-500)', label: t('criticalValueV2.notifStatus.rejected') },
 }
 
 const TRIGGER_STATUS_META: Record<string, { color: string; label: string }> = {
-  triggered: { color: '#dc2626', label: t('criticalValueV2.triggerStatus.triggered') },
-  notified: { color: '#f59e0b', label: t('criticalValueV2.triggerStatus.notified') },
+  triggered: { color: 'var(--color-error-600)', label: t('criticalValueV2.triggerStatus.triggered') },
+  notified: { color: 'var(--color-warning-500)', label: t('criticalValueV2.triggerStatus.notified') },
   confirmed: { color: '#10b981', label: t('criticalValueV2.triggerStatus.confirmed') },
   rejected: { color: '#64748b', label: t('criticalValueV2.triggerStatus.rejected') },
   resolved: { color: '#0ea5e9', label: t('criticalValueV2.triggerStatus.resolved') },
@@ -310,7 +310,7 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
 
   return (
     <div data-testid="critical-value-panel-v2" role="region" aria-label={t('criticalValueV2.ariaLabel')}>
-      <div style={{ background: 'linear-gradient(135deg, #dc2626 0%, #7f1d1d 100%)', color: '#fff', padding: '12px 16px', borderRadius: 8, marginBottom: 12 }}>
+      <div style={{ background: 'linear-gradient(135deg, var(--color-error-600) 0%, #7f1d1d 100%)', color: '#fff', padding: '12px 16px', borderRadius: 8, marginBottom: 12 }}>
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <AlertOctagon size={18} />
@@ -351,7 +351,7 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
       />
 
       {tab === 'rules' && (
-        <Card size="small" title={<Space><FileSearch size={14} color="#dc2626" />{t('criticalValueV2.rulesTable')}</Space>} extra={<Tag color="red">{filteredRules.length} {t('criticalValueV2.itemsUnit')}</Tag>}>
+        <Card size="small" title={<Space><FileSearch size={14} color="var(--color-error-600)" />{t('criticalValueV2.rulesTable')}</Space>} extra={<Tag color="red">{filteredRules.length} {t('criticalValueV2.itemsUnit')}</Tag>}>
           <Space wrap style={{ marginBottom: 12 }}>
             <Input
               allowClear prefix={<Search size={12} />} placeholder={t('criticalValueV2.searchRules')} style={{ width: 240 }}
@@ -375,7 +375,7 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
       {tab === 'evaluate' && (
         <Row gutter={12}>
           <Col span={10}>
-            <Card size="small" title={<Space><Activity size={14} color="#dc2626" />{t('criticalValueV2.evalInput')}</Space>}>
+            <Card size="small" title={<Space><Activity size={14} color="var(--color-error-600)" />{t('criticalValueV2.evalInput')}</Space>}>
               <Space direction="vertical" style={{ width: '100%' }} size={8}>
                 <Row gutter={8}>
                   <Col span={12}>
@@ -429,7 +429,7 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
             </Card>
           </Col>
           <Col span={14}>
-            <Card size="small" title={<Space><Zap size={14} color="#dc2626" />{t('criticalValueV2.judgeResult')} ({preview.length})</Space>}>
+            <Card size="small" title={<Space><Zap size={14} color="var(--color-error-600)" />{t('criticalValueV2.judgeResult')} ({preview.length})</Space>}>
               {preview.length === 0 ? (
                 <Empty description={t('criticalValueV2.judgeResultEmpty')} />
               ) : (
@@ -460,7 +460,7 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
       {tab === 'triggers' && (
         <Row gutter={12}>
           <Col span={10}>
-            <Card size="small" title={<Space><Bell size={14} color="#dc2626" />{t('criticalValueV2.triggerRecords')}</Space>}>
+            <Card size="small" title={<Space><Bell size={14} color="var(--color-error-600)" />{t('criticalValueV2.triggerRecords')}</Space>}>
               <Table
                 rowKey="id" size="small" loading={loading} dataSource={triggers} columns={triggerColumns}
                 pagination={{ pageSize: 6, showSizeChanger: false }}
@@ -474,7 +474,7 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
           <Col span={14}>
             <Card
               size="small"
-              title={<Space><AlertOctagon size={14} color="#dc2626" />{t('criticalValueV2.notifAndConfirm')}</Space>}
+              title={<Space><AlertOctagon size={14} color="var(--color-error-600)" />{t('criticalValueV2.notifAndConfirm')}</Space>}
               extra={selectedTrigger && (
                 <Space>
                   <Badge color={LEVEL_META[selectedTrigger.level]?.color} text={LEVEL_META[selectedTrigger.level]?.label} />
@@ -503,7 +503,7 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
                     </Space>
                     <div style={{ marginTop: 4 }}><strong>{selectedTrigger.ruleCode}</strong> · {selectedTrigger.ruleName}</div>
                     <div style={{ marginTop: 4 }}>{selectedTrigger.description}</div>
-                    <div style={{ color: '#dc2626', marginTop: 4 }}><strong>{t('criticalValueV2.suggestedAction')}</strong> {selectedTrigger.suggestion}</div>
+                    <div style={{ color: 'var(--color-error-600)', marginTop: 4 }}><strong>{t('criticalValueV2.suggestedAction')}</strong> {selectedTrigger.suggestion}</div>
                     {selectedTrigger.confirmComment && (
                       <div style={{ color: '#64748b', marginTop: 4 }}>{t('criticalValueV2.remark')} {selectedTrigger.confirmComment}</div>
                     )}

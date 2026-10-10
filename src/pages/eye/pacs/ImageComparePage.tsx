@@ -87,7 +87,7 @@ const ImageComparePage: React.FC = () => {
       <Row gutter={12}>
         <Col span={24} style={{ marginBottom: 12 }}>
           <Space>
-            <ArrowLeftRight size={20} color="#2563eb" />
+            <ArrowLeftRight size={20} color="var(--color-primary-600)" />
             <span style={{ fontSize: 16, fontWeight: 600 }}>{t('w9d.imageCompare.title')}</span>
             <Select
               value={pairIdx}
@@ -219,9 +219,9 @@ const ImageComparePage: React.FC = () => {
                   key: "trend",
                   render: (_, r) =>
                     r.direction === "worsened" ? (
-                      <TrendingDown size={14} color="#ef4444" />
+                      <TrendingDown size={14} color="var(--color-error-500)" />
                     ) : r.direction === "improved" ? (
-                      <TrendingUp size={14} color="#22c55e" />
+                      <TrendingUp size={14} color="var(--color-success-500)" />
                     ) : (
                       <Eye size={14} color="var(--text-secondary)" />
                     ),

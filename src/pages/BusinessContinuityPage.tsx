@@ -133,7 +133,7 @@ export default function BusinessContinuityPage() {
 
   return (
     <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
-      <Card style={{ background: "linear-gradient(135deg,#dc2626 0%,#f59e0b 100%)", color: "#fff", border: "none", marginBottom: 16 }}>
+      <Card style={{ background: "linear-gradient(135deg,var(--color-error-600) 0%,var(--color-warning-500) 100%)", color: "#fff", border: "none", marginBottom: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Space size={16}>
             <Shield size={36} color="#fff" />
@@ -161,11 +161,11 @@ export default function BusinessContinuityPage() {
 
       <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
         <StatCard title={t("businessContinuity.syncQueue")} value={status?.total ?? 0} icon={<RefreshCw size={18} />} color="#0ea5e9" />
-        <StatCard title={t("businessContinuity.qPending")} value={status?.pending ?? 0} color="#f59e0b" />
+        <StatCard title={t("businessContinuity.qPending")} value={status?.pending ?? 0} color="var(--color-warning-500)" />
         <StatCard title={t("businessContinuity.qCompleted")} value={status?.completed ?? 0} icon={<CheckCircle size={18} />} color="#10b981" />
         <StatCard title={t("businessContinuity.qFailed")} value={status?.failed ?? 0} icon={<XCircle size={18} />} color="error" />
         <StatCard title={t("businessContinuity.qConflict")} value={status?.conflicts ?? 0} icon={<AlertTriangle size={18} />} color="#7c3aed" />
-        <StatCard title={t("businessContinuity.avgLag")} value={(replicas.reduce((s, r) => s + r.lagMs, 0) / replicas.length).toFixed(0)} suffix="ms" color="#1e40af" />
+        <StatCard title={t("businessContinuity.avgLag")} value={(replicas.reduce((s, r) => s + r.lagMs, 0) / replicas.length).toFixed(0)} suffix="ms" color="var(--color-primary-800)" />
       </StatCardGrid>
 
       {deviceError && <Alert type="warning" showIcon message={t("businessContinuity.deviceLoadFailedAlert")} description={deviceError} style={{ marginBottom: 16 }} />}
@@ -220,10 +220,10 @@ export default function BusinessContinuityPage() {
       </Row>
 
       <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
-        <StatCard title={t("businessContinuity.deviceTotal")} value={deviceStats?.total ?? 0} icon={<Monitor size={18} />} color="#1e40af" />
+        <StatCard title={t("businessContinuity.deviceTotal")} value={deviceStats?.total ?? 0} icon={<Monitor size={18} />} color="var(--color-primary-800)" />
         <StatCard title={t("businessContinuity.devRunning")} value={deviceStats?.inUse ?? 0} icon={<CheckCircle size={18} />} color="#10b981" />
         <StatCard title={t("businessContinuity.devIdle")} value={deviceStats?.idle ?? 0} color="var(--text-secondary)" />
-        <StatCard title={t("businessContinuity.devMaintenance")} value={deviceStats?.maintenance ?? 0} icon={<AlertTriangle size={18} />} color="#f59e0b" />
+        <StatCard title={t("businessContinuity.devMaintenance")} value={deviceStats?.maintenance ?? 0} icon={<AlertTriangle size={18} />} color="var(--color-warning-500)" />
         <StatCard title={t("businessContinuity.devFault")} value={deviceStats?.broken ?? 0} icon={<XCircle size={18} />} color="error" />
       </StatCardGrid>
 

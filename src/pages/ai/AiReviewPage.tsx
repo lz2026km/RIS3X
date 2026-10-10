@@ -83,7 +83,7 @@ const AiReviewPage: React.FC = () => {
     <PageContainer padding={24}>
       <Card style={{ marginBottom: 16 }}>
         <Space style={{ marginBottom: 16 }}>
-          <Shield size={24} color="#2563eb" />
+          <Shield size={24} color="var(--color-primary-600)" />
           <Title level={4} style={{ margin: 0 }}>{t('aiReviewPage.title')}</Title>
           <Tag color="blue">{t('aiReviewPage.qualityControl')}</Tag>
         </Space>
@@ -93,7 +93,7 @@ const AiReviewPage: React.FC = () => {
       <Row gutter={16}>
         <Col span={12}>
           <Card
-            title={<Space><FileText size={14} color="#2563eb" />{t('aiReviewPage.reportText')}</Space>}
+            title={<Space><FileText size={14} color="var(--color-primary-600)" />{t('aiReviewPage.reportText')}</Space>}
             extra={
               <Button type="primary" icon={<Shield size={14} />} onClick={handleReview} loading={loading} disabled={!reportText.trim()}>
                 {loading ? t('aiReviewPage.reviewing') : t('aiReviewPage.startReview')}
@@ -145,11 +145,11 @@ const AiReviewPage: React.FC = () => {
           {loading ? (
             <Card style={{ textAlign: 'center', padding: 60 }}>
               <Spin size="large" />
-              <div style={{ marginTop: 12, color: '#2563eb', fontWeight: 600 }}>{t('aiReviewPage.reviewingReport')}</div>
+              <div style={{ marginTop: 12, color: 'var(--color-primary-600)', fontWeight: 600 }}>{t('aiReviewPage.reviewingReport')}</div>
             </Card>
           ) : result ? (
             <>
-              <Card title={<Space><Brain size={16} color="#2563eb" />{t('aiReviewPage.result')}</Space>} style={{ marginBottom: 16 }}>
+              <Card title={<Space><Brain size={16} color="var(--color-primary-600)" />{t('aiReviewPage.result')}</Space>} style={{ marginBottom: 16 }}>
                 <Row gutter={16}>
                   <Col span={12}>
                     <Statistic

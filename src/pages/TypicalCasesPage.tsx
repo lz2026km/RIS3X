@@ -28,8 +28,8 @@ const TEACHING_TAG_OPTIONS = ['教学重点', '罕见病例', '经典征象', '�
 // 样式常量 - 蓝色主题
 // ============================================================
 const COLORS = {
-  primary: '#1e40af',
-  primaryLight: '#2563eb',
+  primary: 'var(--color-primary-800)',
+  primaryLight: 'var(--color-primary-600)',
   primaryDark: '#172554',
   white: '#ffffff',
   background: 'var(--bg-card)',
@@ -40,19 +40,19 @@ const COLORS = {
   border: 'var(--border-color)',
   success: '#059669',
   successBg: 'var(--color-success-bg)',
-  warning: '#d97706',
+  warning: 'var(--color-warning-600)',
   warningBg: 'var(--color-warning-bg)',
-  danger: '#dc2626',
+  danger: 'var(--color-error-600)',
   dangerBg: 'var(--color-error-bg)',
-  info: '#2563eb',
+  info: 'var(--color-primary-600)',
   infoBg: 'var(--color-info-bg)',
   purple: '#7c3aed',
   purpleBg: 'var(--color-info-bg)',
 }
 
 const MODALITY_COLORS: Record<string, string> = {
-  CT: '#3b82f6', MR: '#60a5fa', DR: '#22c55e',
-  DSA: '#f59e0b', XR: '#06b6d4', MG: '#ec4899',
+  CT: 'var(--color-primary-500)', MR: '#60a5fa', DR: 'var(--color-success-500)',
+  DSA: 'var(--color-warning-500)', XR: 'var(--color-info-500)', MG: '#ec4899',
 }
 
 // ============================================================
@@ -68,8 +68,8 @@ const MODALITY_COLORS: Record<string, string> = {
 // ============================================================
 const getBodyPartColor = (bodyPart: string) => {
   const colors: Record<string, string> = {
-    '头颅': '#3b82f6', '胸部': '#3b82f6', '腹部': '#22c55e',
-    '脊柱': '#f59e0b', '心脏': '#ef4444', '盆腔': '#ec4899',
+    '头颅': 'var(--color-primary-500)', '胸部': 'var(--color-primary-500)', '腹部': 'var(--color-success-500)',
+    '脊柱': 'var(--color-warning-500)', '心脏': 'var(--color-error-500)', '盆腔': '#ec4899',
   }
   return colors[bodyPart] || '#64748b'
 }
@@ -911,7 +911,7 @@ export default function TypicalCasesPage() {
           {/* [G005 Wave4B] G-04 在线考试模式入口 */}
           <button
             onClick={() => setExamModeVisible(true)}
-            style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#f59e0b', color: COLORS.white, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+            style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: 'var(--color-warning-500)', color: COLORS.white, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
           >
             <Award size={16} />考试模式
           </button>

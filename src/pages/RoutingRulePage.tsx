@@ -165,15 +165,15 @@ export default function RoutingRulePage() {
         </div>
         <aside style={{ background: 'var(--bg-card)', padding: 12, overflowY: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-            <Eye size={14} color="#1e40af" />
-            <span style={{ fontWeight: 700, color: '#1e40af' }}>{t('w9.routing.simResult')}</span>
+            <Eye size={14} color="var(--color-primary-800)" />
+            <span style={{ fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('w9.routing.simResult')}</span>
           </div>
           {results.length === 0 ? (
             <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('w9.routing.simHint')}</div>
           ) : (
             results.map((r) => (
               <div key={r.studyId} style={{ background: 'var(--bg-primary)', padding: 8, borderRadius: 6, marginBottom: 6, border: '1px solid var(--border-color)' }}>
-                <div style={{ fontWeight: 700, color: '#1e40af', fontSize: 12 }}>{r.studyId}</div>
+                <div style={{ fontWeight: 700, color: 'var(--color-primary-800)', fontSize: 12 }}>{r.studyId}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                   {t('w9.routing.hit')}: {r.matched.length === 0 ? t('w9.routing.noHit') : r.matched.join(', ')}
                 </div>

@@ -212,7 +212,7 @@ export const DentalTelePage: React.FC = () => {
   const waitingCount = sessions.filter(s => s.status === 'waiting').length;
 
   return (
-    <DentalPageLayout header={{ title: t('dentalTele.title'), icon: <Video size={20} color="#2563eb" /> }}>
+    <DentalPageLayout header={{ title: t('dentalTele.title'), icon: <Video size={20} color="var(--color-primary-600)" /> }}>
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}><RefreshCw size={14} /> {t('dentalTele.retry')}</Button>} />}
       <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
         <StatCard title={t('dentalTele.total')} value={sessions.length} icon={<Video size={16} />} />

@@ -23,7 +23,7 @@ import { DataTable, StatCard, StatCardGrid } from "../../components/common";
 
 const STATUS_META: Record<string, { color: string; label: string }> = {
   idle: { color: '#52c41a', label: '空闲' },
-  occupied: { color: '#2563eb', label: '占用中' },
+  occupied: { color: 'var(--color-primary-600)', label: '占用中' },
   disinfecting: { color: '#faad14', label: '消毒中' },
   fault: { color: '#ff4d4f', label: '故障' },
 };
@@ -108,7 +108,7 @@ export const RoomOccupancyPage: React.FC = () => {
     <div style={{ padding: 24, background: 'var(--bg-card)',}}>
       <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }} wrap>
         <Space>
-          <LayoutDashboard size={20} color="#2563eb" />
+          <LayoutDashboard size={20} color="var(--color-primary-600)" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>{t('roomOccupancy.title')}</span>
           <Tag color="cyan">{t('roomOccupancy.realtime')}</Tag>
           <Tag color="default">{t('roomOccupancy.autoRefresh30s')}</Tag>

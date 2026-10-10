@@ -75,20 +75,20 @@ function reportToDeliveryRecord(r: ReportDto): DeliveryRecord {
 // ============================================================
 const CHANNEL_CONFIG: Record<DeliveryChannel, { label: string; icon: any; color: string; bg: string; description: string }> = {
   wechat: { label: t('reportDelivery.channelWechat'),     icon: MessageSquare, color: '#07c160', bg: '#22c55e22', description: t('reportDelivery.channelWechatDesc') },
-  sms:    { label: t('reportDelivery.channelSms'),     icon: Smartphone,    color: '#3b82f6', bg: '#3b82f622', description: t('reportDelivery.channelSmsDesc') },
+  sms:    { label: t('reportDelivery.channelSms'),     icon: Smartphone,    color: 'var(--color-primary-500)', bg: '#3b82f622', description: t('reportDelivery.channelSmsDesc') },
   email:  { label: t('reportDelivery.channelEmail'),     icon: Mail,          color: '#ea580c', bg: '#f9731622', description: t('reportDelivery.channelEmailDesc') },
   inApp:  { label: t('reportDelivery.channelInApp'),     icon: Bell,          color: '#7c3aed', bg: '#8b5cf622', description: t('reportDelivery.channelInAppDesc') },
-  dicom:  { label: 'DICOM',    icon: Database,      color: '#0891b2', bg: '#06b6d422', description: t('reportDelivery.channelDicomDesc') },
+  dicom:  { label: 'DICOM',    icon: Database,      color: 'var(--color-info-600)', bg: '#06b6d422', description: t('reportDelivery.channelDicomDesc') },
   paper:  { label: t('reportDelivery.channelPaper'), icon: Printer,        color: 'var(--text-secondary)', bg: 'var(--bg-deep)', description: t('reportDelivery.channelPaperDesc') },
   cloud:  { label: t('reportDelivery.channelCloud'),     icon: Cloud,         color: '#0ea5e9', bg: '#3b82f622', description: t('reportDelivery.channelCloudDesc') },
   film:   { label: t('reportDelivery.channelFilm'),     icon: Film,          color: '#059669', bg: '#22c55e22', description: t('reportDelivery.channelFilmDesc') },
 };
 
 const STATUS_CONFIG = {
-  pending:   { label: t('reportDelivery.statusPending'), color: '#f59e0b', bg: '#f59e0b22' },
-  delivered: { label: t('reportDelivery.statusDelivered'), color: '#3b82f6', bg: '#3b82f622' },
+  pending:   { label: t('reportDelivery.statusPending'), color: 'var(--color-warning-500)', bg: '#f59e0b22' },
+  delivered: { label: t('reportDelivery.statusDelivered'), color: 'var(--color-primary-500)', bg: '#3b82f622' },
   read:      { label: t('reportDelivery.statusRead'), color: '#10b981', bg: '#22c55e22' },
-  failed:    { label: t('reportDelivery.statusFailed'),   color: '#ef4444', bg: '#ef444422' },
+  failed:    { label: t('reportDelivery.statusFailed'),   color: 'var(--color-error-500)', bg: '#ef444422' },
   // [G005 Wave6A] 撤回态: 本地记录 (后端无 delivery 撤回端点)
   recalled:  { label: t('reportDelivery.statusRecalled'), color: '#7c3aed', bg: '#8b5cf622' },
 };
@@ -286,7 +286,7 @@ export default function ReportDeliveryPage() {
               {r.patientPhone || r.patientEmail || r.patientWechat} · {t('reportDelivery.templateLabel')}{TEMPLATE_LABEL[r.template] ?? r.template}
             </div>
             {r.failureReason && !recall && (
-              <div style={{ fontSize: 12, color: '#dc2626', marginTop: 2 }}>{r.failureReason} · {t('reportDelivery.retry')} {r.retryCount} {t('reportDelivery.times')}</div>
+              <div style={{ fontSize: 12, color: 'var(--color-error-600)', marginTop: 2 }}>{r.failureReason} · {t('reportDelivery.retry')} {r.retryCount} {t('reportDelivery.times')}</div>
             )}
             {recall && (
               <div style={{ fontSize: 12, color: '#7c3aed', marginTop: 2 }}>
@@ -338,7 +338,7 @@ export default function ReportDeliveryPage() {
                     message.warning(`重试请求已发送 · ${r.id} · ${e?.message || String(e)}`);
                   }
                 }}
-                style={{ padding: '4px 8px', border: '1px solid #f59e0b', borderRadius: 4, background: 'var(--bg-card)', color: '#f59e0b', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
+                style={{ padding: '4px 8px', border: '1px solid var(--color-warning-500)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--color-warning-500)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
               >
                 <RefreshCw size={10} /> {t('reportDelivery.retry')}
               </button>
@@ -359,7 +359,7 @@ export default function ReportDeliveryPage() {
                 cancelText={t('reportDelivery.cancel')}
                 onConfirm={() => { setRecallTarget(r); setRecallReason(''); }}
               >
-                <button style={{ padding: '4px 8px', border: '1px solid #dc2626', borderRadius: 4, background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+                <button style={{ padding: '4px 8px', border: '1px solid var(--color-error-600)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--color-error-600)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
                   <Undo2 size={10} /> {t('reportDelivery.recall')}
                 </button>
               </Popconfirm>
@@ -404,11 +404,11 @@ export default function ReportDeliveryPage() {
             <StatusTag status="success" style={{ fontWeight: 700 }}>R6</StatusTag>
             <StatusTag status="info" style={{ fontWeight: 700 }}>R3.DIST v3.0.5.1</StatusTag>
             {recordsSource === 'api' ? (
-              <span style={{ fontSize: 12, padding: '2px 8px', background: 'var(--color-info-bg)', color: '#1d4ed8', borderRadius: 10, fontWeight: 700, border: '1px solid #bfdbfe' }}>
+              <span style={{ fontSize: 12, padding: '2px 8px', background: 'var(--color-info-bg)', color: 'var(--color-primary-700)', borderRadius: 10, fontWeight: 700, border: '1px solid #bfdbfe' }}>
                 {recordsLoading ? t('reportDelivery.loading') : `${t('reportDelivery.apiDerived')} · ${records.length} ${t('reportDelivery.items')}`}
               </span>
             ) : (
-              <span style={{ fontSize: 12, padding: '2px 8px', background: 'var(--color-warning-bg)', color: '#d97706', borderRadius: 10, fontWeight: 700, border: '1px solid #fde68a' }}>
+              <span style={{ fontSize: 12, padding: '2px 8px', background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', borderRadius: 10, fontWeight: 700, border: '1px solid #fde68a' }}>
                 {t('reportDelivery.staticData')}
               </span>
             )}
@@ -436,7 +436,7 @@ export default function ReportDeliveryPage() {
       {/* [G005 W8-Report] 召回通知列表 (HL7 ORU C + 临床回执) */}
       {Object.keys(recalls).length > 0 && (
         <div style={{ marginBottom: 16, border: '1px solid var(--border-color)', borderRadius: 8, background: 'var(--bg-card)', padding: 12 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#dc2626', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-error-600)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Undo2 size={13} /> {t('w8Report.recall.listTitle')} ({Object.keys(recalls).length})
           </div>
           <div style={{ display: 'grid', gap: 6 }}>
@@ -454,7 +454,7 @@ export default function ReportDeliveryPage() {
                   ) : (
                     <button
                       onClick={() => void handleAckRecall(r)}
-                      style={{ padding: '3px 8px', border: '1px solid #16a34a', borderRadius: 4, background: 'var(--bg-card)', color: '#16a34a', fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3 }}
+                      style={{ padding: '3px 8px', border: '1px solid var(--color-success-600)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--color-success-600)', fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3 }}
                     >
                       <CheckCircle2 size={10} /> {t('w8Report.recall.ackAction')}
                     </button>
@@ -510,7 +510,7 @@ export default function ReportDeliveryPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
         <KpiCard icon={Send} label={t('reportDelivery.kpiMonth')} value={DELIVERY_KPI.totalThisMonth} color="#07c160" />
         <KpiCard icon={CheckCircle2} label={t('reportDelivery.kpiSuccessRate')} value={`${DELIVERY_KPI.successRate}%`} color="#10b981" />
-        <KpiCard icon={Eye} label={t('reportDelivery.kpiReadRate')} value={`${DELIVERY_KPI.readRate}%`} color="#3b82f6" />
+        <KpiCard icon={Eye} label={t('reportDelivery.kpiReadRate')} value={`${DELIVERY_KPI.readRate}%`} color="var(--color-primary-500)" />
         <KpiCard icon={Cloud} label={t('reportDelivery.kpiDownloadRate')} value={`${DELIVERY_KPI.downloadRate}%`} color="#7c3aed" />
       </div>
 
@@ -548,13 +548,13 @@ export default function ReportDeliveryPage() {
           <option value="read">{t('reportDelivery.statusRead')}</option>
           <option value="failed">{t('reportDelivery.statusFailed')}</option>
         </select>
-        <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('reportDelivery.selected')} <strong style={{ color: '#dc2626' }}>{selectedRecords.size}</strong> / {filteredRecords.length} {t('reportDelivery.items')}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('reportDelivery.selected')} <strong style={{ color: 'var(--color-error-600)' }}>{selectedRecords.size}</strong> / {filteredRecords.length} {t('reportDelivery.items')}</span>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
           {sending && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#1e40af' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--color-primary-800)' }}>
               <Loader2 size={12} className="spin" /> {t('reportDelivery.pushing')} {sendProgress}%
               <div style={{ width: 100, height: 4, background: 'var(--color-info-bg)', borderRadius: 2, overflow: 'hidden' }}>
-                <div style={{ width: `${sendProgress}%`, height: '100%', background: '#3b82f6' }} />
+                <div style={{ width: `${sendProgress}%`, height: '100%', background: 'var(--color-primary-500)' }} />
               </div>
             </div>
           )}
@@ -673,10 +673,10 @@ const selectStyle: React.CSSProperties = {
 // ============================================================
 const KpiCard: React.FC<{ icon: any; label: string; value: number | string; color: string }> = ({ icon: Icon, label, value, color }) => {
   const c = ({
-    '#dc2626': 'error', '#ef4444': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
-    '#f59e0b': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
-    '#16a34a': 'success', '#22c55e': 'success', '#52c41a': 'success', '#10b981': 'success',
-    '#2563eb': 'primary', '#1890ff': 'primary', '#1d4ed8': 'primary',
+    'var(--color-error-600)': 'error', 'var(--color-error-500)': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
+    'var(--color-warning-500)': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
+    'var(--color-success-600)': 'success', 'var(--color-success-500)': 'success', '#52c41a': 'success', '#10b981': 'success',
+    'var(--color-primary-600)': 'primary', '#1890ff': 'primary', 'var(--color-primary-700)': 'primary',
   } as Record<string, string>)[color] ?? color;
   return <StatCard title={label} value={value} icon={<Icon size={18} />} color={c} />;
 };

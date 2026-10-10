@@ -36,7 +36,7 @@ export const REPORT_STATUS_META: Record<ReportStatus, ReportStatusMeta> = {
     description: '已分派给报告医生，等待书写',
   },
   '书写中': {
-    label: '书写中', color: '#1e40af', bg: '#dbeafe', border: '#93c5fd',
+    label: '书写中', color: 'var(--color-primary-800)', bg: '#dbeafe', border: '#93c5fd',
     icon: Edit3, order: 3, group: 'draft',
     description: '医生正在书写报告',
   },
@@ -61,7 +61,7 @@ export const REPORT_STATUS_META: Record<ReportStatus, ReportStatusMeta> = {
     description: '副主任以上医师终审中',
   },
   '已审核': {
-    label: '已审核', color: '#0891b2', bg: '#cffafe', border: '#67e8f9',
+    label: '已审核', color: 'var(--color-info-600)', bg: '#cffafe', border: '#67e8f9',
     icon: CheckCheck, order: 8, group: 'review',
     description: '终审通过，待签发',
   },
@@ -81,12 +81,12 @@ export const REPORT_STATUS_META: Record<ReportStatus, ReportStatusMeta> = {
     description: '已发布给临床/患者',
   },
   '修订中': {
-    label: '修订中', color: '#d97706', bg: '#fef3c7', border: '#fcd34d',
+    label: '修订中', color: 'var(--color-warning-600)', bg: '#fef3c7', border: '#fcd34d',
     icon: RefreshCw, order: 12, group: 'special',
     description: '已发布报告正在补充/勘误',
   },
   '已修订': {
-    label: '已修订', color: '#0891b2', bg: '#cffafe', border: '#67e8f9',
+    label: '已修订', color: 'var(--color-info-600)', bg: '#cffafe', border: '#67e8f9',
     icon: FileEdit, order: 13, group: 'special',
     description: '报告已修订完成',
   },
@@ -106,12 +106,12 @@ export const REPORT_STATUS_META: Record<ReportStatus, ReportStatusMeta> = {
     description: '报告已归档到长期存储',
   },
   '已暂停': {
-    label: '已暂停', color: '#f59e0b', bg: '#fef3c7', border: '#fcd34d',
+    label: '已暂停', color: 'var(--color-warning-500)', bg: '#fef3c7', border: '#fcd34d',
     icon: RefreshCw, order: 17, group: 'special',
     description: '检查流程已暂停',
   },
   '质控退回': {
-    label: '质控退回', color: '#ef4444', bg: '#fee2e2', border: '#fca5a5',
+    label: '质控退回', color: 'var(--color-error-500)', bg: '#fee2e2', border: '#fca5a5',
     icon: XCircle, order: 18, group: 'special',
     description: '质控审核未通过，已退回',
   },
@@ -132,12 +132,12 @@ export const REPORT_STATUS_META: Record<ReportStatus, ReportStatusMeta> = {
     description: '审核争议已升级处理（ESCALATED）',
   },
   '整改中': {
-    label: '整改中', color: '#d97706', bg: '#fef3c7', border: '#fcd34d',
+    label: '整改中', color: 'var(--color-warning-600)', bg: '#fef3c7', border: '#fcd34d',
     icon: RefreshCw, order: 22, group: 'special',
     description: '质控整改中（RECTIFYING）',
   },
   '补充中': {
-    label: '补充中', color: '#0891b2', bg: '#cffafe', border: '#67e8f9',
+    label: '补充中', color: 'var(--color-info-600)', bg: '#cffafe', border: '#67e8f9',
     icon: FileEdit, order: 23, group: 'special',
     description: '补充报告撰写中（SUPPLEMENTING）',
   },

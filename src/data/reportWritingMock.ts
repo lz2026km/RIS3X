@@ -38,9 +38,9 @@ const recistFields: StructuredFieldDefinition[] = [
   { id: 'f1', key: 'baselineDate', label: '基线测量日期', labelEn: 'Baseline Date', type: 'date', required: true, group: 'g1', order: 1, placeholder: 'YYYY-MM-DD', permissions: ['doctor:read', 'doctor:write'] },
   { id: 'f2', key: 'lesionCount', label: '靶病灶数量', labelEn: 'Target Lesion Count', type: 'number', required: true, group: 'g1', min: 1, max: 10, defaultValue: 5, order: 2 },
   { id: 'f3', key: 'measurementMethod', label: '测量方法', labelEn: 'Measurement Method', type: 'enum', required: true, group: 'g1', options: [
-    { value: 'CT', label: 'CT', labelEn: 'CT', color: '#0891b2' },
+    { value: 'CT', label: 'CT', labelEn: 'CT', color: 'var(--color-info-600)' },
     { value: 'MR', label: 'MR', labelEn: 'MR', color: '#7c3aed' },
-    { value: 'PET', label: 'PET-CT', labelEn: 'PET-CT', color: '#dc2626' },
+    { value: 'PET', label: 'PET-CT', labelEn: 'PET-CT', color: 'var(--color-error-600)' },
   ], defaultValue: 'CT', order: 3 },
   { id: 'f4', key: 'lesion1Site', label: '病灶 1 部位', labelEn: 'Lesion 1 Site', type: 'text', required: true, group: 'g2', order: 4, placeholder: '例:右肺上叶', dependsOn: { fieldKey: 'lesionCount', equals: 5 } },
   { id: 'f5', key: 'lesion1Long', label: '病灶 1 长径(mm)', labelEn: 'Lesion 1 Long Diameter', type: 'number', required: true, group: 'g2', min: 0, max: 500, unit: 'mm', unitOptions: ['mm', 'cm'], order: 5, referenceRange: { min: 0, max: 500, unit: 'mm' } },
@@ -78,9 +78,9 @@ const recistFields: StructuredFieldDefinition[] = [
   { id: 'f31', key: 'percentChange', label: '变化百分比(%)', labelEn: 'Percent Change', type: 'number', required: true, group: 'g5', min: -100, max: 1000, unit: '%', order: 31, formula: '(sumOfDiameters-baselineSum)/baselineSum*100', locked: true },
   { id: 'f32', key: 'responseCategory', label: '疗效分类', labelEn: 'Response Category', type: 'enum', required: true, group: 'g5', options: [
     { value: 'CR', label: '完全缓解 CR', labelEn: 'Complete Response', color: '#10b981' },
-    { value: 'PR', label: '部分缓解 PR', labelEn: 'Partial Response', color: '#3b82f6' },
-    { value: 'SD', label: '疾病稳定 SD', labelEn: 'Stable Disease', color: '#f59e0b' },
-    { value: 'PD', label: '疾病进展 PD', labelEn: 'Progressive Disease', color: '#dc2626' },
+    { value: 'PR', label: '部分缓解 PR', labelEn: 'Partial Response', color: 'var(--color-primary-500)' },
+    { value: 'SD', label: '疾病稳定 SD', labelEn: 'Stable Disease', color: 'var(--color-warning-500)' },
+    { value: 'PD', label: '疾病进展 PD', labelEn: 'Progressive Disease', color: 'var(--color-error-600)' },
     { value: 'NE', label: '无法评估 NE', labelEn: 'Not Evaluable', color: '#6b7280' },
   ], defaultValue: 'SD', order: 32 },
   { id: 'f33', key: 'treatmentLine', label: '治疗线数', labelEn: 'Treatment Line', type: 'enum', required: false, group: 'g5', options: [
@@ -174,12 +174,12 @@ const biradsFields: StructuredFieldDefinition[] = [
     { value: '0', label: '0 - 评估不完全', labelEn: '0 - Incomplete', color: '#9ca3af' },
     { value: '1', label: '1 - 阴性', labelEn: '1 - Negative', color: '#10b981' },
     { value: '2', label: '2 - 良性发现', labelEn: '2 - Benign', color: '#10b981' },
-    { value: '3', label: '3 - 可能良性', labelEn: '3 - Probably Benign', color: '#f59e0b' },
+    { value: '3', label: '3 - 可能良性', labelEn: '3 - Probably Benign', color: 'var(--color-warning-500)' },
     { value: '4', label: '4 - 可疑异常', labelEn: '4 - Suspicious', color: '#ea580c' },
     { value: '4A', label: '4A - 低度可疑', labelEn: '4A - Low Suspicion', color: '#fb923c' },
     { value: '4B', label: '4B - 中度可疑', labelEn: '4B - Moderate Suspicion', color: '#f97316' },
     { value: '4C', label: '4C - 高度可疑', labelEn: '4C - High Suspicion', color: '#ea580c' },
-    { value: '5', label: '5 - 高度提示恶性', labelEn: '5 - Highly Suggestive', color: '#dc2626' },
+    { value: '5', label: '5 - 高度提示恶性', labelEn: '5 - Highly Suggestive', color: 'var(--color-error-600)' },
     { value: '6', label: '6 - 活检证实恶性', labelEn: '6 - Known Biopsy-Proven', color: '#7f1d1d' },
   ], defaultValue: '2', order: 15 },
   { id: 'bf16', key: 'recommendation', label: '建议', labelEn: 'Recommendation', type: 'text', required: true, group: 'bg4', order: 16, fillGuide: '根据 BI-RADS 分类给出后续随访或活检建议' },
@@ -308,12 +308,12 @@ export const BIRADS_CATEGORY_MAP: Record<BiradsCategory, BiradsAssessment> = {
   '0': { category: '0', label: '评估不完全', labelEn: 'Incomplete', description: '需要进一步影像学评估', descriptionEn: 'Needs further imaging evaluation', recommendation: '召回补充其他影像学检查', recommendationEn: 'Recall for additional imaging', malignancyRisk: 0, color: '#9ca3af' },
   '1': { category: '1', label: '阴性', labelEn: 'Negative', description: '乳腺影像正常', descriptionEn: 'Normal breast imaging', recommendation: '常规年度筛查', recommendationEn: 'Routine annual screening', malignancyRisk: 0, color: '#10b981' },
   '2': { category: '2', label: '良性发现', labelEn: 'Benign', description: '明确的良性发现', descriptionEn: 'Definitively benign finding', recommendation: '常规年度筛查', recommendationEn: 'Routine annual screening', malignancyRisk: 0, color: '#10b981' },
-  '3': { category: '3', label: '可能良性', labelEn: 'Probably Benign', description: '恶性可能性 ≤ 2%', descriptionEn: '≤ 2% malignancy risk', recommendation: '6 个月短期随访', recommendationEn: '6-month short-term follow-up', malignancyRisk: 2, color: '#f59e0b' },
+  '3': { category: '3', label: '可能良性', labelEn: 'Probably Benign', description: '恶性可能性 ≤ 2%', descriptionEn: '≤ 2% malignancy risk', recommendation: '6 个月短期随访', recommendationEn: '6-month short-term follow-up', malignancyRisk: 2, color: 'var(--color-warning-500)' },
   '4': { category: '4', label: '可疑异常', labelEn: 'Suspicious', description: '恶性可能性 2-95%', descriptionEn: '2-95% malignancy risk', recommendation: '组织学活检', recommendationEn: 'Tissue biopsy', malignancyRisk: 30, color: '#ea580c' },
   '4A': { category: '4A', label: '低度可疑', labelEn: 'Low Suspicion', description: '恶性可能性 2-10%', descriptionEn: '2-10% malignancy risk', recommendation: '组织学活检', recommendationEn: 'Tissue biopsy', malignancyRisk: 5, color: '#fb923c' },
   '4B': { category: '4B', label: '中度可疑', labelEn: 'Moderate Suspicion', description: '恶性可能性 10-50%', descriptionEn: '10-50% malignancy risk', recommendation: '组织学活检', recommendationEn: 'Tissue biopsy', malignancyRisk: 25, color: '#f97316' },
   '4C': { category: '4C', label: '高度可疑', labelEn: 'High Suspicion', description: '恶性可能性 50-95%', descriptionEn: '50-95% malignancy risk', recommendation: '组织学活检', recommendationEn: 'Tissue biopsy', malignancyRisk: 70, color: '#ea580c' },
-  '5': { category: '5', label: '高度提示恶性', labelEn: 'Highly Suggestive', description: '恶性可能性 ≥ 95%', descriptionEn: '≥ 95% malignancy risk', recommendation: '组织学活检与治疗', recommendationEn: 'Biopsy and treatment', malignancyRisk: 95, color: '#dc2626' },
+  '5': { category: '5', label: '高度提示恶性', labelEn: 'Highly Suggestive', description: '恶性可能性 ≥ 95%', descriptionEn: '≥ 95% malignancy risk', recommendation: '组织学活检与治疗', recommendationEn: 'Biopsy and treatment', malignancyRisk: 95, color: 'var(--color-error-600)' },
   '6': { category: '6', label: '活检证实恶性', labelEn: 'Known Biopsy-Proven', description: '活检已证实的恶性肿瘤', descriptionEn: 'Biopsy-proven malignancy', recommendation: '临床治疗', recommendationEn: 'Clinical treatment', malignancyRisk: 100, color: '#7f1d1d' },
 };
 
@@ -359,7 +359,7 @@ export const RICH_DEFAULT_STYLE: RichEditorStyle = {
 
 const BASE = import.meta.env.BASE_URL || '/';
 export const RICH_IMAGES_MOCK: RichEditorImage[] = [
-  { id: 'ri-1', src: `${BASE}mock-images/ct-001.png`, alt: '胸部 CT 肺窗', width: 320, height: 240, keyImage: true, dicomRef: '1.2.840.10008.5.1.4.1.1.2.1.1234.5678', uploadAt: '2026-09-15T10:30:00Z', uploadedBy: '陈医师', annotation: [{ type: 'arrow', x: 120, y: 80, color: '#dc2626', text: '病灶' }] },
+  { id: 'ri-1', src: `${BASE}mock-images/ct-001.png`, alt: '胸部 CT 肺窗', width: 320, height: 240, keyImage: true, dicomRef: '1.2.840.10008.5.1.4.1.1.2.1.1234.5678', uploadAt: '2026-09-15T10:30:00Z', uploadedBy: '陈医师', annotation: [{ type: 'arrow', x: 120, y: 80, color: 'var(--color-error-600)', text: '病灶' }] },
   { id: 'ri-2', src: `${BASE}mock-images/ct-002.png`, alt: '胸部 CT 纵隔窗', width: 320, height: 240, keyImage: false, dicomRef: '1.2.840.10008.5.1.4.1.1.2.1.1234.5679', uploadAt: '2026-09-15T10:31:00Z', uploadedBy: '陈医师' },
   { id: 'ri-3', src: `${BASE}mock-images/mr-001.png`, alt: 'MR T2 横断位', width: 320, height: 240, keyImage: true, dicomRef: '1.2.840.10008.5.1.4.1.1.4.1.9876.5432', uploadAt: '2026-09-15T10:35:00Z', uploadedBy: '陈医师', annotation: [{ type: 'circle', x: 150, y: 120, width: 60, height: 60, color: '#10b981' }] },
 ];
@@ -459,7 +459,7 @@ export const IMAGE_ANCHORS_MOCK: ImageAnchor[] = [
   {
     id: 'ia-1', reportId: 'rpt-038', studyInstanceUID: '1.2.840.10008.5.1.4.1.1.2.1.1',
     seriesInstanceUID: '1.2.840.10008.5.1.4.1.1.2.1.1.1', sopInstanceUID: '1.2.840.10008.5.1.4.1.1.2.1.1.1.1',
-    frameNumber: 87, annotation: [{ type: 'arrow', coords: [{ x: 124, y: 88 }], label: '右肺上叶结节', labelEn: 'RUL Nodule', color: '#dc2626' }],
+    frameNumber: 87, annotation: [{ type: 'arrow', coords: [{ x: 124, y: 88 }], label: '右肺上叶结节', labelEn: 'RUL Nodule', color: 'var(--color-error-600)' }],
     keyImage: true, windowing: { center: -600, width: 1500 }, thumbnail: `${BASE}mock/thumb-ct-001.png`,
     status: 'active', createdBy: '陈医师', createdAt: '2026-09-15T10:30:00Z', pinnedBy: '陈医师', pinnedAt: '2026-09-15T10:30:00Z', usageCount: 1,
   },
@@ -467,7 +467,7 @@ export const IMAGE_ANCHORS_MOCK: ImageAnchor[] = [
     id: 'ia-2', reportId: 'rpt-038', studyInstanceUID: '1.2.840.10008.5.1.4.1.1.2.1.1',
     seriesInstanceUID: '1.2.840.10008.5.1.4.1.1.2.1.1.1', sopInstanceUID: '1.2.840.10008.5.1.4.1.1.2.1.1.1.2',
     frameNumber: 88, annotation: [
-      { type: 'line', coords: [{ x: 100, y: 80 }, { x: 150, y: 110 }], label: '长径 18mm', labelEn: 'Long 18mm', color: '#3b82f6', measurement: { value: 18, unit: 'mm' } },
+      { type: 'line', coords: [{ x: 100, y: 80 }, { x: 150, y: 110 }], label: '长径 18mm', labelEn: 'Long 18mm', color: 'var(--color-primary-500)', measurement: { value: 18, unit: 'mm' } },
       { type: 'line', coords: [{ x: 115, y: 95 }, { x: 130, y: 110 }], label: '短径 15mm', labelEn: 'Short 15mm', color: '#10b981', measurement: { value: 15, unit: 'mm' } },
     ],
     keyImage: true, windowing: { center: -600, width: 1500 }, thumbnail: `${BASE}mock/thumb-ct-002.png`,
@@ -628,21 +628,21 @@ export const MULTI_MODALITY_MOCK: MultiModalityPanel = {
   ],
   syncScroll: true,
   diffHighlights: [
-    { modality: 'CT', color: '#0891b2', notes: '肺窗-600/1500 观察最佳' },
+    { modality: 'CT', color: 'var(--color-info-600)', notes: '肺窗-600/1500 观察最佳' },
     { modality: 'MR', color: '#7c3aed', notes: 'T2W + DWI 综合评估' },
-    { modality: 'PET-CT', color: '#dc2626', notes: '代谢评估' },
+    { modality: 'PET-CT', color: 'var(--color-error-600)', notes: '代谢评估' },
   ],
 };
 
 export const KEYWORD_HIGHLIGHTS_MOCK: KeywordHighlight[] = [
-  { term: '结节', termEn: 'Nodule', category: 'finding', color: '#dc2626', bg: '#fee2e2', weight: 5 },
-  { term: '毛刺征', termEn: 'Spiculation', category: 'finding', color: '#dc2626', bg: '#fee2e2', weight: 5 },
-  { term: '强化', termEn: 'Enhancement', category: 'finding', color: '#3b82f6', bg: '#dbeafe', weight: 4 },
-  { term: '胸腔积液', termEn: 'Pleural Effusion', category: 'finding', color: '#3b82f6', bg: '#dbeafe', weight: 4 },
+  { term: '结节', termEn: 'Nodule', category: 'finding', color: 'var(--color-error-600)', bg: '#fee2e2', weight: 5 },
+  { term: '毛刺征', termEn: 'Spiculation', category: 'finding', color: 'var(--color-error-600)', bg: '#fee2e2', weight: 5 },
+  { term: '强化', termEn: 'Enhancement', category: 'finding', color: 'var(--color-primary-500)', bg: '#dbeafe', weight: 4 },
+  { term: '胸腔积液', termEn: 'Pleural Effusion', category: 'finding', color: 'var(--color-primary-500)', bg: '#dbeafe', weight: 4 },
   { term: '淋巴结肿大', termEn: 'Lymphadenopathy', category: 'finding', color: '#ea580c', bg: '#fed7aa', weight: 5 },
-  { term: '肺癌', termEn: 'Lung Cancer', category: 'diagnosis', color: '#dc2626', bg: '#fee2e2', weight: 6 },
-  { term: '建议活检', termEn: 'Biopsy Recommended', category: 'recommendation', color: '#0891b2', bg: '#cffafe', weight: 4 },
-  { term: '危急值', termEn: 'Critical Value', category: 'critical', color: '#dc2626', bg: '#fee2e2', weight: 6 },
+  { term: '肺癌', termEn: 'Lung Cancer', category: 'diagnosis', color: 'var(--color-error-600)', bg: '#fee2e2', weight: 6 },
+  { term: '建议活检', termEn: 'Biopsy Recommended', category: 'recommendation', color: 'var(--color-info-600)', bg: '#cffafe', weight: 4 },
+  { term: '危急值', termEn: 'Critical Value', category: 'critical', color: 'var(--color-error-600)', bg: '#fee2e2', weight: 6 },
   { term: '主动脉', termEn: 'Aorta', category: 'anatomy', color: '#6b7280', bg: '#f3f4f6', weight: 2 },
   { term: '肺动脉', termEn: 'Pulmonary Artery', category: 'anatomy', color: '#6b7280', bg: '#f3f4f6', weight: 2 },
 ];
@@ -704,8 +704,8 @@ export const REPORT_WRITING_CONTEXT_MOCK: ReportWritingContext = {
 // ============================================================
 export const AI_CONFIDENCE_MOCK: Record<string, { threshold: number; color: string; label: string }> = {
   high: { threshold: 0.85, color: '#10b981', label: '高置信度' },
-  medium: { threshold: 0.65, color: '#f59e0b', label: '中置信度' },
-  low: { threshold: 0.0, color: '#dc2626', label: '低置信度' },
+  medium: { threshold: 0.65, color: 'var(--color-warning-500)', label: '中置信度' },
+  low: { threshold: 0.0, color: 'var(--color-error-600)', label: '低置信度' },
 };
 
 // ============================================================
@@ -723,14 +723,14 @@ export const AI_MODELS_MOCK: Array<{ id: string; name: string; version: string; 
 // 22. 标注颜色映射
 // ============================================================
 export const ANNOTATION_COLORS_MOCK: Record<string, string> = {
-  finding: '#dc2626',
-  measurement: '#3b82f6',
+  finding: 'var(--color-error-600)',
+  measurement: 'var(--color-primary-500)',
   normal: '#10b981',
-  critical: '#ef4444',
+  critical: 'var(--color-error-500)',
   anatomy: '#8b5cf6',
-  comparison: '#f59e0b',
+  comparison: 'var(--color-warning-500)',
   question: '#ec4899',
-  reference: '#06b6d4',
+  reference: 'var(--color-info-500)',
 };
 
 // ============================================================
@@ -840,9 +840,9 @@ const cRadsFields: StructuredFieldDefinition[] = [
   { id: 'crf10', key: 'cRadsCategory', label: 'C-RADS 分类', labelEn: 'C-RADS Category', type: 'enum', required: true, group: 'crg3', options: [
     { value: 'C0', label: 'C0 - 评估不充分', labelEn: 'C0 - Inadequate', color: '#9ca3af' },
     { value: 'C1', label: 'C1 - 正常/良性', labelEn: 'C1 - Normal/Benign', color: '#10b981' },
-    { value: 'C2', label: 'C2 - 不确定', labelEn: 'C2 - Indeterminate', color: '#f59e0b' },
+    { value: 'C2', label: 'C2 - 不确定', labelEn: 'C2 - Indeterminate', color: 'var(--color-warning-500)' },
     { value: 'C3', label: 'C3 - 可疑', labelEn: 'C3 - Suspicious', color: '#fb923c' },
-    { value: 'C4', label: 'C4 - 高度可疑', labelEn: 'C4 - Highly Suspicious', color: '#dc2626' },
+    { value: 'C4', label: 'C4 - 高度可疑', labelEn: 'C4 - Highly Suspicious', color: 'var(--color-error-600)' },
   ], defaultValue: 'C1', order: 10 },
   { id: 'crf11', key: 'polyp1Segment', label: '息肉 1 肠段', labelEn: 'Polyp 1 Segment', type: 'text', required: false, group: 'crg2', order: 101 },
   { id: 'crf12', key: 'polyp2Size', label: '息肉 2 直径(mm)', labelEn: 'Polyp 2 Size', type: 'number', required: false, group: 'crg2', min: 0, max: 100, unit: 'mm', order: 102 },
@@ -918,10 +918,10 @@ const cadRadsFields: StructuredFieldDefinition[] = [
   { id: 'cadf15', key: 'cadRadsCategory', label: 'CAD-RADS 分类', labelEn: 'CAD-RADS Category', type: 'enum', required: true, group: 'cadg3', options: [
     { value: '0', label: 'CAD-RADS 0 - 无狭窄', labelEn: '0 - No Stenosis', color: '#10b981' },
     { value: '1', label: 'CAD-RADS 1 - 1-24%', labelEn: '1 - 1-24%', color: '#34d399' },
-    { value: '2', label: 'CAD-RADS 2 - 25-49%', labelEn: '2 - 25-49%', color: '#f59e0b' },
+    { value: '2', label: 'CAD-RADS 2 - 25-49%', labelEn: '2 - 25-49%', color: 'var(--color-warning-500)' },
     { value: '3', label: 'CAD-RADS 3 - 50-69%', labelEn: '3 - 50-69%', color: '#fb923c' },
     { value: '4A', label: 'CAD-RADS 4A - 70-99% LM/LAD', labelEn: '4A - 70-99% LM/LAD', color: '#ea580c' },
-    { value: '4B', label: 'CAD-RADS 4B - 70-99% 其他', labelEn: '4B - 70-99% Other', color: '#dc2626' },
+    { value: '4B', label: 'CAD-RADS 4B - 70-99% 其他', labelEn: '4B - 70-99% Other', color: 'var(--color-error-600)' },
     { value: '5', label: 'CAD-RADS 5 - 100% 闭塞', labelEn: '5 - 100% Occlusion', color: '#7f1d1d' },
     { value: 'N', label: 'CAD-RADS N - 不可评估', labelEn: 'N - Non-Diagnostic', color: '#9ca3af' },
   ], defaultValue: '0', order: 15 },
@@ -1199,9 +1199,9 @@ const liRadsFields: StructuredFieldDefinition[] = [
   { id: 'lirf19', key: 'liRadsCategory', label: 'LI-RADS 分类', labelEn: 'LI-RADS Category', type: 'enum', required: true, group: 'lirg4', options: [
     { value: 'LR-1', label: 'LR-1 明确良性', labelEn: 'LR-1 Definitely Benign', color: '#10b981' },
     { value: 'LR-2', label: 'LR-2 可能良性', labelEn: 'LR-2 Probably Benign', color: '#34d399' },
-    { value: 'LR-3', label: 'LR-3 中度可疑', labelEn: 'LR-3 Intermediate', color: '#f59e0b' },
+    { value: 'LR-3', label: 'LR-3 中度可疑', labelEn: 'LR-3 Intermediate', color: 'var(--color-warning-500)' },
     { value: 'LR-4', label: 'LR-4 高度可疑', labelEn: 'LR-4 Probably HCC', color: '#fb923c' },
-    { value: 'LR-5', label: 'LR-5 明确HCC', labelEn: 'LR-5 Definitely HCC', color: '#dc2626' },
+    { value: 'LR-5', label: 'LR-5 明确HCC', labelEn: 'LR-5 Definitely HCC', color: 'var(--color-error-600)' },
     { value: 'LR-M', label: 'LR-M 可能恶性(非HCC)', labelEn: 'LR-M Probable Malignant', color: '#7f1d1d' },
     { value: 'LR-TIV', label: 'LR-TIV 脉管瘤栓', labelEn: 'LR-TIV Tumor in Vein', color: '#991b1b' },
   ], defaultValue: 'LR-2', order: 19 },
@@ -1322,10 +1322,10 @@ const lungRadsFields: StructuredFieldDefinition[] = [
     { value: '0', label: '0 - 评估不完全', labelEn: '0 - Incomplete', color: '#9ca3af' },
     { value: '1', label: '1 - 阴性', labelEn: '1 - Negative', color: '#10b981' },
     { value: '2', label: '2 - 良性', labelEn: '2 - Benign', color: '#10b981' },
-    { value: '3', label: '3 - 可能良性', labelEn: '3 - Probably Benign', color: '#f59e0b' },
+    { value: '3', label: '3 - 可能良性', labelEn: '3 - Probably Benign', color: 'var(--color-warning-500)' },
     { value: '4A', label: '4A - 可疑', labelEn: '4A - Suspicious', color: '#fb923c' },
     { value: '4B', label: '4B - 高度可疑', labelEn: '4B - Highly Suspicious', color: '#ea580c' },
-    { value: '4X', label: '4X - 可疑进展', labelEn: '4X - Suspicious Progression', color: '#dc2626' },
+    { value: '4X', label: '4X - 可疑进展', labelEn: '4X - Suspicious Progression', color: 'var(--color-error-600)' },
   ], defaultValue: '2', order: 17 },
   { id: 'lrf18', key: 'lungRadsModifier', label: '修饰符', labelEn: 'Modifier', type: 'enum', required: false, group: 'lrg3', options: [
     { value: 'S', label: 'S - 附加临床病史', labelEn: 'S - Additional Clinical History' },
@@ -1439,9 +1439,9 @@ const oRadsFields: StructuredFieldDefinition[] = [
   { id: 'orf12', key: 'oRadsScore', label: 'O-RADS 评分', labelEn: 'O-RADS Score', type: 'enum', required: true, group: 'org3', options: [
     { value: 'ORADS1', label: 'O-RADS 1 - 明确良性', labelEn: '1 - Definitely Benign', color: '#10b981' },
     { value: 'ORADS2', label: 'O-RADS 2 - 可能良性', labelEn: '2 - Probably Benign', color: '#34d399' },
-    { value: 'ORADS3', label: 'O-RADS 3 - 低度风险', labelEn: '3 - Low Risk', color: '#f59e0b' },
+    { value: 'ORADS3', label: 'O-RADS 3 - 低度风险', labelEn: '3 - Low Risk', color: 'var(--color-warning-500)' },
     { value: 'ORADS4', label: 'O-RADS 4 - 中度风险', labelEn: '4 - Intermediate Risk', color: '#fb923c' },
-    { value: 'ORADS5', label: 'O-RADS 5 - 高度风险', labelEn: '5 - High Risk', color: '#dc2626' },
+    { value: 'ORADS5', label: 'O-RADS 5 - 高度风险', labelEn: '5 - High Risk', color: 'var(--color-error-600)' },
   ], defaultValue: 'ORADS2', order: 12 },
   { id: 'orf13', key: 'oRadsManagement', label: '管理建议', labelEn: 'Management', type: 'text', required: true, group: 'org4', order: 13, fillGuide: '根据O-RADS评分及相关指南提出管理方案' },
   { id: 'orf14', key: 'imageUploadOr', label: '关键图像', labelEn: 'Key Image', type: 'image', required: false, group: 'org4', order: 14 },
@@ -1609,9 +1609,9 @@ const tiRadsFields: StructuredFieldDefinition[] = [
   { id: 'tirf12', key: 'tiRadsCategory', label: 'TI-RADS 分类', labelEn: 'TI-RADS Category', type: 'enum', required: true, group: 'tirg2', options: [
     { value: 'TR1', label: 'TR1 - 良性(0分)', labelEn: 'TR1 - Benign (0 pts)', color: '#10b981' },
     { value: 'TR2', label: 'TR2 - 无可疑(2分)', labelEn: 'TR2 - Not Suspicious (2 pts)', color: '#34d399' },
-    { value: 'TR3', label: 'TR3 - 轻度可疑(3分)', labelEn: 'TR3 - Mildly Suspicious (3 pts)', color: '#f59e0b' },
+    { value: 'TR3', label: 'TR3 - 轻度可疑(3分)', labelEn: 'TR3 - Mildly Suspicious (3 pts)', color: 'var(--color-warning-500)' },
     { value: 'TR4', label: 'TR4 - 中度可疑(4-6分)', labelEn: 'TR4 - Moderately Suspicious (4-6 pts)', color: '#fb923c' },
-    { value: 'TR5', label: 'TR5 - 高度可疑(7+分)', labelEn: 'TR5 - Highly Suspicious (7+ pts)', color: '#dc2626' },
+    { value: 'TR5', label: 'TR5 - 高度可疑(7+分)', labelEn: 'TR5 - Highly Suspicious (7+ pts)', color: 'var(--color-error-600)' },
   ], defaultValue: 'TR3', order: 12 },
   { id: 'tirf13', key: 'tiRadsManagement', label: '管理建议', labelEn: 'TI-RADS Management', type: 'text', required: true, group: 'tirg3', order: 13, fillGuide: '根据ACR TI-RADS管理路径:TR2不须FNA;TR3≥2.5cm可FNA;TR4≥1.5cm需FNA;TR5≥1.0cm需FNA' },
   { id: 'tirf14', key: 'fnaRecommended', label: '建议FNA', labelEn: 'FNA Recommended', type: 'boolean', required: true, group: 'tirg3', defaultValue: false, order: 14 },

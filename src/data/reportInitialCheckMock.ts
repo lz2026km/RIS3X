@@ -475,26 +475,26 @@ export const INITIAL_CHECK_BATCH_RESULT: InitialCheckBatchResult = {
 };
 
 export const CATEGORY_META: Record<CheckItemCategory, { label: string; color: string; bg: string }> = {
-  completeness: { label: '完整性', color: '#3b82f6', bg: '#dbeafe' },
+  completeness: { label: '完整性', color: 'var(--color-primary-500)', bg: '#dbeafe' },
   terminology: { label: '术语', color: '#7c3aed', bg: '#ede9fe' },
-  consistency: { label: '一致性', color: '#0891b2', bg: '#cffafe' },
+  consistency: { label: '一致性', color: 'var(--color-info-600)', bg: '#cffafe' },
   clinical: { label: '临床', color: '#10b981', bg: '#d1fae5' },
-  safety: { label: '安全', color: '#dc2626', bg: '#fee2e2' },
+  safety: { label: '安全', color: 'var(--color-error-600)', bg: '#fee2e2' },
   compliance: { label: '合规', color: '#7c2d12', bg: '#fed7aa' },
   format: { label: '格式', color: '#64748b', bg: '#e2e8f0' },
 };
 
 export const SEVERITY_META: Record<CheckItemSeverity, { label: string; color: string; bg: string; icon: string }> = {
-  info: { label: '提示', color: '#3b82f6', bg: '#dbeafe', icon: 'info' },
-  warning: { label: '警告', color: '#f59e0b', bg: '#fef3c7', icon: 'alert-triangle' },
-  error: { label: '错误', color: '#dc2626', bg: '#fee2e2', icon: 'x-circle' },
+  info: { label: '提示', color: 'var(--color-primary-500)', bg: '#dbeafe', icon: 'info' },
+  warning: { label: '警告', color: 'var(--color-warning-500)', bg: '#fef3c7', icon: 'alert-triangle' },
+  error: { label: '错误', color: 'var(--color-error-600)', bg: '#fee2e2', icon: 'x-circle' },
   critical: { label: '严重', color: '#7f1d1d', bg: '#fecaca', icon: 'siren' },
 };
 
 export const RESULT_META: Record<CheckItemResultStatus, { label: string; color: string; bg: string }> = {
   pending: { label: '待检', color: '#64748b', bg: '#e2e8f0' },
   passed: { label: '通过', color: '#10b981', bg: '#d1fae5' },
-  failed: { label: '未通过', color: '#dc2626', bg: '#fee2e2' },
+  failed: { label: '未通过', color: 'var(--color-error-600)', bg: '#fee2e2' },
   waived: { label: '已豁免', color: '#7c3aed', bg: '#ede9fe' },
   skipped: { label: '已跳过', color: '#94a3b8', bg: '#f1f5f9' },
 };

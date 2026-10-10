@@ -37,7 +37,7 @@ export default function UserManagementPage() {
   }, [])
 
   if (loading) return <div role="status" data-testid="user-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>加载中...</div>;
-  if (error) return <div role="alert" data-testid="user-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
+  if (error) return <div role="alert" data-testid="user-error" style={{ padding: 40, textAlign: 'center', color: 'var(--color-error-600)' }}>{error}</div>;
   if (users.length === 0) {
     return (
       <div data-testid="user-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
@@ -92,7 +92,7 @@ export default function UserManagementPage() {
             <p style={{ marginBottom: 8 }}>
               用户 <strong>{user?.username ?? id}</strong> 的临时密码为:
             </p>
-            <p style={{ fontSize: 20, fontWeight: 700, letterSpacing: 2, padding: '8px 0', color: fromApi ? '#16a34a' : '#d97706', fontFamily: 'monospace' }}>
+            <p style={{ fontSize: 20, fontWeight: 700, letterSpacing: 2, padding: '8px 0', color: fromApi ? 'var(--color-success-600)' : 'var(--color-warning-600)', fontFamily: 'monospace' }}>
               {temp}
             </p>
             <p style={{ fontSize: 12, color: '#94a3b8' }}>
@@ -146,7 +146,7 @@ export default function UserManagementPage() {
           onClick={onSave}
           disabled={saving}
           data-testid="user-save-all"
-          style={{ padding: '6px 14px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, cursor: saving ? 'wait' : 'pointer' }}
+          style={{ padding: '6px 14px', background: 'var(--color-primary-600)', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, cursor: saving ? 'wait' : 'pointer' }}
         >
           {saving ? '保存中...' : '批量保存'}
         </button>

@@ -125,7 +125,7 @@ export const FhirObservationPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
       <Space style={{ marginBottom: 16 }}>
-        <Activity size={20} color="#2563eb" />
+        <Activity size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fhirObs.title')}</span>
         <Tag color="blue">FHIR R4</Tag>
       </Space>

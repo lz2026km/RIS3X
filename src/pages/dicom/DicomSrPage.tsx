@@ -409,7 +409,7 @@ export const DicomSrPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
     <PageHeader
-      icon={<FileText size={20} color="#2563eb" />}
+      icon={<FileText size={20} color="var(--color-primary-600)" />}
       title={t('dicomSrPage.title')}
       actions={<Tag color="cyan">TID 1500 / 2000</Tag>}
     />
@@ -731,7 +731,7 @@ export const DicomSrPage: React.FC = () => {
         </span>
         {statsLoading && <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('dicomSrPage.syncing')}</span>}
         <Button size="small" icon={<RefreshCcw size={12} />} onClick={loadSrStats}>{t('dicomSrPage.refresh')}</Button>
-        {statsError && <span style={{ fontSize: 11, color: '#d97706' }}>{statsError}</span>}
+        {statsError && <span style={{ fontSize: 11, color: 'var(--color-warning-600)' }}>{statsError}</span>}
       </div>
 
       {/* 1. SR 统计 (按模板类型/模态/状态) */}
@@ -753,10 +753,10 @@ export const DicomSrPage: React.FC = () => {
                 <div key={tid} style={{ marginBottom: 8 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
                     <span style={{ color: '#334155', fontWeight: 500 }}>{tid}</span>
-                    <span style={{ color: '#1e40af', fontWeight: 700 }}>{cnt}</span>
+                    <span style={{ color: 'var(--color-primary-800)', fontWeight: 700 }}>{cnt}</span>
                   </div>
                   <div style={{ height: 6, background: '#f1f5f9', borderRadius: 3, overflow: 'hidden' }}>
-                    <div style={{ width: `${(cnt / maxTid) * 100}%`, height: '100%', background: '#1e40af', borderRadius: 3 }} />
+                    <div style={{ width: `${(cnt / maxTid) * 100}%`, height: '100%', background: 'var(--color-primary-800)', borderRadius: 3 }} />
                   </div>
                 </div>
               )
@@ -769,7 +769,7 @@ export const DicomSrPage: React.FC = () => {
               const [mod, count] = entry
               const cnt = Number(count ?? 0)
               const maxMod = Math.max(1, ...srStats.byModality.map(([, c]) => Number(c)))
-              const colors: Record<string, string> = { CT: '#3b82f6', MR: '#8b5cf6', DR: '#22c55e', DSA: '#f59e0b', MG: '#ec4899' }
+              const colors: Record<string, string> = { CT: 'var(--color-primary-500)', MR: '#8b5cf6', DR: 'var(--color-success-500)', DSA: 'var(--color-warning-500)', MG: '#ec4899' }
               return (
                 <div key={mod} style={{ marginBottom: 8 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
@@ -788,15 +788,15 @@ export const DicomSrPage: React.FC = () => {
             <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>{t('dicomSrPage.byStatus')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
               <div style={{ textAlign: 'center', padding: 12, background: 'var(--color-warning-bg)', borderRadius: 8 }}>
-                <div style={{ fontSize: 20, fontWeight: 700, color: '#d97706' }}>{srStats.draft}</div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-warning-600)' }}>{srStats.draft}</div>
                 <div style={{ fontSize: 11, color: '#92400e' }}>{t('dicomSrPage.draft')}</div>
               </div>
               <div style={{ textAlign: 'center', padding: 12, background: 'var(--color-info-bg)', borderRadius: 8 }}>
-                <div style={{ fontSize: 20, fontWeight: 700, color: '#1e40af' }}>{srStats.finalized}</div>
-                <div style={{ fontSize: 11, color: '#1e40af' }}>{t('dicomSrPage.finalized')}</div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)' }}>{srStats.finalized}</div>
+                <div style={{ fontSize: 11, color: 'var(--color-primary-800)' }}>{t('dicomSrPage.finalized')}</div>
               </div>
               <div style={{ textAlign: 'center', padding: 12, background: 'var(--color-success-bg)', borderRadius: 8 }}>
-                <div style={{ fontSize: 20, fontWeight: 700, color: '#16a34a' }}>{srStats.pushed}</div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-success-600)' }}>{srStats.pushed}</div>
                 <div style={{ fontSize: 11, color: '#065f46' }}>{t('dicomSrPage.pushedOru')}</div>
               </div>
             </div>
@@ -839,7 +839,7 @@ export const DicomSrPage: React.FC = () => {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           {(['tid1500', 'tid2000'] as const).map(tidKey => (
             <div key={tidKey} style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 12 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <GitBranch size={13} />
                 {tidKey === 'tid1500' ? t('dicomSrPage.tid1500Label') : t('dicomSrPage.tid2000Label')}
                 {templates.find(t => t.id === tidKey) && (
@@ -850,7 +850,7 @@ export const DicomSrPage: React.FC = () => {
                 <div key={node.code} style={{ marginBottom: 8 }}>
                   <div style={{
                     fontSize: 12, fontWeight: 600, padding: '5px 10px', borderRadius: 6,
-                    background: '#f1f5f9', color: '#334155', borderLeft: '3px solid #1e40af',
+                    background: '#f1f5f9', color: '#334155', borderLeft: '3px solid var(--color-primary-800)',
                   }}>
                     {node.label}
                     <span style={{ fontSize: 10, color: '#94a3b8', marginLeft: 6, fontFamily: 'monospace' }}>{node.code}</span>
@@ -862,7 +862,7 @@ export const DicomSrPage: React.FC = () => {
                           fontSize: 11, color: '#64748b', padding: '3px 8px', marginBottom: 2,
                           display: 'flex', alignItems: 'center', gap: 6,
                         }}>
-                          <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#3b82f6', flexShrink: 0 }} />
+                          <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--color-primary-500)', flexShrink: 0 }} />
                           {child.label}
                           <span style={{ fontSize: 10, color: '#b0b7c3', fontFamily: 'monospace' }}>{child.code}</span>
                         </div>

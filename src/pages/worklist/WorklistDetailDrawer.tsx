@@ -57,7 +57,7 @@ export function DetailDrawer({
         </div>
       }
       headerStyle={{
-        background: "linear-gradient(135deg, #1e40af 0%, #2563eb 100%)",
+        background: "linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-primary-600) 100%)",
         color: "#fff",
         borderBottom: "none",
       }}

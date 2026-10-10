@@ -473,7 +473,7 @@ export default function RqiIndicatorPage() {
   return (
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader
-        icon={<Activity size={20} color="#2563eb" />}
+        icon={<Activity size={20} color="var(--color-primary-600)" />}
         title={t('rqi2024.title')}
         subtitle={t('rqi2024.subtitle')}
         actions={
@@ -622,7 +622,7 @@ export default function RqiIndicatorPage() {
                       : undefined
                   }
                   onClick={() => setSelectedCode(ind.code)}
-                  style={isSelected ? { outline: '2px solid #2563eb', outlineOffset: -1 } : undefined}
+                  style={isSelected ? { outline: '2px solid var(--color-primary-600)', outlineOffset: -1 } : undefined}
                 />
               )
             })}
@@ -641,25 +641,25 @@ export default function RqiIndicatorPage() {
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
                   <OverviewStat
                     icon={<CheckCircle2 size={18} />}
-                    color="#16a34a"
+                    color="var(--color-success-600)"
                     label={t('rqi2024.status.pass')}
                     value={`${dashboard?.passCount ?? 0} / ${dashboard?.total ?? indicators.length}`}
                   />
                   <OverviewStat
                     icon={<AlertTriangle size={18} />}
-                    color="#d97706"
+                    color="var(--color-warning-600)"
                     label={t('rqi2024.status.warn')}
                     value={String(dashboard?.warnCount ?? 0)}
                   />
                   <OverviewStat
                     icon={<XCircle size={18} />}
-                    color="#dc2626"
+                    color="var(--color-error-600)"
                     label={t('rqi2024.status.fail')}
                     value={String(dashboard?.failCount ?? 0)}
                   />
                   <OverviewStat
                     icon={<TrendingUp size={18} />}
-                    color="#2563eb"
+                    color="var(--color-primary-600)"
                     label={t('rqi2024.momImprove')}
                     value={t('rqi2024.momImproveValue', { count: improvingCount, total: dashboard?.total ?? indicators.length })}
                   />
@@ -719,8 +719,8 @@ export default function RqiIndicatorPage() {
                   data={trendData}
                   xKey="month"
                   series={[
-                    { key: 'rate', name: t('rqi2024.trendRate'), color: '#2563eb' },
-                    { key: 'target', name: t('rqi2024.trendTarget'), color: '#f59e0b' },
+                    { key: 'rate', name: t('rqi2024.trendRate'), color: 'var(--color-primary-600)' },
+                    { key: 'target', name: t('rqi2024.trendTarget'), color: 'var(--color-warning-500)' },
                   ]}
                   loading={trendLoading}
                   height={280}

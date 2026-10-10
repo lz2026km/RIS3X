@@ -116,7 +116,7 @@ const QualityControlPage: React.FC = () => {
       <PageHeader
         title={t('qcPage.title')}
         subtitle={t('qcPage.subtitle')}
-        icon={<ShieldCheck size={20} color="#1e40af" />}
+        icon={<ShieldCheck size={20} color="var(--color-primary-800)" />}
         variant="inline"
         actions={
           <Space size={8}>
@@ -136,7 +136,7 @@ const QualityControlPage: React.FC = () => {
           <Badge
             count={6}
             title={t('qcPage.moduleCount')}
-            style={{ backgroundColor: '#1e40af' }}
+            style={{ backgroundColor: 'var(--color-primary-800)' }}
           />
         }
         items={[
@@ -150,7 +150,7 @@ const QualityControlPage: React.FC = () => {
                       key={s.id}
                       size="small"
                       onClick={() => setSelectedScore(s)}
-                      style={{ cursor: 'pointer', borderColor: selectedScore?.id === s.id ? '#3b82f6' : '#e2e8f0', minWidth: 180 }}
+                      style={{ cursor: 'pointer', borderColor: selectedScore?.id === s.id ? 'var(--color-primary-500)' : '#e2e8f0', minWidth: 180 }}
                     >
                       <div style={{ fontSize: 12 }}><strong>{s.patientName}</strong></div>
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{s.reportId}</div>
@@ -171,7 +171,7 @@ const QualityControlPage: React.FC = () => {
                         <div key={i} style={{ flex: 1, textAlign: 'center' }}>
                           <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{p.totalScore}</div>
                           <div style={{ height: 60, background: 'var(--bg-card)', borderRadius: '4px 4px 0 0', display: 'flex', alignItems: 'flex-end', overflow: 'hidden' }}>
-                            <div style={{ width: '100%', height: `${Math.max((p.totalScore / max) * 100, 4)}%`, background: p.grade === 'A' ? '#10b981' : p.grade === 'B' ? '#3b82f6' : '#f59e0b', borderRadius: '4px 4px 0 0' }} />
+                            <div style={{ width: '100%', height: `${Math.max((p.totalScore / max) * 100, 4)}%`, background: p.grade === 'A' ? '#10b981' : p.grade === 'B' ? 'var(--color-primary-500)' : 'var(--color-warning-500)', borderRadius: '4px 4px 0 0' }} />
                           </div>
                           <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 4 }}>{p.date.slice(5)}</div>
                         </div>
@@ -190,7 +190,7 @@ const QualityControlPage: React.FC = () => {
                 <Badge
                   count={3}
                   title={t('qcPage.criticalSubCount')}
-                  style={{ backgroundColor: '#dc2626' }}
+                  style={{ backgroundColor: 'var(--color-error-600)' }}
                 />
               }
               items={[
@@ -206,7 +206,7 @@ const QualityControlPage: React.FC = () => {
                 <Badge
                   count={3}
                   title={t('qcPage.defectSubCount')}
-                  style={{ backgroundColor: '#f59e0b' }}
+                  style={{ backgroundColor: 'var(--color-warning-500)' }}
                 />
               }
               items={[

@@ -50,9 +50,9 @@ const s = {
   fullscreenBtn: { width: 28, height: 28, borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' } as React.CSSProperties,
   mipCanvasContainer: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#111', position: 'relative' as const, overflow: 'hidden' },
   vrCanvasContainer: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#111', position: 'relative' as const, overflow: 'hidden' },
-  diffRegion: { position: 'absolute' as const, border: '2px dashed #ef4444', background: 'rgba(239,68,68,0.15)', borderRadius: 4 },
-  diffRegionNew: { border: '2px dashed #22c55e', background: 'rgba(34,197,94,0.15)' },
-  diffRegionImproved: { border: '2px dashed #3b82f6', background: 'rgba(59,130,246,0.15)' },
+  diffRegion: { position: 'absolute' as const, border: '2px dashed var(--color-error-500)', background: 'rgba(239,68,68,0.15)', borderRadius: 4 },
+  diffRegionNew: { border: '2px dashed var(--color-success-500)', background: 'rgba(34,197,94,0.15)' },
+  diffRegionImproved: { border: '2px dashed var(--color-primary-500)', background: 'rgba(59,130,246,0.15)' },
   wlPopup: { position: 'absolute' as const, left: '50%', top: '50%', transform: 'translate(-50%,-50%)', width: 240, background: CARD_BG, borderRadius: 12, boxShadow: '0 12px 40px rgba(0,0,0,0.4)', zIndex: 100, padding: 14, border: '1px solid var(--border-color)' },
   wlPopupTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 },
   wlSliderRow: { display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 },
@@ -78,7 +78,7 @@ const s = {
   annotationTypeBtnLabel: { fontSize: 10, color: 'var(--text-muted)', textAlign: 'center' as const },
   annotationColorPicker: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4, marginBottom: 8 },
   annotationColorBtn: { width: 24, height: 24, borderRadius: 4, border: '2px solid transparent', cursor: 'pointer', transition: 'all 0.15s' },
-  annotationColorBtnActive: { border: '2px solid #1e40af', transform: 'scale(1.1)' },
+  annotationColorBtnActive: { border: '2px solid var(--color-primary-800)', transform: 'scale(1.1)' },
   annotationFontSizeRow: { display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 },
   annotationFontSizeLabel: { fontSize: 12, color: 'var(--text-muted)', flexShrink: 0 },
   annotationFontSizeInput: { flex: 1, padding: '4px 6px', borderRadius: 4, border: '1px solid var(--border-color)', fontSize: 12, width: 50 },
@@ -248,10 +248,10 @@ export default function ViewportArea(props: Props) {
           </button>
         ))}
         {isDrawingMeasure && measureSubMenu === 'polygon' && (
-          <button style={{ ...s.roiToolBtn, background: '#22c55e', borderColor: '#22c55e', color: '#fff' }} onClick={finishPolygonMeasure}>{t('dcmView.finishPolygon', { count: drawingPoints.length })}</button>
+          <button style={{ ...s.roiToolBtn, background: 'var(--color-success-500)', borderColor: 'var(--color-success-500)', color: '#fff' }} onClick={finishPolygonMeasure}>{t('dcmView.finishPolygon', { count: drawingPoints.length })}</button>
         )}
         <div style={s.roiToolDivider} />
-        <button style={{ ...s.roiToolBtn, color: '#ef4444' }} onClick={clearAllMeasures}>{t('dcmView.clear')}</button>
+        <button style={{ ...s.roiToolBtn, color: 'var(--color-error-500)' }} onClick={clearAllMeasures}>{t('dcmView.clear')}</button>
         <button style={s.exportBtn} onClick={() => exportMeasurements('clipboard')}>{t('dcmView.exportReport')}</button>
       </div>
 
@@ -296,7 +296,7 @@ export default function ViewportArea(props: Props) {
           style={{
             width: 28, height: 28, borderRadius: 6, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            border: gsofEnabled || showGsofPanel ? '1px solid #1e40af' : '1px solid var(--border-color)',
+            border: gsofEnabled || showGsofPanel ? '1px solid var(--color-primary-800)' : '1px solid var(--border-color)',
             background: gsofEnabled || showGsofPanel ? PRIMARY : 'var(--bg-card)',
             transition: 'all 0.15s',
           }}
@@ -339,7 +339,7 @@ export default function ViewportArea(props: Props) {
                 ))}
               </div>
               <div style={s.overlayBL}><span style={{ color: '#60a5fa' }}>WW:{ww} WL:{wl}</span><span style={{ color: '#86efac' }}>Img:{syncScroll ? imageIndex + 1 : compareImageIndex + 1}/{images.length}</span></div>
-              <div style={s.overlayBR}><span style={{ color: '#f87171' }}>Zoom:{zoom}% Rot:{rotation}°</span>{!syncScroll && <span style={{ color: '#fbbf24' }}>{t('dcmView.independentScroll')}</span>}</div>
+              <div style={s.overlayBR}><span style={{ color: '#f87171' }}>Zoom:{zoom}% Rot:{rotation}°</span>{!syncScroll && <span style={{ color: 'var(--color-warning-400)' }}>{t('dcmView.independentScroll')}</span>}</div>
             </div>
           </div>
         ) : (
@@ -363,10 +363,10 @@ export default function ViewportArea(props: Props) {
               <span style={{ color: '#60a5fa', fontWeight: 700 }}>{exam.patientName}</span>
               <span style={{ color: '#94a3b8' }}>#{exam.accessionNumber}</span>
               <span style={{ color: '#86efac' }}>{exam.examItemName}</span>
-              {viewMode !== 'MPR' && <span style={{ color: '#fbbf24' }}>{t('dcmView.modeLabel', { mode: viewMode })}</span>}
+              {viewMode !== 'MPR' && <span style={{ color: 'var(--color-warning-400)' }}>{t('dcmView.modeLabel', { mode: viewMode })}</span>}
             </div>
             <div style={s.overlayTR}>
-              <span style={{ color: '#fbbf24' }}>{exam.deviceName?.split('（')[0]}</span>
+              <span style={{ color: 'var(--color-warning-400)' }}>{exam.deviceName?.split('（')[0]}</span>
               <span style={{ color: '#f87171' }}>Ser:{activeSeries.seriesNumber} Img:{currentImage?.imageNumber || 1}</span>
               <span style={{ color: '#a5f3fc' }}>{activeSeries.seriesDescription}</span>
             </div>
@@ -396,7 +396,7 @@ export default function ViewportArea(props: Props) {
               </div>
               <span style={{ color: '#f87171' }}>Zoom:{zoom}% Rot:{rotation}°</span>
               <span style={{ color: '#a5f3fc' }}>{flipH ? 'FH ' : ''}{flipV ? 'FV ' : ''}{invert ? `${t('dcmView.invertShort')} ` : ''}{t('dcmView.brightnessContrast', { brightness, contrast })}</span>
-              {measureSubMenu && <span style={{ color: '#fbbf24' }}>{t('dcmView.measureMode')}{measureSubMenu === 'length' ? t('dcmView.measure.length') : measureSubMenu === 'angle' ? t('dcmView.measure.angle') : measureSubMenu === 'cobb' ? t('dcmView.measure.cobb') : measureSubMenu === 'polygon' ? t('dcmView.measure.polygon') : measureSubMenu === 'ellipse' || measureSubMenu === 'rectangle' || measureSubMenu === 'circle' ? t('dcmView.measure.area') : t('dcmView.measure.ctvalue')}</span>}
+              {measureSubMenu && <span style={{ color: 'var(--color-warning-400)' }}>{t('dcmView.measureMode')}{measureSubMenu === 'length' ? t('dcmView.measure.length') : measureSubMenu === 'angle' ? t('dcmView.measure.angle') : measureSubMenu === 'cobb' ? t('dcmView.measure.cobb') : measureSubMenu === 'polygon' ? t('dcmView.measure.polygon') : measureSubMenu === 'ellipse' || measureSubMenu === 'rectangle' || measureSubMenu === 'circle' ? t('dcmView.measure.area') : t('dcmView.measure.ctvalue')}</span>}
               {pseudoColorMode !== 'none' && <span style={{ color: '#f97316' }}>{t('dcmView.pseudoColor')}{pseudoColorMode === 'hotIron' ? t('dcmView.pseudo.hotIron') : pseudoColorMode === 'coolBlue' ? t('dcmView.pseudo.coolBlue') : pseudoColorMode === 'pet' ? 'PET' : t('dcmView.pseudo.softTissue')}</span>}
               {gsofEnabled && <span style={{ color: '#22d3ee' }}>GSOF: {GSOF_MODE_LABELS[gsofMode] ?? t('dcmView.standard')} (PS3.14)</span>}
             </div>
@@ -405,7 +405,7 @@ export default function ViewportArea(props: Props) {
               <svg style={s.annotationSvg}>
                 {interactiveMeasures.map(measure => {
                   if (measure.points.length < 1) return null
-                  const points = measure.points; const color = (measure as any).color || '#22c55e'
+                  const points = measure.points; const color = (measure as any).color || 'var(--color-success-500)'
                   if (measure.type === 'line' && points.length >= 2) {
                     const p1 = points[0]!, p2 = points[1]!; const midX = (p1.x + p2.x) / 2; const midY = (p1.y + p2.y) / 2
                     return <g key={measure.id}><line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke={color} strokeWidth={2} /><circle cx={p1.x} cy={p1.y} r={4} fill={color} /><circle cx={p2.x} cy={p2.y} r={4} fill={color} /><text x={midX} y={midY - 8} fill={color} fontSize={12} fontFamily="monospace" textAnchor="middle">{measure.value}{measure.unit}</text></g>
@@ -464,7 +464,7 @@ export default function ViewportArea(props: Props) {
                   }
                   return null
                 })}
-                {isDrawingMeasure && drawingPoints.map((point, idx) => (<circle key={`draw-${idx}`} cx={point.x} cy={point.y} r={5} fill="#22c55e" stroke="#fff" strokeWidth={2} />))}
+                {isDrawingMeasure && drawingPoints.map((point, idx) => (<circle key={`draw-${idx}`} cx={point.x} cy={point.y} r={5} fill="var(--color-success-500)" stroke="#fff" strokeWidth={2} />))}
               </svg>
             )}
 
@@ -523,7 +523,7 @@ export default function ViewportArea(props: Props) {
               </button>
             ))}
             <div style={{ borderTop: '1px solid var(--border-color)', marginTop: 4, paddingTop: 4 }}>
-              <button style={{ ...s.measureMenuItem, color: '#ef4444' }} onClick={clearAllMeasures}>{t('dcmView.clearMeasures')}</button>
+              <button style={{ ...s.measureMenuItem, color: 'var(--color-error-500)' }} onClick={clearAllMeasures}>{t('dcmView.clearMeasures')}</button>
             </div>
             <button style={{ ...s.measureMenuItem, color: 'var(--text-muted)', justifyContent: 'center' }} onClick={closeMeasureMenu}>{t('dcmView.closeEsc')}</button>
           </div>
@@ -563,7 +563,7 @@ export default function ViewportArea(props: Props) {
                   key={mode}
                   style={{
                     padding: '4px 6px', borderRadius: 6, fontSize: 12, fontWeight: 600, textAlign: 'center', cursor: 'pointer',
-                    border: gsofMode === mode ? '1px solid #1e40af' : '1px solid var(--border-color)',
+                    border: gsofMode === mode ? '1px solid var(--color-primary-800)' : '1px solid var(--border-color)',
                     background: gsofMode === mode ? PRIMARY : 'var(--bg-card)',
                     color: gsofMode === mode ? '#fff' : 'var(--text-secondary)',
                     transition: 'all 0.15s',

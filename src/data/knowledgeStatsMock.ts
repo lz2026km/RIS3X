@@ -26,11 +26,11 @@ export interface TermEntry {
 }
 
 export const TERM_CATEGORIES: { key: TermCategory; label: string; color: string; bg: string; description: string }[] = [
-  { key: 'anatomy',     label: '解剖结构', color: '#3b82f6', bg: '#dbeafe', description: '人体解剖部位、器官名称' },
+  { key: 'anatomy',     label: '解剖结构', color: 'var(--color-primary-500)', bg: '#dbeafe', description: '人体解剖部位、器官名称' },
   { key: 'imaging_sign', label: '影像征象', color: '#7c3aed', bg: '#ede9fe', description: '放射学征象、影像表现' },
-  { key: 'disease',     label: '疾病名称', color: '#dc2626', bg: '#fee2e2', description: '诊断名称、病理分型' },
-  { key: 'procedure',   label: '检查技术', color: '#0891b2', bg: '#cffafe', description: '检查方法、技术参数' },
-  { key: 'modifier',    label: '修饰词',   color: '#f59e0b', bg: '#fef3c7', description: '程度、位置、范围描述' },
+  { key: 'disease',     label: '疾病名称', color: 'var(--color-error-600)', bg: '#fee2e2', description: '诊断名称、病理分型' },
+  { key: 'procedure',   label: '检查技术', color: 'var(--color-info-600)', bg: '#cffafe', description: '检查方法、技术参数' },
+  { key: 'modifier',    label: '修饰词',   color: 'var(--color-warning-500)', bg: '#fef3c7', description: '程度、位置、范围描述' },
   { key: 'measurement', label: '测量单位', color: '#10b981', bg: '#d1fae5', description: '量化指标、计量单位' },
   { key: 'syndrome',    label: '综合征',   color: '#a855f7', bg: '#f3e8ff', description: '疾病综合征、复合表现' },
 ];
@@ -173,8 +173,8 @@ export interface ReportPhrase {
 
 export const PHRASE_CATEGORIES: { key: PhraseCategory; label: string; color: string; bg: string; description: string }[] = [
   { key: 'normal',       label: '正常描述', color: '#10b981', bg: '#d1fae5', description: '未见异常的正常报告短语' },
-  { key: 'abnormal',     label: '异常描述', color: '#dc2626', bg: '#fee2e2', description: '病变/异常所见短语' },
-  { key: 'recommendation', label: '建议',     color: '#3b82f6', bg: '#dbeafe', description: '进一步检查、治疗建议' },
+  { key: 'abnormal',     label: '异常描述', color: 'var(--color-error-600)', bg: '#fee2e2', description: '病变/异常所见短语' },
+  { key: 'recommendation', label: '建议',     color: 'var(--color-primary-500)', bg: '#dbeafe', description: '进一步检查、治疗建议' },
   { key: 'followup',     label: '随访',     color: '#7c3aed', bg: '#ede9fe', description: '随访、复查建议' },
   { key: 'critical',     label: '危急值',   color: '#7f1d1d', bg: '#fecaca', description: '危急值通报标准用语' },
   { key: 'disclaimer',   label: '免责声明', color: '#94a3b8', bg: '#f1f5f9', description: '报告免责声明模板' },

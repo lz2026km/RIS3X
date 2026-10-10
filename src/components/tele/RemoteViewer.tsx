@@ -149,7 +149,7 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
           userId: c.userId,
           x: c.x,
           y: c.y,
-          color: c.color ?? "#3b82f6",
+          color: c.color ?? "var(--color-primary-500)",
           name: c.userName,
         })),
     );
@@ -174,7 +174,7 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
           userName,
           x,
           y,
-          color: "#3b82f6",
+          color: "var(--color-primary-500)",
         })
         .catch(() => {});
     },

@@ -420,7 +420,7 @@ export default function OperationLogPage() {
       {loading && <LoadingBanner message={t('opLog.loadingBanner')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {dataSource === 'demo' && !loading && (
-        <div style={{ padding: '8px 24px', background: '#fef3c7', color: '#d97706', fontSize: 12 }}>
+        <div style={{ padding: '8px 24px', background: '#fef3c7', color: 'var(--color-warning-600)', fontSize: 12 }}>
           {t('w8Dose.demoBadge')} · {t('opLog.apiUnavailableLocal')}
         </div>
       )}
@@ -673,9 +673,9 @@ export default function OperationLogPage() {
         <div style={{ background: WHITE, borderRadius: 10, border: '1px solid var(--border-color)', margin: '0 20px 16px', overflow: 'hidden' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: '#1e293b', color: WHITE }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Radio size={16} color="#22c55e" />
+              <Radio size={16} color="var(--color-success-500)" />
               <span style={{ fontWeight: 600, fontSize: 12 }}>{t('opLog.liveStream')}</span>
-              <span style={{ background: '#22c55e', width: 8, height: 8, borderRadius: '50%', display: 'inline-block' }} />
+              <span style={{ background: 'var(--color-success-500)', width: 8, height: 8, borderRadius: '50%', display: 'inline-block' }} />
               <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opLog.poll5s')}</span>
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -686,19 +686,19 @@ export default function OperationLogPage() {
                 onChange={(v) => setSeverityFilter(v)}
                 options={['全部', 'info', 'warn', 'error', 'critical'].map(s => ({ value: s, label: s }))}
               />
-              <button onClick={() => setAutoScroll(!autoScroll)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #475569', background: autoScroll ? '#22c55e' : '#64748b', color: WHITE, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button onClick={() => setAutoScroll(!autoScroll)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #475569', background: autoScroll ? 'var(--color-success-500)' : '#64748b', color: WHITE, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 {autoScroll ? <Play size={12} /> : <Pause size={12} />}{autoScroll ? t('opLog.autoScroll') : t('opLog.pause')}
               </button>
             </div>
           </div>
           <div ref={liveContainerRef} style={{ height: 400, overflow: 'auto', fontFamily: 'monospace', fontSize: 12, background: '#0f172a', color: '#e2e8f0' }}>
             {liveLogs.filter(l => severityFilter === '全部' || l.source === severityFilter || l.action.includes(severityFilter)).slice(0, 100).map((log, idx) => {
-              const levelColor = log.action.includes('删除') || log.action.includes('驳回') ? '#ef4444' : log.action.includes('导出') || log.action.includes('修改') ? '#f59e0b' : log.action.includes('登录') ? '#7c3aed' : '#3b82f6'
+              const levelColor = log.action.includes('删除') || log.action.includes('驳回') ? 'var(--color-error-500)' : log.action.includes('导出') || log.action.includes('修改') ? 'var(--color-warning-500)' : log.action.includes('登录') ? '#7c3aed' : 'var(--color-primary-500)'
               return (
                 <div key={log.id} style={{ padding: '4px 12px', display: 'flex', gap: 12, borderBottom: '1px solid #1e293b', background: idx % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent' }}>
                   <span style={{ color: 'var(--text-secondary)', minWidth: 80 }}>{new Date(log.timestamp).toLocaleTimeString()}</span>
                   <span style={{ color: levelColor, fontWeight: 600, minWidth: 70 }}>[{log.action}]</span>
-                  <span style={{ color: '#22c55e', minWidth: 60 }}>{log.userName}</span>
+                  <span style={{ color: 'var(--color-success-500)', minWidth: 60 }}>{log.userName}</span>
                   <span style={{ color: 'var(--text-secondary)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{log.targetDesc}</span>
                   <span style={{ color: 'var(--text-secondary)', minWidth: 100 }}>{log.ipAddress}</span>
                 </div>

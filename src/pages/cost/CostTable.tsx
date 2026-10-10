@@ -17,9 +17,9 @@ export function EquipmentRow({ equipment, index }: { equipment: EquipmentCost; i
   }
 
   const modalityColors: Record<string, string> = {
-    'CT': '#3b82f6',
+    'CT': 'var(--color-primary-500)',
     'MRI': '#8b5cf6',
-    'DSA': '#f59e0b',
+    'DSA': 'var(--color-warning-500)',
   }
 
   return (
@@ -42,7 +42,7 @@ export function EquipmentRow({ equipment, index }: { equipment: EquipmentCost; i
       <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{formatCurrency(equipment.purchasePrice)}</span>
       <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{formatCurrency(totalAnnual)}</span>
       <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{equipment.annualUsage.toLocaleString()}</span>
-      <span style={{ color: '#22c55e', fontSize: 12, fontWeight: 600 }}>
+      <span style={{ color: 'var(--color-success-500)', fontSize: 12, fontWeight: 600 }}>
         ¥{unitCostNum.toFixed(0)}
       </span>
     </div>
@@ -51,10 +51,10 @@ export function EquipmentRow({ equipment, index }: { equipment: EquipmentCost; i
 
 export function ConsumableRow({ item, index }: { item: ConsumableCost; index: number }) {
   const categoryColors: Record<string, string> = {
-    '胶片': '#22c55e',
-    '对比剂': '#3b82f6',
-    '注射器': '#f59e0b',
-    '耗材': '#ef4444',
+    '胶片': 'var(--color-success-500)',
+    '对比剂': 'var(--color-primary-500)',
+    '注射器': 'var(--color-warning-500)',
+    '耗材': 'var(--color-error-500)',
     '其他': '#8b949e',
   }
 
@@ -84,7 +84,7 @@ export function ConsumableRow({ item, index }: { item: ConsumableCost; index: nu
       </span>
       <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{formatCurrency(item.unitPrice, true)}/{item.unit}</span>
       <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{item.monthlyUsage.toLocaleString()}</span>
-      <span style={{ color: '#22c55e', fontSize: 12, fontWeight: 600 }}>
+      <span style={{ color: 'var(--color-success-500)', fontSize: 12, fontWeight: 600 }}>
         {formatCurrency(item.annualCost, true)}
       </span>
     </div>
@@ -94,9 +94,9 @@ export function ConsumableRow({ item, index }: { item: ConsumableCost; index: nu
 export function LaborRow({ item, index }: { item: LaborCost; index: number }) {
   const annualCost = item.count * item.avgSalary * 12
   const roleColors: Record<string, string> = {
-    '技师': '#3b82f6',
-    '护士': '#22c55e',
-    '医师': '#f59e0b',
+    '技师': 'var(--color-primary-500)',
+    '护士': 'var(--color-success-500)',
+    '医师': 'var(--color-warning-500)',
     '登记员': '#8b949e',
   }
   const roleType = item.role.includes('技师') ? '技师' : item.role.includes('护士') ? '护士' : item.role.includes('医师') ? '医师' : '登记员'
@@ -130,7 +130,7 @@ export function LaborRow({ item, index }: { item: LaborCost; index: number }) {
       <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{item.count}人</span>
       <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{formatCurrency(item.avgSalary, true)}/月</span>
       <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{formatCurrency(annualCost, true)}</span>
-      <span style={{ color: '#22c55e', fontSize: 12, fontWeight: 600 }}>
+      <span style={{ color: 'var(--color-success-500)', fontSize: 12, fontWeight: 600 }}>
         {item.count > 0 ? Math.round(item.workload / item.count) : 0}例/人
       </span>
     </div>
@@ -139,9 +139,9 @@ export function LaborRow({ item, index }: { item: LaborCost; index: number }) {
 
 export function MedicalConsumableRow({ item, index }: { item: MedicalConsumableDetail; index: number }) {
   const examTypeColors: Record<string, string> = {
-    'CT增强': '#3b82f6',
+    'CT增强': 'var(--color-primary-500)',
     'MR增强': '#8b5cf6',
-    'DSA': '#f59e0b',
+    'DSA': 'var(--color-warning-500)',
   }
 
   const rowStyle: React.CSSProperties = {
@@ -171,7 +171,7 @@ export function MedicalConsumableRow({ item, index }: { item: MedicalConsumableD
       <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{item.unit}</span>
       <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>¥{item.unitPrice.toLocaleString()}</span>
       <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{item.monthlyUsage.toLocaleString()}</span>
-      <span style={{ color: '#22c55e', fontSize: 12, fontWeight: 600 }}>
+      <span style={{ color: 'var(--color-success-500)', fontSize: 12, fontWeight: 600 }}>
         ¥{item.annualCost.toLocaleString()}
       </span>
     </div>
@@ -180,9 +180,9 @@ export function MedicalConsumableRow({ item, index }: { item: MedicalConsumableD
 
 export function DepreciationRow({ item, index }: { item: EquipmentDepreciation; index: number }) {
   const modalityColors: Record<string, string> = {
-    'CT': '#3b82f6',
+    'CT': 'var(--color-primary-500)',
     'MRI': '#8b5cf6',
-    'DSA': '#f59e0b',
+    'DSA': 'var(--color-warning-500)',
   }
 
   const rowStyle: React.CSSProperties = {
@@ -217,9 +217,9 @@ export function DepreciationRow({ item, index }: { item: EquipmentDepreciation; 
       <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{methodLabel}</span>
       <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{item.usefulYears}年</span>
       <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{formatCurrency(item.purchasePrice)}</span>
-      <span style={{ color: '#ef4444', fontSize: 12 }}>¥{item.monthlyDepreciation.toFixed(1)}万</span>
-      <span style={{ color: '#f59e0b', fontSize: 12 }}>¥{item.annualDepreciation.toFixed(1)}万</span>
-      <span style={{ color: '#22c55e', fontSize: 12, fontWeight: 600 }}>
+      <span style={{ color: 'var(--color-error-500)', fontSize: 12 }}>¥{item.monthlyDepreciation.toFixed(1)}万</span>
+      <span style={{ color: 'var(--color-warning-500)', fontSize: 12 }}>¥{item.annualDepreciation.toFixed(1)}万</span>
+      <span style={{ color: 'var(--color-success-500)', fontSize: 12, fontWeight: 600 }}>
         ¥{item.currentBookValue.toFixed(1)}万
       </span>
     </div>
@@ -228,10 +228,10 @@ export function DepreciationRow({ item, index }: { item: EquipmentDepreciation; 
 
 export function ProfitMarginRow({ item, index }: { item: ExamProfitMargin; index: number }) {
   const modalityColors: Record<string, string> = {
-    'CT': '#3b82f6',
+    'CT': 'var(--color-primary-500)',
     'MRI': '#8b5cf6',
-    'DSA': '#f59e0b',
-    '普放': '#22c55e',
+    'DSA': 'var(--color-warning-500)',
+    '普放': 'var(--color-success-500)',
   }
 
   const rowStyle: React.CSSProperties = {
@@ -244,7 +244,7 @@ export function ProfitMarginRow({ item, index }: { item: ExamProfitMargin; index
     background: index % 2 === 0 ? 'var(--bg-primary, #0d1117)' : 'var(--bg-card, #161b22)',
   }
 
-  const profitRateColor = item.isLoss ? '#ef4444' : item.profitRate < 20 ? '#f59e0b' : '#22c55e'
+  const profitRateColor = item.isLoss ? 'var(--color-error-500)' : item.profitRate < 20 ? 'var(--color-warning-500)' : 'var(--color-success-500)'
 
   return (
     <div style={rowStyle}>
@@ -268,19 +268,19 @@ export function ProfitMarginRow({ item, index }: { item: ExamProfitMargin; index
             fontSize: 12,
             fontWeight: 600,
             background: '#ef444420',
-            color: '#ef4444',
+            color: 'var(--color-error-500)',
           }}>
             亏损
           </span>
         )}
       </div>
       <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{item.monthlyCount}例</span>
-      <span style={{ color: '#22c55e', fontSize: 12 }}>¥{item.revenue}</span>
-      <span style={{ color: '#ef4444', fontSize: 12 }}>¥{item.cost}</span>
+      <span style={{ color: 'var(--color-success-500)', fontSize: 12 }}>¥{item.revenue}</span>
+      <span style={{ color: 'var(--color-error-500)', fontSize: 12 }}>¥{item.cost}</span>
       <span style={{ color: profitRateColor, fontSize: 12, fontWeight: 600 }}>
         {item.isLoss ? '-' : ''}{Math.abs(item.profitRate).toFixed(1)}%
       </span>
-      <span style={{ color: item.isLoss ? '#ef4444' : '#22c55e', fontSize: 12 }}>
+      <span style={{ color: item.isLoss ? 'var(--color-error-500)' : 'var(--color-success-500)', fontSize: 12 }}>
         {item.isLoss ? '-' : '+'}¥{Math.abs(item.monthlyProfit).toLocaleString()}
       </span>
       <span style={{
@@ -289,7 +289,7 @@ export function ProfitMarginRow({ item, index }: { item: ExamProfitMargin; index
         fontSize: 12,
         fontWeight: 500,
         background: item.isLoss ? '#ef444420' : '#22c55e20',
-        color: item.isLoss ? '#ef4444' : '#22c55e',
+        color: item.isLoss ? 'var(--color-error-500)' : 'var(--color-success-500)',
       }}>
         {item.isLoss ? '亏损' : '盈利'}
       </span>
@@ -299,10 +299,10 @@ export function ProfitMarginRow({ item, index }: { item: ExamProfitMargin; index
 
 export function DeptRevenueRow({ item, index }: { item: DeptRevenue; index: number }) {
   const modalityColors: Record<string, string> = {
-    'CT': '#3b82f6',
+    'CT': 'var(--color-primary-500)',
     'MRI': '#8b5cf6',
-    'DSA': '#f59e0b',
-    '普放': '#22c55e',
+    'DSA': 'var(--color-warning-500)',
+    '普放': 'var(--color-success-500)',
   }
 
   const rowStyle: React.CSSProperties = {
@@ -319,7 +319,7 @@ export function DeptRevenueRow({ item, index }: { item: DeptRevenue; index: numb
     <div style={rowStyle}>
       <span style={{ color: '#6e7681', fontSize: 12 }}>
         {index < 3 ? (
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: '#f59e0b', fontWeight: 700 }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: 'var(--color-warning-500)', fontWeight: 700 }}>
             <Trophy size={12} />{index + 1}
           </span>
         ) : index + 1}
@@ -338,14 +338,14 @@ export function DeptRevenueRow({ item, index }: { item: DeptRevenue; index: numb
         <span style={{ color: 'var(--text-primary, #f0f6fc)', fontSize: 12, fontWeight: 500 }}>{item.deptName}</span>
       </div>
       <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{item.examCount}例</span>
-      <span style={{ color: '#22c55e', fontSize: 12 }}>{formatCurrency(item.monthlyRevenue)}</span>
-      <span style={{ color: '#ef4444', fontSize: 12 }}>{formatCurrency(item.monthlyCost)}</span>
-      <span style={{ color: '#22c55e', fontSize: 12, fontWeight: 600 }}>{formatCurrency(item.monthlyProfit)}</span>
+      <span style={{ color: 'var(--color-success-500)', fontSize: 12 }}>{formatCurrency(item.monthlyRevenue)}</span>
+      <span style={{ color: 'var(--color-error-500)', fontSize: 12 }}>{formatCurrency(item.monthlyCost)}</span>
+      <span style={{ color: 'var(--color-success-500)', fontSize: 12, fontWeight: 600 }}>{formatCurrency(item.monthlyProfit)}</span>
       <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>¥{item.profitPerExam}/人</span>
-      <span style={{ color: item.yoyGrowth >= 0 ? '#22c55e' : '#ef4444', fontSize: 12 }}>
+      <span style={{ color: item.yoyGrowth >= 0 ? 'var(--color-success-500)' : 'var(--color-error-500)', fontSize: 12 }}>
         {item.yoyGrowth >= 0 ? '+' : ''}{item.yoyGrowth.toFixed(1)}%
       </span>
-      <span style={{ color: item.momGrowth >= 0 ? '#22c55e' : '#ef4444', fontSize: 12 }}>
+      <span style={{ color: item.momGrowth >= 0 ? 'var(--color-success-500)' : 'var(--color-error-500)', fontSize: 12 }}>
         {item.momGrowth >= 0 ? '+' : ''}{item.momGrowth.toFixed(1)}%
       </span>
     </div>

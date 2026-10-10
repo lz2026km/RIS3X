@@ -271,12 +271,12 @@ const STATUS_CONFIG: Record<
   },
   "checked-in": {
     label: t("apptPage.status.checkedIn"),
-    bg: "#3b82f622", color: "#3b82f6",
+    bg: "#3b82f622", color: "var(--color-primary-500)",
     border: "#93c5fd",
   },
   checkedIn: {
     label: t("apptPage.status.checkedIn"),
-    bg: "#3b82f622", color: "#3b82f6",
+    bg: "#3b82f622", color: "var(--color-primary-500)",
     border: "#93c5fd",
   },
   cancelled: {
@@ -286,10 +286,10 @@ const STATUS_CONFIG: Record<
   },
   "no-show": {
     label: t("apptPage.status.noShow"),
-    bg: "#ef444422", color: "#ef4444",
+    bg: "#ef444422", color: "var(--color-error-500)",
     border: "#fca5a5",
   },
-  noShow: { label: t("apptPage.status.noShow"), bg: "#ef444422", color: "#ef4444", border: "#fca5a5" },
+  noShow: { label: t("apptPage.status.noShow"), bg: "#ef444422", color: "var(--color-error-500)", border: "#fca5a5" },
   completed: {
     label: t("apptPage.status.completed"),
     bg: "#8b5cf622",
@@ -298,7 +298,7 @@ const STATUS_CONFIG: Record<
   },
   "in-progress": {
     label: t("apptPage.status.inProgress"),
-    bg: "#f59e0b22", color: "#f59e0b",
+    bg: "#f59e0b22", color: "var(--color-warning-500)",
     border: "#fcd34d",
   },
   rescheduled: {
@@ -320,8 +320,8 @@ const PRIORITY_CONFIG: Record<
   string,
   { label: string; bg: string; color: string }
 > = {
-  critical: { label: t("apptPage.priority.critical"), bg: "#ef444422", color: "#ef4444" },
-  urgent: { label: t("apptPage.priority.urgent"), bg: "#f59e0b22", color: "#f59e0b" },
+  critical: { label: t("apptPage.priority.critical"), bg: "#ef444422", color: "var(--color-error-500)" },
+  urgent: { label: t("apptPage.priority.urgent"), bg: "#f59e0b22", color: "var(--color-warning-500)" },
   normal: { label: t("apptPage.priority.normal"), bg: "var(--bg-deep)", color: "var(--text-secondary)" },
   default: { label: t("apptPage.priority.normal"), bg: "var(--bg-deep)", color: "var(--text-secondary)" },
 };
@@ -340,9 +340,9 @@ const REMINDER_STATUS_CONFIG: Record<
   string,
   { label: string; bg: string; color: string }
 > = {
-  已发送: { label: t("apptPage.reminderStatus.sent"), bg: "#3b82f622", color: "#1d4ed8" },
+  已发送: { label: t("apptPage.reminderStatus.sent"), bg: "#3b82f622", color: "var(--color-primary-700)" },
   已确认: { label: t("apptPage.reminderStatus.confirmed"), bg: "#22c55e22", color: "#059669" },
-  已改期: { label: t("apptPage.reminderStatus.rescheduled"), bg: "#f59e0b22", color: "#f59e0b" },
+  已改期: { label: t("apptPage.reminderStatus.rescheduled"), bg: "#f59e0b22", color: "var(--color-warning-500)" },
   已取消: { label: t("apptPage.reminderStatus.cancelled"), bg: "var(--bg-deep)", color: "var(--text-secondary)" },
   default: { label: t("apptPage.reminderStatus.unknown"), bg: "var(--bg-deep)", color: "var(--text-secondary)" },
 };
@@ -353,9 +353,9 @@ const RESCHEDULE_REASON_CONFIG: Record<
   string,
   { label: string; bg: string; color: string }
 > = {
-  patient: { label: t("apptPage.rescheduleReason.patient"), bg: "#3b82f622", color: "#1d4ed8" },
-  doctor: { label: t("apptPage.rescheduleReason.doctor"), bg: "#f59e0b22", color: "#f59e0b" },
-  device: { label: t("apptPage.rescheduleReason.device"), bg: "#ef444422", color: "#ef4444" },
+  patient: { label: t("apptPage.rescheduleReason.patient"), bg: "#3b82f622", color: "var(--color-primary-700)" },
+  doctor: { label: t("apptPage.rescheduleReason.doctor"), bg: "#f59e0b22", color: "var(--color-warning-500)" },
+  device: { label: t("apptPage.rescheduleReason.device"), bg: "#ef444422", color: "var(--color-error-500)" },
   default: { label: t("apptPage.rescheduleReason.other"), bg: "var(--bg-deep)", color: "var(--text-secondary)" },
 };
 const getRescheduleReasonConfig = (reason: string) =>
@@ -854,7 +854,7 @@ export default function AppointmentPage() {
     {
       title: t("apptPage.colRebooked"), dataIndex: "rebooked", key: "rebooked",
       render: (v: string) => (
-        <span style={{ padding: "2px 8px", borderRadius: 10, fontSize: 12, fontWeight: 700, background: v === "是" ? "var(--color-success-bg)" : v === "否" ? "var(--bg-primary)" : "var(--color-warning-bg)", color: v === "是" ? "#059669" : v === "否" ? "#64748b" : "#d97706" }}>{v}</span>
+        <span style={{ padding: "2px 8px", borderRadius: 10, fontSize: 12, fontWeight: 700, background: v === "是" ? "var(--color-success-bg)" : v === "否" ? "var(--bg-primary)" : "var(--color-warning-bg)", color: v === "是" ? "#059669" : v === "否" ? "#64748b" : "var(--color-warning-600)" }}>{v}</span>
       ),
     },
   ]
@@ -1160,7 +1160,7 @@ export default function AppointmentPage() {
   };
 
   // 颜色定义
-  const primaryBlue = "#1e40af";
+  const primaryBlue = "var(--color-primary-800)";
 const lightBlue = "var(--color-info-bg)";
 const borderGray = "var(--border-color)";
   const textGray = "#64748b";
@@ -1182,10 +1182,10 @@ const borderGray = "var(--border-color)";
 
       {/* [W2-4] 一键预约横幅: 从患者详情跳转时展示 */}
       {patientPreset && (
-        <div style={{ background: 'var(--color-info-bg)', borderBottom: '1px solid #bfdbfe', padding: '10px 24px', display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, color: '#1e40af' }}>
+        <div style={{ background: 'var(--color-info-bg)', borderBottom: '1px solid #bfdbfe', padding: '10px 24px', display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, color: 'var(--color-primary-800)' }}>
           <CalendarPlus size={16} />
           <span>{t("apptPage.presetPrefix")}<b>{patientPreset.patientName || patientPreset.patientId}</b>（{patientPreset.patientId}）{t("apptPage.presetSuffix")}</span>
-          <button onClick={() => setPatientPreset(null)} style={{ marginLeft: 'auto', border: 'none', background: 'transparent', color: '#1e40af', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+          <button onClick={() => setPatientPreset(null)} style={{ marginLeft: 'auto', border: 'none', background: 'transparent', color: 'var(--color-primary-800)', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
             {t("apptPage.close")}
           </button>
         </div>
@@ -1211,7 +1211,7 @@ const borderGray = "var(--border-color)";
         >
           <PageHeader
             variant="flex"
-            icon={<CalendarClock size={22} style={{ color: "#d97706" }} />}
+            icon={<CalendarClock size={22} style={{ color: "var(--color-warning-600)" }} />}
             title={t("apptPage.title")}
             subtitle={t("apptPage.subtitle")}
             style={{ marginBottom: 0 }}
@@ -1328,8 +1328,8 @@ const borderGray = "var(--border-color)";
                 setShowRules(false);
               }}
               style={{
-                background: "#d97706",
-                borderColor: "#d97706",
+                background: "var(--color-warning-600)",
+                borderColor: "var(--color-warning-600)",
                 boxShadow: "0 2px 4px rgba(217,119,6,0.3)",
               }}
             >
@@ -1472,8 +1472,8 @@ const borderGray = "var(--border-color)";
               statsData={[
                 { label: t("apptPage.todayAppointments"), value: appointments.filter(a => a.examDate === formatDateObj(new Date())).length, color: primaryBlue, bg: lightBlue },
                 { label: t("apptPage.status.checkedIn"), value: appointments.filter(a => a.examDate === formatDateObj(new Date()) && a.status === "checked-in").length, color: "#059669", bg: "#22c55e22" },
-                { label: t("apptPage.pendingConfirm"), value: appointments.filter(a => a.status === "pending").length, color: "#f59e0b", bg: "#f59e0b22" },
-                { label: t("apptPage.noShow"), value: appointments.filter(a => a.status === "no-show").length, color: "#ef4444", bg: "#ef444422" },
+                { label: t("apptPage.pendingConfirm"), value: appointments.filter(a => a.status === "pending").length, color: "var(--color-warning-500)", bg: "#f59e0b22" },
+                { label: t("apptPage.noShow"), value: appointments.filter(a => a.status === "no-show").length, color: "var(--color-error-500)", bg: "#ef444422" },
                 { label: t("apptPage.todayBooked"), value: appointments.filter(a => a.examDate === formatDateObj(new Date()) && a.status !== "cancelled").length, color: "#7c3aed", bg: "#8b5cf622" },
               ]}
             />
@@ -2025,7 +2025,7 @@ const borderGray = "var(--border-color)";
                     }}
                     onMouseEnter={(e) =>
                       ((e.currentTarget as HTMLDivElement).style.borderColor =
-                        "#3b82f6")
+                        "var(--color-primary-500)")
                     }
                     onMouseLeave={(e) =>
                       ((e.currentTarget as HTMLDivElement).style.borderColor =
@@ -2217,7 +2217,7 @@ const borderGray = "var(--border-color)";
                       onClick={() => setShowBatchImport(false)}
                       style={{
                         padding: "6px 14px",
-                        background: "#d97706",
+                        background: "var(--color-warning-600)",
                         color: "#fff",
                         border: "none",
                         borderRadius: 6,
@@ -2323,9 +2323,9 @@ const borderGray = "var(--border-color)";
                                   : "var(--bg-primary)",
                             color:
                               w.priority === "critical"
-                                ? "#dc2626"
+                                ? "var(--color-error-600)"
                                 : w.priority === "urgent"
-                                  ? "#d97706"
+                                  ? "var(--color-warning-600)"
                                   : "#64748b",
                           }}
                         >
@@ -2355,8 +2355,8 @@ const borderGray = "var(--border-color)";
                                 : "var(--color-info-bg)",
                             color:
                               waitlistNotifyLoading === w.id
-                                ? "#d97706"
-                                : "#2563eb",
+                                ? "var(--color-warning-600)"
+                                : "var(--color-primary-600)",
                             fontSize: 12,
                             fontWeight: 600,
                             cursor: "pointer",
@@ -2487,10 +2487,10 @@ const borderGray = "var(--border-color)";
                               width: `${stats.occupancy}%`,
                               background:
                                 stats.occupancy > 85
-                                  ? "#dc2626"
+                                  ? "var(--color-error-600)"
                                   : stats.occupancy > 60
-                                    ? "#d97706"
-                                    : "#3b82f6",
+                                    ? "var(--color-warning-600)"
+                                    : "var(--color-primary-500)",
                               borderRadius: 3,
                               transition: "width 0.3s",
                             }}
@@ -2516,13 +2516,13 @@ const borderGray = "var(--border-color)";
                           label: t("apptPage.newAppointment"),
                           icon: Plus,
                           action: () => setShowForm(true),
-                          color: "#f59e0b", bg: "#f59e0b22",
+                          color: "var(--color-warning-500)", bg: "#f59e0b22",
                         },
                         {
                           label: t("apptPage.batchImport"),
                           icon: Upload,
                           action: () => setShowBatchImport(true),
-                          color: "#3b82f6", bg: "#3b82f622",
+                          color: "var(--color-primary-500)", bg: "#3b82f622",
                         },
                         {
                           label: t("apptPage.rules"),
@@ -2531,7 +2531,7 @@ const borderGray = "var(--border-color)";
                             setShowRules(true);
                             setShowForm(false);
                           },
-                          color: "#1e40af",
+                          color: "var(--color-primary-800)",
                           bg: lightBlue,
                         },
                         {
@@ -2857,7 +2857,7 @@ const borderGray = "var(--border-color)";
                       style={{
                         fontSize: 12,
                         fontWeight: 700,
-                        color: "#dc2626",
+                        color: "var(--color-error-600)",
                         marginBottom: 6,
                         display: "flex",
                         alignItems: "center",
@@ -2924,7 +2924,7 @@ const borderGray = "var(--border-color)";
                         flex: 1,
                         padding: "8px",
                         background: "var(--color-error-bg)",
-                        color: "#dc2626",
+                        color: "var(--color-error-600)",
                         border: "none",
                         borderRadius: 8,
                         fontSize: 12,
@@ -3020,7 +3020,7 @@ const borderGray = "var(--border-color)";
             <div
               style={{
                 padding: "14px 18px",
-                background: "#dc2626",
+                background: "var(--color-error-600)",
                 color: "#fff",
                 borderRadius: "12px 12px 0 0",
                 display: "flex",
@@ -3129,7 +3129,7 @@ const borderGray = "var(--border-color)";
                   style={{
                     flex: 1,
                     padding: "8px",
-                    background: cancelReason ? "#dc2626" : "var(--bg-primary)",
+                    background: cancelReason ? "var(--color-error-600)" : "var(--bg-primary)",
                     color: cancelReason ? "#fff" : "#94a3b8",
                     border: "none",
                     borderRadius: 8,
@@ -3175,7 +3175,7 @@ const borderGray = "var(--border-color)";
             <div
               style={{
                 padding: "14px 18px",
-                background: "#dc2626",
+                background: "var(--color-error-600)",
                 color: "#fff",
                 borderRadius: "12px 12px 0 0",
                 display: "flex",
@@ -3257,7 +3257,7 @@ const borderGray = "var(--border-color)";
                   style={{
                     flex: 1,
                     padding: "8px",
-                    background: "#d97706",
+                    background: "var(--color-warning-600)",
                     color: "#fff",
                     border: "none",
                     borderRadius: 8,

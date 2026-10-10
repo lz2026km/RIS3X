@@ -104,7 +104,7 @@ export function structuredSectionsToHtml(sections: StructuredSections): string {
   const body = SECTION_KEYS.map((key) => {
     const text = (sections[key] ?? '').trim()
     if (!text) return ''
-    return `<section><h3 style="color:#1e3a8a;border-left:4px solid #2563eb;padding-left:8px;margin:12px 0 6px;font-size:15px;">【${SECTION_LABEL[key]}】</h3><div>${text}</div></section>`
+    return `<section><h3 style="color:#1e3a8a;border-left:4px solid var(--color-primary-600);padding-left:8px;margin:12px 0 6px;font-size:15px;">【${SECTION_LABEL[key]}】</h3><div>${text}</div></section>`
   }).join('')
   return `<div style="font-family:SimSun,serif;line-height:1.8;">${body}</div>`
 }
@@ -212,7 +212,7 @@ function ZoneEditor({ section, html, locked, unlockPending, readOnly, onChange, 
     <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, marginBottom: 14, background: '#fff', overflow: 'visible' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', borderTopLeftRadius: 8, borderTopRightRadius: 8 }}>
         <span style={{ fontSize: 12, fontWeight: 700, color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <FileText size={14} color="#2563eb" />【{label}】
+          <FileText size={14} color="var(--color-primary-600)" />【{label}】
         </span>
         <div style={{ flex: 1 }} />
         {locked ? (
@@ -230,7 +230,7 @@ function ZoneEditor({ section, html, locked, unlockPending, readOnly, onChange, 
               type="button"
               title={t('w17.sr.lockSection')}
               onClick={() => onLockToggle(section, !locked)}
-              style={{ border: 'none', background: locked ? '#fee2e2' : '#dbeafe', color: locked ? '#b91c1c' : '#1d4ed8', borderRadius: 6, padding: '3px 8px', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}
+              style={{ border: 'none', background: locked ? '#fee2e2' : '#dbeafe', color: locked ? '#b91c1c' : 'var(--color-primary-700)', borderRadius: 6, padding: '3px 8px', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}
             >
               {locked ? <Lock size={12} /> : <LockOpen size={12} />}
               {locked ? t('w17.sr.unlock') : t('w17.sr.lock')}
@@ -240,7 +240,7 @@ function ZoneEditor({ section, html, locked, unlockPending, readOnly, onChange, 
                 type="button"
                 disabled={unlockPending}
                 onClick={() => onUnlockRequest(section)}
-                style={{ border: '1px solid #f59e0b', background: unlockPending ? '#fef3c7' : '#fffbeb', color: '#92400e', borderRadius: 6, padding: '3px 8px', cursor: unlockPending ? 'default' : 'pointer', fontSize: 11, fontWeight: 600 }}
+                style={{ border: '1px solid var(--color-warning-500)', background: unlockPending ? '#fef3c7' : '#fffbeb', color: '#92400e', borderRadius: 6, padding: '3px 8px', cursor: unlockPending ? 'default' : 'pointer', fontSize: 11, fontWeight: 600 }}
               >
                 {unlockPending ? <Check size={12} /> : <AlertCircle size={12} />}
                 {unlockPending ? t('w17.sr.unlockPending') : t('w17.sr.unlockRequest')}
@@ -315,7 +315,7 @@ function ZoneEditor({ section, html, locked, unlockPending, readOnly, onChange, 
         {showMacros && editable && (
           <div style={{ position: 'absolute', top: 4, left: 14, zIndex: 60, width: 300, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.15)', padding: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 8px', fontSize: 12, fontWeight: 600, color: '#334155' }}>
-              <Command size={12} color="#2563eb" />{t('w17.sr.macroTitle')}
+              <Command size={12} color="var(--color-primary-600)" />{t('w17.sr.macroTitle')}
               <input
                 autoFocus
                 value={macroFilter}
@@ -333,7 +333,7 @@ function ZoneEditor({ section, html, locked, unlockPending, readOnly, onChange, 
                 onMouseEnter={(e) => { e.currentTarget.style.background = '#eff6ff' }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
               >
-                <Sparkles size={13} color="#2563eb" />
+                <Sparkles size={13} color="var(--color-primary-600)" />
                 <span style={{ fontSize: 12, fontWeight: 600, color: '#1e3a8a', minWidth: 70 }}>{m.label}</span>
                 <span style={{ fontSize: 11, color: '#64748b' }}>{m.desc}</span>
               </button>
@@ -424,21 +424,21 @@ export const StructuredReportEditorV3 = React.forwardRef<StructuredReportEditorH
     <div style={{ background: 'var(--bg-card)', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', padding: 20 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
         <span style={{ fontSize: 14, fontWeight: 700, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Type size={16} color="#2563eb" />{t('w17.sr.title')}
+          <Type size={16} color="var(--color-primary-600)" />{t('w17.sr.title')}
         </span>
         <span style={{ fontSize: 12, color: '#94a3b8' }}>{reportId}</span>
         <div style={{ flex: 1 }} />
         <button
           type="button"
           onClick={() => setPreview((v) => !v)}
-          style={{ padding: '6px 14px', border: '1px solid #cbd5e1', borderRadius: 6, background: preview ? '#eff6ff' : '#fff', color: preview ? '#1d4ed8' : '#475569', cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}
+          style={{ padding: '6px 14px', border: '1px solid #cbd5e1', borderRadius: 6, background: preview ? '#eff6ff' : '#fff', color: preview ? 'var(--color-primary-700)' : '#475569', cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}
         >
           <Eye size={14} />{preview ? t('w17.sr.editMode') : t('w17.sr.previewMode')}
         </button>
         <button
           type="button"
           onClick={handleSave}
-          style={{ padding: '6px 16px', border: 'none', borderRadius: 6, background: '#2563eb', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}
+          style={{ padding: '6px 16px', border: 'none', borderRadius: 6, background: 'var(--color-primary-600)', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}
         >
           <Save size={14} />{t('w17.sr.save')}
         </button>

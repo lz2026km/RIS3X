@@ -45,11 +45,11 @@ const FILTER_ANATOMIES: CvAnatomy[] = [
 ];
 
 const COLORS: Record<string, string> = {
-  CCTA: "#1e40af",
+  CCTA: "var(--color-primary-800)",
   CMR: "#7c3aed",
-  Echo: "#0891b2",
-  Cath: "#d97706",
-  Vascular: "#dc2626",
+  Echo: "var(--color-info-600)",
+  Cath: "var(--color-warning-600)",
+  Vascular: "var(--color-error-600)",
 };
 
 function mapAnalysisToCase(a: CardiacAnalysis): CvCase {
@@ -177,7 +177,7 @@ export default function CvDatabasePage() {
         <h1
           style={{ display: "flex", alignItems: "center", gap: 8, margin: 0 }}
         >
-          <Database size={24} /> CV 影像数据库 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? '#f0fdf4' : '#eff6ff', color: dataSource === 'real' ? '#16a34a' : '#1e40af', border: `1px solid ${dataSource === 'real' ? '#bbf7d0' : '#bfdbfe'}`, fontWeight: 400 }}>{dataSource === 'real' ? 'AI 接口实时' : '演示数据(回退)'}</span>
+          <Database size={24} /> CV 影像数据库 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? '#f0fdf4' : '#eff6ff', color: dataSource === 'real' ? 'var(--color-success-600)' : 'var(--color-primary-800)', border: `1px solid ${dataSource === 'real' ? '#bbf7d0' : '#bfdbfe'}`, fontWeight: 400 }}>{dataSource === 'real' ? 'AI 接口实时' : '演示数据(回退)'}</span>
         </h1>
         <div style={{ display: "flex", gap: 8 }}>
           <Button
@@ -192,7 +192,7 @@ export default function CvDatabasePage() {
             onClick={handleExport}
             style={{
               padding: "6px 16px",
-              background: "#1e40af",
+              background: "var(--color-primary-800)",
               color: "#fff",
               border: "none",
               borderRadius: 6,
@@ -347,7 +347,7 @@ export default function CvDatabasePage() {
                 title: "SR", key: "hasSrReport", align: "center",
                 render: (_: unknown, c: CvCase) =>
                   c.hasSrReport ? (
-                    <span style={{ color: "#16a34a" }}></span>
+                    <span style={{ color: "var(--color-success-600)" }}></span>
                   ) : (
                     <span style={{ color: "#94a3b8" }}>—</span>
                   ),
@@ -360,7 +360,7 @@ export default function CvDatabasePage() {
                     style={{
                       padding: "4px 10px",
                       background: "#eff6ff",
-                      color: "#1e40af",
+                      color: "var(--color-primary-800)",
                       border: "1px solid #bfdbfe",
                       borderRadius: 4,
                       cursor: "pointer",
@@ -453,7 +453,7 @@ export default function CvDatabasePage() {
                 }}
                 style={{
                   padding: "8px 20px",
-                  background: "#1e40af",
+                  background: "var(--color-primary-800)",
                   color: "#fff",
                   border: "none",
                   borderRadius: 6,

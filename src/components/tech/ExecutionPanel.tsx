@@ -25,7 +25,7 @@ function fmtExposure(params?: Record<string, unknown>): string {
 const sectionTitle: CSSProperties = {
   fontSize: 12,
   fontWeight: 600,
-  color: '#1e40af',
+  color: 'var(--color-primary-800)',
   marginBottom: 12,
   display: 'flex',
   alignItems: 'center',
@@ -89,7 +89,7 @@ export function ExecutionPanel({ examId, accessionNumber, testId = 'execution-pa
             display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, padding: '8px 12px', borderRadius: 8,
             background: validation.imageCountMismatch ? '#fef2f2' : '#f0fdf4',
             border: `1px solid ${validation.imageCountMismatch ? '#fecaca' : '#bbf7d0'}`,
-            color: validation.imageCountMismatch ? '#dc2626' : '#059669',
+            color: validation.imageCountMismatch ? 'var(--color-error-600)' : '#059669',
             fontSize: 12, fontWeight: 600,
           }}
         >

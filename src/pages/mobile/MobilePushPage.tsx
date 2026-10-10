@@ -250,7 +250,7 @@ export default function MobilePushPage() {
   }
 
   const headerStyle: React.CSSProperties = {
-    background: 'linear-gradient(135deg, #1e40af, #2563eb)',
+    background: 'linear-gradient(135deg, var(--color-primary-800), var(--color-primary-600))',
     borderRadius: 12, padding: 16, marginBottom: 16, color: '#fff',
   }
 
@@ -306,7 +306,7 @@ export default function MobilePushPage() {
             disabled={pushEnabled}
             style={{
               ...btnBase, flex: 1, gap: 6,
-              background: pushEnabled ? 'var(--color-success-bg)' : '#1e40af',
+              background: pushEnabled ? 'var(--color-success-bg)' : 'var(--color-primary-800)',
               color: pushEnabled ? 'var(--color-success)' : '#fff',
               opacity: pushEnabled ? 0.7 : 1,
               cursor: pushEnabled ? 'not-allowed' : 'pointer',
@@ -320,7 +320,7 @@ export default function MobilePushPage() {
           </button>
         </div>
         <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>
-          {t('mobilePush.pushStatus')} <span style={{ color: pushPermission === 'granted' ? '#059669' : '#dc2626', fontWeight: 600 }}>
+          {t('mobilePush.pushStatus')} <span style={{ color: pushPermission === 'granted' ? '#059669' : 'var(--color-error-600)', fontWeight: 600 }}>
             {pushPermission === 'granted' ? t('mobilePush.authorized') : pushPermission === 'denied' ? t('mobilePush.denied') : pushPermission === 'unsupported' ? t('mobilePush.unsupported') : t('mobilePush.unauthorized')}
           </span>
           <span style={{ marginLeft: 8 }}>{t('mobilePush.channel')} <span style={{ fontWeight: 600 }}>{pushService.supported ? t('mobilePush.browserPush') : 'N/A'}</span></span>
@@ -329,7 +329,7 @@ export default function MobilePushPage() {
 
       {showTestPanel && (
         <div style={{ ...cardStyle, padding: 12, border: '1px solid var(--color-info-border)', background: 'var(--color-info-bg)' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10 }}>{t('mobilePush.testPanel')}</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10 }}>{t('mobilePush.testPanel')}</div>
           <div style={{ marginBottom: 8 }}>
             <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4 }}>{t('mobilePush.formTitle')}</label>
             <input
@@ -347,7 +347,7 @@ export default function MobilePushPage() {
               style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, resize: 'none', boxSizing: 'border-box' }}
             />
           </div>
-          <button onClick={handleTestPush} style={{ ...btnBase, width: '100%', background: '#2563eb', color: '#fff', gap: 6 }}>
+          <button onClick={handleTestPush} style={{ ...btnBase, width: '100%', background: 'var(--color-primary-600)', color: '#fff', gap: 6 }}>
             <Send size={14} />{t('mobilePush.sendTestPush')}
           </button>
         </div>
@@ -355,7 +355,7 @@ export default function MobilePushPage() {
 
       {/* [v3.0.6.11-99 Wave7B] 推送订阅类型: 危急值/报告完成/随访提醒/质控通知/系统公告 */}
       <div style={{ ...cardStyle, padding: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>{t('mobilePush.subscriptionTypes')}</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8 }}>{t('mobilePush.subscriptionTypes')}</div>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {subscriptionOptions().map(opt => {
             const checked = subTypes.includes(opt.key)
@@ -365,7 +365,7 @@ export default function MobilePushPage() {
                 onClick={() => toggleSubType(opt.key)}
                 style={{
                   padding: '5px 12px', borderRadius: 14, fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer',
-                  background: checked ? (opt.key === 'CRITICAL' ? '#dc2626' : '#1e40af') : 'var(--bg-card)',
+                  background: checked ? (opt.key === 'CRITICAL' ? 'var(--color-error-600)' : 'var(--color-primary-800)') : 'var(--bg-card)',
                   color: checked ? '#fff' : '#64748b',
                   opacity: opt.key === 'CRITICAL' && !checked ? 0.5 : 1,
                 }}
@@ -391,7 +391,7 @@ export default function MobilePushPage() {
             onClick={() => setFilterTopic(topic)}
             style={{
               padding: '4px 10px', borderRadius: 12, fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer',
-              background: filterTopic === topic ? '#1e40af' : 'var(--bg-card)',
+              background: filterTopic === topic ? 'var(--color-primary-800)' : 'var(--bg-card)',
               color: filterTopic === topic ? '#fff' : '#64748b',
             }}
           >
@@ -402,13 +402,13 @@ export default function MobilePushPage() {
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
         <span style={{ fontSize: 12, color: '#64748b' }}>
-          {t('mobilePush.totalPrefix')} <span style={{ fontWeight: 700, color: '#1e40af' }}>{filtered.length}</span> {t('mobilePush.totalSuffix')}
+          {t('mobilePush.totalPrefix')} <span style={{ fontWeight: 700, color: 'var(--color-primary-800)' }}>{filtered.length}</span> {t('mobilePush.totalSuffix')}
         </span>
         <div style={{ display: 'flex', gap: 6 }}>
           <button onClick={handleMarkAllRead} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 11, cursor: 'pointer' }}>
             <CheckCircle size={11} style={{ marginRight: 3 }} />{t('mobilePush.markAllRead')}
           </button>
-          <button onClick={handleClearAll} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid var(--color-error-border)', background: 'var(--bg-card)', color: '#dc2626', fontSize: 11, cursor: 'pointer' }}>
+          <button onClick={handleClearAll} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid var(--color-error-border)', background: 'var(--bg-card)', color: 'var(--color-error-600)', fontSize: 11, cursor: 'pointer' }}>
             <Trash2 size={11} style={{ marginRight: 3 }} />{t('mobilePush.clear')}
           </button>
         </div>
@@ -438,7 +438,7 @@ export default function MobilePushPage() {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
                   <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{n.title}</span>
-                  {!n.read && <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#dc2626' }} />}
+                  {!n.read && <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--color-error-600)' }} />}
                   <span style={{
                     padding: '1px 6px', borderRadius: 8, fontSize: 10, fontWeight: 600,
                     background: cfg.bg, color: cfg.color,

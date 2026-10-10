@@ -59,7 +59,7 @@ const LEVEL_LABELS: Record<string, string> = { error: 'aiEnhanced.levelError', w
 
 function scoreColor(score: number): string {
   if (score >= 90) return '#52c41a'
-  if (score >= 75) return '#2563eb'
+  if (score >= 75) return 'var(--color-primary-600)'
   if (score >= 60) return '#faad14'
   return '#ff4d4f'
 }
@@ -142,7 +142,7 @@ const OrganDetectionPanel: React.FC = () => {
 
   return (
     <Card
-      title={<Space><ScanSearch size={16} color="#2563eb" />{t('aiEnhanced.organDetectTitle')}</Space>}
+      title={<Space><ScanSearch size={16} color="var(--color-primary-600)" />{t('aiEnhanced.organDetectTitle')}</Space>}
       extra={<Tag color="blue">{t('aiEnhanced.organDetectTag')}</Tag>}
     >
       <Space wrap style={{ marginBottom: 12 }}>
@@ -195,7 +195,7 @@ const OrganDetectionPanel: React.FC = () => {
                 <div style={{ width: '100%' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                     <Space>
-                      <CircleDot size={14} color={organ.status === 'detected' ? '#2563eb' : '#bfbfbf'} />
+                      <CircleDot size={14} color={organ.status === 'detected' ? 'var(--color-primary-600)' : '#bfbfbf'} />
                       <Text strong>{organ.label}</Text>
                       <Text type="secondary" style={{ fontSize: 12 }}>
                         {t('aiEnhanced.volumeApprox')} {organ.volumeMl}mL · {t('aiEnhanced.coverage')} {organ.slices} {t('aiEnhanced.slices')}
@@ -291,7 +291,7 @@ const DraftScorePanel: React.FC = () => {
 
   return (
     <Card
-      title={<Space><Gauge size={16} color="#2563eb" />{t('aiEnhanced.draftScoreTitle')}</Space>}
+      title={<Space><Gauge size={16} color="var(--color-primary-600)" />{t('aiEnhanced.draftScoreTitle')}</Space>}
       extra={<Tag color="blue">{t('aiEnhanced.draftScoreTag')}</Tag>}
     >
       <Space wrap style={{ marginBottom: 8 }}>
@@ -456,7 +456,7 @@ const HangingPanel: React.FC = () => {
 
   return (
     <Card
-      title={<Space><LayoutGrid size={16} color="#2563eb" />{t('aiEnhanced.hangingTitle')}</Space>}
+      title={<Space><LayoutGrid size={16} color="var(--color-primary-600)" />{t('aiEnhanced.hangingTitle')}</Space>}
       extra={<Tag color="blue">{t('aiEnhanced.hangingTag')}</Tag>}
     >
       <Space wrap style={{ marginBottom: 8 }}>
@@ -507,7 +507,7 @@ const HangingPanel: React.FC = () => {
                 <div
                   key={cell.index}
                   style={{
-                    border: '1px dashed #2563eb',
+                    border: '1px dashed var(--color-primary-600)',
                     background: '#e8f1ff',
                     borderRadius: 6,
                     height: 52,
@@ -516,7 +516,7 @@ const HangingPanel: React.FC = () => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: 12,
-                    color: '#2563eb',
+                    color: 'var(--color-primary-600)',
                     overflow: 'hidden',
                   }}
                 >
@@ -565,7 +565,7 @@ const HangingPanel: React.FC = () => {
       )}
 
       <Divider titlePlacement="left" plain style={{ margin: '16px 0 8px' }}>
-        <Space size={6}><History size={13} color="#2563eb" /><Text type="secondary" style={{ fontSize: 12 }}>{t('aiEnhanced.applyHistory')}</Text></Space>
+        <Space size={6}><History size={13} color="var(--color-primary-600)" /><Text type="secondary" style={{ fontSize: 12 }}>{t('aiEnhanced.applyHistory')}</Text></Space>
       </Divider>
       <DataTable<HangingApplication>
         rowKey="id"
@@ -590,7 +590,7 @@ const AiEnhancedPage: React.FC = () => {
     <PageContainer padding={24}>
       <Card style={{ marginBottom: 16 }}>
         <Space wrap align="center" style={{ marginBottom: 8 }}>
-          <Brain size={26} color="#2563eb" />
+          <Brain size={26} color="var(--color-primary-600)" />
           <Title level={4} style={{ margin: 0 }}>{t('aiEnhanced.title')}</Title>
           <Tag color="blue">v3.0.6.11-101 Wave 3C</Tag>
           <Tag color="green">{t('aiEnhanced.tagOrgan')}</Tag>
@@ -615,7 +615,7 @@ const AiEnhancedPage: React.FC = () => {
           <HangingPanel />
         </Col>
         <Col xs={24} xl={8}>
-          <Card title={<Space><Activity size={16} color="#2563eb" />{t('aiEnhanced.workbenchNotes')}</Space>} size="small">
+          <Card title={<Space><Activity size={16} color="var(--color-primary-600)" />{t('aiEnhanced.workbenchNotes')}</Space>} size="small">
             <List
               size="small"
               split={false}
@@ -634,7 +634,7 @@ const AiEnhancedPage: React.FC = () => {
             />
             <Divider style={{ margin: '8px 0' }} />
             <Space size={6}>
-              <FileText size={13} color="#2563eb" />
+              <FileText size={13} color="var(--color-primary-600)" />
               <Text type="secondary" style={{ fontSize: 12 }}>{t('aiEnhanced.endpoint')}: /api/ai-v2/* (organ-detection / draft-score / smart-hanging)</Text>
             </Space>
           </Card>

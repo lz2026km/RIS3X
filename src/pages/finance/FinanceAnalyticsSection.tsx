@@ -110,8 +110,8 @@ export function FinanceAnalyticsSection() {
             xKey="date"
             height={220}
             series={[
-              { key: 'income', name: t('finExt.income'), color: '#16a34a' },
-              { key: 'receivable', name: t('finExt.receivable'), color: '#d97706' },
+              { key: 'income', name: t('finExt.income'), color: 'var(--color-success-600)' },
+              { key: 'receivable', name: t('finExt.receivable'), color: 'var(--color-warning-600)' },
             ]}
           />
         </DashboardCard>

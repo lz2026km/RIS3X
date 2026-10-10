@@ -111,7 +111,7 @@ export default function AlertCenterPage() {
     { title: '时间', dataIndex: 'time', key: 'time', render: (v: string) => v ? new Date(v).toLocaleString('zh-CN') : '-' },
     {
       title: '状态', dataIndex: 'status', key: 'status', width: 90,
-      render: (v: string) => <span style={{ color: v === 'pending' ? '#f59e0b' : '#22c55e' }}>{v === 'pending' ? '待确认' : '已确认'}</span>,
+      render: (v: string) => <span style={{ color: v === 'pending' ? 'var(--color-warning-500)' : 'var(--color-success-500)' }}>{v === 'pending' ? '待确认' : '已确认'}</span>,
     },
     {
       title: '操作', key: 'actions', width: 120,
@@ -120,19 +120,19 @@ export default function AlertCenterPage() {
           <CheckCircle2 size={14} />{acknowledgingId === alert.id ? '确认中...' : '确认'}
         </button>
       ) : (
-        <span style={{ fontSize: 12, color: '#22c55e', display: 'flex', alignItems: 'center', gap: 4 }}><CheckCircle2 size={13} />已处理</span>
+        <span style={{ fontSize: 12, color: 'var(--color-success-500)', display: 'flex', alignItems: 'center', gap: 4 }}><CheckCircle2 size={13} />已处理</span>
       ),
     },
   ]
 
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
-      <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <Bell size={24} />
           <span style={{ fontSize: 20, fontWeight: 600 }}>CDS 告警中心</span>
           {pendingCount > 0 && (
-            <span style={{ padding: '2px 10px', borderRadius: 999, background: '#ef4444', color: '#fff', fontSize: 12, fontWeight: 600 }}>
+            <span style={{ padding: '2px 10px', borderRadius: 999, background: 'var(--color-error-500)', color: '#fff', fontSize: 12, fontWeight: 600 }}>
               {pendingCount} 条待确认
             </span>
           )}
@@ -145,7 +145,7 @@ export default function AlertCenterPage() {
       <div style={{ padding: '20px 24px' }}>
         <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
           {([['all', '全部'], ['pending', '待确认'], ['acknowledged', '已确认']] as const).map(([key, label]) => (
-            <button key={key} onClick={() => setStatusFilter(key)} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: statusFilter === key ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: statusFilter === key ? '#fff' : 'var(--text-muted, #8b949e)' }}>
+            <button key={key} onClick={() => setStatusFilter(key)} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: statusFilter === key ? 'var(--color-primary-800)' : 'var(--bg-secondary, #21262d)', color: statusFilter === key ? '#fff' : 'var(--text-muted, #8b949e)' }}>
               {label}
             </button>
           ))}
@@ -162,13 +162,13 @@ export default function AlertCenterPage() {
         </div>
 
         <div style={{ marginTop: 20, padding: '12px 16px', background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>
-          <Info size={14} style={{ color: '#3b82f6' }} />
+          <Info size={14} style={{ color: 'var(--color-primary-500)' }} />
           CDS 告警来自规则引擎评估结果，确认后将在统计报表中计入响应时长。
         </div>
       </div>
 
       {toast.show && (
-        <div style={{ position: 'fixed', top: 24, left: '50%', transform: 'translateX(-50%)', background: toast.type === 'success' ? '#059669' : '#dc2626', color: '#fff', padding: '10px 20px', borderRadius: 8, fontSize: 12, fontWeight: 600, boxShadow: '0 4px 12px rgba(0,0,0,0.3)', zIndex: 1100 }}>
+        <div style={{ position: 'fixed', top: 24, left: '50%', transform: 'translateX(-50%)', background: toast.type === 'success' ? '#059669' : 'var(--color-error-600)', color: '#fff', padding: '10px 20px', borderRadius: 8, fontSize: 12, fontWeight: 600, boxShadow: '0 4px 12px rgba(0,0,0,0.3)', zIndex: 1100 }}>
           {toast.message}
         </div>
       )}

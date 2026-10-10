@@ -40,13 +40,13 @@ interface AnnotationItem {
 }
 
 const CATEGORY_COLORS: Record<AnnotationCategory, string> = {
-  finding: '#3b82f6',
-  lesion: '#ef4444',
+  finding: 'var(--color-primary-500)',
+  lesion: 'var(--color-error-500)',
   organ: '#10b981',
   measurement: '#8b5cf6',
-  critical: '#dc2626',
-  reference: '#f59e0b',
-  comparison: '#06b6d4',
+  critical: 'var(--color-error-600)',
+  reference: 'var(--color-warning-500)',
+  comparison: 'var(--color-info-500)',
 };
 
 const CATEGORY_LABELS: Record<AnnotationCategory, string> = {
@@ -195,7 +195,7 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
       title={
         <div className="flex items-center justify-between">
           <Space>
-            <ImageIcon className="w-4 h-4" style={{ color: '#0891b2' }} />
+            <ImageIcon className="w-4 h-4" style={{ color: 'var(--color-info-600)' }} />
             <span className="font-semibold">{t('w9e.imageAnchor.title')}</span>
             <Tag color="blue">{t('w9e.imageAnchor.countTag', { count: filtered.length })}</Tag>
             <Tag color="amber" icon={<Star className="w-3 h-3" />}>{t('w9e.imageAnchor.keyTag', { count: anchors.filter((a) => a.keyImage).length })}</Tag>

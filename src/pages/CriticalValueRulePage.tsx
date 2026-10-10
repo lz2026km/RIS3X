@@ -31,17 +31,17 @@ const CATEGORY_CONFIG: Record<
   { label: string; color: string; bg: string }
 > = {
   neuro: { label: t("cvRule.cat.neuro"), color: "#7c3aed", bg: "#8b5cf622" },
-  cardio: { label: t("cvRule.cat.cardio"), color: "#ef4444", bg: "#ef444422" },
-  pulmo: { label: t("cvRule.cat.pulmo"), color: "#0891b2", bg: "#06b6d422" },
-  abdomen: { label: t("cvRule.cat.abdomen"), color: "#f59e0b", bg: "#f59e0b22" },
+  cardio: { label: t("cvRule.cat.cardio"), color: "var(--color-error-500)", bg: "#ef444422" },
+  pulmo: { label: t("cvRule.cat.pulmo"), color: "var(--color-info-600)", bg: "#06b6d422" },
+  abdomen: { label: t("cvRule.cat.abdomen"), color: "var(--color-warning-500)", bg: "#f59e0b22" },
   trauma: { label: t("cvRule.cat.trauma"), color: "#7f1d1d", bg: "#ef444422" },
-  vascular: { label: t("cvRule.cat.vascular"), color: "#3b82f6", bg: "#3b82f622" },
+  vascular: { label: t("cvRule.cat.vascular"), color: "var(--color-primary-500)", bg: "#3b82f622" },
   contrast: { label: t("cvRule.cat.contrast"), color: "#a855f7", bg: "#8b5cf622" },
 };
 
 const SEVERITY_CONFIG = {
-  high: { label: t("cvRule.sev.high"), color: "#f59e0b", bg: "#f59e0b22" },
-  critical: { label: t("cvRule.sev.critical"), color: "#ef4444", bg: "#ef444422" },
+  high: { label: t("cvRule.sev.high"), color: "var(--color-warning-500)", bg: "#f59e0b22" },
+  critical: { label: t("cvRule.sev.critical"), color: "var(--color-error-500)", bg: "#ef444422" },
 };
 
 const CHANNEL_ICONS: Record<string, any> = {
@@ -292,7 +292,7 @@ export default function CriticalValueRulePage() {
                 borderRadius: 10,
                 fontWeight: 600,
                 background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-                color: source === 'api' ? '#16a34a' : '#d97706',
+                color: source === 'api' ? 'var(--color-success-600)' : 'var(--color-warning-600)',
               }}
             >
               {source === 'api' ? t("cvRule.sourceApi") : t("cvRule.sourceDemo")}
@@ -301,7 +301,7 @@ export default function CriticalValueRulePage() {
           <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: "4px 0 0" }}>
             {t("cvRule.subtitle", { count: ruleList.length })}
             {loading && t("cvRule.loadingSuffix")}
-            {loadError && <span style={{ color: "#dc2626", marginLeft: 8 }}>{loadError}</span>}
+            {loadError && <span style={{ color: "var(--color-error-600)", marginLeft: 8 }}>{loadError}</span>}
           </p>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
@@ -336,13 +336,13 @@ export default function CriticalValueRulePage() {
           icon={AlertOctagon}
           label={t("cvRule.kpiMonthly")}
           value={kpi.totalThisMonth}
-          color="#dc2626"
+          color="var(--color-error-600)"
         />
         <KpiCard
           icon={Clock}
           label={t("cvRule.kpiPending")}
           value={kpi.pendingCount}
-          color="#f59e0b"
+          color="var(--color-warning-500)"
           alert
         />
         <KpiCard
@@ -362,7 +362,7 @@ export default function CriticalValueRulePage() {
           icon={Activity}
           label={t("cvRule.kpiAvgResponse")}
           value={`${kpi.avgResponseTimeMinutes}m`}
-          color="#0891b2"
+          color="var(--color-info-600)"
         />
       </div>
 
@@ -515,7 +515,7 @@ export default function CriticalValueRulePage() {
               <InfoCell
                 label={t("cvRule.responseDeadline")}
                 value={`${selectedRule.responseDeadline} ${t("cvRule.minutes")}`}
-                color="#dc2626"
+                color="var(--color-error-600)"
               />
               <InfoCell
                 label={t("cvRule.status")}
@@ -545,7 +545,7 @@ export default function CriticalValueRulePage() {
                       padding: "2px 8px",
                       borderRadius: 10,
                       background: "var(--color-info-bg)",
-                      color: "#1e40af",
+                      color: "var(--color-primary-800)",
                       fontWeight: 600,
                     }}
                   >
@@ -682,7 +682,7 @@ export default function CriticalValueRulePage() {
                 background: "var(--color-info-bg)",
                 borderRadius: 4,
                 fontSize: 12,
-                color: "#1e40af",
+                color: "var(--color-primary-800)",
               }}
             >
               {selectedRule.reference}
@@ -749,7 +749,7 @@ export default function CriticalValueRulePage() {
         }
         icon={<Edit2 size={18} />}
         iconBg="var(--color-info-bg)"
-        iconColor="#1e40af"
+        iconColor="var(--color-primary-800)"
         size="md"
         footer={
           <>
@@ -1048,7 +1048,7 @@ export default function CriticalValueRulePage() {
             top: 24,
             left: "50%",
             transform: "translateX(-50%)",
-            background: toast.type === "success" ? "#059669" : "#dc2626",
+            background: toast.type === "success" ? "#059669" : "var(--color-error-600)",
             color: "#fff",
             padding: "10px 20px",
             borderRadius: 8,
@@ -1081,12 +1081,12 @@ const KpiCard: React.FC<{
   good?: boolean;
 }> = ({ icon: Icon, label, value, color, alert, good }) => {
   const c = ({
-    '#dc2626': 'error', '#ef4444': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
-    '#f59e0b': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
-    '#16a34a': 'success', '#22c55e': 'success', '#52c41a': 'success', '#10b981': 'success',
-    '#2563eb': 'primary', '#1890ff': 'primary', '#1d4ed8': 'primary',
+    'var(--color-error-600)': 'error', 'var(--color-error-500)': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
+    'var(--color-warning-500)': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
+    'var(--color-success-600)': 'success', 'var(--color-success-500)': 'success', '#52c41a': 'success', '#10b981': 'success',
+    'var(--color-primary-600)': 'primary', '#1890ff': 'primary', 'var(--color-primary-700)': 'primary',
   } as Record<string, string>)[color] ?? color;
-  const rendered = good ? <span style={{ color: "#10b981" }}>{value}</span> : alert ? <span style={{ color: "#dc2626" }}>{value}</span> : value;
+  const rendered = good ? <span style={{ color: "#10b981" }}>{value}</span> : alert ? <span style={{ color: "var(--color-error-600)" }}>{value}</span> : value;
   return <StatCard title={label} value={rendered} icon={<Icon size={18} />} color={c} />;
 };
 

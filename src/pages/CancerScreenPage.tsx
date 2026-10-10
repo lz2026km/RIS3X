@@ -23,12 +23,12 @@ import { severityColor, severityTone } from '../theme/statusTokens'
 
 // ---------- 统计数据 ----------
 const statsData = [
-  { label: t('cancerScreen.statLdct'), value: '8,642', unit: '人', icon: Wind, color: '#2563eb', bg: '#3b82f622' },
+  { label: t('cancerScreen.statLdct'), value: '8,642', unit: '人', icon: Wind, color: 'var(--color-primary-600)', bg: '#3b82f622' },
   { label: t('cancerScreen.statBreast'), value: '5,826', unit: '人', sub: '含钼靶/超声', icon: Heart, color: '#ec4899', bg: '#ec489922' },
   { label: t('cancerScreen.statHighRisk'), value: '1,284', unit: '例', sub: 'LDCT 14.9%', icon: AlertTriangle, color: '#ea580c', bg: '#f9731622' },
-  { label: t('cancerScreen.statEarlyCancer'), value: '326', unit: '例', sub: '检出率2.37%', icon: Target, color: '#dc2626', bg: '#ef444422' },
+  { label: t('cancerScreen.statEarlyCancer'), value: '326', unit: '例', sub: '检出率2.37%', icon: Target, color: 'var(--color-error-600)', bg: '#ef444422' },
   { label: t('cancerScreen.statBirads'), value: '412', unit: '例', icon: Scan, color: '#7c3aed', bg: '#8b5cf622' },
-  { label: t('cancerScreen.statMonthlyNew'), value: '628', unit: '人', trend: 'up', icon: TrendingUp, color: '#0891b2', bg: '#06b6d422' },
+  { label: t('cancerScreen.statMonthlyNew'), value: '628', unit: '人', trend: 'up', icon: TrendingUp, color: 'var(--color-info-600)', bg: '#06b6d422' },
 ]
 
 // ---------- 样式 ----------
@@ -165,10 +165,10 @@ const QUEUE_STATUS_LEVEL: Record<string, string> = {
 
 // 筛查类型图标与颜色
 const screenTypeConfig: Record<string, { bg: string; text: string; icon: typeof Wind }> = {
-  'LDCT': { bg: '#3b82f622', text: '#2563eb', icon: Wind },
+  'LDCT': { bg: '#3b82f622', text: 'var(--color-primary-600)', icon: Wind },
   'MG': { bg: '#ec489922', text: '#ec4899', icon: Heart },
   '乳腺超声': { bg: '#ec489922', text: '#db2777', icon: Scan },
-  '消化道': { bg: '#22c55e22', text: '#16a34a', icon: Circle },
+  '消化道': { bg: '#22c55e22', text: 'var(--color-success-600)', icon: Circle },
 }
 
 const ScreenTypeBadge = ({ type }: { type: string }) => {
@@ -276,12 +276,12 @@ const CancerScreenPage = () => {
       if (statsRes.success && statsRes.data) {
         const d = statsRes.data as any
         setLiveStats([
-          { label: t('cancerScreen.statLdct'), value: d.ldctCount.toLocaleString(), unit: '人', icon: Wind, color: '#2563eb', bg: '#3b82f622' },
+          { label: t('cancerScreen.statLdct'), value: d.ldctCount.toLocaleString(), unit: '人', icon: Wind, color: 'var(--color-primary-600)', bg: '#3b82f622' },
           { label: t('cancerScreen.statBreast'), value: d.breastCount.toLocaleString(), unit: '人', sub: '含钼靶/超声', icon: Heart, color: '#ec4899', bg: '#ec489922' },
           { label: t('cancerScreen.statHighRisk'), value: d.highRiskCount.toLocaleString(), unit: '例', sub: 'LDCT 14.9%', icon: AlertTriangle, color: '#ea580c', bg: '#f9731622' },
-          { label: t('cancerScreen.statEarlyCancer'), value: d.earlyCancerCount.toLocaleString(), unit: '例', sub: '检出率2.37%', icon: Target, color: '#dc2626', bg: '#ef444422' },
+          { label: t('cancerScreen.statEarlyCancer'), value: d.earlyCancerCount.toLocaleString(), unit: '例', sub: '检出率2.37%', icon: Target, color: 'var(--color-error-600)', bg: '#ef444422' },
           { label: t('cancerScreen.statBirads'), value: d.birads4Plus.toLocaleString(), unit: '例', icon: Scan, color: '#7c3aed', bg: '#8b5cf622' },
-          { label: t('cancerScreen.statMonthlyNew'), value: d.monthlyNew.toLocaleString(), unit: '人', trend: 'up', icon: TrendingUp, color: '#0891b2', bg: '#06b6d422' },
+          { label: t('cancerScreen.statMonthlyNew'), value: d.monthlyNew.toLocaleString(), unit: '人', trend: 'up', icon: TrendingUp, color: 'var(--color-info-600)', bg: '#06b6d422' },
         ])
       }
       if (queueRes.success && Array.isArray(queueRes.data)) setQueue(queueRes.data)
@@ -424,9 +424,9 @@ const CancerScreenPage = () => {
   const locations = ['右肺上叶', '右肺中叶', '右肺下叶', '左肺上叶', '左肺下叶', '左肺舌段', '右乳外上', '右乳内上', '左乳外上', '左乳内上', '胃窦', '胃体', '直肠', '乙状结肠']
   const treatments = ['定期随访', '穿刺活检', '手术切除', '微创消融', '放化疗', '待定']
   const treatmentColors: Record<string, { bg: string; text: string }> = {
-    '定期随访': { bg: '#3b82f622', text: '#2563eb' },
+    '定期随访': { bg: '#3b82f622', text: 'var(--color-primary-600)' },
     '穿刺活检': { bg: '#f59e0b22', text: '#ca8a04' },
-    '手术切除': { bg: '#ef444422', text: '#dc2626' },
+    '手术切除': { bg: '#ef444422', text: 'var(--color-error-600)' },
     '微创消融': { bg: '#8b5cf622', text: '#7c3aed' },
     '放化疗': { bg: '#f9731622', text: '#ea580c' },
     '待定': { bg: 'var(--bg-deep)', text: '#64748b' },
@@ -541,12 +541,12 @@ const CancerScreenPage = () => {
       if (statsRes.success && statsRes.data) {
         const d = statsRes.data as any
         setLiveStats([
-          { label: t('cancerScreen.statLdct'), value: d.ldctCount.toLocaleString(), unit: '人', icon: Wind, color: '#2563eb', bg: '#3b82f622' },
+          { label: t('cancerScreen.statLdct'), value: d.ldctCount.toLocaleString(), unit: '人', icon: Wind, color: 'var(--color-primary-600)', bg: '#3b82f622' },
           { label: t('cancerScreen.statBreast'), value: d.breastCount.toLocaleString(), unit: '人', sub: '含钼靶/超声', icon: Heart, color: '#ec4899', bg: '#ec489922' },
           { label: t('cancerScreen.statHighRisk'), value: d.highRiskCount.toLocaleString(), unit: '例', sub: 'LDCT 14.9%', icon: AlertTriangle, color: '#ea580c', bg: '#f9731622' },
-          { label: t('cancerScreen.statEarlyCancer'), value: d.earlyCancerCount.toLocaleString(), unit: '例', sub: '检出率2.37%', icon: Target, color: '#dc2626', bg: '#ef444422' },
+          { label: t('cancerScreen.statEarlyCancer'), value: d.earlyCancerCount.toLocaleString(), unit: '例', sub: '检出率2.37%', icon: Target, color: 'var(--color-error-600)', bg: '#ef444422' },
           { label: t('cancerScreen.statBirads'), value: d.birads4Plus.toLocaleString(), unit: '例', icon: Scan, color: '#7c3aed', bg: '#8b5cf622' },
-          { label: t('cancerScreen.statMonthlyNew'), value: d.monthlyNew.toLocaleString(), unit: '人', trend: 'up', icon: TrendingUp, color: '#0891b2', bg: '#06b6d422' },
+          { label: t('cancerScreen.statMonthlyNew'), value: d.monthlyNew.toLocaleString(), unit: '人', trend: 'up', icon: TrendingUp, color: 'var(--color-info-600)', bg: '#06b6d422' },
         ])
         synced = true
       }
@@ -966,10 +966,10 @@ const CancerScreenPage = () => {
             <div style={{ ...s.mapSvg, display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>{t('cancerScreen.typeStats')}</div>
               {[
-                { type: 'LDCT', icon: Wind, count: 8642, color: '#2563eb', bg: '#3b82f622' },
+                { type: 'LDCT', icon: Wind, count: 8642, color: 'var(--color-primary-600)', bg: '#3b82f622' },
                 { type: 'MG', icon: Heart, count: 3426, color: '#ec4899', bg: '#ec489922' },
                 { type: '乳腺超声', icon: Scan, count: 2400, color: '#db2777', bg: '#ec489922' },
-                { type: '消化道', icon: Circle, count: 2480, color: '#16a34a', bg: '#22c55e22' },
+                { type: '消化道', icon: Circle, count: 2480, color: 'var(--color-success-600)', bg: '#22c55e22' },
               ].map(item => {
                 const Icon = item.icon
                 return (
@@ -996,7 +996,7 @@ const CancerScreenPage = () => {
                     return (
                       <div key={m.month} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                         <div style={{ width: '100%', background: 'var(--border-default)', borderRadius: 4, height: 50, position: 'relative' }}>
-                          <div style={{ position: 'absolute', bottom: 0, width: '100%', background: '#2563eb', borderRadius: 4, height: `${(m.screenings / maxS) * 50}px` }} />
+                          <div style={{ position: 'absolute', bottom: 0, width: '100%', background: 'var(--color-primary-600)', borderRadius: 4, height: `${(m.screenings / maxS) * 50}px` }} />
                         </div>
                         <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{m.month.slice(5)}</div>
                       </div>
@@ -1209,7 +1209,7 @@ const CancerScreenPage = () => {
       {tab === 6 && (
         <div style={s.section}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <div style={s.sectionTitle}><TrendingUp size={16} color='#0891b2' />{t('w3b.screenTrendTitle')} <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>{t('w3b.screenTrendSub')}（GET /screening/trend）</span></div>
+            <div style={s.sectionTitle}><TrendingUp size={16} color='var(--color-info-600)' />{t('w3b.screenTrendTitle')} <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>{t('w3b.screenTrendSub')}（GET /screening/trend）</span></div>
             <button style={{ ...s.btn, padding: '6px 12px' }} onClick={() => void loadTrend()}><RefreshCw size={13} /> {t('w3b.refresh')}</button>
           </div>
           {trendLoading ? (
@@ -1226,10 +1226,10 @@ const CancerScreenPage = () => {
               {/* 概览指标 */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
                 {[
-                  { label: t('w3b.screenCount'), value: trend.reduce((s, t) => s + (t.screenings ?? 0), 0).toLocaleString(), unit: '人', color: '#2563eb' },
-                  { label: t('w3b.screenDetections'), value: trend.reduce((s, t) => s + (t.detections ?? 0), 0).toLocaleString(), unit: '例', color: '#dc2626' },
+                  { label: t('w3b.screenCount'), value: trend.reduce((s, t) => s + (t.screenings ?? 0), 0).toLocaleString(), unit: '人', color: 'var(--color-primary-600)' },
+                  { label: t('w3b.screenDetections'), value: trend.reduce((s, t) => s + (t.detections ?? 0), 0).toLocaleString(), unit: '例', color: 'var(--color-error-600)' },
                   { label: t('w3b.screenRate'), value: (trend.reduce((s, t) => s + (t.rate ?? 0), 0) / trend.length).toFixed(2), unit: '%', color: '#ea580c' },
-                  { label: t('w3b.screenMonth'), value: String(trend.length), unit: '月', color: '#0891b2' },
+                  { label: t('w3b.screenMonth'), value: String(trend.length), unit: '月', color: 'var(--color-info-600)' },
                 ].map((item, i) => (
                   <div key={i} style={{ background: 'var(--content-bg)', borderRadius: 10, padding: 16, textAlign: 'center' }}>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{item.label}</div>
@@ -1248,20 +1248,20 @@ const CancerScreenPage = () => {
                     return (
                       <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 150 }}>
-                          <div title={t('cancerScreen.tooltipScreenCount', { count: tr.screenings })} style={{ width: 16, height: hS, background: '#2563eb', borderRadius: '4px 4px 0 0', opacity: 0.85 }} />
-                          <div title={t('cancerScreen.tooltipDetectionCount', { count: tr.detections })} style={{ width: 16, height: hD, background: '#dc2626', borderRadius: '4px 4px 0 0', opacity: 0.85 }} />
+                          <div title={t('cancerScreen.tooltipScreenCount', { count: tr.screenings })} style={{ width: 16, height: hS, background: 'var(--color-primary-600)', borderRadius: '4px 4px 0 0', opacity: 0.85 }} />
+                          <div title={t('cancerScreen.tooltipDetectionCount', { count: tr.detections })} style={{ width: 16, height: hD, background: 'var(--color-error-600)', borderRadius: '4px 4px 0 0', opacity: 0.85 }} />
                         </div>
                         <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', marginTop: 6 }}>{tr.month}</div>
-                        <div style={{ fontSize: 11, color: '#2563eb' }}>{tr.screenings ?? 0}</div>
-                        <div style={{ fontSize: 11, color: '#dc2626' }}>{tr.detections ?? 0}</div>
+                        <div style={{ fontSize: 11, color: 'var(--color-primary-600)' }}>{tr.screenings ?? 0}</div>
+                        <div style={{ fontSize: 11, color: 'var(--color-error-600)' }}>{tr.detections ?? 0}</div>
                       </div>
                     )
                   })}
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 16, marginTop: 12, fontSize: 12, color: 'var(--text-secondary)' }}>
-                <span><span style={{ display: 'inline-block', width: 10, height: 10, background: '#2563eb', borderRadius: 2, marginRight: 4 }} />{t('w3b.screenCount')}</span>
-                <span><span style={{ display: 'inline-block', width: 10, height: 10, background: '#dc2626', borderRadius: 2, marginRight: 4 }} />{t('w3b.screenDetections')}</span>
+                <span><span style={{ display: 'inline-block', width: 10, height: 10, background: 'var(--color-primary-600)', borderRadius: 2, marginRight: 4 }} />{t('w3b.screenCount')}</span>
+                <span><span style={{ display: 'inline-block', width: 10, height: 10, background: 'var(--color-error-600)', borderRadius: 2, marginRight: 4 }} />{t('w3b.screenDetections')}</span>
                 <span>{t('w3b.screenRate')}: {trend[trend.length - 1]?.rate ?? '-'}% ({t('w3b.screenMonth')})</span>
               </div>
               {/* 明细表 */}

@@ -34,11 +34,11 @@ const CHECK_RESULTS = [
 ]
 
 const SCORE_DIST = [
-  { range: 'A (90-100)', count: 28, color: '#22c55e' },
-  { range: 'B (80-89)', count: 35, color: '#3b82f6' },
-  { range: 'C (70-79)', count: 18, color: '#f59e0b' },
-  { range: 'D (60-69)', count: 8, color: '#ef4444' },
-  { range: 'F (<60)', count: 3, color: '#dc2626' },
+  { range: 'A (90-100)', count: 28, color: 'var(--color-success-500)' },
+  { range: 'B (80-89)', count: 35, color: 'var(--color-primary-500)' },
+  { range: 'C (70-79)', count: 18, color: 'var(--color-warning-500)' },
+  { range: 'D (60-69)', count: 8, color: 'var(--color-error-500)' },
+  { range: 'F (<60)', count: 3, color: 'var(--color-error-600)' },
 ]
 
 const RECENT_CHECKS = [
@@ -93,7 +93,7 @@ export default function DepartmentQualityPage() {
 
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
-      <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <CheckCircle size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>科室质量管理</span>
         </div>
@@ -106,10 +106,10 @@ export default function DepartmentQualityPage() {
         {loadError && <ErrorBanner message={loadError} />}
         <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
           {[
-            { title: '当前评分', value: avgScore, unit: '分', icon: Activity, color: avgScore >= 80 ? '#22c55e' : '#f59e0b' },
-            { title: '通过率', value: overallPassRate, unit: '%', icon: CheckCircle, color: '#22c55e' },
-            { title: '未通过', value: totalFailed, icon: XCircle, color: '#ef4444' },
-            { title: '总计检查', value: totalChecks, icon: BarChart3, color: '#3b82f6' },
+            { title: '当前评分', value: avgScore, unit: '分', icon: Activity, color: avgScore >= 80 ? 'var(--color-success-500)' : 'var(--color-warning-500)' },
+            { title: '通过率', value: overallPassRate, unit: '%', icon: CheckCircle, color: 'var(--color-success-500)' },
+            { title: '未通过', value: totalFailed, icon: XCircle, color: 'var(--color-error-500)' },
+            { title: '总计检查', value: totalChecks, icon: BarChart3, color: 'var(--color-primary-500)' },
           ].map((k, i) => (
             <div key={i} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 160 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
@@ -126,7 +126,7 @@ export default function DepartmentQualityPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <TrendingUp size={16} color="#3b82f6" />质量评分趋势
+              <TrendingUp size={16} color="var(--color-primary-500)" />质量评分趋势
             </div>
             <ChartContainer height={240} state={SCORE_TREND.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
               <LineChart data={SCORE_TREND}>
@@ -135,15 +135,15 @@ export default function DepartmentQualityPage() {
                 <YAxis domain={[60, 100]} tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
                 <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, fontSize: 12 }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Line type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={2} dot={{ fill: '#3b82f6' }} name="评分" />
-                <Line type="monotone" dataKey="passRate" stroke="#22c55e" strokeWidth={2} dot={{ fill: '#22c55e' }} name="通过率(%)" />
+                <Line type="monotone" dataKey="score" stroke="var(--color-primary-500)" strokeWidth={2} dot={{ fill: 'var(--color-primary-500)' }} name="评分" />
+                <Line type="monotone" dataKey="passRate" stroke="var(--color-success-500)" strokeWidth={2} dot={{ fill: 'var(--color-success-500)' }} name="通过率(%)" />
               </LineChart>
             </ChartContainer>
           </div>
 
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <BarChart3 size={16} color="#22c55e" />各检查项通过/未通过
+              <BarChart3 size={16} color="var(--color-success-500)" />各检查项通过/未通过
             </div>
             <ChartContainer height={240} state={barData.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
               <BarChart data={barData}>
@@ -152,8 +152,8 @@ export default function DepartmentQualityPage() {
                 <YAxis tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
                 <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, fontSize: 12 }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Bar dataKey="passed" fill="#22c55e" radius={[4, 4, 0, 0]} name="通过" stackId="a" />
-                <Bar dataKey="failed" fill="#ef4444" radius={[4, 4, 0, 0]} name="未通过" stackId="a" />
+                <Bar dataKey="passed" fill="var(--color-success-500)" radius={[4, 4, 0, 0]} name="通过" stackId="a" />
+                <Bar dataKey="failed" fill="var(--color-error-500)" radius={[4, 4, 0, 0]} name="未通过" stackId="a" />
               </BarChart>
             </ChartContainer>
           </div>
@@ -187,7 +187,7 @@ export default function DepartmentQualityPage() {
 
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <AlertTriangle size={16} color="#ef4444" />提醒
+              <AlertTriangle size={16} color="var(--color-error-500)" />提醒
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 12 }}>近期未通过检查 ({totalFailed}) 项需复查</div>
             {RECENT_CHECKS.filter(c => !c.passed).slice(0, 3).map(c => (
@@ -196,7 +196,7 @@ export default function DepartmentQualityPage() {
                   <div style={{ fontSize: 12, color: 'var(--text-primary, #f0f6fc)' }}>{c.examId}</div>
                   <div style={{ fontSize: 12, color: '#6e7681' }}>{c.modality} · {c.date}</div>
                 </div>
-                <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: c.severity === 'critical' ? '#ef444420' : '#f59e0b20', color: c.severity === 'critical' ? '#ef4444' : '#f59e0b' }}>
+                <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: c.severity === 'critical' ? '#ef444420' : '#f59e0b20', color: c.severity === 'critical' ? 'var(--color-error-500)' : 'var(--color-warning-500)' }}>
                   {c.score}分
                 </span>
               </div>
@@ -213,13 +213,13 @@ export default function DepartmentQualityPage() {
               { title: '编号', dataIndex: 'id', key: 'id', render: (v: string) => <span style={{ color: '#6e7681', fontSize: 12 }}>{v}</span> },
               { title: '检查ID', dataIndex: 'examId', key: 'examId' },
               { title: '设备', dataIndex: 'modality', key: 'modality', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
-              { title: '评分', dataIndex: 'score', key: 'score', render: (v: number) => <span style={{ fontWeight: 600, color: v >= 80 ? '#22c55e' : v >= 60 ? '#f59e0b' : '#ef4444' }}>{v}</span> },
+              { title: '评分', dataIndex: 'score', key: 'score', render: (v: number) => <span style={{ fontWeight: 600, color: v >= 80 ? 'var(--color-success-500)' : v >= 60 ? 'var(--color-warning-500)' : 'var(--color-error-500)' }}>{v}</span> },
               {
                 title: '结果',
                 dataIndex: 'passed',
                 key: 'passed',
                 render: (v: boolean) => (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: v ? '#22c55e' : '#ef4444', fontSize: 12 }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: v ? 'var(--color-success-500)' : 'var(--color-error-500)', fontSize: 12 }}>
                     {v ? <CheckCircle size={12} /> : <XCircle size={12} />}{v ? '通过' : '未通过'}
                   </span>
                 ),

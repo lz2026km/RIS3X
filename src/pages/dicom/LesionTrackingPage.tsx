@@ -400,10 +400,10 @@ const LesionTrackingPage: React.FC = () => {
       {/* 统计卡 */}
       <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 16 }}>
         {[
-          { title: t('lesionTrack.statTotal'), value: stats?.total ?? 0, color: '#3b82f6' },
+          { title: t('lesionTrack.statTotal'), value: stats?.total ?? 0, color: 'var(--color-primary-500)' },
           { title: t('lesionTrack.statNew'), value: stats?.new ?? 0, color: '#f97316' },
-          { title: t('lesionTrack.statProgressed'), value: stats?.progressed ?? 0, color: '#ef4444' },
-          { title: t('lesionTrack.statStable'), value: stats?.stable ?? 0, color: '#3b82f6' },
+          { title: t('lesionTrack.statProgressed'), value: stats?.progressed ?? 0, color: 'var(--color-error-500)' },
+          { title: t('lesionTrack.statStable'), value: stats?.stable ?? 0, color: 'var(--color-primary-500)' },
           { title: t('lesionTrack.statDisappeared'), value: stats?.disappeared ?? 0, color: '#64748b' },
         ].map((s) => (
           <StatCard
@@ -417,7 +417,7 @@ const LesionTrackingPage: React.FC = () => {
         <StatCard
           title={<span style={{ fontSize: 12, color: '#94a3b8' }}>{t('lesionTrack.statShrunk')}</span>}
           value={stats?.shrunk ?? 0}
-          color="#22c55e"
+          color="var(--color-success-500)"
           size="sm"
         />
       </StatCardGrid>
@@ -513,7 +513,7 @@ const LesionTrackingPage: React.FC = () => {
                     contentStyle={{ background: '#0f172a', border: '1px solid #1e2b45', borderRadius: 8 }}
                     labelStyle={{ color: '#e2e8f0' }}
                   />
-                  <Line type="monotone" dataKey="size" name={t('w9dLesion.size')} stroke="#3b82f6" strokeWidth={2} dot={{ r: 4, fill: '#3b82f6' }} activeDot={{ r: 6 }} />
+                  <Line type="monotone" dataKey="size" name={t('w9dLesion.size')} stroke="var(--color-primary-500)" strokeWidth={2} dot={{ r: 4, fill: 'var(--color-primary-500)' }} activeDot={{ r: 6 }} />
                 </LineChart>
               </ChartContainer>
             </div>

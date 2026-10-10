@@ -139,7 +139,7 @@ export const DentalPhotoPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
-        <Camera size={20} color="#2563eb" />
+        <Camera size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalPhoto.title')}</span>
         <Tag color="cyan">v3.0.6.8-102</Tag>
         <Tag color="purple">3Shape Unite</Tag>

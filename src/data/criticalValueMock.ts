@@ -18,9 +18,9 @@ const isoOffset = (h: number) => new Date(Date.now() + h * 3600 * 1000).toISOStr
 
 export const CRITICAL_LEVELS: CriticalLevelConfig[] = [
   { level: 'critical', label: '危急', labelEn: 'Critical', color: '#7f1d1d', bg: '#fee2e2', border: '#fca5a5', defaultChannels: ['phone', 'sms', 'inApp'], responseDeadline: 5, description: '需立即处理（5分钟内）', priority: 1 },
-  { level: 'urgent', label: '紧急', labelEn: 'Urgent', color: '#dc2626', bg: '#fef2f2', border: '#f87171', defaultChannels: ['phone', 'inApp', 'sms'], responseDeadline: 10, description: '需紧急处理（10分钟内）', priority: 2 },
-  { level: 'warning', label: '警告', labelEn: 'Warning', color: '#f59e0b', bg: '#fef3c7', border: '#fcd34d', defaultChannels: ['inApp', 'sms'], responseDeadline: 30, description: '需关注（30分钟内）', priority: 3 },
-  { level: 'info', label: '提示', labelEn: 'Info', color: '#3b82f6', bg: '#dbeafe', border: '#93c5fd', defaultChannels: ['inApp'], responseDeadline: 60, description: '需关注（1小时内）', priority: 4 },
+  { level: 'urgent', label: '紧急', labelEn: 'Urgent', color: 'var(--color-error-600)', bg: '#fef2f2', border: '#f87171', defaultChannels: ['phone', 'inApp', 'sms'], responseDeadline: 10, description: '需紧急处理（10分钟内）', priority: 2 },
+  { level: 'warning', label: '警告', labelEn: 'Warning', color: 'var(--color-warning-500)', bg: '#fef3c7', border: '#fcd34d', defaultChannels: ['inApp', 'sms'], responseDeadline: 30, description: '需关注（30分钟内）', priority: 3 },
+  { level: 'info', label: '提示', labelEn: 'Info', color: 'var(--color-primary-500)', bg: '#dbeafe', border: '#93c5fd', defaultChannels: ['inApp'], responseDeadline: 60, description: '需关注（1小时内）', priority: 4 },
 ];
 
 export const CRITICAL_RULES: CriticalRule[] = [

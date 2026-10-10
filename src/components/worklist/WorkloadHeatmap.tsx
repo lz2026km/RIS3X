@@ -19,8 +19,8 @@ function intensityColor(intensity: number): string {
   if (clamped < 0.2) return '#dbeafe';
   if (clamped < 0.4) return '#93c5fd';
   if (clamped < 0.6) return '#60a5fa';
-  if (clamped < 0.8) return '#f59e0b';
-  return '#dc2626';
+  if (clamped < 0.8) return 'var(--color-warning-500)';
+  return 'var(--color-error-600)';
 }
 
 export const WorkloadHeatmap: React.FC<WorkloadHeatmapProps> = ({ sites, cells }) => {
@@ -29,7 +29,7 @@ export const WorkloadHeatmap: React.FC<WorkloadHeatmapProps> = ({ sites, cells }
 
   return (
     <div style={{ background: 'var(--bg-card)', padding: 16, borderRadius: 10, border: '1px solid var(--border-color)', overflowX: 'auto' }}>
-      <div style={{ fontWeight: 700, color: '#1e40af', fontSize: 14, marginBottom: 12 }}>24h × 院区 工作负载热力图</div>
+      <div style={{ fontWeight: 700, color: 'var(--color-primary-800)', fontSize: 14, marginBottom: 12 }}>24h × 院区 工作负载热力图</div>
       <table style={{ borderCollapse: 'collapse', fontSize: 12 }}>
         <thead>
           <tr>
@@ -42,7 +42,7 @@ export const WorkloadHeatmap: React.FC<WorkloadHeatmapProps> = ({ sites, cells }
         <tbody>
           {sites.map((site) => (
             <tr key={site.siteId}>
-              <td style={{ padding: 4, color: '#1e40af', fontWeight: 600 }}>
+              <td style={{ padding: 4, color: 'var(--color-primary-800)', fontWeight: 600 }}>
                 <div>{site.siteName}</div>
                 <div style={{ fontSize: 12, color: '#64748b' }}>利用率 {site.utilizationPct}%</div>
               </td>

@@ -21,9 +21,9 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, C
 import { t } from '../../i18n/appI18n';
 import { DataTable, StatCard, StatCardGrid } from "../../components/common";
 
-const COLORS = { red: '#ff4d4f', yellow: '#faad14', green: '#52c41a', blue: '#2563eb' };
+const COLORS = { red: '#ff4d4f', yellow: '#faad14', green: '#52c41a', blue: 'var(--color-primary-600)' };
 
-const PIE_COLORS = ['#ff4d4f', '#faad14', '#2563eb', '#722ed1'];
+const PIE_COLORS = ['#ff4d4f', '#faad14', 'var(--color-primary-600)', '#722ed1'];
 
 const trendIcon = (t: string) => {
   if (t === 'up') return <TrendingUp size={14} color={COLORS.green} />;

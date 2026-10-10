@@ -121,9 +121,9 @@ const TreeNode: React.FC<{
   }
 
   const levelColors: Record<string, string> = {
-    modality: '#1e40af',
+    modality: 'var(--color-primary-800)',
     bodyPart: '#7c3aed',
-    disease: '#0891b2',
+    disease: 'var(--color-info-600)',
   };
   const color = levelColors[node.level] || '#64748b';
 
@@ -178,7 +178,7 @@ const TreeNode: React.FC<{
         <span style={{
           fontSize: 12, padding: '1px 4px', borderRadius: 3,
           background: node.level === 'modality' ? 'var(--color-info-bg)' : node.level === 'bodyPart' ? '#8b5cf622' : 'var(--color-info-bg)',
-          color: node.level === 'modality' ? '#1e40af' : node.level === 'bodyPart' ? '#7c3aed' : '#0e7490',
+          color: node.level === 'modality' ? 'var(--color-primary-800)' : node.level === 'bodyPart' ? '#7c3aed' : '#0e7490',
           fontWeight: 700,
         }}>{node.level === 'modality' ? t('tplCategory.levelModality') : node.level === 'bodyPart' ? t('tplCategory.levelBodyPart') : t('tplCategory.levelDisease')}</span>
       </div>
@@ -438,10 +438,10 @@ export default function TemplateCategoryPage() {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <FolderTree size={20} color="#0891b2" /> {t('tplCategory.title')}
+            <FolderTree size={20} color="var(--color-info-600)" /> {t('tplCategory.title')}
             <StatusTag status="success" style={{ fontWeight: 700 }}>R2</StatusTag>
             {categorySource === 'api'
-              ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: '#16a34a', border: '1px solid #bbf7d0' }}>{t('tplCategory.realtimeTag')}</span>
+              ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: 'var(--color-success-600)', border: '1px solid #bbf7d0' }}>{t('tplCategory.realtimeTag')}</span>
               : <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>{t('tplCategory.staticTag')}</span>}
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
@@ -452,8 +452,8 @@ export default function TemplateCategoryPage() {
           <button
             onClick={openCreateModal}
             style={{
-              padding: '6px 12px', border: '1px solid #3b82f6', borderRadius: 6,
-              background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600,
+              padding: '6px 12px', border: '1px solid var(--color-primary-500)', borderRadius: 6,
+              background: 'var(--color-primary-500)', color: '#fff', fontSize: 12, fontWeight: 600,
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
             }}
           >
@@ -477,10 +477,10 @@ export default function TemplateCategoryPage() {
 
       {/* 统计卡片 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 16 }}>
-        <StatCard icon={Layers} label={t('tplCategory.totalCategories')} value={stats.total} color="#3b82f6" />
-        <StatCard icon={Folder} label={t('tplCategory.modalityCategories')} value={stats.modality} color="#1e40af" />
+        <StatCard icon={Layers} label={t('tplCategory.totalCategories')} value={stats.total} color="var(--color-primary-500)" />
+        <StatCard icon={Folder} label={t('tplCategory.modalityCategories')} value={stats.modality} color="var(--color-primary-800)" />
         <StatCard icon={FolderOpen} label={t('tplCategory.bodyPartCategories')} value={stats.bodyPart} color="#7c3aed" />
-        <StatCard icon={Tag} label={t('tplCategory.diseaseCategories')} value={stats.disease} color="#0891b2" />
+        <StatCard icon={Tag} label={t('tplCategory.diseaseCategories')} value={stats.disease} color="var(--color-info-600)" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '420px 1fr', gap: 12 }}>
@@ -493,15 +493,15 @@ export default function TemplateCategoryPage() {
             padding: '8px 12px', borderBottom: '1px solid var(--border-color)',
             display: 'flex', alignItems: 'center', gap: 6,
           }}>
-            <FolderTree size={12} color="#1e40af" />
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', flex: 1 }}>{t('tplCategory.categoryTree')}</span>
+            <FolderTree size={12} color="var(--color-primary-800)" />
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', flex: 1 }}>{t('tplCategory.categoryTree')}</span>
             <div style={{ display: 'flex', gap: 4 }}>
               <button
                 onClick={() => setViewMode('tree')}
                 style={{
                   padding: '2px 8px', border: '1px solid var(--border-color)', borderRadius: 3,
                   background: viewMode === 'tree' ? 'var(--color-info-bg)' : 'var(--bg-card)',
-                  color: viewMode === 'tree' ? '#1e40af' : '#64748b',
+                  color: viewMode === 'tree' ? 'var(--color-primary-800)' : '#64748b',
                   fontSize: 12, cursor: 'pointer', fontWeight: 600,
                 }}
               ><List size={12} /> {t('tplCategory.tree')}</button>
@@ -510,7 +510,7 @@ export default function TemplateCategoryPage() {
                 style={{
                   padding: '2px 8px', border: '1px solid var(--border-color)', borderRadius: 3,
                   background: viewMode === 'flat' ? 'var(--color-info-bg)' : 'var(--bg-card)',
-                  color: viewMode === 'flat' ? '#1e40af' : '#64748b',
+                  color: viewMode === 'flat' ? 'var(--color-primary-800)' : '#64748b',
                   fontSize: 12, cursor: 'pointer', fontWeight: 600,
                 }}
               ><Grid size={12} /> {t('tplCategory.grid')}</button>
@@ -604,7 +604,7 @@ export default function TemplateCategoryPage() {
                     onClick={openCreateModal}
                     style={{
                       padding: '5px 10px', border: 'none', borderRadius: 4,
-                      background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600,
+                      background: 'var(--color-primary-500)', color: '#fff', fontSize: 12, fontWeight: 600,
                       cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
@@ -624,7 +624,7 @@ export default function TemplateCategoryPage() {
                     onClick={() => void deleteCategory(selectedNode)}
                     style={{
                       padding: '5px 10px', border: '1px solid #fecaca', borderRadius: 4,
-                      background: 'var(--bg-card)', color: '#dc2626', fontSize: 12,
+                      background: 'var(--bg-card)', color: 'var(--color-error-600)', fontSize: 12,
                       cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
@@ -647,7 +647,7 @@ export default function TemplateCategoryPage() {
                 {/* 子分类 */}
                 {selectedChildren.length > 0 && (
                   <div style={{ marginBottom: 16 }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Folder size={12} /> {t('tplCategory.subCategories', { count: selectedChildren.length })}
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
@@ -674,7 +674,7 @@ export default function TemplateCategoryPage() {
                           </div>
                           <span style={{
                             fontSize: 12, padding: '1px 5px', borderRadius: 8,
-                            background: 'var(--color-info-bg)', color: '#1e40af', fontWeight: 700,
+                            background: 'var(--color-info-bg)', color: 'var(--color-primary-800)', fontWeight: 700,
                             // [v3.0.6.11-99 Wave8A P1] 子分类计数用真实 templateCount (API 分类计数合并)
                           }}>{templateCount[c.id] || 0}</span>
                         </div>
@@ -685,7 +685,7 @@ export default function TemplateCategoryPage() {
 
                 {/* 该分类下的模板 */}
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <FileText size={12} /> {t('tplCategory.templateList', { own: templateCount[selectedNode.id] || 0, all: selectedStats })}
                   </div>
                   <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6, padding: 12, minHeight: 80, fontSize: 12, color: 'var(--text-secondary)' }}>
@@ -697,8 +697,8 @@ export default function TemplateCategoryPage() {
                             border: '1px solid var(--border-color)',
                             display: 'flex', alignItems: 'center', gap: 8,
                           }}>
-                            <FileText size={12} color="#3b82f6" />
-                            <span style={{ fontWeight: 600, color: '#1e40af' }}>{tpl.name}</span>
+                            <FileText size={12} color="var(--color-primary-500)" />
+                            <span style={{ fontWeight: 600, color: 'var(--color-primary-800)' }}>{tpl.name}</span>
                             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{tpl.bodyPart}{tpl.modality ? ` · ${tpl.modality}` : ''}</span>
                             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{tpl.createdAt ? tpl.createdAt.slice(0, 10) : ''}</span>
                             <span style={{ marginLeft: 'auto', fontSize: 12, padding: '1px 4px', background: 'var(--color-success-bg)', color: '#047857', borderRadius: 2 }}>
@@ -714,8 +714,8 @@ export default function TemplateCategoryPage() {
                           <button
                             onClick={() => navigate('/template-designer')}
                             style={{
-                              padding: '4px 12px', border: '1px dashed #3b82f6', borderRadius: 4,
-                              background: 'transparent', color: '#1e40af', fontSize: 12,
+                              padding: '4px 12px', border: '1px dashed var(--color-primary-500)', borderRadius: 4,
+                              background: 'transparent', color: 'var(--color-primary-800)', fontSize: 12,
                               cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4,
                             }}
                           >
@@ -763,7 +763,7 @@ export default function TemplateCategoryPage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 440, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <FolderTree size={16} color="#0891b2" /> {catModal.mode === 'edit' ? t('tplCategory.editCategoryWithName', { name: catModal.cat.name }) : t('tplCategory.newCategory')}
+                <FolderTree size={16} color="var(--color-info-600)" /> {catModal.mode === 'edit' ? t('tplCategory.editCategoryWithName', { name: catModal.cat.name }) : t('tplCategory.newCategory')}
               </div>
               <button onClick={() => setCatModal(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
             </div>
@@ -787,7 +787,7 @@ export default function TemplateCategoryPage() {
               )}
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
                 <button onClick={() => setCatModal(null)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('tplCategory.cancel')}</button>
-                <button onClick={() => void saveCategory()} disabled={catSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#0891b2', color: '#fff', fontSize: 12, fontWeight: 600, cursor: catSaving ? 'wait' : 'pointer' }}>{catSaving ? t('tplCategory.saving') : t('tplCategory.saveCategory')}</button>
+                <button onClick={() => void saveCategory()} disabled={catSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: 'var(--color-info-600)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: catSaving ? 'wait' : 'pointer' }}>{catSaving ? t('tplCategory.saving') : t('tplCategory.saveCategory')}</button>
               </div>
             </div>
           </div>
@@ -799,7 +799,7 @@ export default function TemplateCategoryPage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 460, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Move size={16} color="#0891b2" /> {t('tplCategory.moveCategory')} · {moveModal.cat.name}
+                <Move size={16} color="var(--color-info-600)" /> {t('tplCategory.moveCategory')} · {moveModal.cat.name}
               </div>
               <button onClick={() => setMoveModal(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
             </div>
@@ -822,7 +822,7 @@ export default function TemplateCategoryPage() {
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
                 <button onClick={() => setMoveModal(null)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('tplCategory.cancel')}</button>
-                <button onClick={() => void saveMove()} disabled={moveSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#0891b2', color: '#fff', fontSize: 12, fontWeight: 600, cursor: moveSaving ? 'wait' : 'pointer' }}>{moveSaving ? t('tplCategory.moving') : t('tplCategory.confirmMove')}</button>
+                <button onClick={() => void saveMove()} disabled={moveSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: 'var(--color-info-600)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: moveSaving ? 'wait' : 'pointer' }}>{moveSaving ? t('tplCategory.moving') : t('tplCategory.confirmMove')}</button>
               </div>
             </div>
           </div>

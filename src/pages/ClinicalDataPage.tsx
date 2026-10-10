@@ -114,14 +114,14 @@ interface SystemConnectionStatus {
 
 // ==================== 样式常量 ====================
 const COLORS = {
-  primary: '#1e40af',
-  primaryLight: '#3b82f6',
-  secondary: '#0891b2',
-  success: '#16a34a',
+  primary: 'var(--color-primary-800)',
+  primaryLight: 'var(--color-primary-500)',
+  secondary: 'var(--color-info-600)',
+  success: 'var(--color-success-600)',
   successLight: '#dcfce7',
-  warning: '#d97706',
+  warning: 'var(--color-warning-600)',
   warningLight: '#fef3c7',
-  danger: '#dc2626',
+  danger: 'var(--color-error-600)',
   dangerLight: '#fee2e2',
   bgGray: '#f1f5f9',
   cardWhite: 'var(--bg-card)',
@@ -132,15 +132,15 @@ const COLORS = {
   purpleLight: '#ede9fe',
   orange: '#f97316',
   orangeLight: '#ffedd5',
-  cyan: '#06b6d4',
+  cyan: 'var(--color-info-500)',
   cyanLight: '#cffafe',
   pink: '#ec4899',
   pinkLight: '#fce7f3',
-  his: '#3b82f6',
+  his: 'var(--color-primary-500)',
   pacs: '#8b5cf6',
   emr: '#10b981',
-  lis: '#f59e0b',
-  ris: '#06b6d4'
+  lis: 'var(--color-warning-500)',
+  ris: 'var(--color-info-500)'
 }
 
 const styles = {
@@ -150,7 +150,7 @@ const styles = {
     color: COLORS.textDark,
   },
   header: {
-    background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)',
+    background: 'linear-gradient(135deg, var(--color-primary-800) 0%, #1e3a8a 100%)',
     color: 'white',
     padding: '16px 24px',
     display: 'flex',

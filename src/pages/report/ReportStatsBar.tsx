@@ -1,6 +1,6 @@
 import React from 'react'
 
-const PRIMARY = '#1e40af'
+const PRIMARY = 'var(--color-primary-800)'
 const GRAY = '#64748b'
 const WHITE = 'var(--bg-card)'
 

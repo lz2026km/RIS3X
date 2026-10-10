@@ -122,7 +122,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
       <Progress
         percent={pct}
         size="small"
-        strokeColor={pct >= 90 ? '#dc2626' : pct >= 70 ? '#f59e0b' : '#10b981'}
+        strokeColor={pct >= 90 ? 'var(--color-error-600)' : pct >= 70 ? 'var(--color-warning-500)' : '#10b981'}
       />
     );
   };
@@ -131,7 +131,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
     <div data-testid="reviewer-assignment" role="region" aria-label={t('reportReview.assign.title')}>
       <div
         style={{
-          background: 'linear-gradient(135deg, #10b981 0%, #0891b2 100%)',
+          background: 'linear-gradient(135deg, #10b981 0%, var(--color-info-600) 100%)',
           color: '#fff',
           padding: '12px 16px',
           borderRadius: 8,
@@ -236,7 +236,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
               <List.Item.Meta
                 avatar={
                   <div style={{ position: 'relative' }}>
-                    <Avatar size={36} style={{ background: '#3b82f6' }}>
+                    <Avatar size={36} style={{ background: 'var(--color-primary-500)' }}>
                       {r.name[0]}
                     </Avatar>
                     <div
@@ -251,9 +251,9 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
                           STATUS_META[r.status].color === 'green'
                             ? '#10b981'
                             : STATUS_META[r.status].color === 'gold'
-                              ? '#f59e0b'
+                              ? 'var(--color-warning-500)'
                               : STATUS_META[r.status].color === 'red'
-                                ? '#dc2626'
+                                ? 'var(--color-error-600)'
                                 : '#94a3b8',
                         border: '2px solid #fff',
                       }}
@@ -288,7 +288,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
                       {renderLoadBar(r)}
                       <span>{t('reportReview.assign.pending')} {r.pendingCount}</span>
                       <span>{t('reportReview.assign.today')} {r.completedToday}</span>
-                      <span style={{ color: r.onTimeRate >= 90 ? '#10b981' : '#f59e0b' }}>
+                      <span style={{ color: r.onTimeRate >= 90 ? '#10b981' : 'var(--color-warning-500)' }}>
                         {t('reportReview.assign.onTime')} {r.onTimeRate}%
                       </span>
                     </div>

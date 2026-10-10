@@ -66,9 +66,9 @@ interface ReportFilterPreset {
 }
 
 const QUEUE_DEFS = [
-  { key: 'todo', labelKey: 'reportPage.queue.todo', color: '#1e40af' },
+  { key: 'todo', labelKey: 'reportPage.queue.todo', color: 'var(--color-primary-800)' },
   { key: 'pendingReview', labelKey: 'reportPage.queue.pendingReview', color: '#7c3aed' },
-  { key: 'critical', labelKey: 'reportPage.queue.critical', color: '#dc2626' },
+  { key: 'critical', labelKey: 'reportPage.queue.critical', color: 'var(--color-error-600)' },
   { key: 'mine', labelKey: 'reportPage.queue.mine', color: '#059669' },
 ] as const
 
@@ -460,7 +460,7 @@ export default function ReportPage() {
       const esc = (s?: string) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
       const html = [
         `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>${t('w9c.reportPage.offlineTitle')}</title>`,
-        '<style>body{font-family:-apple-system,sans-serif;max-width:760px;margin:0 auto;padding:24px;color:#1e293b;line-height:1.8}h1{font-size:20px;border-bottom:2px solid #1e40af;padding-bottom:8px;margin-bottom:8px}.meta{color:#64748b;font-size:12px;margin-bottom:16px}label{font-weight:600;color:#1e40af;display:block;margin:14px 0 4px;font-size:13px}section{white-space:pre-wrap;font-size:13px;background:#f8fafc;padding:10px;border-radius:8px;border:1px solid #e2e8f0}</style>',
+        '<style>body{font-family:-apple-system,sans-serif;max-width:760px;margin:0 auto;padding:24px;color:#1e293b;line-height:1.8}h1{font-size:20px;border-bottom:2px solid var(--color-primary-800);padding-bottom:8px;margin-bottom:8px}.meta{color:#64748b;font-size:12px;margin-bottom:16px}label{font-weight:600;color:var(--color-primary-800);display:block;margin:14px 0 4px;font-size:13px}section{white-space:pre-wrap;font-size:13px;background:#f8fafc;padding:10px;border-radius:8px;border:1px solid #e2e8f0}</style>',
         `</head><body><h1>${t('w9c.reportPage.offlineHeading')}</h1><div class="meta">${t('w9c.reportPage.offlinePatientMeta', { patient: esc(r.patientName), modality: esc(r.modality), bodyPart: esc(r.bodyPart), reportId: esc(r.reportId), accession: esc(r.accessionNumber) })}<br/>${t('w9c.reportPage.offlineSavedAt', { time: new Date().toLocaleString('zh-CN') })}</div>`,
         `<label>${t('w9c.reportPage.offlineFindings')}</label><section>${esc(r.examFindings)}</section>`,
         `<label>${t('w9c.reportPage.offlineDiagnosis')}</label><section>${esc(r.diagnosis)}</section>`,
@@ -570,7 +570,7 @@ export default function ReportPage() {
           <StatCard label={t("reportPage.stat.pendingReview")} value={stats.pendingReview} icon={<Clock size={20} />} color={PURPLE} sub={t('w9c.reportPage.pendingShareSub', { pct: stats.pendingReview > 0 ? Math.round((stats.pendingReview / allReports.length) * 100) : 0 })} />
           <StatCard label={t("reportPage.stat.criticalReports")} value={stats.criticalCount} icon={<Zap size={20} />} color={DANGER} sub={t('w9c.reportPage.criticalPositiveSub', { count: filteredStats.critical })} />
           <StatCard label={t("reportPage.stat.positive")} value={stats.positiveCount} icon={<AlertTriangle size={20} />} color={WARNING} sub={t('w9c.reportPage.positiveRateSub', { pct: allReports.length > 0 ? Math.round((stats.positiveCount / allReports.length) * 100) : 0 })} />
-          <StatCard label={t("reportPage.stat.avgTurnaround")} value={stats.avgTurnaround} icon={<Clock size={20} />} color="#0891b2" sub={t("reportPage.stat.hoursTip")} />
+          <StatCard label={t("reportPage.stat.avgTurnaround")} value={stats.avgTurnaround} icon={<Clock size={20} />} color="var(--color-info-600)" sub={t("reportPage.stat.hoursTip")} />
           <StatCard label={t("reportPage.stat.weekTotal")} value={stats.thisWeekTotal} icon={<BarChart3 size={20} />} color="#7c3aed" sub={t("reportPage.stat.weekTotalTip")} />
         </div>
         {/* [v3.0.6.11-103 Wave 2A] 报告统计报表入口: overview / by-doctor / daily-trend */}
@@ -665,7 +665,7 @@ export default function ReportPage() {
       <ReportStatsModal open={statsModalOpen} onClose={() => setStatsModalOpen(false)} />
 
       {/* [v3.0.6.11-95 Wave2B P1] 保存当前筛选为快捷预置 */}
-      <Modal title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Bookmark size={15} style={{ color: '#1e40af' }} />{t("reportPage.savePresetTitle")}</span>} open={showSavePreset} onCancel={() => setShowSavePreset(false)} onOk={saveCurrentPreset} okText={t("reportPage.save")} cancelText={t("reportPage.cancel")} width={400} destroyOnHidden>
+      <Modal title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Bookmark size={15} style={{ color: 'var(--color-primary-800)' }} />{t("reportPage.savePresetTitle")}</span>} open={showSavePreset} onCancel={() => setShowSavePreset(false)} onOk={saveCurrentPreset} okText={t("reportPage.save")} cancelText={t("reportPage.cancel")} width={400} destroyOnHidden>
         <Input value={savePresetName} onChange={e => setSavePresetName(e.target.value)} onPressEnter={saveCurrentPreset} placeholder={t("reportPage.presetNamePlaceholder")} allowClear style={{ marginTop: 8 }} />
         <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>{t("reportPage.presetHelp")}</div>
       </Modal>

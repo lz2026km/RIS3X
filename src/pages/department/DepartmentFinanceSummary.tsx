@@ -8,11 +8,11 @@ import { ChartContainer } from "../../components/charts";
 import { t } from "../../i18n/appI18n";
 
 const C = {
-  primary: "#1e40af", primaryLight: "#3b82f6", primaryLighter: "#dbeafe",
-  accent: "#0891b2", white: "#ffffff", bg: "#e8e8e8", bgLight: "#f1f5f9",
+  primary: "var(--color-primary-800)", primaryLight: "var(--color-primary-500)", primaryLighter: "#dbeafe",
+  accent: "var(--color-info-600)", white: "#ffffff", bg: "#e8e8e8", bgLight: "#f1f5f9",
   border: "#d1d5db", borderLight: "#e5e7eb", textDark: "#1f2937", textMid: "#4b5563",
-  textLight: "#9ca3af", success: "#059669", successBg: "#d1fae5", warning: "#d97706",
-  warningBg: "#fef3c7", danger: "#dc2626", dangerBg: "#fee2e2", info: "#2563eb",
+  textLight: "#9ca3af", success: "#059669", successBg: "#d1fae5", warning: "var(--color-warning-600)",
+  warningBg: "#fef3c7", danger: "var(--color-error-600)", dangerBg: "#fee2e2", info: "var(--color-primary-600)",
   infoBg: "#dbeafe", purple: "#7c3aed", purpleBg: "#ede9fe",
 };
 
@@ -76,7 +76,7 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
         <div style={panelStyle}>
           <div style={panelHeaderStyle}>
-            <span>{t("deptFinance.workloadStats")} {/* [G005 Wave2B P2] PERFORMANCE_DATA 等全硬编码 → 演示数据徽标 */}<span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("deptFinance.demoData")}</span></span>
+            <span>{t("deptFinance.workloadStats")} {/* [G005 Wave2B P2] PERFORMANCE_DATA 等全硬编码 → 演示数据徽标 */}<span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: 'var(--color-warning-600)', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("deptFinance.demoData")}</span></span>
             <div style={{ display: "flex", gap: 8 }}>
               <select style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}><option>{t("deptFinance.thisWeek")}</option><option>{t("deptFinance.thisMonth")}</option><option>{t("deptFinance.thisQuarter")}</option></select>
             </div>
@@ -113,7 +113,7 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
               <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>{t("deptFinance.workloadTop5")}</div>
               {WORKLOAD_RANKING.map((r, i) => (
                 <div key={r.rank} style={{ display: "flex", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${C.borderLight}`, gap: 12 }}>
-                  <div style={{ width: 24, height: 24, borderRadius: "50%", background: i === 0 ? "#fbbf24" : i === 1 ? "#94a3b8" : i === 2 ? "#cd7c32" : C.borderLight, color: i < 3 ? C.white : C.textMid, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600 }}>{r.rank}</div>
+                  <div style={{ width: 24, height: 24, borderRadius: "50%", background: i === 0 ? "var(--color-warning-400)" : i === 1 ? "#94a3b8" : i === 2 ? "#cd7c32" : C.borderLight, color: i < 3 ? C.white : C.textMid, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600 }}>{r.rank}</div>
                   <div style={{ flex: 1 }}><div style={{ fontSize: 12, fontWeight: 500, color: C.textDark }}>{r.name}</div><div style={{ fontSize: 12, color: C.textLight }}>{r.role}</div></div>
                   <div style={{ textAlign: "right" }}><div style={{ fontSize: 12, fontWeight: 600, color: C.primary }}>{t("deptFinance.portions", { count: r.written + r.reviewed })}</div><div style={{ fontSize: 12, color: C.success }}>{t("deptFinance.score", { score: r.score })}</div></div>
                 </div>
@@ -167,7 +167,7 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
         </div>
         <div style={{ padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}`, marginBottom: 20 }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
-            <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: 0 }}>{t("deptFinance.kpiMonthlyTrend")} <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("deptFinance.demoData")}</span></h4>
+            <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: 0 }}>{t("deptFinance.kpiMonthlyTrend")} <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: 'var(--color-warning-600)', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("deptFinance.demoData")}</span></h4>
             <div style={{ display: "flex", gap: 8 }}>
               {["cards", "charts"].map((v) => (
                 <button key={v} onClick={() => setKpiView(v as any)} style={{ padding: "4px 12px", background: kpiView === v ? C.primary : C.white, color: kpiView === v ? C.white : C.textMid, border: `1px solid ${C.border}`, borderRadius: 4, cursor: "pointer", fontSize: 12 }}>{v === "cards" ? t("deptFinance.overview") : t("deptFinance.charts")}</button>

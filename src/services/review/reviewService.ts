@@ -447,7 +447,7 @@ export const reviewService = {
     await wait();
     const c: ReviewComment = {
       id: 'cmt-' + Date.now(), taskId, reportId: inMemoryTasks.find((t) => t.id === taskId)?.reportId ?? '',
-      authorId, authorName, authorColor: '#3b82f6', content, position: { x: 0, y: 0 },
+      authorId, authorName, authorColor: 'var(--color-primary-500)', content, position: { x: 0, y: 0 },
       resolved: false, mentions, createdAt: new Date().toISOString(),
     };
     inMemoryComments.push(c);

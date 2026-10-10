@@ -221,7 +221,7 @@ export function ContextMenu({
                 color: item.disabled
                   ? "var(--text-muted, #94a3b8)"
                   : item.danger || isConfirm
-                    ? "var(--color-error, #dc2626)"
+                    ? "var(--color-error, var(--color-error-600))"
                     : "var(--text-primary, #1e293b)",
                 fontSize: 12,
                 fontWeight: isConfirm ? 600 : 500,

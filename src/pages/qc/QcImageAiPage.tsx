@@ -187,15 +187,15 @@ export default function QcImageAiPage() {
   }, [filtered])
 
   const statCards = [
-    { label: t("totalScores"), value: stats?.totalScores ?? 0, icon: <Activity size={20} />, color: "#3b82f6", sub: "" },
-    { label: t("artifactScore"), value: (stats?.avgArtifactOverall ?? 0).toFixed(1), icon: <AlertTriangle size={20} />, color: "#f59e0b", sub: artifactLabel(stats?.avgArtifactOverall ?? 0) },
+    { label: t("totalScores"), value: stats?.totalScores ?? 0, icon: <Activity size={20} />, color: "var(--color-primary-500)", sub: "" },
+    { label: t("artifactScore"), value: (stats?.avgArtifactOverall ?? 0).toFixed(1), icon: <AlertTriangle size={20} />, color: "var(--color-warning-500)", sub: artifactLabel(stats?.avgArtifactOverall ?? 0) },
     { label: t("positioningScore"), value: (stats?.avgPositioningOverall ?? 0).toFixed(1), icon: <Target size={20} />, color: "#8b5cf6", sub: artifactLabel(stats?.avgPositioningOverall ?? 0) },
     { label: t("exposureScore"), value: (stats?.avgExposureScore ?? 0).toFixed(1), icon: <BarChart3 size={20} />, color: "#10b981", sub: artifactLabel(stats?.avgExposureScore ?? 0) },
   ]
 
   return (
     <PageContainer background="slate" maxWidth="wide">
-      <PageHeader icon={<Camera size={20} color="#3b82f6" />} title={t("title")} subtitle={t("subtitle")}
+      <PageHeader icon={<Camera size={20} color="var(--color-primary-500)" />} title={t("title")} subtitle={t("subtitle")}
         actions={<Button size="small" icon={<RefreshCw size={12} />} loading={loadingStats} onClick={() => void loadStats(modality, dateFrom, dateTo)}>刷新统计</Button>} />
 
       <div style={{ padding: 24 }}>
@@ -203,7 +203,7 @@ export default function QcImageAiPage() {
         <RqiIndicatorLink code="RQI-IIA-01" />
         <div style={{ marginBottom: 16, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
           {MODALITY_OPTIONS.map(m => (
-            <button key={m} onClick={() => setModality(m)} style={{ padding: "6px 14px", background: modality === m ? "#1e40af" : "var(--bg-card)", color: modality === m ? "#fff" : "#475569", border: "1px solid " + (modality === m ? "#1e40af" : "var(--border-color)"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
+            <button key={m} onClick={() => setModality(m)} style={{ padding: "6px 14px", background: modality === m ? "var(--color-primary-800)" : "var(--bg-card)", color: modality === m ? "#fff" : "#475569", border: "1px solid " + (modality === m ? "var(--color-primary-800)" : "var(--border-color)"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
               {m === "all" ? t("all") : m}
             </button>
           ))}
@@ -236,10 +236,10 @@ export default function QcImageAiPage() {
         </Spin>
 
         <div style={{ marginBottom: 16, display: "flex", gap: 8 }}>
-          <button onClick={() => setActiveTab("v1")} style={{ padding: "6px 16px", background: activeTab === "v1" ? "#1e40af" : "var(--bg-card)", color: activeTab === "v1" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "v1" ? "#1e40af" : "var(--border-color)"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
+          <button onClick={() => setActiveTab("v1")} style={{ padding: "6px 16px", background: activeTab === "v1" ? "var(--color-primary-800)" : "var(--bg-card)", color: activeTab === "v1" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "v1" ? "var(--color-primary-800)" : "var(--border-color)"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
             V1
           </button>
-          <button onClick={() => setActiveTab("v2")} style={{ padding: "6px 16px", background: activeTab === "v2" ? "#1e40af" : "var(--bg-card)", color: activeTab === "v2" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "v2" ? "#1e40af" : "var(--border-color)"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
+          <button onClick={() => setActiveTab("v2")} style={{ padding: "6px 16px", background: activeTab === "v2" ? "var(--color-primary-800)" : "var(--bg-card)", color: activeTab === "v2" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "v2" ? "var(--color-primary-800)" : "var(--border-color)"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
             V2 {t("detailed")}
           </button>
         </div>
@@ -260,8 +260,8 @@ export default function QcImageAiPage() {
           </Space>
           {scored && (
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", background: "var(--bg-card)", borderRadius: 8, padding: 12 }}>
-              <ScoreBlock title="伪影" scores={[scored.artifactScores.motion, scored.artifactScores.metal, scored.artifactScores.ring]} labels={["运动", "金属", "环状"]} colors={["#f59e0b", "#ef4444", "#8b5cf6"]} />
-              <ScoreBlock title="摆位" scores={[scored.positioningScores.setup, scored.positioningScores.rotation, scored.positioningScores.offset]} labels={["摆位", "旋转", "偏移"]} colors={["#8b5cf6", "#3b82f6", "#06b6d4"]} />
+              <ScoreBlock title="伪影" scores={[scored.artifactScores.motion, scored.artifactScores.metal, scored.artifactScores.ring]} labels={["运动", "金属", "环状"]} colors={["var(--color-warning-500)", "var(--color-error-500)", "#8b5cf6"]} />
+              <ScoreBlock title="摆位" scores={[scored.positioningScores.setup, scored.positioningScores.rotation, scored.positioningScores.offset]} labels={["摆位", "旋转", "偏移"]} colors={["#8b5cf6", "var(--color-primary-500)", "var(--color-info-500)"]} />
               <div style={{ flex: "1 1 140px" }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 8 }}>曝光: {scored.exposure.value} ({scored.exposure.score})</div>
                 <div style={{ fontSize: 24, fontWeight: 800, color: scoreColor(scored.overall) }}>{scored.overall.toFixed(1)}</div>
@@ -274,7 +274,7 @@ export default function QcImageAiPage() {
         {/* [v3.0.6.11-104 Wave 2C] AI 质控结果回读: 按实例查询 (V1) + V2 结果列表 (三态) */}
         <div style={{ marginBottom: 24, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }} data-testid="qcai-result-readback">
           <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 14px", display: "flex", alignItems: "center", gap: 6 }}>
-            <Eye size={18} color="#3b82f6" /> {tr("qcai.lookup.title")}
+            <Eye size={18} color="var(--color-primary-500)" /> {tr("qcai.lookup.title")}
           </h3>
           <Space wrap style={{ marginBottom: 12 }}>
             <Input placeholder={tr("qcai.lookup.placeholder")} value={lookupId} onChange={e => setLookupId(e.target.value)} onPressEnter={() => void lookupByInstance()} style={{ width: 300 }} allowClear />
@@ -288,8 +288,8 @@ export default function QcImageAiPage() {
             <Alert type="warning" showIcon message={lookupError} />
           ) : lookupResult ? (
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", background: "var(--bg-card)", borderRadius: 8, padding: 12 }} data-testid="qcai-v1-result">
-              <ScoreBlock title={tr("qcai.lookup.artifact")} scores={[lookupResult.motionArtifact, lookupResult.metalArtifact, lookupResult.ringArtifact]} labels={[tr("qcai.motion"), tr("qcai.metal"), tr("qcai.ring")]} colors={["#f59e0b", "#ef4444", "#8b5cf6"]} />
-              <ScoreBlock title={tr("qcai.lookup.positioning")} scores={[lookupResult.positioningCorrect, lookupResult.positioningMildRotation, lookupResult.positioningSevereOffset]} labels={[tr("qcai.setup"), tr("qcai.rotation"), tr("qcai.offset")]} colors={["#8b5cf6", "#3b82f6", "#06b6d4"]} />
+              <ScoreBlock title={tr("qcai.lookup.artifact")} scores={[lookupResult.motionArtifact, lookupResult.metalArtifact, lookupResult.ringArtifact]} labels={[tr("qcai.motion"), tr("qcai.metal"), tr("qcai.ring")]} colors={["var(--color-warning-500)", "var(--color-error-500)", "#8b5cf6"]} />
+              <ScoreBlock title={tr("qcai.lookup.positioning")} scores={[lookupResult.positioningCorrect, lookupResult.positioningMildRotation, lookupResult.positioningSevereOffset]} labels={[tr("qcai.setup"), tr("qcai.rotation"), tr("qcai.offset")]} colors={["#8b5cf6", "var(--color-primary-500)", "var(--color-info-500)"]} />
               <div style={{ flex: "1 1 140px" }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 8 }}>{tr("qcai.lookup.overall")}: {lookupResult.overall.toFixed(1)}</div>
                 <div style={{ fontSize: 24, fontWeight: 800, color: scoreColor(lookupResult.overall) }}>{lookupResult.overall.toFixed(1)}</div>
@@ -304,7 +304,7 @@ export default function QcImageAiPage() {
             {recordsLoading ? (
               <span><Spin size="small" /> {tr("qcai.resultList.loading")}</span>
             ) : recordsError ? (
-              <span style={{ color: "#dc2626" }}>{tr("qcai.resultList.loadFailed")}: {recordsError}</span>
+              <span style={{ color: "var(--color-error-600)" }}>{tr("qcai.resultList.loadFailed")}: {recordsError}</span>
             ) : records.length === 0 ? (
               <span>{tr("qcai.resultList.empty")}</span>
             ) : (
@@ -317,12 +317,12 @@ export default function QcImageAiPage() {
           <>
             <div style={{ display: "flex", gap: 20, marginTop: 4 }}>
               <div style={{ flex: 1, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}><Zap size={16} color="#f59e0b" /> {t("artifactDetail")}</h3>
-                <SubBarChart data={filtered} getValues={r => [r.artifactScores.motion, r.artifactScores.metal, r.artifactScores.ring]} colors={["#f59e0b", "#ef4444", "#8b5cf6"]} labels={[t("motion"), t("metal"), t("ring")]} max={5} />
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}><Zap size={16} color="var(--color-warning-500)" /> {t("artifactDetail")}</h3>
+                <SubBarChart data={filtered} getValues={r => [r.artifactScores.motion, r.artifactScores.metal, r.artifactScores.ring]} colors={["var(--color-warning-500)", "var(--color-error-500)", "#8b5cf6"]} labels={[t("motion"), t("metal"), t("ring")]} max={5} />
               </div>
               <div style={{ flex: 1, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}><Eye size={16} color="#8b5cf6" /> {t("positioningDetail")}</h3>
-                <SubBarChart data={filtered} getValues={r => [r.positioningScores.setup, r.positioningScores.rotation, r.positioningScores.offset]} colors={["#8b5cf6", "#3b82f6", "#06b6d4"]} labels={[t("setup"), t("rotation"), t("offset")]} max={5} />
+                <SubBarChart data={filtered} getValues={r => [r.positioningScores.setup, r.positioningScores.rotation, r.positioningScores.offset]} colors={["#8b5cf6", "var(--color-primary-500)", "var(--color-info-500)"]} labels={[t("setup"), t("rotation"), t("offset")]} max={5} />
               </div>
               <div style={{ flex: 1, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}><Activity size={16} color="#10b981" /> {t("exposureDetail")}</h3>
@@ -330,7 +330,7 @@ export default function QcImageAiPage() {
                   {EXPOSURE_VALUES.map(ev => {
                     const items = filtered.filter(r => r.exposure.value === ev)
                     const avg = items.length ? items.reduce((s, r) => s + r.exposure.score, 0) / items.length : 0
-                    const color = ev === "正常" ? "#10b981" : ev === "不足" ? "#f59e0b" : "#ef4444"
+                    const color = ev === "正常" ? "#10b981" : ev === "不足" ? "var(--color-warning-500)" : "var(--color-error-500)"
                     return (
                       <div key={ev} style={{ display: "flex", alignItems: "center", gap: 12 }}>
                         <span style={{ width: 40, fontSize: 12, fontWeight: 600, color }}>{ev}</span>
@@ -346,7 +346,7 @@ export default function QcImageAiPage() {
             </div>
 
             <div style={{ marginTop: 24, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 16px", display: "flex", alignItems: "center", gap: 6 }}><TrendingUp size={18} color="#3b82f6" /> {t("overallTrend")}</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 16px", display: "flex", alignItems: "center", gap: 6 }}><TrendingUp size={18} color="var(--color-primary-500)" /> {t("overallTrend")}</h3>
               {trendData.length > 0 ? (
                 <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 120, padding: "0 8px" }}>
                   {trendData.map((p, i) => {
@@ -355,7 +355,7 @@ export default function QcImageAiPage() {
                       <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                         <span style={{ fontSize: 10, color: "#475569", fontWeight: 600 }}>{p.avgOverall.toFixed(1)}</span>
                         <div style={{ width: "100%", maxWidth: 32, height: 100, background: "var(--border-color)", borderRadius: "4px 4px 0 0", position: "relative", overflow: "hidden" }}>
-                          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: `${h}%`, background: "linear-gradient(to top, #3b82f6, #60a5fa)", borderRadius: "4px 4px 0 0", transition: "height 0.3s" }} />
+                          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: `${h}%`, background: "linear-gradient(to top, var(--color-primary-500), #60a5fa)", borderRadius: "4px 4px 0 0", transition: "height 0.3s" }} />
                         </div>
                         <span style={{ fontSize: 10, color: "#94a3b8", transform: "rotate(-45deg)", whiteSpace: "nowrap" }}>{p.date.slice(5)}</span>
                       </div>
@@ -475,7 +475,7 @@ function artifactLabel(score: number): string {
 }
 
 function scoreColor(score: number): string {
-  return score >= 4 ? "#10b981" : score >= 3 ? "#f59e0b" : "#dc2626"
+  return score >= 4 ? "#10b981" : score >= 3 ? "var(--color-warning-500)" : "var(--color-error-600)"
 }
 
 function scoreBadge(score: number) {
@@ -484,6 +484,6 @@ function scoreBadge(score: number) {
 }
 
 function modalityColor(mod: string): string {
-  const map: Record<string, string> = { CT: "#3b82f6", MR: "#8b5cf6", DR: "#10b981", CBCT: "#f59e0b" }
+  const map: Record<string, string> = { CT: "var(--color-primary-500)", MR: "#8b5cf6", DR: "#10b981", CBCT: "var(--color-warning-500)" }
   return map[mod] ?? "#64748b"
 }

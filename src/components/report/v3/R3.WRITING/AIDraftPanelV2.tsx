@@ -581,7 +581,7 @@ export const AIDraftPanelV2: React.FC<Props> = ({
                         <Progress
                           percent={Math.round(f.confidence * 100)}
                           size="small"
-                          strokeColor={f.confidence > 0.92 ? '#10b981' : f.confidence > 0.85 ? '#f59e0b' : '#dc2626'}
+                          strokeColor={f.confidence > 0.92 ? '#10b981' : f.confidence > 0.85 ? 'var(--color-warning-500)' : 'var(--color-error-600)'}
                           style={{ width: 48, marginBottom: 0 }}
                           format={() => ''}
                         />
@@ -637,7 +637,7 @@ export const AIDraftPanelV2: React.FC<Props> = ({
                     <Progress
                       percent={Math.round(seg.confidence * 100)}
                       size="small"
-                      strokeColor={seg.confidence > 0.9 ? '#10b981' : seg.confidence > 0.8 ? '#f59e0b' : '#dc2626'}
+                      strokeColor={seg.confidence > 0.9 ? '#10b981' : seg.confidence > 0.8 ? 'var(--color-warning-500)' : 'var(--color-error-600)'}
                       style={{ width: 70, marginBottom: 0 }}
                       format={() => ''}
                     />
@@ -667,7 +667,7 @@ export const AIDraftPanelV2: React.FC<Props> = ({
     <Card
       size="small"
       className="shadow-none"
-      title={<Space size={6}><ListChecks size={14} color="#0891b2" /><span className="text-sm font-semibold">{t('aiDraft.suggest.title')}</span><Tag color="cyan">{t('aiDraft.suggest.tag')}</Tag></Space>}
+      title={<Space size={6}><ListChecks size={14} color="var(--color-info-600)" /><span className="text-sm font-semibold">{t('aiDraft.suggest.title')}</span><Tag color="cyan">{t('aiDraft.suggest.tag')}</Tag></Space>}
       extra={suggestResult ? <Tag color="blue">{t('aiDraft.suggest.score', { score: suggestResult.overallScore })}</Tag> : undefined}
       styles={{ body: { padding: 12 } }}
     >

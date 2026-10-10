@@ -35,10 +35,10 @@ function KpiCard({ title, value, unit, icon: Icon, trend, color }: {
   title: string; value: string | number; unit?: string; icon: typeof Activity; trend?: 'up' | 'down'; color: string
 }) {
   const c = ({
-    '#dc2626': 'error', '#ef4444': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
-    '#f59e0b': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
-    '#16a34a': 'success', '#22c55e': 'success', '#52c41a': 'success', '#10b981': 'success',
-    '#2563eb': 'primary', '#1890ff': 'primary', '#1d4ed8': 'primary',
+    'var(--color-error-600)': 'error', 'var(--color-error-500)': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
+    'var(--color-warning-500)': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
+    'var(--color-success-600)': 'success', 'var(--color-success-500)': 'success', '#52c41a': 'success', '#10b981': 'success',
+    'var(--color-primary-600)': 'primary', '#1890ff': 'primary', 'var(--color-primary-700)': 'primary',
   } as Record<string, string>)[color] ?? color
   return <StatCard title={title} value={value} suffix={unit} icon={<Icon size={20} />} trend={trend} color={c} />
 }
@@ -172,7 +172,7 @@ export default function OpsDashboardPage() {
                 <YAxis tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} />
                 <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 4, fontSize: 12 }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Line type="monotone" dataKey="exams" stroke="#3b82f6" strokeWidth={2} dot={false} name={t('opsDashboard.thisPeriod')} />
+                <Line type="monotone" dataKey="exams" stroke="var(--color-primary-500)" strokeWidth={2} dot={false} name={t('opsDashboard.thisPeriod')} />
                 <Line type="monotone" dataKey="previousExams" stroke="#6e7681" strokeWidth={1.5} strokeDasharray="4 2" dot={false} name={t('opsDashboard.prevPeriod')} />
               </LineChart>
             </ChartContainer>
@@ -186,7 +186,7 @@ export default function OpsDashboardPage() {
                 <XAxis dataKey="modality" tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} />
                 <YAxis domain={[0, 100]} tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} unit="%" />
                 <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`${v}%`, t('opsDashboard.utilization')]} />
-                <Bar dataKey="utilizationPercent" fill="#22c55e" radius={[4, 4, 0, 0]} name={t('opsDashboard.utilization')} />
+                <Bar dataKey="utilizationPercent" fill="var(--color-success-500)" radius={[4, 4, 0, 0]} name={t('opsDashboard.utilization')} />
               </BarChart>
             </ChartContainer>
           </Card>
@@ -201,7 +201,7 @@ export default function OpsDashboardPage() {
                 <XAxis dataKey="label" tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} />
                 <YAxis tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} />
                 <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 4, fontSize: 12 }} />
-                <Bar dataKey="examCount" fill="#f59e0b" radius={[4, 4, 0, 0]} name={t('opsDashboard.examVolume')} />
+                <Bar dataKey="examCount" fill="var(--color-warning-500)" radius={[4, 4, 0, 0]} name={t('opsDashboard.examVolume')} />
               </BarChart>
             </ChartContainer>
           </Card>

@@ -44,11 +44,11 @@ interface CriticalValue5Step {
 }
 
 const STEP_CONFIG = [
-  { titleKey: 'cv5.stepDiscovered', icon: AlertTriangle, color: '#dc2626', descKey: 'cv5.stepDiscoveredDesc' },
+  { titleKey: 'cv5.stepDiscovered', icon: AlertTriangle, color: 'var(--color-error-600)', descKey: 'cv5.stepDiscoveredDesc' },
   { titleKey: 'cv5.stepNotified', icon: Phone, color: '#ea580c', descKey: 'cv5.stepNotifiedDesc' },
   { titleKey: 'cv5.stepConfirmed', icon: CheckCircle, color: '#ca8a04', descKey: 'cv5.stepConfirmedDesc' },
-  { titleKey: 'cv5.stepReceipt', icon: FileCheck, color: '#16a34a', descKey: 'cv5.stepReceiptDesc' },
-  { titleKey: 'cv5.stepClosed', icon: Archive, color: '#2563eb', descKey: 'cv5.stepClosedDesc' },
+  { titleKey: 'cv5.stepReceipt', icon: FileCheck, color: 'var(--color-success-600)', descKey: 'cv5.stepReceiptDesc' },
+  { titleKey: 'cv5.stepClosed', icon: Archive, color: 'var(--color-primary-600)', descKey: 'cv5.stepClosedDesc' },
 ]
 
 export default function CriticalValue5StepPage() {
@@ -150,7 +150,7 @@ export default function CriticalValue5StepPage() {
       title: t('cv5.colFinding'),
       dataIndex: 'finding',
       key: 'finding',
-      render: (f: string) => <span style={{ fontWeight: 600, color: '#dc2626' }}>{f}</span>,
+      render: (f: string) => <span style={{ fontWeight: 600, color: 'var(--color-error-600)' }}>{f}</span>,
     },
     {
       title: t('cv5.colSeverity'),
@@ -193,7 +193,7 @@ export default function CriticalValue5StepPage() {
   return (
     <PageContainer padding={24}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <ShieldAlert size={22} style={{ color: '#dc2626' }} />
+        <ShieldAlert size={22} style={{ color: 'var(--color-error-600)' }} />
         <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{t('cv5.title')}</h1>
         <Tag color="red">{t('cv5.loopTag')}</Tag>
       </div>

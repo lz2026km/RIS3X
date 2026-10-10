@@ -26,7 +26,7 @@ interface Props {
 }
 
 const STYLE_OPTIONS = [
-  { value: 'concise', label: t('aiDraft.style.concise'), icon: Zap, color: '#3b82f6' },
+  { value: 'concise', label: t('aiDraft.style.concise'), icon: Zap, color: 'var(--color-primary-500)' },
   { value: 'detailed', label: t('aiDraft.style.detailed'), icon: FileText, color: '#7c3aed' },
   { value: 'structured', label: t('aiDraft.style.structured'), icon: ListOrdered, color: '#10b981' },
 ];
@@ -59,17 +59,17 @@ const MOCK_DDX = [
 const MOCK_RISK = {
   overallRisk: 0.78,
   categories: [
-    { name: '恶性肿瘤风险', score: 0.85, level: 'high', color: '#dc2626' },
-    { name: '淋巴结转移风险', score: 0.32, level: 'medium', color: '#f59e0b' },
+    { name: '恶性肿瘤风险', score: 0.85, level: 'high', color: 'var(--color-error-600)' },
+    { name: '淋巴结转移风险', score: 0.32, level: 'medium', color: 'var(--color-warning-500)' },
     { name: '远处转移风险', score: 0.12, level: 'low', color: '#10b981' },
   ],
 };
 
 const MOCK_PREREAD = [
-  { region: '右肺上叶尖段', finding: '不规则结节 18mm×15mm', suspicion: '高度可疑', risk: 0.92, color: '#dc2626' },
-  { region: '右肺上叶胸膜', finding: '胸膜牵拉凹陷征', suspicion: '相关征象', risk: 0.78, color: '#f59e0b' },
+  { region: '右肺上叶尖段', finding: '不规则结节 18mm×15mm', suspicion: '高度可疑', risk: 0.92, color: 'var(--color-error-600)' },
+  { region: '右肺上叶胸膜', finding: '胸膜牵拉凹陷征', suspicion: '相关征象', risk: 0.78, color: 'var(--color-warning-500)' },
   { region: '纵隔淋巴结', finding: '未见明显肿大', suspicion: '阴性', risk: 0.05, color: '#10b981' },
-  { region: '双肺下叶', finding: '散在微小结节 2-3mm', suspicion: '随访观察', risk: 0.35, color: '#f59e0b' },
+  { region: '双肺下叶', finding: '散在微小结节 2-3mm', suspicion: '随访观察', risk: 0.35, color: 'var(--color-warning-500)' },
 ];
 
 function splitSentences(text: string): { text: string; confidence: number }[] {
@@ -325,7 +325,7 @@ export const AIDraftPanel: React.FC<Props> = ({
       <Progress
         percent={Math.round(confidence * 100)}
         size="small"
-        strokeColor={confidence > 0.9 ? '#10b981' : confidence > 0.8 ? '#f59e0b' : '#dc2626'}
+        strokeColor={confidence > 0.9 ? '#10b981' : confidence > 0.8 ? 'var(--color-warning-500)' : 'var(--color-error-600)'}
         style={{ width: 60, display: 'inline-block', verticalAlign: 'middle' }}
         format={() => ''}
       />
@@ -389,7 +389,7 @@ export const AIDraftPanel: React.FC<Props> = ({
             type="circle"
             percent={Math.round(d.probability * 100)}
             size={40}
-            strokeColor={d.probability > 0.5 ? '#dc2626' : d.probability > 0.1 ? '#f59e0b' : '#10b981'}
+            strokeColor={d.probability > 0.5 ? 'var(--color-error-600)' : d.probability > 0.1 ? 'var(--color-warning-500)' : '#10b981'}
             format={(p) => `${p}%`}
           />
         </div>
@@ -401,7 +401,7 @@ export const AIDraftPanel: React.FC<Props> = ({
     <div className="space-y-3">
       <div className="text-center p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded">
         <div className="text-xs text-slate-500">{t('aiDraft.risk.overallScore')}</div>
-        <div className="text-3xl font-bold" style={{ color: MOCK_RISK.overallRisk > 0.7 ? '#dc2626' : MOCK_RISK.overallRisk > 0.4 ? '#f59e0b' : '#10b981' }}>
+        <div className="text-3xl font-bold" style={{ color: MOCK_RISK.overallRisk > 0.7 ? 'var(--color-error-600)' : MOCK_RISK.overallRisk > 0.4 ? 'var(--color-warning-500)' : '#10b981' }}>
           {(MOCK_RISK.overallRisk * 100).toFixed(0)}
         </div>
         <Tag color={MOCK_RISK.overallRisk > 0.7 ? 'red' : MOCK_RISK.overallRisk > 0.4 ? 'orange' : 'green'}>
@@ -493,7 +493,7 @@ export const AIDraftPanel: React.FC<Props> = ({
                   percent={Math.round((result.confidence ?? 0.9) * 100)}
                   size="small"
                   style={{ flex: 1, marginBottom: 0 }}
-                  strokeColor={(result.confidence ?? 0.9) > 0.9 ? '#10b981' : (result.confidence ?? 0.9) > 0.8 ? '#f59e0b' : '#dc2626'}
+                  strokeColor={(result.confidence ?? 0.9) > 0.9 ? '#10b981' : (result.confidence ?? 0.9) > 0.8 ? 'var(--color-warning-500)' : 'var(--color-error-600)'}
                 />
                 <Tag color="purple">{(result.confidence ?? 0.9) * 100 > 90 ? t('aiDraft.level.high') : (result.confidence ?? 0.9) * 100 > 80 ? t('aiDraft.level.medium') : t('aiDraft.level.low')} {(Math.round((result.confidence ?? 0.9) * 100))}%</Tag>
                 <Tag color="blue">{result.modelVersion}</Tag>
@@ -743,7 +743,7 @@ export const AIDraftPanel: React.FC<Props> = ({
 
           {(stage === 'analyzing' || stage === 'drafting') && (
             <div className="pt-3 space-y-2">
-              <Progress percent={progress} strokeColor={{ from: '#7c3aed', to: '#3b82f6' }} />
+              <Progress percent={progress} strokeColor={{ from: '#7c3aed', to: 'var(--color-primary-500)' }} />
               <div className="text-xs text-slate-500 text-center">
                 {stage === 'analyzing' ? t('aiDraft.stage.analyzingText') : t('aiDraft.stage.draftingText')}
               </div>

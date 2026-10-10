@@ -8,12 +8,12 @@ import { Card } from 'antd'
 import { t } from '../../i18n/appI18n'
 
 const statsData: Array<{ key: string; labelKey: string; value: string; unit?: string; unitKey?: string; icon: any; color: string; bg: string }> = [
-  { key: 'todayExams', labelKey: 'deptOps.stat.todayExams', value: '28', unitKey: 'deptOps.unit.case', icon: Activity, color: '#2563eb', bg: '#3b82f622' },
+  { key: 'todayExams', labelKey: 'deptOps.stat.todayExams', value: '28', unitKey: 'deptOps.unit.case', icon: Activity, color: 'var(--color-primary-600)', bg: '#3b82f622' },
   { key: 'waitingPatients', labelKey: 'deptOps.stat.waitingPatients', value: '12', unitKey: 'deptOps.unit.person', icon: Users, color: '#ea580c', bg: '#f9731622' },
   { key: 'avgWait', labelKey: 'deptOps.stat.avgWait', value: '18', unit: 'min', icon: Clock, color: '#ca8a04', bg: '#f59e0b22' },
-  { key: 'deviceUsage', labelKey: 'deptOps.stat.deviceUsage', value: '86', unit: '%', icon: TrendingUp, color: '#16a34a', bg: '#22c55e22' },
+  { key: 'deviceUsage', labelKey: 'deptOps.stat.deviceUsage', value: '86', unit: '%', icon: TrendingUp, color: 'var(--color-success-600)', bg: '#22c55e22' },
   { key: 'dailyReports', labelKey: 'deptOps.stat.dailyReports', value: '18', unitKey: 'deptOps.unit.report', icon: FileText, color: '#7c3aed', bg: '#8b5cf622' },
-  { key: 'staffOnDuty', labelKey: 'deptOps.stat.staffOnDuty', value: '6', unitKey: 'deptOps.unit.person', icon: UserCheck, color: '#0891b2', bg: '#06b6d422' },
+  { key: 'staffOnDuty', labelKey: 'deptOps.stat.staffOnDuty', value: '6', unitKey: 'deptOps.unit.person', icon: UserCheck, color: 'var(--color-info-600)', bg: '#06b6d422' },
 ]
 
 const s: Record<string, React.CSSProperties> = {
@@ -32,19 +32,19 @@ const s: Record<string, React.CSSProperties> = {
   grid3: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 },
   grid4: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 },
   btn: { padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
-  btnPrimary: { padding: '8px 14px', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
+  btnPrimary: { padding: '8px 14px', borderRadius: 8, border: 'none', background: 'var(--color-primary-600)', color: '#fff', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
   bad: { padding: '3px 8px', borderRadius: 20, fontSize: 12, fontWeight: 600, display: 'inline-block' },
   scrollBox: { maxHeight: 280, overflowY: 'auto' },
 }
 
 const StatusBadge = ({ status }: { status: string }) => {
   const colors: Record<string, { bg: string; text: string }> = {
-    '空闲': { bg: '#22c55e22', text: '#16a34a' },
-    '使用中': { bg: '#2563eb', text: '#fff' },
+    '空闲': { bg: '#22c55e22', text: 'var(--color-success-600)' },
+    '使用中': { bg: 'var(--color-primary-600)', text: '#fff' },
     '维护中': { bg: '#f59e0b22', text: '#ca8a04' },
     '等待中': { bg: '#f9731622', text: '#ea580c' },
-    '已完成': { bg: '#22c55e22', text: '#16a34a' },
-    '已签到': { bg: '#3b82f622', text: '#2563eb' },
+    '已完成': { bg: '#22c55e22', text: 'var(--color-success-600)' },
+    '已签到': { bg: '#3b82f622', text: 'var(--color-primary-600)' },
   }
   const c = colors[status] || { bg: 'var(--bg-deep)', text: '#64748b' }
   return <span style={{ ...s.bad, background: c.bg, color: c.text }}>{status}</span>
@@ -150,7 +150,7 @@ const DepartmentOperationsPage = () => {
           <h1 style={s.title}>{t('deptOps.title')}</h1>
           <p style={s.subtitle}>
             {t('deptOps.subtitle')}
-            <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600, background: source === 'api' ? '#dcfce7' : '#fef3c7', color: source === 'api' ? '#16a34a' : '#d97706' }}>
+            <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600, background: source === 'api' ? '#dcfce7' : '#fef3c7', color: source === 'api' ? 'var(--color-success-600)' : 'var(--color-warning-600)' }}>
               {source === 'api' ? t('deptOps.sourceApi') : t('deptOps.sourceDemo')}
             </span>
             {loading && <span style={{ marginLeft: 8, color: 'var(--text-secondary)' }}>{t('deptOps.loading')}</span>}
@@ -174,12 +174,12 @@ const DepartmentOperationsPage = () => {
 
       {byModality && Object.keys(byModality).length > 0 && (
         <Card bordered={false} style={{ ...s.section, padding: 12, marginBottom: 16 }} styles={{ body: { padding: 0 } }}>
-          <div style={{ ...s.sectionTitle, marginBottom: 8 }}><Activity size={16} color="#2563eb" />{t('deptOps.modalityDist')}</div>
+          <div style={{ ...s.sectionTitle, marginBottom: 8 }}><Activity size={16} color="var(--color-primary-600)" />{t('deptOps.modalityDist')}</div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {Object.entries(byModality).map(([mod, stat]) => {
               const count = typeof stat === 'number' ? stat : ((stat as { total?: number })?.total ?? 0)
               return (
-                <span key={mod} style={{ padding: '4px 12px', background: 'var(--color-info-bg)', borderRadius: 12, fontSize: 12, fontWeight: 600, color: '#2563eb' }}>{mod}: {count} {t('deptOps.unit.case')}</span>
+                <span key={mod} style={{ padding: '4px 12px', background: 'var(--color-info-bg)', borderRadius: 12, fontSize: 12, fontWeight: 600, color: 'var(--color-primary-600)' }}>{mod}: {count} {t('deptOps.unit.case')}</span>
               )
             })}
           </div>
@@ -188,11 +188,11 @@ const DepartmentOperationsPage = () => {
 
       <div style={s.grid2}>
         <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
-          <div style={s.sectionTitle}><Bed size={16} color='#2563eb' />{t('deptOps.deviceStatus')}</div>
+          <div style={s.sectionTitle}><Bed size={16} color='var(--color-primary-600)' />{t('deptOps.deviceStatus')}</div>
           {rooms.map((r, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--border-light)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: r.status === '空闲' ? '#16a34a' : r.status === '使用中' ? '#2563eb' : '#ca8a04' }} />
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: r.status === '空闲' ? 'var(--color-success-600)' : r.status === '使用中' ? 'var(--color-primary-600)' : '#ca8a04' }} />
                 <div><div style={{ fontSize: 12, fontWeight: 600 }}>{r.name}</div><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{r.device} · {r.modality}</div></div>
               </div>
               <div style={{ textAlign: 'right' }}>
@@ -221,7 +221,7 @@ const DepartmentOperationsPage = () => {
 
       <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <div style={s.sectionTitle}><Calendar size={16} color='#0891b2' />{t('deptOps.queueTitle')}</div>
+          <div style={s.sectionTitle}><Calendar size={16} color='var(--color-info-600)' />{t('deptOps.queueTitle')}</div>
           <div style={{ display: 'flex', gap: 8 }}>
             <input style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, width: 200 }} placeholder={t('deptOps.searchPlaceholder')} value={search} onChange={e => setSearch(e.target.value)} />
             <button style={{ ...s.btn, padding: '6px 12px' }} onClick={() => setShowAddModal(true)}><Plus size={12} /> {t('deptOps.addQueue')}</button>
@@ -250,7 +250,7 @@ const DepartmentOperationsPage = () => {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowStatsModal(false)}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, width: 520, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid var(--border-light)' }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}><Download size={16} color="#2563eb" /> {t('deptOps.statsModalTitle')}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}><Download size={16} color="var(--color-primary-600)" /> {t('deptOps.statsModalTitle')}</div>
               <button onClick={() => setShowStatsModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4, fontSize: 16 }}>×</button>
             </div>
             <div style={{ padding: 20 }}>
@@ -271,7 +271,7 @@ const DepartmentOperationsPage = () => {
                     <div key={st} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <span style={{ width: 60, fontSize: 12, color: 'var(--text-secondary)' }}>{st}</span>
                       <div style={{ flex: 1, height: 8, background: 'var(--bg-card)', borderRadius: 4 }}>
-                        <div style={{ height: '100%', width: `${(count / max) * 100}%`, background: '#2563eb', borderRadius: 4 }} />
+                        <div style={{ height: '100%', width: `${(count / max) * 100}%`, background: 'var(--color-primary-600)', borderRadius: 4 }} />
                       </div>
                       <span style={{ width: 28, fontSize: 12, fontWeight: 700, textAlign: 'right', color: 'var(--text-primary)' }}>{count}</span>
                     </div>
@@ -288,7 +288,7 @@ const DepartmentOperationsPage = () => {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowAddModal(false)}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, width: 440, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid var(--border-light)' }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}><Plus size={16} color="#0891b2" /> {t('deptOps.addPatientTitle')}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}><Plus size={16} color="var(--color-info-600)" /> {t('deptOps.addPatientTitle')}</div>
               <button onClick={() => setShowAddModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4, fontSize: 16 }}>×</button>
             </div>
             <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -311,7 +311,7 @@ const DepartmentOperationsPage = () => {
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
                 <button onClick={() => setShowAddModal(false)} style={{ padding: '8px 20px', border: '1px solid var(--border-color)', borderRadius: 8, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}>{t('deptOps.cancel')}</button>
-                <button onClick={handleAddPatient} disabled={!newPatient.name.trim()} style={{ padding: '8px 20px', border: 'none', borderRadius: 8, background: newPatient.name.trim() ? '#2563eb' : '#94a3b8', color: '#fff', fontSize: 12, fontWeight: 600, cursor: newPatient.name.trim() ? 'pointer' : 'not-allowed' }}>{t('deptOps.addToQueue')}</button>
+                <button onClick={handleAddPatient} disabled={!newPatient.name.trim()} style={{ padding: '8px 20px', border: 'none', borderRadius: 8, background: newPatient.name.trim() ? 'var(--color-primary-600)' : '#94a3b8', color: '#fff', fontSize: 12, fontWeight: 600, cursor: newPatient.name.trim() ? 'pointer' : 'not-allowed' }}>{t('deptOps.addToQueue')}</button>
               </div>
             </div>
           </div>

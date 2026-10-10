@@ -30,7 +30,7 @@ export interface MeasurementPanelProps {
 }
 
 const TOOL_DEFS: Array<{ key: AnnotationTool; label: string; icon: React.ReactNode; color: string }> = [
-  { key: 'Length', label: '长度', icon: <Ruler size={14} />, color: '#2563eb' },
+  { key: 'Length', label: '长度', icon: <Ruler size={14} />, color: 'var(--color-primary-600)' },
   { key: 'Angle', label: '角度', icon: <Triangle size={14} />, color: '#52c41a' },
   { key: 'Rectangle', label: '矩形', icon: <Square size={14} />, color: '#faad14' },
   { key: 'Ellipse', label: '椭圆', icon: <Circle size={14} />, color: '#eb2f96' },

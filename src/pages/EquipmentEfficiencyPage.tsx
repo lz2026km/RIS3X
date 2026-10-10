@@ -21,10 +21,10 @@ import { severityColor } from '../theme/statusTokens'
 // 样式常量
 // ============================================================
 const C = {
-  primary: '#1e40af',
+  primary: 'var(--color-primary-800)',
   primaryDark: '#1e3a8a',
-  primaryLight: '#3b82f6',
-  accent: '#1e40af',
+  primaryLight: 'var(--color-primary-500)',
+  accent: 'var(--color-primary-800)',
   white: '#ffffff',
   bg: '#0f172a',
   bgLight: '#1e293b',
@@ -34,13 +34,13 @@ const C = {
   textDark: '#f8fafc',
   textMid: '#cbd5e1',
   textLight: '#94a3b8',
-  success: '#22c55e',
+  success: 'var(--color-success-500)',
   successLight: '#86efac',
   warning: '#eab308',
   warningLight: '#fde047',
-  danger: '#ef4444',
+  danger: 'var(--color-error-500)',
   dangerLight: '#fca5a5',
-  info: '#06b6d4',
+  info: 'var(--color-info-500)',
   infoLight: '#67e8f9',
   gray: '#6b7280',
   grayLight: '#9ca3af',
@@ -48,7 +48,7 @@ const C = {
   heatmapHigh: '#15803d',    // ≥90% 深绿色
   heatmapMid: '#4ade80',     // 70-89% 浅绿色
   heatmapLow: '#facc15',     // 50-69% 黄色
-  heatmapVeryLow: '#ef4444', // <50% 红色
+  heatmapVeryLow: 'var(--color-error-500)', // <50% 红色
 }
 
 const STATUS_COLORS: Record<string, string> = {

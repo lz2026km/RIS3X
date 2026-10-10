@@ -83,10 +83,10 @@ const COLORS = {
 }
 
 const MODALITY_COLORS: Record<string, string> = {
-  CT: '#3b82f6',
+  CT: 'var(--color-primary-500)',
   MR: '#8b5cf6',
-  DR: '#22c55e',
-  DSA: '#f59e0b',
+  DR: 'var(--color-success-500)',
+  DSA: 'var(--color-warning-500)',
   'MG': '#ec4899',
   'GI': '#14b8a6',
   PET: '#f97316'
@@ -238,14 +238,14 @@ const StatusIndicator: React.FC<{ status: string }> = ({ status }) => {
   const getStatusConfig = () => {
     switch (status) {
       case '使用中':
-        return { color: '#3b82f6', bg: '#3b82f622', label: t('homePage.stInUse') }
+        return { color: 'var(--color-primary-500)', bg: '#3b82f622', label: t('homePage.stInUse') }
       case '空闲':
-        return { color: '#22c55e', bg: '#22c55e22', label: t('homePage.stIdle') }
+        return { color: 'var(--color-success-500)', bg: '#22c55e22', label: t('homePage.stIdle') }
       case '维护中':
       case '维修中':
-        return { color: '#f59e0b', bg: '#f59e0b22', label: t('homePage.stMaint') }
+        return { color: 'var(--color-warning-500)', bg: '#f59e0b22', label: t('homePage.stMaint') }
       case '故障':
-        return { color: '#ef4444', bg: '#ef444422', label: t('homePage.stFault') }
+        return { color: 'var(--color-error-500)', bg: '#ef444422', label: t('homePage.stFault') }
       default:
         return { color: '#94a3b8', bg: '#94a3b824', label: t('homePage.stUnknown') }
     }
@@ -755,9 +755,9 @@ const HomePage: FC = () => {
   ])
 
   const qualityData = [
-    { name: t('homePage.qualityExcellent'), value: 85, color: '#22c55e' },
-    { name: t('homePage.qualityGood'), value: 12, color: '#3b82f6' },
-    { name: t('homePage.qualityPass'), value: 3, color: '#f59e0b' },
+    { name: t('homePage.qualityExcellent'), value: 85, color: 'var(--color-success-500)' },
+    { name: t('homePage.qualityGood'), value: 12, color: 'var(--color-primary-500)' },
+    { name: t('homePage.qualityPass'), value: 3, color: 'var(--color-warning-500)' },
   ]
 
   const revenueData = [
@@ -1424,7 +1424,7 @@ const HomePage: FC = () => {
               width: 6,
               height: 6,
               borderRadius: '50%',
-              background: '#3b82f6',
+              background: 'var(--color-primary-500)',
             }} />
             {t('homePage.inUseCount', { count: deviceInUse })}
           </span>
@@ -1437,7 +1437,7 @@ const HomePage: FC = () => {
               width: 6,
               height: 6,
               borderRadius: '50%',
-              background: '#22c55e',
+              background: 'var(--color-success-500)',
             }} />
             {t('homePage.idleCount', { count: deviceIdle })}
           </span>
@@ -1450,7 +1450,7 @@ const HomePage: FC = () => {
               width: 6,
               height: 6,
               borderRadius: '50%',
-              background: '#f59e0b',
+              background: 'var(--color-warning-500)',
             }} />
             {t('homePage.maintCount', { count: deviceMaintenance })}
           </span>
@@ -1481,7 +1481,7 @@ const HomePage: FC = () => {
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-            <Activity size={22} color="#3b82f6" />
+            <Activity size={22} color="var(--color-primary-500)" />
           </div>
           <div>
             <div style={{
@@ -1517,7 +1517,7 @@ const HomePage: FC = () => {
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-            <CheckCircle size={22} color="#22c55e" />
+            <CheckCircle size={22} color="var(--color-success-500)" />
           </div>
           <div>
             <div style={{
@@ -1553,7 +1553,7 @@ const HomePage: FC = () => {
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-            <Settings size={22} color="#d97706" />
+            <Settings size={22} color="var(--color-warning-600)" />
           </div>
           <div>
             <div style={{
@@ -1700,7 +1700,7 @@ const HomePage: FC = () => {
                   <AlertCircle size={14} color={COLORS.danger} />
                 )}
                 {exam.priority === '紧急' && (
-                  <AlertTriangle size={14} color="#f59e0b" />
+                  <AlertTriangle size={14} color="var(--color-warning-500)" />
                 )}
                 <span style={{
                   fontSize: 14,
@@ -2802,12 +2802,12 @@ const HomePage: FC = () => {
   // ============================================================
   const renderQuickActionsEnhanced = () => {
     const moreActions = [
-      { icon: <Calendar size={20} />, label: t('homePage.actAppointment'), color: '#3b82f6', bg: '#3b82f622', href: '/appointments' },
+      { icon: <Calendar size={20} />, label: t('homePage.actAppointment'), color: 'var(--color-primary-500)', bg: '#3b82f622', href: '/appointments' },
       { icon: <UserPlus size={20} />, label: t('homePage.actRegister'), color: '#8b5cf6', bg: '#8b5cf622', href: '/exams' },
       { icon: <Target size={20} />, label: t('homePage.actQc'), color: '#10b981', bg: '#10b98122', href: '/qc' },
-      { icon: <CalendarRange size={20} />, label: t('homePage.actSchedule'), color: '#f59e0b', bg: '#f59e0b22', href: '/schedule' },
+      { icon: <CalendarRange size={20} />, label: t('homePage.actSchedule'), color: 'var(--color-warning-500)', bg: '#f59e0b22', href: '/schedule' },
       { icon: <Stethoscope size={20} />, label: t('homePage.actFollowUp'), color: '#ec4899', bg: '#ec489922', href: '/follow-up' },
-      { icon: <Crosshair size={20} />, label: t('homePage.actLesion'), color: '#06b6d4', bg: '#06b6d422', href: '/patients' },
+      { icon: <Crosshair size={20} />, label: t('homePage.actLesion'), color: 'var(--color-info-500)', bg: '#06b6d422', href: '/patients' },
       { icon: <ClipboardPlus size={20} />, label: t('homePage.actTemplate'), color: '#6366f1', bg: '#6366f122', href: '/templates' },
       { icon: <BookOpen size={20} />, label: t('homePage.actCases'), color: '#a855f7', bg: '#a855f722', href: '/typical-cases' },
     ]

@@ -111,7 +111,7 @@ function drawLungMotion(
 
 const CARD_BG = '#0f172a'
 const PANEL_BG = '#1e293b'
-const BLUE = '#3b82f6'
+const BLUE = 'var(--color-primary-500)'
 const btnStyle: React.CSSProperties = {
   background: 'transparent',
   border: '1px solid #334155',
@@ -165,9 +165,9 @@ function PhaseCurveChart(props: {
   return (
     <svg viewBox={`0 0 ${w} ${h}`} style={{ width: '100%', height: '100%' }} preserveAspectRatio="none">
       <line x1={cx} y1={0} x2={cx} y2={h} stroke="#facc15" strokeWidth={1} strokeDasharray="3 2" />
-      {showCardiac && <polyline points={cardiacPts} fill="none" stroke="#ef4444" strokeWidth={1.5} />}
+      {showCardiac && <polyline points={cardiacPts} fill="none" stroke="var(--color-error-500)" strokeWidth={1.5} />}
       {showRespiratory && <polyline points={respiratoryPts} fill="none" stroke="#60a5fa" strokeWidth={1.5} />}
-      <text x={w - 2} y={10} fontSize={8} fill="#ef4444" textAnchor="end">cardiac</text>
+      <text x={w - 2} y={10} fontSize={8} fill="var(--color-error-500)" textAnchor="end">cardiac</text>
       {showRespiratory && <text x={w - 2} y={20} fontSize={8} fill="#60a5fa" textAnchor="end">respiratory</text>}
       <text x={pad} y={h - 2} fontSize={8} fill="#64748b">0</text>
       <text x={w - pad - 18} y={h - 2} fontSize={8} fill="#64748b">{Math.round(((n - 1) / frameRate) * 1000)}ms</text>
@@ -648,12 +648,12 @@ export default function Dicom4dPage() {
             <div style={{ marginTop: 4, background: PANEL_BG, borderRadius: 4, padding: '6px 12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                 <span style={{ fontSize: 10, color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <Heart size={10} color="#ef4444" />
+                  <Heart size={10} color="var(--color-error-500)" />
                   {t('w9d.dicom4d.cardiacGating')}
                 </span>
                 <span style={{ display: 'flex', gap: 10, fontSize: 10, color: '#94a3b8' }}>
-                  <span><span style={{ display: 'inline-block', width: 8, height: 8, background: '#ef4444', borderRadius: 2, marginRight: 4 }} />{t('dicom4d.systole')}</span>
-                  <span><span style={{ display: 'inline-block', width: 8, height: 8, background: '#3b82f6', borderRadius: 2, marginRight: 4 }} />{t('dicom4d.diastole')}</span>
+                  <span><span style={{ display: 'inline-block', width: 8, height: 8, background: 'var(--color-error-500)', borderRadius: 2, marginRight: 4 }} />{t('dicom4d.systole')}</span>
+                  <span><span style={{ display: 'inline-block', width: 8, height: 8, background: 'var(--color-primary-500)', borderRadius: 2, marginRight: 4 }} />{t('dicom4d.diastole')}</span>
                 </span>
               </div>
               <div style={{ display: 'flex', gap: 1 }}>
@@ -663,7 +663,7 @@ export default function Dicom4dPage() {
                     title={t('w9d.dicom4d.frameStatus', { frame: seg.frame + 1, status: seg.systole ? t('dicom4d.systole') : t('dicom4d.diastole') })}
                     style={{
                       flex: 1, height: 8, borderRadius: 1,
-                      background: seg.systole ? '#ef4444' : '#3b82f6',
+                      background: seg.systole ? 'var(--color-error-500)' : 'var(--color-primary-500)',
                       outline: seg.frame === currentFrame ? '1px solid #facc15' : 'none',
                       outlineOffset: seg.frame === currentFrame ? 1 : 0,
                     }}
@@ -682,8 +682,8 @@ export default function Dicom4dPage() {
                   {t('w9d.dicom4d.respiratoryGating')}
                 </span>
                 <span style={{ display: 'flex', gap: 10, fontSize: 10, color: '#94a3b8' }}>
-                  <span><span style={{ display: 'inline-block', width: 8, height: 8, background: '#22c55e', borderRadius: 2, marginRight: 4 }} />{t('dicom4d.inspiration')}</span>
-                  <span><span style={{ display: 'inline-block', width: 8, height: 8, background: '#f59e0b', borderRadius: 2, marginRight: 4 }} />{t('dicom4d.expiration')}</span>
+                  <span><span style={{ display: 'inline-block', width: 8, height: 8, background: 'var(--color-success-500)', borderRadius: 2, marginRight: 4 }} />{t('dicom4d.inspiration')}</span>
+                  <span><span style={{ display: 'inline-block', width: 8, height: 8, background: 'var(--color-warning-500)', borderRadius: 2, marginRight: 4 }} />{t('dicom4d.expiration')}</span>
                 </span>
               </div>
               <div style={{ display: 'flex', gap: 1 }}>
@@ -693,7 +693,7 @@ export default function Dicom4dPage() {
                     title={t('w9d.dicom4d.frameStatus', { frame: seg.frame + 1, status: seg.inspiration ? t('dicom4d.inspiration') : t('dicom4d.expiration') })}
                     style={{
                       flex: 1, height: 8, borderRadius: 1,
-                      background: seg.inspiration ? '#22c55e' : '#f59e0b',
+                      background: seg.inspiration ? 'var(--color-success-500)' : 'var(--color-warning-500)',
                       outline: seg.frame === currentFrame ? '1px solid #facc15' : 'none',
                       outlineOffset: seg.frame === currentFrame ? 1 : 0,
                     }}
@@ -709,7 +709,7 @@ export default function Dicom4dPage() {
             size="small"
             title={
               <span style={{ fontSize: 12, color: '#94a3b8' }}>
-                <Heart size={12} style={{ marginRight: 4, color: '#ef4444' }} />
+                <Heart size={12} style={{ marginRight: 4, color: 'var(--color-error-500)' }} />
                 {t('dicom4d.cardiacPhase')}
               </span>
             }
@@ -724,7 +724,7 @@ export default function Dicom4dPage() {
               </div>
               <div style={{ background: '#1e293b', borderRadius: 4, height: 12, overflow: 'hidden', position: 'relative' }}>
                 <div style={{
-                  width: `${cardiacPhase}%`, height: '100%', background: 'linear-gradient(90deg, #3b82f6, #ef4444)',
+                  width: `${cardiacPhase}%`, height: '100%', background: 'linear-gradient(90deg, var(--color-primary-500), var(--color-error-500))',
                   borderRadius: 4, transition: 'width 0.05s linear',
                 }} />
               </div>
@@ -738,7 +738,7 @@ export default function Dicom4dPage() {
                 {Array.from({ length: 20 }).map((_, i) => (
                   <div key={i} style={{
                     flex: 1, height: 4, borderRadius: 2,
-                    background: i * 5 <= cardiacPhase ? '#ef4444' : '#1e293b',
+                    background: i * 5 <= cardiacPhase ? 'var(--color-error-500)' : '#1e293b',
                     transition: 'background 0.05s linear',
                   }} />
                 ))}
@@ -765,7 +765,7 @@ export default function Dicom4dPage() {
               </div>
               <div style={{ background: '#1e293b', borderRadius: 4, height: 12, overflow: 'hidden', position: 'relative' }}>
                 <div style={{
-                  width: `${respiratoryPhase}%`, height: '100%', background: 'linear-gradient(90deg, #3b82f6, #60a5fa)',
+                  width: `${respiratoryPhase}%`, height: '100%', background: 'linear-gradient(90deg, var(--color-primary-500), #60a5fa)',
                   borderRadius: 4, transition: 'width 0.05s linear',
                 }} />
               </div>
@@ -803,7 +803,7 @@ export default function Dicom4dPage() {
             {distBins ? (
               <>
                 {showCardiac && (
-                  <PhaseDistributionBars bins={distBins.cardiac} maxCount={distBins.cardiacMax} color="#ef4444" label="cardiac 0-19" />
+                  <PhaseDistributionBars bins={distBins.cardiac} maxCount={distBins.cardiacMax} color="var(--color-error-500)" label="cardiac 0-19" />
                 )}
                 {showRespiratory && (
                   <PhaseDistributionBars bins={distBins.respiratory} maxCount={distBins.respiratoryMax} color="#60a5fa" label="respiratory 0-9" />
@@ -824,7 +824,7 @@ export default function Dicom4dPage() {
               size="small"
               title={
                 <span style={{ fontSize: 12, color: '#94a3b8' }}>
-                  <TrendingUp size={12} style={{ marginRight: 4, color: '#22c55e' }} />
+                  <TrendingUp size={12} style={{ marginRight: 4, color: 'var(--color-success-500)' }} />
                   {t('w9d.dicom4d.ecgRrInterval')}
                 </span>
               }
@@ -833,7 +833,7 @@ export default function Dicom4dPage() {
               bodyStyle={{ padding: '10px' }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#94a3b8', marginBottom: 6 }}>
-                <span>{t('w9d.dicom4d.heartRate')} <b style={{ color: '#22c55e' }}>{movieData.bpm}</b> bpm</span>
+                <span>{t('w9d.dicom4d.heartRate')} <b style={{ color: 'var(--color-success-500)' }}>{movieData.bpm}</b> bpm</span>
                 <span>{t('w9d.dicom4d.cycle')} {Math.round(movieData.cycleMs)} ms</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 40, marginBottom: 4 }}>
@@ -845,7 +845,7 @@ export default function Dicom4dPage() {
                     <div
                       key={i}
                       title={`RR#${i + 1}: ${rr} ms`}
-                      style={{ flex: 1, background: '#22c55e', borderRadius: 1, height: hPx, opacity: 0.85 }}
+                      style={{ flex: 1, background: 'var(--color-success-500)', borderRadius: 1, height: hPx, opacity: 0.85 }}
                     />
                   )
                 })}

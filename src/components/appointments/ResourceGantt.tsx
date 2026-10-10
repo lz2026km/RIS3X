@@ -131,7 +131,7 @@ export default function ResourceGantt({ appointments, onCreate }: Props) {
       onClick={() => setDimension(d)}
       style={{
         padding: '4px 12px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 700,
-        background: dimension === d ? '#1e40af' : 'var(--bg-deep)', color: dimension === d ? '#fff' : '#64748b',
+        background: dimension === d ? 'var(--color-primary-800)' : 'var(--bg-deep)', color: dimension === d ? '#fff' : '#64748b',
       }}
     >
       {label}
@@ -143,19 +143,19 @@ export default function ResourceGantt({ appointments, onCreate }: Props) {
   return (
     <div data-testid="resource-gantt" style={{ background: 'var(--bg-card)', borderRadius: 10, border: `1px solid ${borderGray}`, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
       <div style={{ padding: '10px 14px', borderBottom: `1px solid ${borderGray}`, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: '#1e40af' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>
           <GanttChartSquare size={15} /> {t('w5Appt.ganttTitle')}
         </div>
         <div style={{ display: 'flex', gap: 4 }}>{dimBtn('DEVICE', t('w5Appt.ganttByDevice'))}{dimBtn('ROOM', t('w5Appt.ganttByRoom'))}{dimBtn('TECH', t('w5Appt.ganttByTech'))}</div>
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ padding: '4px 8px', border: `1px solid ${borderGray}`, borderRadius: 6, fontSize: 12, color: '#1e40af' }} />
+        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ padding: '4px 8px', border: `1px solid ${borderGray}`, borderRadius: 6, fontSize: 12, color: 'var(--color-primary-800)' }} />
         <button onClick={() => void loadResources()} style={{ marginLeft: 'auto', padding: '4px 10px', borderRadius: 6, border: `1px solid ${borderGray}`, background: 'var(--bg-card)', color: '#64748b', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
           <RefreshCw size={12} /> {loading ? '...' : t('w5Appt.opsRefresh')}
         </button>
       </div>
 
       <div style={{ padding: '8px 12px', display: 'flex', gap: 14, fontSize: 11, color: '#64748b', borderBottom: `1px solid ${borderGray}` }}>
-        <span><i style={{ display: 'inline-block', width: 10, height: 10, background: '#3b82f6', borderRadius: 2, marginRight: 4 }} />{t('w5Appt.ganttLegendBusy')}</span>
-        <span><i style={{ display: 'inline-block', width: 10, height: 10, background: '#ef4444', borderRadius: 2, marginRight: 4 }} />{t('w5Appt.ganttLegendConflict')}</span>
+        <span><i style={{ display: 'inline-block', width: 10, height: 10, background: 'var(--color-primary-500)', borderRadius: 2, marginRight: 4 }} />{t('w5Appt.ganttLegendBusy')}</span>
+        <span><i style={{ display: 'inline-block', width: 10, height: 10, background: 'var(--color-error-500)', borderRadius: 2, marginRight: 4 }} />{t('w5Appt.ganttLegendConflict')}</span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><AlertTriangle size={11} /> {t('w5Appt.ganttClickCreate')}</span>
       </div>
 
@@ -179,7 +179,7 @@ export default function ResourceGantt({ appointments, onCreate }: Props) {
             const rowBlocks = blocks.filter((b) => b.rowId === row.id)
             return (
               <div key={row.id} data-testid={`gantt-row-${row.id}`} style={{ display: 'flex', borderBottom: `1px solid ${borderGray}`, background: rowConflict.has(row.id) ? '#fef2f2' : 'transparent' }}>
-                <div style={{ flex: '0 0 130px', padding: '8px 10px', fontSize: 11, fontWeight: 700, color: rowConflict.has(row.id) ? '#dc2626' : '#1e40af', borderRight: `1px solid ${borderGray}`, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ flex: '0 0 130px', padding: '8px 10px', fontSize: 11, fontWeight: 700, color: rowConflict.has(row.id) ? 'var(--color-error-600)' : 'var(--color-primary-800)', borderRight: `1px solid ${borderGray}`, display: 'flex', alignItems: 'center', gap: 4 }}>
                   {row.name}
                   {rowConflict.has(row.id) && <AlertTriangle size={11} />}
                 </div>
@@ -203,7 +203,7 @@ export default function ResourceGantt({ appointments, onCreate }: Props) {
                       style={{
                         position: 'absolute', top: 4, height: 30, left: `${pct(Math.max(b.start, START_MIN))}%`,
                         width: `${Math.max(((Math.min(b.end, END_MIN) - Math.max(b.start, START_MIN)) / RANGE) * 100, 2)}%`,
-                        background: b.conflict ? '#ef4444' : '#3b82f6', color: '#fff', borderRadius: 5, fontSize: 10,
+                        background: b.conflict ? 'var(--color-error-500)' : 'var(--color-primary-500)', color: '#fff', borderRadius: 5, fontSize: 10,
                         padding: '2px 6px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
                       }}
                     >

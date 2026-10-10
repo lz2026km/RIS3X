@@ -76,8 +76,8 @@ const ROOM_DEMO = [
 ]
 
 const TECH_COLORS: Record<string, string> = {
-  'T-001': '#3b82f6', 'T-002': '#10b981', 'T-003': '#8b5cf6',
-  'T-004': '#f59e0b', 'T-005': '#ef4444', 'T-006': '#06b6d4',
+  'T-001': 'var(--color-primary-500)', 'T-002': '#10b981', 'T-003': '#8b5cf6',
+  'T-004': 'var(--color-warning-500)', 'T-005': 'var(--color-error-500)', 'T-006': 'var(--color-info-500)',
   'T-007': '#ec4899', 'T-008': '#84cc16',
 }
 
@@ -365,7 +365,7 @@ export default function TechRotationPage() {
     <div data-testid="tech-rotation-page" style={{ padding: 20, maxWidth: 1320, margin: '0 auto' }}>
       {/* ================= 头部 ================= */}
       <PageHeader
-        icon={<Repeat2 size={18} color="#1e40af" />}
+        icon={<Repeat2 size={18} color="var(--color-primary-800)" />}
         title={t('techRotation.title')}
         subtitle={<>
           <Tag color="blue" style={{ fontSize: 11 }}>{t('techRotation.wave')}</Tag>
@@ -393,7 +393,7 @@ export default function TechRotationPage() {
 
       {/* ================= KPI ================= */}
       <StatCardGrid minWidth={170} gap={14} style={{ marginBottom: 16 }}>
-        <StatCard title={t('techRotation.kpiPlanDays')} value={plan?.days ?? 0} icon={<CalendarRange size={18} />} color="#1e40af" />
+        <StatCard title={t('techRotation.kpiPlanDays')} value={plan?.days ?? 0} icon={<CalendarRange size={18} />} color="var(--color-primary-800)" />
         <StatCard title={t('techRotation.kpiAssignments')} value={plan?.assignments.length ?? 0} icon={<Repeat2 size={18} />} color="success" />
         <StatCard title={t('techRotation.kpiMaxMinDiff')} value={balance?.maxMinDiff ?? 0} color={balance?.balanced ? 'success' : 'error'} icon={<Scale size={18} />} />
         <StatCard title={t('techRotation.kpiExecuted')} value={execCount} icon={<PlayCircle size={18} />} color="#7c3aed" />
@@ -412,7 +412,7 @@ export default function TechRotationPage() {
         {/* ================= 轮转计划甘特图 ================= */}
         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 10, padding: 16, marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-            <Repeat2 size={16} color="#1e40af" />
+            <Repeat2 size={16} color="var(--color-primary-800)" />
             <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{t('techRotation.ganttTitle')}</span>
             <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)' }}>
               {plan ? t('techRotation.ganttSub', { range: `${plan.startDate} ~ ${plan.endDate}` }) : t('techRotation.noPlan')}
@@ -499,7 +499,7 @@ export default function TechRotationPage() {
                   <RTooltip {...chartDefaults.tooltip} />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   <Bar dataKey="计划负载" name={t('techRotation.planLoad')} fill="#10b981" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="累计工作量" name={t('techRotation.cumulativeLoad')} fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="累计工作量" name={t('techRotation.cumulativeLoad')} fill="var(--color-primary-500)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ChartContainer>
             ) : (
@@ -507,7 +507,7 @@ export default function TechRotationPage() {
             )}
             <div style={{ marginTop: 10, fontSize: 11, color: 'var(--text-secondary)' }}>
               {t('techRotation.diffSummary', { diff: balance?.maxMinDiff ?? '-', threshold: balance?.threshold ?? '-' })}
-              {' · '}{t('techRotation.judgement')} <b style={{ color: balance?.balanced ? '#059669' : '#dc2626' }}>{balance?.balanced ? t('techRotation.balanced') : t('techRotation.notBalanced')}</b>
+              {' · '}{t('techRotation.judgement')} <b style={{ color: balance?.balanced ? '#059669' : 'var(--color-error-600)' }}>{balance?.balanced ? t('techRotation.balanced') : t('techRotation.notBalanced')}</b>
             </div>
           </div>
 
@@ -549,7 +549,7 @@ export default function TechRotationPage() {
         {/* ================= 预测面板: 实际 vs 预测 + 置信带 ================= */}
         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 10, padding: 16, marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
-            <TrendingUp size={16} color="#1e40af" />
+            <TrendingUp size={16} color="var(--color-primary-800)" />
             <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{t('techRotation.forecastTitle', { days })}</span>
             <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)' }}>
               {t('techRotation.modelSummary', { model: forecast?.model ?? '-', total: forecast?.totals.value ?? '-', lower: forecast?.totals.lower ?? '-', upper: forecast?.totals.upper ?? '-' })}
@@ -563,11 +563,11 @@ export default function TechRotationPage() {
                 <YAxis {...chartDefaults.axis} />
                 <RTooltip {...chartDefaults.tooltip} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Area dataKey="upper" name={t('techRotation.upperBound')} stroke="none" fill="#3b82f6" fillOpacity={0.12} />
-                <Area dataKey="lower" name={t('techRotation.lowerBound')} stroke="none" fill="#3b82f6" fillOpacity={0.12} />
+                <Area dataKey="upper" name={t('techRotation.upperBound')} stroke="none" fill="var(--color-primary-500)" fillOpacity={0.12} />
+                <Area dataKey="lower" name={t('techRotation.lowerBound')} stroke="none" fill="var(--color-primary-500)" fillOpacity={0.12} />
                 <Line dataKey="actual" name={t('techRotation.actual')} stroke="#10b981" strokeWidth={2} dot={{ r: 2 }} connectNulls={false} />
-                <Line dataKey="forecast" name={t('techRotation.forecast')} stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} connectNulls={false} />
-                <ReferenceLine x={forecastChartData[Math.max(0, forecastChartData.length - (forecast?.days ?? 7))]?.label ?? ''} stroke="#f59e0b" strokeDasharray="4 4" label={{ value: t('techRotation.today'), fontSize: 10, fill: '#f59e0b', position: 'top' }} />
+                <Line dataKey="forecast" name={t('techRotation.forecast')} stroke="var(--color-primary-500)" strokeWidth={2} dot={{ r: 3 }} connectNulls={false} />
+                <ReferenceLine x={forecastChartData[Math.max(0, forecastChartData.length - (forecast?.days ?? 7))]?.label ?? ''} stroke="var(--color-warning-500)" strokeDasharray="4 4" label={{ value: t('techRotation.today'), fontSize: 10, fill: 'var(--color-warning-500)', position: 'top' }} />
               </ComposedChart>
             </ChartContainer>
           ) : (

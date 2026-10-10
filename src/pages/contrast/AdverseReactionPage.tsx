@@ -15,9 +15,9 @@ import { t } from '../../i18n/appI18n'
 
 const svc = getAdverseReactionService()
 
-const TYPE_COLORS: Record<ReactionType, string> = { allergic: '#ef4444', nephrotoxic: '#f59e0b', extravasation: '#3b82f6', vasovagal: '#a855f7', other: '#6e7681' }
+const TYPE_COLORS: Record<ReactionType, string> = { allergic: 'var(--color-error-500)', nephrotoxic: 'var(--color-warning-500)', extravasation: 'var(--color-primary-500)', vasovagal: '#a855f7', other: '#6e7681' }
 const TYPE_LABELS: Record<ReactionType, string> = { allergic: t('advR.type.allergic'), nephrotoxic: t('advR.type.nephrotoxic'), extravasation: t('advR.type.extravasation'), vasovagal: t('advR.type.vasovagal'), other: t('advR.type.other') }
-const SEV_COLORS: Record<ReactionSeverity, string> = { mild: '#22c55e', moderate: '#f59e0b', severe: '#ef4444' }
+const SEV_COLORS: Record<ReactionSeverity, string> = { mild: 'var(--color-success-500)', moderate: 'var(--color-warning-500)', severe: 'var(--color-error-500)' }
 const SEV_LABELS: Record<ReactionSeverity, string> = { mild: t('advR.sev.mild'), moderate: t('advR.sev.moderate'), severe: t('advR.sev.severe') }
 const OUTCOME_LABELS: Record<string, string> = { resolved: t('advR.outcome.resolved'), improving: t('advR.outcome.improving'), ongoing: t('advR.outcome.ongoing'), fatal: t('advR.outcome.fatal') }
 const OUTCOME_OPTIONS: ReactionOutcome[] = ['resolved', 'improving', 'ongoing', 'fatal']
@@ -170,7 +170,7 @@ export default function AdverseReactionPage() {
 
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
-      <div style={{ background: 'linear-gradient(135deg,#dc2626,#991b1b)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: 'linear-gradient(135deg,var(--color-error-600),#991b1b)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <AlertTriangle size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('advR.title')}</span>
         </div>
@@ -219,7 +219,7 @@ export default function AdverseReactionPage() {
                   <span style={{ fontSize: 12, padding: '2px 6px', borderRadius: 3, background: `${SEV_COLORS[r.severity]}20`, color: SEV_COLORS[r.severity], textAlign: 'center' }}>{SEV_LABELS[r.severity]}</span>
                   <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.description}</span>
                   <span style={{ fontSize: 12, color: '#6e7681' }}>{new Date(r.occurredAt).toLocaleString('zh-CN')}</span>
-                  <span style={{ fontSize: 12, color: r.outcome === 'fatal' ? '#ef4444' : r.outcome === 'ongoing' ? '#f59e0b' : '#22c55e' }}>{OUTCOME_LABELS[r.outcome]}</span>
+                  <span style={{ fontSize: 12, color: r.outcome === 'fatal' ? 'var(--color-error-500)' : r.outcome === 'ongoing' ? 'var(--color-warning-500)' : 'var(--color-success-500)' }}>{OUTCOME_LABELS[r.outcome]}</span>
                 </div>
                 {expandedId === r.id && (
                   <div style={{ padding: '12px 16px 12px 48px', background: 'var(--bg-primary, #0d1117)', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
@@ -229,7 +229,7 @@ export default function AdverseReactionPage() {
                       <div><span style={{ color: 'var(--text-muted, #8b949e)' }}>{t('advR.actionLabel')}</span>{r.action}</div>
                       <div><span style={{ color: 'var(--text-muted, #8b949e)' }}>{t('advR.medicationLabel')}</span>{r.medicationGiven || '-'}</div>
                       <div><span style={{ color: 'var(--text-muted, #8b949e)' }}>{t('advR.reporterLabel')}</span>{r.reportedBy}</div>
-                      <div><span style={{ color: 'var(--text-muted, #8b949e)' }}>{t('advR.reportStatusLabel')}</span>{r.isReported ? <span style={{ color: '#22c55e' }}>{t('advR.reported')}</span> : <span style={{ color: '#f59e0b' }}>{t('advR.notReported')}</span>}</div>
+                      <div><span style={{ color: 'var(--text-muted, #8b949e)' }}>{t('advR.reportStatusLabel')}</span>{r.isReported ? <span style={{ color: 'var(--color-success-500)' }}>{t('advR.reported')}</span> : <span style={{ color: 'var(--color-warning-500)' }}>{t('advR.notReported')}</span>}</div>
                     </div>
                     {r.followUpNotes && <div style={{ marginTop: 8, padding: 8, background: 'var(--bg-card, #161b22)', borderRadius: 4, fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('advR.followupLabel')}{r.followUpNotes}</div>}
                     <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
@@ -254,7 +254,7 @@ export default function AdverseReactionPage() {
                           }
                           setReactions(prev => prev.map(a => a.id === r.id ? { ...a, isReported: true } : a))
                         })()
-                      }} style={{ padding: '6px 12px', borderRadius: 4, border: '1px solid #22c55e', background: '#22c55e20', color: '#22c55e', cursor: 'pointer', fontSize: 12 }}>{t('advR.report')}</button>}
+                      }} style={{ padding: '6px 12px', borderRadius: 4, border: '1px solid var(--color-success-500)', background: '#22c55e20', color: 'var(--color-success-500)', cursor: 'pointer', fontSize: 12 }}>{t('advR.report')}</button>}
                     </div>
                   </div>
                 )}
@@ -276,7 +276,7 @@ export default function AdverseReactionPage() {
               <div><label style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('advR.action')}</label><input value={form.action} onChange={e => setForm({ ...form, action: e.target.value })} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12, marginTop: 4, boxSizing: 'border-box' }} /></div>
               <div><label style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('advR.outcomeLabel')}</label><select value={form.outcome} onChange={e => setForm({ ...form, outcome: e.target.value as ReactionOutcome })} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12, marginTop: 4, boxSizing: 'border-box' }}>{OUTCOME_OPTIONS.map(k => <option key={k} value={k}>{OUTCOME_LABELS[k]}</option>)}</select></div>
               <div><label style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('advR.descriptionLabel')}</label><textarea rows={3} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder={t('advR.descriptionPlaceholder')} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12, marginTop: 4, boxSizing: 'border-box', resize: 'vertical' }} /></div>
-              <button onClick={() => void handleSubmitForm()} disabled={submitting} style={{ padding: '8px', borderRadius: 6, border: 'none', cursor: submitting ? 'wait' : 'pointer', background: '#dc2626', color: '#fff', fontSize: 12 }}>{submitting ? t('advR.submitting') : (editTarget ? t('advR.saveChanges') : t('advR.submitRecord'))}</button>
+              <button onClick={() => void handleSubmitForm()} disabled={submitting} style={{ padding: '8px', borderRadius: 6, border: 'none', cursor: submitting ? 'wait' : 'pointer', background: 'var(--color-error-600)', color: '#fff', fontSize: 12 }}>{submitting ? t('advR.submitting') : (editTarget ? t('advR.saveChanges') : t('advR.submitRecord'))}</button>
             </div>
           </div>
         )}
@@ -291,7 +291,7 @@ export default function AdverseReactionPage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
               <div style={{ padding: 14, background: 'var(--bg-primary, #0d1117)', borderRadius: 8, textAlign: 'center' }}><div style={{ fontSize: 30, fontWeight: 700, color: 'var(--text-primary, #f0f6fc)' }}>{stats.totalReactions}</div><div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginTop: 4 }}>{t('advR.totalCount')}</div></div>
-              <div style={{ padding: 14, background: 'var(--bg-primary, #0d1117)', borderRadius: 8, textAlign: 'center' }}><div style={{ fontSize: 30, fontWeight: 700, color: '#ef4444' }}>{stats.bySeverity?.severe ?? 0}</div><div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginTop: 4 }}>{t('advR.severeReactions')}</div></div>
+              <div style={{ padding: 14, background: 'var(--bg-primary, #0d1117)', borderRadius: 8, textAlign: 'center' }}><div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-error-500)' }}>{stats.bySeverity?.severe ?? 0}</div><div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginTop: 4 }}>{t('advR.severeReactions')}</div></div>
             </div>
             <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>{t('advR.byType')}</div>
             {(Object.keys(TYPE_LABELS) as ReactionType[]).map(t => (
@@ -319,7 +319,7 @@ export default function AdverseReactionPage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {CONTRAST_ALLERGY_TREATMENT.map(a => {
-                const color = a.grade === 1 ? '#22c55e' : a.grade === 2 ? '#f59e0b' : a.grade === 3 ? '#f97316' : '#ef4444'
+                const color = a.grade === 1 ? 'var(--color-success-500)' : a.grade === 2 ? 'var(--color-warning-500)' : a.grade === 3 ? '#f97316' : 'var(--color-error-500)'
                 return (
                   <div key={a.grade} style={{ border: `1px solid ${color}40`, borderRadius: 8, padding: 14, background: 'var(--bg-primary, #0d1117)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>

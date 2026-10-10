@@ -22,7 +22,7 @@ export function SkipLink({ targetId = 'main-content' }: { targetId?: string }): 
         top: '0',
         zIndex: 9999,
         padding: '12px 24px',
-        background: '#1e40af',
+        background: 'var(--color-primary-800)',
         color: 'white',
         textDecoration: 'none',
         borderRadius: '0 0 4px 0',

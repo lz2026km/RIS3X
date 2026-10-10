@@ -601,7 +601,7 @@ const CriticalValueCenterPage: React.FC = () => {
               <YAxis allowDecimals={false} {...chartDefaults.axis} />
               <Tooltip {...chartDefaults.tooltip} />
               <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Line type="monotone" dataKey="count" name={t('criticalCenter.legendTriggered')} stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="count" name={t('criticalCenter.legendTriggered')} stroke="var(--color-error-600)" strokeWidth={2} dot={{ r: 3 }} />
               <Line type="monotone" dataKey="resolved" name={t('criticalCenter.legendResolved')} stroke="#10b981" strokeWidth={2} dot={{ r: 3 }} />
               <Line type="monotone" dataKey="escalated" name={t('criticalCenter.legendEscalated')} stroke="#7c3aed" strokeWidth={2} dot={{ r: 3 }} />
             </LineChart>

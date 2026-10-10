@@ -175,7 +175,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
         title={t('eyeReport.voiceInputTitle')}
         icon={<Mic size={18} />}
         iconBg="var(--color-info-bg)"
-        iconColor="#1e40af"
+        iconColor="var(--color-primary-800)"
         size="sm"
       >
         <div style={{ fontSize: 12, color: "var(--text-primary)" }}>
@@ -213,7 +213,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
               style={{
                 padding: "6px 14px",
                 border: "none",
-                background: "#3b82f6",
+                background: "var(--color-primary-500)",
                 color: "#fff",
                 borderRadius: 6,
                 fontSize: 12,
@@ -257,7 +257,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
             style={{
               padding: "6px 14px",
               border: "none",
-              background: "#3b82f6",
+              background: "var(--color-primary-500)",
               color: "#fff",
               borderRadius: 6,
               fontSize: 12,
@@ -288,7 +288,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
         title={t('eyeReport.printTitle')}
         icon={<Printer size={18} />}
         iconBg="var(--color-info-bg)"
-        iconColor="#1e40af"
+        iconColor="var(--color-primary-800)"
         size="sm"
         footer={
           <>
@@ -313,7 +313,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
               style={{
                 padding: "6px 14px",
                 border: "none",
-                background: "#3b82f6",
+                background: "var(--color-primary-500)",
                 color: "#fff",
                 borderRadius: 6,
                 fontSize: 12,
@@ -677,7 +677,7 @@ const EyeReportWritePage: React.FC = () => {
           borderBottom: "1px solid var(--border-color)",
         }}
       >
-        <FileText size={24} color="#2563eb" />
+        <FileText size={24} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('eyeReport.title')}</span>
         <Select
           value={selectedReportId}

@@ -41,17 +41,17 @@ interface OrgNode {
 }
 
 const C = {
-  primary: "#1e40af", primaryLight: "#3b82f6", primaryLighter: "var(--color-info-bg)",
-  accent: "#0891b2", white: "var(--bg-card)", bg: "var(--bg-deep)", bgLight: "var(--bg-primary)",
+  primary: "var(--color-primary-800)", primaryLight: "var(--color-primary-500)", primaryLighter: "var(--color-info-bg)",
+  accent: "var(--color-info-600)", white: "var(--bg-card)", bg: "var(--bg-deep)", bgLight: "var(--bg-primary)",
   border: "var(--border-color)", borderLight: "var(--border-light)", textDark: "#1f2937", textMid: "#4b5563",
   textLight: "#9ca3af", success: "#059669", successBg: "var(--color-success-bg)",
-  warning: "#d97706", warningBg: "var(--color-warning-bg)", danger: "#dc2626", dangerBg: "var(--color-error-bg)",
-  info: "#2563eb", infoBg: "var(--color-info-bg)",
+  warning: "var(--color-warning-600)", warningBg: "var(--color-warning-bg)", danger: "var(--color-error-600)", dangerBg: "var(--color-error-bg)",
+  info: "var(--color-primary-600)", infoBg: "var(--color-info-bg)",
 };
 
 const SHIFTS = [
-  { id: "morning", name: "早班", time: "08:00-12:00", color: "#3b82f6" },
-  { id: "afternoon", name: "午班", time: "12:00-18:00", color: "#f59e0b" },
+  { id: "morning", name: "早班", time: "08:00-12:00", color: "var(--color-primary-500)" },
+  { id: "afternoon", name: "午班", time: "12:00-18:00", color: "var(--color-warning-500)" },
   { id: "night", name: "夜班", time: "18:00-08:00", color: "#7c3aed" },
   { id: "day", name: "常日班", time: "08:00-18:00", color: "#059669" },
 ];
@@ -543,15 +543,15 @@ export default function DepartmentPage() {
         <span style={{
           display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 12px", borderRadius: 999,
           background: dataSource === "api" ? "var(--color-success-bg)" : "var(--color-warning-bg)",
-          color: dataSource === "api" ? "#059669" : "#d97706", fontWeight: 600,
+          color: dataSource === "api" ? "#059669" : "var(--color-warning-600)", fontWeight: 600,
         }}>
-          <span style={{ width: 8, height: 8, borderRadius: "50%", background: dataSource === "api" ? "#059669" : "#d97706" }} />
+          <span style={{ width: 8, height: 8, borderRadius: "50%", background: dataSource === "api" ? "#059669" : "var(--color-warning-600)" }} />
           {loading ? t("deptPage.syncing") : dataSource === "api" ? t("deptPage.dataSourceApi") : t("deptPage.dataSourceDemo")}
         </span>
         {apiError && (
-          <span style={{ color: "#dc2626" }}>
+          <span style={{ color: "var(--color-error-600)" }}>
             {apiError}
-            <button onClick={() => void loadDeptData()} style={{ marginLeft: 8, padding: "2px 10px", borderRadius: 4, border: "1px solid #dc2626", background: "transparent", color: "#dc2626", cursor: "pointer", fontSize: 12 }}>{t("deptPage.retry")}</button>
+            <button onClick={() => void loadDeptData()} style={{ marginLeft: 8, padding: "2px 10px", borderRadius: 4, border: "1px solid var(--color-error-600)", background: "transparent", color: "var(--color-error-600)", cursor: "pointer", fontSize: 12 }}>{t("deptPage.retry")}</button>
           </span>
         )}
         <span style={{ color: "#9ca3af" }}>{t("deptPage.reviewBlockNote")}</span>

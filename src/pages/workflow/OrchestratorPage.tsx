@@ -36,12 +36,12 @@ import { DataTable, StatCard, StatCardGrid } from "../../components/common";
 type StepTypeColor = { key: string; color: string };
 
 const STEP_TYPES: StepTypeColor[] = [
-  { key: "write", color: "#22c55e" },
-  { key: "review", color: "#3b82f6" },
-  { key: "cosign", color: "#f59e0b" },
-  { key: "qc", color: "#ef4444" },
+  { key: "write", color: "var(--color-success-500)" },
+  { key: "review", color: "var(--color-primary-500)" },
+  { key: "cosign", color: "var(--color-warning-500)" },
+  { key: "qc", color: "var(--color-error-500)" },
   { key: "notify", color: "#8b5cf6" },
-  { key: "auto", color: "#06b6d4" },
+  { key: "auto", color: "var(--color-info-500)" },
 ];
 
 const STATUS_COLORS: Record<string, string> = {
@@ -507,7 +507,7 @@ export default function OrchestratorPage() {
               <Layers size={16} /> {t("designer")}{" "}
               <Badge
                 count={steps.length}
-                style={{ backgroundColor: "#3b82f6" }}
+                style={{ backgroundColor: "var(--color-primary-500)" }}
               />
             </Space>
           }
@@ -598,7 +598,7 @@ export default function OrchestratorPage() {
               value={slaStats.slaComplianceRate}
               suffix="%"
               styles={{ content: { 
-                color: slaStats.slaComplianceRate >= 90 ? "#22c55e" : "#f59e0b",
+                color: slaStats.slaComplianceRate >= 90 ? "var(--color-success-500)" : "var(--color-warning-500)",
                } }}
             />
             <Statistic

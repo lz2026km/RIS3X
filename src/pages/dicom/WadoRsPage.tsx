@@ -156,7 +156,7 @@ const WadoRsPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <Globe size={20} color="#2563eb" />
+        <Globe size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t("wadoRs.title")}</span>
         <Button
           size="small"

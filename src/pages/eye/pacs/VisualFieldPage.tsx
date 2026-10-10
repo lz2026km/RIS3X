@@ -166,7 +166,7 @@ const VisualFieldPage: React.FC = () => {
                         aspectRatio: "1",
                         background:
                           v < -10
-                            ? "#ef4444"
+                            ? "var(--color-error-500)"
                             : v < -5
                               ? "#f97316"
                               : v < -2
@@ -224,19 +224,19 @@ const VisualFieldPage: React.FC = () => {
                   title: "MD",
                   value: vf?.md,
                   suffix: "dB",
-                  color: vf && vf.md < -6 ? "#ef4444" : "#0f172a",
+                  color: vf && vf.md < -6 ? "var(--color-error-500)" : "#0f172a",
                 },
                 {
                   title: "PSD",
                   value: vf?.psd,
                   suffix: "dB",
-                  color: vf && vf.psd > 5 ? "#ef4444" : "#0f172a",
+                  color: vf && vf.psd > 5 ? "var(--color-error-500)" : "#0f172a",
                 },
                 {
                   title: "VFI",
                   value: vf?.vfi,
                   suffix: "%",
-                  color: vf && vf.vfi < 75 ? "#ef4444" : "#0f172a",
+                  color: vf && vf.vfi < 75 ? "var(--color-error-500)" : "#0f172a",
                 },
                 { title: "visualField.centralThreshold", value: vf?.fovealThreshold, suffix: "dB" },
                 {

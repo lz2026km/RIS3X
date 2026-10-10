@@ -363,8 +363,8 @@ export default function AuditPage() {
                           <Descriptions.Item label={t('w13Sec.ac.retentionMonths')}>{chainRetention.retentionMonths}</Descriptions.Item>
                           <Descriptions.Item label={t('w13Sec.ac.retentionDays')}>{chainRetention.retentionDays}</Descriptions.Item>
                           <Descriptions.Item label={t('w13Sec.ac.archiveLocation')}><span style={{ fontFamily: 'monospace', fontSize: 11 }}>{chainRetention.archiveLocation}</span></Descriptions.Item>
-                          <Descriptions.Item label={t('w13Sec.ac.encrypted')}>{chainRetention.encrypted ? <CheckCircle2 size={14} color="#16a34a" /> : <XCircle size={14} color="#dc2626" />}</Descriptions.Item>
-                          <Descriptions.Item label={t('w13Sec.ac.immutable')}>{chainRetention.immutable ? <CheckCircle2 size={14} color="#16a34a" /> : <XCircle size={14} color="#dc2626" />}</Descriptions.Item>
+                          <Descriptions.Item label={t('w13Sec.ac.encrypted')}>{chainRetention.encrypted ? <CheckCircle2 size={14} color="var(--color-success-600)" /> : <XCircle size={14} color="var(--color-error-600)" />}</Descriptions.Item>
+                          <Descriptions.Item label={t('w13Sec.ac.immutable')}>{chainRetention.immutable ? <CheckCircle2 size={14} color="var(--color-success-600)" /> : <XCircle size={14} color="var(--color-error-600)" />}</Descriptions.Item>
                           <Descriptions.Item label={t('w13Sec.ac.lastArchive')}>{chainRetention.lastArchiveAt?.slice(0, 19).replace('T', ' ') ?? '-'}</Descriptions.Item>
                         </Descriptions>
                       )}
@@ -413,8 +413,8 @@ export default function AuditPage() {
                           <Descriptions.Item label={t('w4a.audit.retentionMonths')}>{orphanRetention.retentionMonths}</Descriptions.Item>
                           <Descriptions.Item label={t('w4a.audit.retentionDays')}>{orphanRetention.retentionDays}</Descriptions.Item>
                           <Descriptions.Item label={t('w4a.audit.archiveLocation')}><span style={{ fontFamily: 'monospace', fontSize: 11 }}>{orphanRetention.archiveLocation}</span></Descriptions.Item>
-                          <Descriptions.Item label={t('w4a.audit.encrypted')}>{orphanRetention.encrypted ? <CheckCircle2 size={14} color="#16a34a" /> : <XCircle size={14} color="#dc2626" />}</Descriptions.Item>
-                          <Descriptions.Item label={t('w4a.audit.immutable')}>{orphanRetention.immutable ? <CheckCircle2 size={14} color="#16a34a" /> : <XCircle size={14} color="#dc2626" />}</Descriptions.Item>
+                          <Descriptions.Item label={t('w4a.audit.encrypted')}>{orphanRetention.encrypted ? <CheckCircle2 size={14} color="var(--color-success-600)" /> : <XCircle size={14} color="var(--color-error-600)" />}</Descriptions.Item>
+                          <Descriptions.Item label={t('w4a.audit.immutable')}>{orphanRetention.immutable ? <CheckCircle2 size={14} color="var(--color-success-600)" /> : <XCircle size={14} color="var(--color-error-600)" />}</Descriptions.Item>
                           <Descriptions.Item label={t('w4a.audit.lastArchive')}>{orphanRetention.lastArchiveAt?.slice(0, 19).replace('T', ' ') ?? '-'}</Descriptions.Item>
                           <Descriptions.Item label={t('w4a.audit.note')} span={3}>{orphanRetention.note}</Descriptions.Item>
                         </Descriptions>

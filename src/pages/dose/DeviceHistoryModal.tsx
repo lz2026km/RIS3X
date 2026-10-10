@@ -114,10 +114,10 @@ export default function DeviceHistoryModal({ device, onClose }: Props) {
           }}
         >
           <div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: "#1e40af" }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "var(--color-primary-800)" }}>
               {device} 历史趋势
               {dataSource === "demo" && (
-                <span style={{ marginLeft: 8, fontSize: 11, padding: "2px 8px", borderRadius: 10, background: "#fffbeb", color: "#d97706", border: "1px solid #fcd34d", fontWeight: 600, verticalAlign: "middle" }}>{t("w8Dose.deviceHistoryDemo")}</span>
+                <span style={{ marginLeft: 8, fontSize: 11, padding: "2px 8px", borderRadius: 10, background: "#fffbeb", color: "var(--color-warning-600)", border: "1px solid #fcd34d", fontWeight: 600, verticalAlign: "middle" }}>{t("w8Dose.deviceHistoryDemo")}</span>
               )}
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>
@@ -149,7 +149,7 @@ export default function DeviceHistoryModal({ device, onClose }: Props) {
             <Line
               type="monotone"
               dataKey="DLP"
-              stroke="#3b82f6"
+              stroke="var(--color-primary-500)"
               strokeWidth={2}
               name="DLP"
             />
@@ -190,6 +190,6 @@ const ModalStat = ({ label, value }: { label: string; value: string }) => (
     }}
   >
     <div style={{ fontSize: 12, color: "#64748b" }}>{label}</div>
-    <div style={{ fontSize: 20, fontWeight: 800, color: "#1e40af" }}>{value}</div>
+    <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-primary-800)" }}>{value}</div>
   </div>
 );

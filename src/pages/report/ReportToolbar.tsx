@@ -143,7 +143,7 @@ export default function ReportToolbar({
                   ? "#047857"
                   : avgQuality >= 80
                     ? "#b45309"
-                    : "#dc2626",
+                    : "var(--color-error-600)",
             }}
           >
             {avgQuality}
@@ -195,7 +195,7 @@ export default function ReportToolbar({
           {
             label: "书写中",
             count: filteredReports.filter((r) => normalizeReportStatus(r.status) === "书写中").length,
-            color: "#1e40af",
+            color: "var(--color-primary-800)",
             key: "书写中",
           },
           {

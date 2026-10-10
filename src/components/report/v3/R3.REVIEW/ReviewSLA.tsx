@@ -31,7 +31,7 @@ import ChartContainer from '../../../charts/ChartContainer';
 import { t } from '../../../../i18n/appI18n';
 
 const STAGE_META: Record<ReviewStage, { label: string; color: string }> = {
-  initial: { label: 'reportReview.stage.initial', color: '#f59e0b' },
+  initial: { label: 'reportReview.stage.initial', color: 'var(--color-warning-500)' },
   final: { label: 'reportReview.stage.final', color: '#7c2d12' },
   cosign: { label: 'reportReview.stage.cosign', color: '#7c3aed' },
   sign: { label: 'reportReview.stage.sign', color: '#be185d' },
@@ -88,7 +88,7 @@ export const ReviewSLA: React.FC = () => {
     <div data-testid="review-sla" role="region" aria-label={t('reportReview.sla.title')}>
       <div
         style={{
-          background: 'linear-gradient(135deg, #dc2626 0%, #f59e0b 100%)',
+          background: 'linear-gradient(135deg, var(--color-error-600) 0%, var(--color-warning-500) 100%)',
           color: '#fff',
           padding: '12px 16px',
           borderRadius: 8,
@@ -204,7 +204,7 @@ export const ReviewSLA: React.FC = () => {
                 <Line
                   type="monotone"
                   dataKey="initial"
-                  stroke="#f59e0b"
+                  stroke="var(--color-warning-500)"
                   strokeWidth={2}
                   name={t('reportReview.stage.initial')}
                 />
@@ -249,7 +249,7 @@ export const ReviewSLA: React.FC = () => {
           <Card
             title={
               <Space>
-                <TrendingUp size={14} color="#3b82f6" />
+                <TrendingUp size={14} color="var(--color-primary-500)" />
                 {t('reportReview.sla.avgDuration')}
               </Space>
             }

@@ -119,7 +119,7 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
         flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
         padding: '8px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12,
         fontWeight: section === key ? 700 : 500, transition: 'all 0.15s',
-        background: section === key ? '#1e40af' : 'transparent',
+        background: section === key ? 'var(--color-primary-800)' : 'transparent',
         color: section === key ? '#fff' : '#64748b',
       }}
     >
@@ -129,7 +129,7 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
 
   return (
     <Modal
-      title={<Space><BarChart3 size={16} style={{ color: '#1e40af' }} />{t('reportStats.title')}{live === 'api' ? <Tag color="green">{t('reportStats.apiLive')}</Tag> : <Tag color="orange">{t('reportStats.demoFallback')}</Tag>}</Space>}
+      title={<Space><BarChart3 size={16} style={{ color: 'var(--color-primary-800)' }} />{t('reportStats.title')}{live === 'api' ? <Tag color="green">{t('reportStats.apiLive')}</Tag> : <Tag color="orange">{t('reportStats.demoFallback')}</Tag>}</Space>}
       open={open}
       onCancel={onClose}
       footer={null}
@@ -152,10 +152,10 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
             <>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 14 }}>
                 {[
-                  { label: t('reportStats.total'), value: overview.total, color: '#1e40af', icon: <FileText size={16} /> },
-                  { label: t('reportStats.todayCreated'), value: overview.todayCreated, color: '#0891b2', icon: <TrendingUp size={16} /> },
+                  { label: t('reportStats.total'), value: overview.total, color: 'var(--color-primary-800)', icon: <FileText size={16} /> },
+                  { label: t('reportStats.todayCreated'), value: overview.todayCreated, color: 'var(--color-info-600)', icon: <TrendingUp size={16} /> },
                   { label: t('reportStats.todayCompleted'), value: overview.todayCompleted, color: '#059669', icon: <Clock size={16} /> },
-                  { label: t('reportStats.critical'), value: overview.criticalCount, color: '#dc2626', icon: <Zap size={16} /> },
+                  { label: t('reportStats.critical'), value: overview.criticalCount, color: 'var(--color-error-600)', icon: <Zap size={16} /> },
                 ].map((c) => (
                   <div key={c.label} style={{ background: 'var(--bg-card, #fff)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: 10, padding: '12px 14px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: c.color, fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{c.icon}{c.label}</div>
@@ -185,7 +185,7 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
                     <div key={state} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <Tag style={{ width: 90, textAlign: 'center', margin: 0 }}>{STATUS_ZH[state] ?? state}</Tag>
                       <div style={{ flex: 1, height: 14, background: 'var(--bg-secondary, #f1f5f9)', borderRadius: 7, overflow: 'hidden' }}>
-                        <div style={{ height: '100%', width: `${overview.total > 0 ? (count / overview.total) * 100 : 0}%`, background: 'linear-gradient(90deg, #1e40af, #3b82f6)', borderRadius: 7 }} />
+                        <div style={{ height: '100%', width: `${overview.total > 0 ? (count / overview.total) * 100 : 0}%`, background: 'linear-gradient(90deg, var(--color-primary-800), var(--color-primary-500))', borderRadius: 7 }} />
                       </div>
                       <span style={{ width: 40, textAlign: 'right', fontSize: 12, fontWeight: 700, color: '#334155' }}>{count}</span>
                     </div>
@@ -209,7 +209,7 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
               {doctors.map((d) => (
                 <div key={d.id} style={{ background: 'var(--bg-card, #fff)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: 10, padding: '10px 14px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, alignItems: 'center', marginBottom: 6 }}>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{d.name}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{d.name}</span>
                     <span style={{ fontSize: 14, fontWeight: 700 }}>{d.total}</span>
                     <span style={{ fontSize: 12, color: '#059669', fontWeight: 600 }}>{d.published}</span>
                     <span style={{ fontSize: 12, color: '#ea580c', fontWeight: 600 }}>{d.pending}</span>
@@ -232,7 +232,7 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
           ) : (
             <>
               <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 10, fontSize: 12, color: '#64748b' }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 10, height: 10, borderRadius: 2, background: '#1e40af', display: 'inline-block' }} />{t('reportStats.created')}</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 10, height: 10, borderRadius: 2, background: 'var(--color-primary-800)', display: 'inline-block' }} />{t('reportStats.created')}</span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 10, height: 10, borderRadius: 2, background: '#059669', display: 'inline-block' }} />{t('reportStats.published')}</span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span style={{ width: 10, height: 10, borderRadius: 2, background: '#7c3aed', display: 'inline-block' }} />{t('reportStats.signed')}</span>
               </div>
@@ -240,7 +240,7 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
                 {trend.map((d) => (
                   <div key={d.date} style={{ flex: 1, minWidth: 22, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, position: 'relative' }}>
                     <div style={{ display: 'flex', gap: 1, alignItems: 'flex-end', height: 190 }}>
-                      <div style={{ width: 6, height: `${(d.created / maxTrend) * 180}px`, background: '#1e40af', borderRadius: '2px 2px 0 0' }} title={`${d.date} 新建 ${d.created}`} />
+                      <div style={{ width: 6, height: `${(d.created / maxTrend) * 180}px`, background: 'var(--color-primary-800)', borderRadius: '2px 2px 0 0' }} title={`${d.date} 新建 ${d.created}`} />
                       <div style={{ width: 6, height: `${(d.published / maxTrend) * 180}px`, background: '#059669', borderRadius: '2px 2px 0 0' }} title={`${d.date} 发布 ${d.published}`} />
                       <div style={{ width: 6, height: `${(d.signed / maxTrend) * 180}px`, background: '#7c3aed', borderRadius: '2px 2px 0 0' }} title={`${d.date} 签署 ${d.signed}`} />
                     </div>

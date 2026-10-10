@@ -123,7 +123,7 @@ export default function ReportKpiDashboardPage() {
     count: Math.floor(200 + seededUnit(`kpi-week-${day}`) * 120),
   }));
   const modalityTotals: Record<string, number> = { CT: 1245, MR: 678, DR: 1234, US: 567, MG: 234, DSA: 45 };
-  const modalityColors: Record<string, string> = { CT: '#3b82f6', MR: '#7c3aed', DR: '#0891b2', US: '#10b981', MG: '#ec4899', DSA: '#dc2626' };
+  const modalityColors: Record<string, string> = { CT: 'var(--color-primary-500)', MR: '#7c3aed', DR: 'var(--color-info-600)', US: '#10b981', MG: '#ec4899', DSA: 'var(--color-error-600)' };
   const modalityTotal = Object.values(modalityTotals).reduce((a, b) => a + b, 0);
 
   const kpiRows = snapshot.values.map(v => {
@@ -164,10 +164,10 @@ export default function ReportKpiDashboardPage() {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <BarChart3 size={20} color="#1e40af" /> {t('reportKpi.title')}
+            <BarChart3 size={20} color="var(--color-primary-800)" /> {t('reportKpi.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
             {/* [G005 Wave2B P2] KpiEngine 本地合成指标 → 演示数据徽标 */}
-            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>{t('reportKpi.demoBadge')}</span>
+            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: 'var(--color-warning-600)', border: '1px solid #fcd34d', fontWeight: 600 }}>{t('reportKpi.demoBadge')}</span>
             {/* [G005 W7] 真实 KPI 源 (/bi/kpi) 优先, 否则标注本地引擎 */}
             <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: biKpi ? '#ecfdf5' : '#f1f5f9', color: biKpi ? '#059669' : '#475569', border: `1px solid ${biKpi ? '#6ee7b7' : '#cbd5e1'}`, fontWeight: 600 }}>{biKpi ? t('w7demo.kpiBiSource') : t('w7demo.kpiEngineSource')}</span>
           </h1>
@@ -182,7 +182,7 @@ export default function ReportKpiDashboardPage() {
               onClick={() => setPeriod(p)}
               style={{
                 padding: '4px 10px', border: 'none', borderRadius: 4,
-                background: period === p ? '#3b82f6' : 'transparent',
+                background: period === p ? 'var(--color-primary-500)' : 'transparent',
                 color: period === p ? '#fff' : '#475569',
                 fontSize: 12, fontWeight: 600, cursor: 'pointer',
               }}
@@ -233,10 +233,10 @@ export default function ReportKpiDashboardPage() {
                   <div key={dev}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
                       <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{dev}</span>
-                      <span><strong style={{ color: rate > 85 ? '#10b981' : rate > 75 ? '#f59e0b' : '#94a3b8' }}>{rate}%</strong> <span style={{ color: 'var(--text-secondary)' }}>· {count} {t('reportKpi.unitReports')}</span></span>
+                      <span><strong style={{ color: rate > 85 ? '#10b981' : rate > 75 ? 'var(--color-warning-500)' : '#94a3b8' }}>{rate}%</strong> <span style={{ color: 'var(--text-secondary)' }}>· {count} {t('reportKpi.unitReports')}</span></span>
                     </div>
                     <div style={{ height: 14, background: 'var(--bg-card)', borderRadius: 4, overflow: 'hidden' }}>
-                      <div style={{ width: `${rate}%`, height: '100%', background: rate > 85 ? 'linear-gradient(90deg, #10b981, #059669)' : rate > 75 ? 'linear-gradient(90deg, #f59e0b, #d97706)' : 'linear-gradient(90deg, #94a3b8, #64748b)' }} />
+                      <div style={{ width: `${rate}%`, height: '100%', background: rate > 85 ? 'linear-gradient(90deg, #10b981, #059669)' : rate > 75 ? 'linear-gradient(90deg, var(--color-warning-500), var(--color-warning-600))' : 'linear-gradient(90deg, #94a3b8, #64748b)' }} />
                     </div>
                   </div>
                 );
@@ -254,7 +254,7 @@ export default function ReportKpiDashboardPage() {
             type="bar"
             data={hourData}
             xKey="hour"
-            series={[{ key: 'count', name: t('reportKpi.reportCount'), color: '#3b82f6' }]}
+            series={[{ key: 'count', name: t('reportKpi.reportCount'), color: 'var(--color-primary-500)' }]}
             height={120}
             showLegend={false}
           />
@@ -271,7 +271,7 @@ export default function ReportKpiDashboardPage() {
             type="bar"
             data={weekData}
             xKey="day"
-            series={[{ key: 'count', name: t('reportKpi.reportCount'), color: '#3b82f6' }]}
+            series={[{ key: 'count', name: t('reportKpi.reportCount'), color: 'var(--color-primary-500)' }]}
             height={150}
           />
         </DashboardCard>
@@ -303,7 +303,7 @@ export default function ReportKpiDashboardPage() {
       </KpiCardGrid>
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)', marginTop: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
           <BarChart3 size={13} /> {t('w1tables.kpi.title')}
         </div>
         <DataTable dataSource={kpiRows} rowKey="kpiId" columns={kpiColumns} pagination={{ pageSize: 20, showSizeChanger: false }} emptyText={t('w1tables.noData')} />

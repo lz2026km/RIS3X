@@ -114,12 +114,12 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title={t('userMgmt.stat.active')} value={stats.active} styles={{ content: {  color: '#16a34a'  } }} />
+            <Statistic title={t('userMgmt.stat.active')} value={stats.active} styles={{ content: {  color: 'var(--color-success-600)'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title={t('userMgmt.stat.twoFactor')} value={stats.twoFA} styles={{ content: {  color: '#3b82f6'  } }} prefix={<KeyRound size={14} />} />
+            <Statistic title={t('userMgmt.stat.twoFactor')} value={stats.twoFA} styles={{ content: {  color: 'var(--color-primary-500)'  } }} prefix={<KeyRound size={14} />} />
           </Card>
         </Col>
         <Col span={6}>

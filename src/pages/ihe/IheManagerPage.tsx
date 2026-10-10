@@ -659,7 +659,7 @@ export const IheManagerPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
-        <Network size={20} color="#2563eb" />
+        <Network size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('iheManager.title')}</span>
         <Tag color="cyan">PIX / PDQ / PAM</Tag>
         <Tag color="green">XDS.b</Tag>

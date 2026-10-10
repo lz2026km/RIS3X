@@ -43,16 +43,16 @@ interface QuickLink {
 }
 
 const KPI_CARDS: KpiCard[] = [
-  { key: 'appt', title: 'eyeWs.kpi.appt', Icon: Calendar, color: '#2563eb', href: '/appointments' },
+  { key: 'appt', title: 'eyeWs.kpi.appt', Icon: Calendar, color: 'var(--color-primary-600)', href: '/appointments' },
   { key: 'exam', title: 'eyeWs.kpi.exam', Icon: ScanLine, color: '#10b981', href: '/eye/pacs/studies' },
-  { key: 'rpt', title: 'eyeWs.kpi.rpt', Icon: FileText, color: '#f59e0b', href: '/eye/report/drafts' },
-  { key: 'crit', title: 'eyeWs.kpi.crit', Icon: AlertTriangle, color: '#ef4444', href: '/eye/ris/emergency' },
+  { key: 'rpt', title: 'eyeWs.kpi.rpt', Icon: FileText, color: 'var(--color-warning-500)', href: '/eye/report/drafts' },
+  { key: 'crit', title: 'eyeWs.kpi.crit', Icon: AlertTriangle, color: 'var(--color-error-500)', href: '/eye/ris/emergency' },
 ];
 
 const QUICK_LINKS: QuickLink[] = [
-  { key: 'pacs', title: 'eyeWs.quick.pacsTitle', description: 'eyeWs.quick.pacsDesc', Icon: Activity, color: '#2563eb', href: '/eye/pacs/studies' },
+  { key: 'pacs', title: 'eyeWs.quick.pacsTitle', description: 'eyeWs.quick.pacsDesc', Icon: Activity, color: 'var(--color-primary-600)', href: '/eye/pacs/studies' },
   { key: 'ai', title: 'eyeWs.quick.aiTitle', description: 'eyeWs.quick.aiDesc', Icon: Microscope, color: '#8b5cf6', href: '/eye/ai' },
-  { key: 'emr', title: 'eyeWs.quick.emrTitle', description: 'eyeWs.quick.emrDesc', Icon: Stethoscope, color: '#06b6d4', href: '/eye/emr' },
+  { key: 'emr', title: 'eyeWs.quick.emrTitle', description: 'eyeWs.quick.emrDesc', Icon: Stethoscope, color: 'var(--color-info-500)', href: '/eye/emr' },
   { key: 'iol', title: 'eyeWs.quick.iolTitle', description: 'eyeWs.quick.iolDesc', Icon: Pill, color: '#10b981', href: '/eye/ris/iol-calculator' },
 ];
 
@@ -183,7 +183,7 @@ const EyeWorkspacePage: React.FC = () => {
       <PageHeader
         title={t('eyeWs.welcomeTitle', { name: displayName })}
         subtitle={today}
-        icon={<Eye className="v4-icon" style={{ width: 28, height: 28, color: '#2563eb' }} />}
+        icon={<Eye className="v4-icon" style={{ width: 28, height: 28, color: 'var(--color-primary-600)' }} />}
         variant="inline"
         actions={
           <>
@@ -195,7 +195,7 @@ const EyeWorkspacePage: React.FC = () => {
                 alignItems: 'center',
                 gap: 6,
                 padding: '6px 14px',
-                background: '#2563eb',
+                background: 'var(--color-primary-600)',
                 color: '#fff',
                 border: 'none',
                 borderRadius: 6,

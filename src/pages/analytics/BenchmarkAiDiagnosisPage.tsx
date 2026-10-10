@@ -161,7 +161,7 @@ export default function BenchmarkAiDiagnosisPage() {
               {t('benchmarkAi.title')}
               <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f5f3ff', color: '#9333ea', border: '1px solid #e9d5ff', fontWeight: 600 }}>{t('benchmarkAi.demoData')}</span>
             </h2>
-            <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('benchmarkAi.subtitle')} <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: '#fef3c7', color: '#d97706', fontWeight: 600 }}>{t('benchmarkAi.demoNote')}</span></span>
+            <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('benchmarkAi.subtitle')} <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: '#fef3c7', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t('benchmarkAi.demoNote')}</span></span>
           </div>
         </Space>
       </div>
@@ -193,9 +193,9 @@ export default function BenchmarkAiDiagnosisPage() {
             </StatCardGrid>
 
             <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
-              <Col span={6}><AccuracyGauge label={t('benchmarkAi.sensitivity')} value={accuracy.sensitivity} color="#3b82f6" /></Col>
+              <Col span={6}><AccuracyGauge label={t('benchmarkAi.sensitivity')} value={accuracy.sensitivity} color="var(--color-primary-500)" /></Col>
               <Col span={6}><AccuracyGauge label={t('benchmarkAi.specificity')} value={accuracy.specificity} color="#10b981" /></Col>
-              <Col span={6}><AccuracyGauge label={t('benchmarkAi.ppv')} value={accuracy.ppv} color="#f59e0b" /></Col>
+              <Col span={6}><AccuracyGauge label={t('benchmarkAi.ppv')} value={accuracy.ppv} color="var(--color-warning-500)" /></Col>
               <Col span={6}><AccuracyGauge label={t('benchmarkAi.npv')} value={accuracy.npv} color="#ec4899" /></Col>
             </Row>
           </>
@@ -211,7 +211,7 @@ export default function BenchmarkAiDiagnosisPage() {
               <line x1={pad.left} y1={pad.top} x2={pad.left} y2={pad.top + ih} stroke="#e2e8f0" />
               <line x1={pad.left} y1={pad.top + ih} x2={pad.left + iw} y2={pad.top + ih} stroke="#e2e8f0" />
               <path d={trendPath('accuracy', '#8b5cf6')} fill="none" stroke="#8b5cf6" strokeWidth={2} />
-              <path d={trendPath('sensitivity', '#3b82f6')} fill="none" stroke="#3b82f6" strokeWidth={2} strokeDasharray="4 2" />
+              <path d={trendPath('sensitivity', 'var(--color-primary-500)')} fill="none" stroke="var(--color-primary-500)" strokeWidth={2} strokeDasharray="4 2" />
               <path d={trendPath('specificity', '#10b981')} fill="none" stroke="#10b981" strokeWidth={2} strokeDasharray="2 2" />
               {trend.filter((_, i) => i % Math.max(1, Math.floor(trend.length / 10)) === 0).map((tp, i) => (
                 <text key={i} x={pad.left + (trend.indexOf(tp) * iw) / (trend.length - 1)} y={pad.top + ih + 14} fontSize={8} textAnchor="middle" fill="#94a3b8">
@@ -219,7 +219,7 @@ export default function BenchmarkAiDiagnosisPage() {
                 </text>
               ))}
               <text x={w - 60} y={pad.top + 10} fontSize={9} fill="#8b5cf6">{t('benchmarkAi.accuracyShort')}</text>
-              <text x={w - 60} y={pad.top + 22} fontSize={9} fill="#3b82f6">{t('benchmarkAi.sensitivity')}</text>
+              <text x={w - 60} y={pad.top + 22} fontSize={9} fill="var(--color-primary-500)">{t('benchmarkAi.sensitivity')}</text>
               <text x={w - 60} y={pad.top + 34} fontSize={9} fill="#10b981">{t('benchmarkAi.specificity')}</text>
             </svg>
           ) : (

@@ -134,7 +134,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <User size={20} color="#2563eb" />
+        <User size={20} color="var(--color-primary-600)" />
         <Box size={20} color="#52c41a" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('patientDevice.title')}</span>
         <Tag color="cyan">PR2 (v3.0.6.8-46)</Tag>
@@ -185,7 +185,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
                       actions={[<Tag color="blue" key="id">{p.id}</Tag>]}
                     >
                       <List.Item.Meta
-                        avatar={<Avatar style={{ background: '#2563eb' }}>{p.name?.slice(0, 1)}</Avatar>}
+                        avatar={<Avatar style={{ background: 'var(--color-primary-600)' }}>{p.name?.slice(0, 1)}</Avatar>}
                         title={<span>{p.name} ({p.gender}, {p.age}{t('patientDevice.years')})</span>}
                         description={
                           <span style={{ fontSize: 11, color: '#999' }}>

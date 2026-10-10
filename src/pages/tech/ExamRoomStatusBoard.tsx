@@ -15,14 +15,14 @@ import { t } from '../../i18n/appI18n'
 
 const STATUS_META: Record<RoomStatusItemDto['status'], { label: string; color: string; bg: string; border: string }> = {
   in_use: { label: 'examRoom.status.in_use', color: '#059669', bg: '#d1fae5', border: '#34d399' },
-  paused: { label: 'examRoom.status.paused', color: '#d97706', bg: '#fef3c7', border: '#fbbf24' },
-  overdue: { label: 'examRoom.status.overdue', color: '#dc2626', bg: '#fee2e2', border: '#f87171' },
-  waiting: { label: 'examRoom.status.waiting', color: '#2563eb', bg: '#dbeafe', border: '#60a5fa' },
+  paused: { label: 'examRoom.status.paused', color: 'var(--color-warning-600)', bg: '#fef3c7', border: 'var(--color-warning-400)' },
+  overdue: { label: 'examRoom.status.overdue', color: 'var(--color-error-600)', bg: '#fee2e2', border: '#f87171' },
+  waiting: { label: 'examRoom.status.waiting', color: 'var(--color-primary-600)', bg: '#dbeafe', border: '#60a5fa' },
   idle: { label: 'examRoom.status.idle', color: '#64748b', bg: '#f1f5f9', border: '#cbd5e1' },
 }
 
 const MODALITY_COLORS: Record<string, string> = {
-  CT: '#2563eb', MR: '#7c3aed', DR: '#0d9488', US: '#db2777', MG: '#9333ea', DSA: '#dc2626',
+  CT: 'var(--color-primary-600)', MR: '#7c3aed', DR: '#0d9488', US: '#db2777', MG: '#9333ea', DSA: 'var(--color-error-600)',
 }
 
 const formatIdle = (iso: string | null): string => {
@@ -115,7 +115,7 @@ export default function ExamRoomStatusBoard() {
   return (
     <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
       <PageHeader
-        icon={<Monitor size={20} color="#3b82f6" />}
+        icon={<Monitor size={20} color="var(--color-primary-500)" />}
         title={t('examRoom.title')}
         subtitle={updatedAt ? `更新于 ${updatedAt} · 第 ${tick} 次轮询` : t('examRoom.subtitleFallback')}
         actions={
@@ -176,7 +176,7 @@ export default function ExamRoomStatusBoard() {
                   {room.currentExam ? (
                     <div style={{ background: 'var(--content-bg)', borderRadius: 8, padding: '10px 12px', border: '1px solid var(--border-color)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, fontSize: 12, color: '#1e293b' }}>
-                        <UserRound size={13} color="#3b82f6" />
+                        <UserRound size={13} color="var(--color-primary-500)" />
                         {room.currentExam.patientName}
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6, fontSize: 11, color: '#64748b' }}>
@@ -196,7 +196,7 @@ export default function ExamRoomStatusBoard() {
                     {t('examRoom.idleDuration', { duration: formatIdle(room.idleSince) })}
                     {room.status === 'overdue' && (
                       <Tooltip title={t('examRoom.overdueTip')}>
-                        <AlertTriangle size={11} color="#dc2626" style={{ marginLeft: 4 }} />
+                        <AlertTriangle size={11} color="var(--color-error-600)" style={{ marginLeft: 4 }} />
                       </Tooltip>
                     )}
                   </div>
@@ -210,7 +210,7 @@ export default function ExamRoomStatusBoard() {
       {/* 数据源徽标 */}
       <Card size="small" style={{ marginTop: 16 }}>
         <Space>
-          <CheckCircle2 size={14} color={source === 'api' ? '#10b981' : '#f59e0b'} />
+          <CheckCircle2 size={14} color={source === 'api' ? '#10b981' : 'var(--color-warning-500)'} />
           <span style={{ fontSize: 12, color: '#64748b' }}>
             {source === 'api'
               ? t('examRoom.dataSourceApi')

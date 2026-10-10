@@ -54,9 +54,9 @@ import RqiIndicatorPage from './qc/RqiIndicatorPage'
 // [G005 W9-QC] 统一质控评分台 Tab: 内嵌量表+40指标+PDCA+抽查双盲+互评+设备质控 (深链 /qc?tab=scoringCenter)
 import QualityScoringCenterPage from './qc/QualityScoringCenterPage'
 
-const PRIMARY = '#1e40af'
+const PRIMARY = 'var(--color-primary-800)'
 
-const ACCENT = '#3b82f6'
+const ACCENT = 'var(--color-primary-500)'
 const SUCCESS = severityColor('success')
 const WARNING = severityColor('warning')
 const DANGER = severityColor('critical')
@@ -137,19 +137,19 @@ const gradeDistributionData = (() => {
   const total = QUALITY_SCORE_PRE.length || 1;
   return [
     { grade: '甲', label: t("qcPage.gradeAExcellent"), count: counts['甲'], percentage: Math.round((counts['甲'] / total) * 100), color: '#059669', bg: '#22c55e22', description: t("qcPage.descExcellent") },
-    { grade: '乙', label: t("qcPage.gradeBGood"), count: counts['乙'], percentage: Math.round((counts['乙'] / total) * 100), color: '#1e40af', bg: '#3b82f622', description: t("qcPage.descGood") },
-    { grade: '丙', label: t("qcPage.gradeCPass"), count: counts['丙'], percentage: Math.round((counts['丙'] / total) * 100), color: '#f59e0b', bg: '#f59e0b22', description: t("qcPage.descPass") },
-    { grade: '丁', label: t("qcPage.gradeDFail"), count: counts['丁'], percentage: Math.round((counts['丁'] / total) * 100), color: '#ef4444', bg: '#ef444422', description: t("qcPage.descFail") },
+    { grade: '乙', label: t("qcPage.gradeBGood"), count: counts['乙'], percentage: Math.round((counts['乙'] / total) * 100), color: 'var(--color-primary-800)', bg: '#3b82f622', description: t("qcPage.descGood") },
+    { grade: '丙', label: t("qcPage.gradeCPass"), count: counts['丙'], percentage: Math.round((counts['丙'] / total) * 100), color: 'var(--color-warning-500)', bg: '#f59e0b22', description: t("qcPage.descPass") },
+    { grade: '丁', label: t("qcPage.gradeDFail"), count: counts['丁'], percentage: Math.round((counts['丁'] / total) * 100), color: 'var(--color-error-500)', bg: '#ef444422', description: t("qcPage.descFail") },
   ];
 })()
 
 // 报告缺陷类型统计（国家卫健委2024年版）
 const reportDefectData = [
   { defectType: t("qcPage.defectIncomplete"), count: 28, percentage: 25, trend: t("qcPage.down"), color: '#f97316' },
-  { defectType: t("qcPage.defectUnclearDiagnosis"), count: 22, percentage: 20, trend: t("qcPage.up"), color: '#ef4444' },
+  { defectType: t("qcPage.defectUnclearDiagnosis"), count: 22, percentage: 20, trend: t("qcPage.up"), color: 'var(--color-error-500)' },
   { defectType: t("qcPage.defectTerminology"), count: 18, percentage: 16, trend: t("qcPage.flat"), color: '#eab308' },
-  { defectType: t("qcPage.defectMismatch"), count: 12, percentage: 11, trend: t("qcPage.down"), color: '#22c55e' },
-  { defectType: t("qcPage.defectCriticalMissed"), count: 8, percentage: 7, trend: t("qcPage.down"), color: '#3b82f6' },
+  { defectType: t("qcPage.defectMismatch"), count: 12, percentage: 11, trend: t("qcPage.down"), color: 'var(--color-success-500)' },
+  { defectType: t("qcPage.defectCriticalMissed"), count: 8, percentage: 7, trend: t("qcPage.down"), color: 'var(--color-primary-500)' },
   { defectType: t("qcPage.defectOverdue"), count: 15, percentage: 14, trend: t("qcPage.flat"), color: '#8b5cf6' },
   { defectType: t("qcPage.defectOther"), count: 9, percentage: 7, trend: t("qcPage.flat"), color: 'var(--text-secondary)' },
 ]
@@ -236,9 +236,9 @@ const timeoutData = [
 
 // 评分矩阵说明
 const SCORE_MATRIX = [
-  { dimension: t("qcPage.dimFormat"), weight: '30%', indicators: t("qcPage.dimFormatDesc"), color: '#3b82f6' },
+  { dimension: t("qcPage.dimFormat"), weight: '30%', indicators: t("qcPage.dimFormatDesc"), color: 'var(--color-primary-500)' },
   { dimension: t("qcPage.dimAccuracy"), weight: '50%', indicators: t("qcPage.dimAccuracyDesc"), color: '#059669' },
-  { dimension: t("qcPage.dimTimeliness"), weight: '20%', indicators: t("qcPage.dimTimelinessDesc"), color: '#f59e0b' },
+  { dimension: t("qcPage.dimTimeliness"), weight: '20%', indicators: t("qcPage.dimTimelinessDesc"), color: 'var(--color-warning-500)' },
 ]
 
 // 医生评分排行榜 - 10名医生
@@ -275,9 +275,9 @@ const doctorScoreData = (() => {
 
 // 质控问题分布数据
 const qcIssueDistribution = [
-  { issueType: t("qcPage.defectFormat"), count: 28, percentage: 32, color: '#3b82f6', trend: t("qcPage.down") },
-  { issueType: t("qcPage.defectDescription"), count: 24, percentage: 28, color: '#d97706', trend: t("qcPage.down") },
-  { issueType: t("qcPage.defectMisdiagnosis"), count: 18, percentage: 21, color: '#ef4444', trend: t("qcPage.up") },
+  { issueType: t("qcPage.defectFormat"), count: 28, percentage: 32, color: 'var(--color-primary-500)', trend: t("qcPage.down") },
+  { issueType: t("qcPage.defectDescription"), count: 24, percentage: 28, color: 'var(--color-warning-600)', trend: t("qcPage.down") },
+  { issueType: t("qcPage.defectMisdiagnosis"), count: 18, percentage: 21, color: 'var(--color-error-500)', trend: t("qcPage.up") },
   { issueType: t("qcPage.overdue"), count: 17, percentage: 19, color: '#7c3aed', trend: t("qcPage.flat") },
 ]
 
@@ -315,11 +315,11 @@ const dashboardData = {
     count: 18 + Math.floor(seededUnit(`qc-t30-count-${i}`) * 12 ),
   })),
   issueDistribution: [
-    { name: t("qcPage.imageArtifactMotion"), value: 28, color: '#ef4444' },
+    { name: t("qcPage.imageArtifactMotion"), value: 28, color: 'var(--color-error-500)' },
     { name: t("qcPage.imageExposure"), value: 22, color: '#f97316' },
     { name: t("qcPage.imagePositioning"), value: 18, color: '#eab308' },
-    { name: t("qcPage.defectContrast"), value: 12, color: '#22c55e' },
-    { name: t("qcPage.defectDevice"), value: 8, color: '#3b82f6' },
+    { name: t("qcPage.defectContrast"), value: 12, color: 'var(--color-success-500)' },
+    { name: t("qcPage.defectDevice"), value: 8, color: 'var(--color-primary-500)' },
     { name: t("qcPage.other"), value: 12, color: 'var(--text-secondary)' },
   ],
   weakLinks: [t("qcPage.reportTimeliness"), t("qcPage.descriptionStandard"), t("qcPage.criticalTracking")],
@@ -491,7 +491,7 @@ const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
   '差': severityTone('critical'),
 }
 
-const PIE_COLORS = ['#3b82f6', '#22c55e', '#eab308', '#ef4444', '#8b5cf6', '#64748b']
+const PIE_COLORS = ['var(--color-primary-500)', 'var(--color-success-500)', '#eab308', 'var(--color-error-500)', '#8b5cf6', '#64748b']
 
 // 区域排名颜色映射
 
@@ -765,7 +765,7 @@ export default function QCPage() {
 
   const statCardsReport = [
     { label: t("qcPage.todayReviews"), value: reportQCData.filter(r => r.date === '2026-05-01').length, icon: <FileText size={18} color={ACCENT} />, bg: '#3b82f622', color: ACCENT },
-    { label: t("qcPage.avgScore"), value: '87.3', icon: <Star size={18} color={'#f59e0b'} />, bg: '#f59e0b22', color: '#f59e0b' },
+    { label: t("qcPage.avgScore"), value: '87.3', icon: <Star size={18} color={'var(--color-warning-500)'} />, bg: '#f59e0b22', color: 'var(--color-warning-500)' },
     { label: t("qcPage.overdueReviews"), value: timeoutData.length, icon: <Clock size={18} color={WARNING} />, bg: '#f59e0b22', color: WARNING },
     { label: t("qcPage.excellentRate"), value: `${Math.round(reportQCData.filter(r => r.status === '优秀').length / reportQCData.length * 100)}%`, icon: <Award size={18} color={SUCCESS} />, bg: '#22c55e22', color: SUCCESS },
   ]
@@ -774,7 +774,7 @@ export default function QCPage() {
     { label: t("qcPage.todayCaptures"), value: imageQCData.length, icon: <Camera size={18} color={ACCENT} />, bg: '#3b82f622', color: ACCENT },
     { label: t("qcPage.excellentRate"), value: `${Math.round(imageQCData.filter(i => i.status === '优秀').length / imageQCData.length * 100)}%`, icon: <Award size={18} color={SUCCESS} />, bg: '#22c55e22', color: SUCCESS },
     { label: t("qcPage.rejectRate"), value: `${Math.round(imageQCData.filter(i => i.status === '差').length / imageQCData.length * 100)}%`, icon: <AlertTriangle size={18} color={DANGER} />, bg: '#ef444422', color: DANGER },
-    { label: t("qcPage.avgScore"), value: '87.2', icon: <Star size={18} color={'#f59e0b'} />, bg: '#f59e0b22', color: '#f59e0b' },
+    { label: t("qcPage.avgScore"), value: '87.2', icon: <Star size={18} color={'var(--color-warning-500)'} />, bg: '#f59e0b22', color: 'var(--color-warning-500)' },
   ]
 
   
@@ -896,10 +896,10 @@ export default function QCPage() {
               <AppText size="xs" color="success" as="div" style={{ marginTop: 2 }}>{t("qcPage.pageSubtitle2")}</AppText>
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
-              <button onClick={() => navigate('/keyword-check')} style={{ padding: '5px 10px', border: '1px solid #3b82f6', borderRadius: 4, background: 'var(--bg-card)', color: '#1e40af', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t("qcPage.tabKeywordScan")}</button>
+              <button onClick={() => navigate('/keyword-check')} style={{ padding: '5px 10px', border: '1px solid var(--color-primary-500)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--color-primary-800)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t("qcPage.tabKeywordScan")}</button>
               <button onClick={() => navigate('/report-score-rule')} style={{ padding: '5px 10px', border: '1px solid #7c3aed', borderRadius: 4, background: 'var(--bg-card)', color: '#5b21b6', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t("qcPage.tabScoreRules")}</button>
-              <button onClick={() => navigate('/report-defect-library')} style={{ padding: '5px 10px', border: '1px solid #dc2626', borderRadius: 4, background: 'var(--bg-card)', color: '#b91c1c', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t("qcPage.tabDefectLibrary")}</button>
-              <button onClick={() => navigate('/ai-report-draft')} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: 'linear-gradient(135deg, #7c3aed, #3b82f6)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t("qcPage.tabAiDraft")}</button>
+              <button onClick={() => navigate('/report-defect-library')} style={{ padding: '5px 10px', border: '1px solid var(--color-error-600)', borderRadius: 4, background: 'var(--bg-card)', color: '#b91c1c', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t("qcPage.tabDefectLibrary")}</button>
+              <button onClick={() => navigate('/ai-report-draft')} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: 'linear-gradient(135deg, #7c3aed, var(--color-primary-500))', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t("qcPage.tabAiDraft")}</button>
             </div>
           </div>
 
@@ -985,7 +985,7 @@ export default function QCPage() {
                     const rankColor = doctor.rank === 1 ? '#92400e' : doctor.rank === 2 ? '#475569' : doctor.rank === 3 ? '#92400e' : PRIMARY
                     return isTop3 ? (
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                        <Award size={16} color={doctor.rank === 1 ? '#fbbf24' : doctor.rank === 2 ? '#94a3b8' : '#cd7f32'} />
+                        <Award size={16} color={doctor.rank === 1 ? 'var(--color-warning-400)' : doctor.rank === 2 ? '#94a3b8' : '#cd7f32'} />
                         <span style={{ fontWeight: 800, fontSize: 14, color: rankColor }}>{doctor.rank}</span>
                       </div>
                     ) : (
@@ -1067,9 +1067,9 @@ export default function QCPage() {
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {[
-                  { label: t("qcPage.dimFormat"), score: doctorScoreStats.avgFormatScore, weight: '30%', color: '#3b82f6' },
+                  { label: t("qcPage.dimFormat"), score: doctorScoreStats.avgFormatScore, weight: '30%', color: 'var(--color-primary-500)' },
                   { label: t("qcPage.dimAccuracy"), score: doctorScoreStats.avgAccuracyScore, weight: '50%', color: '#059669' },
-                  { label: t("qcPage.dimTimeliness"), score: doctorScoreStats.avgTimelinessScore, weight: '20%', color: '#d97706' },
+                  { label: t("qcPage.dimTimeliness"), score: doctorScoreStats.avgTimelinessScore, weight: '20%', color: 'var(--color-warning-600)' },
                 ].map(item => (
                   <div key={item.label}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -1202,7 +1202,7 @@ export default function QCPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {/* Stat Cards [v3.0.6.11-96 Wave5A P2] imageQCData 为本地硬编码演示数据 */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("qcPage.demoData")}</span>
+            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: 'var(--color-warning-600)', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("qcPage.demoData")}</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {statCardsImage.map(card => (
@@ -1307,7 +1307,7 @@ export default function QCPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {/* Summary Cards [v3.0.6.11-96 Wave5A P2] timeoutData 为本地硬编码演示数据 */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("qcPage.demoData")}</span>
+            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: 'var(--color-warning-600)', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("qcPage.demoData")}</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
@@ -1430,13 +1430,13 @@ export default function QCPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {/* 抽检统计卡片 [v3.0.6.11-96 Wave5A P2] inspectionStats 为本地硬编码演示数据 */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("qcPage.demoData")}</span>
+            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: 'var(--color-warning-600)', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("qcPage.demoData")}</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
             {[
               { label: t("qcPage.samplingTotal"), value: inspectionStats.totalInspected, icon: <ClipboardList size={18} color={ACCENT} />, bg: '#3b82f622', color: ACCENT },
               { label: t("qcPage.samplingPassRate"), value: `${inspectionStats.passedRate}%`, icon: <CheckCircle size={18} color={SUCCESS} />, bg: '#22c55e22', color: SUCCESS },
-              { label: t("qcPage.samplingGradeARate"), value: `${inspectionStats.excellentRate}%`, icon: <Award size={18} color={'#f59e0b'} />, bg: '#f59e0b22', color: '#f59e0b' },
+              { label: t("qcPage.samplingGradeARate"), value: `${inspectionStats.excellentRate}%`, icon: <Award size={18} color={'var(--color-warning-500)'} />, bg: '#f59e0b22', color: 'var(--color-warning-500)' },
               { label: t("qcPage.defectFoundRate"), value: `${inspectionStats.defectRate}%`, icon: <AlertTriangle size={18} color={WARNING} />, bg: '#f59e0b22', color: WARNING },
               { label: t("qcPage.samplingAvgScore"), value: inspectionStats.avgScore.toFixed(1), icon: <Star size={18} color={'#8b5cf6'} />, bg: '#8b5cf622', color: '#8b5cf6' },
             ].map(card => (
@@ -1483,7 +1483,7 @@ export default function QCPage() {
             {/* 抽检缺陷类型分布 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <AlertTriangle size={16} color={WARNING} />{t('qcdefect.defectStats')}<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>{t('qcdefect.nhc2024')}</span><span style={{ marginLeft: 6, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600, verticalAlign: 'middle' }}>{t("qcPage.demoData")}</span>
+                <AlertTriangle size={16} color={WARNING} />{t('qcdefect.defectStats')}<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>{t('qcdefect.nhc2024')}</span><span style={{ marginLeft: 6, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: 'var(--color-warning-600)', border: '1px solid #fcd34d', fontWeight: 600, verticalAlign: 'middle' }}>{t("qcPage.demoData")}</span>
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {reportDefectData.map(item => (
@@ -1646,7 +1646,7 @@ export default function QCPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {[
               { label: t("qcPage.complianceRate"), value: `${dashboardData.passRate}%`, icon: <Target size={18} color={SUCCESS} />, bg: '#22c55e22', color: SUCCESS },
-              { label: t("qcPage.excellentGoodRate"), value: `${dashboardData.excellentRate}%`, icon: <Award size={18} color={'#f59e0b'} />, bg: '#f59e0b22', color: '#f59e0b' },
+              { label: t("qcPage.excellentGoodRate"), value: `${dashboardData.excellentRate}%`, icon: <Award size={18} color={'var(--color-warning-500)'} />, bg: '#f59e0b22', color: 'var(--color-warning-500)' },
               { label: t("qcPage.totalReviews"), value: dashboardData.totalReviewed, icon: <FileText size={18} color={ACCENT} />, bg: '#3b82f622', color: ACCENT },
               { label: t("qcPage.compositeScore"), value: dashboardData.avgScore.toFixed(1), icon: <Star size={18} color={'#8b5cf6'} />, bg: '#8b5cf622', color: '#8b5cf6' },
             ].map(card => (
@@ -1679,7 +1679,7 @@ export default function QCPage() {
                 <ChartContainer height={180}>
                   <RechartsPie>
                     <Pie data={[{ name: t("qcPage.excellentGood"), value: dashboardData.excellentRate }, { name: t("qcPage.notExcellentGood"), value: 100 - dashboardData.excellentRate }]} cx='50%' cy='50%' innerRadius={50} outerRadius={75} dataKey='value'>
-                      <Cell fill={'#f59e0b'} /><Cell fill='var(--border-color)' />
+                      <Cell fill={'var(--color-warning-500)'} /><Cell fill='var(--border-color)' />
                     </Pie>
                     <Tooltip formatter={(v) => `${v}%`} />
                   </RechartsPie>
@@ -1691,7 +1691,7 @@ export default function QCPage() {
                   <div style={{ fontSize: 12, color: GRAY }}>{t('qc.passRate')}</div>
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 30, fontWeight: 700, color: '#f59e0b' }}>{dashboardData.excellentRate}%</div>
+                  <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-warning-500)' }}>{dashboardData.excellentRate}%</div>
                   <div style={{ fontSize: 12, color: GRAY }}>{t('qc.excellentRate')}</div>
                 </div>
               </div>
@@ -1809,10 +1809,10 @@ export default function QCPage() {
                 </div>
                 <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))' }}>
                   <div style={{ width: 40, height: 40, borderRadius: 10, background: 'var(--color-warning-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Star size={18} color='#f59e0b' />
+                    <Star size={18} color='var(--color-warning-500)' />
                   </div>
                   <div>
-                    <div style={{ fontSize: 30, fontWeight: 700, color: '#f59e0b' }}>{(regionalInstitutions.reduce((sum, inst) => sum + inst.avgScore, 0) / regionalInstitutions.length).toFixed(1)}</div>
+                    <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-warning-500)' }}>{(regionalInstitutions.reduce((sum, inst) => sum + inst.avgScore, 0) / regionalInstitutions.length).toFixed(1)}</div>
                     <div style={{ fontSize: 12, color: GRAY }}>{t('qc.regionalScore')}</div>
                   </div>
                 </div>
@@ -1888,7 +1888,7 @@ export default function QCPage() {
                     >
                       <div style={{ width: 36, height: 36, borderRadius: 8, background: inst.ranking <= 3 ? 'var(--color-warning-bg)' : 'var(--color-info-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {inst.ranking <= 3 ? (
-                          <Award size={18} color={inst.ranking === 1 ? '#fbbf24' : inst.ranking === 2 ? '#94a3b8' : '#cd7f32'} />
+                          <Award size={18} color={inst.ranking === 1 ? 'var(--color-warning-400)' : inst.ranking === 2 ? '#94a3b8' : '#cd7f32'} />
                         ) : (
                           <Building2 size={18} color={ACCENT} />
                         )}
@@ -2208,7 +2208,7 @@ export default function QCPage() {
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
                       {[
                         { label: t("qcPage.totalReports"), value: reportSummaryData.monthly.totalReports.toLocaleString(), icon: <FileText size={16} />, color: ACCENT, bg: '#3b82f622' },
-                        { label: t("qcPage.avgScore"), value: reportSummaryData.monthly.avgScore, icon: <Star size={16} />, color: '#f59e0b', bg: '#f59e0b22' },
+                        { label: t("qcPage.avgScore"), value: reportSummaryData.monthly.avgScore, icon: <Star size={16} />, color: 'var(--color-warning-500)', bg: '#f59e0b22' },
                         { label: t("qcPage.complianceRate"), value: `${reportSummaryData.monthly.passRate}%`, icon: <Target size={16} />, color: SUCCESS, bg: '#22c55e22' },
                         { label: t("qcPage.overdueReports"), value: reportSummaryData.monthly.timeoutCount, icon: <Clock size={16} />, color: WARNING, bg: '#f59e0b22' },
                       ].map(card => (
@@ -2277,7 +2277,7 @@ export default function QCPage() {
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
                     {[
                       { label: t("qcPage.totalReports"), value: reportSummaryData.quarterly.totalReports.toLocaleString(), color: ACCENT, bg: '#3b82f622' },
-                      { label: t("qcPage.avgScore"), value: reportSummaryData.quarterly.avgScore, color: '#f59e0b', bg: '#f59e0b22' },
+                      { label: t("qcPage.avgScore"), value: reportSummaryData.quarterly.avgScore, color: 'var(--color-warning-500)', bg: '#f59e0b22' },
                       { label: t("qcPage.complianceRate"), value: `${reportSummaryData.quarterly.passRate}%`, color: SUCCESS, bg: '#22c55e22' },
                       { label: t("qcPage.overdueReports"), value: reportSummaryData.quarterly.timeoutCount, color: WARNING, bg: '#f59e0b22' },
                     ].map(card => (
@@ -2314,7 +2314,7 @@ export default function QCPage() {
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
                     {[
                       { label: t("qcPage.totalReports"), value: reportSummaryData.yearly.totalReports.toLocaleString(), color: ACCENT, bg: '#3b82f622' },
-                      { label: t("qcPage.avgScore"), value: reportSummaryData.yearly.avgScore, color: '#f59e0b', bg: '#f59e0b22' },
+                      { label: t("qcPage.avgScore"), value: reportSummaryData.yearly.avgScore, color: 'var(--color-warning-500)', bg: '#f59e0b22' },
                       { label: t("qcPage.complianceRate"), value: `${reportSummaryData.yearly.passRate}%`, color: SUCCESS, bg: '#22c55e22' },
                       { label: t("qcPage.overdueReports"), value: reportSummaryData.yearly.timeoutCount, color: WARNING, bg: '#f59e0b22' },
                     ].map(card => (
@@ -2328,8 +2328,8 @@ export default function QCPage() {
                     <h4 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: '0 0 10px' }}>{t("qcPage.annualExcellentInstitutions")}</h4>
                     <div style={{ display: 'flex', gap: 12 }}>
                       {reportSummaryData.yearly.rankings.map((r, idx) => (
-                        <div key={r.institution} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: idx === 0 ? 'var(--color-warning-bg)' : LIGHT_BG, borderRadius: 8, border: `1px solid ${idx === 0 ? '#fbbf24' : BORDER}` }}>
-                          <div style={{ width: 24, height: 24, borderRadius: '50%', background: idx === 0 ? '#fbbf24' : 'var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div key={r.institution} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: idx === 0 ? 'var(--color-warning-bg)' : LIGHT_BG, borderRadius: 8, border: `1px solid ${idx === 0 ? 'var(--color-warning-400)' : BORDER}` }}>
+                          <div style={{ width: 24, height: 24, borderRadius: '50%', background: idx === 0 ? 'var(--color-warning-400)' : 'var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <Award size={14} color={idx === 0 ? WHITE : GRAY} />
                           </div>
                           <div>
@@ -2484,8 +2484,8 @@ export default function QCPage() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
                 {[
                   { dim: t("qcPage.accuracyMetric2"), desc: t("qcPage.accuracyDesc"), weight: '40%', icon: <Target size={20} />, color: '#059669' },
-                  { dim: t("qcPage.completenessMetric2"), desc: t("qcPage.completenessDesc"), weight: '35%', icon: <FileText size={20} />, color: '#3b82f6' },
-                  { dim: t("qcPage.timelinessMetric2"), desc: t("qcPage.timelinessDesc"), weight: '25%', icon: <Clock size={20} />, color: '#f59e0b' },
+                  { dim: t("qcPage.completenessMetric2"), desc: t("qcPage.completenessDesc"), weight: '35%', icon: <FileText size={20} />, color: 'var(--color-primary-500)' },
+                  { dim: t("qcPage.timelinessMetric2"), desc: t("qcPage.timelinessDesc"), weight: '25%', icon: <Clock size={20} />, color: 'var(--color-warning-500)' },
                 ].map(item => (
                   <div key={item.dim} style={{ background: `${item.color}10`, borderRadius: 10, padding: 16, border: `2px solid ${item.color}` }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
@@ -2572,7 +2572,7 @@ export default function QCPage() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {qcRulesConfig.map(rule => {
-                  const catColor = rule.category === 'structure' ? '#3b82f6' : rule.category === 'content' ? '#059669' : rule.category === 'terminology' ? '#f59e0b' : '#7c3aed'
+                  const catColor = rule.category === 'structure' ? 'var(--color-primary-500)' : rule.category === 'content' ? '#059669' : rule.category === 'terminology' ? 'var(--color-warning-500)' : '#7c3aed'
                   return (
                     <div key={rule.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: LIGHT_BG, borderRadius: 8, border: `1px solid ${rule.passed ? 'var(--color-success-border)' : 'var(--color-error-border)'}` }}>
                       <div style={{ width: 8, height: 8, borderRadius: 2, background: catColor, flexShrink: 0 }} />
@@ -2597,8 +2597,8 @@ export default function QCPage() {
                     <svg width="200" height="120" viewBox="0 0 200 120">
                       <defs>
                         <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" stopColor="#dc2626" />
-                          <stop offset="50%" stopColor="#f59e0b" />
+                          <stop offset="0%" stopColor="var(--color-error-600)" />
+                          <stop offset="50%" stopColor="var(--color-warning-500)" />
                           <stop offset="100%" stopColor="#059669" />
                         </linearGradient>
                       </defs>
@@ -2611,9 +2611,9 @@ export default function QCPage() {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {[
-                    { label: t("qcPage.structure"), value: 85, color: '#3b82f6' },
+                    { label: t("qcPage.structure"), value: 85, color: 'var(--color-primary-500)' },
                     { label: t("qcPage.content"), value: 78, color: '#059669' },
-                    { label: t("qcPage.terminology"), value: 72, color: '#f59e0b' },
+                    { label: t("qcPage.terminology"), value: 72, color: 'var(--color-warning-500)' },
                     { label: t("qcPage.compliance"), value: 88, color: '#7c3aed' },
                   ].map(item => (
                     <div key={item.label}>
@@ -2641,7 +2641,7 @@ export default function QCPage() {
               { label: t("qcPage.totalCompareCases"), value: concordanceStats.total, icon: <Activity size={18} />, color: ACCENT, bg: '#3b82f622' },
               { label: t("qcPage.consistent"), value: concordanceStats.concordant, icon: <CheckCircle size={18} />, color: SUCCESS, bg: '#22c55e22' },
               { label: t("qcPage.inconsistent"), value: concordanceStats.discordant, icon: <AlertTriangle size={18} />, color: DANGER, bg: '#ef444422' },
-              { label: t("qcPage.agreementRate"), value: `${concordanceStats.total > 0 ? Math.round(concordanceStats.concordant / concordanceStats.total * 100) : 0}%`, icon: <Target size={18} />, color: '#f59e0b', bg: '#f59e0b22' },
+              { label: t("qcPage.agreementRate"), value: `${concordanceStats.total > 0 ? Math.round(concordanceStats.concordant / concordanceStats.total * 100) : 0}%`, icon: <Target size={18} />, color: 'var(--color-warning-500)', bg: '#f59e0b22' },
             ].map(card => (
               <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
@@ -2911,8 +2911,8 @@ export default function QCPage() {
                     <XAxis dataKey='month' tick={{ fontSize: 12, color: GRAY }} />
                     <YAxis domain={[70, 95]} tick={{ fontSize: 12, color: GRAY }} />
                     <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
-                    <Area type='monotone' dataKey='upperControl' stroke='#ef4444' strokeDasharray='5 5' fill='none' name='UCL' />
-                    <Area type='monotone' dataKey='lowerControl' stroke='#ef4444' strokeDasharray='5 5' fill='none' name='LCL' />
+                    <Area type='monotone' dataKey='upperControl' stroke='var(--color-error-500)' strokeDasharray='5 5' fill='none' name='UCL' />
+                    <Area type='monotone' dataKey='lowerControl' stroke='var(--color-error-500)' strokeDasharray='5 5' fill='none' name='LCL' />
                     <Area type='monotone' dataKey='mean' stroke='#64748b' strokeDasharray='3 3' fill='none' name='CL' />
                     <Line type='monotone' dataKey='deptAvg' stroke={ACCENT} strokeWidth={2} dot={{ r: 4, fill: ACCENT }} name={t('qcPage.hospitalAvgScore')} />
                     {monthlyQualityData.filter(d => d.deptAvg > d.upperControl || d.deptAvg < d.lowerControl).map((d, i) => (
@@ -2944,9 +2944,9 @@ export default function QCPage() {
                   <XAxis dataKey='month' tick={{ fontSize: 12, color: GRAY }} />
                   <YAxis domain={[70, 95]} tick={{ fontSize: 12, color: GRAY }} />
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
-                  <Area type='monotone' dataKey='upperControl' stroke='#ef4444' strokeDasharray='5 5' fill='none' name='UCL' />
+                  <Area type='monotone' dataKey='upperControl' stroke='var(--color-error-500)' strokeDasharray='5 5' fill='none' name='UCL' />
                   <Area type='monotone' dataKey='mean' stroke='#64748b' strokeDasharray='3 3' fill='none' name='CL' />
-                  <Area type='monotone' dataKey='lowerControl' stroke='#ef4444' strokeDasharray='5 5' fill='none' name='LCL' />
+                  <Area type='monotone' dataKey='lowerControl' stroke='var(--color-error-500)' strokeDasharray='5 5' fill='none' name='LCL' />
                   <Line type='monotone' dataKey='deptAvg' stroke={ACCENT} strokeWidth={2} dot={false} name={t('qcPage.hospitalAvgScore')} />
                   <Line type='monotone' dataKey='indivAvg' stroke={SUCCESS} strokeWidth={2} dot={{ r: 4, fill: SUCCESS }} name={t('qcPage.individualAvgScore')} />
                 </AreaChart>
@@ -2954,7 +2954,7 @@ export default function QCPage() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginTop: 16 }}>
                 {indivDoctorTrendData.map((doc, idx) => (
                   <div key={doc.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: idx % 2 === 0 ? 'var(--color-info-bg)' : 'var(--color-success-bg)', borderRadius: 8 }}>
-                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: doc.rank === 1 ? '#fbbf24' : doc.rank <= 3 ? '#94a3b8' : 'var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 12, color: WHITE }}>{doc.rank}</div>
+                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: doc.rank === 1 ? 'var(--color-warning-400)' : doc.rank <= 3 ? '#94a3b8' : 'var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 12, color: WHITE }}>{doc.rank}</div>
                     <div style={{ flex: 1 }}><div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{doc.name}</div><div style={{ fontSize: 12, color: GRAY }}>{t("qcPage.report")} {doc.reportCount} {t("qcPage.reportUnit")}</div></div>
                     <div style={{ textAlign: 'right' }}>
                       <div style={{ fontSize: 24, fontWeight: 700, color: doc.totalScore >= 90 ? SUCCESS : doc.totalScore >= 80 ? WARNING : DANGER }}>{doc.totalScore}</div>

@@ -554,7 +554,7 @@ export const CRITICAL_VALUE_CATEGORIES = [
 ];
 
 export const CRITICAL_VALUE_SEVERITIES = [
-  { value: "emergent", label: "紧急", color: "#ef4444" },
+  { value: "emergent", label: "紧急", color: "var(--color-error-500)" },
   { value: "urgent", label: "危急", color: "#f97316" },
   { value: "significant", label: "重要", color: "#eab308" },
 ];

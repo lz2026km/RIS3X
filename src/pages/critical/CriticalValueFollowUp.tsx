@@ -137,7 +137,7 @@ export const TransferToFollowUpModal = ({
               <div>
                 <span style={{ fontSize: 12, color: "#94a3b8" }}>姓名</span>
                 <div
-                  style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}
+                  style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}
                 >
                   {cv.patientName}
                 </div>
@@ -145,7 +145,7 @@ export const TransferToFollowUpModal = ({
               <div>
                 <span style={{ fontSize: 12, color: "#94a3b8" }}>危急值</span>
                 <div
-                  style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}
+                  style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}
                 >
                   {cv.findingDetails.substring(0, 30)}...
                 </div>
@@ -205,7 +205,7 @@ export const TransferToFollowUpModal = ({
                 marginBottom: 6,
               }}
             >
-              <Clock size={14} style={{ color: "#d97706" }} />
+              <Clock size={14} style={{ color: "var(--color-warning-600)" }} />
               <span style={{ fontSize: 12, fontWeight: 700, color: "#92400e" }}>
                 随访提醒
               </span>
@@ -297,8 +297,8 @@ export const FollowUpTab = ({ cv, records }: FollowUpTabProps) => {
             gap: 6,
             padding: "8px 14px",
             borderRadius: 8,
-            border: "1px solid #1e40af",
-            background: "#1e40af",
+            border: "1px solid var(--color-primary-800)",
+            background: "var(--color-primary-800)",
             color: "#fff",
             fontSize: 12,
             fontWeight: 600,
@@ -346,11 +346,11 @@ export const FollowUpTab = ({ cv, records }: FollowUpTabProps) => {
                   }}
                 >
                   {record.type === "电话回访" ? (
-                    <PhoneOutgoing size={18} style={{ color: "#dc2626" }} />
+                    <PhoneOutgoing size={18} style={{ color: "var(--color-error-600)" }} />
                   ) : record.type === "短信确认" ? (
-                    <MessageSquare size={18} style={{ color: "#2563eb" }} />
+                    <MessageSquare size={18} style={{ color: "var(--color-primary-600)" }} />
                   ) : record.type === "现场走访" ? (
-                    <PhoneCall size={18} style={{ color: "#d97706" }} />
+                    <PhoneCall size={18} style={{ color: "var(--color-warning-600)" }} />
                   ) : (
                     <MessageSquare size={18} style={{ color: "#059669" }} />
                   )}
@@ -368,7 +368,7 @@ export const FollowUpTab = ({ cv, records }: FollowUpTabProps) => {
                       style={{
                         fontSize: 12,
                         fontWeight: 700,
-                        color: "#1e40af",
+                        color: "var(--color-primary-800)",
                       }}
                     >
                       {record.type}
@@ -395,10 +395,10 @@ export const FollowUpTab = ({ cv, records }: FollowUpTabProps) => {
                           record.result === "已回复"
                             ? "#059669"
                             : record.result === "无响应"
-                              ? "#dc2626"
+                              ? "var(--color-error-600)"
                               : record.result === "转接成功"
-                                ? "#2563eb"
-                                : "#d97706",
+                                ? "var(--color-primary-600)"
+                                : "var(--color-warning-600)",
                       }}
                     >
                       {record.result}
@@ -457,7 +457,7 @@ export const DocumentsTab = ({ documents, cvId }: DocumentsTabProps) => {
           marginBottom: 16,
         }}
       >
-        <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>
           相关文档 ({documents?.length || 0})
         </div>
         <button
@@ -508,14 +508,14 @@ export const DocumentsTab = ({ documents, cvId }: DocumentsTabProps) => {
                 }}
               >
                 {doc.type.includes("pdf") ? (
-                  <FileText size={18} style={{ color: "#dc2626" }} />
+                  <FileText size={18} style={{ color: "var(--color-error-600)" }} />
                 ) : (
-                  <ImageIcon size={18} style={{ color: "#2563eb" }} />
+                  <ImageIcon size={18} style={{ color: "var(--color-primary-600)" }} />
                 )}
               </div>
               <div style={{ flex: 1 }}>
                 <div
-                  style={{ fontSize: 12, fontWeight: 600, color: "#1e40af" }}
+                  style={{ fontSize: 12, fontWeight: 600, color: "var(--color-primary-800)" }}
                 >
                   {doc.name}
                 </div>

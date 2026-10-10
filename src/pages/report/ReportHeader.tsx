@@ -163,10 +163,10 @@ export default function ReportHeader({
           <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
             style={{ padding: '5px 8px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12,}} />
         </div>
-        <button onClick={() => setCriticalOnly(!criticalOnly)} style={btnStyle(criticalOnly, '#dc2626')}>
+        <button onClick={() => setCriticalOnly(!criticalOnly)} style={btnStyle(criticalOnly, 'var(--color-error-600)')}>
           {criticalOnly ? '' : ''} 仅危急值
         </button>
-        <button onClick={() => setPositiveOnly(!positiveOnly)} style={btnStyle(positiveOnly, '#d97706')}>
+        <button onClick={() => setPositiveOnly(!positiveOnly)} style={btnStyle(positiveOnly, 'var(--color-warning-600)')}>
           {positiveOnly ? '' : ''} 仅阳性
         </button>
         <button onClick={onReset} style={{ ...btnStyle(false, GRAY), color: GRAY }}>

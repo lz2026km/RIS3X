@@ -74,7 +74,7 @@ const NOTIFY_CHANNEL_LABELS: Record<string, string> = {
 };
 const notifyChannelLabel = (k: string) => t(`cloudStorage.channel${k.charAt(0).toUpperCase()}${k.slice(1)}`);
 
-const TIER_COLORS: Record<string, string> = { hot: "#dc2626", warm: "#f59e0b", cold: "#3b82f6" };
+const TIER_COLORS: Record<string, string> = { hot: "var(--color-error-600)", warm: "var(--color-warning-500)", cold: "var(--color-primary-500)" };
 const tierLabel = (tier: string) => t(`cloudStorage.tier${tier.charAt(0).toUpperCase()}${tier.slice(1)}`);
 const nodeTypeLabel = (tier: string) => t(`cloudStorage.node${tier.charAt(0).toUpperCase()}${tier.slice(1)}`);
 
@@ -137,7 +137,7 @@ function formatBytesShort(bytes: number | undefined): string {
 }
 
 // [G005 v3.0.6.11-100 Wave 3B (G-28)] 桶用量条形图配色
-const BAR_PALETTE = ["#0ea5e9", "#06b6d4", "#22c55e", "#f59e0b", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316"];
+const BAR_PALETTE = ["#0ea5e9", "var(--color-info-500)", "var(--color-success-500)", "var(--color-warning-500)", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316"];
 
 // [G005 v3.0.6.11-100 Wave 3B (G-28)] 复制任务状态徽标
 const REP_STATUS_META: Record<string, { color: string }> = {
@@ -301,7 +301,7 @@ function StorageMonitorTab() {
                     paddingAngle={2}
                     strokeWidth={0}
                   >
-                    <Cell fill={capacityLevel === "critical" ? "#dc2626" : capacityLevel === "warn" ? "#d97706" : "#0ea5e9"} />
+                    <Cell fill={capacityLevel === "critical" ? "var(--color-error-600)" : capacityLevel === "warn" ? "var(--color-warning-600)" : "#0ea5e9"} />
                     <Cell fill="#e2e8f0" />
                   </Pie>
                   <ChartTooltip {...chartDefaults.tooltip} formatter={(v: unknown) => formatBytes(Number(v))} />
@@ -357,7 +357,7 @@ function StorageMonitorTab() {
         </Col>
         <Col span={12}>
           <StatCardGrid minWidth={140} gap={12} style={{ marginBottom: 12 }}>
-            <StatCard title={t("cloudStorage.monitor.ioRead")} value={monitor?.ioCounts.readPerMin ?? 0} precision={1} color="#0891b2" icon={<Eye size={14} />} />
+            <StatCard title={t("cloudStorage.monitor.ioRead")} value={monitor?.ioCounts.readPerMin ?? 0} precision={1} color="var(--color-info-600)" icon={<Eye size={14} />} />
             <StatCard title={t("cloudStorage.monitor.ioWrite")} value={monitor?.ioCounts.writePerMin ?? 0} precision={1} color="#10b981" icon={<UploadCloud size={14} />} />
             <StatCard title={t("cloudStorage.monitor.ioPut")} value={monitor?.ioCounts.putPerMin ?? 0} precision={1} color="#8b5cf6" icon={<Cloud size={14} />} />
             <StatCard title={t("cloudStorage.monitor.ioDelete")} value={monitor?.ioCounts.deletePerMin ?? 0} precision={1} color="error" icon={<Trash2 size={14} />} />
@@ -407,7 +407,7 @@ function StorageMonitorTab() {
 
       <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
         <StatCard title={t("cloudStorage.monitor.totalObjects")} value={totalObjects} color="#0ea5e9" />
-        <StatCard title={t("cloudStorage.monitor.totalCapacity")} value={(totalCapacity / 1024).toFixed(1)} color="#1e40af" />
+        <StatCard title={t("cloudStorage.monitor.totalCapacity")} value={(totalCapacity / 1024).toFixed(1)} color="var(--color-primary-800)" />
         <StatCard
           title={t("cloudStorage.monitor.usedTb")}
           value={(totalUsed / 1024).toFixed(1)}
@@ -433,7 +433,7 @@ function StorageMonitorTab() {
           title={<Tooltip title={twentyFourH.derived ? t("cloudStorage.monitor.derivedTooltip") : t("cloudStorage.monitor.sampleTooltip")}><span>{t("cloudStorage.monitor.read24h")}</span></Tooltip>}
           prefix={twentyFourH.derived ? "≈ " : `${t("cloudStorage.monitor.samplePrefix")} `}
           value={formatBytes(twentyFourH.read)}
-          color="#0891b2"
+          color="var(--color-info-600)"
         />
         <StatCard title={t("cloudStorage.monitor.compressionSaved")} value={`${COMPRESSION.savedGb} GB`} color="#7c3aed" />
       </StatCardGrid>
@@ -1233,7 +1233,7 @@ function StorageBucketsTab() {
     <>
       <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
         <StatCard title={t("cloudStorage.buckets.count")} value={buckets.length} color="#0ea5e9" icon={<Boxes size={14} />} />
-        <StatCard title={t("cloudStorage.buckets.totalObjects")} value={totalObjects.toLocaleString()} color="#0891b2" icon={<Inbox size={14} />} />
+        <StatCard title={t("cloudStorage.buckets.totalObjects")} value={totalObjects.toLocaleString()} color="var(--color-info-600)" icon={<Inbox size={14} />} />
         <StatCard title={t("cloudStorage.buckets.usedBytes")} value={formatBytes(totalBytes)} color="error" icon={<HardDrive size={14} />} />
       </StatCardGrid>
 
@@ -1260,7 +1260,7 @@ function StorageBucketsTab() {
               width: 200,
               render: (n: string, r: StorageBucketDto) => (
                 <Space>
-                  <Cloud size={14} color={r.provider === "local" ? "#22c55e" : "#0ea5e9"} />
+                  <Cloud size={14} color={r.provider === "local" ? "var(--color-success-500)" : "#0ea5e9"} />
                   <span style={{ fontWeight: 600 }}>{n}</span>
                 </Space>
               ),
@@ -1735,7 +1735,7 @@ function LifecyclePoliciesTab() {
 export default function CloudStorageDashboardPage() {
   return (
     <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
-      <Card style={{ background: "linear-gradient(135deg,#0ea5e9 0%,#06b6d4 100%)", color: "#fff", border: "none", marginBottom: 16 }}>
+      <Card style={{ background: "linear-gradient(135deg,#0ea5e9 0%,var(--color-info-500) 100%)", color: "#fff", border: "none", marginBottom: 16 }}>
         <Space size={16}>
           <Cloud size={36} color="#fff" />
           <div>

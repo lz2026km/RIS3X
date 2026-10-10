@@ -302,8 +302,8 @@ export const CriticalEscalationV2: React.FC = () => {
         const min = remainingMin(r.currentDeadline);
         return (
           <Space size={4}>
-            <Clock size={12} color={min <= 2 ? '#dc2626' : min <= 5 ? '#f59e0b' : '#10b981'} />
-            <strong style={{ color: min <= 2 ? '#dc2626' : min <= 5 ? '#f59e0b' : '#10b981' }}>{min}</strong>
+            <Clock size={12} color={min <= 2 ? 'var(--color-error-600)' : min <= 5 ? 'var(--color-warning-500)' : '#10b981'} />
+            <strong style={{ color: min <= 2 ? 'var(--color-error-600)' : min <= 5 ? 'var(--color-warning-500)' : '#10b981' }}>{min}</strong>
             <span style={{ fontSize: 11, color: '#94a3b8' }}>{t('criticalEscalation.minutes')}</span>
           </Space>
         );
@@ -398,16 +398,16 @@ export const CriticalEscalationV2: React.FC = () => {
 
       <Row gutter={12}>
         <Col xs={24} sm={6}>
-          <Card size="small"><Statistic title={t('criticalEscalation.totalChains')} value={stats.total} prefix={<Siren size={14} />} valueStyle={{ color: '#1e40af' }} /></Card>
+          <Card size="small"><Statistic title={t('criticalEscalation.totalChains')} value={stats.total} prefix={<Siren size={14} />} valueStyle={{ color: 'var(--color-primary-800)' }} /></Card>
         </Col>
         <Col xs={24} sm={6}>
           <Card size="small"><Statistic title={t('criticalEscalation.avgConfirmTime')} value={stats.avgResponseMinutes} suffix={t('criticalEscalation.minutes')} prefix={<Clock size={14} />} valueStyle={{ color: '#0d9488' }} /></Card>
         </Col>
         <Col xs={24} sm={6}>
-          <Card size="small"><Statistic title={t('criticalEscalation.escalationRate')} value={stats.escalationRate} suffix="%" prefix={<ArrowUp size={14} />} valueStyle={{ color: '#f59e0b' }} /></Card>
+          <Card size="small"><Statistic title={t('criticalEscalation.escalationRate')} value={stats.escalationRate} suffix="%" prefix={<ArrowUp size={14} />} valueStyle={{ color: 'var(--color-warning-500)' }} /></Card>
         </Col>
         <Col xs={24} sm={6}>
-          <Card size="small"><Statistic title={t('criticalEscalation.avgEscalationCount')} value={stats.avgEscalationCount} prefix={<ShieldAlert size={14} />} valueStyle={{ color: '#dc2626' }} /></Card>
+          <Card size="small"><Statistic title={t('criticalEscalation.avgEscalationCount')} value={stats.avgEscalationCount} prefix={<ShieldAlert size={14} />} valueStyle={{ color: 'var(--color-error-600)' }} /></Card>
         </Col>
       </Row>
 
@@ -489,15 +489,15 @@ const ChainStaircase: React.FC<{ chain: EscalationChain }> = ({ chain }) => {
       <Space direction="vertical" size={2}>
         <span style={{ fontSize: 12 }}>{t('criticalEscalation.role')} {s.role} · {t('criticalEscalation.started')} {fmt(s.startedAt)} · {t('criticalEscalation.deadline')} {fmt(s.deadline)}</span>
         {s.status === 'NOTIFIED' && s.deadline && (
-          <span style={{ fontSize: 12, color: remainingMin(s.deadline) <= 2 ? '#dc2626' : '#f59e0b' }}>
+          <span style={{ fontSize: 12, color: remainingMin(s.deadline) <= 2 ? 'var(--color-error-600)' : 'var(--color-warning-500)' }}>
             {t('criticalEscalation.countdownLabel')} {remainingMin(s.deadline)} {t('criticalEscalation.minutes')}
           </span>
         )}
         {s.status === 'CONFIRMED' && s.confirmedBy && (
           <span style={{ fontSize: 12, color: '#10b981' }}>{s.confirmedBy} {t('criticalEscalation.confirmedAt')} {fmt(s.confirmedAt)} {t('criticalEscalation.confirmedVerb')}</span>
         )}
-        {s.status === 'TIMEOUT' && <span style={{ fontSize: 12, color: '#dc2626' }}>{t('criticalEscalation.autoEscalated')}</span>}
-        {i < chain.steps.length - 1 && <ArrowUp size={12} style={{ color: '#dc2626', marginTop: 4 }} />}
+        {s.status === 'TIMEOUT' && <span style={{ fontSize: 12, color: 'var(--color-error-600)' }}>{t('criticalEscalation.autoEscalated')}</span>}
+        {i < chain.steps.length - 1 && <ArrowUp size={12} style={{ color: 'var(--color-error-600)', marginTop: 4 }} />}
       </Space>
     ),
     status: statusForStep(s.status),

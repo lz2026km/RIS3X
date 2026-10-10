@@ -11,11 +11,11 @@ import {
 import { t } from '../../i18n/appI18n'
 
 const LEVEL_COLORS: Record<RiskLevel, string> = {
-  'very-low': '#22c55e',
-  low: '#3b82f6',
-  medium: '#f59e0b',
-  high: '#ef4444',
-  'very-high': '#dc2626',
+  'very-low': 'var(--color-success-500)',
+  low: 'var(--color-primary-500)',
+  medium: 'var(--color-warning-500)',
+  high: 'var(--color-error-500)',
+  'very-high': 'var(--color-error-600)',
 }
 
 const LEVEL_KEYS: RiskLevel[] = ['very-low', 'low', 'medium', 'high', 'very-high']
@@ -154,9 +154,9 @@ export default function RiskManagementPage() {
         <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
           {[
             { title: t('riskMgmt.statTotal'), value: risks.length, icon: ShieldAlert, color: '#e11d48' },
-            { title: t('riskMgmt.statHigh'), value: risks.filter(r => r.riskLevel === 'high' || r.riskLevel === 'very-high').length, icon: AlertTriangle, color: 'var(--color-error-600, #dc2626)' },
-            { title: t('riskMgmt.statMitigated'), value: risks.filter(r => r.status === 'mitigating').length, icon: CheckCircle, color: 'var(--color-success-500, #22c55e)' },
-            { title: t('riskMgmt.statMonitoring'), value: risks.filter(r => r.status === 'monitoring').length, icon: Target, color: 'var(--color-primary-500, #3b82f6)' },
+            { title: t('riskMgmt.statHigh'), value: risks.filter(r => r.riskLevel === 'high' || r.riskLevel === 'very-high').length, icon: AlertTriangle, color: 'var(--color-error-600, var(--color-error-600))' },
+            { title: t('riskMgmt.statMitigated'), value: risks.filter(r => r.status === 'mitigating').length, icon: CheckCircle, color: 'var(--color-success-500, var(--color-success-500))' },
+            { title: t('riskMgmt.statMonitoring'), value: risks.filter(r => r.status === 'monitoring').length, icon: Target, color: 'var(--color-primary-500, var(--color-primary-500))' },
           ].map((k, i) => (
             <div key={i} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 140 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}><span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{k.title}</span><k.icon size={20} style={{ color: k.color }} /></div>
@@ -168,7 +168,7 @@ export default function RiskManagementPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <BarChart3 size={16} color="#3b82f6" />{t('riskMgmt.levelDistribution')}
+              <BarChart3 size={16} color="var(--color-primary-500)" />{t('riskMgmt.levelDistribution')}
             </div>
             <ChartContainer height={200} state={levelData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('riskMgmt.noLevelData')}>
               <BarChart data={levelData}>
@@ -182,7 +182,7 @@ export default function RiskManagementPage() {
           </div>
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <BarChart3 size={16} color="#22c55e" />{t('riskMgmt.categoryDistribution')}
+              <BarChart3 size={16} color="var(--color-success-500)" />{t('riskMgmt.categoryDistribution')}
             </div>
             <ChartContainer height={200} state={categoryData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('riskMgmt.noCategoryData')}>
               <BarChart data={categoryData}>
@@ -190,7 +190,7 @@ export default function RiskManagementPage() {
                 <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
                 <YAxis tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
                 <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, fontSize: 12 }} />
-                <Bar dataKey="count" fill="#22c55e" radius={[4, 4, 0, 0]} name={t('riskMgmt.count')} />
+                <Bar dataKey="count" fill="var(--color-success-500)" radius={[4, 4, 0, 0]} name={t('riskMgmt.count')} />
               </BarChart>
             </ChartContainer>
           </div>
@@ -231,9 +231,9 @@ export default function RiskManagementPage() {
                 title: t('riskMgmt.colStatus'),
                 dataIndex: 'status',
                 key: 'status',
-                render: (v: string) => <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: v === 'mitigating' ? '#22c55e20' : v === 'monitoring' ? '#3b82f620' : '#8b949e20', color: v === 'mitigating' ? '#22c55e' : v === 'monitoring' ? '#3b82f6' : 'var(--text-muted, #8b949e)' }}>{statusLabel(v)}</span>,
+                render: (v: string) => <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: v === 'mitigating' ? '#22c55e20' : v === 'monitoring' ? '#3b82f620' : '#8b949e20', color: v === 'mitigating' ? 'var(--color-success-500)' : v === 'monitoring' ? 'var(--color-primary-500)' : 'var(--text-muted, #8b949e)' }}>{statusLabel(v)}</span>,
               },
-              { title: t('riskMgmt.colResidualRpn'), key: 'residualRpn', render: (_v, r) => <span style={{ color: r.residualRpn ? '#22c55e' : 'var(--text-muted, #8b949e)' }}>{r.residualRpn ?? '-'}</span> },
+              { title: t('riskMgmt.colResidualRpn'), key: 'residualRpn', render: (_v, r) => <span style={{ color: r.residualRpn ? 'var(--color-success-500)' : 'var(--text-muted, #8b949e)' }}>{r.residualRpn ?? '-'}</span> },
               {
                 title: t('riskMgmt.colActions'),
                 key: 'actions',

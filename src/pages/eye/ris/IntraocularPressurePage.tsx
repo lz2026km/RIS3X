@@ -145,7 +145,7 @@ const IntraocularPressurePage: React.FC = () => {
   return (
     <div style={{ padding: 16, background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-        <Droplets className="v4-icon" style={{ width: 24, height: 24, color: '#0891b2' }} />
+        <Droplets className="v4-icon" style={{ width: 24, height: 24, color: 'var(--color-info-600)' }} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('iop.title')}</span>
         <EyeLateralityBadge eyeSide="OD" />
         <EyeLateralityBadge eyeSide="OS" />

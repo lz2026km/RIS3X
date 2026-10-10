@@ -456,9 +456,9 @@ function QATestPlannerPanel() {
 
   const complianceData = [
     { name: 'CT-1', value: 94, color: '#7c3aed' },
-    { name: 'MR-1', value: 85, color: '#2563eb' },
+    { name: 'MR-1', value: 85, color: 'var(--color-primary-600)' },
     { name: 'DR-1', value: 96, color: '#059669' },
-    { name: 'DSA-1', value: 83, color: '#dc2626' },
+    { name: 'DSA-1', value: 83, color: 'var(--color-error-600)' },
   ]
 
   return (
@@ -1328,7 +1328,7 @@ export default function DevicePage() {
 
       <MaintenanceHistoryTable records={maintHistory} />
       {maintPlansLoading && (
-        <div style={{ padding: '8px 12px', marginBottom: 12, background: 'var(--color-info-bg)', color: '#1e40af', borderRadius: 6, fontSize: 12 }}>
+        <div style={{ padding: '8px 12px', marginBottom: 12, background: 'var(--color-info-bg)', color: 'var(--color-primary-800)', borderRadius: 6, fontSize: 12 }}>
           {t('devicePage.loadingPlans')}
         </div>
       )}
@@ -1352,9 +1352,9 @@ export default function DevicePage() {
             <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12 }} />
             <Legend wrapperStyle={{ fontSize: 12 }} />
             <Bar dataKey="ct" name="CT" fill="#7c3aed" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="mr" name="MR" fill="#2563eb" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="mr" name="MR" fill="var(--color-primary-600)" radius={[4, 4, 0, 0]} />
             <Bar dataKey="dr" name="DR" fill="#059669" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="dsa" name="DSA" fill="#dc2626" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="dsa" name="DSA" fill="var(--color-error-600)" radius={[4, 4, 0, 0]} />
           </ChartBar>
         </ChartContainer>
       </div>
@@ -1584,9 +1584,9 @@ export default function DevicePage() {
               <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12 }} />
               <Legend wrapperStyle={{ fontSize: 12 }} />
               <Line type="monotone" dataKey="ct" name="CT" stroke="#7c3aed" strokeWidth={2} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="mr" name="MR" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="mr" name="MR" stroke="var(--color-primary-600)" strokeWidth={2} dot={{ r: 3 }} />
               <Line type="monotone" dataKey="dr" name="DR" stroke="#059669" strokeWidth={2} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="dsa" name="DSA" stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="dsa" name="DSA" stroke="var(--color-error-600)" strokeWidth={2} dot={{ r: 3 }} />
             </LineChart>
           </ChartContainer>
         </div>
@@ -1888,7 +1888,7 @@ export default function DevicePage() {
   return (
     <PageTemplate container={false} showHeader={false} testId="device-page" style={{ padding: '0 24px 24px', background: C.bg }}>
       {loading && (
-        <div style={{ padding: 8, margin: 12, background: 'var(--color-info-bg)', color: '#1e40af', borderRadius: 6, fontSize: 12 }}>
+        <div style={{ padding: 8, margin: 12, background: 'var(--color-info-bg)', color: 'var(--color-primary-800)', borderRadius: 6, fontSize: 12 }}>
           {t('devicePage.loadingStats')}
         </div>
       )}

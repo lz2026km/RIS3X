@@ -15,12 +15,12 @@ const s = {
   grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 },
   grid3: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 },
   badge: (color: string, bg: string) => ({ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: bg, color }),
-  btn: { padding: '8px 16px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: '#1e40af', color: '#fff' },
+  btn: { padding: '8px 16px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: 'var(--color-primary-800)', color: '#fff' },
   select: { width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)' },
   label: { fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4, display: 'block' },
   tab: (active: boolean) => ({
     flex: 1, padding: '10px 0', borderRadius: 8, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer',
-    background: active ? 'var(--bg-card)' : 'transparent', color: active ? '#1e40af' : '#64748b',
+    background: active ? 'var(--bg-card)' : 'transparent', color: active ? 'var(--color-primary-800)' : '#64748b',
     boxShadow: active ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
   }),
 }
@@ -219,7 +219,7 @@ export default function PatientEducationPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <h3 style={{ ...s.title, margin: 0, fontSize: 16 }}>{t('patientEdu.healthLibrary')}</h3>
             <div style={{ display: 'flex', gap: 8 }}>
-                <button style={{ ...s.btn, background: '#1e40af', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => setCreateOpen(true)}><Plus size={13} /> {t('patientEdu.newMaterial')}</button>
+                <button style={{ ...s.btn, background: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => setCreateOpen(true)}><Plus size={13} /> {t('patientEdu.newMaterial')}</button>
               <select style={{ ...s.select, width: 180 }} value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
                 <option value="">{t('patientEdu.allCategories')}</option>
                 {Object.entries(CATEGORY_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
@@ -231,7 +231,7 @@ export default function PatientEducationPage() {
             <div>
               <button style={{ ...s.btn, background: '#64748b', marginBottom: 16 }} onClick={() => setSelectedMaterial(null)}>{t('patientEdu.backToList')}</button>
               <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>{selectedMaterial.title}</div>
-              <span style={s.badge('#fff', '#1e40af')}>{CATEGORY_LABELS[selectedMaterial.category] || selectedMaterial.category}</span>
+              <span style={s.badge('#fff', 'var(--color-primary-800)')}>{CATEGORY_LABELS[selectedMaterial.category] || selectedMaterial.category}</span>
               {selectedMaterial.modality && <span style={{ ...s.badge('#0369a1', '#e0f2fe'), marginLeft: 8 }}>{selectedMaterial.modality}</span>}
               <span style={{ ...s.badge(CONTENT_TYPE_COLORS[selectedMaterial.contentType]?.text || 'var(--text-secondary)', CONTENT_TYPE_COLORS[selectedMaterial.contentType]?.bg || 'var(--bg-card)'), marginLeft: 8 }}>
                 {CONTENT_TYPE_LABELS[selectedMaterial.contentType] || selectedMaterial.contentType}
@@ -248,10 +248,10 @@ export default function PatientEducationPage() {
                   <div style={{ fontSize: 36, marginBottom: 8 }}>{selectedMaterial.contentType === 'video' ? '' : ''}</div>
                   <div style={{ fontSize: 12, color: '#e2e8f0', marginBottom: 12 }}>{selectedMaterial.title}</div>
                   <div style={{ background: '#1e293b', borderRadius: 4, height: 8, overflow: 'hidden', marginBottom: 12 }}>
-                    <div style={{ width: `${playerProgress}%`, height: '100%', background: '#3b82f6', transition: 'width 0.3s' }} />
+                    <div style={{ width: `${playerProgress}%`, height: '100%', background: 'var(--color-primary-500)', transition: 'width 0.3s' }} />
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
-                    <button style={{ padding: '6px 16px', borderRadius: 6, border: 'none', background: '#3b82f6', color: '#fff', fontSize: 12, cursor: 'pointer' }}
+                    <button style={{ padding: '6px 16px', borderRadius: 6, border: 'none', background: 'var(--color-primary-500)', color: '#fff', fontSize: 12, cursor: 'pointer' }}
                       onClick={() => setPlaying(v => !v)}>
                       {playing ? t('patientEdu.pause') : playerProgress >= 100 ? t('patientEdu.replay') : t('patientEdu.play')}
                     </button>
@@ -288,7 +288,7 @@ export default function PatientEducationPage() {
                     <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{m.title}</div>
                   </div>
                   <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>{m.summary}</div>
-                  <span style={s.badge('#fff', '#1e40af')}>{CATEGORY_LABELS[m.category] || m.category}</span>
+                  <span style={s.badge('#fff', 'var(--color-primary-800)')}>{CATEGORY_LABELS[m.category] || m.category}</span>
                   <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 8 }}>{CONTENT_TYPE_LABELS[m.contentType] || m.contentType}</span>
                   {m.duration && <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 8 }}>{Math.floor(m.duration / 60)}{t('patientEdu.minuteUnit')}{m.duration % 60}{t('patientEdu.secondUnit')}</span>}
                 </div>
@@ -316,7 +316,7 @@ export default function PatientEducationPage() {
                   <span style={{ ...s.badge('#0369a1', '#e0f2fe'), marginLeft: 'auto' }}>{m.category}</span>
                 </div>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
-                  {m.modality && <span style={s.badge('#fff', '#1e40af')}>{m.modality}</span>}
+                  {m.modality && <span style={s.badge('#fff', 'var(--color-primary-800)')}>{m.modality}</span>}
                   {m.duration && <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('w3d.edu.duration')}: {m.duration}</span>}
                   {m.fasting && <span style={{ fontSize: 12, color: '#94a3b8' }}>{t('w3d.edu.fasting')}: {m.fasting}</span>}
                 </div>
@@ -381,7 +381,7 @@ export default function PatientEducationPage() {
         {eduDetail && (
           <div style={{ display: 'grid', gap: 14, paddingTop: 4 }}>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              <span style={s.badge('#fff', '#1e40af')}>{eduDetail.category}</span>
+              <span style={s.badge('#fff', 'var(--color-primary-800)')}>{eduDetail.category}</span>
               {eduDetail.modality && <span style={s.badge('#0369a1', '#e0f2fe')}>{eduDetail.modality}</span>}
               <span style={{ fontSize: 12, color: '#94a3b8' }}>{eduDetail.targetAudience}</span>
             </div>
@@ -391,8 +391,8 @@ export default function PatientEducationPage() {
             </div>
             {eduDetail.warnings.length > 0 && (
               <div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#dc2626', marginBottom: 6 }}>{t('w3d.edu.warnings')}</div>
-                <ul style={{ margin: 0, paddingLeft: 18 }}>{eduDetail.warnings.map((w, i) => <li key={i} style={{ fontSize: 12, color: '#dc2626' }}>{w}</li>)}</ul>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-error-600)', marginBottom: 6 }}>{t('w3d.edu.warnings')}</div>
+                <ul style={{ margin: 0, paddingLeft: 18 }}>{eduDetail.warnings.map((w, i) => <li key={i} style={{ fontSize: 12, color: 'var(--color-error-600)' }}>{w}</li>)}</ul>
               </div>
             )}
             {eduDetail.postCare && eduDetail.postCare.length > 0 && (

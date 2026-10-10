@@ -31,13 +31,13 @@ import {
 import { t } from '../../i18n/appI18n'
 
 const CATEGORY_COLORS: Record<string, string> = {
-  解剖: '#6366f1', 影像: '#0ea5e9', 疾病: '#f43f5e', 药物: '#a855f7', 单位: '#14b8a6', 操作: '#f59e0b',
+  解剖: '#6366f1', 影像: '#0ea5e9', 疾病: '#f43f5e', 药物: '#a855f7', 单位: '#14b8a6', 操作: 'var(--color-warning-500)',
 }
 
 const CATEGORY_OPTIONS: Array<{ label: string; value: LexiconCategory }> = (['解剖', '影像', '疾病', '药物', '单位', '操作'] as LexiconCategory[]).map((c) => ({ label: c, value: c }))
 
 const ENGINE_BADGES: Record<string, { color: string; bg: string }> = {
-  aliyun: { color: '#3b82f6', bg: '#dbeafe' },
+  aliyun: { color: 'var(--color-primary-500)', bg: '#dbeafe' },
   whisper: { color: '#7c3aed', bg: '#ede9fe' },
   mock: { color: 'var(--text-secondary, #475569)', bg: 'var(--border-default, rgba(0,0,0,0.12))' },
   'mock-lexicon': { color: 'var(--text-secondary, #475569)', bg: 'var(--border-default, rgba(0,0,0,0.12))' },
@@ -46,8 +46,8 @@ const ENGINE_BADGES: Record<string, { color: string; bg: string }> = {
 
 const SESSION_STATUS: Record<string, { color: string; bg: string }> = {
   completed: { color: '#10b981', bg: '#d1fae5' },
-  processing: { color: '#f59e0b', bg: '#fef3c7' },
-  error: { color: '#ef4444', bg: '#ffe4e6' },
+  processing: { color: 'var(--color-warning-500)', bg: '#fef3c7' },
+  error: { color: 'var(--color-error-500)', bg: '#ffe4e6' },
 }
 
 // 演示转写 (与后端 DEMO_TRANSCRIPT 一致的含错文本, 用于无录音环境回退)
@@ -392,9 +392,9 @@ export default function VoiceWorkstationPage() {
   const statCards = useMemo(() => {
     if (!stats) return []
     return [
-      { label: t('voiceWs.statSessions'), value: stats.sessions.total, color: '#3b82f6', bg: '#dbeafe', icon: <Headphones size={18} /> },
+      { label: t('voiceWs.statSessions'), value: stats.sessions.total, color: 'var(--color-primary-500)', bg: '#dbeafe', icon: <Headphones size={18} /> },
       { label: t('voiceWs.statTodaySessions'), value: stats.sessions.today, color: '#0ea5e9', bg: '#e0f2fe', icon: <AudioWaveform size={18} /> },
-      { label: t('voiceWs.statAvgDuration'), value: stats.sessions.avgDurationSec, color: '#f59e0b', bg: '#fef3c7', icon: <Timer size={18} /> },
+      { label: t('voiceWs.statAvgDuration'), value: stats.sessions.avgDurationSec, color: 'var(--color-warning-500)', bg: '#fef3c7', icon: <Timer size={18} /> },
       { label: t('voiceWs.statLexicon'), value: stats.lexiconSize, color: '#8b5cf6', bg: '#ede9fe', icon: <BookOpen size={18} /> },
       { label: t('voiceWs.statCorrections'), value: stats.corrections.total, color: '#f43f5e', bg: '#ffe4e6', icon: <MessageSquareWarning size={18} /> },
     ]
@@ -419,7 +419,7 @@ export default function VoiceWorkstationPage() {
               transition: 'all 0.3s',
             }}
           >
-            {recording ? <Square size={30} color="#dc2626" /> : transcribing ? <RefreshCw size={28} color="#d97706" style={{ animation: 'spin 1s linear infinite' }} /> : <Mic size={30} color="#3b82f6" />}
+            {recording ? <Square size={30} color="var(--color-error-600)" /> : transcribing ? <RefreshCw size={28} color="var(--color-warning-600)" style={{ animation: 'spin 1s linear infinite' }} /> : <Mic size={30} color="var(--color-primary-500)" />}
           </div>
           <div style={{ flex: 1, minWidth: 200 }}>
             <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary, #1e293b)', marginBottom: 4 }}>
@@ -457,7 +457,7 @@ export default function VoiceWorkstationPage() {
       {/* 转写结果 */}
       {transcribing && (
         <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', textAlign: 'center' }}>
-          <RefreshCw size={24} color="#3b82f6" style={{ animation: 'spin 1s linear infinite' }} />
+          <RefreshCw size={24} color="var(--color-primary-500)" style={{ animation: 'spin 1s linear infinite' }} />
           <div style={{ marginTop: 8, color: 'var(--text-secondary, #475569)', fontSize: 12 }}>{t('voiceWs.transcribingLex')}</div>
         </div>
       )}
@@ -466,7 +466,7 @@ export default function VoiceWorkstationPage() {
         <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #1e293b)', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <FileText size={16} color="#3b82f6" />{t('voiceWs.transcriptResult')}
+              <FileText size={16} color="var(--color-primary-500)" />{t('voiceWs.transcriptResult')}
             </h3>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               {engineLabel && (
@@ -496,7 +496,7 @@ export default function VoiceWorkstationPage() {
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                     {transcript.corrections.map((c, i) => (
                       <Tag key={i} style={{ margin: 0, fontSize: 11 }}>
-                        <s style={{ color: '#dc2626' }}>{c.original}</s>
+                        <s style={{ color: 'var(--color-error-600)' }}>{c.original}</s>
                         <span style={{ margin: '0 4px' }}>→</span>
                         <b style={{ color: '#059669' }}>{c.corrected}</b>
                         <span style={{ marginLeft: 4, color: CATEGORY_COLORS[c.category] ?? '#64748b', fontWeight: 600 }}>[{c.category}]</span>
@@ -524,7 +524,7 @@ export default function VoiceWorkstationPage() {
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#475569' }}>
                   <span style={{ color: 'var(--text-muted, #94a3b8)', width: 60, flexShrink: 0 }}>{seg.start}s-{seg.end}s</span>
                   <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{seg.text}</span>
-                  <span style={{ color: seg.confidence > 0.9 ? '#10b981' : '#f59e0b', fontWeight: 600, flexShrink: 0 }}>{(seg.confidence * 100).toFixed(0)}%</span>
+                  <span style={{ color: seg.confidence > 0.9 ? '#10b981' : 'var(--color-warning-500)', fontWeight: 600, flexShrink: 0 }}>{(seg.confidence * 100).toFixed(0)}%</span>
                 </div>
               ))}
             </div>
@@ -681,14 +681,14 @@ export default function VoiceWorkstationPage() {
                   <span style={{ fontSize: 11, fontWeight: 600, color: '#fff', background: CATEGORY_COLORS[entry.category] ?? '#64748b', padding: '2px 8px', borderRadius: 10 }}>{entry.category}</span>
                 </td>
                 <td style={{ padding: '8px 10px', color: 'var(--text-secondary, #475569)' }}>
-                  <span style={{ display: 'inline-block', width: 18, height: 18, lineHeight: '18px', textAlign: 'center', borderRadius: 4, background: entry.priority >= 3 ? '#fef3c7' : 'var(--bg-primary, #f8fafc)', color: entry.priority >= 3 ? '#d97706' : 'var(--text-secondary, #475569)', fontWeight: 700 }}>{entry.priority}</span>
+                  <span style={{ display: 'inline-block', width: 18, height: 18, lineHeight: '18px', textAlign: 'center', borderRadius: 4, background: entry.priority >= 3 ? '#fef3c7' : 'var(--bg-primary, #f8fafc)', color: entry.priority >= 3 ? 'var(--color-warning-600)' : 'var(--text-secondary, #475569)', fontWeight: 700 }}>{entry.priority}</span>
                 </td>
                 <td style={{ padding: '8px 10px', color: 'var(--text-secondary, #475569)', maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {entry.aliases.length > 0 ? entry.aliases.join(' / ') : '-'}
                 </td>
                 <td style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>
                   <Tooltip title={t('voiceWs.editTooltip')}>
-                    <Button size="small" type="text" icon={<Pencil size={14} />} onClick={() => startEditLex(entry)} style={{ color: '#3b82f6' }} />
+                    <Button size="small" type="text" icon={<Pencil size={14} />} onClick={() => startEditLex(entry)} style={{ color: 'var(--color-primary-500)' }} />
                   </Tooltip>
                   <Popconfirm title={`${t('voiceWs.deleteEntryConfirm')} ${entry.term} ?`} okText={t('voiceWs.delete')} cancelText={t('voiceWs.cancel')} okButtonProps={{ danger: true }} onConfirm={() => void handleLexiconDelete(entry.id, entry.term)}>
                     <Button size="small" type="text" danger icon={<Trash2 size={14} />} />
@@ -710,7 +710,7 @@ export default function VoiceWorkstationPage() {
     <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
         <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #1e293b)', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <History size={16} color="#3b82f6" />{t('voiceWs.dictationHistory')} ({sessions.length})
+          <History size={16} color="var(--color-primary-500)" />{t('voiceWs.dictationHistory')} ({sessions.length})
         </h3>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadSessions()}>{t('voiceWs.refresh')}</Button>
       </div>
@@ -727,7 +727,7 @@ export default function VoiceWorkstationPage() {
               onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
             >
               <ChevronRight size={14} color="#cbd5e1" />
-              <div style={{ width: 34, height: 34, borderRadius: 8, background: '#eff6ff', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 34, height: 34, borderRadius: 8, background: '#eff6ff', color: 'var(--color-primary-500)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Headphones size={15} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -797,7 +797,7 @@ export default function VoiceWorkstationPage() {
                   <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginLeft: 'auto' }}>{fmtTime(fb.createdAt)}</span>
                 </div>
                 <div style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <s style={{ color: '#dc2626', fontWeight: 600 }}>{fb.original}</s>
+                  <s style={{ color: 'var(--color-error-600)', fontWeight: 600 }}>{fb.original}</s>
                   <span style={{ color: 'var(--text-muted, #94a3b8)' }}>→</span>
                   <b style={{ color: '#059669' }}>{fb.corrected}</b>
                 </div>
@@ -817,7 +817,7 @@ export default function VoiceWorkstationPage() {
   return (
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader
-        icon={<Volume2 size={20} color="#3b82f6" />}
+        icon={<Volume2 size={20} color="var(--color-primary-500)" />}
         title={t('voiceWs.pageTitle')}
         subtitle={t('voiceWs.pageSubtitle')}
       />

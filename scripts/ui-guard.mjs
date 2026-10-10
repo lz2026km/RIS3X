@@ -60,7 +60,7 @@ const BUDGET = {
   antdTable: 0,
   outlineNone: 0,
   viewportHeight: 0,
-  hexTotal: 13390, // 只减不增
+  hexTotal: 8395, // 只减不增
   mojibake: 0,
   clickableNoRole: 151, // 只减不增 (行级统计; 剩余多为遮罩/包装)
   nativeTable: 26, // 只减不增 (剩余为打印/热力图/日历模板)

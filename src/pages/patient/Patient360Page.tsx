@@ -56,9 +56,9 @@ interface ExamView {
 }
 
 const examStatusColor: Record<string, string> = {
-  '已完成': '#16a34a',
-  '待出报告': '#d97706',
-  '报告已发': '#2563eb',
+  '已完成': 'var(--color-success-600)',
+  '待出报告': 'var(--color-warning-600)',
+  '报告已发': 'var(--color-primary-600)',
   '检查中': '#8b5cf6',
 }
 
@@ -313,7 +313,7 @@ export default function Patient360Page() {
         kind: 'exam',
         title: `检查 · ${ex.examItemName}`,
         desc: `${ex.modality} ${ex.bodyPart || ''} · ${ex.status}${ex.criticalFinding ? ' · 含危急值' : ''}`,
-        color: ex.criticalFinding ? '#dc2626' : '#2563eb',
+        color: ex.criticalFinding ? 'var(--color-error-600)' : 'var(--color-primary-600)',
       })
     })
     followUps.forEach(f => {
@@ -323,7 +323,7 @@ export default function Patient360Page() {
         kind: 'followup',
         title: `随访 · ${f.status}`,
         desc: f.note || `计划 ${f.planDate} → 下次 ${f.nextDate}`,
-        color: f.status === 'COMPLETED' ? '#16a34a' : f.status === 'MISSED' || f.status === 'OVERDUE' ? '#dc2626' : '#d97706',
+        color: f.status === 'COMPLETED' ? 'var(--color-success-600)' : f.status === 'MISSED' || f.status === 'OVERDUE' ? 'var(--color-error-600)' : 'var(--color-warning-600)',
       })
     })
     apiTimelineEvents.forEach((t: any) => {
@@ -408,7 +408,7 @@ export default function Patient360Page() {
           <div
             style={{
               width: 64, height: 64, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #1e40af, #3b82f6)',
+              background: 'linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 30, fontWeight: 700, color: '#fff', flexShrink: 0,
             }}
@@ -416,7 +416,7 @@ export default function Patient360Page() {
             {patient.name.slice(0, 1)}
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 20, fontWeight: 700, color: '#1e40af' }}>
+            <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)' }}>
               {patient.name}
               {patient.patientType && <Tag color="blue" style={{ marginLeft: 12, fontSize: 12 }}>{patient.patientType}</Tag>}
             </div>
@@ -440,7 +440,7 @@ export default function Patient360Page() {
       {stats && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
           {[
-            { label: t('patient360.statTotalExams'), value: stats.totalExams, color: '#1e40af', bg: 'var(--color-info-bg)', icon: Activity },
+            { label: t('patient360.statTotalExams'), value: stats.totalExams, color: 'var(--color-primary-800)', bg: 'var(--color-info-bg)', icon: Activity },
             { label: t('patient360.statPositive'), value: stats.positiveCount, color: 'var(--color-error)', bg: 'var(--color-error-bg)', icon: AlertTriangle },
             { label: t('patient360.statNegative'), value: stats.negativeCount, color: 'var(--color-success)', bg: 'var(--color-success-bg)', icon: Clock },
             { label: t('patient360.statFirstExam'), value: stats.firstExamDate, color: 'var(--text-secondary)', bg: 'var(--bg-card)', icon: Calendar },
@@ -448,7 +448,7 @@ export default function Patient360Page() {
             <div key={item.label} style={{ background: item.bg, borderRadius: 10, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
               <item.icon size={22} style={{ color: item.color }} />
               <div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#1e40af' }}>{item.value}</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-primary-800)' }}>{item.value}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)' }}>{item.label}</div>
               </div>
             </div>
@@ -474,10 +474,10 @@ export default function Patient360Page() {
           <>
             <Row gutter={[12, 12]}>
               {[
-                { label: t('patientPage.summaryExams'), value: summary.counts.exams, color: '#1e40af', bg: 'var(--color-info-bg)' },
-                { label: t('patientPage.summaryReports'), value: summary.counts.reports, color: '#16a34a', bg: 'var(--color-success-bg)' },
-                { label: t('patientPage.summaryFollowUps'), value: summary.counts.followUps, color: '#d97706', bg: 'var(--color-warning-bg)' },
-                { label: t('patientPage.summaryCriticals'), value: summary.counts.criticalValues, color: '#dc2626', bg: 'var(--color-error-bg)' },
+                { label: t('patientPage.summaryExams'), value: summary.counts.exams, color: 'var(--color-primary-800)', bg: 'var(--color-info-bg)' },
+                { label: t('patientPage.summaryReports'), value: summary.counts.reports, color: 'var(--color-success-600)', bg: 'var(--color-success-bg)' },
+                { label: t('patientPage.summaryFollowUps'), value: summary.counts.followUps, color: 'var(--color-warning-600)', bg: 'var(--color-warning-bg)' },
+                { label: t('patientPage.summaryCriticals'), value: summary.counts.criticalValues, color: 'var(--color-error-600)', bg: 'var(--color-error-bg)' },
                 { label: t('patientPage.summaryInvoices'), value: summary.counts.invoices, color: '#7c3aed', bg: 'var(--bg-card)' },
               ].map((item) => (
                 <Col xs={12} sm={8} md={4} key={item.label}>
@@ -489,7 +489,7 @@ export default function Patient360Page() {
               ))}
               <Col xs={12} sm={8} md={4}>
                 <div style={{ textAlign: 'center', padding: 12, borderRadius: 10, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: '#d97706' }}>¥{summary.totalCharges}</div>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-warning-600)' }}>¥{summary.totalCharges}</div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)' }}>{t('patientPage.summaryCharges')}</div>
                 </div>
               </Col>
@@ -497,7 +497,7 @@ export default function Patient360Page() {
             <Divider style={{ margin: '12px 0' }} />
             <Row gutter={[12, 12]}>
               <Col xs={24} md={12}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>{t('patientPage.recentExams')}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8 }}>{t('patientPage.recentExams')}</div>
                 {summary.recentExams.length === 0 ? (
                   <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('patientPage.noRecord')}</div>
                 ) : summary.recentExams.map((ex) => (
@@ -509,7 +509,7 @@ export default function Patient360Page() {
                 ))}
               </Col>
               <Col xs={24} md={12}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>{t('patientPage.recentReports')}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8 }}>{t('patientPage.recentReports')}</div>
                 {summary.recentReports.length === 0 ? (
                   <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('patientPage.noRecord')}</div>
                 ) : summary.recentReports.map((r) => (
@@ -539,11 +539,11 @@ export default function Patient360Page() {
           <Timeline
             style={{ maxHeight: 360, overflowY: 'auto', paddingRight: 8 }}
             items={visitHistory.events.map((ev, idx) => ({
-              color: ev.type === 'exam' ? '#16a34a' : ev.type === 'appointment' ? '#d97706' : '#2563eb',
+              color: ev.type === 'exam' ? 'var(--color-success-600)' : ev.type === 'appointment' ? 'var(--color-warning-600)' : 'var(--color-primary-600)',
               children: (
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    <span style={{ fontWeight: 600, color: '#1e40af', fontSize: 12 }}>{ev.label}</span>
+                    <span style={{ fontWeight: 600, color: 'var(--color-primary-800)', fontSize: 12 }}>{ev.label}</span>
                     <Tag style={{ fontSize: 11, margin: 0 }}>{ev.status || ev.type}</Tag>
                     <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginLeft: 'auto' }}>
                       {String(ev.date || '').slice(0, 10)}
@@ -565,12 +565,12 @@ export default function Patient360Page() {
           ) : (
             <Timeline
               items={timelineEvents.map((evt) => ({
-                color: evt.isCritical ? '#dc2626' : '#3b82f6',
-                dot: evt.isCritical ? <Badge dot color="#dc2626"><ShieldAlert size={14} color="#dc2626" /></Badge> : undefined,
+                color: evt.isCritical ? 'var(--color-error-600)' : 'var(--color-primary-500)',
+                dot: evt.isCritical ? <Badge dot color="var(--color-error-600)"><ShieldAlert size={14} color="var(--color-error-600)" /></Badge> : undefined,
                 children: (
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontWeight: 600, color: '#1e40af' }}>{evt.title}</span>
+                      <span style={{ fontWeight: 600, color: 'var(--color-primary-800)' }}>{evt.title}</span>
                       {evt.isCritical && <Tag color="red" style={{ fontSize: 11, lineHeight: '18px' }}>{t('patient360.criticalValue')}</Tag>}
                     </div>
                     <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>{evt.description}</div>
@@ -598,9 +598,9 @@ export default function Patient360Page() {
                 key: String(idx),
                 label: (
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                    <span style={{ fontWeight: 600, color: ex.criticalFinding ? '#dc2626' : '#1e40af' }}>
+                    <span style={{ fontWeight: 600, color: ex.criticalFinding ? 'var(--color-error-600)' : 'var(--color-primary-800)' }}>
                       {ex.examItemName}
-                      {ex.criticalFinding && <AlertTriangle size={12} style={{ marginLeft: 6, color: '#dc2626' }} />}
+                      {ex.criticalFinding && <AlertTriangle size={12} style={{ marginLeft: 6, color: 'var(--color-error-600)' }} />}
                     </span>
                     <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{ex.examDate}</span>
                   </div>
@@ -645,7 +645,7 @@ export default function Patient360Page() {
               { title: t('patient360.examDate'), dataIndex: 'examDate', key: 'examDate', width: 120 },
               {
                 title: t('patient360.examItem'), dataIndex: 'examItemName', key: 'examItemName',
-                render: (_, r) => <span style={{ color: '#dc2626', fontWeight: 600 }}>{r.examItemName}</span>,
+                render: (_, r) => <span style={{ color: 'var(--color-error-600)', fontWeight: 600 }}>{r.examItemName}</span>,
               },
               { title: t('patient360.device'), dataIndex: 'deviceName', key: 'deviceName', width: 120 },
               { title: t('patient360.bodyPart'), dataIndex: 'bodyPart', key: 'bodyPart', width: 100 },
@@ -685,7 +685,7 @@ export default function Patient360Page() {
           {t('patient360.deepSource')}{deepSource === 'real' ? t('patient360.deepReal') : t('patient360.deepDemo')}
         </span>
         {deepLoading && <span style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>{t('patient360.loading')}</span>}
-        {deepError && <span style={{ fontSize: 11, color: '#d97706' }}>{deepError}</span>}
+        {deepError && <span style={{ fontSize: 11, color: 'var(--color-warning-600)' }}>{deepError}</span>}
       </div>
 
       {/* 1. 时间轴视图 (事件流: 检查/报告/随访/危急值) */}
@@ -701,7 +701,7 @@ export default function Patient360Page() {
             style={{ maxHeight: 420, overflowY: 'auto', paddingRight: 8 }}
             items={eventStream.map(ev => ({
               color: ev.color,
-              dot: ev.kind === 'critical' ? <Badge dot color="#dc2626"><ShieldAlert size={14} color="#dc2626" /></Badge>
+              dot: ev.kind === 'critical' ? <Badge dot color="var(--color-error-600)"><ShieldAlert size={14} color="var(--color-error-600)" /></Badge>
                 : ev.kind === 'followup' ? <Stethoscope size={14} style={{ color: ev.color }} />
                 : ev.kind === 'system' ? <Map size={14} style={{ color: ev.color }} />
                 : undefined,
@@ -742,13 +742,13 @@ export default function Patient360Page() {
                 title: t('patient360.status'), dataIndex: 'status', key: 'status', width: 100,
                 render: (s: string) => {
                   const map: Record<string, { label: string; color: string }> = {
-                    PENDING: { label: t('patient360.fuPending'), color: '#d97706' },
-                    REMINDED: { label: t('patient360.fuReminded'), color: '#2563eb' },
+                    PENDING: { label: t('patient360.fuPending'), color: 'var(--color-warning-600)' },
+                    REMINDED: { label: t('patient360.fuReminded'), color: 'var(--color-primary-600)' },
                     IN_PROGRESS: { label: t('patient360.fuInProgress'), color: '#7c3aed' },
-                    COMPLETED: { label: t('patient360.fuCompleted'), color: '#16a34a' },
-                    MISSED: { label: t('patient360.fuMissed'), color: '#dc2626' },
+                    COMPLETED: { label: t('patient360.fuCompleted'), color: 'var(--color-success-600)' },
+                    MISSED: { label: t('patient360.fuMissed'), color: 'var(--color-error-600)' },
                     CANCELLED: { label: t('patient360.fuCancelled'), color: 'var(--text-muted, #94a3b8)' },
-                    OVERDUE: { label: t('patient360.fuOverdue'), color: '#dc2626' },
+                    OVERDUE: { label: t('patient360.fuOverdue'), color: 'var(--color-error-600)' },
                   }
                   const cfg = map[s] || { label: s, color: 'var(--text-secondary, #475569)' }
                   return <Tag color={cfg.color}>{cfg.label}</Tag>
@@ -796,7 +796,7 @@ export default function Patient360Page() {
                     background: 'var(--bg-card)',
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
-                      <span style={{ fontWeight: 700, color: '#1e40af', fontSize: 14 }}>{l.name}</span>
+                      <span style={{ fontWeight: 700, color: 'var(--color-primary-800)', fontSize: 14 }}>{l.name}</span>
                       <Tag color={l.currentStatus === '增大' ? 'red' : l.currentStatus === '缩小' ? 'green' : l.currentStatus === '消失' ? 'green' : l.currentStatus === '新发' ? 'orange' : 'blue'}>
                         {l.currentStatus}
                       </Tag>
@@ -809,7 +809,7 @@ export default function Patient360Page() {
                     {first && last && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         <div>
-                          <div style={{ fontSize: 18, fontWeight: 700, color: '#1e40af' }}>{last.sizeMm}mm</div>
+                          <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-primary-800)' }}>{last.sizeMm}mm</div>
                           <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{t('patient360.latest')} ({String(last.date).slice(0, 10)})</div>
                         </div>
                         <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>→</div>
@@ -820,7 +820,7 @@ export default function Patient360Page() {
                         <span style={{
                           marginLeft: 'auto', fontSize: 12, fontWeight: 700, padding: '2px 10px', borderRadius: 999,
                           background: change > 0 ? 'var(--color-error-bg)' : change < 0 ? 'var(--color-success-bg)' : 'var(--color-info-bg)',
-                          color: change > 0 ? '#b91c1c' : change < 0 ? '#065f46' : '#1e40af',
+                          color: change > 0 ? '#b91c1c' : change < 0 ? '#065f46' : 'var(--color-primary-800)',
                         }}>
                           {change > 0 ? '+' : ''}{change}%
                         </span>
@@ -829,7 +829,7 @@ export default function Patient360Page() {
                     {linked && (
                       <div style={{
                         marginTop: 10, padding: '8px 10px', borderRadius: 6, fontSize: 12,
-                        background: 'var(--color-info-bg)', color: '#1e40af',
+                        background: 'var(--color-info-bg)', color: 'var(--color-primary-800)',
                         display: 'flex', alignItems: 'center', gap: 6,
                       }}>
                         <Stethoscope size={12} />
@@ -851,17 +851,17 @@ export default function Patient360Page() {
             <Row gutter={[12, 12]}>
               <Col xs={12} md={6}>
                 <div style={{ textAlign: 'center', padding: 14, background: 'var(--color-info-bg)', borderRadius: 10 }}>
-                  <Statistic title={t('patient360.totalCost')} value={financeSummary.totalAmount} precision={2} prefix="¥" valueStyle={{ color: '#1e40af', fontSize: 20 }} />
+                  <Statistic title={t('patient360.totalCost')} value={financeSummary.totalAmount} precision={2} prefix="¥" valueStyle={{ color: 'var(--color-primary-800)', fontSize: 20 }} />
                 </div>
               </Col>
               <Col xs={12} md={6}>
                 <div style={{ textAlign: 'center', padding: 14, background: 'var(--color-success-bg)', borderRadius: 10 }}>
-                  <Statistic title={t('patient360.paid')} value={financeSummary.paidAmount} precision={2} prefix="¥" valueStyle={{ color: '#16a34a', fontSize: 20 }} />
+                  <Statistic title={t('patient360.paid')} value={financeSummary.paidAmount} precision={2} prefix="¥" valueStyle={{ color: 'var(--color-success-600)', fontSize: 20 }} />
                 </div>
               </Col>
               <Col xs={12} md={6}>
                 <div style={{ textAlign: 'center', padding: 14, background: financeSummary.balance > 0 ? 'var(--color-warning-bg)' : 'var(--color-success-bg)', borderRadius: 10 }}>
-                  <Statistic title={t('patient360.unpaid')} value={financeSummary.balance} precision={2} prefix="¥" valueStyle={{ color: financeSummary.balance > 0 ? '#d97706' : '#16a34a', fontSize: 20 }} />
+                  <Statistic title={t('patient360.unpaid')} value={financeSummary.balance} precision={2} prefix="¥" valueStyle={{ color: financeSummary.balance > 0 ? 'var(--color-warning-600)' : 'var(--color-success-600)', fontSize: 20 }} />
                 </div>
               </Col>
               <Col xs={12} md={6}>
@@ -884,7 +884,7 @@ export default function Patient360Page() {
                 { title: t('patient360.totalAmount'), dataIndex: 'totalAmount', key: 'totalAmount', width: 100, render: (v: number) => `¥${Number(v ?? 0).toFixed(2)}` },
                 { title: t('patient360.insurance'), dataIndex: 'insuranceCovered', key: 'insuranceCovered', width: 100, render: (v: number) => `¥${Number(v ?? 0).toFixed(2)}` },
                 { title: t('patient360.balance'), dataIndex: 'balance', key: 'balance', width: 100, render: (v: number) => (
-                    <span style={{ color: Number(v ?? 0) > 0 ? '#dc2626' : '#16a34a', fontWeight: 600 }}>¥{Number(v ?? 0).toFixed(2)}</span>
+                    <span style={{ color: Number(v ?? 0) > 0 ? 'var(--color-error-600)' : 'var(--color-success-600)', fontWeight: 600 }}>¥{Number(v ?? 0).toFixed(2)}</span>
                   ) },
                 { title: t('patient360.status'), dataIndex: 'status', key: 'status', width: 90, render: (v: string) => <Tag color={String(v).toLowerCase().includes('paid') ? 'green' : 'orange'}>{v}</Tag> },
               ]}
@@ -907,7 +907,7 @@ export default function Patient360Page() {
                   <div style={{ fontSize: 11, color: 'var(--text-secondary, #475569)' }}>{m.count}</div>
                   <div style={{
                     width: '70%', height: `${m.percent * 0.9}px`, minHeight: 6, borderRadius: '3px 3px 0 0',
-                    background: m.count >= Math.max(...examFreqTrend.map(x => x.count)) ? 'linear-gradient(180deg, #1e40af, #3b82f6)' : 'linear-gradient(180deg, #93c5fd, #bfdbfe)',
+                    background: m.count >= Math.max(...examFreqTrend.map(x => x.count)) ? 'linear-gradient(180deg, var(--color-primary-800), var(--color-primary-500))' : 'linear-gradient(180deg, #93c5fd, #bfdbfe)',
                     transition: 'height 0.3s',
                   }} title={`${m.month}: ${m.count} 次`} />
                   <span style={{ fontSize: 10, color: 'var(--text-muted, #94a3b8)' }}>{m.month.slice(5)}{t('patient360.monthUnit')}</span>
@@ -945,17 +945,17 @@ export default function Patient360Page() {
                   background: 'var(--bg-card)', height: '100%',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
-                    <span style={{ fontWeight: 700, color: '#1e40af', fontSize: 12 }}>{ex.examItemName}</span>
+                    <span style={{ fontWeight: 700, color: 'var(--color-primary-800)', fontSize: 12 }}>{ex.examItemName}</span>
                     <Tag color="blue">{ex.modality}</Tag>
                     <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginLeft: 'auto' }}>{String(ex.examDate || '').slice(0, 10)}</span>
                   </div>
                   <div style={{ fontSize: 12, color: '#334155', lineHeight: 1.7, marginBottom: 8, maxHeight: 84, overflow: 'hidden' }}>
-                    <strong style={{ color: '#1e40af' }}>{t('patient360.findingsLabel')}</strong> {ex.findings || t('patient360.notFilled')}
+                    <strong style={{ color: 'var(--color-primary-800)' }}>{t('patient360.findingsLabel')}</strong> {ex.findings || t('patient360.notFilled')}
                   </div>
                   <div style={{
                     fontSize: 12, lineHeight: 1.7, padding: '8px 10px', borderRadius: 6,
                     background: ex.criticalFinding ? 'var(--color-error-bg)' : 'var(--color-info-bg)',
-                    color: ex.criticalFinding ? '#991b1b' : '#1e40af',
+                    color: ex.criticalFinding ? '#991b1b' : 'var(--color-primary-800)',
                   }}>
                     <strong>{t('patient360.diagnosisLabel')}</strong> {ex.diagnosis || '—'}
                     {ex.criticalFinding && <Tag color="red" style={{ marginLeft: 8 }}>{t('patient360.critical')}</Tag>}
@@ -985,7 +985,7 @@ export default function Patient360Page() {
           return (
             <Row gutter={[12, 12]}>
               <Col xs={24} md={12}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Activity size={13} /> {t('patient360.contrastUsage')}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 0' }}>
@@ -995,7 +995,7 @@ export default function Patient360Page() {
                       <circle cx="50" cy="50" r="42" fill="none" stroke="#8b5cf6" strokeWidth="16"
                         strokeDasharray={`${(contrastCount / Math.max(1, total)) * 264} 264`}
                         transform="rotate(-90 50 50)" />
-                      <text x="50" y="48" textAnchor="middle" fontSize="16" fontWeight="700" fill="#1e40af">
+                      <text x="50" y="48" textAnchor="middle" fontSize="16" fontWeight="700" fill="var(--color-primary-800)">
                         {total > 0 ? Math.round((contrastCount / total) * 100) : 0}%
                       </text>
                       <text x="50" y="63" textAnchor="middle" fontSize="8" fill="#94a3b8">{t('patient360.contrastRatio')}</text>
@@ -1012,7 +1012,7 @@ export default function Patient360Page() {
                 </div>
               </Col>
               <Col xs={24} md={12}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Clock size={13} /> {t('patient360.hourDistribution')}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -1020,12 +1020,12 @@ export default function Patient360Page() {
                     <div key={label}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
                         <span style={{ color: 'var(--text-secondary, #475569)' }}>{label}</span>
-                        <span style={{ color: '#1e40af', fontWeight: 700 }}>{count} {t('patient360.times')}</span>
+                        <span style={{ color: 'var(--color-primary-800)', fontWeight: 700 }}>{count} {t('patient360.times')}</span>
                       </div>
                       <div style={{ height: 7, background: 'var(--bg-primary, #f8fafc)', borderRadius: 4, overflow: 'hidden' }}>
                         <div style={{
                           width: `${(count / maxBucket) * 100}%`, height: '100%', borderRadius: 4,
-                          background: 'linear-gradient(90deg, #3b82f6, #1e40af)', transition: 'width 0.3s',
+                          background: 'linear-gradient(90deg, var(--color-primary-500), var(--color-primary-800))', transition: 'width 0.3s',
                         }} />
                       </div>
                     </div>

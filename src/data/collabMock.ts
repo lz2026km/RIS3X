@@ -25,8 +25,8 @@ const isoMinutesAgo = (m: number) => new Date(Date.now() - m * 60000).toISOStrin
 const isoHoursAgo = (h: number) => new Date(Date.now() - h * 3600000).toISOString();
 
 const COLORS = [
-  '#dc2626', '#7c3aed', '#0891b2', '#10b981', '#f59e0b', '#a855f7',
-  '#3b82f6', '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16',
+  'var(--color-error-600)', '#7c3aed', 'var(--color-info-600)', '#10b981', 'var(--color-warning-500)', '#a855f7',
+  'var(--color-primary-500)', '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16',
 ] as const;
 
 // ============================================================
@@ -47,24 +47,24 @@ export const COLLAB_USERS: CollabUser[] = [
   { id: 'D011', name: '周婷', role: 'resident', title: '住院医师', department: '放射科', licenseNumber: 'L-RAD-011', color: COLORS[10], status: 'editing', lastSeenAt: isoMinutesAgo(0), currentReportId: 'RP20260619018', cursorIndex: 60 },
   { id: 'D012', name: '吴俊杰', role: 'doctor', title: '主治医师', department: '放射科', licenseNumber: 'L-RAD-012', color: COLORS[11], status: 'viewing', lastSeenAt: isoMinutesAgo(1), currentReportId: 'RP20260619009' },
   { id: 'D013', name: '徐丽华', role: 'tech', title: '技师', department: 'CT室', licenseNumber: 'L-TEC-001', color: '#0ea5e9', status: 'viewing', lastSeenAt: isoMinutesAgo(2), currentReportId: 'RP20260619013' },
-  { id: 'D014', name: '马俊辉', role: 'tech', title: '技师', department: 'MR室', licenseNumber: 'L-TEC-002', color: '#22c55e', status: 'offline', lastSeenAt: isoHoursAgo(2) },
+  { id: 'D014', name: '马俊辉', role: 'tech', title: '技师', department: 'MR室', licenseNumber: 'L-TEC-002', color: 'var(--color-success-500)', status: 'offline', lastSeenAt: isoHoursAgo(2) },
   { id: 'D015', name: '黄海涛', role: 'tech', title: '高级技师', department: 'CT室', licenseNumber: 'L-TEC-003', color: '#eab308', status: 'idle', lastSeenAt: isoMinutesAgo(15), currentReportId: 'RP20260619013' },
-  { id: 'D016', name: '韩雪梅', role: 'doctor', title: '副主任医师', department: '放射科', licenseNumber: 'L-RAD-016', color: '#ef4444', status: 'viewing', lastSeenAt: isoMinutesAgo(0), currentReportId: 'RP20260619018' },
+  { id: 'D016', name: '韩雪梅', role: 'doctor', title: '副主任医师', department: '放射科', licenseNumber: 'L-RAD-016', color: 'var(--color-error-500)', status: 'viewing', lastSeenAt: isoMinutesAgo(0), currentReportId: 'RP20260619018' },
   { id: 'D017', name: '宋建军', role: 'doctor', title: '主治医师', department: '放射科', licenseNumber: 'L-RAD-017', color: '#f43f5e', status: 'editing', lastSeenAt: isoMinutesAgo(0), currentReportId: 'RP20260619013', cursorIndex: 720 },
   { id: 'D018', name: '高志远', role: 'chief', title: '主任医师', department: '放射科', licenseNumber: 'L-RAD-018', color: '#8b5cf6', status: 'editing', lastSeenAt: isoMinutesAgo(0), currentReportId: 'RP20260619009', cursorIndex: 220 },
-  { id: 'D019', name: '谢军', role: 'doctor', title: '主治医师', department: '放射科', licenseNumber: 'L-RAD-019', color: '#06b6d4', status: 'viewing', lastSeenAt: isoMinutesAgo(0), currentReportId: 'RP20260619013' },
+  { id: 'D019', name: '谢军', role: 'doctor', title: '主治医师', department: '放射科', licenseNumber: 'L-RAD-019', color: 'var(--color-info-500)', status: 'viewing', lastSeenAt: isoMinutesAgo(0), currentReportId: 'RP20260619013' },
   { id: 'D020', name: '邓丽娟', role: 'attending', title: '副主任医师', department: '放射科', licenseNumber: 'L-RAD-020', color: '#84cc16', status: 'speaking', lastSeenAt: isoMinutesAgo(0), currentReportId: 'RP20260619013' },
   { id: 'D021', name: '彭大伟', role: 'resident', title: '住院医师', department: '放射科', licenseNumber: 'L-RAD-021', color: '#f97316', status: 'idle', lastSeenAt: isoMinutesAgo(20), currentReportId: 'RP20260619018' },
   { id: 'D022', name: '苏小英', role: 'doctor', title: '主治医师', department: '放射科', licenseNumber: 'L-RAD-022', color: '#a855f7', status: 'editing', lastSeenAt: isoMinutesAgo(0), currentReportId: 'RP20260619018', cursorIndex: 410 },
   { id: 'D023', name: '潘立新', role: 'attending', title: '副主任医师', department: '放射科', licenseNumber: 'L-RAD-023', color: '#14b8a6', status: 'viewing', lastSeenAt: isoMinutesAgo(0), currentReportId: 'RP20260619009' },
-  { id: 'D024', name: '袁建华', role: 'resident', title: '住院医师', department: '放射科', licenseNumber: 'L-RAD-024', color: '#3b82f6', status: 'editing', lastSeenAt: isoMinutesAgo(0), currentReportId: 'RP20260619013', cursorIndex: 156 },
+  { id: 'D024', name: '袁建华', role: 'resident', title: '住院医师', department: '放射科', licenseNumber: 'L-RAD-024', color: 'var(--color-primary-500)', status: 'editing', lastSeenAt: isoMinutesAgo(0), currentReportId: 'RP20260619013', cursorIndex: 156 },
   { id: 'D025', name: '魏娜', role: 'reviewer', title: '审核专家', department: '医务处', licenseNumber: 'L-REV-001', color: '#ec4899', status: 'viewing', lastSeenAt: isoMinutesAgo(2), currentReportId: 'RP20260619013' },
   { id: 'D026', name: '蒋大为', role: 'admin', title: '系统管理员', department: '信息科', licenseNumber: 'L-ADM-001', color: '#64748b', status: 'idle', lastSeenAt: isoMinutesAgo(30), currentReportId: 'RP20260619013' },
-  { id: 'D027', name: '蔡明', role: 'doctor', title: '主治医师', department: '急诊科', licenseNumber: 'L-EMR-001', color: '#dc2626', status: 'viewing', lastSeenAt: isoMinutesAgo(0), currentReportId: 'RP20260619018' },
+  { id: 'D027', name: '蔡明', role: 'doctor', title: '主治医师', department: '急诊科', licenseNumber: 'L-EMR-001', color: 'var(--color-error-600)', status: 'viewing', lastSeenAt: isoMinutesAgo(0), currentReportId: 'RP20260619018' },
   { id: 'D028', name: '丁瑶', role: 'resident', title: '住院医师', department: '急诊科', licenseNumber: 'L-EMR-002', color: '#7c3aed', status: 'editing', lastSeenAt: isoMinutesAgo(0), currentReportId: 'RP20260619009', cursorIndex: 78 },
-  { id: 'D029', name: '冯刚', role: 'doctor', title: '副主任医师', department: '肿瘤科', licenseNumber: 'L-ONC-001', color: '#0891b2', status: 'away', lastSeenAt: isoMinutesAgo(12), currentReportId: 'RP20260619013' },
+  { id: 'D029', name: '冯刚', role: 'doctor', title: '副主任医师', department: '肿瘤科', licenseNumber: 'L-ONC-001', color: 'var(--color-info-600)', status: 'away', lastSeenAt: isoMinutesAgo(12), currentReportId: 'RP20260619013' },
   { id: 'D030', name: '顾芳', role: 'doctor', title: '主治医师', department: '肿瘤科', licenseNumber: 'L-ONC-002', color: '#10b981', status: 'viewing', lastSeenAt: isoMinutesAgo(0), currentReportId: 'RP20260619013' },
-  { id: 'D031', name: '邵伟', role: 'tech', title: '技师', department: 'CT室', licenseNumber: 'L-TEC-004', color: '#f59e0b', status: 'idle', lastSeenAt: isoMinutesAgo(45) },
+  { id: 'D031', name: '邵伟', role: 'tech', title: '技师', department: 'CT室', licenseNumber: 'L-TEC-004', color: 'var(--color-warning-500)', status: 'idle', lastSeenAt: isoMinutesAgo(45) },
   { id: 'D032', name: '夏明', role: 'resident', title: '住院医师', department: '放射科', licenseNumber: 'L-RAD-032', color: '#a855f7', status: 'offline', lastSeenAt: isoHoursAgo(6) },
 ];
 

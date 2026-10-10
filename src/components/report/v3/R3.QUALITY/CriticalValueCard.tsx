@@ -11,9 +11,9 @@ import AutoCallSmsLog from './AutoCallSmsLog';
 import { t } from '../../../../i18n/appI18n';
 
 const SEVERITY_META: Record<string, { color: string; label: string }> = {
-  info: { color: '#3b82f6', label: t('criticalValue.level.info') },
-  warning: { color: '#f59e0b', label: t('criticalValue.level.warning') },
-  critical: { color: '#dc2626', label: t('criticalValue.level.critical') },
+  info: { color: 'var(--color-primary-500)', label: t('criticalValue.level.info') },
+  warning: { color: 'var(--color-warning-500)', label: t('criticalValue.level.warning') },
+  critical: { color: 'var(--color-error-600)', label: t('criticalValue.level.critical') },
   emergency: { color: '#7f1d1d', label: t('criticalValue.level.urgent') },
 };
 
@@ -42,7 +42,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
   const [busy, setBusy] = useState(false);
   const [logRefresh, setLogRefresh] = useState(0);
 
-  const sev = SEVERITY_META[alert.severity] ?? { color: '#3b82f6', label: t('criticalValue.level.info') };
+  const sev = SEVERITY_META[alert.severity] ?? { color: 'var(--color-primary-500)', label: t('criticalValue.level.info') };
 
   const handleCall = async () => {
     setBusy(true);
@@ -114,7 +114,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
       aria-label={t('criticalValueCard.ariaLabel')}
       className="no-print"
       style={{
-        border: '2px solid #dc2626',
+        border: '2px solid var(--color-error-600)',
         borderRadius: 10,
         background: 'linear-gradient(135deg, #fef2f2 0%, #fff7ed 100%)',
         padding: compact ? '10px 14px' : '14px 18px',
@@ -131,7 +131,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
             width: 14,
             height: 14,
             borderRadius: '50%',
-            background: '#dc2626',
+            background: 'var(--color-error-600)',
             marginTop: 4,
             animation: 'cvBreathLight 1.2s ease-in-out infinite',
             flexShrink: 0,
@@ -141,7 +141,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
 
         <div style={{ flex: 1, minWidth: 240 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <AlertOctagon size={16} color="#dc2626" />
+            <AlertOctagon size={16} color="var(--color-error-600)" />
             <strong style={{ color: '#7f1d1d', fontSize: 14 }}>{t('criticalValueCard.alertTitle')}</strong>
             <Tag color={sev.color} style={{ marginRight: 0 }}>{sev.label}</Tag>
             <Tag color="red" icon={<BellRing size={10} />}>{t('criticalValueCard.pendingNotify')}</Tag>
@@ -214,7 +214,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
       )}
 
       <Modal
-        title={<Space><MessageSquare size={14} color="#3b82f6" />{t('criticalValueCard.smsModalTitle')}</Space>}
+        title={<Space><MessageSquare size={14} color="var(--color-primary-500)" />{t('criticalValueCard.smsModalTitle')}</Space>}
         open={smsModal}
         onCancel={() => setSmsModal(false)}
         onOk={submitSms}
@@ -225,7 +225,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
         destroyOnHidden
       >
         <div style={{ fontSize: 12, color: '#475569', marginBottom: 10 }}>
-          <Badge color="#dc2626" /> {alert.patientName} · {alert.title}
+          <Badge color="var(--color-error-600)" /> {alert.patientName} · {alert.title}
         </div>
         <div style={{ marginBottom: 10 }}>
           <div style={{ fontSize: 12, marginBottom: 4 }}>{t('criticalValueCard.receivingPhone')}</div>

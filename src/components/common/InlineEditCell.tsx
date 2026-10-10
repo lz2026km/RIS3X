@@ -159,7 +159,7 @@ export function InlineEditCell({
     padding: "3px 6px",
     fontSize: 12,
     borderRadius: 6,
-    border: `1px solid ${error ? "var(--color-error, #dc2626)" : "var(--color-primary-500, #3b82f6)"}`,
+    border: `1px solid ${error ? "var(--color-error, var(--color-error-600))" : "var(--color-primary-500, var(--color-primary-500))"}`,
     background: "var(--form-input-bg, #fff)",
     color: "var(--text-primary, #1e293b)", };
 
@@ -213,7 +213,7 @@ export function InlineEditCell({
           title={t("w14Ux.inline.save")}
           onMouseDown={(e) => e.preventDefault()}
           onClick={commit}
-          style={iconBtn("var(--color-success, #16a34a)")}
+          style={iconBtn("var(--color-success, var(--color-success-600))")}
         >
           <Check size={13} />
         </button>
@@ -223,13 +223,13 @@ export function InlineEditCell({
           title={t("w14Ux.inline.cancel")}
           onMouseDown={(e) => e.preventDefault()}
           onClick={cancel}
-          style={iconBtn("var(--color-error, #dc2626)")}
+          style={iconBtn("var(--color-error, var(--color-error-600))")}
         >
           <X size={13} />
         </button>
       </span>
       {error && (
-        <span role="alert" style={{ fontSize: 11, color: "var(--color-error, #dc2626)" }}>
+        <span role="alert" style={{ fontSize: 11, color: "var(--color-error, var(--color-error-600))" }}>
           {error}
         </span>
       )}

@@ -159,7 +159,7 @@ export const CertificateCenterPage: React.FC = () => {
       render: (_: unknown, r) => (
         <div style={{ fontSize: 12 }}>
           <div>{r.notBefore.slice(0, 10)} ~ {r.notAfter.slice(0, 10)}</div>
-          {r.revokedAt && <div style={{ color: '#dc2626' }}>{t('w8Report.revokedAt')}: {r.revokedAt.slice(0, 10)} · {r.revocationReason}</div>}
+          {r.revokedAt && <div style={{ color: 'var(--color-error-600)' }}>{t('w8Report.revokedAt')}: {r.revokedAt.slice(0, 10)} · {r.revocationReason}</div>}
         </div>
       ),
     },
@@ -180,7 +180,7 @@ export const CertificateCenterPage: React.FC = () => {
   return (
     <div data-testid="certificate-center-page" style={{ padding: 20, maxWidth: 1400, margin: '0 auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-        <ShieldCheck size={22} color="#0891b2" />
+        <ShieldCheck size={22} color="var(--color-info-600)" />
         <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>{t('w8Report.certCenterTitle')}</h1>
         <Tag color="cyan">{t('w8Report.certCenterBadge')}</Tag>
         <div style={{ flex: 1 }} />
@@ -235,7 +235,7 @@ export const CertificateCenterPage: React.FC = () => {
             {(crl?.entries ?? []).map((e) => (
               <div key={e.serial} style={{ fontSize: 12, padding: '4px 0', borderTop: '1px solid var(--border-color)' }}>
                 <Text code style={{ fontSize: 11 }}>{e.serial}</Text>
-                <div style={{ color: '#dc2626' }}>{e.reason} · {e.revocationDate.slice(0, 10)}</div>
+                <div style={{ color: 'var(--color-error-600)' }}>{e.reason} · {e.revocationDate.slice(0, 10)}</div>
               </div>
             ))}
           </Card>

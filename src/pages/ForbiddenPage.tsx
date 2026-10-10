@@ -17,7 +17,7 @@ export default function ForbiddenPage() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 16 }}>
           <div style={{
             width: 72, height: 72, borderRadius: 18,
-            background: 'linear-gradient(135deg, #ef4444 0%, #7f1d1d 100%)',
+            background: 'linear-gradient(135deg, var(--color-error-500) 0%, #7f1d1d 100%)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             boxShadow: '0 8px 24px rgba(239,68,68,0.35)',
           }}>

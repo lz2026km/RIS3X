@@ -28,9 +28,9 @@ const { TextArea } = Input
 
 const STATE_META: Record<TemplateStateV2, { color: string; label: string; bg: string }> = {
   draft: { color: '#64748b', label: t('templateApproval.state.draft'), bg: 'var(--bg-secondary, #f1f5f9)' },
-  pending: { color: '#f59e0b', label: t('templateApproval.state.pending'), bg: 'var(--color-warning-bg)' },
-  approved: { color: '#3b82f6', label: t('templateApproval.state.approved'), bg: 'var(--color-info-bg)' },
-  rejected: { color: '#dc2626', label: t('templateApproval.state.rejected'), bg: 'var(--color-error-bg)' },
+  pending: { color: 'var(--color-warning-500)', label: t('templateApproval.state.pending'), bg: 'var(--color-warning-bg)' },
+  approved: { color: 'var(--color-primary-500)', label: t('templateApproval.state.approved'), bg: 'var(--color-info-bg)' },
+  rejected: { color: 'var(--color-error-600)', label: t('templateApproval.state.rejected'), bg: 'var(--color-error-bg)' },
   published: { color: '#10b981', label: t('templateApproval.state.published'), bg: 'var(--color-success-bg)' },
 }
 
@@ -135,7 +135,7 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
         <Space size={4}>
           <FileText size={13} color="#64748b" />
           <span>{v}</span>
-          {row.favoriteCount > 0 && <Star size={12} color="#f59e0b" fill="#f59e0b" />}
+          {row.favoriteCount > 0 && <Star size={12} color="var(--color-warning-500)" fill="var(--color-warning-500)" />}
         </Space>
       ) },
     { title: t('templateApproval.col.category'), dataIndex: 'category', width: 70, render: (v: string) => <Tag>{v}</Tag> },

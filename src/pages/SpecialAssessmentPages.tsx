@@ -109,7 +109,7 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
             <div style={{
               fontSize: 11, marginTop: 6, padding: '1px 8px', borderRadius: 10, display: 'inline-block',
               background: historySource === 'api' ? 'rgba(34,197,94,0.3)' : 'rgba(245,158,11,0.3)',
-              border: `1px solid ${historySource === 'api' ? '#22c55e' : '#f59e0b'}`,
+              border: `1px solid ${historySource === 'api' ? 'var(--color-success-500)' : 'var(--color-warning-500)'}`,
             }}>
               {historyLoading ? '同步中...' : historySource === 'api' ? '数据源: qcextApi 实时（历次评估）' : '演示数据(qcextApi 无评估历史端点)'}
             </div>
@@ -120,7 +120,7 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         {/* 左：评估项目 */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
             <ListChecks size={13} /> 评估项目
           </div>
           {assessment.evaluationItems.map(item => (
@@ -135,10 +135,10 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
                         key={opt}
                         onClick={() => setValues({ ...values, [item.key]: opt })}
                         style={{
-                          padding: '4px 10px', border: `1px solid ${selected ? '#3b82f6' : '#cbd5e1'}`,
+                          padding: '4px 10px', border: `1px solid ${selected ? 'var(--color-primary-500)' : '#cbd5e1'}`,
                           borderRadius: 12, fontSize: 12, fontWeight: 600,
                           background: selected ? 'var(--color-info-bg)' : 'var(--bg-card)',
-                          color: selected ? '#1e40af' : '#475569',
+                          color: selected ? 'var(--color-primary-800)' : '#475569',
                           cursor: 'pointer',
                         }}
                       >
@@ -177,7 +177,7 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
         <div>
           {/* 分级选择 */}
           <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)', marginBottom: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Award size={13} /> {assessment.category} 分级
             </div>
             {assessment.grades.map(g => {
@@ -243,7 +243,7 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
       {/* 历史 */}
       {showHistory && (
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)', marginTop: 12 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
             <History size={13} /> 历次评估记录
             <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>
               {historySource === 'api' ? '（qcextApi 实时）' : '（演示数据）'}
@@ -288,8 +288,8 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
 // ============================================================
 function getGradientColor(category: string): string {
   const map: Record<string, string> = {
-    'BI-RADS': '#ec4899', 'Lung-RADS': '#0891b2', 'PI-RADS': '#7c3aed', 'CAD-RADS': '#dc2626',
-    'TI-RADS': '#f59e0b', 'RECIST': '#10b981', '骨龄': '#3b82f6', '心脏CTA': '#be185d',
+    'BI-RADS': '#ec4899', 'Lung-RADS': 'var(--color-info-600)', 'PI-RADS': '#7c3aed', 'CAD-RADS': 'var(--color-error-600)',
+    'TI-RADS': 'var(--color-warning-500)', 'RECIST': '#10b981', '骨龄': 'var(--color-primary-500)', '心脏CTA': '#be185d',
   };
   return map[category] || '#7c3aed';
 }
@@ -297,7 +297,7 @@ function getGradientColor(category: string): string {
 function getGradientColor2(category: string): string {
   const map: Record<string, string> = {
     'BI-RADS': '#be185d', 'Lung-RADS': '#0e7490', 'PI-RADS': '#5b21b6', 'CAD-RADS': '#991b1b',
-    'TI-RADS': '#b45309', 'RECIST': '#047857', '骨龄': '#1e40af', '心脏CTA': '#9d174d',
+    'TI-RADS': '#b45309', 'RECIST': '#047857', '骨龄': 'var(--color-primary-800)', '心脏CTA': '#9d174d',
   };
   return map[category] || '#5b21b6';
 }

@@ -333,12 +333,12 @@ export default function ReportPhraseBankPage() {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <MessageSquare size={20} color="#3b82f6" /> {t('rpb.title')}
+            <MessageSquare size={20} color="var(--color-primary-500)" /> {t('rpb.title')}
             <StatusTag status="success" style={{ fontWeight: 700 }}>R7</StatusTag>
             <span style={{
               fontSize: 11, padding: '2px 8px', borderRadius: 10,
               background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-              color: source === 'api' ? '#16a34a' : '#92400e',
+              color: source === 'api' ? 'var(--color-success-600)' : '#92400e',
               border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
               fontWeight: 500,
             }}>
@@ -347,14 +347,14 @@ export default function ReportPhraseBankPage() {
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('rpb.subtitle', { count: phrases.length })}
-            {apiError && <span style={{ color: '#dc2626', marginLeft: 8 }}>{apiError}</span>}
+            {apiError && <span style={{ color: 'var(--color-error-600)', marginLeft: 8 }}>{apiError}</span>}
           </p>
         </div>
         <button
           onClick={() => setCreateOpen(true)}
           style={{
             padding: '6px 12px', border: 'none', borderRadius: 6,
-            background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+            background: 'var(--color-primary-500)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer',
             display: 'flex', alignItems: 'center', gap: 4,
           }}
         >
@@ -516,10 +516,10 @@ export default function ReportPhraseBankPage() {
                 <button onClick={handleRateUp} style={{ padding: '5px 10px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
                   <Star size={11} /> {t('rpb.rate')}
                 </button>
-                <button onClick={() => handleCopy(copyContent)} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3, marginLeft: 'auto' }}>
+                <button onClick={() => handleCopy(copyContent)} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: 'var(--color-primary-500)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3, marginLeft: 'auto' }}>
                   <Copy size={11} /> {t('rpb.copyAll')}
                 </button>
-                <button onClick={() => void handleDelete()} style={{ padding: '5px 10px', border: '1px solid #dc2626', borderRadius: 4, background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+                <button onClick={() => void handleDelete()} style={{ padding: '5px 10px', border: '1px solid var(--color-error-600)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--color-error-600)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
                   <Trash2 size={11} /> {t('rpb.delete')}
                 </button>
               </div>
@@ -527,7 +527,7 @@ export default function ReportPhraseBankPage() {
 
             {/* 元信息 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>{t('rpb.metaTitle')}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12 }}>{t('rpb.metaTitle')}</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
                 <InfoCell label={t('rpb.author')} value={selected.author} />
                 <InfoCell label={t('rpb.created')} value={selected.createdAt} />
@@ -538,7 +538,7 @@ export default function ReportPhraseBankPage() {
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>{t('rpb.tags')}</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                   {selected.tags.map(t => (
-                    <span key={t} style={{ fontSize: 12, padding: '2px 8px', background: 'var(--color-info-bg)', color: '#1e40af', borderRadius: 10 }}>#{t}</span>
+                    <span key={t} style={{ fontSize: 12, padding: '2px 8px', background: 'var(--color-info-bg)', color: 'var(--color-primary-800)', borderRadius: 10 }}>#{t}</span>
                   ))}
                   {selected.tags.length === 0 && <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('rpb.noTags')}</span>}
                 </div>

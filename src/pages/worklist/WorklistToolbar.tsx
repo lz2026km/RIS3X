@@ -27,8 +27,8 @@ const priorityLabel = (v: string): string => ({
 // ============================================================
 const PRIORITY_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
   '普通': { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: '普通' },
-  '紧急': { bg: '#f59e0b22', color: '#f59e0b', label: '紧急' },
-  '危重': { bg: '#ef444422', color: '#ef4444', label: '危重' },
+  '紧急': { bg: '#f59e0b22', color: 'var(--color-warning-500)', label: '紧急' },
+  '危重': { bg: '#ef444422', color: 'var(--color-error-500)', label: '危重' },
   '会诊': { bg: '#8b5cf622', color: '#7c3aed', label: '会诊' },
 }
 
@@ -113,8 +113,8 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
         fontWeight: 600,
         cursor: 'pointer',
         transition: 'all 0.15s',
-        borderColor: active ? '#1e40af' : '#e2e8f0',
-        background: active ? '#1e40af' : 'var(--bg-card)',
+        borderColor: active ? 'var(--color-primary-800)' : '#e2e8f0',
+        background: active ? 'var(--color-primary-800)' : 'var(--bg-card)',
         color: active ? '#fff' : '#64748b',
         display: 'flex',
         alignItems: 'center',
@@ -319,7 +319,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
                   border: '1px solid var(--border-color)',
                   borderRadius: 6,
                   fontSize: 12,
-                  color: filters.doctorId ? '#1e40af' : '#94a3b8',
+                  color: filters.doctorId ? 'var(--color-primary-800)' : '#94a3b8',
                   cursor: 'pointer',
                   width: '100%',
                   textAlign: 'left',
@@ -355,7 +355,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
                       padding: '8px 12px',
                       fontSize: 12,
                       cursor: 'pointer',
-                      color: !filters.doctorId ? '#1e40af' : '#64748b',
+                      color: !filters.doctorId ? 'var(--color-primary-800)' : '#64748b',
                       background: !filters.doctorId ? '#f0f7ff' : 'transparent',
                     }}
                     onMouseEnter={e => { if (filters.doctorId) e.currentTarget.style.background = 'var(--bg-hover)' }}
@@ -376,7 +376,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
                           padding: '8px 12px',
                           fontSize: 12,
                           cursor: 'pointer',
-                          color: filters.doctorId === doc.id ? '#1e40af' : '#64748b',
+                          color: filters.doctorId === doc.id ? 'var(--color-primary-800)' : '#64748b',
                           background: filters.doctorId === doc.id ? '#f0f7ff' : 'transparent',
                           display: 'flex',
                           justifyContent: 'space-between',
@@ -399,8 +399,8 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
       {expanded && showSavePreset && (
         <div style={{ padding: '0 16px 16px', borderTop: '1px solid var(--border-light)', paddingTop: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <BookmarkCheck size={14} color="#1e40af" />
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{t('worklistToolbar.filterPresets')}</span>
+            <BookmarkCheck size={14} color="var(--color-primary-800)" />
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('worklistToolbar.filterPresets')}</span>
           </div>
           {presets && presets.length > 0 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
@@ -418,7 +418,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
           )}
           <div style={{ display: 'flex', gap: 8 }}>
             <input value={savePresetName || ''} onChange={e => onSavePresetNameChange?.(e.target.value)} placeholder={t('worklistToolbar.presetNamePlaceholder')} style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12,}} />
-            <button onClick={onSavePreset} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: '#1e40af', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Save size={14} />{t('worklistToolbar.saveCurrent')}</button>
+            <button onClick={onSavePreset} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: 'var(--color-primary-800)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Save size={14} />{t('worklistToolbar.saveCurrent')}</button>
           </div>
         </div>
       )}
@@ -445,7 +445,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
 
   return (
     <div style={{
-      background: 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)',
+      background: 'linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-primary-600) 100%)',
       borderRadius: 10,
       padding: '12px 16px',
       marginBottom: 12,
@@ -516,7 +516,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
                   padding: '10px 14px',
                   fontSize: 12,
                   cursor: 'pointer',
-                  color: batch.priorityValue === p ? '#1e40af' : 'var(--text-primary)',
+                  color: batch.priorityValue === p ? 'var(--color-primary-800)' : 'var(--text-primary)',
                   background: batch.priorityValue === p ? 'var(--color-info-bg)' : 'var(--bg-card)',
                   display: 'flex',
                   alignItems: 'center',
@@ -586,7 +586,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
                   padding: '10px 14px',
                   fontSize: 12,
                   cursor: 'pointer',
-                  color: batch.roomValue === room.id ? '#1e40af' : 'var(--text-primary)',
+                  color: batch.roomValue === room.id ? 'var(--color-primary-800)' : 'var(--text-primary)',
                   background: batch.roomValue === room.id ? 'var(--color-info-bg)' : 'var(--bg-card)',
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -651,7 +651,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
           borderRadius: 6,
           fontSize: 12,
           fontWeight: 600,
-          color: '#1e40af',
+          color: 'var(--color-primary-800)',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
@@ -717,8 +717,8 @@ export function QuickFilters({ currentFilters, onApply }: QuickFilterProps) {
             style={{
               padding: '5px 12px', borderRadius: 6, border: '1px solid', fontSize: 12, fontWeight: 600,
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, transition: 'all 0.15s',
-              borderColor: isActive ? '#1e40af' : '#e2e8f0',
-              background: isActive ? '#1e40af' : 'var(--bg-card)',
+              borderColor: isActive ? 'var(--color-primary-800)' : '#e2e8f0',
+              background: isActive ? 'var(--color-primary-800)' : 'var(--bg-card)',
               color: isActive ? '#fff' : '#64748b',
             }}
           >
@@ -756,7 +756,7 @@ export function CheckInBar({ onCheckIn, onPrintLabel, lastScanned, isProcessing 
       background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '12px 16px',
       marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
     }}>
-      <Barcode size={18} color="#1e40af" />
+      <Barcode size={18} color="var(--color-primary-800)" />
       <input
         value={input}
         onChange={e => setInput(e.target.value)}
@@ -772,7 +772,7 @@ export function CheckInBar({ onCheckIn, onPrintLabel, lastScanned, isProcessing 
         disabled={isProcessing || !input.trim()}
         style={{
           padding: '8px 16px', borderRadius: 8, border: 'none',
-          background: isProcessing || !input.trim() ? '#cbd5e1' : '#1e40af',
+          background: isProcessing || !input.trim() ? '#cbd5e1' : 'var(--color-primary-800)',
           color: '#fff', fontSize: 12, fontWeight: 600, cursor: isProcessing ? 'not-allowed' : 'pointer',
           display: 'flex', alignItems: 'center', gap: 6,
         }}

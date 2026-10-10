@@ -23,7 +23,7 @@ export const QUALITY_DIMENSIONS: QualityDimension[] = [
   {
     key: 'completeness', name: '完整性', nameEn: 'Completeness',
     description: '报告内容是否完整、字段无遗漏', descriptionEn: 'Report completeness - all required fields filled',
-    weight: 0.20, enabled: true, color: '#3b82f6', icon: '',
+    weight: 0.20, enabled: true, color: 'var(--color-primary-500)', icon: '',
     subCriteria: [
       { key: 'has-findings', name: '包含检查所见', nameEn: 'Has findings', weight: 0.30, description: '包含完整的检查所见段落', evaluator: 'auto', passingRule: '必须存在"检查所见"或"影像表现"段落' },
       { key: 'has-diagnosis', name: '包含诊断意见', nameEn: 'Has diagnosis', weight: 0.30, description: '包含完整的诊断意见段落', evaluator: 'auto', passingRule: '必须存在"诊断意见"或"诊断"段落' },
@@ -59,7 +59,7 @@ export const QUALITY_DIMENSIONS: QualityDimension[] = [
   {
     key: 'timeliness', name: '及时性', nameEn: 'Timeliness',
     description: '报告是否在规定时间内完成', descriptionEn: 'Completion within TAT',
-    weight: 0.10, enabled: true, color: '#f59e0b', icon: '',
+    weight: 0.10, enabled: true, color: 'var(--color-warning-500)', icon: '',
     subCriteria: [
       { key: 'tat-met', name: 'TAT达标', nameEn: 'TAT met', weight: 0.50, description: '在规定时间内完成', evaluator: 'auto', passingRule: '门急诊<2h/住院<24h/CT<4h' },
       { key: 'tat-priority', name: '优先级处理', nameEn: 'Priority handling', weight: 0.30, description: '按优先级处理', evaluator: 'auto', passingRule: 'STAT/急诊优先处理' },
@@ -69,7 +69,7 @@ export const QUALITY_DIMENSIONS: QualityDimension[] = [
   {
     key: 'terminology', name: '术语规范', nameEn: 'Terminology',
     description: '医学术语使用是否准确规范', descriptionEn: 'Standard terminology usage',
-    weight: 0.10, enabled: true, color: '#0891b2', icon: '',
+    weight: 0.10, enabled: true, color: 'var(--color-info-600)', icon: '',
     subCriteria: [
       { key: 'icd10-used', name: 'ICD-10 编码', nameEn: 'ICD-10', weight: 0.20, description: '使用 ICD-10 编码', evaluator: 'auto', passingRule: '诊断使用 ICD-10 编码' },
       { key: 'snomed-used', name: 'SNOMED CT', nameEn: 'SNOMED', weight: 0.15, description: '使用 SNOMED CT', evaluator: 'auto', passingRule: '关键概念使用 SNOMED' },
@@ -81,7 +81,7 @@ export const QUALITY_DIMENSIONS: QualityDimension[] = [
   {
     key: 'criticalMarking', name: '危急值标注', nameEn: 'Critical Marking',
     description: '危急值是否正确标注与通报', descriptionEn: 'Critical finding marking and notification',
-    weight: 0.10, enabled: true, color: '#dc2626', icon: '',
+    weight: 0.10, enabled: true, color: 'var(--color-error-600)', icon: '',
     subCriteria: [
       { key: 'critical-mark', name: '标识危急值', nameEn: 'Mark critical', weight: 0.30, description: '报告开头标识危急值', evaluator: 'ai', passingRule: '报告开头有危急值标记' },
       { key: 'critical-notify', name: '通报临床', nameEn: 'Notify clinic', weight: 0.30, description: '10 分钟内通报临床', evaluator: 'auto', passingRule: '10 分钟内通报' },
@@ -101,7 +101,7 @@ export const QUALITY_DIMENSIONS: QualityDimension[] = [
   {
     key: 'imageQuality', name: '图像质量', nameEn: 'Image Quality',
     description: '影像质量是否符合诊断要求', descriptionEn: 'Image diagnostic quality',
-    weight: 0.10, enabled: true, color: '#06b6d4', icon: '',
+    weight: 0.10, enabled: true, color: 'var(--color-info-500)', icon: '',
     subCriteria: [
       { key: 'snr', name: '信噪比', nameEn: 'SNR', weight: 0.20, description: '信噪比达标', evaluator: 'ai', passingRule: 'SNR >= 30dB' },
       { key: 'cnr', name: '对比度', nameEn: 'CNR', weight: 0.20, description: '对比度达标', evaluator: 'ai', passingRule: 'CNR >= 3' },
@@ -114,7 +114,7 @@ export const QUALITY_DIMENSIONS: QualityDimension[] = [
 
 export const QUALITY_GRADES: QualityGradeConfig[] = [
   { grade: '甲', minScore: 90, maxScore: 100, color: '#047857', bg: '#d1fae5', border: '#6ee7b7', description: '优秀：报告内容完整、规范、准确，可作为模板', descriptionEn: 'Excellent: complete, standardized, accurate', action: '推荐为优秀报告', publishable: true },
-  { grade: '乙', minScore: 75, maxScore: 89, color: '#1e40af', bg: '#dbeafe', border: '#93c5fd', description: '良好：基本规范，少量改进建议', descriptionEn: 'Good: mostly compliant with minor improvements', action: '常规发布', publishable: true },
+  { grade: '乙', minScore: 75, maxScore: 89, color: 'var(--color-primary-800)', bg: '#dbeafe', border: '#93c5fd', description: '良好：基本规范，少量改进建议', descriptionEn: 'Good: mostly compliant with minor improvements', action: '常规发布', publishable: true },
   { grade: '丙', minScore: 60, maxScore: 74, color: '#92400e', bg: '#fef3c7', border: '#fcd34d', description: '合格：需修改后再发布', descriptionEn: 'Pass: revise before publish', action: '退回修改', publishable: false },
   { grade: '丁', minScore: 0, maxScore: 59, color: '#7f1d1d', bg: '#fee2e2', border: '#fca5a5', description: '不合格：存在严重错误', descriptionEn: 'Fail: serious errors', action: '必须重写', publishable: false },
 ];

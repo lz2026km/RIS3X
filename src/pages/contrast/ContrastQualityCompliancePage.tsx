@@ -19,7 +19,7 @@ function downloadFile(filename: string, content: string, type = 'text/csv;charse
 }
 
 const CATEGORY_LABELS: Record<string, string> = { usage: '使用情况', safety: '安全指标', adherence: '依从性', regulatory: '合规性' }
-const CATEGORY_COLORS: Record<string, string> = { usage: '#3b82f6', safety: '#ef4444', adherence: '#22c55e', regulatory: '#a855f7' }
+const CATEGORY_COLORS: Record<string, string> = { usage: 'var(--color-primary-500)', safety: 'var(--color-error-500)', adherence: 'var(--color-success-500)', regulatory: '#a855f7' }
 
 export default function ContrastQualityCompliancePage() {
   const [metrics, setMetrics] = useState<QualityMetric[]>([])
@@ -108,7 +108,7 @@ export default function ContrastQualityCompliancePage() {
           <BarChart3 size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>对比剂质量与合规</span>
           {/* [G005 W7] 真实 service 层优先; 回退本地 mock 时展示演示数据徽标 */}
           {source === 'fallback' && (
-            <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: 'rgba(255,255,255,0.12)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.45)', fontWeight: 600 }}>{t('w7demo.contrastFallback')}</span>
+            <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: 'rgba(255,255,255,0.12)', color: 'var(--color-warning-400)', border: '1px solid rgba(251,191,36,0.45)', fontWeight: 600 }}>{t('w7demo.contrastFallback')}</span>
           )}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -143,7 +143,7 @@ export default function ContrastQualityCompliancePage() {
                   <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 4 }}>{CATEGORY_LABELS[m.category]}</div>
                   <div style={{ fontSize: 14, fontWeight: 600 }}>{m.name}</div>
                 </div>
-                <span style={{ padding: '2px 6px', borderRadius: 3, fontSize: 12, color: m.trend === 'up' && m.category === 'usage' ? '#ef4444' : m.trend === 'down' && m.category === 'safety' ? '#22c55e' : m.trend === 'up' ? '#22c55e' : m.trend === 'down' ? '#ef4444' : 'var(--text-muted, #8b949e)', background: 'transparent' }}>
+                <span style={{ padding: '2px 6px', borderRadius: 3, fontSize: 12, color: m.trend === 'up' && m.category === 'usage' ? 'var(--color-error-500)' : m.trend === 'down' && m.category === 'safety' ? 'var(--color-success-500)' : m.trend === 'up' ? 'var(--color-success-500)' : m.trend === 'down' ? 'var(--color-error-500)' : 'var(--text-muted, #8b949e)', background: 'transparent' }}>
                   {m.trend === 'up' ? <TrendingUp size={14} /> : m.trend === 'down' ? <TrendingDown size={14} /> : null}
                 </span>
               </div>
@@ -153,7 +153,7 @@ export default function ContrastQualityCompliancePage() {
                 <span style={{ fontSize: 12, color: '#6e7681' }}>/ 目标 {m.targetValue}{m.unit}</span>
               </div>
               <div style={{ height: 4, background: 'var(--bg-primary, #0d1117)', borderRadius: 2, marginBottom: 8, overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${Math.min(100, (m.currentValue / m.targetValue) * 100)}%`, background: m.currentValue >= m.targetValue ? '#22c55e' : '#f59e0b', borderRadius: 2 }} />
+                <div style={{ height: '100%', width: `${Math.min(100, (m.currentValue / m.targetValue) * 100)}%`, background: m.currentValue >= m.targetValue ? 'var(--color-success-500)' : 'var(--color-warning-500)', borderRadius: 2 }} />
               </div>
               <div style={{ fontSize: 12, color: '#6e7681' }}>{m.details}</div>
             </div>
@@ -168,13 +168,13 @@ export default function ContrastQualityCompliancePage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {regulatoryChecks.map(check => (
               <div key={check.checkId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', background: 'var(--bg-primary, #0d1117)', borderRadius: 6 }}>
-                {check.status === 'pass' ? <CheckCircle size={16} style={{ color: '#22c55e' }} /> : check.status === 'fail' ? <XCircle size={16} style={{ color: '#ef4444' }} /> : <AlertTriangle size={16} style={{ color: '#f59e0b' }} />}
+                {check.status === 'pass' ? <CheckCircle size={16} style={{ color: 'var(--color-success-500)' }} /> : check.status === 'fail' ? <XCircle size={16} style={{ color: 'var(--color-error-500)' }} /> : <AlertTriangle size={16} style={{ color: 'var(--color-warning-500)' }} />}
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12 }}>{check.name}</div>
                   <div style={{ fontSize: 12, color: '#6e7681' }}>{check.regulation}</div>
                 </div>
                 <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{check.details}</span>
-                <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 3, background: check.status === 'pass' ? '#22c55e20' : check.status === 'fail' ? '#ef444420' : '#f59e0b20', color: check.status === 'pass' ? '#22c55e' : check.status === 'fail' ? '#ef4444' : '#f59e0b' }}>
+                <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 3, background: check.status === 'pass' ? '#22c55e20' : check.status === 'fail' ? '#ef444420' : '#f59e0b20', color: check.status === 'pass' ? 'var(--color-success-500)' : check.status === 'fail' ? 'var(--color-error-500)' : 'var(--color-warning-500)' }}>
                   {check.status === 'pass' ? '通过' : check.status === 'fail' ? '未通过' : check.status === 'pending' ? '待检查' : '不适用'}
                 </span>
               </div>

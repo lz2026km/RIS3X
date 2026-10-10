@@ -453,9 +453,9 @@ function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
   const durationDistribution = useMemo(() => {
     const ranges = [
       { label: '<1分钟', min: 0, max: 60, color: '#10b981' },
-      { label: '1-5分钟', min: 60, max: 300, color: '#3b82f6' },
-      { label: '5-15分钟', min: 300, max: 900, color: '#f59e0b' },
-      { label: '15-60分钟', min: 900, max: 3600, color: '#ef4444' },
+      { label: '1-5分钟', min: 60, max: 300, color: 'var(--color-primary-500)' },
+      { label: '5-15分钟', min: 300, max: 900, color: 'var(--color-warning-500)' },
+      { label: '15-60分钟', min: 900, max: 3600, color: 'var(--color-error-500)' },
       { label: '>1小时', min: 3600, max: Infinity, color: '#7c3aed' },
     ]
     return ranges.map(range => {

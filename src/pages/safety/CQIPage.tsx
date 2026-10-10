@@ -62,7 +62,7 @@ export default function CQIPage() {
 
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
-      <div style={{ background: 'linear-gradient(135deg,#0891b2,#0e7490)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: 'linear-gradient(135deg,var(--color-info-600),#0e7490)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <TrendingUp size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('cqi.title')}</span>
         </div>
@@ -86,9 +86,9 @@ export default function CQIPage() {
       <div style={{ padding: '20px 24px' }}>
         <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
           {[
-            { title: t('cqi.statProjects'), value: projects.length, icon: Target, color: 'var(--color-info-600, #0891b2)' },
-            { title: t('cqi.status.active'), value: projects.filter(p => p.status === 'active').length, icon: Activity, color: 'var(--color-primary-500, #3b82f6)' },
-            { title: t('cqi.status.sustaining'), value: projects.filter(p => p.status === 'sustaining').length, icon: CheckCircle, color: 'var(--color-success-500, #22c55e)' },
+            { title: t('cqi.statProjects'), value: projects.length, icon: Target, color: 'var(--color-info-600, var(--color-info-600))' },
+            { title: t('cqi.status.active'), value: projects.filter(p => p.status === 'active').length, icon: Activity, color: 'var(--color-primary-500, var(--color-primary-500))' },
+            { title: t('cqi.status.sustaining'), value: projects.filter(p => p.status === 'sustaining').length, icon: CheckCircle, color: 'var(--color-success-500, var(--color-success-500))' },
             { title: t('cqi.statPdsa'), value: projects.reduce((s, p) => s + p.pdsaCycles.length, 0), icon: BarChart3, color: 'var(--color-modality-mr, #8b5cf6)' },
           ].map((k, i) => (
             <div key={i} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 140 }}>
@@ -119,7 +119,7 @@ export default function CQIPage() {
                 {selectedProject.indicators.map((ind, i) => (
                   <div key={i} style={{ background: 'var(--bg-primary, #0d1117)', borderRadius: 6, padding: 12, border: '1px solid var(--bg-secondary, #21262d)' }}>
                     <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 4 }}>{ind.name}</div>
-                    <div style={{ fontSize: 20, fontWeight: 700, color: ind.trend === 'up' ? '#22c55e' : ind.trend === 'down' ? '#ef4444' : '#f59e0b' }}>
+                    <div style={{ fontSize: 20, fontWeight: 700, color: ind.trend === 'up' ? 'var(--color-success-500)' : ind.trend === 'down' ? 'var(--color-error-500)' : 'var(--color-warning-500)' }}>
                       {ind.currentValue}{ind.unit}
                     </div>
                     <div style={{ fontSize: 12, color: '#6e7681' }}>{t('cqi.baseline')}: {ind.baselineValue} → {t('cqi.target')}: {ind.targetValue}</div>
@@ -137,12 +137,12 @@ export default function CQIPage() {
                     <span style={{ fontSize: 12, color: '#6e7681' }}>{pd.startDate} ~ {pd.endDate}</span>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
-                    <div><span style={{ color: '#3b82f6' }}>{t('cqi.plan')}</span> {pd.plan}</div>
-                    <div><span style={{ color: '#22c55e' }}>{t('cqi.do')}</span> {pd.do_}</div>
-                    <div><span style={{ color: '#f59e0b' }}>{t('cqi.study')}</span> {pd.study}</div>
+                    <div><span style={{ color: 'var(--color-primary-500)' }}>{t('cqi.plan')}</span> {pd.plan}</div>
+                    <div><span style={{ color: 'var(--color-success-500)' }}>{t('cqi.do')}</span> {pd.do_}</div>
+                    <div><span style={{ color: 'var(--color-warning-500)' }}>{t('cqi.study')}</span> {pd.study}</div>
                     <div><span style={{ color: '#8b5cf6' }}>{t('cqi.act')}</span> {pd.act}</div>
                   </div>
-                  <div style={{ marginTop: 6, fontSize: 12, color: pd.success ? '#22c55e' : '#ef4444' }}>
+                  <div style={{ marginTop: 6, fontSize: 12, color: pd.success ? 'var(--color-success-500)' : 'var(--color-error-500)' }}>
                     {pd.outcome} {pd.success ? '' : ''}
                   </div>
                 </div>
@@ -158,7 +158,7 @@ export default function CQIPage() {
                   const data = await getCqiDashboard()
                   setProjects(data)
                   setSelectedProject(null)
-                }} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#0891b2', color: '#fff', cursor: 'pointer', fontSize: 12 }}>
+                }} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: 'var(--color-info-600)', color: '#fff', cursor: 'pointer', fontSize: 12 }}>
                   {t('cqi.closeProject')}
                 </button>
                 <button onClick={() => setSelectedProject(null)} style={{ marginLeft: 8, padding: '8px 16px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>
@@ -172,7 +172,7 @@ export default function CQIPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
               <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <BarChart3 size={16} color="#3b82f6" />{t('cqi.statusChart')}
+                  <BarChart3 size={16} color="var(--color-primary-500)" />{t('cqi.statusChart')}
                 </div>
                 <ChartContainer height={200} state={statusData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('cqi.noStatusData')}>
                   <BarChart data={statusData}>
@@ -180,13 +180,13 @@ export default function CQIPage() {
                     <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
                     <YAxis tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
                     <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, fontSize: 12 }} />
-                    <Bar dataKey="count" fill="#0891b2" radius={[4, 4, 0, 0]} name={t('cqi.count')} />
+                    <Bar dataKey="count" fill="var(--color-info-600)" radius={[4, 4, 0, 0]} name={t('cqi.count')} />
                   </BarChart>
                 </ChartContainer>
               </div>
               <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Activity size={16} color="#22c55e" />{t('cqi.indicatorChart')}
+                  <Activity size={16} color="var(--color-success-500)" />{t('cqi.indicatorChart')}
                 </div>
                 <ChartContainer height={200} state={indicatorData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('cqi.noIndicatorData')}>
                   <BarChart data={indicatorData}>
@@ -196,8 +196,8 @@ export default function CQIPage() {
                     <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, fontSize: 12 }} />
                     <Legend wrapperStyle={{ fontSize: 12 }} />
                     <Bar dataKey="baseline" fill="#6e7681" radius={[4, 4, 0, 0]} name={t('cqi.baseline')} />
-                    <Bar dataKey="current" fill="#22c55e" radius={[4, 4, 0, 0]} name={t('cqi.current')} />
-                    <Bar dataKey="target" fill="#3b82f6" radius={[4, 4, 0, 0]} name={t('cqi.target')} />
+                    <Bar dataKey="current" fill="var(--color-success-500)" radius={[4, 4, 0, 0]} name={t('cqi.current')} />
+                    <Bar dataKey="target" fill="var(--color-primary-500)" radius={[4, 4, 0, 0]} name={t('cqi.target')} />
                   </BarChart>
                 </ChartContainer>
               </div>
@@ -205,7 +205,7 @@ export default function CQIPage() {
 
             <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
               {(['all', 'planning', 'active', 'sustaining', 'closed'] as const).map(s => (
-                <button key={s} onClick={() => setFilter(s)} style={{ padding: '4px 12px', borderRadius: 4, border: `1px solid ${filter === s ? '#0891b2' : 'var(--border-default, #30363d)'}`, background: filter === s ? '#0891b220' : 'transparent', color: filter === s ? '#0891b2' : 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>
+                <button key={s} onClick={() => setFilter(s)} style={{ padding: '4px 12px', borderRadius: 4, border: `1px solid ${filter === s ? 'var(--color-info-600)' : 'var(--border-default, #30363d)'}`, background: filter === s ? '#0891b220' : 'transparent', color: filter === s ? 'var(--color-info-600)' : 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>
                   {s === 'all' ? t('cqi.all') : t(STATUS_LABELS[s as CqiStatus])}
                 </button>
               ))}
@@ -239,7 +239,7 @@ export default function CQIPage() {
                     title: t('cqi.colActions'),
                     key: 'actions',
                     render: (_v, p) => (
-                      <button onClick={() => setSelectedProject(p)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: '#3b82f6', cursor: 'pointer', fontSize: 12 }}>
+                      <button onClick={() => setSelectedProject(p)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: 'var(--color-primary-500)', cursor: 'pointer', fontSize: 12 }}>
                         {t('cqi.view')}
                       </button>
                     ),

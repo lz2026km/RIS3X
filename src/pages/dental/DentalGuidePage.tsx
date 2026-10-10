@@ -163,7 +163,7 @@ export const DentalGuidePage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <Layers size={20} color="#2563eb" />
+        <Layers size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>
           {t('dentalGuide.title')}
         </span>
@@ -455,13 +455,13 @@ export const DentalGuidePage: React.FC = () => {
               <svg width="320" height="190" viewBox="0 0 320 190" aria-label={t('w1Buttons.dental.previewTitle')}>
                 <rect x="0" y="0" width="320" height="190" fill="#0f172a" />
                 <path d="M40 130 Q40 40 160 40 Q280 40 280 130" fill="none" stroke="#38bdf8" strokeWidth="3" />
-                <path d="M55 140 Q55 65 160 65 Q265 65 265 140" fill="none" stroke="#1d4ed8" strokeWidth="2" strokeDasharray="6 4" />
+                <path d="M55 140 Q55 65 160 65 Q265 65 265 140" fill="none" stroke="var(--color-primary-700)" strokeWidth="2" strokeDasharray="6 4" />
                 {[0, 1, 2, 3, 4, 5].map((i) => {
                   const a = (-70 + i * 28) * (Math.PI / 180);
                   const x = 160 + Math.sin(a) * 110;
                   const y = 120 - Math.cos(a) * 80;
                   const active = previewGuide.toothNo != null && (Number(previewGuide.toothNo) % 6) === i;
-                  return <circle key={i} cx={x} cy={y} r={active ? 11 : 8} fill={active ? '#f59e0b' : '#334155'} stroke="#94a3b8" strokeWidth="1" />;
+                  return <circle key={i} cx={x} cy={y} r={active ? 11 : 8} fill={active ? 'var(--color-warning-500)' : '#334155'} stroke="#94a3b8" strokeWidth="1" />;
                 })}
                 <text x="160" y="178" textAnchor="middle" fill="#94a3b8" fontSize="11">FDI #{previewGuide.toothNo ?? '-'} · {previewGuide.type}</text>
               </svg>

@@ -10,7 +10,7 @@ import { THEME_TOKENS } from '../components/common/ThemeTokens'
 import { offlineStorage, type OfflineReport } from '../services/pwa/offlineStorage'
 import { t } from '../i18n/appI18n'
 
-const PRIMARY = '#1e40af'
+const PRIMARY = 'var(--color-primary-800)'
 
 function formatDateTime(ts?: number): string {
   if (!ts) return '-'
@@ -81,7 +81,7 @@ export default function OfflineReportsPage() {
 
   return (
     <div style={{ background: 'var(--bg-primary)', fontFamily: '-apple-system, sans-serif' }}>
-      <div style={{ background: 'linear-gradient(135deg, #1e40af, #2563eb)', color: '#fff', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+      <div style={{ background: 'linear-gradient(135deg, var(--color-primary-800), var(--color-primary-600))', color: '#fff', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <FileText size={20} />
           <div>
@@ -126,7 +126,7 @@ export default function OfflineReportsPage() {
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 }}>
             {items.map(r => (
-              <div key={r.id} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 14, border: '1px solid var(--border-color)', borderLeft: '4px solid #0891b2' }}>
+              <div key={r.id} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 14, border: '1px solid var(--border-color)', borderLeft: '4px solid var(--color-info-600)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{r.patientName || t('offlineReports.unknownPatient')}</div>
                   <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning)', border: '1px solid #fcd34d' }}>{t('offlineReports.offlineCopy')}</span>
@@ -145,7 +145,7 @@ export default function OfflineReportsPage() {
                     <CheckCircle size={12} /> {t('offlineReports.browse')}
                   </button>
                   <Popconfirm title={t('offlineReports.deleteConfirm')} okText={t('offlineReports.delete')} cancelText={t('offlineReports.cancel')} okButtonProps={{ danger: true }} onConfirm={() => void handleDelete(r)}>
-                    <button style={{ padding: '7px 12px', borderRadius: 8, border: '1px solid #fecaca', background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <button style={{ padding: '7px 12px', borderRadius: 8, border: '1px solid #fecaca', background: 'var(--bg-card)', color: 'var(--color-error-600)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                       <Trash2 size={12} /> {t('offlineReports.delete')}
                     </button>
                   </Popconfirm>

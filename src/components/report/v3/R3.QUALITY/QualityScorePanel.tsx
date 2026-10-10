@@ -61,9 +61,9 @@ const CATEGORY_META: Record<
   ScoringDimensionCategory,
   { label: string; labelEn: string; color: string; icon: React.ReactNode }
 > = {
-  completeness: { label: t('qualityScore.category.completeness'), labelEn: 'Completeness', color: '#3b82f6', icon: <FileText size={14} /> },
+  completeness: { label: t('qualityScore.category.completeness'), labelEn: 'Completeness', color: 'var(--color-primary-500)', icon: <FileText size={14} /> },
   accuracy: { label: t('qualityScore.category.accuracy'), labelEn: 'Accuracy', color: '#10b981', icon: <Target size={14} /> },
-  timeliness: { label: t('qualityScore.category.timeliness'), labelEn: 'Timeliness', color: '#f59e0b', icon: <Clock size={14} /> },
+  timeliness: { label: t('qualityScore.category.timeliness'), labelEn: 'Timeliness', color: 'var(--color-warning-500)', icon: <Clock size={14} /> },
 };
 
 const GRADE_META: Record<
@@ -71,7 +71,7 @@ const GRADE_META: Record<
   { color: string; bg: string; border: string; label: string }
 > = {
   A: { color: '#047857', bg: '#d1fae5', border: '#6ee7b7', label: t('qualityScore.grade.A') },
-  B: { color: '#1e40af', bg: '#dbeafe', border: '#93c5fd', label: t('qualityScore.grade.B') },
+  B: { color: 'var(--color-primary-800)', bg: '#dbeafe', border: '#93c5fd', label: t('qualityScore.grade.B') },
   C: { color: '#92400e', bg: '#fef3c7', border: '#fcd34d', label: t('qualityScore.grade.C') },
   D: { color: '#7f1d1d', bg: '#fee2e2', border: '#fca5a5', label: t('qualityScore.grade.D') },
 };
@@ -231,7 +231,7 @@ export const QualityScorePanel: React.FC<{
     <div data-testid="quality-score-panel" role="region" aria-label={t('qualityScore.ariaLabel')}>
       <div
         style={{
-          background: 'linear-gradient(135deg, #1e40af 0%, #7c3aed 50%, #db2777 100%)',
+          background: 'linear-gradient(135deg, var(--color-primary-800) 0%, #7c3aed 50%, #db2777 100%)',
           color: '#fff',
           padding: '14px 18px',
           borderRadius: 10,
@@ -520,7 +520,7 @@ export const QualityScorePanel: React.FC<{
                           <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
                             {t('qualityScore.weight')} {(d.weight * 100).toFixed(1)}% · {t('qualityScore.score')} {s.toFixed(1)}/100
                           </div>
-                          <div style={{ fontSize: 12, color: '#0891b2', marginTop: 4 }}>
+                          <div style={{ fontSize: 12, color: 'var(--color-info-600)', marginTop: 4 }}>
                             {t('qualityScore.rule')} {d.passingRule}
                           </div>
                         </Card>

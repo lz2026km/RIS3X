@@ -108,7 +108,7 @@ export const FhirImagingStudyPage: React.FC = () => {
       title: t('fis.colSeries'),
       dataIndex: 'numberOfSeries',
       key: 'numberOfSeries',
-      render: (v: number) => v != null ? <Badge count={v} style={{ backgroundColor: '#2563eb' }} /> : '-',
+      render: (v: number) => v != null ? <Badge count={v} style={{ backgroundColor: 'var(--color-primary-600)' }} /> : '-',
     },
     {
       title: t('fis.colInstances'),
@@ -134,7 +134,7 @@ export const FhirImagingStudyPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
       <Space style={{ marginBottom: 16 }}>
-        <Layers size={20} color="#2563eb" />
+        <Layers size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fis.title')}</span>
         <Tag color="blue">FHIR R4</Tag>
       </Space>

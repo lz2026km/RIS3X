@@ -25,12 +25,12 @@ const s = {
     background: status === 'paid' ? 'var(--color-success-bg)' : status === 'partial' ? 'var(--color-warning-bg)' : status === 'pending' ? 'var(--color-info-bg)' : status === 'refunded' ? 'var(--color-error-bg)' : 'rgba(124,58,237,0.12)',
     color: status === 'paid' ? 'var(--color-success)' : status === 'partial' ? 'var(--color-warning)' : status === 'pending' ? 'var(--color-info)' : status === 'refunded' ? 'var(--color-error)' : '#7c3aed',
   }),
-  btn: { padding: '6px 14px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: '#1e40af', color: '#fff' },
+  btn: { padding: '6px 14px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: 'var(--color-primary-800)', color: '#fff' },
   btnSmall: { padding: '4px 10px', borderRadius: 4, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer' },
   select: { padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)',},
   tab: (active: boolean) => ({
     flex: 1, padding: '10px 0', borderRadius: 8, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer',
-    background: active ? 'var(--bg-card)' : 'transparent', color: active ? '#1e40af' : '#64748b',
+    background: active ? 'var(--bg-card)' : 'transparent', color: active ? 'var(--color-primary-800)' : '#64748b',
     boxShadow: active ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
   }),
   label: { fontSize: 12, color: '#64748b', marginBottom: 2 },
@@ -169,7 +169,7 @@ export default function PatientFinancePage() {
     {
       title: t('w3tables.col.action'), key: 'action', width: 100,
       render: (_: unknown, b) => (
-        <button style={{ ...s.btnSmall, background: 'var(--color-info-bg)', color: '#1e40af' }}
+        <button style={{ ...s.btnSmall, background: 'var(--color-info-bg)', color: 'var(--color-primary-800)' }}
           onClick={(e) => { e.stopPropagation(); void handleSelectBill(b) }}>{t('w3tables.action.detail')}</button>
       ),
     },
@@ -188,7 +188,7 @@ export default function PatientFinancePage() {
     { title: t('w1Controls.patientFinance.colInvoice'), dataIndex: 'id', key: 'id', render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span> },
     { title: t('w1Controls.patientFinance.colPatient'), key: 'patient', render: (_: unknown, r) => <div><div style={{ fontSize: 12 }}>{r.patientName ?? r.patientId}</div><div style={{ fontSize: 11, color: '#94a3b8' }}>{r.examItem}</div></div> },
     { title: t('w1Controls.patientFinance.colAmount'), dataIndex: 'totalAmount', key: 'totalAmount', width: 120, align: 'right', render: (v: number) => <span style={{ fontWeight: 600 }}>¥{v}</span> },
-    { title: t('w1Controls.patientFinance.colBalance'), dataIndex: 'balance', key: 'balance', width: 110, align: 'right', render: (v: number) => <span style={{ color: v > 0 ? '#dc2626' : '#059669' }}>¥{v}</span> },
+    { title: t('w1Controls.patientFinance.colBalance'), dataIndex: 'balance', key: 'balance', width: 110, align: 'right', render: (v: number) => <span style={{ color: v > 0 ? 'var(--color-error-600)' : '#059669' }}>¥{v}</span> },
     { title: t('w1Controls.patientFinance.colIssuedAt'), dataIndex: 'createdAt', key: 'createdAt', width: 170, render: (v: string) => v ? new Date(v).toLocaleString() : '-' },
     { title: t('w1Controls.patientFinance.colStatus'), dataIndex: 'status', key: 'status', width: 100, render: (v: string) => <span style={s.badge(String(v).toLowerCase())}>{v}</span> },
   ]
@@ -198,7 +198,7 @@ export default function PatientFinancePage() {
       render: (_: unknown, c) => (
         <div>
           <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{c.insuranceType}</div>
-          {c.rejectReason && <div style={{ fontSize: 12, color: '#dc2626', marginTop: 2 }}>{t('patientFinance.rejectReason')}{c.rejectReason}</div>}
+          {c.rejectReason && <div style={{ fontSize: 12, color: 'var(--color-error-600)', marginTop: 2 }}>{t('patientFinance.rejectReason')}{c.rejectReason}</div>}
         </div>
       ),
     },
@@ -227,7 +227,7 @@ export default function PatientFinancePage() {
       <div style={s.statGrid}>
         <div style={s.statCard}><div style={s.statValue}>¥{totalBilled.toLocaleString()}</div><div style={s.statLabel}>{t('patientFinance.totalBilled')}</div></div>
         <div style={s.statCard}><div style={{ ...s.statValue, color: '#059669' }}>¥{totalPaid.toLocaleString()}</div><div style={s.statLabel}>{t('patientFinance.totalPaid')}</div></div>
-        <div style={s.statCard}><div style={{ ...s.statValue, color: '#dc2626' }}>¥{totalBalance.toLocaleString()}</div><div style={s.statLabel}>{t('patientFinance.totalPending')}</div></div>
+        <div style={s.statCard}><div style={{ ...s.statValue, color: 'var(--color-error-600)' }}>¥{totalBalance.toLocaleString()}</div><div style={s.statLabel}>{t('patientFinance.totalPending')}</div></div>
         <div style={s.statCard}><div style={s.statValue}>{pendingCount}</div><div style={s.statLabel}>{t('patientFinance.unsettled')}</div></div>
       </div>
 
@@ -268,9 +268,9 @@ export default function PatientFinancePage() {
 
               <div style={{ marginBottom: 16 }}>
                 <div style={s.row}><span style={s.label}>{t('patientFinance.insuranceCovered')}</span><span style={{ color: '#059669', fontWeight: 600 }}>¥{selectedBill.insuranceCovered}</span></div>
-                <div style={s.row}><span style={s.label}>{t('patientFinance.selfPay')}</span><span style={{ color: '#dc2626', fontWeight: 600 }}>¥{selectedBill.selfPayAmount}</span></div>
+                <div style={s.row}><span style={s.label}>{t('patientFinance.selfPay')}</span><span style={{ color: 'var(--color-error-600)', fontWeight: 600 }}>¥{selectedBill.selfPayAmount}</span></div>
                 {selectedBill.status === 'partial' || selectedBill.status === 'pending' ? (
-                  <div style={s.row}><span style={s.label}>{t('patientFinance.pendingPayment')}</span><span style={{ color: '#dc2626', fontWeight: 700, fontSize: 16 }}>¥{selectedBill.balance}</span></div>
+                  <div style={s.row}><span style={s.label}>{t('patientFinance.pendingPayment')}</span><span style={{ color: 'var(--color-error-600)', fontWeight: 700, fontSize: 16 }}>¥{selectedBill.balance}</span></div>
                 ) : null}
               </div>
 

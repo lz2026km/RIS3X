@@ -76,7 +76,7 @@ export default function DoseSearchPanel({
               fontWeight: 600,
               cursor: "pointer",
               background: view === v.key ? "var(--bg-card)" : "transparent",
-              color: view === v.key ? "#1e40af" : "#64748b",
+              color: view === v.key ? "var(--color-primary-800)" : "#64748b",
               boxShadow:
                 view === v.key ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
             }}

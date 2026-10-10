@@ -11,27 +11,27 @@ import { t } from '../../i18n/appI18n'
 
 const NATIONAL_CRITICAL_ITEMS: Record<string, { code: string; name: string; icon: any; color: string; description: string }[]> = {
   'CT/MR': [
-    { code: 'CV-RAD-001', name: '主动脉夹层', icon: Heart, color: '#dc2626', description: '主动脉内膜片影，真假腔形成' },
-    { code: 'CV-RAD-002', name: '肺栓塞', icon: Wind, color: '#dc2626', description: '肺动脉内血栓或脂肪栓塞' },
-    { code: 'CV-RAD-003', name: '张力性气胸', icon: Siren, color: '#dc2626', description: '患侧肺完全受压，纵隔移位' },
-    { code: 'CV-RAD-004', name: '急性脑疝', icon: Brain, color: '#dc2626', description: '中线偏移>5mm，脑室受压' },
-    { code: 'CV-RAD-005', name: '脑血管栓塞/梗死', icon: Brain, color: '#d97706', description: '大血管闭塞或大面积梗死' },
-    { code: 'CV-RAD-006', name: '消化道穿孔', icon: AlertTriangle, color: '#dc2626', description: '腹腔游离气体' },
-    { code: 'CV-RAD-007', name: '肠系膜栓塞', icon: AlertTriangle, color: '#d97706', description: '肠系膜血管栓塞伴肠管扩张' },
-    { code: 'CV-RAD-008', name: '腹部脏器急性出血', icon: AlertOctagon, color: '#dc2626', description: '腹腔或腹膜后血肿' },
+    { code: 'CV-RAD-001', name: '主动脉夹层', icon: Heart, color: 'var(--color-error-600)', description: '主动脉内膜片影，真假腔形成' },
+    { code: 'CV-RAD-002', name: '肺栓塞', icon: Wind, color: 'var(--color-error-600)', description: '肺动脉内血栓或脂肪栓塞' },
+    { code: 'CV-RAD-003', name: '张力性气胸', icon: Siren, color: 'var(--color-error-600)', description: '患侧肺完全受压，纵隔移位' },
+    { code: 'CV-RAD-004', name: '急性脑疝', icon: Brain, color: 'var(--color-error-600)', description: '中线偏移>5mm，脑室受压' },
+    { code: 'CV-RAD-005', name: '脑血管栓塞/梗死', icon: Brain, color: 'var(--color-warning-600)', description: '大血管闭塞或大面积梗死' },
+    { code: 'CV-RAD-006', name: '消化道穿孔', icon: AlertTriangle, color: 'var(--color-error-600)', description: '腹腔游离气体' },
+    { code: 'CV-RAD-007', name: '肠系膜栓塞', icon: AlertTriangle, color: 'var(--color-warning-600)', description: '肠系膜血管栓塞伴肠管扩张' },
+    { code: 'CV-RAD-008', name: '腹部脏器急性出血', icon: AlertOctagon, color: 'var(--color-error-600)', description: '腹腔或腹膜后血肿' },
   ],
   'DR/CR': [
-    { code: 'CV-RAD-009', name: '气胸(≥30%)', icon: Siren, color: '#dc2626', description: '肺压缩≥30%' },
-    { code: 'CV-RAD-010', name: '骨折急性并发症', icon: Bone, color: '#d97706', description: '长骨干骨折伴血管神经损伤' },
-    { code: 'CV-RAD-011', name: '心影增大伴心衰', icon: Heart, color: '#d97706', description: '心胸比>0.6伴肺水肿' },
+    { code: 'CV-RAD-009', name: '气胸(≥30%)', icon: Siren, color: 'var(--color-error-600)', description: '肺压缩≥30%' },
+    { code: 'CV-RAD-010', name: '骨折急性并发症', icon: Bone, color: 'var(--color-warning-600)', description: '长骨干骨折伴血管神经损伤' },
+    { code: 'CV-RAD-011', name: '心影增大伴心衰', icon: Heart, color: 'var(--color-warning-600)', description: '心胸比>0.6伴肺水肿' },
   ],
   'DSA/介入': [
-    { code: 'CV-RAD-012', name: '介入术后血管急性闭塞', icon: AlertOctagon, color: '#dc2626', description: '支架内急性血栓形成' },
-    { code: 'CV-RAD-013', name: '对比剂严重过敏反应', icon: AlertTriangle, color: '#dc2626', description: '喉头水肿或过敏性休克' },
+    { code: 'CV-RAD-012', name: '介入术后血管急性闭塞', icon: AlertOctagon, color: 'var(--color-error-600)', description: '支架内急性血栓形成' },
+    { code: 'CV-RAD-013', name: '对比剂严重过敏反应', icon: AlertTriangle, color: 'var(--color-error-600)', description: '喉头水肿或过敏性休克' },
   ],
   超声: [
-    { code: 'CV-RAD-014', name: '急性心包填塞', icon: Heart, color: '#dc2626', description: '心包积液伴右心受压' },
-    { code: 'CV-RAD-015', name: '宫外孕破裂', icon: AlertOctagon, color: '#dc2626', description: '腹腔积血' },
+    { code: 'CV-RAD-014', name: '急性心包填塞', icon: Heart, color: 'var(--color-error-600)', description: '心包积液伴右心受压' },
+    { code: 'CV-RAD-015', name: '宫外孕破裂', icon: AlertOctagon, color: 'var(--color-error-600)', description: '腹腔积血' },
   ],
 }
 
@@ -74,7 +74,7 @@ const CriticalItemsDirectory = () => {
                   style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: isExpanded ? 'var(--color-info-bg)' : 'var(--bg-card)', borderRadius: 8, cursor: 'pointer', border: `1px solid ${isExpanded ? 'var(--color-info-border)' : 'var(--border-color)'}` }}
                 >
                   <CategoryIcon size={14} style={{ color: PRIMARY_COLOR }} />
-                  <span style={{ flex: 1, fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{CATEGORY_LABELS[category] ?? category}</span>
+                  <span style={{ flex: 1, fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{CATEGORY_LABELS[category] ?? category}</span>
                   <span style={{ fontSize: 12, color: '#64748b', background: 'var(--border-light)', padding: '2px 8px', borderRadius: 10 }}>{t('cvSection.itemCount', { count: items.length })}</span>
                   <ChevronRight size={14} style={{ color: '#64748b', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
                 </div>
@@ -137,7 +137,7 @@ const CriticalItemsDirectory = () => {
                             </div>
                             <div style={{ flex: 1 }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                                <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{item.name}</span>
+                                <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{item.name}</span>
                                 <span style={{ fontSize: 12, color: '#fff', background: item.color, padding: '1px 6px', borderRadius: 4 }}>{item.code}</span>
                               </div>
                               <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>{item.description}</div>

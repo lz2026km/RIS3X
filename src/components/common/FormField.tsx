@@ -82,7 +82,7 @@ export function FormField({
       >
         {label}
         {required && (
-          <span aria-label="必填" style={{ color: "#ef4444", marginLeft: 2 }}>
+          <span aria-label="必填" style={{ color: "var(--color-error-500)", marginLeft: 2 }}>
             *
           </span>
         )}
@@ -102,7 +102,7 @@ export function FormField({
               alignItems: "center",
               gap: 4,
               marginTop: 4,
-              color: "#ef4444",
+              color: "var(--color-error-500)",
               fontSize: 12,
               lineHeight: 1.5,
             }}

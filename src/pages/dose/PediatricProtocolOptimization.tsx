@@ -20,10 +20,10 @@ import ChartContainer from "../../components/charts/ChartContainer";
 const AGE_GROUPS = ["0-5岁", "5-10岁", "10-15岁"];
 
 const ADULT_VS_PED = [
-  { name: "成人(>15岁)", dose: 720, fill: "#3b82f6" },
+  { name: "成人(>15岁)", dose: 720, fill: "var(--color-primary-500)" },
   { name: "10-15岁", dose: 504, fill: "#8b5cf6" },
-  { name: "5-10岁", dose: 432, fill: "#f59e0b" },
-  { name: "0-5岁", dose: 288, fill: "#ef4444" },
+  { name: "5-10岁", dose: 432, fill: "var(--color-warning-500)" },
+  { name: "0-5岁", dose: 288, fill: "var(--color-error-500)" },
 ];
 
 // 由 /rdsr/pediatric 实际记录按年龄段派生协议建议参数
@@ -110,7 +110,7 @@ export default function PediatricProtocolOptimization() {
         style={{
           padding: "8px 12px",
           background: "#fef3c7",
-          color: "#d97706",
+          color: "var(--color-warning-600)",
           borderRadius: 8,
           fontSize: 12,
           display: "flex",
@@ -133,7 +133,7 @@ export default function PediatricProtocolOptimization() {
           style={{
             fontSize: 12,
             fontWeight: 700,
-            color: "#1e40af",
+            color: "var(--color-primary-800)",
             marginBottom: 16,
           }}
         >
@@ -151,7 +151,7 @@ export default function PediatricProtocolOptimization() {
                 fontSize: 12,
                 fontWeight: 600,
                 cursor: "pointer",
-                background: selectedAge === ag ? "#1e40af" : "#f1f5f9",
+                background: selectedAge === ag ? "var(--color-primary-800)" : "#f1f5f9",
                 color: selectedAge === ag ? "#fff" : "#64748b",
               }}
             >
@@ -166,17 +166,17 @@ export default function PediatricProtocolOptimization() {
           showExport={false}
           showDensity={false}
           columns={[
-            { title: "协议名称", dataIndex: "protocolName", key: "protocolName", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "#1e40af" }}>{v}</span> },
+            { title: "协议名称", dataIndex: "protocolName", key: "protocolName", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{v}</span> },
             { title: "年龄组", dataIndex: "ageGroup", key: "ageGroup", align: "center", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
             {
               title: "体重范围(kg)", key: "weightRange", align: "center",
               render: (_: unknown, p: PediatricProtocol) => <span style={{ color: "#334155" }}>{p.weightMin}-{p.weightMax}</span>,
             },
-            { title: "推荐KVP", dataIndex: "recommendedKVP", key: "recommendedKVP", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "#1e40af" }}>{v} kVp</span> },
+            { title: "推荐KVP", dataIndex: "recommendedKVP", key: "recommendedKVP", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "var(--color-primary-800)" }}>{v} kVp</span> },
             { title: "推荐mAs", dataIndex: "recommendedMAS", key: "recommendedMAS", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "#7c3aed" }}>{v} mAs</span> },
             {
               title: "剂量折扣", dataIndex: "doseReductionFactor", key: "doseReductionFactor", align: "center",
-              render: (v: number) => <span style={{ padding: "2px 8px", background: "#eff6ff", color: "#1e40af", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>×{v}</span>,
+              render: (v: number) => <span style={{ padding: "2px 8px", background: "#eff6ff", color: "var(--color-primary-800)", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>×{v}</span>,
             },
             {
               title: "说明", key: "note", align: "center",
@@ -198,7 +198,7 @@ export default function PediatricProtocolOptimization() {
           style={{
             fontSize: 12,
             fontWeight: 700,
-            color: "#1e40af",
+            color: "var(--color-primary-800)",
             marginBottom: 16,
           }}
         >

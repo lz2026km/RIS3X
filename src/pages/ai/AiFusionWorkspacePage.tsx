@@ -125,7 +125,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
-        <Brain size={20} color="#2563eb" />
+        <Brain size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('aiFusion.title')}</span>
         <Tag color="cyan">v3.0.6.11-60</Tag>
         <Tag color="purple">{t('aiFusion.tagLateFusion')}</Tag>
@@ -166,7 +166,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
             style={{ height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#000', color: '#fff', flexDirection: 'column', gap: 8 }}
             styles={{ body: { width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 8 } }}
           >
-            <Activity size={36} color="#2563eb" />
+            <Activity size={36} color="var(--color-primary-600)" />
             <span style={{ opacity: 0.8, fontSize: 12 }}>[ {t('aiFusion.canvasArea')} {modality.toUpperCase()} ]</span>
             <span style={{ opacity: 0.5, fontSize: 12 }}>{t('aiFusion.canvasSubtitle')}</span>
             {layerVisible && (

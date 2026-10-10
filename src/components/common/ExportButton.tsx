@@ -246,7 +246,7 @@ export function ExportButton({
           fontSize: fSize,
           fontWeight: 600,
           background: "var(--bg-card)",
-          color: "#1e40af",
+          color: "var(--color-primary-800)",
           border: "1px solid var(--border-color)",
           borderRadius: 6,
           cursor: disabled ? "not-allowed" : "pointer",

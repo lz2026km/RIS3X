@@ -96,9 +96,9 @@ export const MobileWorklist: React.FC<MobileWorklistProps> = ({ items, onSelect,
         </div>
       )}
       <ARow gutter={8} style={{ marginBottom: 12 }}>
-        <ACol span={8}><ACard size="small"><AStatistic title={t('w9e.mobileWorklist.statPending')} value={stats.pending} styles={{ content: {  fontSize: 18, color: '#3b82f6'  } }} /></ACard></ACol>
-        <ACol span={8}><ACard size="small"><AStatistic title={t('w9e.mobileWorklist.statCritical')} value={stats.critical} styles={{ content: {  fontSize: 18, color: '#dc2626'  } }} /></ACard></ACol>
-        <ACol span={8}><ACard size="small"><AStatistic title={t('w9e.mobileWorklist.statCompleted')} value={stats.completed} styles={{ content: {  fontSize: 18, color: '#16a34a'  } }} /></ACard></ACol>
+        <ACol span={8}><ACard size="small"><AStatistic title={t('w9e.mobileWorklist.statPending')} value={stats.pending} styles={{ content: {  fontSize: 18, color: 'var(--color-primary-500)'  } }} /></ACard></ACol>
+        <ACol span={8}><ACard size="small"><AStatistic title={t('w9e.mobileWorklist.statCritical')} value={stats.critical} styles={{ content: {  fontSize: 18, color: 'var(--color-error-600)'  } }} /></ACard></ACol>
+        <ACol span={8}><ACard size="small"><AStatistic title={t('w9e.mobileWorklist.statCompleted')} value={stats.completed} styles={{ content: {  fontSize: 18, color: 'var(--color-success-600)'  } }} /></ACard></ACol>
       </ARow>
       <Input placeholder={t('w9e.mobileWorklist.searchPlaceholder')} value={search} onChange={(e) => setSearch(e.target.value)} style={{ marginBottom: 8 }} data-testid="mob-search" allowClear />
       <ATabs activeKey={tab} onChange={(k) => setTab(k as any)}
@@ -115,7 +115,7 @@ export const MobileWorklist: React.FC<MobileWorklistProps> = ({ items, onSelect,
           const s = STATE_META[i.state]; const p = PRIORITY_META[i.priority]
           return (
             <ACard size="small" hoverable onClick={() => onSelect?.(i.id)} data-testid={`mob-item-${i.id}`}
-              style={{ marginBottom: 8, borderLeft: `3px solid ${i.critical ? '#dc2626' : p.color === 'red' ? '#dc2626' : '#3b82f6'}` }}>
+              style={{ marginBottom: 8, borderLeft: `3px solid ${i.critical ? 'var(--color-error-600)' : p.color === 'red' ? 'var(--color-error-600)' : 'var(--color-primary-500)'}` }}>
               <ASpace size={4} wrap>
                 <ATag color="blue">{i.modality}</ATag>
                 {i.bodyPart && <ATag>{i.bodyPart}</ATag>}

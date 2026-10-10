@@ -236,7 +236,7 @@ const CaTab: React.FC = () => {
                   <div style={{ fontSize: 12 }}>
                     <div>{t('w13Sec.ca.ocspProducedAt')}: {ocspResult.producedAt?.slice(0, 19).replace('T', ' ')}</div>
                     {ocspResult.certificate && <div>{ocspResult.certificate.subject}</div>}
-                    {ocspResult.revocationReason && <div style={{ color: '#dc2626' }}>{ocspResult.revocationReason}</div>}
+                    {ocspResult.revocationReason && <div style={{ color: 'var(--color-error-600)' }}>{ocspResult.revocationReason}</div>}
                     {ocspResult.responseSignature && <div>{t('w13Sec.ca.ocspSignature')}: <Text code style={{ fontSize: 11 }}>{ocspResult.responseSignature.slice(0, 24)}…</Text></div>}
                   </div>
                 }
@@ -428,7 +428,7 @@ const ComplianceTab: React.FC = () => {
           <Col span={5}><Statistic title={t('w13Sec.cp.compliance')} value={assessment.overallCompliance} suffix="%" /></Col>
           <Col span={4}><Statistic title={t('w13Sec.cp.level')} value={assessment.level} valueStyle={{ color: LEVEL_COLOR[assessment.level] }} /></Col>
           <Col span={5}><Statistic title={t('w13Sec.cp.controls')} value={assessment.totals.controls} /></Col>
-          <Col span={5}><Statistic title={t('w13Sec.cp.gaps')} value={assessment.totals.gaps} valueStyle={{ color: assessment.totals.gaps > 0 ? '#d97706' : '#16a34a' }} prefix={<AlertTriangle size={16} />} /></Col>
+          <Col span={5}><Statistic title={t('w13Sec.cp.gaps')} value={assessment.totals.gaps} valueStyle={{ color: assessment.totals.gaps > 0 ? 'var(--color-warning-600)' : 'var(--color-success-600)' }} prefix={<AlertTriangle size={16} />} /></Col>
         </Row>
         <Paragraph type="secondary" style={{ marginTop: 8, marginBottom: 0, fontSize: 12 }}>{t('w13Sec.cp.standard')}: {assessment.standard} · v{assessment.version}</Paragraph>
       </Card>
@@ -441,7 +441,7 @@ const ComplianceTab: React.FC = () => {
                 <Text strong>{d.domainName}</Text>
                 <Text type="secondary" style={{ fontSize: 12 }}>{d.implementedCount}/{d.controlCount} · {d.averageScore}</Text>
               </div>
-              <Progress percent={d.averageScore} strokeColor={d.averageScore >= 90 ? '#16a34a' : d.averageScore >= 70 ? '#0891b2' : '#d97706'} />
+              <Progress percent={d.averageScore} strokeColor={d.averageScore >= 90 ? 'var(--color-success-600)' : d.averageScore >= 70 ? 'var(--color-info-600)' : 'var(--color-warning-600)'} />
             </Col>
           ))}
         </Row>
@@ -584,7 +584,7 @@ const DrTab: React.FC = () => {
   if (loading) return <LoadingBanner />
   if (!status) return <>{error && <ErrorBanner message={error} />}</>
 
-  const StepIcon: React.FC<{ status: string }> = ({ status: s }) => s === 'ok' ? <CheckCircle2 size={14} color="#16a34a" /> : s === 'warn' ? <AlertTriangle size={14} color="#d97706" /> : <XCircle size={14} color="#dc2626" />
+  const StepIcon: React.FC<{ status: string }> = ({ status: s }) => s === 'ok' ? <CheckCircle2 size={14} color="var(--color-success-600)" /> : s === 'warn' ? <AlertTriangle size={14} color="var(--color-warning-600)" /> : <XCircle size={14} color="var(--color-error-600)" />
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size={16}>
@@ -783,7 +783,7 @@ export const SecurityComplianceCenterPage: React.FC = () => {
   return (
     <div data-testid="security-compliance-center-page" style={{ padding: 20, maxWidth: 1500, margin: '0 auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-        <ShieldCheck size={22} color="#0891b2" />
+        <ShieldCheck size={22} color="var(--color-info-600)" />
         <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>{t('w13Sec.title')}</h1>
         <Tag color="cyan">{t('w13Sec.badge')}</Tag>
       </div>

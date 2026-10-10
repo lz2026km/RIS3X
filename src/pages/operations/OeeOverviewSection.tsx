@@ -123,9 +123,9 @@ export function OeeOverviewSection() {
             percent
             height={220}
             series={[
-              { key: 'oee', name: t('oeeExt.avgOee'), color: '#2563eb' },
-              { key: 'availability', name: t('oeeExt.availability'), color: '#16a34a' },
-              { key: 'performance', name: t('oeeExt.performance'), color: '#d97706' },
+              { key: 'oee', name: t('oeeExt.avgOee'), color: 'var(--color-primary-600)' },
+              { key: 'availability', name: t('oeeExt.availability'), color: 'var(--color-success-600)' },
+              { key: 'performance', name: t('oeeExt.performance'), color: 'var(--color-warning-600)' },
             ]}
           />
         </DashboardCard>

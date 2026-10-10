@@ -683,20 +683,20 @@ export const RegionalStatsDashboard: React.FC = () => {
       <div style={styles.panelHeader}><span>{t('regionalReportList.regionalStats')}</span></div>
       <div style={{ flex: 1, overflow: 'auto', padding: '16px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '20px' }}>
-          <div style={{ background: '#f0f9ff', padding: '16px', borderRadius: '8px', textAlign: 'center', borderLeft: '4px solid #3b82f6' }}>
-            <div style={{ fontSize: '30px', fontWeight: 700, color: '#3b82f6' }}>{institutions.reduce((s, i) => s + i.reportCount, 0).toLocaleString()}</div>
+          <div style={{ background: '#f0f9ff', padding: '16px', borderRadius: '8px', textAlign: 'center', borderLeft: '4px solid var(--color-primary-500)' }}>
+            <div style={{ fontSize: '30px', fontWeight: 700, color: 'var(--color-primary-500)' }}>{institutions.reduce((s, i) => s + i.reportCount, 0).toLocaleString()}</div>
             <div style={{ fontSize: '12px', color: '#64748b' }}>{t('regionalReport.regionalTotalExams')}</div>
-            <div style={{ fontSize: '11px', color: '#16a34a', marginTop: '4px' }}><TrendingUp size={11} /> +8.2% {t('regionalReportList.vsLastMonth')}</div>
+            <div style={{ fontSize: '11px', color: 'var(--color-success-600)', marginTop: '4px' }}><TrendingUp size={11} /> +8.2% {t('regionalReportList.vsLastMonth')}</div>
           </div>
           <div style={{ background: '#ecfdf5', padding: '16px', borderRadius: '8px', textAlign: 'center', borderLeft: '4px solid #10b981' }}>
             <div style={{ fontSize: '30px', fontWeight: 700, color: '#10b981' }}>18 {t('regionalReport.minutesUnit')}</div>
             <div style={{ fontSize: '12px', color: '#64748b' }}>{t('regionalReport.avgReportTat')}</div>
             <div style={{ fontSize: '11px', color: '#10b981', marginTop: '4px' }}><TrendingDown size={11} /> -5% {t('regionalReportList.vsLastMonth')}</div>
           </div>
-          <div style={{ background: 'var(--color-warning-bg)', padding: '16px', borderRadius: '8px', textAlign: 'center', borderLeft: '4px solid #f59e0b' }}>
-            <div style={{ fontSize: '30px', fontWeight: 700, color: '#f59e0b' }}>96.8%</div>
+          <div style={{ background: 'var(--color-warning-bg)', padding: '16px', borderRadius: '8px', textAlign: 'center', borderLeft: '4px solid var(--color-warning-500)' }}>
+            <div style={{ fontSize: '30px', fontWeight: 700, color: 'var(--color-warning-500)' }}>96.8%</div>
             <div style={{ fontSize: '12px', color: '#64748b' }}>{t('regionalReport.regionalAvgQuality')}</div>
-            <div style={{ fontSize: '11px', color: '#16a34a', marginTop: '4px' }}><TrendingUp size={11} /> +0.3% {t('regionalReportList.vsLastMonth')}</div>
+            <div style={{ fontSize: '11px', color: 'var(--color-success-600)', marginTop: '4px' }}><TrendingUp size={11} /> +0.3% {t('regionalReportList.vsLastMonth')}</div>
           </div>
         </div>
         <div style={{ marginBottom: '20px' }}>

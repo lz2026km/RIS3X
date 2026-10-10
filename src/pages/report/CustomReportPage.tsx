@@ -571,7 +571,7 @@ export default function CustomReportPage() {
   return (
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader
-        icon={<FileSpreadsheet size={20} color="#3b82f6" />}
+        icon={<FileSpreadsheet size={20} color="var(--color-primary-500)" />}
         title={t('customReport.pageTitle')}
         subtitle={t('customReport.pageSubtitle')}
       />
@@ -580,10 +580,10 @@ export default function CustomReportPage() {
         {/* 统计卡 */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
           {[
-            { label: t('customReport.statDefs'), value: stats.total, color: '#3b82f6', bg: '#dbeafe', icon: <FileSpreadsheet size={18} /> },
-            { label: t('customReport.statScheduled'), value: stats.scheduled, color: '#f59e0b', bg: '#fef3c7', icon: <Clock size={18} /> },
+            { label: t('customReport.statDefs'), value: stats.total, color: 'var(--color-primary-500)', bg: '#dbeafe', icon: <FileSpreadsheet size={18} /> },
+            { label: t('customReport.statScheduled'), value: stats.scheduled, color: 'var(--color-warning-500)', bg: '#fef3c7', icon: <Clock size={18} /> },
             { label: t('customReport.statReady'), value: stats.ready, color: '#10b981', bg: '#d1fae5', icon: <CheckCircle2 size={18} /> },
-            { label: t('customReport.statFailed'), value: stats.failed, color: '#ef4444', bg: '#ffe4e6', icon: <XCircle size={18} /> },
+            { label: t('customReport.statFailed'), value: stats.failed, color: 'var(--color-error-500)', bg: '#ffe4e6', icon: <XCircle size={18} /> },
           ].map((card) => (
             <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ width: 38, height: 38, borderRadius: 10, background: card.bg, color: card.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{card.icon}</div>
@@ -673,7 +673,7 @@ export default function CustomReportPage() {
           {step === 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
-                <Text strong style={{ display: 'block', marginBottom: 6 }}>{t('customReport.reportName')} <span style={{ color: '#dc2626' }}>*</span></Text>
+                <Text strong style={{ display: 'block', marginBottom: 6 }}>{t('customReport.reportName')} <span style={{ color: 'var(--color-error-600)' }}>*</span></Text>
                 <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder={t('customReport.reportNamePlaceholder')} maxLength={50} showCount />
               </div>
               <div>

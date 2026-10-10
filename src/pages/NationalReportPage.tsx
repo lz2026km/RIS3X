@@ -36,7 +36,7 @@ import { severityTone } from '../theme/statusTokens'
 // ============ 样式常量 ============
 const COLORS = {
   primary: 'var(--color-primary)',   // 深蓝主色
-  secondary: '#0891b2',    // 青色辅色
+  secondary: 'var(--color-info-600)',    // 青色辅色
   success: 'var(--color-success)',   // 成功绿
   warning: 'var(--color-warning)',   // 警告橙
   danger: 'var(--color-error)',      // 危险红
@@ -45,11 +45,11 @@ const COLORS = {
   textDark: 'var(--text-primary)',   // 深色文字
   textMuted: 'var(--text-secondary)', // 灰色文字
   border: 'var(--border-color)',        // 边框色
-  ct: '#3b82f6',           // CT颜色
+  ct: 'var(--color-primary-500)',           // CT颜色
   mri: '#8b5cf6',          // MRI颜色
   dr: '#10b981',           // DR颜色
-  mg: '#f59e0b',           // MG颜色
- dsa: '#ef4444',           // DSA颜色
+  mg: 'var(--color-warning-500)',           // MG颜色
+ dsa: 'var(--color-error-500)',           // DSA颜色
 }
 
 const styles = {
@@ -878,7 +878,7 @@ const MultiRegulatorPanel = () => {
 
       {/* 提交状态 */}
       {batchStatus === 'done' && (
-        <div style={{ padding: '12px 16px', background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#16a34a' }}>
+        <div style={{ padding: '12px 16px', background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--color-success-600)' }}>
           <CheckCircle size={14} /> {t('nationalReport.batchDone', { count: regulatorTargets.filter(t => t.status === 'online').length })}
         </div>
       )}

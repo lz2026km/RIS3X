@@ -212,7 +212,7 @@ export const MaterialsPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <Box size={20} color="#2563eb" />
+        <Box size={20} color="var(--color-primary-600)" />
         <Eye size={20} color="#52c41a" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('materialsPage.title')}</span>
         <Tag color="cyan">PR7 (v3.0.6.8-51)</Tag>

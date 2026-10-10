@@ -32,11 +32,11 @@ import { AppText } from '../../components/common/AppText'
 import { THEME_TOKENS } from '../../components/common/ThemeTokens'
 
 const REASON_COLORS: Record<string, string> = {
-  motion_artifact: '#ef4444', positioning: '#f59e0b', wrong_protocol: '#8b5cf6',
-  contrast_issue: '#06b6d4', equipment: '#3b82f6', other: '#94a3b8',
+  motion_artifact: 'var(--color-error-500)', positioning: 'var(--color-warning-500)', wrong_protocol: '#8b5cf6',
+  contrast_issue: 'var(--color-info-500)', equipment: 'var(--color-primary-500)', other: '#94a3b8',
 }
 const MODALITY_COLORS: Record<string, string> = {
-  CT: '#2563eb', MR: '#7c3aed', DR: '#0d9488', US: '#db2777', MG: '#9333ea', DSA: '#dc2626',
+  CT: 'var(--color-primary-600)', MR: '#7c3aed', DR: '#0d9488', US: '#db2777', MG: '#9333ea', DSA: 'var(--color-error-600)',
 }
 
 const DIMENSION_OPTIONS = [
@@ -63,8 +63,8 @@ const RANGE_OPTIONS = [
 const rateColor = (rate: number): string => {
   if (rate <= 5) return '#10b981'
   if (rate <= 15) return '#84cc16'
-  if (rate <= 25) return '#f59e0b'
-  return '#dc2626'
+  if (rate <= 25) return 'var(--color-warning-500)'
+  return 'var(--color-error-600)'
 }
 
 const heatBg = (rate: number): string => {
@@ -176,7 +176,7 @@ export default function RetakeRateAnalyticsPage() {
     return stats.breakdown.map((b) => ({
       name: b.label,
       value: b.retakes,
-      color: dimension === 'reason' ? REASON_COLORS[b.key] ?? '#94a3b8' : MODALITY_COLORS[b.key] ?? '#3b82f6',
+      color: dimension === 'reason' ? REASON_COLORS[b.key] ?? '#94a3b8' : MODALITY_COLORS[b.key] ?? 'var(--color-primary-500)',
     })).filter((p) => p.value > 0)
   }, [stats, dimension])
 
@@ -184,8 +184,8 @@ export default function RetakeRateAnalyticsPage() {
 
   const palette = (key: string): string => {
     if (dimension === 'reason') return REASON_COLORS[key] ?? '#94a3b8'
-    if (dimension === 'modality') return MODALITY_COLORS[key] ?? '#3b82f6'
-    return '#3b82f6'
+    if (dimension === 'modality') return MODALITY_COLORS[key] ?? 'var(--color-primary-500)'
+    return 'var(--color-primary-500)'
   }
 
   return (
@@ -249,7 +249,7 @@ export default function RetakeRateAnalyticsPage() {
                   <YAxis yAxisId="count" orientation="right" {...chartDefaults.axis} />
                   <Tooltip />
                   <Legend />
-                  <Line yAxisId="rate" type="monotone" dataKey="rate" name={t('retakeAnalytics.retakeRatePct')} stroke="#dc2626" strokeWidth={2} dot={{ r: 2 }} />
+                  <Line yAxisId="rate" type="monotone" dataKey="rate" name={t('retakeAnalytics.retakeRatePct')} stroke="var(--color-error-600)" strokeWidth={2} dot={{ r: 2 }} />
                   <Line yAxisId="count" type="monotone" dataKey="retakes" name={t('retakeAnalytics.retakeCount')} stroke="#7c3aed" strokeWidth={2} dot={{ r: 2 }} />
                 </LineChart>
               </ChartContainer>
@@ -410,7 +410,7 @@ export default function RetakeRateAnalyticsPage() {
       {/* 数据源徽标 */}
       <Card size="small">
         <Space>
-          <Database size={14} color={source === 'api' ? '#10b981' : '#f59e0b'} />
+          <Database size={14} color={source === 'api' ? '#10b981' : 'var(--color-warning-500)'} />
           <span style={{ fontSize: 12, color: THEME_TOKENS.textSecondary }}>
             {source === 'api'
               ? t('retakeAnalytics.sourceApi', { dim: dimension === 'tech' ? t('retakeAnalytics.tech') : dimension === 'modality' ? t('retakeAnalytics.modality') : t('retakeAnalytics.reason') })

@@ -116,7 +116,7 @@ export const FusionManagerPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <Layers size={20} color="#2563eb" />
+        <Layers size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fusionMgr.title')}</span>
         <Tag color="blue">PET-CT / MR</Tag>
         <Tag color="purple">{t('fusionMgr.tagMultimodal')}</Tag>

@@ -117,7 +117,7 @@ const ReviewCenterPage: React.FC = () => {
       <PageHeader
         title={t('reviewCenter.title')}
         subtitle={t('reviewCenter.subtitle')}
-        icon={<ClipboardCheck size={20} color="#1e40af" />}
+        icon={<ClipboardCheck size={20} color="var(--color-primary-800)" />}
         variant="inline"
         actions={
           <Space size={8} wrap>
@@ -133,9 +133,9 @@ const ReviewCenterPage: React.FC = () => {
       {/* [W2-B] 真实化: 审核待办概览 (reportApi 状态过滤 + cosignApi) */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
         {[
-          { label: t('reviewCenter.initialPending'), value: summary.initial, icon: <ListChecks size={16} />, color: '#2563eb', bg: '#3b82f622' },
+          { label: t('reviewCenter.initialPending'), value: summary.initial, icon: <ListChecks size={16} />, color: 'var(--color-primary-600)', bg: '#3b82f622' },
           { label: t('reviewCenter.finalPending'), value: summary.final, icon: <ShieldCheck size={16} />, color: '#7c3aed', bg: '#8b5cf622' },
-          { label: t('reviewCenter.cosignPending'), value: summary.cosign, icon: <Award size={16} />, color: '#d97706', bg: '#f59e0b22' },
+          { label: t('reviewCenter.cosignPending'), value: summary.cosign, icon: <Award size={16} />, color: 'var(--color-warning-600)', bg: '#f59e0b22' },
           { label: t('reviewCenter.cosignOnTimeRate'), value: summary.onTimeRate != null ? `${summary.onTimeRate}%` : '-', icon: <Clock size={16} />, color: '#059669', bg: '#22c55e22' },
         ].map(c => (
           <div key={c.label} style={{ background: c.bg, borderRadius: 10, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -155,7 +155,7 @@ const ReviewCenterPage: React.FC = () => {
           <Badge
             count={8}
             title={t('reviewCenter.moduleCount')}
-            style={{ backgroundColor: '#1e40af' }}
+            style={{ backgroundColor: 'var(--color-primary-800)' }}
           />
         }
         items={[
@@ -194,7 +194,7 @@ const ReviewCenterPage: React.FC = () => {
                 <p><strong>{t('reviewCenter.findingsLabel')}</strong>{t('reviewCenter.findingsText')}</p>
                 <p><strong>{t('reviewCenter.diagnosisLabel')}</strong>{selectedTask.criticalFinding ? t('reviewCenter.criticalFindingText') : t('reviewCenter.diagnosisText')}</p>
                 {selectedTask.criticalFinding && (
-                  <p style={{ color: '#dc2626', fontWeight: 600 }}>{t('reviewCenter.criticalCosignHint')}</p>
+                  <p style={{ color: 'var(--color-error-600)', fontWeight: 600 }}>{t('reviewCenter.criticalCosignHint')}</p>
                 )}
               </div>
             </Card>

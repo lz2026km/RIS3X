@@ -75,7 +75,7 @@ export function TaskProgress({
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 600, color: "#1e293b" }}>
-          {task.running ? <Loader2 size={14} className="spin" /> : <CheckCircle size={14} style={{ color: "#22c55e" }} />}
+          {task.running ? <Loader2 size={14} className="spin" /> : <CheckCircle size={14} style={{ color: "var(--color-success-500)" }} />}
           {task.running ? "任务执行中..." : "任务完成"}
         </div>
         <button
@@ -89,8 +89,8 @@ export function TaskProgress({
       <div style={{ marginBottom: 6 }}>
         <div style={{ display: "flex", gap: 16, fontSize: 11, color: "#64748b" }}>
           <span>总计: <strong>{task.total}</strong></span>
-          <span style={{ color: "#22c55e" }}>完成: <strong>{task.completed}</strong></span>
-          {task.failed > 0 && <span style={{ color: "#ef4444" }}>失败: <strong>{task.failed}</strong></span>}
+          <span style={{ color: "var(--color-success-500)" }}>完成: <strong>{task.completed}</strong></span>
+          {task.failed > 0 && <span style={{ color: "var(--color-error-500)" }}>失败: <strong>{task.failed}</strong></span>}
         </div>
       </div>
 
@@ -99,7 +99,7 @@ export function TaskProgress({
           style={{
             height: "100%",
             width: `${progressPct}%`,
-            background: "#22c55e",
+            background: "var(--color-success-500)",
             borderRadius: 3,
             transition: "width 0.3s",
           }}
@@ -112,7 +112,7 @@ export function TaskProgress({
               left: 0,
               height: "100%",
               width: `${failedPct}%`,
-              background: "#ef4444",
+              background: "var(--color-error-500)",
               borderRadius: 3,
               opacity: 0.6,
               transition: "width 0.3s",

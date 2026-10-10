@@ -3,10 +3,10 @@ import { RotateCw, RotateCcw, PenTool, Plus, Minus, EyeOff, Eye, Flame, Droplets
 import type { Tool, PseudoColorMode } from './DicomViewerTypes'
 import { t } from '../../i18n/appI18n'
 
-const PRIMARY = '#1e40af'
+const PRIMARY = 'var(--color-primary-800)'
 
 const s = {
-  leftToolbar: { width: 60, background: `linear-gradient(180deg, ${PRIMARY} 0%, #2563eb 100%)`, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', paddingTop: 12, paddingBottom: 12, gap: 4, borderRight: `1px solid ${PRIMARY}`, flexShrink: 0, boxShadow: '2px 0 8px rgba(30,58,95,0.3)' },
+  leftToolbar: { width: 60, background: `linear-gradient(180deg, ${PRIMARY} 0%, var(--color-primary-600) 100%)`, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', paddingTop: 12, paddingBottom: 12, gap: 4, borderRight: `1px solid ${PRIMARY}`, flexShrink: 0, boxShadow: '2px 0 8px rgba(30,58,95,0.3)' },
   toolBtn: { width: 44, height: 44, borderRadius: 10, border: 'none', background: 'transparent', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s', marginBottom: 2, fontSize: 11 } as React.CSSProperties,
   toolBtnActive: { background: 'rgba(255,255,255,0.2)', color: '#fff', boxShadow: '0 0 12px rgba(255,255,255,0.15)' },
   toolDivider: { width: 36, height: 1, background: 'rgba(255,255,255,0.15)', margin: '4px auto' },
@@ -74,7 +74,7 @@ export default function ToolbarSection(props: Props) {
             {invert ? <EyeOff size={14} /> : <Eye size={14} />}
           </button>
         </Tooltip>
-        {invert && <span style={{ fontSize: 10, color: '#fbbf24' }}>{t('w9d.toolbar.inverted')}</span>}
+        {invert && <span style={{ fontSize: 10, color: 'var(--color-warning-400)' }}>{t('w9d.toolbar.inverted')}</span>}
       </div>
       <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
         <Tooltip title={t('w9d.annotation.panelTitle')}>

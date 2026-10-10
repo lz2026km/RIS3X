@@ -42,7 +42,7 @@ const DIFFICULTY_COLORS: Record<string, string> = {
 }
 
 const MODALITY_COLORS: Record<string, string> = {
-  CT: '#3b82f6', MR: '#60a5fa', DR: '#22c55e', DSA: '#f59e0b', XR: '#06b6d4', MG: '#ec4899',
+  CT: 'var(--color-primary-500)', MR: '#60a5fa', DR: 'var(--color-success-500)', DSA: 'var(--color-warning-500)', XR: 'var(--color-info-500)', MG: '#ec4899',
 }
 
 /** QR 概念图案: 由 qrData 确定性生成的矩阵 */

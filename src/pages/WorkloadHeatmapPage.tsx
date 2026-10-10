@@ -64,16 +64,16 @@ function intensityColor(intensity: number): string {
   if (c < 0.15) return 'var(--bg-card)'
   if (c < 0.35) return '#bfdbfe'
   if (c < 0.55) return '#60a5fa'
-  if (c < 0.8) return '#f59e0b'
-  return '#dc2626'
+  if (c < 0.8) return 'var(--color-warning-500)'
+  return 'var(--color-error-600)'
 }
 
 const KpiCard: React.FC<{ label: string; value: string; unit: string; color: string }> = ({ label, value, unit, color }) => {
   const c = ({
-    '#dc2626': 'error', '#ef4444': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
-    '#f59e0b': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
-    '#16a34a': 'success', '#22c55e': 'success', '#52c41a': 'success', '#10b981': 'success',
-    '#2563eb': 'primary', '#1890ff': 'primary', '#1d4ed8': 'primary',
+    'var(--color-error-600)': 'error', 'var(--color-error-500)': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
+    'var(--color-warning-500)': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
+    'var(--color-success-600)': 'success', 'var(--color-success-500)': 'success', '#52c41a': 'success', '#10b981': 'success',
+    'var(--color-primary-600)': 'primary', '#1890ff': 'primary', 'var(--color-primary-700)': 'primary',
   } as Record<string, string>)[color] ?? color;
   return <StatCard title={label} value={value} suffix={unit} color={c} />;
 }
@@ -160,7 +160,7 @@ export default function WorkloadHeatmapPage() {
 
   return (
     <div style={{ padding: 24, background: 'var(--bg-card)',}}>
-      <header style={{ background: 'linear-gradient(135deg,#0891b2 0%,#06b6d4 100%)', color: '#fff', padding: '14px 24px', borderRadius: 10, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+      <header style={{ background: 'linear-gradient(135deg,var(--color-info-600) 0%,var(--color-info-500) 100%)', color: '#fff', padding: '14px 24px', borderRadius: 10, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <BarChart3 size={20} />
           <div>
@@ -186,9 +186,9 @@ export default function WorkloadHeatmapPage() {
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
-        <KpiCard label="医生总检查量" value={loading ? '-' : String(totalExams)} unit="例" color="#0891b2" />
+        <KpiCard label="医生总检查量" value={loading ? '-' : String(totalExams)} unit="例" color="var(--color-info-600)" />
         <KpiCard label="在岗医生" value={loading ? '-' : String(workload.length)} unit="人" color="#7c3aed" />
-        <KpiCard label="报告总量" value={loading ? '-' : String(totalReports)} unit="份" color="#dc2626" />
+        <KpiCard label="报告总量" value={loading ? '-' : String(totalReports)} unit="份" color="var(--color-error-600)" />
         <KpiCard label="平均耗时" value={loading ? '-' : String(avgTime)} unit="min" color="#059669" />
       </div>
 
@@ -217,7 +217,7 @@ export default function WorkloadHeatmapPage() {
               <tbody>
                 {doctorRows.map(({ doctor, hourly, max }) => (
                   <tr key={doctor.doctorId ?? doctor.doctorName}>
-                    <td style={{ padding: 4, color: '#1e40af', fontWeight: 600 }}>
+                    <td style={{ padding: 4, color: 'var(--color-primary-800)', fontWeight: 600 }}>
                       <div>{doctor.doctorName}</div>
                       <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>{doctor.department ?? ''} · 报告 {doctor.reportCount ?? 0}</div>
                     </td>
@@ -233,7 +233,7 @@ export default function WorkloadHeatmapPage() {
                         </td>
                       )
                     })}
-                    <td style={{ padding: 4, textAlign: 'center', fontWeight: 700, color: '#0891b2' }}>{doctor.examCount ?? 0}</td>
+                    <td style={{ padding: 4, textAlign: 'center', fontWeight: 700, color: 'var(--color-info-600)' }}>{doctor.examCount ?? 0}</td>
                   </tr>
                 ))}
               </tbody>
@@ -254,7 +254,7 @@ export default function WorkloadHeatmapPage() {
       <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
         {sites.map((s) => (
           <div key={s.siteId} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 12, border: '1px solid var(--border-color)' }}>
-            <div style={{ fontWeight: 700, color: '#1e40af', fontSize: 12 }}>{s.siteName}</div>
+            <div style={{ fontWeight: 700, color: 'var(--color-primary-800)', fontSize: 12 }}>{s.siteName}</div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>容量评分 {s.capacityScore}</div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 6 }}>
               利用率 {s.utilizationPct}% · 报告 {s.pendingReports} · 医生 {s.doctors}

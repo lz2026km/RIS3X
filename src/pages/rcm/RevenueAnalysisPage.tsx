@@ -21,17 +21,17 @@ const DEMO_MONTHLY_DATA = [
 ]
 
 const DEMO_MODALITY_DATA = [
-  { name: 'CT', revenue: 385, exams: 2500, color: '#3b82f6' },
+  { name: 'CT', revenue: 385, exams: 2500, color: 'var(--color-primary-500)' },
   { name: 'MRI', revenue: 235, exams: 850, color: '#8b5cf6' },
-  { name: 'DSA', revenue: 195, exams: 150, color: '#f59e0b' },
-  { name: 'DR', revenue: 45, exams: 1800, color: '#22c55e' },
+  { name: 'DSA', revenue: 195, exams: 150, color: 'var(--color-warning-500)' },
+  { name: 'DR', revenue: 45, exams: 1800, color: 'var(--color-success-500)' },
 ]
 
 const DEMO_PAYER_DATA = [
-  { name: '医保(城镇职工)', value: 516, color: '#3b82f6' },
+  { name: '医保(城镇职工)', value: 516, color: 'var(--color-primary-500)' },
   { name: '医保(城乡居民)', value: 172, color: '#8b5cf6' },
   { name: '商业保险', value: 98, color: '#059669' },
-  { name: '自费', value: 48, color: '#d97706' },
+  { name: '自费', value: 48, color: 'var(--color-warning-600)' },
   { name: '公费/其他', value: 26, color: '#6b7280' },
 ]
 
@@ -43,7 +43,7 @@ const DEMO_DOCTOR_DATA = [
   { name: '陈明', revenue: 115, exams: 680 },
 ]
 
-const MODALITY_COLORS = ['#3b82f6', '#8b5cf6', '#f59e0b', '#22c55e', '#059669', '#d97706']
+const MODALITY_COLORS = ['var(--color-primary-500)', '#8b5cf6', 'var(--color-warning-500)', 'var(--color-success-500)', '#059669', 'var(--color-warning-600)']
 
 function toNumber(v: unknown): number {
   const n = Number(v)
@@ -172,7 +172,7 @@ export default function RevenueAnalysisPage() {
               name,
               revenue: Math.round(v.revenue / 10000 * 10) / 10,
               exams: v.exams,
-              color: MODALITY_COLORS[i % MODALITY_COLORS.length] ?? '#3b82f6',
+              color: MODALITY_COLORS[i % MODALITY_COLORS.length] ?? 'var(--color-primary-500)',
             })))
           if (hasPayerData && insTotal + selfPayTotal > 0) {
             const known = insTotal + selfPayTotal
@@ -180,8 +180,8 @@ export default function RevenueAnalysisPage() {
             const other = Math.max(totalPay - known, 0)
             const scale = (v: number) => Math.round(v / 10000 * 10) / 10
             setPayerData([
-              { name: '医保统筹', value: scale(insTotal), color: '#3b82f6' },
-              { name: '个人自费', value: scale(selfPayTotal), color: '#d97706' },
+              { name: '医保统筹', value: scale(insTotal), color: 'var(--color-primary-500)' },
+              { name: '个人自费', value: scale(selfPayTotal), color: 'var(--color-warning-600)' },
               { name: '其他', value: scale(other), color: '#6b7280' },
             ])
           }
@@ -225,20 +225,20 @@ export default function RevenueAnalysisPage() {
     { title: t('w1tables.revenue.month'), dataIndex: 'month', key: 'month' },
     { title: t('w1tables.revenue.revenue'), dataIndex: 'revenue', key: 'revenue', align: 'right' as const, render: (v: number) => v.toLocaleString() },
     { title: t('w1tables.revenue.cost'), dataIndex: 'cost', key: 'cost', align: 'right' as const, render: (v: number) => v.toLocaleString() },
-    { title: t('w1tables.revenue.profit'), dataIndex: 'profit', key: 'profit', align: 'right' as const, render: (v: number) => <span style={{ color: v >= 0 ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)' }}>{v.toLocaleString()}</span> },
+    { title: t('w1tables.revenue.profit'), dataIndex: 'profit', key: 'profit', align: 'right' as const, render: (v: number) => <span style={{ color: v >= 0 ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-error-500, var(--color-error-500))' }}>{v.toLocaleString()}</span> },
     { title: t('w1tables.revenue.exams'), dataIndex: 'exams', key: 'exams', align: 'right' as const, render: (v: number) => v.toLocaleString() },
   ]
 
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
-      <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <BarChart3 size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('w9e.revenueAnalysis.title')}</span>
           <span style={{
             fontSize: 11, padding: '2px 8px', borderRadius: 10,
             background: source === 'api' ? 'rgba(34,197,94,0.25)' : 'rgba(245,158,11,0.25)',
-            color: source === 'api' ? 'var(--color-success-400, #4ade80)' : 'var(--color-warning-400, #fbbf24)',
-            border: `1px solid ${source === 'api' ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)'}`,
+            color: source === 'api' ? 'var(--color-success-400, #4ade80)' : 'var(--color-warning-400, var(--color-warning-400))',
+            border: `1px solid ${source === 'api' ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-warning-500, var(--color-warning-500))'}`,
             fontWeight: 500,
           }}>
             {source === 'api' ? t('w9e.revenueAnalysis.sourceApi') : t('w9e.revenueAnalysis.sourceDemo')}
@@ -260,30 +260,30 @@ export default function RevenueAnalysisPage() {
         <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.revenueAnalysis.monthlyRevenue')}</span>
-            <DollarSign size={16} color="#22c55e" />
+            <DollarSign size={16} color="var(--color-success-500)" />
           </div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-success-500, #22c55e)', marginTop: 4 }}>{latest.revenue.toLocaleString()}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: momRevenue >= 0 ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)', marginTop: 4 }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-success-500, var(--color-success-500))', marginTop: 4 }}>{latest.revenue.toLocaleString()}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: momRevenue >= 0 ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-error-500, var(--color-error-500))', marginTop: 4 }}>
             {momRevenue >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{momRevenue >= 0 ? '+' : ''}{momRevenue.toFixed(1)}% {t('w9e.revenueAnalysis.momSuffix')}
           </div>
         </div>
         <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.revenueAnalysis.monthlyProfit')}</span>
-            <Activity size={16} color="#f59e0b" />
+            <Activity size={16} color="var(--color-warning-500)" />
           </div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-warning-500, #f59e0b)', marginTop: 4 }}>{latest.profit.toLocaleString()}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: momProfit >= 0 ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)', marginTop: 4 }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-warning-500, var(--color-warning-500))', marginTop: 4 }}>{latest.profit.toLocaleString()}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: momProfit >= 0 ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-error-500, var(--color-error-500))', marginTop: 4 }}>
             {momProfit >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{momProfit >= 0 ? '+' : ''}{momProfit.toFixed(1)}% {t('w9e.revenueAnalysis.momSuffix')}
           </div>
         </div>
         <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.revenueAnalysis.monthlyExams')}</span>
-            <Users size={16} color="#3b82f6" />
+            <Users size={16} color="var(--color-primary-500)" />
           </div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-primary-500, #3b82f6)', marginTop: 4 }}>{latest.exams.toLocaleString()}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: momExams >= 0 ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)', marginTop: 4 }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-primary-500, var(--color-primary-500))', marginTop: 4 }}>{latest.exams.toLocaleString()}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: momExams >= 0 ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-error-500, var(--color-error-500))', marginTop: 4 }}>
             {momExams >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{momExams >= 0 ? '+' : ''}{momExams.toFixed(1)}% {t('w9e.revenueAnalysis.momSuffix')}
           </div>
         </div>
@@ -300,7 +300,7 @@ export default function RevenueAnalysisPage() {
       <div style={{ padding: '0 24px 24px' }}>
         <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
           {(['trend', 'modality', 'payer', 'doctor'] as const).map(tab => (
-            <button key={tab} onClick={() => setView(tab)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: view === tab ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: view === tab ? '#fff' : 'var(--text-muted, #8b949e)', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button key={tab} onClick={() => setView(tab)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: view === tab ? 'var(--color-primary-800)' : 'var(--bg-secondary, #21262d)', color: view === tab ? '#fff' : 'var(--text-muted, #8b949e)', display: 'flex', alignItems: 'center', gap: 6 }}>
               {tab === 'trend' ? <BarChart3 size={14} /> : tab === 'modality' ? <Monitor size={14} /> : tab === 'payer' ? <Building2 size={14} /> : <Users size={14} />}
               {tab === 'trend' ? t('w9e.revenueAnalysis.tabTrend') : tab === 'modality' ? t('w9e.revenueAnalysis.tabModality') : tab === 'payer' ? t('w9e.revenueAnalysis.tabPayer') : t('w9e.revenueAnalysis.tabDoctor')}
             </button>
@@ -323,9 +323,9 @@ export default function RevenueAnalysisPage() {
                   <YAxis tick={{ fill: 'var(--text-muted, #8b949e)', fontSize: 12 }} />
                   <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4 }} />
                   <Legend />
-                  <Bar dataKey="revenue" name={t('w9e.revenueAnalysis.revenueWan')} fill="#22c55e" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="cost" name={t('w9e.revenueAnalysis.costWan')} fill="#ef4444" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="profit" name={t('w9e.revenueAnalysis.profitWan')} fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="revenue" name={t('w9e.revenueAnalysis.revenueWan')} fill="var(--color-success-500)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="cost" name={t('w9e.revenueAnalysis.costWan')} fill="var(--color-error-500)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="profit" name={t('w9e.revenueAnalysis.profitWan')} fill="var(--color-primary-500)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ChartContainer>
             </div>
@@ -396,7 +396,7 @@ export default function RevenueAnalysisPage() {
                   <XAxis type="number" tick={{ fill: 'var(--text-muted, #8b949e)', fontSize: 12 }} />
                   <YAxis type="category" dataKey="name" tick={{ fill: 'var(--text-muted, #8b949e)', fontSize: 12 }} />
                   <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)' }} />
-                  <Bar dataKey="revenue" name={t('w9e.revenueAnalysis.revenueWan')} fill="#3b82f6" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="revenue" name={t('w9e.revenueAnalysis.revenueWan')} fill="var(--color-primary-500)" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ChartContainer>
             </div>

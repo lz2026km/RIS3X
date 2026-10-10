@@ -39,9 +39,9 @@ import { t } from '../../../../i18n/appI18n';
 
 const GRADE_COLOR: Record<QcGrade, string> = {
   A: '#10b981',
-  B: '#3b82f6',
-  C: '#f59e0b',
-  D: '#dc2626',
+  B: 'var(--color-primary-500)',
+  C: 'var(--color-warning-500)',
+  D: 'var(--color-error-600)',
 };
 
 const TASK_STATUS_META: Record<QcTaskStatus, { label: string; color: string }> = {
@@ -54,7 +54,7 @@ const TASK_STATUS_META: Record<QcTaskStatus, { label: string; color: string }> =
 // ================= 演示回退数据 (API 不可用) =================
 
 const DEMO_DIMENSIONS: QcDimensionMeta[] = [
-  { key: 'completeness', label: '完整性', labelEn: 'Completeness', max: 20, color: '#3b82f6', subItems: [
+  { key: 'completeness', label: '完整性', labelEn: 'Completeness', max: 20, color: 'var(--color-primary-500)', subItems: [
     { key: 'structure', name: '结构字段齐全', max: 8 },
     { key: 'technical', name: '技术参数/对比剂', max: 4 },
     { key: 'conclusion', name: '诊断结论', max: 4 },
@@ -72,13 +72,13 @@ const DEMO_DIMENSIONS: QcDimensionMeta[] = [
     { key: 'critical', name: '危急提示', max: 5 },
     { key: 'consistency', name: '所见结论一致', max: 5 },
   ]},
-  { key: 'readability', label: '可读性', labelEn: 'Readability', max: 20, color: '#f59e0b', subItems: [
+  { key: 'readability', label: '可读性', labelEn: 'Readability', max: 20, color: 'var(--color-warning-500)', subItems: [
     { key: 'sentenceLength', name: '语句长度', max: 7 },
     { key: 'paragraph', name: '段落结构', max: 5 },
     { key: 'redundancy', name: '冗余表达', max: 4 },
     { key: 'punctuation', name: '标点密度', max: 4 },
   ]},
-  { key: 'timeliness', label: '及时性', labelEn: 'Timeliness', max: 20, color: '#ef4444', subItems: [
+  { key: 'timeliness', label: '及时性', labelEn: 'Timeliness', max: 20, color: 'var(--color-error-500)', subItems: [
     { key: 'tat', name: '报告耗时', max: 20 },
   ]},
 ];
@@ -299,7 +299,7 @@ export const ReportQcV2Panel: React.FC = () => {
 
   return (
     <div data-testid="report-qc-v2-panel" role="region" aria-label={t('reportQcV2.ariaLabel')} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <Card size="small" style={{ background: 'linear-gradient(135deg, #1e40af 0%, #7c3aed 100%)', border: 'none' }} styles={{ body: { padding: 12 } }}>
+      <Card size="small" style={{ background: 'linear-gradient(135deg, var(--color-primary-800) 0%, #7c3aed 100%)', border: 'none' }} styles={{ body: { padding: 12 } }}>
         <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
           <Space>
             <FileCheck2 size={18} color="#fff" />
@@ -448,7 +448,7 @@ const ScoreResultView: React.FC<{ result: QcScoreResult; dimensions: QcDimension
         </Col>
         <Col xs={12} sm={6}>
           <Card size="small" style={{ background: '#f8fafc' }}>
-            <Statistic title={t('reportQcV2.defectCount')} value={result.defects.length} valueStyle={{ color: result.defects.length > 0 ? '#dc2626' : '#10b981' }} />
+            <Statistic title={t('reportQcV2.defectCount')} value={result.defects.length} valueStyle={{ color: result.defects.length > 0 ? 'var(--color-error-600)' : '#10b981' }} />
           </Card>
         </Col>
         <Col xs={12} sm={6}>
@@ -460,14 +460,14 @@ const ScoreResultView: React.FC<{ result: QcScoreResult; dimensions: QcDimension
       <Row gutter={[8, 8]}>
         {result.dimensions.map((d) => (
           <Col xs={24} sm={12} key={d.key}>
-            <Card size="small" style={{ borderLeft: `4px solid ${dimColors.get(d.key) ?? '#3b82f6'}` }}>
+            <Card size="small" style={{ borderLeft: `4px solid ${dimColors.get(d.key) ?? 'var(--color-primary-500)'}` }}>
               <Space style={{ width: '100%', justifyContent: 'space-between' }}>
                 <strong style={{ fontSize: 12 }}>{d.label}</strong>
                 <Tag color={d.score >= d.max * 0.85 ? 'green' : d.score >= d.max * 0.6 ? 'gold' : 'red'}>
                   {d.score}/{d.max}
                 </Tag>
               </Space>
-              <Progress percent={Math.round((d.score / d.max) * 100)} showInfo={false} size="small" strokeColor={dimColors.get(d.key) ?? '#3b82f6'} />
+              <Progress percent={Math.round((d.score / d.max) * 100)} showInfo={false} size="small" strokeColor={dimColors.get(d.key) ?? 'var(--color-primary-500)'} />
               <Space wrap size={4}>
                 {d.subItems.map((s) => (
                   <Tooltip key={s.key} title={s.deducted ? t('reportQcV2.notFullScore') : t('reportQcV2.fullScore')}>
@@ -626,20 +626,20 @@ const StatsView: React.FC<{ stats: QcStatsData; records: QcRecord[] }> = ({ stat
   const trendColumns: ColumnsType<{ month: string; count: number; avgScore: number }> = [
     { title: t('reportQcV2.month'), dataIndex: 'month', key: 'month' },
     { title: t('reportQcV2.taskCount'), dataIndex: 'count', key: 'count', width: 70 },
-    { title: t('reportQcV2.avgScore'), dataIndex: 'avgScore', key: 'avgScore', width: 80, render: (v: number) => <strong style={{ color: v >= 85 ? '#10b981' : '#f59e0b' }}>{v}</strong> },
+    { title: t('reportQcV2.avgScore'), dataIndex: 'avgScore', key: 'avgScore', width: 80, render: (v: number) => <strong style={{ color: v >= 85 ? '#10b981' : 'var(--color-warning-500)' }}>{v}</strong> },
   ];
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size={8}>
       <Row gutter={8}>
         <Col span={8}>
-          <Card size="small"><Statistic title={t('reportQcV2.avgScore')} value={stats.avgScore} valueStyle={{ fontSize: 20, color: stats.avgScore >= 85 ? '#10b981' : '#f59e0b' }} /></Card>
+          <Card size="small"><Statistic title={t('reportQcV2.avgScore')} value={stats.avgScore} valueStyle={{ fontSize: 20, color: stats.avgScore >= 85 ? '#10b981' : 'var(--color-warning-500)' }} /></Card>
         </Col>
         <Col span={8}>
-          <Card size="small"><Statistic title={t('reportQcV2.passRate')} value={stats.passRate} suffix="%" valueStyle={{ fontSize: 20, color: '#3b82f6' }} /></Card>
+          <Card size="small"><Statistic title={t('reportQcV2.passRate')} value={stats.passRate} suffix="%" valueStyle={{ fontSize: 20, color: 'var(--color-primary-500)' }} /></Card>
         </Col>
         <Col span={8}>
-          <Card size="small"><Statistic title={t('reportQcV2.totalDefects')} value={stats.defectDistribution.reduce((a, d) => a + d.count, 0)} valueStyle={{ fontSize: 20, color: '#dc2626' }} /></Card>
+          <Card size="small"><Statistic title={t('reportQcV2.totalDefects')} value={stats.defectDistribution.reduce((a, d) => a + d.count, 0)} valueStyle={{ fontSize: 20, color: 'var(--color-error-600)' }} /></Card>
         </Col>
       </Row>
       <Space wrap>

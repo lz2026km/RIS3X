@@ -130,7 +130,7 @@ export const SmsSender: React.FC<SmsSenderProps> = ({
         footer={null}
         title={
           <Space>
-            <MessageSquare size={16} color="#3b82f6" />
+            <MessageSquare size={16} color="var(--color-primary-500)" />
             <strong>短信通知</strong>
             <Tag color="blue">{defaultSmsRouter.pick()?.displayName}</Tag>
           </Space>

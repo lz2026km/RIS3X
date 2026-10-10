@@ -109,7 +109,7 @@ export const PatientProfile360: React.FC<PatientProfile360Props> = ({
       <Card style={{ marginBottom: 12 }}>
         <Row gutter={16} align="middle">
           <Col flex="80px">
-            <Avatar size={64} icon={<User size={32} />} style={{ background: '#1e40af' }} data-testid="patient-avatar">
+            <Avatar size={64} icon={<User size={32} />} style={{ background: 'var(--color-primary-800)' }} data-testid="patient-avatar">
               {patient.name[0]}
             </Avatar>
           </Col>
@@ -142,7 +142,7 @@ export const PatientProfile360: React.FC<PatientProfile360Props> = ({
                 <Statistic title={t('w9e.patientProfile360.statReports')} value={stats.totalReports} styles={{ content: {  fontSize: 18  } }} />
               </Col>
               <Col span={8}>
-                <Statistic title={t('w9e.patientProfile360.statCritical')} value={stats.criticalCount} styles={{ content: {  fontSize: 18, color: '#dc2626'  } }} />
+                <Statistic title={t('w9e.patientProfile360.statCritical')} value={stats.criticalCount} styles={{ content: {  fontSize: 18, color: 'var(--color-error-600)'  } }} />
               </Col>
             </Row>
           </Col>
@@ -218,7 +218,7 @@ export const PatientProfile360: React.FC<PatientProfile360Props> = ({
                       actions={onSelectExam ? [<Button key="open" size="small" onClick={() => onSelectExam(e.id)}>{t('w9e.patientProfile360.detail')}</Button>] : undefined}
                     >
                       <List.Item.Meta
-                        avatar={<ImageIcon size={28} color="#3b82f6" />}
+                        avatar={<ImageIcon size={28} color="var(--color-primary-500)" />}
                         title={
                           <Space>
                             <Tag color="blue">{e.modality}</Tag>
@@ -253,7 +253,7 @@ export const PatientProfile360: React.FC<PatientProfile360Props> = ({
                     actions={onSelectReport ? [<Button key="open" size="small" onClick={() => onSelectReport(r.id)}>{t('w9e.patientProfile360.detail')}</Button>] : undefined}
                   >
                     <List.Item.Meta
-                      avatar={<FileText size={28} color="#1e40af" />}
+                      avatar={<FileText size={28} color="var(--color-primary-800)" />}
                       title={
                         <Space>
                           <Tag color="blue">{r.modality}</Tag>

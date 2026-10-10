@@ -10,7 +10,7 @@ import {
 } from '../../services/api/safetyApi'
 import { t } from '../../i18n/appI18n'
 
-const MODALITY_COLORS: Record<string, string> = { CT: '#3b82f6', MR: '#8b5cf6', DR: '#22c55e', DSA: '#f59e0b', MG: '#ef4444' }
+const MODALITY_COLORS: Record<string, string> = { CT: 'var(--color-primary-500)', MR: '#8b5cf6', DR: 'var(--color-success-500)', DSA: 'var(--color-warning-500)', MG: 'var(--color-error-500)' }
 
 export default function RadiationSafetyPage() {
   const [doseRecords, setDoseRecords] = useState<DoseRecord[]>([])
@@ -77,10 +77,10 @@ export default function RadiationSafetyPage() {
       <div style={{ padding: '20px 24px' }}>
         <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
           {[
-            { title: 'ALARA合规率', value: `${complianceRate}%`, icon: CheckCircle, color: complianceRate >= 90 ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)' },
-            { title: '本月检查量', value: doseRecords.length, icon: Activity, color: 'var(--color-primary-500, #3b82f6)' },
+            { title: 'ALARA合规率', value: `${complianceRate}%`, icon: CheckCircle, color: complianceRate >= 90 ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-warning-500, var(--color-warning-500))' },
+            { title: '本月检查量', value: doseRecords.length, icon: Activity, color: 'var(--color-primary-500, var(--color-primary-500))' },
             { title: '设备数量', value: new Set(doseRecords.map(r => r.deviceId)).size, icon: BarChart3, color: 'var(--color-modality-mr, #8b5cf6)' },
-            { title: '优化建议', value: optimizations.length, icon: Zap, color: 'var(--color-warning-500, #f59e0b)' },
+            { title: '优化建议', value: optimizations.length, icon: Zap, color: 'var(--color-warning-500, var(--color-warning-500))' },
           ].map((k, i) => (
             <div key={i} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 140 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
@@ -112,7 +112,7 @@ export default function RadiationSafetyPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <BarChart3 size={16} color="#3b82f6" />各设备剂量对比 (DLP)
+                <BarChart3 size={16} color="var(--color-primary-500)" />各设备剂量对比 (DLP)
               </div>
               <ChartContainer height={240} state={dlpData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无剂量对比数据">
                 <BarChart data={dlpData}>
@@ -121,14 +121,14 @@ export default function RadiationSafetyPage() {
                   <YAxis tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
                   <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, fontSize: 12 }} />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Bar dataKey="dlp" fill="#3b82f6" radius={[4, 4, 0, 0]} name="DLP" />
-                  <Bar dataKey="ctDoseIndex" fill="#22c55e" radius={[4, 4, 0, 0]} name="CTDI" />
+                  <Bar dataKey="dlp" fill="var(--color-primary-500)" radius={[4, 4, 0, 0]} name="DLP" />
+                  <Bar dataKey="ctDoseIndex" fill="var(--color-success-500)" radius={[4, 4, 0, 0]} name="CTDI" />
                 </BarChart>
               </ChartContainer>
             </div>
             <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Shield size={16} color="#22c55e" />ALARA合规率
+                <Shield size={16} color="var(--color-success-500)" />ALARA合规率
               </div>
               <ChartContainer height={240} state={complianceData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无合规率数据">
                 <BarChart data={complianceData}>
@@ -136,13 +136,13 @@ export default function RadiationSafetyPage() {
                   <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
                   <YAxis domain={[0, 100]} tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
                   <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, fontSize: 12 }} />
-                  <Bar dataKey="rate" fill="#22c55e" radius={[4, 4, 0, 0]} name="合规率(%)" />
+                  <Bar dataKey="rate" fill="var(--color-success-500)" radius={[4, 4, 0, 0]} name="合规率(%)" />
                 </BarChart>
               </ChartContainer>
             </div>
             <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Activity size={16} color="#f59e0b" />各设备类型总剂量
+                <Activity size={16} color="var(--color-warning-500)" />各设备类型总剂量
               </div>
               <ChartContainer height={240} state={modalityData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无设备剂量数据">
                 <BarChart data={modalityData}>
@@ -150,7 +150,7 @@ export default function RadiationSafetyPage() {
                   <XAxis dataKey="modality" tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
                   <YAxis tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
                   <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, fontSize: 12 }} />
-                  <Bar dataKey="dose" fill="#f59e0b" radius={[4, 4, 0, 0]} name="总剂量" />
+                  <Bar dataKey="dose" fill="var(--color-warning-500)" radius={[4, 4, 0, 0]} name="总剂量" />
                 </BarChart>
               </ChartContainer>
             </div>
@@ -162,7 +162,7 @@ export default function RadiationSafetyPage() {
                     <div style={{ fontSize: 12, color: 'var(--text-primary, #f0f6fc)' }}>{c.modality}</div>
                     <div style={{ fontSize: 12, color: '#6e7681' }}>{c.totalExams}次检查 · {c.avgDose}平均剂量</div>
                   </div>
-                  <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: c.status === 'compliant' ? '#22c55e20' : c.status === 'warning' ? '#f59e0b20' : '#ef444420', color: c.status === 'compliant' ? '#22c55e' : c.status === 'warning' ? '#f59e0b' : '#ef4444' }}>
+                  <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: c.status === 'compliant' ? '#22c55e20' : c.status === 'warning' ? '#f59e0b20' : '#ef444420', color: c.status === 'compliant' ? 'var(--color-success-500)' : c.status === 'warning' ? 'var(--color-warning-500)' : 'var(--color-error-500)' }}>
                     {c.complianceRate}%
                   </span>
                 </div>
@@ -198,11 +198,11 @@ export default function RadiationSafetyPage() {
                     <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${MODALITY_COLORS[opt.modality]}20`, color: MODALITY_COLORS[opt.modality], marginRight: 8 }}>{opt.modality}</span>
                     <span style={{ fontSize: 14, fontWeight: 600 }}>{opt.procedureName}</span>
                   </div>
-                  <span style={{ color: '#22c55e', fontSize: 12 }}>预计降低 {opt.estimatedReduction}%</span>
+                  <span style={{ color: 'var(--color-success-500)', fontSize: 12 }}>预计降低 {opt.estimatedReduction}%</span>
                 </div>
                 <div style={{ display: 'flex', gap: 16, marginBottom: 8, fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>
                   <span>当前平均: <b style={{ color: 'var(--text-primary, #f0f6fc)' }}>{opt.currentAvgDose}</b></span>
-                  <span>目标值: <b style={{ color: '#22c55e' }}>{opt.recommendedTarget}</b></span>
+                  <span>目标值: <b style={{ color: 'var(--color-success-500)' }}>{opt.recommendedTarget}</b></span>
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>
                   措施: {opt.actionItems.map((a, j) => (

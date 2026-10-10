@@ -173,7 +173,7 @@ export const SchedulingCenterPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: 'var(--bg-card)',}}>
       <Space style={{ marginBottom: 16 }}>
-        <CalendarDays size={20} color="#2563eb" />
+        <CalendarDays size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('sch.title')}</span>
         <Tag color="green">{t('sch.realtimeOccupancy')}</Tag>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>{t('sch.refresh')}</Button>
@@ -198,7 +198,7 @@ export const SchedulingCenterPage: React.FC = () => {
               <Calendar
                 fullCellRender={(date) => (
                   <div style={{ padding: 4, cursor: 'pointer' }} onClick={() => setSelectedDate(date)}>
-                    <div style={{ fontSize: 12, color: date.isSame(selectedDate, 'day') ? '#2563eb' : 'inherit' }}>{date.date()}</div>
+                    <div style={{ fontSize: 12, color: date.isSame(selectedDate, 'day') ? 'var(--color-primary-600)' : 'inherit' }}>{date.date()}</div>
                     {dateCellRender(date)}
                   </div>
                 )}

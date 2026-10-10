@@ -163,7 +163,7 @@ export const DimseUploadPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <UploadIcon style={{ fontSize: 20, color: '#2563eb' }} />
+        <UploadIcon style={{ fontSize: 20, color: 'var(--color-primary-600)' }} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dimseUpload.title')}</span>
         <Tag color="blue">v3.0.6.11-75 W3-2</Tag>
       </Space>

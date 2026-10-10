@@ -41,7 +41,7 @@ export const Toast = ({ toast }: { toast: { show: boolean; message: string; type
   return (
     <div role="status" aria-live="polite" style={{
       position: 'fixed', top: 24, left: '50%', transform: 'translateX(-50%)',
-      background: toast.type === 'success' ? '#059669' : '#dc2626',
+      background: toast.type === 'success' ? '#059669' : 'var(--color-error-600)',
       color: '#fff', padding: '12px 24px', borderRadius: 8, fontSize: 14, fontWeight: 600,
       boxShadow: '0 4px 12px rgba(0,0,0,0.15)', zIndex: 'var(--z-toast, 800)',
     }}>
@@ -226,7 +226,7 @@ export const ClinicalReceiptModal = ({ cv, doctor, comment, onSetDoctor, onSetCo
   return (
     <div onClick={onCancel} role="dialog" aria-modal="true" aria-label={t('cvModals.clinicalReceipt')} style={overlayStyle}>
       <div onClick={(e) => e.stopPropagation()} style={{ ...panelStyle, width: 480 }}>
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', background: 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', background: 'linear-gradient(135deg, var(--color-success-600) 0%, var(--color-success-500) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <Edit3 size={20} style={{ color: '#fff' }} />
             <div>
@@ -249,7 +249,7 @@ export const ClinicalReceiptModal = ({ cv, doctor, comment, onSetDoctor, onSetCo
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('cvModals.signatureConfirm')}</div>
             <div style={{ background: 'var(--color-success-bg)', borderRadius: 8, padding: '12px 16px', border: '2px dashed var(--color-success-border)', textAlign: 'center' }}>
               <div style={{ fontSize: 28, marginBottom: 4 }}></div>
-              <div style={{ fontSize: 12, color: '#16a34a' }}>{t('cvModals.clickToSign')}</div>
+              <div style={{ fontSize: 12, color: 'var(--color-success-600)' }}>{t('cvModals.clickToSign')}</div>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
@@ -278,7 +278,7 @@ export const EscalateModal = ({ cv, to, dept, reason, onSetTo, onSetDept, onSetR
   return (
     <div onClick={onCancel} role="dialog" aria-modal="true" aria-label={t('cvModals.escalateCV')} style={overlayStyle}>
       <div onClick={(e) => e.stopPropagation()} style={{ ...panelStyle, width: 440 }}>
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', background: 'linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', background: 'linear-gradient(135deg, #7f1d1d 0%, var(--color-error-600) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <ArrowUp size={20} style={{ color: '#fff' }} />
             <div>
@@ -327,7 +327,7 @@ export const ConfirmModal = ({ message, onConfirm, onCancel }: {
   <div onClick={onCancel} role="dialog" aria-modal="true" aria-label={t('cvModals.confirmOperation')} style={overlayStyle}>
     <div onClick={(e) => e.stopPropagation()} style={{ ...panelStyle, width: 400 }}>
       <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', background: 'var(--color-warning-bg)', display: 'flex', alignItems: 'center', gap: 12 }}>
-        <AlertTriangle size={22} style={{ color: '#d97706' }} />
+        <AlertTriangle size={22} style={{ color: 'var(--color-warning-600)' }} />
         <div>
           <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-warning)' }}>{t('cvModals.confirmOperation')}</div>
           <div style={{ fontSize: 12, color: 'var(--color-warning)', marginTop: 2 }}>{message}</div>
@@ -538,7 +538,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
   return (
     <div onClick={onClose} role="dialog" aria-modal="true" aria-label={t('cvModals.ruleSettings')} style={overlayStyle}>
       <div onClick={(e) => e.stopPropagation()} style={{ ...panelStyle, width: 800, maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#1e40af', borderRadius: '16px 16px 0 0' }}>
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--color-primary-800)', borderRadius: '16px 16px 0 0' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <Settings size={20} style={{ color: '#fff' }} />
             <div>
@@ -555,7 +555,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
             return (
               <button key={sec.key} role="tab" aria-selected={active} tabIndex={active ? 0 : -1}
                 onClick={() => setActiveSection(sec.key as typeof activeSection)}
-                style={{ flex: 1, padding: '12px 16px', textAlign: 'center', cursor: 'pointer', background: active ? 'var(--bg-card)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', borderBottom: active ? '2px solid #1e40af' : '2px solid transparent' }}>
+                style={{ flex: 1, padding: '12px 16px', textAlign: 'center', cursor: 'pointer', background: active ? 'var(--bg-card)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', borderBottom: active ? '2px solid var(--color-primary-800)' : '2px solid transparent' }}>
                 <Icon size={16} style={{ color: active ? PRIMARY_COLOR : 'var(--text-muted)' }} />
                 <span style={{ fontSize: 13, fontWeight: active ? 700 : 500, color: active ? PRIMARY_COLOR : 'var(--text-muted)' }}>{sec.label}</span>
               </button>
@@ -583,12 +583,12 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
                   { title: t('cvModals.thExamItem'), dataIndex: 'examItem', key: 'examItem', render: (v: string) => <span style={{ color: 'var(--text-primary)' }}>{v}</span> },
                   { title: t('cvModals.thIndicator'), dataIndex: 'resultName', key: 'resultName', render: (v: string) => <span style={{ color: 'var(--text-primary)' }}>{v}</span> },
                   { title: t('cvModals.thNormalRange'), key: 'normalRange', render: (_: unknown, rule: CriticalValueRule) => <span style={{ color: '#059669' }}>{rule.normalMin}~{rule.normalMax}</span> },
-                  { title: t('cvModals.thCriticalRange'), key: 'criticalRange', render: (_: unknown, rule: CriticalValueRule) => <span style={{ color: '#dc2626', fontWeight: 600 }}>{rule.criticalMin}~{rule.criticalMax}</span> },
+                  { title: t('cvModals.thCriticalRange'), key: 'criticalRange', render: (_: unknown, rule: CriticalValueRule) => <span style={{ color: 'var(--color-error-600)', fontWeight: 600 }}>{rule.criticalMin}~{rule.criticalMax}</span> },
                   { title: t('cvModals.thUnit'), dataIndex: 'unit', key: 'unit', render: (v: string) => <span style={{ color: 'var(--text-muted)' }}>{v}</span> },
                   {
                     title: t('cvModals.thStatus'), dataIndex: 'enabled', key: 'enabled',
                     render: (v: boolean) => (
-                      <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600, background: v ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: v ? '#059669' : '#dc2626' }}>{v ? t('cvModals.enabled') : t('cvModals.disabled')}</span>
+                      <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600, background: v ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: v ? '#059669' : 'var(--color-error-600)' }}>{v ? t('cvModals.enabled') : t('cvModals.disabled')}</span>
                     ),
                   },
                   {
@@ -604,17 +604,17 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
 
           {activeSection === 'timeout' && (
             <div style={{ background: 'var(--color-info-bg)', borderRadius: 10, padding: 16, border: '1px solid var(--color-info-border)' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>{t('cvModals.timeoutTitle')}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12 }}>{t('cvModals.timeoutTitle')}</div>
               <div style={{ display: 'flex', gap: 16 }}>
                 {[
-                  { label: t('cvModals.urgentReminder'), minutes: 15, color: '#dc2626' },
-                  { label: t('cvModals.criticalReminder'), minutes: 30, color: '#d97706' },
-                  { label: t('cvModals.timeoutReminder'), minutes: 60, color: '#2563eb' },
+                  { label: t('cvModals.urgentReminder'), minutes: 15, color: 'var(--color-error-600)' },
+                  { label: t('cvModals.criticalReminder'), minutes: 30, color: 'var(--color-warning-600)' },
+                  { label: t('cvModals.timeoutReminder'), minutes: 60, color: 'var(--color-primary-600)' },
                 ].map((item) => (
                   <div key={item.label} style={{ flex: 1, padding: 14, background: 'var(--bg-card)', borderRadius: 8, border: `1px solid ${item.color}` }}>
                     <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 6 }}>{item.label}</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <input type="number" defaultValue={item.minutes} aria-label={`${item.label}-${t('cvModals.minutes')}`} style={{ width: 60, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 14, fontWeight: 700, color: '#1e40af', textAlign: 'center' }} />
+                      <input type="number" defaultValue={item.minutes} aria-label={`${item.label}-${t('cvModals.minutes')}`} style={{ width: 60, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', textAlign: 'center' }} />
                       <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('cvModals.minutes')}</span>
                     </div>
                   </div>
@@ -625,11 +625,11 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
 
           {activeSection === 'notify' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 16 }}>{t('cvModals.notifyConfig')}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}>{t('cvModals.notifyConfig')}</div>
               {[
-                { name: t('cvModals.notifySystemName'), desc: t('cvModals.notifySystemDesc'), icon: Bell, color: '#1e40af', key: 'SYSTEM' },
-                { name: t('cvModals.notifySmsName'), desc: t('cvModals.notifySmsDesc'), icon: MessageSquare, color: '#2563eb', key: 'SMS' },
-                { name: t('cvModals.notifyPhoneName'), desc: t('cvModals.notifyPhoneDesc'), icon: Phone, color: '#d97706', key: 'PHONE' },
+                { name: t('cvModals.notifySystemName'), desc: t('cvModals.notifySystemDesc'), icon: Bell, color: 'var(--color-primary-800)', key: 'SYSTEM' },
+                { name: t('cvModals.notifySmsName'), desc: t('cvModals.notifySmsDesc'), icon: MessageSquare, color: 'var(--color-primary-600)', key: 'SMS' },
+                { name: t('cvModals.notifyPhoneName'), desc: t('cvModals.notifyPhoneDesc'), icon: Phone, color: 'var(--color-warning-600)', key: 'PHONE' },
               ].map((method) => {
                 const Icon = method.icon
                 const enabled = notifyChannels[method.key] ?? false
@@ -639,7 +639,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
                       <Icon size={20} style={{ color: method.color }} />
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>{method.name}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-primary-800)' }}>{method.name}</div>
                       <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{method.desc}</div>
                     </div>
                     <Switch
@@ -657,19 +657,19 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
             <div>
               <div style={{ background: 'var(--color-warning-bg)', borderRadius: 10, padding: 16, border: '1px solid var(--color-warning-border)', marginBottom: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                  <ArrowUp size={16} style={{ color: '#d97706' }} />
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>{t('cvModals.escalationInfo')}</span>
+                  <ArrowUp size={16} style={{ color: 'var(--color-warning-600)' }} />
+                  <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('cvModals.escalationInfo')}</span>
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.7 }}>{t('cvModals.escalationInfoDesc')}</div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
-                <button onClick={() => openEscForm(null)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: '1px solid #d97706', background: '#d97706', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                <button onClick={() => openEscForm(null)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: '1px solid var(--color-warning-600)', background: 'var(--color-warning-600)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                   <Plus size={14} />{t('cvModals.addRule')}
                 </button>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {escalationRules.map((rule) => {
-                  const levelColors = ['#dc2626', '#d97706', '#2563eb', '#64748b']
+                  const levelColors = ['var(--color-error-600)', 'var(--color-warning-600)', 'var(--color-primary-600)', '#64748b']
                   return (
                     <div key={rule.id} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: `1px solid ${rule.enabled ? 'var(--color-success-border)' : 'var(--border-color)'}`, position: 'relative', overflow: 'hidden' }}>
                       <div style={{ position: 'absolute', top: 0, left: 0, width: 4, height: '100%', background: levelColors[rule.level - 1] }} />
@@ -679,7 +679,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
                         </div>
                         <div style={{ flex: 1 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                            <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>{t('cvModals.escalateTo')}{rule.escalateTo}</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('cvModals.escalateTo')}{rule.escalateTo}</span>
                             <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600, background: rule.enabled ? 'var(--color-success-bg)' : 'var(--border-light)', color: rule.enabled ? '#059669' : 'var(--text-muted)' }}>{rule.enabled ? t('cvModals.enabled') : t('cvModals.disabled')}</span>
                           </div>
                           <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8 }}>{t('cvModals.triggerCondition')}<span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{rule.triggerCondition}</span></div>
@@ -690,11 +690,11 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
                               ))}
                             </div>
                             <div style={{ marginLeft: 'auto', fontSize: 12, color: 'var(--text-muted)' }}>
-                              {t('cvModals.timeoutBefore')} <span style={{ fontWeight: 700, color: '#1e40af' }}>{rule.timeoutMinutes}</span> {t('cvModals.timeoutAfter')}
+                              {t('cvModals.timeoutBefore')} <span style={{ fontWeight: 700, color: 'var(--color-primary-800)' }}>{rule.timeoutMinutes}</span> {t('cvModals.timeoutAfter')}
                             </div>
                           </div>
                         </div>
-                        <button onClick={() => openEscForm(rule)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#d97706', fontSize: 12, cursor: 'pointer' }}>{t('cvModals.edit')}</button>
+                        <button onClick={() => openEscForm(rule)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--color-warning-600)', fontSize: 12, cursor: 'pointer' }}>{t('cvModals.edit')}</button>
                       </div>
                     </div>
                   )
@@ -706,14 +706,14 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
 
         <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
           <button onClick={onClose} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-muted)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('cvModals.cancel')}</button>
-          <button onClick={() => void handleSaveSettings()} disabled={savingSettings} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid #1e40af', background: '#1e40af', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: savingSettings ? 0.6 : 1 }}>{savingSettings ? t('cvModals.saving') : t('cvModals.saveSettings')}</button>
+          <button onClick={() => void handleSaveSettings()} disabled={savingSettings} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid var(--color-primary-800)', background: 'var(--color-primary-800)', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: savingSettings ? 0.6 : 1 }}>{savingSettings ? t('cvModals.saving') : t('cvModals.saveSettings')}</button>
         </div>
       </div>
 
       {showRuleForm && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 'var(--z-modal, 600)' }} onClick={() => setShowRuleForm(false)}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, width: 520 }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#1e40af', marginBottom: 16 }}>{editingRule ? t('cvModals.editCV') : t('cvModals.addCV')}</div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-primary-800)', marginBottom: 16 }}>{editingRule ? t('cvModals.editCV') : t('cvModals.addCV')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {([['modality', 'cvModals.thDevice'], ['examItem', 'cvModals.thExamItem'], ['resultName', 'cvModals.thIndicator'], ['unit', 'cvModals.thUnit']] as const).map(([key, labelKey]) => (
                 <div key={key}>
@@ -739,7 +739,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
       {showEscForm && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 'var(--z-modal, 600)' }} onClick={() => setShowEscForm(false)}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, width: 520 }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#1e40af', marginBottom: 16 }}>{editingEsc ? t('cvModals.editEsc') : t('cvModals.addEsc')}</div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-primary-800)', marginBottom: 16 }}>{editingEsc ? t('cvModals.editEsc') : t('cvModals.addEsc')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div>
                 <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t('cvModals.escalateLevel')}</label>

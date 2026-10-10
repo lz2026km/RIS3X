@@ -78,7 +78,7 @@ const styles = {
     background: status === '已出报告' || status === '已发布' ? 'var(--color-success-bg)' : status === '审核中' ? 'var(--color-warning-bg)' : 'var(--bg-card)',
     color: status === '已出报告' || status === '已发布' ? 'var(--color-success)' : status === '审核中' ? 'var(--color-warning)' : 'var(--text-secondary)',
   }),
-  btn: { padding: '6px 14px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: '#1e40af', color: '#fff' },
+  btn: { padding: '6px 14px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: 'var(--color-primary-800)', color: '#fff' },
   btnGreen: { padding: '6px 14px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: '#0d9488', color: '#fff' },
   imageGrid: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 },
   imageCard: { background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)' },
@@ -158,8 +158,8 @@ function MiniCalendar(props: {
               onClick={() => onSelect(cell)}
               style={{
                 padding: '8px 0', borderRadius: 8, fontSize: 12, cursor: disabled ? 'not-allowed' : 'pointer',
-                border: isSelected ? '2px solid #1e40af' : isToday ? '2px solid #93c5fd' : '1px solid var(--border-color)',
-                background: isSelected ? '#1e40af' : isToday ? 'var(--color-info-bg)' : 'var(--bg-card)',
+                border: isSelected ? '2px solid var(--color-primary-800)' : isToday ? '2px solid #93c5fd' : '1px solid var(--border-color)',
+                background: isSelected ? 'var(--color-primary-800)' : isToday ? 'var(--color-info-bg)' : 'var(--bg-card)',
                 color: isSelected ? '#fff' : disabled ? '#cbd5e1' : 'var(--text-secondary)',
                 fontWeight: isToday || isSelected ? 700 : 400,
               }}
@@ -920,9 +920,9 @@ export default function SelfServicePortal() {
                   onClick={() => setBooking({ ...booking, modality: m.value, bodyPart: undefined })}
                   style={{
                     padding: '16px 8px', borderRadius: 10, cursor: 'pointer', fontSize: 12,
-                    border: booking.modality === m.value ? '2px solid #1e40af' : '1px solid var(--border-color)',
+                    border: booking.modality === m.value ? '2px solid var(--color-primary-800)' : '1px solid var(--border-color)',
                     background: booking.modality === m.value ? 'var(--color-info-bg)' : 'var(--bg-card)',
-                    color: booking.modality === m.value ? '#1e40af' : '#475569',
+                    color: booking.modality === m.value ? 'var(--color-primary-800)' : '#475569',
                     fontWeight: booking.modality === m.value ? 700 : 500,
                   }}
                 >
@@ -975,9 +975,9 @@ export default function SelfServicePortal() {
                     onClick={() => setBooking({ ...booking, slot: s })}
                     style={{
                       padding: '7px 14px', borderRadius: 8, cursor: 'pointer', fontSize: 12,
-                      border: booking.slot === s ? '2px solid #1e40af' : '1px solid var(--border-color)',
+                      border: booking.slot === s ? '2px solid var(--color-primary-800)' : '1px solid var(--border-color)',
                       background: booking.slot === s ? 'var(--color-info-bg)' : 'var(--bg-card)',
-                      color: booking.slot === s ? '#1e40af' : '#475569',
+                      color: booking.slot === s ? 'var(--color-primary-800)' : '#475569',
                       fontWeight: booking.slot === s ? 700 : 500,
                     }}
                   >{s}</button>
@@ -1044,7 +1044,7 @@ export default function SelfServicePortal() {
                   <Download size={13} />
                   {t('ssp.reports.download')}
                 </button>
-                <button style={{ ...styles.btnGreen, background: '#1e40af', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => window.print()}>
+                <button style={{ ...styles.btnGreen, background: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => window.print()}>
                   <Printer size={13} />
                   {t('ssp.reports.print')}
                 </button>
@@ -1136,7 +1136,7 @@ export default function SelfServicePortal() {
                     <div style={{ marginTop: 8 }}>
                       <div><label style={styles.label}>{t('ssp.images.windowWidth')}</label><input type="range" min={100} max={2000} value={img.windowWidth} onChange={e => handleWindowChange(img.id, 'width', +e.target.value)} style={styles.slider} /></div>
                       <div><label style={styles.label}>{t('ssp.images.windowCenter')}</label><input type="range" min={-100} max={500} value={img.windowCenter} onChange={e => handleWindowChange(img.id, 'center', +e.target.value)} style={styles.slider} /></div>
-                      <button onClick={() => handleInvertToggle(img.id)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', fontSize: 12, cursor: 'pointer', background: img.invert ? '#3b82f6' : 'var(--bg-card)', color: img.invert ? '#fff' : '#64748b' }}>
+                      <button onClick={() => handleInvertToggle(img.id)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-color)', fontSize: 12, cursor: 'pointer', background: img.invert ? 'var(--color-primary-500)' : 'var(--bg-card)', color: img.invert ? '#fff' : '#64748b' }}>
                         {img.invert ? t('selfService.images.cancelInvert') : t('selfService.images.invert')}
                       </button>
                       <button style={{ ...styles.btnGreen, marginLeft: 8 }} onClick={() => openViewer(selectedExam)}>{t('selfService.images.fullView')}</button>
@@ -1254,7 +1254,7 @@ export default function SelfServicePortal() {
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
                 {[
-                  { title: t('selfService.contacts.doctor'), color: '#1e40af', users: doctorContacts },
+                  { title: t('selfService.contacts.doctor'), color: 'var(--color-primary-800)', users: doctorContacts },
                   { title: t('selfService.contacts.nurse'), color: '#0d9488', users: nurseContacts },
                   { title: t('selfService.contacts.tech'), color: '#7c3aed', users: techContacts },
                 ].map(group => (
@@ -1289,7 +1289,7 @@ export default function SelfServicePortal() {
             <h3 style={{ ...styles.subTitle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span>{t('selfService.followup.title')}（{followups.length}）</span>
               {followupSource === 'api'
-                ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: '#16a34a', border: '1px solid #bbf7d0' }}>{t('ssp.followup.apiRealtime')}</span>
+                ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: 'var(--color-success-600)', border: '1px solid #bbf7d0' }}>{t('ssp.followup.apiRealtime')}</span>
                 : <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>{t('ssp.followup.demoFallback')}</span>}
             </h3>
             {followupLoading ? (
@@ -1300,7 +1300,7 @@ export default function SelfServicePortal() {
               // [v3.0.6.11-99 Wave7B] 移动卡片化: 响应式 grid (桌面 2 列 / 手机 1 列) + 提醒展示
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
                 {followups.map(p => (
-                  <div key={p.id} style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', padding: 14, borderLeft: `4px solid ${p.status === 'COMPLETED' ? '#059669' : p.status === 'OVERDUE' ? '#dc2626' : p.status === 'IN_PROGRESS' ? '#0d9488' : '#d97706'}` }}>
+                  <div key={p.id} style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', padding: 14, borderLeft: `4px solid ${p.status === 'COMPLETED' ? '#059669' : p.status === 'OVERDUE' ? 'var(--color-error-600)' : p.status === 'IN_PROGRESS' ? '#0d9488' : 'var(--color-warning-600)'}` }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                       <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{p.note || t('ssp.followup.defaultPlan')}</div>
                       <Tag color={p.status === 'COMPLETED' ? 'success' : p.status === 'OVERDUE' ? 'error' : p.status === 'IN_PROGRESS' ? 'processing' : 'warning'}>
@@ -1382,7 +1382,7 @@ export default function SelfServicePortal() {
               style={{ fontSize: 30 }}
             />
             {rating > 0 && (
-              <div style={{ marginTop: 6, fontSize: 12, color: '#1e40af' }}>
+              <div style={{ marginTop: 6, fontSize: 12, color: 'var(--color-primary-800)' }}>
                 {rating === 5 ? t('selfService.rating.verySatisfied') : rating === 4 ? t('selfService.rating.satisfied') : rating === 3 ? t('selfService.rating.average') : rating === 2 ? t('selfService.rating.dissatisfied') : t('selfService.rating.veryDissatisfied')}
               </div>
             )}
@@ -1468,7 +1468,7 @@ export default function SelfServicePortal() {
                 )}
               </div>
               {srCheckIn && srCheckIn.blockers.length > 0 && (
-                <div style={{ marginTop: 12, color: '#dc2626', fontSize: 12 }}>
+                <div style={{ marginTop: 12, color: 'var(--color-error-600)', fontSize: 12 }}>
                   {t('w12Patient.sr.blockers')}: {srCheckIn.blockers.join('、')}
                 </div>
               )}
@@ -1498,7 +1498,7 @@ export default function SelfServicePortal() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
           <div style={{
-            width: 56, height: 56, borderRadius: '50%', background: '#1e40af', color: '#fff',
+            width: 56, height: 56, borderRadius: '50%', background: 'var(--color-primary-800)', color: '#fff',
             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700,
           }}>
             {(user?.name ?? t('ssp.patientCard.patientFallback')).slice(0, 1)}

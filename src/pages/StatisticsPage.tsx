@@ -50,8 +50,8 @@ function dayNameFromISO(iso: string): string {
 // 样式常量
 // ============================================================
 const C = {
-  primary: '#1e40af',
-  primaryLight: '#2563eb',
+  primary: 'var(--color-primary-800)',
+  primaryLight: 'var(--color-primary-600)',
   primaryDark: '#172554',
   white: THEME_TOKENS.bgCard,
   background: 'var(--bg-card)',
@@ -61,26 +61,26 @@ const C = {
   border: 'var(--border-color)',
   success: '#059669',
   successBg: 'var(--color-success-bg)',
-  warning: '#d97706',
+  warning: 'var(--color-warning-600)',
   warningBg: 'var(--color-warning-bg)',
-  danger: '#dc2626',
+  danger: 'var(--color-error-600)',
   dangerBg: 'var(--color-error-bg)',
-  info: '#2563eb',
+  info: 'var(--color-primary-600)',
   infoBg: 'var(--color-info-bg)',
   purple: '#7c3aed',
   purpleBg: 'var(--color-info-bg)',
 }
 
 const MODALITY_COLORS: Record<string, string> = {
-  CT: '#3b82f6',
+  CT: 'var(--color-primary-500)',
   MR: '#8b5cf6',
-  DR: '#22c55e',
-  DSA: '#f59e0b',
+  DR: 'var(--color-success-500)',
+  DSA: 'var(--color-warning-500)',
   'MG': '#ec4899',
   'GI': '#14b8a6',
 }
 
-const RAD_COLORS = ['#3b82f6', '#60a5fa', '#22c55e', '#f59e0b', '#ec4899', '#14b8a6', '#f97316', '#06b6d4']
+const RAD_COLORS = ['var(--color-primary-500)', '#60a5fa', 'var(--color-success-500)', 'var(--color-warning-500)', '#ec4899', '#14b8a6', '#f97316', 'var(--color-info-500)']
 
 // ============================================================
 // [v3.0.6.8-28] 主数据池派生的图表数据 (替代硬编码)
@@ -114,7 +114,7 @@ const timeSlotData = [
 function getPatientTypeData() {
   const counts: Record<string, number> = {};
   PATIENT_MASTER.forEach((p) => { counts[p.type] = (counts[p.type] || 0) + 1; });
-  const colors: Record<string, string> = { '门诊': '#3b82f6', '住院': '#8b5cf6', '急诊': '#f59e0b', '体检': '#22c55e', '外院转入': '#14b8a6' };
+  const colors: Record<string, string> = { '门诊': 'var(--color-primary-500)', '住院': '#8b5cf6', '急诊': 'var(--color-warning-500)', '体检': 'var(--color-success-500)', '外院转入': '#14b8a6' };
   const items = Object.entries(counts).map(([k, v]) => ({
     name: k, value: v, color: colors[k] || '#64748b',
   }));
@@ -184,7 +184,7 @@ function getQualityDistribution() {
     else if (q.grade === 'C') counts['合格']++;
     else counts['不合格']++;
   });
-  const colors = { '优秀': '#059669', '良好': '#3b82f6', '合格': '#f59e0b', '不合格': '#dc2626' };
+  const colors = { '优秀': '#059669', '良好': 'var(--color-primary-500)', '合格': 'var(--color-warning-500)', '不合格': 'var(--color-error-600)' };
   const items = Object.entries(counts).map(([name, value]) => ({
     name, value, color: colors[name as keyof typeof colors],
   }));
@@ -248,9 +248,9 @@ const maintenanceData = [
 ].map((m) => ({ ...m, nextDate: maintenanceDate(m.daysLeft) }))
 
 const patientSourceData = [
-  { source: appT("statsPage.localCity"), count: 68, color: '#3b82f6' },
+  { source: appT("statsPage.localCity"), count: 68, color: 'var(--color-primary-500)' },
   { source: appT("statsPage.otherProvince"), count: 25, color: '#8b5cf6' },
-  { source: appT("statsPage.overseas"), count: 7, color: '#22c55e' },
+  { source: appT("statsPage.overseas"), count: 7, color: 'var(--color-success-500)' },
 ]
 
 const ageDistributionData = [
@@ -263,7 +263,7 @@ const ageDistributionData = [
 ]
 
 const genderDistribution = [
-  { name: appT("statsPage.male"), value: 55, color: '#3b82f6' },
+  { name: appT("statsPage.male"), value: 55, color: 'var(--color-primary-500)' },
   { name: appT("statsPage.female"), value: 45, color: '#ec4899' },
 ]
 
@@ -351,10 +351,10 @@ const businessStats = {
 // [P1] 成本占比由金额归一化计算 (合计=100), 金额保留用于饼图 dataKey="value"
 const costBreakdown = (() => {
   const items = [
-    { name: appT("statsPage.equipmentDepreciation"), value: 420000, color: '#3b82f6' },
+    { name: appT("statsPage.equipmentDepreciation"), value: 420000, color: 'var(--color-primary-500)' },
     { name: appT("statsPage.laborCost"), value: 380000, color: '#8b5cf6' },
-    { name: appT("statsPage.consumables"), value: 280000, color: '#22c55e' },
-    { name: appT("statsPage.maintenanceCost"), value: 180000, color: '#f59e0b' },
+    { name: appT("statsPage.consumables"), value: 280000, color: 'var(--color-success-500)' },
+    { name: appT("statsPage.maintenanceCost"), value: 180000, color: 'var(--color-warning-500)' },
     { name: appT("statsPage.utilities"), value: 120000, color: '#ec4899' },
     { name: appT("statsPage.otherExpenses"), value: 40000, color: '#14b8a6' },
   ]
@@ -427,7 +427,7 @@ const waitTimeTrendData = [
 ]
 
 function getRevenueByModality() {
-  const colors: Record<string, string> = { 'CT': '#3b82f6', 'MR': '#8b5cf6', 'DR': '#22c55e', 'DSA': '#f59e0b', 'MG': '#ec4899', 'US': '#14b8a6' };
+  const colors: Record<string, string> = { 'CT': 'var(--color-primary-500)', 'MR': '#8b5cf6', 'DR': 'var(--color-success-500)', 'DSA': 'var(--color-warning-500)', 'MG': '#ec4899', 'US': '#14b8a6' };
   const priceByModality: Record<string, number> = { 'CT': 400, 'MR': 800, 'DR': 80, 'DSA': 3500, 'MG': 200, 'US': 120 };
   const out: { name: string; value: number; color: string }[] = [];
   ['CT', 'MR', 'DR', 'DSA', 'MG', 'US'].forEach((mod) => {
@@ -645,9 +645,9 @@ function ExamVolumeTab() {
               <YAxis yAxisId="right" orientation="right" allowDecimals={false} domain={[0, 'dataMax + 10']} tick={{ fontSize: 12, fill: C.textMuted }} label={{ value: appT("statsPage.chart.criticalCount"), angle: 90, position: 'insideRight', fontSize: 12, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
-              <Bar yAxisId="left" dataKey="exams" fill="#3b82f6" name={appT("statsPage.chart.examCount")} radius={[4, 4, 0, 0]} opacity={0.7} />
-              <Line yAxisId="left" type="monotone" dataKey="reports" stroke="#22c55e" strokeWidth={2} dot={{ r: 4 }} name={appT("statsPage.chart.reportCount")} />
-              <Line yAxisId="right" type="monotone" dataKey="critical" stroke="#ef4444" strokeWidth={2} dot={{ r: 4 }} name={appT("statsPage.chart.criticalCount")} />
+              <Bar yAxisId="left" dataKey="exams" fill="var(--color-primary-500)" name={appT("statsPage.chart.examCount")} radius={[4, 4, 0, 0]} opacity={0.7} />
+              <Line yAxisId="left" type="monotone" dataKey="reports" stroke="var(--color-success-500)" strokeWidth={2} dot={{ r: 4 }} name={appT("statsPage.chart.reportCount")} />
+              <Line yAxisId="right" type="monotone" dataKey="critical" stroke="var(--color-error-500)" strokeWidth={2} dot={{ r: 4 }} name={appT("statsPage.chart.criticalCount")} />
             </ComposedChart>
           </ChartContainer>
         </ChartCard>
@@ -664,10 +664,10 @@ function ExamVolumeTab() {
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} wrapperStyle={{ fontSize: 12 }} />
-              <Bar dataKey="CT" stackId="a" fill="#3b82f6" name="CT" radius={[0, 0, 0, 0]} />
+              <Bar dataKey="CT" stackId="a" fill="var(--color-primary-500)" name="CT" radius={[0, 0, 0, 0]} />
               <Bar dataKey="MR" stackId="a" fill="#7c3aed" name="MR" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="DR" stackId="a" fill="#22c55e" name="DR" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="DSA" stackId="a" fill="#d97706" name="DSA" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="DR" stackId="a" fill="var(--color-success-500)" name="DR" radius={[0, 0, 0, 0]} />
+              <Bar dataKey="DSA" stackId="a" fill="var(--color-warning-600)" name="DSA" radius={[4, 4, 0, 0]} />
             </StatBarChart>
           </ChartContainer>
         </ChartCard>
@@ -715,7 +715,7 @@ function ExamVolumeTab() {
               <XAxis type="number" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis dataKey="part" type="category" tick={{ fontSize: 12, fill: C.textMuted }} width={60} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-              <Bar dataKey="count" fill="#3b82f6" name={appT("statsPage.chart.examCount")} radius={[0, 4, 4, 0]}>
+              <Bar dataKey="count" fill="var(--color-primary-500)" name={appT("statsPage.chart.examCount")} radius={[0, 4, 4, 0]}>
                 {bodyPartData.map((_, i) => <Cell key={i} fill={MODALITY_COLORS[['CT', 'MR', 'DR', 'DSA', 'MG', 'GI'][i % 6] ?? 'CT']} />)}
               </Bar>
             </StatBarChart>
@@ -814,7 +814,7 @@ function WorkloadTab() {
                 <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
                 <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
                 <Legend iconSize={10} verticalAlign="bottom" align="center" />
-                <Bar dataKey="written" fill="#3b82f6" name={appT("statsPage.chart.writtenReports")} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="written" fill="var(--color-primary-500)" name={appT("statsPage.chart.writtenReports")} radius={[4, 4, 0, 0]} />
                 <Bar dataKey="reviewed" fill="#8b5cf6" name={appT("statsPage.chart.reviewedReports")} radius={[4, 4, 0, 0]} />
               </StatBarChart>
             </ChartContainer>
@@ -832,10 +832,10 @@ function WorkloadTab() {
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
-              <Line type="monotone" dataKey="李明辉" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="李明辉" stroke="var(--color-primary-500)" strokeWidth={2} dot={{ r: 3 }} />
               <Line type="monotone" dataKey="王秀峰" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="张海涛" stroke="#22c55e" strokeWidth={2} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="刘芳" stroke="#f59e0b" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="张海涛" stroke="var(--color-success-500)" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="刘芳" stroke="var(--color-warning-500)" strokeWidth={2} dot={{ r: 3 }} />
             </LineChart>
           </ChartContainer>
         </ChartCard>
@@ -947,8 +947,8 @@ function RevenueTab({ onExport }: { onExport?: () => void }) {
             <AreaChart data={chartView === '7days' ? revenueTrend7 : revenueTrend30}>
               <defs>
                 <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                  <stop offset="5%" stopColor="var(--color-primary-500)" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="var(--color-primary-500)" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
@@ -956,7 +956,7 @@ function RevenueTab({ onExport }: { onExport?: () => void }) {
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, maxRevenue * 1.2]} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }}
                 formatter={(value: number) => [appT("w9a.statsPage.currencyWan", { value: (value / 10000).toFixed(1) }), appT("statsPage.revenue")]} />
-              <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} fill="url(#revenueGradient)" name={appT("statsPage.chart.revenue")} />
+              <Area type="monotone" dataKey="revenue" stroke="var(--color-primary-500)" strokeWidth={2} fill="url(#revenueGradient)" name={appT("statsPage.chart.revenue")} />
             </AreaChart>
           </ChartContainer>
         </ChartCard>
@@ -1178,7 +1178,7 @@ function QualityControlTab() {
               <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
               <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, 'dataMax + 5']} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-              <Line type="monotone" dataKey="critical" stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} name={appT("statsPage.chart.criticalCount")} />
+              <Line type="monotone" dataKey="critical" stroke="var(--color-error-600)" strokeWidth={2} dot={{ r: 3 }} name={appT("statsPage.chart.criticalCount")} />
             </LineChart>
           </ChartContainer>
         </ChartCard>
@@ -1478,7 +1478,7 @@ function DeviceEfficiencyTab() {
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
                   <Legend iconSize={10} verticalAlign="bottom" align="center" />
                   <Bar dataKey="minTime" name={appT("statsPage.chart.minTime")} fill="#059669" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="maxTime" name={appT("statsPage.chart.maxTime")} fill="#dc2626" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="maxTime" name={appT("statsPage.chart.maxTime")} fill="var(--color-error-600)" radius={[4, 4, 0, 0]} />
                 </StatBarChart>
               </ChartContainer>
             </ChartCard>
@@ -1525,9 +1525,9 @@ function DeviceEfficiencyTab() {
                   <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
                   <Legend iconSize={10} verticalAlign="bottom" align="center" />
-                  <Line type="monotone" dataKey="CT" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} name="CT" />
+                  <Line type="monotone" dataKey="CT" stroke="var(--color-primary-500)" strokeWidth={2} dot={{ r: 3 }} name="CT" />
                   <Line type="monotone" dataKey="MR" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 3 }} name="MR" />
-                  <Line type="monotone" dataKey="DR" stroke="#22c55e" strokeWidth={2} dot={{ r: 3 }} name="DR" />
+                  <Line type="monotone" dataKey="DR" stroke="var(--color-success-500)" strokeWidth={2} dot={{ r: 3 }} name="DR" />
                 </LineChart>
               </ChartContainer>
             </ChartCard>
@@ -1690,7 +1690,7 @@ function PatientAnalysisTab() {
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
-              <Bar dataKey="male" name={appT("statsPage.chart.male")} fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="male" name={appT("statsPage.chart.male")} fill="var(--color-primary-500)" radius={[4, 4, 0, 0]} />
               <Bar dataKey="female" name={appT("statsPage.chart.female")} fill="#ec4899" radius={[4, 4, 0, 0]} />
             </StatBarChart>
           </ChartContainer>
@@ -1812,7 +1812,7 @@ function PositiveRateTab() {
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
               <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 2 }} name={appT("statsPage.chart.positiveRatePct")} />
-              <Line type="monotone" dataKey="critical" stroke="#dc2626" strokeWidth={1.5} dot={{ r: 2 }} name={appT("statsPage.chart.criticalCount")} />
+              <Line type="monotone" dataKey="critical" stroke="var(--color-error-600)" strokeWidth={1.5} dot={{ r: 2 }} name={appT("statsPage.chart.criticalCount")} />
             </LineChart>
           </ChartContainer>
         </ChartCard>
@@ -2011,8 +2011,8 @@ function BusinessAnalysisTab({ onExportBusiness }: { onExportBusiness?: () => vo
                   <stop offset="95%" stopColor="#059669" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="costGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#dc2626" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#dc2626" stopOpacity={0} />
+                  <stop offset="5%" stopColor="var(--color-error-600)" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="var(--color-error-600)" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
@@ -2021,8 +2021,8 @@ function BusinessAnalysisTab({ onExportBusiness }: { onExportBusiness?: () => vo
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
               <Area type="monotone" dataKey="revenue" stroke="#059669" strokeWidth={2} fill="url(#revenueGrad)" name={appT("statsPage.chart.revenue")} />
-              <Area type="monotone" dataKey="cost" stroke="#dc2626" strokeWidth={2} fill="url(#costGrad)" name={appT("statsPage.chart.cost")} />
-              <Line type="monotone" dataKey="profit" stroke="#2563eb" strokeWidth={2} dot={{ r: 4 }} name={appT("statsPage.chart.profit")} />
+              <Area type="monotone" dataKey="cost" stroke="var(--color-error-600)" strokeWidth={2} fill="url(#costGrad)" name={appT("statsPage.chart.cost")} />
+              <Line type="monotone" dataKey="profit" stroke="var(--color-primary-600)" strokeWidth={2} dot={{ r: 4 }} name={appT("statsPage.chart.profit")} />
             </AreaChart>
           </ChartContainer>
         </ChartCard>
@@ -2070,7 +2070,7 @@ function BusinessAnalysisTab({ onExportBusiness }: { onExportBusiness?: () => vo
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }}
                 formatter={(value: number) => appT("w9a.statsPage.currencyWan", { value: (value / 10000).toFixed(1) })} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
-              <Line type="monotone" dataKey="revenue" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} name={appT("statsPage.chart.perCapitaRevenue")} />
+              <Line type="monotone" dataKey="revenue" stroke="var(--color-primary-600)" strokeWidth={2} dot={{ r: 3 }} name={appT("statsPage.chart.perCapitaRevenue")} />
               <Line type="monotone" dataKey="profit" stroke="#059669" strokeWidth={2} dot={{ r: 3 }} name={appT("statsPage.chart.perCapitaProfit")} />
             </LineChart>
           </ChartContainer>
@@ -2149,10 +2149,10 @@ const DeepAnalysisTab: React.FC = () => {
       双签: Math.round((d.written ?? 0) * 0.11),
     })))
     setCriticalDist([
-      { bucket: '<10min', count: 8, color: '#22c55e' },
-      { bucket: '10-30min', count: 15, color: '#3b82f6' },
-      { bucket: '30-60min', count: 9, color: '#f59e0b' },
-      { bucket: '>60min', count: 4, color: '#dc2626' },
+      { bucket: '<10min', count: 8, color: 'var(--color-success-500)' },
+      { bucket: '10-30min', count: 15, color: 'var(--color-primary-500)' },
+      { bucket: '30-60min', count: 9, color: 'var(--color-warning-500)' },
+      { bucket: '>60min', count: 4, color: 'var(--color-error-600)' },
     ])
     setCriticalMeta({ complianceRate: 92, avgResponseMinutes: 18, total: 36 })
     setOverdueList([
@@ -2252,14 +2252,14 @@ const DeepAnalysisTab: React.FC = () => {
         const slaData: any = slaRes.data?.data ?? slaRes.data
         if (slaData && typeof slaData === 'object') {
           const dist = Array.isArray(slaData.distribution) ? slaData.distribution : []
-          const colors = ['#22c55e', '#3b82f6', '#f59e0b', '#dc2626']
+          const colors = ['var(--color-success-500)', 'var(--color-primary-500)', 'var(--color-warning-500)', 'var(--color-error-600)']
           setCriticalDist(dist.length > 0
             ? dist.map((b: any, i: number) => ({ bucket: String(b.bucket ?? appT("w9a.statsPage.bucketFallback", { index: i + 1 })), count: Number(b.count ?? 0), color: colors[i % colors.length] }))
             : [
-              { bucket: '<10min', count: 8, color: '#22c55e' },
-              { bucket: '10-30min', count: 15, color: '#3b82f6' },
-              { bucket: '30-60min', count: 9, color: '#f59e0b' },
-              { bucket: '>60min', count: 4, color: '#dc2626' },
+              { bucket: '<10min', count: 8, color: 'var(--color-success-500)' },
+              { bucket: '10-30min', count: 15, color: 'var(--color-primary-500)' },
+              { bucket: '30-60min', count: 9, color: 'var(--color-warning-500)' },
+              { bucket: '>60min', count: 4, color: 'var(--color-error-600)' },
             ])
           setCriticalMeta({
             complianceRate: Math.round(Number(slaData.complianceRate ?? 0)),
@@ -2285,12 +2285,12 @@ const DeepAnalysisTab: React.FC = () => {
   const radarTotal = radarData.length
 
   const radarColumns: TableColumnsType<any> = [
-    { title: appT("statsPage.department"), dataIndex: 'dept', key: 'dept', render: (v: string) => <span style={{ fontWeight: 600, color: '#1e40af' }}>{v}</span> },
+    { title: appT("statsPage.department"), dataIndex: 'dept', key: 'dept', render: (v: string) => <span style={{ fontWeight: 600, color: 'var(--color-primary-800)' }}>{v}</span> },
     ...radarSeries.map(k => ({
       title: k, dataIndex: k, key: k, align: 'right' as const,
       render: (v: unknown) => {
         const n = Number(v) || 0
-        const color = n >= 85 ? '#059669' : n >= 65 ? '#d97706' : '#dc2626'
+        const color = n >= 85 ? '#059669' : n >= 65 ? 'var(--color-warning-600)' : 'var(--color-error-600)'
         return <span style={{ color, fontWeight: 600 }}>{n}</span>
       },
     })),
@@ -2299,7 +2299,7 @@ const DeepAnalysisTab: React.FC = () => {
       render: (_v: unknown, row: any) => {
         const avg = Math.round(radarSeries.reduce((s, k) => s + (Number(row[k]) || 0), 0) / Math.max(1, radarSeries.length))
         return (
-          <span style={{ display: 'inline-block', padding: '2px 10px', borderRadius: 999, background: avg >= 80 ? 'var(--color-success-bg)' : avg >= 65 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)', color: avg >= 80 ? '#059669' : avg >= 65 ? '#d97706' : '#dc2626', fontWeight: 800 }}>
+          <span style={{ display: 'inline-block', padding: '2px 10px', borderRadius: 999, background: avg >= 80 ? 'var(--color-success-bg)' : avg >= 65 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)', color: avg >= 80 ? '#059669' : avg >= 65 ? 'var(--color-warning-600)' : 'var(--color-error-600)', fontWeight: 800 }}>
             {avg}
           </span>
         )
@@ -2308,8 +2308,8 @@ const DeepAnalysisTab: React.FC = () => {
   ]
 
   const doctorStackColumns: TableColumnsType<any> = [
-    { title: appT("statsPage.doctor"), dataIndex: 'name', key: 'name', render: (v: string) => <span style={{ fontWeight: 600, color: '#1e40af' }}>{v}</span> },
-    { title: appT("statsPage.initialReview"), dataIndex: '初核', key: 'first', align: 'right', render: (v: number) => <span style={{ color: '#3b82f6', fontWeight: 600 }}>{v}</span> },
+    { title: appT("statsPage.doctor"), dataIndex: 'name', key: 'name', render: (v: string) => <span style={{ fontWeight: 600, color: 'var(--color-primary-800)' }}>{v}</span> },
+    { title: appT("statsPage.initialReview"), dataIndex: '初核', key: 'first', align: 'right', render: (v: number) => <span style={{ color: 'var(--color-primary-500)', fontWeight: 600 }}>{v}</span> },
     { title: appT("statsPage.finalReview"), dataIndex: '终核', key: 'final', align: 'right', render: (v: number) => <span style={{ color: '#8b5cf6', fontWeight: 600 }}>{v}</span> },
     { title: appT("statsPage.cosign"), dataIndex: '双签', key: 'cosign', align: 'right', render: (v: number) => <span style={{ color: '#ec4899', fontWeight: 600 }}>{v}</span> },
     { title: appT("statsPage.total"), key: 'total', align: 'right', render: (_v: unknown, d: any) => <span style={{ fontWeight: 800, color: 'var(--text-primary)' }}>{d.初核 + d.终核 + d.双签}</span> },
@@ -2320,7 +2320,7 @@ const DeepAnalysisTab: React.FC = () => {
         const pct = (k: number) => `${Math.round((k / Math.max(1, total)) * 100)}%`
         return (
           <div style={{ display: 'flex', height: 10, borderRadius: 5, overflow: 'hidden', background: 'var(--bg-deep)' }}>
-            <div style={{ width: pct(d.初核), background: '#3b82f6' }} title={appT("w9a.statsPage.initialReviewTooltip", { pct: pct(d.初核) })} />
+            <div style={{ width: pct(d.初核), background: 'var(--color-primary-500)' }} title={appT("w9a.statsPage.initialReviewTooltip", { pct: pct(d.初核) })} />
             <div style={{ width: pct(d.终核), background: '#8b5cf6' }} title={appT("w9a.statsPage.finalReviewTooltip", { pct: pct(d.终核) })} />
             <div style={{ width: pct(d.双签), background: '#ec4899' }} title={appT("w9a.statsPage.cosignTooltip", { pct: pct(d.双签) })} />
           </div>
@@ -2337,7 +2337,7 @@ const DeepAnalysisTab: React.FC = () => {
         display: 'flex', alignItems: 'center', gap: 8,
         background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
         border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
-        color: source === 'api' ? '#059669' : '#d97706',
+        color: source === 'api' ? '#059669' : 'var(--color-warning-600)',
       }} data-testid="deep-analysis-source-badge">
         {source === 'api' ? appT("statsPage.sourceRealApi") : appT("statsPage.sourceDemoFallback")}
         {sourceDetail && <span style={{ opacity: 0.8 }}>· {sourceDetail}</span>}
@@ -2345,7 +2345,7 @@ const DeepAnalysisTab: React.FC = () => {
       </div>
 
       {/* D1. 科室对比雷达 */}
-      <ChartCard title={appT("statsPage.deptRadar6")} color="#1e40af">
+      <ChartCard title={appT("statsPage.deptRadar6")} color="var(--color-primary-800)">
         {radarTotal === 0 ? (
           <ChartEmpty description={appT("statsPage.noDeptMetrics")} height={260} />
         ) : (
@@ -2368,7 +2368,7 @@ const DeepAnalysisTab: React.FC = () => {
                 const best = radarSeries.reduce((acc, k) => (Number(row[k]) > Number(acc.value) ? { k, value: row[k] } : acc), { k: radarSeries[0], value: 0 })
                 return (
                   <div key={dept} style={{ padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{dept}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{dept}</div>
                     <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
                       {appT("statsPage.bestMetricLabel")} <b style={{ color: '#059669' }}>{best.k}</b> {best.value}
                     </div>
@@ -2393,7 +2393,7 @@ const DeepAnalysisTab: React.FC = () => {
                   <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 10 }} tickFormatter={(v: string) => (v && v.length > 7 ? `${v.slice(0, 7)}…` : v)} />
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
                   <Tooltip formatter={(v: any) => [`${v}%`, appT("statsPage.usageRate")]} />
-                  <Bar dataKey="utilization" fill="#22c55e" radius={[0, 4, 4, 0]} barSize={14} />
+                  <Bar dataKey="utilization" fill="var(--color-success-500)" radius={[0, 4, 4, 0]} barSize={14} />
                 </StatBarChart>
               </ChartContainer>
               <div style={{ marginTop: 6, display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-secondary)' }}>
@@ -2404,7 +2404,7 @@ const DeepAnalysisTab: React.FC = () => {
           )}
         </ChartCard>
 
-        <ChartCard title={appT("statsPage.deviceVolumeTop")} color="#2563eb">
+        <ChartCard title={appT("statsPage.deviceVolumeTop")} color="var(--color-primary-600)">
           {deviceVolumeRank.length === 0 ? (
             <ChartEmpty description={appT("statsPage.noDeviceVolume")} height={220} />
           ) : (
@@ -2415,7 +2415,7 @@ const DeepAnalysisTab: React.FC = () => {
                   <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 10 }} tickFormatter={(v: string) => (v && v.length > 7 ? `${v.slice(0, 7)}…` : v)} />
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
                   <Tooltip formatter={(v: any) => [v, appT("statsPage.examVolume")]} />
-                  <Bar dataKey="exams" fill="#2563eb" radius={[0, 4, 4, 0]} barSize={14} />
+                  <Bar dataKey="exams" fill="var(--color-primary-600)" radius={[0, 4, 4, 0]} barSize={14} />
                 </StatBarChart>
               </ChartContainer>
               <div style={{ marginTop: 6, fontSize: 11, color: 'var(--text-secondary)', display: 'flex', justifyContent: 'space-between' }}>
@@ -2440,13 +2440,13 @@ const DeepAnalysisTab: React.FC = () => {
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
                 <Tooltip />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar dataKey="初核" stackId="w" fill="#3b82f6" />
+                <Bar dataKey="初核" stackId="w" fill="var(--color-primary-500)" />
                 <Bar dataKey="终核" stackId="w" fill="#8b5cf6" />
                 <Bar dataKey="双签" stackId="w" fill="#ec4899" />
               </StatBarChart>
             </ChartContainer>
             <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: 11, color: 'var(--text-secondary)', flexWrap: 'wrap' }}>
-              <span>{appT("statsPage.initialReviewLabel")} <b style={{ color: '#3b82f6' }}>{doctorStack.reduce((s, d) => s + d.初核, 0)}</b></span>
+              <span>{appT("statsPage.initialReviewLabel")} <b style={{ color: 'var(--color-primary-500)' }}>{doctorStack.reduce((s, d) => s + d.初核, 0)}</b></span>
               <span>{appT("statsPage.finalReviewLabel")} <b style={{ color: '#8b5cf6' }}>{doctorStack.reduce((s, d) => s + d.终核, 0)}</b></span>
               <span>{appT("statsPage.cosignLabel")} <b style={{ color: '#ec4899' }}>{doctorStack.reduce((s, d) => s + d.双签, 0)}</b></span>
               <span style={{ marginLeft: 'auto' }}>{appT("statsPage.totalPrefix")} {doctorStack.length} {appT("statsPage.doctorCountUnit")}</span>
@@ -2456,7 +2456,7 @@ const DeepAnalysisTab: React.FC = () => {
       </ChartCard>
 
       {/* D4. 危急值响应时间分布 */}
-      <ChartCard title={appT("statsPage.criticalResponseDist")} color="#dc2626">
+      <ChartCard title={appT("statsPage.criticalResponseDist")} color="var(--color-error-600)">
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 220px', gap: 12 }}>
           <ChartContainer height={230} state="ready">
             <StatBarChart data={criticalDist} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
@@ -2472,19 +2472,19 @@ const DeepAnalysisTab: React.FC = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div style={{ padding: 14, background: 'var(--content-bg)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{appT("statsPage.slaRate")}</div>
-              <div style={{ fontSize: 30, fontWeight: 800, color: criticalMeta.complianceRate >= 90 ? '#059669' : '#d97706' }}>
+              <div style={{ fontSize: 30, fontWeight: 800, color: criticalMeta.complianceRate >= 90 ? '#059669' : 'var(--color-warning-600)' }}>
                 {criticalMeta.complianceRate}%
               </div>
             </div>
             <div style={{ padding: 14, background: 'var(--content-bg)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{appT("statsPage.avgResponseTime")}</div>
-              <div style={{ fontSize: 24, fontWeight: 800, color: criticalMeta.avgResponseMinutes <= 30 ? '#059669' : '#dc2626' }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: criticalMeta.avgResponseMinutes <= 30 ? '#059669' : 'var(--color-error-600)' }}>
                 {criticalMeta.avgResponseMinutes} <span style={{ fontSize: 12 }}>min</span>
               </div>
             </div>
             <div style={{ padding: 14, background: 'var(--content-bg)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{appT("statsPage.criticalTotal")}</div>
-              <div style={{ fontSize: 24, fontWeight: 800, color: '#dc2626' }}>{criticalMeta.total}</div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-error-600)' }}>{criticalMeta.total}</div>
             </div>
             <div style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
               {appT("statsPage.criticalStatsNote2")}
@@ -2494,18 +2494,18 @@ const DeepAnalysisTab: React.FC = () => {
         {/* 超期危急值清单 */}
         {overdueList.length > 0 && (
           <div style={{ marginTop: 14, borderTop: '1px dashed var(--border-color)', paddingTop: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#dc2626', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-error-600)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
               <AlertTriangle size={13} /> {appT("statsPage.unclosedCritical")}{overdueList.length})
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {overdueList.map((o: any) => (
                 <div key={o.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 10px', background: 'var(--content-bg)', borderRadius: 8, fontSize: 12, border: '1px solid var(--border-color)' }}>
                   <code style={{ fontFamily: 'monospace', fontSize: 11, color: 'var(--text-secondary)' }}>{o.id}</code>
-                  <span style={{ padding: '1px 8px', borderRadius: 999, fontSize: 11, fontWeight: 700, background: o.severity === '危急' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: o.severity === '危急' ? '#dc2626' : '#d97706' }}>
+                  <span style={{ padding: '1px 8px', borderRadius: 999, fontSize: 11, fontWeight: 700, background: o.severity === '危急' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: o.severity === '危急' ? 'var(--color-error-600)' : 'var(--color-warning-600)' }}>
                     {o.severity}
                   </span>
                   <span style={{ color: 'var(--text-secondary)' }}>{o.state}</span>
-                  <span style={{ marginLeft: 'auto', color: '#dc2626', fontWeight: 800 }}>{o.responseMinutes}min</span>
+                  <span style={{ marginLeft: 'auto', color: 'var(--color-error-600)', fontWeight: 800 }}>{o.responseMinutes}min</span>
                   <span style={{ color: 'var(--text-secondary)', fontSize: 11 }}>{String(o.createdAt ?? '').slice(0, 16)}</span>
                 </div>
               ))}
@@ -2528,7 +2528,7 @@ const DeepAnalysisTab: React.FC = () => {
       </ChartCard>
 
       {/* D6. 设备使用率周趋势 (OEE 双榜联动) */}
-      <ChartCard title={appT("statsPage.oeeWeeklyTrend")} color="#0891b2" demo={source === 'demo'}>
+      <ChartCard title={appT("statsPage.oeeWeeklyTrend")} color="var(--color-info-600)" demo={source === 'demo'}>
         {deviceUtilRank.length === 0 ? (
           <ChartEmpty description={appT("statsPage.noOeeTrend")} height={200} />
         ) : (
@@ -2571,7 +2571,7 @@ const DeepAnalysisTab: React.FC = () => {
 
       {/* 数据口径说明 */}
       <div style={{ marginTop: 8, padding: '10px 14px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-        <b style={{ color: '#1e40af' }}>{appT("statsPage.scopeNote")}</b> {appT("statsPage.radarNoteLong")}
+        <b style={{ color: 'var(--color-primary-800)' }}>{appT("statsPage.scopeNote")}</b> {appT("statsPage.radarNoteLong")}
       </div>
     </div>
   )

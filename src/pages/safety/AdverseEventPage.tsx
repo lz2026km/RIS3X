@@ -151,9 +151,9 @@ export default function AdverseEventPage() {
 
         <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
           {[
-            { title: t('ade.monthEvents'), value: events.length, icon: AlertTriangle, color: 'var(--color-error-500, #ef4444)' },
-            { title: t('ade.investigating'), value: events.filter(e => e.status === 'investigating').length, icon: Search, color: 'var(--color-warning-500, #f59e0b)' },
-            { title: t('ade.resolved'), value: events.filter(e => e.status === 'resolved').length, icon: CheckCircle, color: 'var(--color-success-500, #22c55e)' },
+            { title: t('ade.monthEvents'), value: events.length, icon: AlertTriangle, color: 'var(--color-error-500, var(--color-error-500))' },
+            { title: t('ade.investigating'), value: events.filter(e => e.status === 'investigating').length, icon: Search, color: 'var(--color-warning-500, var(--color-warning-500))' },
+            { title: t('ade.resolved'), value: events.filter(e => e.status === 'resolved').length, icon: CheckCircle, color: 'var(--color-success-500, var(--color-success-500))' },
             { title: t('ade.closed'), value: events.filter(e => e.status === 'closed').length, icon: XCircle, color: 'var(--text-muted, #8b949e)' },
           ].map((k, i) => (
             <div key={i} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 140 }}>
@@ -169,7 +169,7 @@ export default function AdverseEventPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Activity size={16} color="#3b82f6" />{t('ade.trendTitle')}
+              <Activity size={16} color="var(--color-primary-500)" />{t('ade.trendTitle')}
             </div>
             <ChartContainer height={240} state={trendChartData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('ade.noTrendData')}>
               <LineChart data={trendChartData}>
@@ -183,7 +183,7 @@ export default function AdverseEventPage() {
           </div>
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <BarChart3 size={16} color="#22c55e" />{t('ade.typeDistribution')}
+              <BarChart3 size={16} color="var(--color-success-500)" />{t('ade.typeDistribution')}
             </div>
             <ChartContainer height={240} state={categoryChartData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('ade.noTypeData')}>
               <BarChart data={categoryChartData}>
@@ -231,7 +231,7 @@ export default function AdverseEventPage() {
                 title: t('ade.colStatus'),
                 dataIndex: 'status',
                 key: 'status',
-                render: (v: EventStatus) => <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: v === 'closed' ? '#22c55e20' : v === 'resolved' ? '#3b82f620' : v === 'investigating' ? '#f59e0b20' : '#8b949e20', color: v === 'closed' ? '#22c55e' : v === 'resolved' ? '#3b82f6' : v === 'investigating' ? '#f59e0b' : 'var(--text-muted, #8b949e)' }}>{t(STATUS_LABELS[v])}</span>,
+                render: (v: EventStatus) => <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: v === 'closed' ? '#22c55e20' : v === 'resolved' ? '#3b82f620' : v === 'investigating' ? '#f59e0b20' : '#8b949e20', color: v === 'closed' ? 'var(--color-success-500)' : v === 'resolved' ? 'var(--color-primary-500)' : v === 'investigating' ? 'var(--color-warning-500)' : 'var(--text-muted, #8b949e)' }}>{t(STATUS_LABELS[v])}</span>,
               },
               { title: t('ade.colReporter'), dataIndex: 'reportedBy', key: 'reportedBy', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
               { title: t('ade.colDate'), dataIndex: 'reportedAt', key: 'reportedAt', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{v}</span> },

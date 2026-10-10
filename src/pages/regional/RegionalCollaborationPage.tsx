@@ -243,7 +243,7 @@ const RegionalCollaborationPage: React.FC = () => {
   const instColumns = [
     { title: t('regionalCollab.instName'), dataIndex: "name", key: "name", render: (n: string, r: InstitutionDto) => (
       <Space>
-        <Building2 size={15} color="#1e40af" />
+        <Building2 size={15} color="var(--color-primary-800)" />
         <div>
           <div style={{ fontWeight: 600, fontSize: 12 }}>{n}</div>
           <Text type="secondary" style={{ fontSize: 11 }}>{r.aeTitle}</Text>
@@ -298,7 +298,7 @@ const RegionalCollaborationPage: React.FC = () => {
               <span style={{ color: "var(--text-secondary)" }}>{e.count} {t('regionalCollab.itemsUnit')} · {(e.bytes / 1024 / 1024).toFixed(1)} MB · {(e.duration / 1000).toFixed(1)}s</span>
               <span style={{ color: "var(--text-secondary)" }}>{String(e.timestamp).slice(11, 19)}</span>
             </Space>
-            {e.message && <div style={{ color: "#dc2626", marginTop: 2 }}>{e.message}</div>}
+            {e.message && <div style={{ color: "var(--color-error-600)", marginTop: 2 }}>{e.message}</div>}
           </div>
         ),
       };
@@ -309,7 +309,7 @@ const RegionalCollaborationPage: React.FC = () => {
     <div style={{ padding: 16, background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
       {/* 页头 */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
-        <Network size={18} color="#0891b2" />
+        <Network size={18} color="var(--color-info-600)" />
         <span style={{ fontSize: 16, fontWeight: 700 }}>{t('regionalCollab.title')}</span>
         <Tag color="cyan">G005 Wave 4B</Tag>
         <Tag color="geekblue">Regional Collaboration</Tag>
@@ -326,7 +326,7 @@ const RegionalCollaborationPage: React.FC = () => {
           display: "flex", alignItems: "center", gap: 8, marginBottom: 12, fontSize: 12,
           padding: "6px 12px", borderRadius: 8,
           background: source === "api" ? "var(--color-success-bg)" : "var(--color-warning-bg)",
-          color: source === "api" ? "#059669" : "#d97706",
+          color: source === "api" ? "#059669" : "var(--color-warning-600)",
           border: `1px solid ${source === "api" ? "#bbf7d0" : "#fde68a"}`,
         }}
       >
@@ -338,8 +338,8 @@ const RegionalCollaborationPage: React.FC = () => {
 
       {/* KPI */}
       <StatCardGrid minWidth={200} gap={12} style={{ marginBottom: 12 }}>
-        <StatCard title={t('regionalCollab.statInstitutions')} value={institutions.length} suffix={t('regionalCollab.unitInstitutions')} icon={<Building2 size={15} color="#1e40af" />} />
-        <StatCard title={t('regionalCollab.statSharedStudies')} value={totalShared} suffix={t('regionalCollab.unitItems')} icon={<Share2 size={15} color="#0891b2" />} />
+        <StatCard title={t('regionalCollab.statInstitutions')} value={institutions.length} suffix={t('regionalCollab.unitInstitutions')} icon={<Building2 size={15} color="var(--color-primary-800)" />} />
+        <StatCard title={t('regionalCollab.statSharedStudies')} value={totalShared} suffix={t('regionalCollab.unitItems')} icon={<Share2 size={15} color="var(--color-info-600)" />} />
         <StatCard title={t('regionalCollab.statTotalAccess')} value={totalAccess} suffix={t('regionalCollab.unitTimes')} icon={<BookOpenCheck size={15} color="#7c3aed" />} />
         <StatCard title={t('regionalCollab.statOnlineInstitutions')} value={institutions.filter((i) => i.status === "online").length} suffix={`/ ${institutions.length}`} icon={<CheckCircle2 size={15} color="#10b981" />} />
       </StatCardGrid>
@@ -351,7 +351,7 @@ const RegionalCollaborationPage: React.FC = () => {
           {/* 机构成员卡 */}
           <Card
             size="small"
-            title={<Space><Building2 size={15} color="#1e40af" />{t('regionalCollab.memberInstitutions')}</Space>}
+            title={<Space><Building2 size={15} color="var(--color-primary-800)" />{t('regionalCollab.memberInstitutions')}</Space>}
             extra={<Button size="small" icon={<RefreshCw size={13} />} onClick={() => void loadAll()}>{t('regionalCollab.refresh')}</Button>}
             style={{ marginBottom: 12 }}
           >
@@ -367,7 +367,7 @@ const RegionalCollaborationPage: React.FC = () => {
           {/* 跨院调阅 */}
           <Card
             size="small"
-            title={<Space><Search size={15} color="#2563eb" />{t('regionalCollab.crossAccess')}</Space>}
+            title={<Space><Search size={15} color="var(--color-primary-600)" />{t('regionalCollab.crossAccess')}</Space>}
             style={{ marginBottom: 12 }}
           >
             <Space wrap style={{ marginBottom: 12 }}>
@@ -491,7 +491,7 @@ const RegionalCollaborationPage: React.FC = () => {
                         <XAxis dataKey="institution" {...chartDefaults.axis} />
                         <YAxis {...chartDefaults.axis} />
                         <ReTooltip {...chartDefaults.tooltip} />
-                        <Bar dataKey="共享检查" fill="#0891b2" radius={[3, 3, 0, 0]} />
+                        <Bar dataKey="共享检查" fill="var(--color-info-600)" radius={[3, 3, 0, 0]} />
                         <Bar dataKey="调阅次数" fill="#7c3aed" radius={[3, 3, 0, 0]} />
                       </BarChart>
                     </ChartContainer>
@@ -509,7 +509,7 @@ const RegionalCollaborationPage: React.FC = () => {
             <Col xs={24} lg={14}>
               <Card
                 size="small"
-                title={<Space><Globe size={15} color="#0891b2" />{t('regionalCollab.syncStatus')}</Space>}
+                title={<Space><Globe size={15} color="var(--color-info-600)" />{t('regionalCollab.syncStatus')}</Space>}
                 style={{ marginBottom: 12 }}
               >
                 <Row gutter={8} style={{ marginBottom: 8 }}>
@@ -538,7 +538,7 @@ const RegionalCollaborationPage: React.FC = () => {
             <Col xs={24} lg={10}>
               <Card
                 size="small"
-                title={<Space><ShieldCheck size={15} color="#1d4ed8" />{t('regionalCollab.routingAudit')}</Space>}
+                title={<Space><ShieldCheck size={15} color="var(--color-primary-700)" />{t('regionalCollab.routingAudit')}</Space>}
                 style={{ marginBottom: 12 }}
               >
                 <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 8 }}>{t('regionalCollab.interSiteRouting')}</div>
@@ -551,7 +551,7 @@ const RegionalCollaborationPage: React.FC = () => {
                       const dst = sites.find((s) => s.id === r.destSite)?.name ?? r.destSite;
                       return (
                         <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, padding: "4px 6px", background: "var(--bg-card-secondary)", borderRadius: 6 }}>
-                          <Share2 size={12} color="#1d4ed8" />
+                          <Share2 size={12} color="var(--color-primary-700)" />
                           <span>{src} → {dst}</span>
                           <Tag color="blue">{r.modality}</Tag>
                           <Tag color={r.active ? "green" : "default"}>{r.active ? t('regionalCollab.enabled') : t('regionalCollab.disabled')}</Tag>

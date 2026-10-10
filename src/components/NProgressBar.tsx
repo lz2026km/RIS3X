@@ -57,7 +57,7 @@ export function NProgressBar({ children }: { children?: React.ReactNode }) {
           left: 0,
           right: 0,
           height: 3,
-          background: 'linear-gradient(90deg, #3b82f6, #60a5fa, #3b82f6)',
+          background: 'linear-gradient(90deg, var(--color-primary-500), #60a5fa, var(--color-primary-500))',
           transform: 'scaleX(0)',
           transformOrigin: 'left center',
           transition: 'transform 0.3s ease-out, opacity 0.2s ease-in',

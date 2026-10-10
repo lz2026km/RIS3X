@@ -155,7 +155,7 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title={t('reportIntegration.dicomSr.stat.sent')} value={0} prefix={<Globe className="w-3 h-3" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 18  } }} />
+            <Statistic title={t('reportIntegration.dicomSr.stat.sent')} value={0} prefix={<Globe className="w-3 h-3" style={{ color: 'var(--color-primary-500)' }} />} styles={{ content: {  fontSize: 18  } }} />
           </Card>
         </Col>
         <Col span={6}>

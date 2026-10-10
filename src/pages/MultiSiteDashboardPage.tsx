@@ -175,7 +175,7 @@ export default function MultiSiteDashboardPage() {
   const siteColumns = [
     { title: t('multiSiteDashboard.colSite'), dataIndex: "name", key: "name", width: 240, render: (n: string, r: any) => (
       <Space>
-        <Building2 size={16} color={r.primary ? "#1e40af" : "#64748b"} />
+        <Building2 size={16} color={r.primary ? "var(--color-primary-800)" : "#64748b"} />
         <div>
           <div style={{ fontWeight: 600, fontSize: 12 }}>{n}</div>
           <Text type="secondary" style={{ fontSize: 11 }}>{r.code}</Text>
@@ -202,7 +202,7 @@ export default function MultiSiteDashboardPage() {
 
   return (
     <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
-      <Card style={{ background: "linear-gradient(135deg,#1e40af 0%,#3b82f6 100%)", color: "#fff", border: "none", marginBottom: 16 }}>
+      <Card style={{ background: "linear-gradient(135deg,var(--color-primary-800) 0%,var(--color-primary-500) 100%)", color: "#fff", border: "none", marginBottom: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Space size={16}>
             <Globe size={36} color="#fff" />
@@ -232,9 +232,9 @@ export default function MultiSiteDashboardPage() {
       {!error && !usingFallback && !loading && <Alert type="success" showIcon message={t('multiSiteDashboard.dataSourceReal')} style={{ marginBottom: 16 }} />}
 
       <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
-        <StatCard title={t('multiSiteDashboard.statTotalSites')} value={sites.length} icon={<Building2 size={18} />} color="#1e40af" loading={loading} />
+        <StatCard title={t('multiSiteDashboard.statTotalSites')} value={sites.length} icon={<Building2 size={18} />} color="var(--color-primary-800)" loading={loading} />
         <StatCard title={t('multiSiteDashboard.statOnline')} value={activeCount} icon={<CheckCircle size={18} />} color="#10b981" suffix={`/ ${sites.length}`} loading={loading} />
-        <StatCard title={t('multiSiteDashboard.statTotalStudies')} value={totalStudies} color="#0891b2" loading={loading} />
+        <StatCard title={t('multiSiteDashboard.statTotalStudies')} value={totalStudies} color="var(--color-info-600)" loading={loading} />
         <StatCard title={t('multiSiteDashboard.statTotalPatients')} value={totalPatients} color="#7c3aed" loading={loading} />
         <StatCard title={t('multiSiteDashboard.statTotalUsers')} value={totalUsers} color="warning" loading={loading} />
         <StatCard title={t('multiSiteDashboard.statTotalStorage')} value={totalStorage.toLocaleString()} icon={<Database size={18} />} color="error" loading={loading} />
@@ -248,7 +248,7 @@ export default function MultiSiteDashboardPage() {
         </Col>
         <Col span={8}>
           <Card title={<><Activity size={16} /> {t('multiSiteDashboard.syncStatus')}</>} style={{ marginBottom: 16 }}>
-            <Statistic title={t('multiSiteDashboard.lastSyncLatency')} value={syncRate.toFixed(1)} suffix="%" styles={{ content: {  color: syncRate > 90 ? "#10b981" : "#f59e0b"  } }} loading={loading} />
+            <Statistic title={t('multiSiteDashboard.lastSyncLatency')} value={syncRate.toFixed(1)} suffix="%" styles={{ content: {  color: syncRate > 90 ? "#10b981" : "var(--color-warning-500)"  } }} loading={loading} />
             <div style={{ marginTop: 12 }}>
               <Text>{t('multiSiteDashboard.avgLatencyText', { count: sites.length, latency: (sites.reduce((s, x) => s + x.latencyMs, 0) / Math.max(1, sites.length)).toFixed(1) })}</Text>
               <Progress percent={Math.min(100, (sites.filter(s => s.status === "active").length / Math.max(1, sites.length)) * 100)} status="active" />

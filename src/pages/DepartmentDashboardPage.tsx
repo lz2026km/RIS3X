@@ -245,11 +245,11 @@ const DepartmentDashboardPage: React.FC = () => {
 
   const getExamColor = (type: string) => {
     switch (type) {
-      case 'CT': return '#3b82f6';
+      case 'CT': return 'var(--color-primary-500)';
       case 'MRI': return '#8b5cf6';
-      case 'X线': return '#06b6d4';
+      case 'X线': return 'var(--color-info-500)';
       case '超声': return '#10b981';
-      case 'DSA': return '#f59e0b';
+      case 'DSA': return 'var(--color-warning-500)';
       default: return '#64748b';
     }
   };
@@ -268,7 +268,7 @@ const DepartmentDashboardPage: React.FC = () => {
       </div>
     );
   }
-  if (error) return <div role="alert" data-testid="dept-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
+  if (error) return <div role="alert" data-testid="dept-error" style={{ padding: 40, textAlign: 'center', color: 'var(--color-error-600)' }}>{error}</div>;
   if (!dataAvailable) {
     return (
       <div data-testid="dept-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>

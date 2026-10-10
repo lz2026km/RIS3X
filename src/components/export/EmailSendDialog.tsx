@@ -58,7 +58,7 @@ export const EmailSendDialog: React.FC<EmailSendDialogProps> = ({ open, onClose,
       <div style={{ background: 'var(--bg-card)', borderRadius: 12, width: 520, boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Mail size={18} color="#2563eb" />
+            <Mail size={18} color="var(--color-primary-600)" />
             <span style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>邮件发送</span>
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={18} /></button>
@@ -83,13 +83,13 @@ export const EmailSendDialog: React.FC<EmailSendDialogProps> = ({ open, onClose,
           </div>
 
           {exportResult && (
-            <div style={{ padding: 8, background: '#f0fdf4', borderRadius: 6, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#16a34a' }}>
+            <div style={{ padding: 8, background: '#f0fdf4', borderRadius: 6, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--color-success-600)' }}>
               <Paperclip size={12} /> 已附加: {exportResult.fileName}
             </div>
           )}
 
           {result && (
-            <div style={{ padding: 10, background: result.success ? '#f0fdf4' : '#fef2f2', borderRadius: 6, marginBottom: 12, fontSize: 12, color: result.success ? '#16a34a' : '#dc2626' }}>
+            <div style={{ padding: 10, background: result.success ? '#f0fdf4' : '#fef2f2', borderRadius: 6, marginBottom: 12, fontSize: 12, color: result.success ? 'var(--color-success-600)' : 'var(--color-error-600)' }}>
               {result.success ? '邮件已排队发送' : `发送失败: ${result.message}`}
             </div>
           )}
@@ -109,7 +109,7 @@ export const EmailSendDialog: React.FC<EmailSendDialogProps> = ({ open, onClose,
 const inputStyle: React.CSSProperties = {
   width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, };
 const btnPrimary: React.CSSProperties = {
-  flex: 1, padding: '8px 16px', border: 'none', borderRadius: 6, background: '#2563eb', color: '#fff',
+  flex: 1, padding: '8px 16px', border: 'none', borderRadius: 6, background: 'var(--color-primary-600)', color: '#fff',
   fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center',
 };
 const btnSecondary: React.CSSProperties = {

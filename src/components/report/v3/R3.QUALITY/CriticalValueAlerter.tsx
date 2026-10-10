@@ -35,9 +35,9 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { t } from '../../../../i18n/appI18n';
 
 const STATUS_META: Record<CriticalStatus, { color: string; label: string; bg: string; icon: React.ReactNode }> = {
-  pending: { color: '#dc2626', label: t('criticalValue.status.pending'), bg: 'var(--color-error-bg)', icon: <PhoneCall size={12} /> },
-  notified: { color: '#f59e0b', label: t('criticalValue.status.notified'), bg: 'var(--color-warning-bg)', icon: <Bell size={12} /> },
-  acknowledged: { color: '#3b82f6', label: t('criticalValue.status.acknowledged'), bg: 'var(--color-info-bg)', icon: <CheckCircle2 size={12} /> },
+  pending: { color: 'var(--color-error-600)', label: t('criticalValue.status.pending'), bg: 'var(--color-error-bg)', icon: <PhoneCall size={12} /> },
+  notified: { color: 'var(--color-warning-500)', label: t('criticalValue.status.notified'), bg: 'var(--color-warning-bg)', icon: <Bell size={12} /> },
+  acknowledged: { color: 'var(--color-primary-500)', label: t('criticalValue.status.acknowledged'), bg: 'var(--color-info-bg)', icon: <CheckCircle2 size={12} /> },
   resolved: { color: '#10b981', label: t('criticalValue.status.resolved'), bg: 'var(--color-success-bg)', icon: <CheckCircle2 size={12} /> },
   overdue: { color: '#7f1d1d', label: t('criticalValue.status.overdue'), bg: 'var(--color-error-bg)', icon: <Clock size={12} /> },
   escalated: { color: '#7c3aed', label: t('criticalValue.status.escalated'), bg: 'var(--color-info-bg)', icon: <TrendingUp size={12} /> },
@@ -46,18 +46,18 @@ const STATUS_META: Record<CriticalStatus, { color: string; label: string; bg: st
 
 const LEVEL_META: Record<CriticalLevel, { color: string; label: string; bg: string }> = {
   critical: { color: '#7f1d1d', label: t('criticalValue.level.critical'), bg: 'var(--color-error-bg)' },
-  urgent: { color: '#dc2626', label: t('criticalValue.level.urgent'), bg: 'var(--color-error-bg)' },
-  warning: { color: '#f59e0b', label: t('criticalValue.level.warning'), bg: 'var(--color-warning-bg)' },
-  info: { color: '#3b82f6', label: t('criticalValue.level.info'), bg: 'var(--color-info-bg)' },
+  urgent: { color: 'var(--color-error-600)', label: t('criticalValue.level.urgent'), bg: 'var(--color-error-bg)' },
+  warning: { color: 'var(--color-warning-500)', label: t('criticalValue.level.warning'), bg: 'var(--color-warning-bg)' },
+  info: { color: 'var(--color-primary-500)', label: t('criticalValue.level.info'), bg: 'var(--color-info-bg)' },
 };
 
 const CHANNEL_META: Record<NotificationChannel, { icon: LucideIcon; color: string; label: string }> = {
   phone: { icon: Phone, color: '#10b981', label: t('criticalValue.channel.phone') },
-  sms: { icon: MessageSquare, color: '#3b82f6', label: t('criticalValue.channel.sms') },
+  sms: { icon: MessageSquare, color: 'var(--color-primary-500)', label: t('criticalValue.channel.sms') },
   wechat: { icon: Smartphone, color: '#10b981', label: t('criticalValue.channel.wechat') },
   inApp: { icon: Bell, color: '#7c3aed', label: t('criticalValue.channel.inApp') },
-  email: { icon: Mail, color: '#f59e0b', label: t('criticalValue.channel.email') },
-  pager: { icon: Send, color: '#dc2626', label: t('criticalValue.channel.pager') },
+  email: { icon: Mail, color: 'var(--color-warning-500)', label: t('criticalValue.channel.email') },
+  pager: { icon: Send, color: 'var(--color-error-600)', label: t('criticalValue.channel.pager') },
 };
 
 const CURRENT_USER_ID = 'U001';
@@ -241,7 +241,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
     <div data-testid="critical-value-alerter" role="region" aria-label={t('criticalValue.centerTitle')}>
       <div
         style={{
-          background: 'linear-gradient(135deg, #dc2626 0%, #7f1d1d 100%)',
+          background: 'linear-gradient(135deg, var(--color-error-600) 0%, #7f1d1d 100%)',
           color: '#fff',
           padding: '12px 16px',
           borderRadius: 8,
@@ -483,7 +483,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                         : 'transparent',
                 borderLeft:
                   e.status === 'pending'
-                    ? '4px solid #dc2626'
+                    ? '4px solid var(--color-error-600)'
                     : e.status === 'overdue'
                       ? '4px solid #7f1d1d'
                       : e.status === 'escalated'
@@ -567,7 +567,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                         style={{
                           fontSize: 12,
                           marginTop: 4,
-                          color: e.onTimeNotification ? '#10b981' : '#dc2626',
+                          color: e.onTimeNotification ? '#10b981' : 'var(--color-error-600)',
                         }}
                       >
                         {t('criticalValue.response')} {e.responseTimeMinutes} {t('criticalValue.minutes')} · {e.onTimeNotification ? t('criticalValue.onTime') : t('criticalValue.overdue')}
@@ -666,7 +666,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
       <Drawer
         title={
           <Space>
-            <AlertOctagon size={16} color="#dc2626" />
+            <AlertOctagon size={16} color="var(--color-error-600)" />
             <span>{t('criticalValue.detailTitle')}</span>
             {detailEvent && <Tag color={LEVEL_META[detailEvent.level].color}>{LEVEL_META[detailEvent.level].label}</Tag>}
           </Space>
@@ -712,7 +712,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                 </Col>
                 <Col span={24}>
                   <div style={{ fontSize: 12, color: '#64748b' }}>{t('criticalValue.findings')}</div>
-                  <div style={{ color: '#dc2626', fontWeight: 600 }}>{detailEvent.detail}</div>
+                  <div style={{ color: 'var(--color-error-600)', fontWeight: 600 }}>{detailEvent.detail}</div>
                 </Col>
               </Row>
             </Card>

@@ -249,7 +249,7 @@ export default function NurseMobileWorkstation() {
                       <span>{item.modality}</span>
                     </div>
                     <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 1 }}>{item.examItem} · {item.appointmentTime}</div>
-                    {item.notes && <div style={{ fontSize: 12, color: '#d97706', marginTop: 2 }}>{item.notes}</div>}
+                    {item.notes && <div style={{ fontSize: 12, color: 'var(--color-warning-600)', marginTop: 2 }}>{item.notes}</div>}
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-end' }}>
                     <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: sc.bg, color: sc.color }}>{sc.label}</span>
@@ -259,7 +259,7 @@ export default function NurseMobileWorkstation() {
                       </button>
                     )}
                     {item.contrastRequired && item.status === 'waiting' && (
-                      <button onClick={() => handleMedication(item.id)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#dc2626', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                      <button onClick={() => handleMedication(item.id)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: 'var(--color-error-600)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                         {t('nurse.medicate')}
                       </button>
                     )}
@@ -272,7 +272,7 @@ export default function NurseMobileWorkstation() {
       ) : tab === 'critical' ? (
         <div style={{ padding: 16 }}>
           {criticals.map(c => (
-            <div key={c.id} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 14, marginBottom: 10, border: `1px solid ${c.severity === 'CRITICAL' ? 'var(--color-error-border)' : 'var(--color-warning-border)'}`, borderLeft: `4px solid ${c.severity === 'CRITICAL' ? '#dc2626' : '#d97706'}` }}>
+            <div key={c.id} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 14, marginBottom: 10, border: `1px solid ${c.severity === 'CRITICAL' ? 'var(--color-error-border)' : 'var(--color-warning-border)'}`, borderLeft: `4px solid ${c.severity === 'CRITICAL' ? 'var(--color-error-600)' : 'var(--color-warning-600)'}` }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{c.patientName}</span>
                 <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: c.severity === 'CRITICAL' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: c.severity === 'CRITICAL' ? 'var(--color-error)' : 'var(--color-warning)' }}>

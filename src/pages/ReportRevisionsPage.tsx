@@ -29,19 +29,19 @@ import { t } from '../i18n/appI18n';
 // 修订动作配置
 // ============================================================
 const ACTION_CONFIG = {
-  initial:  { label: t('reportRev.action.initial'), color: '#3b82f6', bg: '#3b82f622', icon: FileText },
-  revise:   { label: t('reportRev.action.revise'),     color: '#f59e0b', bg: '#f59e0b22', icon: Edit2 },
+  initial:  { label: t('reportRev.action.initial'), color: 'var(--color-primary-500)', bg: '#3b82f622', icon: FileText },
+  revise:   { label: t('reportRev.action.revise'),     color: 'var(--color-warning-500)', bg: '#f59e0b22', icon: Edit2 },
   addendum: { label: t('reportRev.action.addendum'),     color: '#7c3aed', bg: '#8b5cf622', icon: Plus },
-  recall:   { label: t('reportRev.action.recall'),     color: '#ef4444', bg: '#ef444422', icon: RotateCcw },
+  recall:   { label: t('reportRev.action.recall'),     color: 'var(--color-error-500)', bg: '#ef444422', icon: RotateCcw },
 };
 
 // ============================================================
 // 变更类型配置
 // ============================================================
 const CHANGE_CONFIG = {
-  modified: { label: t('reportRev.change.modified'), color: '#f59e0b', bg: '#f59e0b22', icon: Edit2 },
+  modified: { label: t('reportRev.change.modified'), color: 'var(--color-warning-500)', bg: '#f59e0b22', icon: Edit2 },
   added:    { label: t('reportRev.change.added'), color: '#10b981', bg: '#22c55e22', icon: Plus },
-  deleted:  { label: t('reportRev.change.deleted'), color: '#ef4444', bg: '#ef444422', icon: X },
+  deleted:  { label: t('reportRev.change.deleted'), color: 'var(--color-error-500)', bg: '#ef444422', icon: X },
 };
 
 // ============================================================
@@ -399,12 +399,12 @@ export default function ReportRevisionsPage() {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <History size={20} color="#f59e0b" /> {t('reportRev.title')}
+            <History size={20} color="var(--color-warning-500)" /> {t('reportRev.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3</span>
             <span style={{
               fontSize: 11, padding: '2px 8px', borderRadius: 10,
               background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-              color: source === 'api' ? '#16a34a' : '#92400e',
+              color: source === 'api' ? 'var(--color-success-600)' : '#92400e',
               border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
               fontWeight: 500,
             }}>
@@ -413,7 +413,7 @@ export default function ReportRevisionsPage() {
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('reportRev.subtitle')}
-            {error && <span style={{ color: '#dc2626', marginLeft: 8 }}>{error}</span>}
+            {error && <span style={{ color: 'var(--color-error-600)', marginLeft: 8 }}>{error}</span>}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -448,7 +448,7 @@ export default function ReportRevisionsPage() {
           overflow: 'hidden', alignSelf: 'flex-start',
         }}>
           <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Layers size={12} /> {t('reportRev.revisedReports', { count: reportIds.length })}
             </div>
             <div style={{ position: 'relative' }}>
@@ -506,14 +506,14 @@ export default function ReportRevisionsPage() {
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                         <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('reportRev.revisionCount')}</span>
-                        <span style={{ marginLeft: 6, fontSize: 18, fontWeight: 700, color: '#f59e0b' }}>{currentRevisions.length}</span>
+                        <span style={{ marginLeft: 6, fontSize: 18, fontWeight: 700, color: 'var(--color-warning-500)' }}>{currentRevisions.length}</span>
                       </div>
                       {/* [G005 W8-Report] 数据签名与证书状态 */}
                       {(() => {
                         const sig = signatures[selectedReportId] ?? null;
                         return (
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
-                            <ShieldCheck size={13} color="#0891b2" />
+                            <ShieldCheck size={13} color="var(--color-info-600)" />
                             {sig ? (
                               <span>
                                 <Tag color={sig.algorithm === 'SM3' ? 'purple' : 'blue'} style={{ fontSize: 11 }}>{sig.algorithm}</Tag>
@@ -522,13 +522,13 @@ export default function ReportRevisionsPage() {
                             ) : (
                               <span style={{ color: 'var(--text-secondary)' }}>{t('w8Report.sig.noSignature')}</span>
                             )}
-                            <button onClick={() => void handleVerifySignature()} disabled={verifying} style={{ padding: '2px 8px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', color: '#0891b2', fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                            <button onClick={() => void handleVerifySignature()} disabled={verifying} style={{ padding: '2px 8px', border: '1px solid var(--border-color)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--color-info-600)', fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 3 }}>
                               <BadgeCheck size={11} /> {verifying ? '...' : t('w8Report.sig.verify')}
                             </button>
                           </div>
                         );
                       })()}
-                      {verifyMsg && <span style={{ fontSize: 11, color: verifyMsg.startsWith(t('w8Report.sig.verifyPass')) ? '#16a34a' : '#b45309' }}>{verifyMsg}</span>}
+                      {verifyMsg && <span style={{ fontSize: 11, color: verifyMsg.startsWith(t('w8Report.sig.verifyPass')) ? 'var(--color-success-600)' : '#b45309' }}>{verifyMsg}</span>}
                     </div>
                   </div>
                 </div>
@@ -538,7 +538,7 @@ export default function ReportRevisionsPage() {
               <div style={{
                 background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)',
               }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <GitBranch size={14} /> {t('reportRev.timeline')}
                 </div>
                 <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8 }}>
@@ -557,12 +557,12 @@ export default function ReportRevisionsPage() {
                           style={{
                             minWidth: 200, padding: 12,
                             background: (isLeft || isRight) ? 'var(--color-info-bg)' : 'var(--bg-card)',
-                            border: `2px solid ${isLeft ? '#f59e0b' : isRight ? '#10b981' : '#e2e8f0'}`,
+                            border: `2px solid ${isLeft ? 'var(--color-warning-500)' : isRight ? '#10b981' : '#e2e8f0'}`,
                             borderRadius: 8, cursor: 'pointer',
                             position: 'relative',
                           }}
                         >
-                          {isLeft &&                     <span style={{ position: 'absolute', top: -8, left: 8, fontSize: 12, padding: '1px 5px', background: '#f59e0b', color: '#fff', borderRadius: 3, fontWeight: 700 }}>{t('reportRev.left')}</span>}
+                          {isLeft &&                     <span style={{ position: 'absolute', top: -8, left: 8, fontSize: 12, padding: '1px 5px', background: 'var(--color-warning-500)', color: '#fff', borderRadius: 3, fontWeight: 700 }}>{t('reportRev.left')}</span>}
                           {isRight && <span style={{ position: 'absolute', top: -8, right: 8, fontSize: 12, padding: '1px 5px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>{t('reportRev.right')}</span>}
                           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
                             <Icon size={12} color={aConf.color} />
@@ -577,9 +577,9 @@ export default function ReportRevisionsPage() {
                             <div style={{ fontSize: 12, color: '#10b981', marginTop: 4 }}>{t('reportRev.published')} {rev.publishedAt}</div>
                           )}
                           {rev.patientNotified && (
-                            <div style={{ fontSize: 12, color: '#3b82f6', marginTop: 2 }}>{t('reportRev.notified')}</div>
+                            <div style={{ fontSize: 12, color: 'var(--color-primary-500)', marginTop: 2 }}>{t('reportRev.notified')}</div>
                           )}
-                          <div style={{ fontSize: 12, color: '#dc2626', marginTop: 4, fontStyle: 'italic' }}>{rev.reason}</div>
+                          <div style={{ fontSize: 12, color: 'var(--color-error-600)', marginTop: 4, fontStyle: 'italic' }}>{rev.reason}</div>
                         </div>
                         {idx < currentRevisions.length - 1 && (
                           <div style={{ display: 'flex', alignItems: 'center', color: '#cbd5e1' }}>
@@ -612,7 +612,7 @@ export default function ReportRevisionsPage() {
                     style={{
                       padding: '4px 10px', border: '1px solid var(--border-color)', borderRadius: 4,
                       background: showDiff ? 'var(--color-info-bg)' : 'var(--bg-card)',
-                      color: showDiff ? '#1e40af' : '#475569',
+                      color: showDiff ? 'var(--color-primary-800)' : '#475569',
                       fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
@@ -743,8 +743,8 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
                   onClick={handleWithdrawReport}
                   disabled={withdrawing}
                   style={{
-                    padding: '6px 12px', border: '1px solid #dc2626', borderRadius: 4,
-                    background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, cursor: withdrawing ? 'wait' : 'pointer',
+                    padding: '6px 12px', border: '1px solid var(--color-error-600)', borderRadius: 4,
+                    background: 'var(--bg-card)', color: 'var(--color-error-600)', fontSize: 12, cursor: withdrawing ? 'wait' : 'pointer',
                     display: 'flex', alignItems: 'center', gap: 4,
                   }}
                 >
@@ -777,7 +777,7 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
             )}
             {['findings', 'diagnosis', 'impression'].map((field) => (
               <div key={field} style={{ marginBottom: 10 }}>
-                <strong style={{ color: '#1e40af' }}>{field === 'findings' ? t('reportRev.findingsBracket') : field === 'diagnosis' ? t('reportRev.diagnosisBracket') : t('reportRev.impressionBracket')}</strong>
+                <strong style={{ color: 'var(--color-primary-800)' }}>{field === 'findings' ? t('reportRev.findingsBracket') : field === 'diagnosis' ? t('reportRev.diagnosisBracket') : t('reportRev.impressionBracket')}</strong>
                 <div style={{ marginTop: 2, padding: 8, background: 'var(--content-bg)', borderRadius: 4, whiteSpace: 'pre-wrap' }}>
                   {(selectedContents.find((c) => c.versionNumber === rightRev.versionNumber)?.[field as 'findings' | 'diagnosis' | 'impression']) || (rightRev as any)[field] || t('reportRev.noContent')}
                 </div>

@@ -184,7 +184,7 @@ const PacsStudyListPage: React.FC = () => {
       dataIndex: "criticalFlag",
       key: "criticalFlag",
       width: 50,
-      render: (v: boolean) => v && <Badge dot color="#ef4444" />,
+      render: (v: boolean) => v && <Badge dot color="var(--color-error-500)" />,
     },
     {
       title: "",
@@ -224,7 +224,7 @@ const PacsStudyListPage: React.FC = () => {
     <PageContainer background="slate" maxWidth="full" padding={16} testId="pacs-study-list-page">
       <PageHeader
         title={t('eyePacs.title')}
-        icon={<Image className="v4-icon" style={{ width: 24, height: 24, color: "#2563eb" }} />}
+        icon={<Image className="v4-icon" style={{ width: 24, height: 24, color: "var(--color-primary-600)" }} />}
         variant="inline"
         actions={
           <>

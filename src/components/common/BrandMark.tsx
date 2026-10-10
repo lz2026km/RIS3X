@@ -44,9 +44,9 @@ export function BrandMark({
     >
       <defs>
         <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="var(--brand-mark-from, #3b82f6)" />
-          <stop offset="55%" stopColor="var(--color-primary-600, #2563eb)" />
-          <stop offset="100%" stopColor="var(--brand-mark-to, #1e40af)" />
+          <stop offset="0%" stopColor="var(--brand-mark-from, var(--color-primary-500))" />
+          <stop offset="55%" stopColor="var(--color-primary-600, var(--color-primary-600))" />
+          <stop offset="100%" stopColor="var(--brand-mark-to, var(--color-primary-800))" />
         </linearGradient>
         <clipPath id={clipId}>
           <rect x="2" y="2" width="44" height="44" rx={rx} ry={rx} />

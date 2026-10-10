@@ -497,7 +497,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
   const objectColumns = [
     { title: t('vnaPage.name'), dataIndex: 'name', key: 'name', width: 260, ellipsis: true, render: (v: string, r: VnaObject) => (
       <Space>
-        {r.objectType === 'image' ? <ImageIcon size={15} color="#0ea5e9" /> : <FileText size={15} color="#f59e0b" />}
+        {r.objectType === 'image' ? <ImageIcon size={15} color="#0ea5e9" /> : <FileText size={15} color="var(--color-warning-500)" />}
         <Text ellipsis style={{ maxWidth: 220 }}>{v}</Text>
       </Space>
     ) },
@@ -565,8 +565,8 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
       <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
         <StatCard loading={statsLoading} title={t('vnaPage.totalObjects')} value={stats?.totalObjects ?? 0} icon={<FileText size={16} />} color="#7c3aed" />
         <StatCard loading={statsLoading} title={t('vnaPage.totalCapacity')} value={stats ? formatSize(stats.totalSizeBytes) : '-'} icon={<HardDrive size={16} />} color="error" />
-        <StatCard loading={statsLoading} title={t('vnaPage.dicomInstances')} value={stats?.dicomCount ?? 0} icon={<DatabaseIcon size={16} />} color="#0891b2" />
-        <StatCard loading={statsLoading} title={t('vnaPage.nonDicomObjects')} value={stats?.nonDicomCount ?? 0} icon={<FileText size={16} />} color="#f59e0b" />
+        <StatCard loading={statsLoading} title={t('vnaPage.dicomInstances')} value={stats?.dicomCount ?? 0} icon={<DatabaseIcon size={16} />} color="var(--color-info-600)" />
+        <StatCard loading={statsLoading} title={t('vnaPage.nonDicomObjects')} value={stats?.nonDicomCount ?? 0} icon={<FileText size={16} />} color="var(--color-warning-500)" />
         <StatCard loading={statsLoading} title={t('vnaPage.wormLocked')} value={stats?.wormLockedCount ?? 0} icon={<ShieldCheck size={16} />} color="#10b981" />
       </StatCardGrid>
 
@@ -832,7 +832,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
                                 formatter={(value: number, name: string) => [formatSize(value), name === 'totalSizeBytes' ? t('vnaOps.cumulativeCapacity') : t('vnaOps.addedBytes')]}
                               />
                               <Line type="monotone" dataKey="totalSizeBytes" stroke="#7c3aed" strokeWidth={2} dot={false} />
-                              <Line type="monotone" dataKey="addedBytes" stroke="#0891b2" strokeWidth={1.5} dot={false} />
+                              <Line type="monotone" dataKey="addedBytes" stroke="var(--color-info-600)" strokeWidth={1.5} dot={false} />
                             </LineChart>
                           </ChartContainer>
                         ) : (
@@ -871,7 +871,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
                           { title: t('vnaOps.objectName'), dataIndex: 'name', key: 'name', ellipsis: true },
                           { title: t('vnaOps.singleSize'), dataIndex: 'size', key: 'size', width: 110, render: (v: number) => formatSize(v) },
                           { title: t('vnaOps.dupCount'), dataIndex: 'count', key: 'count', width: 80, render: (v: number) => <Tag color="orange">× {v}</Tag> },
-                          { title: t('vnaOps.wasted'), dataIndex: 'wastedBytes', key: 'wasted', width: 120, render: (v: number) => <span style={{ color: '#dc2626' }}>{formatSize(v)}</span> },
+                          { title: t('vnaOps.wasted'), dataIndex: 'wastedBytes', key: 'wasted', width: 120, render: (v: number) => <span style={{ color: 'var(--color-error-600)' }}>{formatSize(v)}</span> },
                           { title: t('vnaOps.firstCreated'), dataIndex: 'createdAt', key: 'createdAt', width: 160, render: (v: string) => formatDate(v) },
                         ]}
                       />

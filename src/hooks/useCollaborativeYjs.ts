@@ -32,7 +32,7 @@ export interface UseCollaborativeYjsReturn {
 }
 
 const ONLINE_COLORS = [
-  '#0891b2', '#7c3aed', '#dc2626', '#ea580c', '#16a34a',
+  'var(--color-info-600)', '#7c3aed', 'var(--color-error-600)', '#ea580c', 'var(--color-success-600)',
   '#ca8a04', '#db2777', '#4f46e5', '#0d9488', '#9333ea',
 ]
 

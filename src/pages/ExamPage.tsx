@@ -2483,9 +2483,9 @@ export default function ExamPage() {
                 <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{d.avgMin}{t("examPage.minUnit")}</span>
                 <div style={{
                   width: '55%', height: `${(d.avgMin / maxDur) * 120}px`, minHeight: 8, borderRadius: '4px 4px 0 0',
-                  background: d.avgMin <= 15 ? 'linear-gradient(180deg, #22c55e, #86efac)'
-                    : d.avgMin <= 25 ? 'linear-gradient(180deg, #3b82f6, #93c5fd)'
-                    : 'linear-gradient(180deg, #f59e0b, #fcd34d)',
+                  background: d.avgMin <= 15 ? 'linear-gradient(180deg, var(--color-success-500), #86efac)'
+                    : d.avgMin <= 25 ? 'linear-gradient(180deg, var(--color-primary-500), #93c5fd)'
+                    : 'linear-gradient(180deg, var(--color-warning-500), #fcd34d)',
                   transition: 'height 0.3s',
                 }} title={t("w9a.examPage.avgMinutesTip", { modality: d.modality, min: d.avgMin })} />
                 <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{d.modality} ({d.count})</span>
@@ -2565,7 +2565,7 @@ export default function ExamPage() {
                 }}>
                   <div style={{
                     width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
-                    background: 'linear-gradient(135deg, #1e40af, #3b82f6)', color: '#fff',
+                    background: 'linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))', color: '#fff',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700,
                   }}>
                     {g.patientName.slice(0, 1)}
@@ -2672,7 +2672,7 @@ export default function ExamPage() {
                       <div style={{
                         width: '70%', borderRadius: '3px 3px 0 0', minHeight: 4,
                         height: `${(count / maxCount) * 90}px`,
-                        background: 'linear-gradient(180deg, #1e40af, #93c5fd)',
+                        background: 'linear-gradient(180deg, var(--color-primary-800), #93c5fd)',
                         transition: 'height 0.3s',
                       }} title={t("w9a.examPage.dayCountTip", { day, count })} />
                       <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{day.slice(5)}</span>
@@ -2730,7 +2730,7 @@ export default function ExamPage() {
               return (
                 <div>
                   {distRow(t("examPage.examStatus"), statusMap, {
-                    '待检查': 'var(--color-primary)', '检查中': 'var(--color-warning)', '已报告': 'var(--color-success)', '已发布': 'var(--color-modality-mr)', '待报告': '#06b6d4', '已登记': 'var(--text-secondary)',
+                    '待检查': 'var(--color-primary)', '检查中': 'var(--color-warning)', '已报告': 'var(--color-success)', '已发布': 'var(--color-modality-mr)', '待报告': 'var(--color-info-500)', '已登记': 'var(--text-secondary)',
                   })}
                   {distRow(t("examPage.patientType"), typeMap, { '门诊': 'var(--color-primary)', '住院': 'var(--color-modality-mr)', '急诊': 'var(--color-error)', '体检': '#10b981' })}
                   {distRow(t("examPage.priority"), prioMap, { '普通': 'var(--text-muted)', '紧急': 'var(--color-warning)', '危重': 'var(--color-error)' })}
@@ -2745,7 +2745,7 @@ export default function ExamPage() {
 
   // 模态颜色辅助 (时间线徽标)
   const MODALITY_COLOR = (m: string): string => {
-    const map: Record<string, string> = { CT: '#3b82f6', MR: '#8b5cf6', DR: '#16a34a', DSA: '#d97706', MG: '#db2777' }
+    const map: Record<string, string> = { CT: 'var(--color-primary-500)', MR: '#8b5cf6', DR: 'var(--color-success-600)', DSA: 'var(--color-warning-600)', MG: '#db2777' }
     return map[String(m)] || '#64748b'
   }
   const MODALITY_COLOR_BG = (m: string): string => {
@@ -3179,8 +3179,8 @@ export default function ExamPage() {
             data={statTrend.map((i) => ({ date: String(i.date).slice(5), created: i.created, completed: i.completed }))}
             xKey="date"
             series={[
-              { key: 'created', name: t("examPage.seriesCreated"), color: '#3b82f6', gradient: true },
-              { key: 'completed', name: t("examPage.seriesCompleted"), color: '#22c55e', gradient: true },
+              { key: 'created', name: t("examPage.seriesCreated"), color: 'var(--color-primary-500)', gradient: true },
+              { key: 'completed', name: t("examPage.seriesCompleted"), color: 'var(--color-success-500)', gradient: true },
             ]}
             height={240}
             testId="exam-stats-daily-trend-chart"

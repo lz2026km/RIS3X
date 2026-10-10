@@ -59,12 +59,12 @@ export const SEVERITY_LEVELS: readonly SeverityLevel[] = [
  * These exact values are the single source of truth for severity colors.
  */
 export const SEVERITY_HEX: Record<SeverityLevel, string> = {
-  life_threatening: "#dc2626",
-  critical: "#dc2626",
+  life_threatening: "var(--color-error-600)",
+  critical: "var(--color-error-600)",
   high: "#ea580c",
   urgent: "#ea580c",
-  warning: "#d97706",
-  info: "#2563eb",
+  warning: "var(--color-warning-600)",
+  info: "var(--color-primary-600)",
   normal: "#059669",
   success: "#059669",
   neutral: "#64748b",
@@ -76,12 +76,12 @@ function tone(color: string, bg: string, border: string): StatusTone {
 
 /** Light-theme tones. */
 export const SEVERITY_TONES_LIGHT: Record<SeverityLevel, StatusTone> = {
-  life_threatening: tone("#dc2626", "#fef2f2", "rgba(220, 38, 38, 0.35)"),
-  critical: tone("#dc2626", "#fef2f2", "rgba(220, 38, 38, 0.35)"),
+  life_threatening: tone("var(--color-error-600)", "#fef2f2", "rgba(220, 38, 38, 0.35)"),
+  critical: tone("var(--color-error-600)", "#fef2f2", "rgba(220, 38, 38, 0.35)"),
   high: tone("#ea580c", "#fff7ed", "rgba(234, 88, 12, 0.35)"),
   urgent: tone("#ea580c", "#fff7ed", "rgba(234, 88, 12, 0.35)"),
-  warning: tone("#d97706", "#fffbeb", "rgba(217, 119, 6, 0.35)"),
-  info: tone("#2563eb", "#eff6ff", "rgba(37, 99, 235, 0.32)"),
+  warning: tone("var(--color-warning-600)", "#fffbeb", "rgba(217, 119, 6, 0.35)"),
+  info: tone("var(--color-primary-600)", "#eff6ff", "rgba(37, 99, 235, 0.32)"),
   normal: tone("#059669", "#ecfdf5", "rgba(5, 150, 105, 0.32)"),
   success: tone("#059669", "#ecfdf5", "rgba(5, 150, 105, 0.32)"),
   neutral: tone("#64748b", "#f8fafc", "rgba(100, 116, 139, 0.28)"),
@@ -93,7 +93,7 @@ export const SEVERITY_TONES_DARK: Record<SeverityLevel, StatusTone> = {
   critical: tone("#f87171", "rgba(248, 113, 113, 0.14)", "rgba(248, 113, 113, 0.42)"),
   high: tone("#fb923c", "rgba(251, 146, 60, 0.14)", "rgba(251, 146, 60, 0.42)"),
   urgent: tone("#fb923c", "rgba(251, 146, 60, 0.14)", "rgba(251, 146, 60, 0.42)"),
-  warning: tone("#fbbf24", "rgba(251, 191, 36, 0.14)", "rgba(251, 191, 36, 0.42)"),
+  warning: tone("var(--color-warning-400)", "rgba(251, 191, 36, 0.14)", "rgba(251, 191, 36, 0.42)"),
   info: tone("#60a5fa", "rgba(96, 165, 250, 0.14)", "rgba(96, 165, 250, 0.42)"),
   normal: tone("#4ade80", "rgba(74, 222, 128, 0.14)", "rgba(74, 222, 128, 0.42)"),
   success: tone("#4ade80", "rgba(74, 222, 128, 0.14)", "rgba(74, 222, 128, 0.42)"),

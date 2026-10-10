@@ -16,8 +16,8 @@ import { useTranslation } from "react-i18next";
 import { volumeV2Api, type V2PixelPayload, type Vec3Dto, type MprLinkedResultDto, type VrPresetDto, type VrResultDto, type CprResultDto, type CutResultDto } from "../../services/api/volumeV2Api";
 import { setupRealVolume, decodeInt16Base64, decodeRgbaBase64, applyWWL } from "../dicom/volumeReal";
 
-const BLUE = "#3b82f6";
-const GREEN = "#22c55e";
+const BLUE = "var(--color-primary-500)";
+const GREEN = "var(--color-success-500)";
 const CARD_BG = "#0f172a";
 
 interface DrawGeo {

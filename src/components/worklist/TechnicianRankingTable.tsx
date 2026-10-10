@@ -12,11 +12,11 @@ type RankKind = 'completed' | 'duration' | 'retake'
 
 const KIND_DEFS: Record<RankKind, { label: string; icon: React.ReactNode; color: string }> = {
   completed: { label: '完成数', icon: <CheckCircle2 size={12} />, color: '#059669' },
-  duration: { label: '平均时长', icon: <Clock size={12} />, color: '#2563eb' },
-  retake: { label: '重拍率', icon: <RefreshCw size={12} />, color: '#dc2626' },
+  duration: { label: '平均时长', icon: <Clock size={12} />, color: 'var(--color-primary-600)' },
+  retake: { label: '重拍率', icon: <RefreshCw size={12} />, color: 'var(--color-error-600)' },
 }
 
-const rankColor = (idx: number) => (idx === 0 ? '#f59e0b' : idx === 1 ? '#94a3b8' : idx === 2 ? '#d97706' : '#cbd5e1')
+const rankColor = (idx: number) => (idx === 0 ? 'var(--color-warning-500)' : idx === 1 ? '#94a3b8' : idx === 2 ? 'var(--color-warning-600)' : '#cbd5e1')
 
 export default function TechnicianRankingTable({ technicians, loading }: Props) {
   const [kind, setKind] = useState<RankKind>('completed')
@@ -44,8 +44,8 @@ export default function TechnicianRankingTable({ technicians, loading }: Props) 
       padding: '14px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
     }} data-testid="tech-ranking-table">
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-        <Trophy size={13} color="#f59e0b" />
-        <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>技师排行 Top10</span>
+        <Trophy size={13} color="var(--color-warning-500)" />
+        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>技师排行 Top10</span>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
           {(Object.keys(KIND_DEFS) as RankKind[]).map((k) => (
             <button

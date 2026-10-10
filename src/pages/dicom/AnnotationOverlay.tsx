@@ -37,7 +37,7 @@ export default function AnnotationOverlay(props: Props) {
     showAnnotationPanel, setShowAnnotationPanel
   } = props
 
-  const PRIMARY = '#1e40af'
+  const PRIMARY = 'var(--color-primary-800)'
 
   const panelRef = useFocusTrap(showAnnotationPanel)
   useEscape(showAnnotationPanel, () => setShowAnnotationPanel(false), { stopPropagation: true })
@@ -90,7 +90,7 @@ export default function AnnotationOverlay(props: Props) {
           <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('w9d.annotation.color')}</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4, marginBottom: 8 }}>
             {ANNOTATION_COLORS.map(color => (
-              <button key={color} style={{ width: 24, height: 24, borderRadius: 4, border: activeAnnotationColor === color ? '2px solid #1e40af' : '2px solid transparent', background: color, cursor: 'pointer', transform: activeAnnotationColor === color ? 'scale(1.1)' : 'none' }} onClick={() => setActiveAnnotationColor(color)} title={ANNOTATION_COLOR_NAMES[color] || color} />
+              <button key={color} style={{ width: 24, height: 24, borderRadius: 4, border: activeAnnotationColor === color ? '2px solid var(--color-primary-800)' : '2px solid transparent', background: color, cursor: 'pointer', transform: activeAnnotationColor === color ? 'scale(1.1)' : 'none' }} onClick={() => setActiveAnnotationColor(color)} title={ANNOTATION_COLOR_NAMES[color] || color} />
             ))}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
@@ -103,7 +103,7 @@ export default function AnnotationOverlay(props: Props) {
               <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', padding: 8 }}>{t('w9d.annotation.clickToAdd')}</div>
             ) : (
               annotations.map(ann => (
-                <div key={ann.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px', background: 'var(--bg-primary)', borderRadius: 6, marginBottom: 4, border: `1px solid ${selectedAnnotationId === ann.id ? '#3b82f6' : 'var(--border-color)'}`, cursor: 'pointer' }} onClick={() => setSelectedAnnotationId(ann.id)}>
+                <div key={ann.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px', background: 'var(--bg-primary)', borderRadius: 6, marginBottom: 4, border: `1px solid ${selectedAnnotationId === ann.id ? 'var(--color-primary-500)' : 'var(--border-color)'}`, cursor: 'pointer' }} onClick={() => setSelectedAnnotationId(ann.id)}>
                   <div style={{ width: 8, height: 8, borderRadius: 2, background: ann.color, flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ann.type === 'text' ? ann.text : ann.type === 'arrow' ? t('w9d.annotation.arrowAnnotation') : ann.type === 'rect' ? t('w9d.annotation.rectAnnotation') : t('w9d.annotation.ellipseAnnotation')}</div>
@@ -112,14 +112,14 @@ export default function AnnotationOverlay(props: Props) {
                   <div style={{ display: 'flex', gap: 4 }}>
                     <button style={{ width: 22, height: 22, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }} onClick={e => { e.stopPropagation(); toggleAnnotationVisibility(ann.id) }}>{ann.visible ? <Eye size={13} /> : <EyeOff size={13} />}</button>
                     <button style={{ width: 22, height: 22, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }} onClick={e => { e.stopPropagation(); toggleAnnotationLock(ann.id) }}>{ann.locked ? <Lock size={12} /> : <Unlock size={12} />}</button>
-                    <button style={{ width: 22, height: 22, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#dc2626' }} onClick={e => { e.stopPropagation(); deleteAnnotation(ann.id) }}><Trash2 size={13} /></button>
+                    <button style={{ width: 22, height: 22, borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-error-600)' }} onClick={e => { e.stopPropagation(); deleteAnnotation(ann.id) }}><Trash2 size={13} /></button>
                   </div>
                 </div>
               ))
             )}
           </div>
           {annotations.length > 0 && (
-            <button style={{ width: '100%', padding: '6px 10px', borderRadius: 6, border: 'none', background: 'var(--color-error-bg)', color: '#ef4444', marginTop: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }} onClick={clearAllAnnotations}>{t('w9d.annotation.clearAll')}</button>
+            <button style={{ width: '100%', padding: '6px 10px', borderRadius: 6, border: 'none', background: 'var(--color-error-bg)', color: 'var(--color-error-500)', marginTop: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }} onClick={clearAllAnnotations}>{t('w9d.annotation.clearAll')}</button>
           )}
           <button
             type="button"

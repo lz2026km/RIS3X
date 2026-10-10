@@ -414,10 +414,10 @@ export default function QcPdcaPage() {
   const statCards = useMemo(() => {
     const byPhase = stats?.byPhase ?? {}
     return [
-      { label: t('qcPdca.statTotalCycles'), value: stats?.total ?? cycles.length, icon: <GitBranch size={20} />, color: '#3b82f6', sub: `进行中 ${stats?.inProgress ?? 0} 个` },
+      { label: t('qcPdca.statTotalCycles'), value: stats?.total ?? cycles.length, icon: <GitBranch size={20} />, color: 'var(--color-primary-500)', sub: `进行中 ${stats?.inProgress ?? 0} 个` },
       { label: t('qcPdca.statPlan'), value: byPhase.plan ?? 0, icon: <Target size={20} />, color: '#8b5cf6', sub: 'Plan' },
-      { label: t('qcPdca.statDo'), value: byPhase.do ?? 0, icon: <History size={20} />, color: '#f59e0b', sub: 'Do' },
-      { label: t('qcPdca.statCheck'), value: byPhase.check ?? 0, icon: <Eye size={20} />, color: '#06b6d4', sub: 'Check' },
+      { label: t('qcPdca.statDo'), value: byPhase.do ?? 0, icon: <History size={20} />, color: 'var(--color-warning-500)', sub: 'Do' },
+      { label: t('qcPdca.statCheck'), value: byPhase.check ?? 0, icon: <Eye size={20} />, color: 'var(--color-info-500)', sub: 'Check' },
       { label: t('qcPdca.statAct'), value: byPhase.act ?? 0, icon: <RefreshCw size={20} />, color: '#ec4899', sub: 'Act' },
       { label: t('qcPdca.statCompleted'), value: byPhase.completed ?? 0, icon: <CheckCircle2 size={20} />, color: '#10b981', sub: `完成率 ${stats?.completionRate ?? 0}%` },
     ]
@@ -432,7 +432,7 @@ export default function QcPdcaPage() {
   return (
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader
-        icon={<GitBranch size={20} color="#3b82f6" />}
+        icon={<GitBranch size={20} color="var(--color-primary-500)" />}
         title={t('qcPdca.title')}
         subtitle={t('qcPdca.subtitle')}
         actions={
@@ -454,7 +454,7 @@ export default function QcPdcaPage() {
         </StatCardGrid>
 
         {pendingDefectId && (
-          <div style={{ margin: '16px 0', background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 8, padding: '10px 14px', color: '#1e40af', fontSize: 12 }}>
+          <div style={{ margin: '16px 0', background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 8, padding: '10px 14px', color: 'var(--color-primary-800)', fontSize: 12 }}>
             <Bug size={14} style={{ marginRight: 6, verticalAlign: -2 }} />
             {t('qcPdca.defectBannerPrefix')} {pendingDefectId} {t('qcPdca.defectBannerSuffix')}
           </div>
@@ -504,7 +504,7 @@ export default function QcPdcaPage() {
             </Form.Item>
           </Space>
           {pendingDefectId && (
-            <div style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 6, padding: '8px 12px', fontSize: 12, color: '#1e40af' }}>
+            <div style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 6, padding: '8px 12px', fontSize: 12, color: 'var(--color-primary-800)' }}>
               {t('qcPdca.autoLinkPrefix')} {pendingDefectId}
             </div>
           )}

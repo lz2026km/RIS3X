@@ -108,8 +108,8 @@ const DEFAULT_POWER = { active: 5, idle: 1 }
 // 样式常量
 // ============================================================
 const C = {
-  primary: '#1e40af',
-  primaryLight: '#2563eb',
+  primary: 'var(--color-primary-800)',
+  primaryLight: 'var(--color-primary-600)',
   primaryDark: '#1e3a8a',
   white: '#ffffff',
   background: 'var(--bg-card)',
@@ -120,13 +120,13 @@ const C = {
   success: '#059669',
   successBg: '#ecfdf5',
   successLight: '#d1fae5',
-  warning: '#d97706',
+  warning: 'var(--color-warning-600)',
   warningBg: '#fffbeb',
-  info: '#2563eb',
+  info: 'var(--color-primary-600)',
   infoBg: '#eff6ff',
   purple: '#7c3aed',
   purpleBg: '#f5f3ff',
-  green: '#16a34a',
+  green: 'var(--color-success-600)',
   greenBg: '#f0fdf4',
 }
 
@@ -350,7 +350,7 @@ interface StatCardProps {
 function StatCard({ title, value, unit, icon, trend, trendValue, color = C.primary }: StatCardProps) {
   // [UI-4] 收敛至公共 StatCard (保留数值/单位/趋势文案)
   const trendNode = trend && trendValue ? (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: trend === 'up' ? C.success : '#ef4444', fontWeight: 600 }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: trend === 'up' ? C.success : 'var(--color-error-500)', fontWeight: 600 }}>
       {trend === 'up' ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
       <span>{trendValue}</span>
       <span style={{ color: C.textLight, fontWeight: 400 }}>{t('greenIt.vsLastMonth')}</span>
@@ -1404,7 +1404,7 @@ const DigitizationScorecard = () => {
         </div>
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.lowestDept')}</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: '#dc2626', marginTop: 4 }}>{bottomDept?.department}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-error-600)', marginTop: 4 }}>{bottomDept?.department}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{bottomDept?.digitalRate}%</div>
         </div>
       </div>
@@ -1499,7 +1499,7 @@ const GreenRecommendations = () => {
                     {categoryLabels[tip.category]}
                   </span>
                   <span style={{ padding: '2px 8px', background: tip.difficulty === 'easy' ? '#f0fdf4' : tip.difficulty === 'medium' ? '#fffbeb' : '#fef2f2', borderRadius: 4, fontSize: 12, fontWeight: 600,
-                    color: tip.difficulty === 'easy' ? C.success : tip.difficulty === 'medium' ? C.warning : '#dc2626' }}>
+                    color: tip.difficulty === 'easy' ? C.success : tip.difficulty === 'medium' ? C.warning : 'var(--color-error-600)' }}>
                     {tip.difficulty === 'easy' ? t('greenIt.difficultyEasy') : tip.difficulty === 'medium' ? t('greenIt.difficultyMedium') : t('greenIt.difficultyHard')}
                   </span>
                 </div>
@@ -1541,9 +1541,9 @@ const ISO14001Compliance = () => {
   const score = Math.round((compliant + partial * 0.5) / isoChecklist.length * 100)
 
   const isoStatusMap: Record<string, { bg: string; color: string; label: string }> = {
-    'compliant': { bg: '#22c55e22', color: '#16a34a', label: t('greenIt.isoStatusCompliant') },
-    'partial': { bg: '#f59e0b22', color: '#f59e0b', label: t('greenIt.isoStatusPartial') },
-    'non-compliant': { bg: '#ef444422', color: '#ef4444', label: t('greenIt.isoStatusNonCompliant') },
+    'compliant': { bg: '#22c55e22', color: 'var(--color-success-600)', label: t('greenIt.isoStatusCompliant') },
+    'partial': { bg: '#f59e0b22', color: 'var(--color-warning-500)', label: t('greenIt.isoStatusPartial') },
+    'non-compliant': { bg: '#ef444422', color: 'var(--color-error-500)', label: t('greenIt.isoStatusNonCompliant') },
     'not-applicable': { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: t('greenIt.isoStatusNa') },
   }
 
@@ -1570,7 +1570,7 @@ const ISO14001Compliance = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.auditScore')}</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: score >= 80 ? C.success : score >= 60 ? C.warning : '#dc2626', marginTop: 4 }}>{score}%</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: score >= 80 ? C.success : score >= 60 ? C.warning : 'var(--color-error-600)', marginTop: 4 }}>{score}%</div>
         </div>
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.fullyCompliant')}</div>
@@ -1584,7 +1584,7 @@ const ISO14001Compliance = () => {
         </div>
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.nonCompliant')}</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: '#dc2626', marginTop: 4 }}>{nonCompliant}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-error-600)', marginTop: 4 }}>{nonCompliant}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{t('greenIt.itemsUnit')}</div>
         </div>
       </div>
@@ -1606,8 +1606,8 @@ const ISO14001Compliance = () => {
       {/* 不合规告警 */}
       {nonCompliant > 0 && (
         <div style={{ padding: '12px 16px', background: 'var(--color-error-bg)', borderRadius: 8, border: '1px solid #fecaca', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-          <AlertTriangle size={14} color="#dc2626" style={{ marginTop: 2 }} />
-          <div style={{ fontSize: 12, color: '#dc2626' }}>
+          <AlertTriangle size={14} color="var(--color-error-600)" style={{ marginTop: 2 }} />
+          <div style={{ fontSize: 12, color: 'var(--color-error-600)' }}>
             {t('greenIt.isoWarning', { n: nonCompliant, clauses: isoChecklist.filter(i => i.status === 'non-compliant').map(i => i.clause).join('、') })}
           </div>
         </div>
@@ -1675,9 +1675,9 @@ function RunStatsTab() {
   }
 
   const cards = [
-    { label: t('greenIt.todayExams'), value: stats?.examCount ?? 0, unit: t('greenIt.unitExam'), icon: Activity, color: '#2563eb', bg: '#3b82f622' },
+    { label: t('greenIt.todayExams'), value: stats?.examCount ?? 0, unit: t('greenIt.unitExam'), icon: Activity, color: 'var(--color-primary-600)', bg: '#3b82f622' },
     { label: t('greenIt.todayReports'), value: stats?.reportCount ?? 0, unit: t('greenIt.unitReport'), icon: FileText, color: '#059669', bg: '#22c55e22' },
-    { label: t('greenIt.criticalEvents'), value: stats?.criticalCount ?? 0, unit: t('greenIt.unitEvent'), icon: ShieldAlert, color: '#dc2626', bg: '#ef444422' },
+    { label: t('greenIt.criticalEvents'), value: stats?.criticalCount ?? 0, unit: t('greenIt.unitEvent'), icon: ShieldAlert, color: 'var(--color-error-600)', bg: '#ef444422' },
     { label: t('greenIt.avgTat'), value: stats?.avgTAT != null ? stats.avgTAT.toFixed(1) : '-', unit: t('greenIt.unitHour'), icon: Clock, color: '#7c3aed', bg: '#8b5cf622' },
   ]
 

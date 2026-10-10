@@ -133,7 +133,7 @@ export default function CvQcPage() {
           <td>${t(metric.labelKey)}</td>
           <td style="text-align:center">${metric.current}</td>
           <td style="text-align:center">${metric.target}</td>
-          <td style="text-align:center"><span style="color:${metric.status === 'pass' ? '#16a34a' : metric.status === 'warning' ? '#d97706' : '#dc2626'};font-weight:600">${metric.status === 'pass' ? '通过' : metric.status === 'warning' ? '警告' : '失败'}</span></td>
+          <td style="text-align:center"><span style="color:${metric.status === 'pass' ? 'var(--color-success-600)' : metric.status === 'warning' ? 'var(--color-warning-600)' : 'var(--color-error-600)'};font-weight:600">${metric.status === 'pass' ? '通过' : metric.status === 'warning' ? '警告' : '失败'}</span></td>
         </tr>`).join('')).join('')
       const html = `<!doctype html><html lang="zh"><head><meta charset="utf-8"><title>心血管质控报告</title>
         <style>body{font-family:SimSun,serif;padding:32px;color:#111}h1{font-size:20px}h2{font-size:15px;margin-top:20px}table{width:100%;border-collapse:collapse;margin-top:10px}td,th{border:1px solid #555;padding:6px 10px;font-size:13px}th{background:#eee}.summary{display:flex;gap:16px;margin:12px 0}.box{flex:1;border:1px solid #ccc;border-radius:6px;padding:12px;text-align:center}.num{font-size:22px;font-weight:700}@media print{body{margin:0}}</style></head><body>
@@ -178,7 +178,7 @@ export default function CvQcPage() {
           <div style={{ fontSize: 12, color: '#64748b' }}>{dashboard ? `检查 ${dashboard.totalInspected} 例 · 平均 ${dashboard.avgScore} 分` : `${overallPass}/${overallTotal} 项指标通过`}</div>
         </div>
         {MODALITY_QC.map((m, i) => (
-          <div key={m.modality} onClick={() => setActiveModality(i)} style={{ padding: 16, background: activeModality === i ? 'var(--color-info-bg)' : 'var(--bg-card)', borderRadius: 8, border: activeModality === i ? '2px solid #1e40af' : '1px solid var(--border-color)', cursor: 'pointer' }}>
+          <div key={m.modality} onClick={() => setActiveModality(i)} style={{ padding: 16, background: activeModality === i ? 'var(--color-info-bg)' : 'var(--bg-card)', borderRadius: 8, border: activeModality === i ? '2px solid var(--color-primary-800)' : '1px solid var(--border-color)', cursor: 'pointer' }}>
             <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>{m.modalityKey ? t(m.modalityKey) : m.modality}</div>
             <div style={{ fontSize: 24, fontWeight: 'bold', marginTop: 4 }}>{Math.round(m.metrics.filter(x => x.status !== 'fail').length / m.metrics.length * 100)}%</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>{m.metrics.filter(x => x.status === 'pass').length} {t('cvQc.statusPass')}, {m.metrics.filter(x => x.status === 'fail').length} {t('cvQc.statusFail')}</div>
@@ -223,7 +223,7 @@ export default function CvQcPage() {
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-        <button onClick={handleGenerateReport} disabled={generating} style={{ padding: '8px 16px', background: generating ? '#94a3b8' : '#1e40af', color: '#fff', border: 'none', borderRadius: 6, cursor: generating ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <button onClick={handleGenerateReport} disabled={generating} style={{ padding: '8px 16px', background: generating ? '#94a3b8' : 'var(--color-primary-800)', color: '#fff', border: 'none', borderRadius: 6, cursor: generating ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
           <BarChart3 size={16} /> {generating ? t('cvQc.generating') : t('cvQc.generateReport')}
         </button>
       </div>

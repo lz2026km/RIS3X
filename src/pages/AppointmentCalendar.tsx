@@ -6,7 +6,7 @@ import { DataTable } from '../components/common'
 import BatchActionBar from '../components/batch/BatchActionBar'
 import { t } from '../i18n/appI18n'
 
-const primaryBlue = '#1e40af'
+const primaryBlue = 'var(--color-primary-800)'
 const textGray = '#64748b'
 const borderGray = '#cbd5e1'
 const whiteBg = 'var(--bg-card)'
@@ -143,7 +143,7 @@ export default function AppointmentCalendar(props: Props) {
               const isToday = formatDate(d) === formatDate(new Date())
               return (<div key={i} style={{ padding: '8px 4px', textAlign: 'center', borderRight: i < 6 ? `1px solid ${borderGray}` : 'none', background: isToday ? 'var(--color-info-bg)' : 'transparent' }}>
                 <div style={{ fontSize: 11, color: textGray }}>{['日', '一', '二', '三', '四', '五', '六'][d.getDay()]}</div>
-                <div style={{ fontSize: 16, fontWeight: 800, color: isToday ? '#2563eb' : primaryBlue }}>{d.getDate()}</div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: isToday ? 'var(--color-primary-600)' : primaryBlue }}>{d.getDate()}</div>
               </div>)
             })}
           </div>
@@ -203,7 +203,7 @@ export default function AppointmentCalendar(props: Props) {
               const isToday = dateStr === formatDate(new Date())
               const dayApts = appointments.filter(a => a.examDate === dateStr && a.status !== 'cancelled')
               return (<div key={i} style={{ minHeight: 60, border: `1px solid ${borderGray}`, padding: 2, background: isToday ? 'var(--color-info-bg)' : d.getMonth() !== currentWeekStart.getMonth() ? 'var(--bg-card)' : 'transparent' }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: isToday ? '#2563eb' : d.getMonth() !== currentWeekStart.getMonth() ? '#cbd5e1' : primaryBlue }}>{d.getDate()}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: isToday ? 'var(--color-primary-600)' : d.getMonth() !== currentWeekStart.getMonth() ? '#cbd5e1' : primaryBlue }}>{d.getDate()}</div>
                 {dayApts.slice(0, 2).map(apt => <div key={apt.id} style={{ fontSize: 12, padding: '1px 3px', borderRadius: 3, background: getStatusConfig(apt.status).bg, marginBottom: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{apt.patientName}</div>)}
                 {dayApts.length > 2 && <div style={{ fontSize: 12, color: textGray }}>+{dayApts.length - 2}</div>}
               </div>)
@@ -279,7 +279,7 @@ export default function AppointmentCalendar(props: Props) {
                 {
                   title: '优先级', dataIndex: 'priority', key: 'priority',
                   render: (v: string) => (
-                    <span style={{ color: v === 'urgent' ? '#d97706' : v === 'critical' ? '#dc2626' : textGray, fontWeight: 600 }}>
+                    <span style={{ color: v === 'urgent' ? 'var(--color-warning-600)' : v === 'critical' ? 'var(--color-error-600)' : textGray, fontWeight: 600 }}>
                       {v === 'urgent' ? '紧急' : v === 'critical' ? '危重' : '普通'}
                     </span>
                   ),

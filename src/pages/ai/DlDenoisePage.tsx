@@ -12,7 +12,7 @@ import {
 import { t } from '../../i18n/appI18n'
 import { StatCard, StatCardGrid } from '../../components/common'
 
-const BLUE = '#3b82f6'
+const BLUE = 'var(--color-primary-500)'
 const CARD_BG = '#0f172a'
 
 // [G005 v3.0.6.11-101 Wave 1B (G-10)] 可配置核: 经典算法 + DL 模型接口
@@ -454,7 +454,7 @@ const DlDenoisePage: React.FC = () => {
                   <span>PSNR {item.psnr}dB</span>
                   <span>SSIM {item.ssim}</span>
                   {item.noiseEstimate && <span style={{ color: '#facc15' }}>σ={item.noiseEstimate.sigma}</span>}
-                  {item.backend && <span style={{ color: '#22c55e' }}>{item.backend}</span>}
+                  {item.backend && <span style={{ color: 'var(--color-success-500)' }}>{item.backend}</span>}
                   <span style={{ marginLeft: 'auto', color: '#475569', fontSize: 10 }}>
                     {new Date(item.createdAt).toLocaleTimeString()}
                   </span>

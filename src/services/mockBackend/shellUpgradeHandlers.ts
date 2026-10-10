@@ -379,10 +379,10 @@ const nuclearSuv = {
 };
 
 const nuclearDrugs = [
-  { name: '¹⁸F-FDG', consumption: 48520, unit: 'mCi', percent: 62, color: '#0891b2', usage: 'PET-CT显像' },
-  { name: '⁹⁹mTc-MDP', consumption: 18250, unit: 'mCi', percent: 23, color: '#3b82f6', usage: '骨扫描' },
+  { name: '¹⁸F-FDG', consumption: 48520, unit: 'mCi', percent: 62, color: 'var(--color-info-600)', usage: 'PET-CT显像' },
+  { name: '⁹⁹mTc-MDP', consumption: 18250, unit: 'mCi', percent: 23, color: 'var(--color-primary-500)', usage: '骨扫描' },
   { name: '¹³¹I', consumption: 5800, unit: 'mCi', percent: 7, color: '#8b5cf6', usage: '甲状腺' },
-  { name: '¹¹C-PIB', consumption: 3200, unit: 'mCi', percent: 4, color: '#22c55e', usage: '淀粉样显像' },
+  { name: '¹¹C-PIB', consumption: 3200, unit: 'mCi', percent: 4, color: 'var(--color-success-500)', usage: '淀粉样显像' },
   { name: '其他', consumption: 2430, unit: 'mCi', percent: 4, color: '#94a3b8', usage: '杂项' },
 ];
 

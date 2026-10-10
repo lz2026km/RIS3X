@@ -146,7 +146,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
     <div data-testid="defect-library" role="region" aria-label={t('defectLibrary.title')}>
       <div
         style={{
-          background: 'linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%)',
+          background: 'linear-gradient(135deg, #7f1d1d 0%, var(--color-error-600) 100%)',
           color: '#fff',
           padding: '12px 16px',
           borderRadius: 8,
@@ -372,7 +372,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                           {t('defectLibrary.examplesPrefix')}{d.examples.join('；')}
                         </div>
                       )}
-                      <div style={{ fontSize: 12, color: '#0891b2', marginTop: 4 }}>
+                      <div style={{ fontSize: 12, color: 'var(--color-info-600)', marginTop: 4 }}>
                         {t('defectLibrary.solutionPrefix')}{d.solution}
                       </div>
                       <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
@@ -645,7 +645,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
             </div>
             <div>
               <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('defectLibrary.solution')}</div>
-              <div style={{ fontSize: 12, color: '#0891b2' }}>{detailDrawer.solution}</div>
+              <div style={{ fontSize: 12, color: 'var(--color-info-600)' }}>{detailDrawer.solution}</div>
             </div>
             {detailDrawer.examples.length > 0 && (
               <div>

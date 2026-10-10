@@ -8,7 +8,7 @@ import { LoadingBanner, ErrorBanner, AppEmpty } from '../components/feedback';
 import { orthoSpecialtyApi, type OrthoStudy } from '../services/api/orthoSpecialtyApi';
 
 const JOINT_LABELS: Record<string, string> = { shoulder: 'ortho.jointShoulder', elbow: 'ortho.jointElbow', wrist: 'ortho.jointWrist', hip: 'ortho.jointHip', knee: 'ortho.jointKnee', ankle: 'ortho.jointAnkle', cervical: 'ortho.jointCervical', lumbar: 'ortho.jointLumbar' };
-const KL_COLORS: Record<string, string> = { '0': '#16a34a', 'I': '#16a34a', 'II': '#ca8a04', 'III': '#ea580c', 'IV': '#dc2626' };
+const KL_COLORS: Record<string, string> = { '0': 'var(--color-success-600)', 'I': 'var(--color-success-600)', 'II': '#ca8a04', 'III': '#ea580c', 'IV': 'var(--color-error-600)' };
 
 const mockStudies = [
   { id: 'OX001', name: '张伟', age: 65, gender: 'M', joint: 'knee', modality: 'XR', klGrade: 'III', oaScore: 7.5, fracture: false, date: '2026-07-15' },
@@ -79,7 +79,7 @@ const OrthoSpecialtyPage = () => {
       <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Bone size={24} color="#9333ea" /> {t('ortho.title')} <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#8b5cf622', color: '#9333ea', border: '1px solid #e9d5ff' }}>{t('ortho.demoData')}</span></h1>
-          <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('ortho.subtitle')} <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>{t('ortho.demoNoBackend')}</span></p>
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('ortho.subtitle')} <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t('ortho.demoNoBackend')}</span></p>
         </div>
         <button onClick={() => setShowCreateModal(true)} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#9333ea', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 500 }}><Bone size={14} /> {t('ortho.newAnalysis')}</button>
       </div>
@@ -128,10 +128,10 @@ const OrthoSpecialtyPage = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 20 }}>
         {[
           { label: t('ortho.kpiToday'), value: '22', icon: Activity, color: '#9333ea', bg: '#8b5cf622' },
-          { label: t('ortho.kpiFracture'), value: String(fractureCount), icon: AlertTriangle, color: '#dc2626', bg: '#ef444422' },
+          { label: t('ortho.kpiFracture'), value: String(fractureCount), icon: AlertTriangle, color: 'var(--color-error-600)', bg: '#ef444422' },
           { label: t('ortho.kpiSevereOa'), value: String(severeOA), icon: Stethoscope, color: '#ea580c', bg: '#f9731622' },
           { label: t('ortho.kpiOsteoporosis'), value: '3', icon: Scale, color: '#ca8a04', bg: '#f59e0b22' },
-          { label: t('ortho.kpiPendingReport'), value: '4', icon: FileText, color: '#16a34a', bg: '#22c55e22' },
+          { label: t('ortho.kpiPendingReport'), value: '4', icon: FileText, color: 'var(--color-success-600)', bg: '#22c55e22' },
         ].map((k, i) => (
           <div key={i} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '18px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <div style={{ width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, background: k.bg }}><k.icon size={20} color={k.color} /></div>
@@ -194,12 +194,12 @@ const OrthoSpecialtyPage = () => {
                 },
                 {
                   title: t('ortho.colOaScore'), dataIndex: 'oaScore', key: 'oaScore',
-                  render: (v: number) => <span style={{ fontWeight: 700, color: v > 7 ? '#dc2626' : v > 4 ? '#ea580c' : '#16a34a' }}>{v}</span>,
+                  render: (v: number) => <span style={{ fontWeight: 700, color: v > 7 ? 'var(--color-error-600)' : v > 4 ? '#ea580c' : 'var(--color-success-600)' }}>{v}</span>,
                 },
                 {
                   title: t('ortho.colFracture'), dataIndex: 'fracture', key: 'fracture',
                   render: (v: boolean) => (
-                    <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: v ? 'var(--color-error-bg)' : 'var(--color-success-bg)', color: v ? '#dc2626' : '#16a34a' }}>
+                    <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: v ? 'var(--color-error-bg)' : 'var(--color-success-bg)', color: v ? 'var(--color-error-600)' : 'var(--color-success-600)' }}>
                       {v ? t('ortho.fractureYes') : t('ortho.fractureNo')}
                     </span>
                   ),
@@ -222,8 +222,8 @@ const OrthoSpecialtyPage = () => {
               return (
                 <div key={level} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid var(--border-light)' }}>
                   <span style={{ width: 60, fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{level}</span>
-                  <span style={{ flex: 1, fontSize: 12, color: isNormal ? '#16a34a' : '#ea580c' }}>{t(pathologies[i]!)}</span>
-                  <span style={{ fontSize: 12, color: stenosis[i] === 'ortho.stenosisNone' ? '#94a3b8' : '#dc2626', fontWeight: 600 }}>{t('ortho.lumen')}: {t(stenosis[i]!)}</span>
+                  <span style={{ flex: 1, fontSize: 12, color: isNormal ? 'var(--color-success-600)' : '#ea580c' }}>{t(pathologies[i]!)}</span>
+                  <span style={{ fontSize: 12, color: stenosis[i] === 'ortho.stenosisNone' ? '#94a3b8' : 'var(--color-error-600)', fontWeight: 600 }}>{t('ortho.lumen')}: {t(stenosis[i]!)}</span>
                 </div>
               );
             })}
@@ -233,8 +233,8 @@ const OrthoSpecialtyPage = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {[
                 { label: t('ortho.cobbAngle'), value: '12°', status: t('ortho.abnormal'), color: '#ea580c' },
-                { label: t('ortho.cervicalLordosis'), value: '32°', status: t('ortho.normal'), color: '#16a34a' },
-                { label: t('ortho.lumbarLordosis'), value: '48°', status: t('ortho.normal'), color: '#16a34a' },
+                { label: t('ortho.cervicalLordosis'), value: '32°', status: t('ortho.normal'), color: 'var(--color-success-600)' },
+                { label: t('ortho.lumbarLordosis'), value: '48°', status: t('ortho.normal'), color: 'var(--color-success-600)' },
                 { label: t('ortho.slippage'), value: '5%', status: t('ortho.gradeI'), color: '#ca8a04' },
               ].map(item => (
                 <div key={item.label} style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 8 }}>
@@ -260,10 +260,10 @@ const OrthoSpecialtyPage = () => {
               <div key={b.site} style={{ padding: 14, background: 'var(--bg-card)', borderRadius: 10, marginBottom: 10 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                   <span style={{ fontSize: 12, fontWeight: 600 }}>{b.site}</span>
-                  <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: b.tScore < -2.5 ? '#fef2f2' : '#fefce8', color: b.tScore < -2.5 ? '#dc2626' : '#ca8a04' }}>{b.cat}</span>
+                  <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: b.tScore < -2.5 ? '#fef2f2' : '#fefce8', color: b.tScore < -2.5 ? 'var(--color-error-600)' : '#ca8a04' }}>{b.cat}</span>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
-                  <div><div style={{ color: 'var(--text-secondary)' }}>T-Score</div><div style={{ fontWeight: 700, color: b.tScore < -2.5 ? '#dc2626' : '#ea580c' }}>{b.tScore}</div></div>
+                  <div><div style={{ color: 'var(--text-secondary)' }}>T-Score</div><div style={{ fontWeight: 700, color: b.tScore < -2.5 ? 'var(--color-error-600)' : '#ea580c' }}>{b.tScore}</div></div>
                   <div><div style={{ color: 'var(--text-secondary)' }}>{t('ortho.density')}</div><div style={{ fontWeight: 700 }}>{b.density} g/cm²</div></div>
                 </div>
               </div>
@@ -273,10 +273,10 @@ const OrthoSpecialtyPage = () => {
             <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><BarChart3 size={16} color="#9333ea" /> {t('ortho.fraxTitle')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {[
-                { label: t('ortho.fraxHip'), value: '8.5%', color: '#dc2626' },
+                { label: t('ortho.fraxHip'), value: '8.5%', color: 'var(--color-error-600)' },
                 { label: t('ortho.fraxMajor'), value: '15.2%', color: '#ea580c' },
                 { label: t('ortho.fraxVertebral'), value: '12.8%', color: '#ca8a04' },
-                { label: t('ortho.fraxRadius'), value: '6.3%', color: '#16a34a' },
+                { label: t('ortho.fraxRadius'), value: '6.3%', color: 'var(--color-success-600)' },
               ].map(f => (
                 <div key={f.label} style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 8, textAlign: 'center' }}>
                   <div style={{ fontSize: 24, fontWeight: 700, color: f.color }}>{f.value}</div>
@@ -304,13 +304,13 @@ const OrthoSpecialtyPage = () => {
             })}
           </div>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><TrendingUp size={16} color="#16a34a" /> {t('ortho.fractureTrend')}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><TrendingUp size={16} color="var(--color-success-600)" /> {t('ortho.fractureTrend')}</div>
             {['2026-07', '2026-06', '2026-05', '2026-04'].map((m, i) => {
               const vals = [8, 12, 6, 10];
               return (
                 <div key={m} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
                   <span style={{ width: 80, fontSize: 12, color: 'var(--text-secondary)' }}>{m}</span>
-                  <div style={{ flex: 1, height: 6, background: 'var(--bg-card)', borderRadius: 3 }}><div style={{ height: '100%', width: `${(vals[i] ?? 0) * 5}%`, background: '#dc2626', borderRadius: 3 }} /></div>
+                  <div style={{ flex: 1, height: 6, background: 'var(--bg-card)', borderRadius: 3 }}><div style={{ height: '100%', width: `${(vals[i] ?? 0) * 5}%`, background: 'var(--color-error-600)', borderRadius: 3 }} /></div>
                   <span style={{ fontSize: 12, fontWeight: 600, width: 40 }}>{vals[i] ?? 0}{t('ortho.casesSuffix')}</span>
                 </div>
               );

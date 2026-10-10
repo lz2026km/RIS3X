@@ -84,20 +84,20 @@ const SIZE_MAP: Record<NonNullable<StatCardProps["size"]>, { padding: string; va
 
 /** 语义色 → CSS 变量 (与 design-system.css 对齐) */
 const COLOR_PRESET: Record<StatCardColor, { fg: string; bg: string }> = {
-  primary: { fg: "var(--color-primary-700, #1d4ed8)", bg: "var(--color-primary-50, #eff6ff)" },
-  success: { fg: "var(--color-success-600, #16a34a)", bg: "var(--color-success-50, #f0fdf4)" },
-  warning: { fg: "var(--color-warning-600, #d97706)", bg: "var(--color-warning-50, #fffbeb)" },
-  error: { fg: "var(--color-error-600, #dc2626)", bg: "var(--color-error-50, #fef2f2)" },
-  info: { fg: "var(--color-info-600, #0891b2)", bg: "var(--color-info-50, #ecfeff)" },
+  primary: { fg: "var(--color-primary-700, var(--color-primary-700))", bg: "var(--color-primary-50, #eff6ff)" },
+  success: { fg: "var(--color-success-600, var(--color-success-600))", bg: "var(--color-success-50, #f0fdf4)" },
+  warning: { fg: "var(--color-warning-600, var(--color-warning-600))", bg: "var(--color-warning-50, #fffbeb)" },
+  error: { fg: "var(--color-error-600, var(--color-error-600))", bg: "var(--color-error-50, #fef2f2)" },
+  info: { fg: "var(--color-info-600, var(--color-info-600))", bg: "var(--color-info-50, #ecfeff)" },
 };
 
 /** 渐变底色 (预设对应的实际 hex, 用于生成淡化渐变) */
 const PRESET_HEX: Record<StatCardColor, string> = {
-  primary: "#2563eb",
-  success: "#16a34a",
-  warning: "#d97706",
-  error: "#dc2626",
-  info: "#0891b2",
+  primary: "var(--color-primary-600)",
+  success: "var(--color-success-600)",
+  warning: "var(--color-warning-600)",
+  error: "var(--color-error-600)",
+  info: "var(--color-info-600)",
 };
 
 /** #rrggbb → 8 位 hex + alpha */
@@ -183,7 +183,7 @@ export function StatCard({
     ? "var(--text-muted, #94a3b8)"
     : (trendCfg.goodWhenDown ? !isUp : isUp)
       ? "var(--color-success-600, #059669)"
-      : "var(--color-error-600, #dc2626)";
+      : "var(--color-error-600, var(--color-error-600))";
 
   const baseStyle: CSSProperties = {
     background: "var(--bg-card)",

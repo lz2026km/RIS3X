@@ -178,7 +178,7 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <Send size={20} color="#2563eb" />
+        <Send size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalRadFusion.referralTitle')}</span>
         <Tag color="cyan">v3.0.6.11-75 W3-2</Tag>
         <Tag color="purple">{t('dentalRadFusion.dentalRad')}</Tag>
@@ -292,7 +292,7 @@ export const CBCTUnifiedReportPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <FileText size={20} color="#2563eb" />
+        <FileText size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalRadFusion.cbctReportTitle')}</span>
         <Tag color="cyan">v3.0.6.11-75 W3-2</Tag>
       </Space>
@@ -308,7 +308,7 @@ export const CBCTUnifiedReportPage: React.FC = () => {
                   onClick={() => setSelected(r)}
                   style={{
                     padding: '8px 10px', marginBottom: 6, borderRadius: 6, cursor: 'pointer',
-                    border: selected?.id === r.id ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
+                    border: selected?.id === r.id ? '1.5px solid var(--color-primary-600)' : '1px solid #e2e8f0',
                     background: selected?.id === r.id ? 'var(--color-info-bg)' : 'var(--bg-card)',
                   }}
                 >
@@ -405,7 +405,7 @@ export const DentalRadFusionPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <ActivityIcon size={20} color="#2563eb" />
+        <ActivityIcon size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalRadFusion.fusionViewerTitle')}</span>
         <Tag color="cyan">v3.0.6.11-75 W3-2</Tag>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => setTab('compare')}>{t('dentalRadFusion.refresh')}</Button>
@@ -424,7 +424,7 @@ export const DentalRadFusionPage: React.FC = () => {
                       onClick={() => setSelected(s)}
                       style={{
                         padding: '8px 10px', marginBottom: 6, borderRadius: 6, cursor: 'pointer',
-                        border: selected?.id === s.id ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
+                        border: selected?.id === s.id ? '1.5px solid var(--color-primary-600)' : '1px solid #e2e8f0',
                         background: selected?.id === s.id ? 'var(--color-info-bg)' : 'var(--bg-card)',
                       }}
                     >

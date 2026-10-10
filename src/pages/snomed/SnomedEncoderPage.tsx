@@ -170,7 +170,7 @@ const SnomedEncoderPage: React.FC = () => {
     <PageContainer padding={24}>
       <Card style={{ marginBottom: 16 }}>
         <Space style={{ marginBottom: 16 }}>
-          <Code size={24} color="#3b82f6" />
+          <Code size={24} color="var(--color-primary-500)" />
           <Title level={4} style={{ margin: 0 }}>{t('snomedEncoder.title')}</Title>
         </Space>
         <Text type="secondary">{t('snomedEncoder.subtitle')}</Text>
@@ -186,7 +186,7 @@ const SnomedEncoderPage: React.FC = () => {
       <Row gutter={16}>
         <Col span={12}>
           <Card
-            title={<Space><FileText size={14} color="#3b82f6" />{t('snomedEncoder.reportInput')}</Space>}
+            title={<Space><FileText size={14} color="var(--color-primary-500)" />{t('snomedEncoder.reportInput')}</Space>}
             extra={
               <Space>
                 <Button
@@ -282,7 +282,7 @@ const SnomedEncoderPage: React.FC = () => {
         <Card
           title={
             <Space>
-              <AlertTriangle size={14} color="#3b82f6" />
+              <AlertTriangle size={14} color="var(--color-primary-500)" />
               {t('snomedEncoder.results')}
               <Tag>{t('snomedEncoder.codeCount', { count: codes.length })}</Tag>
             </Space>

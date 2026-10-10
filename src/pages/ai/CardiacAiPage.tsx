@@ -158,7 +158,7 @@ const CardiacAiPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <HeartPulse size={20} color="#2563eb" />
+        <HeartPulse size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t("w9d.cardiac.title")}</span>
         <Button
           size="small"

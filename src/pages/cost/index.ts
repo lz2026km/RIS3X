@@ -103,7 +103,7 @@ export type DeptRevenue = {
   momGrowth: number
 }
 
-export const PRIMARY = '#1e40af'
+export const PRIMARY = 'var(--color-primary-800)'
 
 export const EQUIPMENT_DATA: EquipmentCost[] = [
   { id: 'ct-force', name: 'SOMATOM Force', modality: 'CT', purchasePrice: 1200, depreciationYears: 10, annualMaintenance: 80, annualUsage: 12000, unitCost: 0 },
@@ -234,10 +234,10 @@ export const BREAK_EVEN_DATA = {
 
 export const INSURANCE_ALLOCATION = {
   currentMonth: [
-    { name: '医保(城镇职工)', type: '医保', value: 385000, color: '#3b82f6' },
+    { name: '医保(城镇职工)', type: '医保', value: 385000, color: 'var(--color-primary-500)' },
     { name: '医保(城乡居民)', type: '医保', value: 156000, color: '#8b5cf6' },
     { name: '商业保险', type: '商保', value: 98000, color: '#059669' },
-    { name: '自费', type: '自费', value: 62000, color: '#d97706' },
+    { name: '自费', type: '自费', value: 62000, color: 'var(--color-warning-600)' },
     { name: '公费/其他', type: '其他', value: 28000, color: '#6b7280' },
   ],
   monthlyTrend: [

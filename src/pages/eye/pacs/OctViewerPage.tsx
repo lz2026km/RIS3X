@@ -239,7 +239,7 @@ const OctViewerPage: React.FC = () => {
   return (
     <div style={{ padding: 16, background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-        <Activity className="v4-icon" style={{ width: 24, height: 24, color: '#0891b2' }} />
+        <Activity className="v4-icon" style={{ width: 24, height: 24, color: 'var(--color-info-600)' }} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('octViewer.title')}</span>
         {study?.eyeSide && <EyeLateralityBadge eyeSide={study.eyeSide as 'OD' | 'OS' | 'OU'} />}
         <Tag color="cyan" style={{ fontSize: 12 }}>{study?.device ?? '-'}</Tag>
@@ -276,7 +276,7 @@ const OctViewerPage: React.FC = () => {
                       marginBottom: 6,
                       borderRadius: 6,
                       cursor: 'pointer',
-                      border: selectedId === s.id ? '1.5px solid #0891b2' : '1px solid #e2e8f0',
+                      border: selectedId === s.id ? '1.5px solid var(--color-info-600)' : '1px solid #e2e8f0',
                       background: selectedId === s.id ? 'var(--color-info-bg)' : 'var(--bg-card)',
                     }}
                   >
@@ -339,7 +339,7 @@ const OctViewerPage: React.FC = () => {
               {etdrsData.map((e, i) => (
                 <div key={e.key} style={{
                   padding: 6, background: 'var(--bg-card)', borderRadius: 6, textAlign: 'center',
-                  fontSize: 11, border: i === 0 ? '2px solid #0891b2' : '1px solid #e2e8f0',
+                  fontSize: 11, border: i === 0 ? '2px solid var(--color-info-600)' : '1px solid #e2e8f0',
                 }}>
                   <div style={{ color: 'var(--text-secondary)', fontSize: 11 }}>{t(e.zoneKey)}</div>
                   <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>{e.od}</div>

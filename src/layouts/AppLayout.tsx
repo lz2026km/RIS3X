@@ -89,7 +89,7 @@ function Loading() {
           width: 32,
           height: 32,
           border: "3px solid var(--border-color, #334155)",
-          borderTopColor: "var(--color-primary-500, #3b82f6)",
+          borderTopColor: "var(--color-primary-500, var(--color-primary-500))",
           borderRadius: "50%",
           animation: "spin 0.8s linear infinite",
         }}
@@ -236,7 +236,7 @@ const s: Record<string, React.CSSProperties> = {
   logoIcon: {
     width: 32,
     height: 32,
-    background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
+    background: "linear-gradient(135deg, var(--color-primary-500), var(--color-primary-700))",
     borderRadius: 8,
     display: "flex",
     alignItems: "center",
@@ -269,7 +269,7 @@ const s: Record<string, React.CSSProperties> = {
   avatar: {
     width: 28,
     height: 28,
-    background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
+    background: "linear-gradient(135deg, var(--color-primary-500), var(--color-primary-700))",
     borderRadius: 6,
     display: "flex",
     alignItems: "center",
@@ -364,7 +364,7 @@ const navItemStyle = (active: boolean, open: boolean): React.CSSProperties => ({
     ? "var(--sidebar-item-active-bg, rgba(37, 99, 235, 0.22))"
     : "transparent",
   borderLeft: active
-    ? "4px solid var(--color-primary-600, #2563eb)"
+    ? "4px solid var(--color-primary-600, var(--color-primary-600))"
     : "4px solid transparent",
   fontSize: 14,
   fontWeight: active ? 700 : 500,
@@ -570,7 +570,7 @@ const NavItem = React.memo(function NavItem({
         <span
           style={{
             marginLeft: "auto",
-            background: "var(--color-error, #ef4444)",
+            background: "var(--color-error, var(--color-error-500))",
             color: "#fff",
             fontSize: 11,
             fontWeight: 700,
@@ -768,7 +768,7 @@ export function AppLayout() {
                   width: 3,
                   height: 12,
                   borderRadius: 2,
-                  background: "var(--color-primary-500, #3b82f6)",
+                  background: "var(--color-primary-500, var(--color-primary-500))",
                   flexShrink: 0,
                   opacity: open ? 1 : 0,
                 }}
@@ -992,7 +992,7 @@ export function AppLayout() {
                   transition: "border-color 0.15s",
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = "var(--color-primary-500, #3b82f6)";
+                  e.currentTarget.style.borderColor = "var(--color-primary-500, var(--color-primary-500))";
                   setSearchOpen(true);
                 }}
                 onBlur={(e) => {
@@ -1098,7 +1098,7 @@ export function AppLayout() {
                 color: "var(--text-muted, #94a3b8)",
               }}
             >
-              <Activity size={14} style={{ color: "#22c55e" }} />
+              <Activity size={14} style={{ color: "var(--color-success-500)" }} />
               <span>{t("app.systemStatus")}</span>
             </div>
             <button

@@ -47,23 +47,23 @@ export function ConfirmDialog({
   const variantConfig = {
     danger: {
       iconBg: 'var(--color-error-bg)',
-      iconColor: '#ef4444',
-      confirmBg: '#ef4444',
-      confirmHover: '#dc2626',
+      iconColor: 'var(--color-error-500)',
+      confirmBg: 'var(--color-error-500)',
+      confirmHover: 'var(--color-error-600)',
       icon: <AlertTriangle size={24} />,
     },
     warning: {
       iconBg: 'var(--color-warning-bg)',
-      iconColor: '#f59e0b',
-      confirmBg: '#f59e0b',
-      confirmHover: '#d97706',
+      iconColor: 'var(--color-warning-500)',
+      confirmBg: 'var(--color-warning-500)',
+      confirmHover: 'var(--color-warning-600)',
       icon: <AlertTriangle size={24} />,
     },
     info: {
       iconBg: 'var(--color-info-bg)',
-      iconColor: '#3b82f6',
-      confirmBg: '#3b82f6',
-      confirmHover: '#2563eb',
+      iconColor: 'var(--color-primary-500)',
+      confirmBg: 'var(--color-primary-500)',
+      confirmHover: 'var(--color-primary-600)',
       icon: <AlertTriangle size={24} />,
     },
   }
@@ -192,7 +192,7 @@ export const FieldError = React.memo(function FieldError({ message }: FieldError
       alignItems: 'center',
       gap: 4,
       marginTop: 4,
-      color: '#ef4444',
+      color: 'var(--color-error-500)',
       fontSize: 12,
     }}>
       <AlertTriangle size={12} />
@@ -216,7 +216,7 @@ export const FormField = React.memo(function FormField({ label, error, required,
     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
       <label style={{ fontSize: 12, fontWeight: 500, color: '#334155' }}>
         {label}
-        {required && <span aria-label="必填" style={{ color: '#ef4444', marginLeft: 2 }}>*</span>}
+        {required && <span aria-label="必填" style={{ color: 'var(--color-error-500)', marginLeft: 2 }}>*</span>}
       </label>
       {children}
       {error && <FieldError message={error} />}

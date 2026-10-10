@@ -147,7 +147,7 @@ const AiMarketplacePage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
       <Space style={{ marginBottom: 16 }} align="center">
-        <Cpu size={22} color="#2563eb" />
+        <Cpu size={22} color="var(--color-primary-600)" />
         <div>
           <div style={{ fontSize: 18, fontWeight: 600 }}>{t('w8.aiMarketplace.title')}</div>
           <Text type="secondary" style={{ fontSize: 12 }}>{t('w8.aiMarketplace.subtitle')}</Text>

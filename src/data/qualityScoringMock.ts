@@ -32,7 +32,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
     name: '检查所见完整性', nameEn: 'Findings Completeness',
     description: '检查所见段落是否包含部位/形态/大小/密度/信号/增强 6 要素',
     descriptionEn: 'Findings section covers location/morphology/size/density/signal/enhancement',
-    weight: 0.04, enabled: true, color: '#3b82f6', icon: '',
+    weight: 0.04, enabled: true, color: 'var(--color-primary-500)', icon: '',
     passingRule: '所见长度 >= 80 字符且包含 4 项关键要素',
     passingRuleEn: 'Findings length >= 80 chars and includes 4 key elements',
     rules: [
@@ -48,7 +48,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
     name: '诊断印象完整性', nameEn: 'Impression Completeness',
     description: '诊断印象段落是否主次有序、结论明确',
     descriptionEn: 'Impression ordered and unambiguous',
-    weight: 0.04, enabled: true, color: '#1d4ed8', icon: '',
+    weight: 0.04, enabled: true, color: 'var(--color-primary-700)', icon: '',
     passingRule: '印象长度 >= 30 字符且包含主要诊断',
     passingRuleEn: 'Impression length >= 30 chars and includes primary diagnosis',
     rules: [
@@ -76,7 +76,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
     name: '结构化字段完整', nameEn: 'Structured Fields',
     description: '结构化字段填写率',
     descriptionEn: 'Structured field fill rate',
-    weight: 0.05, enabled: true, color: '#06b6d4', icon: '',
+    weight: 0.05, enabled: true, color: 'var(--color-info-500)', icon: '',
     passingRule: '结构化字段填写率 >= 80%',
     passingRuleEn: 'Structured field fill rate >= 80%',
     rules: [
@@ -129,7 +129,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
     name: '结合临床', nameEn: 'Clinical Reference',
     description: '是否结合临床病史/化验',
     descriptionEn: 'References clinical history/labs',
-    weight: 0.04, enabled: true, color: '#16a34a', icon: '',
+    weight: 0.04, enabled: true, color: 'var(--color-success-600)', icon: '',
     passingRule: '包含临床病史或化验引用',
     passingRuleEn: 'Includes clinical history or lab reference',
     rules: [
@@ -142,7 +142,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
     name: '危急值标记', nameEn: 'Critical Marking',
     description: '危急值是否标记并通报',
     descriptionEn: 'Critical value marked and notified',
-    weight: 0.04, enabled: true, color: '#dc2626', icon: '',
+    weight: 0.04, enabled: true, color: 'var(--color-error-600)', icon: '',
     passingRule: '危急值 10 分钟内通报',
     passingRuleEn: 'Critical notified within 10 minutes',
     rules: [
@@ -170,7 +170,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
     name: 'TAT 达标', nameEn: 'TAT Met',
     description: '报告是否在 TAT 阈值内完成',
     descriptionEn: 'Report completed within TAT threshold',
-    weight: 0.08, enabled: true, color: '#f59e0b', icon: '',
+    weight: 0.08, enabled: true, color: 'var(--color-warning-500)', icon: '',
     passingRule: '危急<=30min/急诊<=2h/普通<=24h',
     passingRuleEn: 'Critical<=30min/Urgent<=2h/Routine<=24h',
     rules: [
@@ -184,7 +184,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
     name: '优先级处理', nameEn: 'Priority Handling',
     description: '按优先级处理',
     descriptionEn: 'Processed by priority',
-    weight: 0.04, enabled: true, color: '#d97706', icon: '',
+    weight: 0.04, enabled: true, color: 'var(--color-warning-600)', icon: '',
     passingRule: 'STAT 优先于普通',
     passingRuleEn: 'STAT handled before routine',
     rules: [
@@ -232,7 +232,7 @@ export const SCORING_DIMENSIONS: ScoringDimension[] = [
 
 export const SCORING_THRESHOLDS: ScoringThresholdConfig[] = [
   { grade: 'A', minScore: 90, maxScore: 100, color: '#047857', bg: '#d1fae5', border: '#6ee7b7', label: 'A 级 · 优秀', labelEn: 'Grade A · Excellent', publishable: true, bonusEligible: true, description: '高分优质报告,可作为模板', descriptionEn: 'Excellent - template worthy' },
-  { grade: 'B', minScore: 75, maxScore: 89, color: '#1e40af', bg: '#dbeafe', border: '#93c5fd', label: 'B 级 · 良好', labelEn: 'Grade B · Good', publishable: true, bonusEligible: true, description: '良好,常规发布', descriptionEn: 'Good - publish normal' },
+  { grade: 'B', minScore: 75, maxScore: 89, color: 'var(--color-primary-800)', bg: '#dbeafe', border: '#93c5fd', label: 'B 级 · 良好', labelEn: 'Grade B · Good', publishable: true, bonusEligible: true, description: '良好,常规发布', descriptionEn: 'Good - publish normal' },
   { grade: 'C', minScore: 60, maxScore: 74, color: '#92400e', bg: '#fef3c7', border: '#fcd34d', label: 'C 级 · 合格', labelEn: 'Grade C · Pass', publishable: false, bonusEligible: false, description: '合格,需修改后发布', descriptionEn: 'Pass - revise before publish' },
   { grade: 'D', minScore: 0, maxScore: 59, color: '#7f1d1d', bg: '#fee2e2', border: '#fca5a5', label: 'D 级 · 不合格', labelEn: 'Grade D · Fail', publishable: false, bonusEligible: false, description: '不合格,必须重写', descriptionEn: 'Fail - rewrite required' },
 ];

@@ -120,7 +120,7 @@ export default function DICOMSRParser() {
           }}
         >
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>
               DICOM SR RDSR 解析
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
@@ -143,7 +143,7 @@ export default function DICOMSRParser() {
             disabled={parsing}
             style={{
               padding: "8px 16px",
-              background: "#1e40af",
+              background: "var(--color-primary-800)",
               color: "#fff",
               border: "none",
               borderRadius: 6,
@@ -165,7 +165,7 @@ export default function DICOMSRParser() {
               background: "#f0fdf4",
               border: "1px solid #bbf7d0",
               borderRadius: 8,
-              color: "#16a34a",
+              color: "var(--color-success-600)",
               fontSize: 12,
               display: "flex",
               alignItems: "center",
@@ -183,7 +183,7 @@ export default function DICOMSRParser() {
               background: "#fef2f2",
               border: "1px solid #fecaca",
               borderRadius: 8,
-              color: "#dc2626",
+              color: "var(--color-error-600)",
               fontSize: 12,
               display: "flex",
               alignItems: "center",
@@ -201,7 +201,7 @@ export default function DICOMSRParser() {
               background: "#fef3c7",
               border: "1px solid #fcd34d",
               borderRadius: 8,
-              color: "#d97706",
+              color: "var(--color-warning-600)",
               fontSize: 12,
               display: "flex",
               alignItems: "center",
@@ -216,7 +216,7 @@ export default function DICOMSRParser() {
           style={{
             padding: "8px 12px",
             background: "#fef3c7",
-            color: "#d97706",
+            color: "var(--color-warning-600)",
             borderRadius: 8,
             fontSize: 12,
             display: "flex",
@@ -240,7 +240,7 @@ export default function DICOMSRParser() {
           style={{
             fontSize: 12,
             fontWeight: 700,
-            color: "#1e40af",
+            color: "var(--color-primary-800)",
             marginBottom: 16,
           }}
         >
@@ -254,12 +254,12 @@ export default function DICOMSRParser() {
             showExport={false}
             showDensity={false}
             columns={[
-              { title: "患者", dataIndex: "patientName", key: "patientName", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "#1e40af" }}>{v}</span> },
+              { title: "患者", dataIndex: "patientName", key: "patientName", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{v}</span> },
               { title: "检查日期", dataIndex: "studyDate", key: "studyDate", align: "center", render: (v: string) => <span style={{ color: "#94a3b8" }}>{v}</span> },
               { title: "设备", dataIndex: "device", key: "device", align: "center", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
               { title: "检查项目", dataIndex: "examItem", key: "examItem", align: "center", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
-              { title: "CTDIvol", dataIndex: "ctdivol", key: "ctdivol", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "#1e40af" }}>{v || "-"}</span> },
-              { title: "DLP", dataIndex: "dlp", key: "dlp", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "#1e40af" }}>{v || "-"}</span> },
+              { title: "CTDIvol", dataIndex: "ctdivol", key: "ctdivol", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "var(--color-primary-800)" }}>{v || "-"}</span> },
+              { title: "DLP", dataIndex: "dlp", key: "dlp", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "var(--color-primary-800)" }}>{v || "-"}</span> },
               { title: "总剂量", key: "totalDose", align: "center", render: (_: unknown, r: DICOMSRRecord) => <span style={{ color: "#334155" }}>{r.totalDose} {r.doseUnit}</span> },
               { title: "DRL参考值", dataIndex: "drlReference", key: "drlReference", align: "center", render: (v: number) => <span style={{ color: "#94a3b8" }}>{v || "-"}</span> },
               {
@@ -269,7 +269,7 @@ export default function DICOMSRParser() {
                     style={{
                       padding: "2px 8px",
                       background: v ? "#f0fdf4" : "#fef2f2",
-                      color: v ? "#16a34a" : "#dc2626",
+                      color: v ? "var(--color-success-600)" : "var(--color-error-600)",
                       borderRadius: 4,
                       fontSize: 12,
                       fontWeight: 700,

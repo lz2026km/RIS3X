@@ -56,7 +56,7 @@ function buildHtmlReport(opts: ExportOptions): string {
   <style>
     ${orientationCss}
     body { font-family: 'Noto Serif SC', serif; margin: 40px; color: #1e293b; line-height: 1.6; }
-    h1 { font-size: 20px; border-bottom: 2px solid #3b82f6; padding-bottom: 8px; }
+    h1 { font-size: 20px; border-bottom: 2px solid var(--color-primary-500); padding-bottom: 8px; }
     table { width: 100%; border-collapse: collapse; margin: 16px 0; }
     th, td { border: 1px solid #e2e8f0; padding: 8px 12px; text-align: left; }
     th { background: #f8fafc; font-weight: 600; }
@@ -92,7 +92,7 @@ function buildWordHtml(opts: ExportOptions): string {
   <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View></w:WordDocument></xml><![endif]-->
   <style>
     body { font-family: 'Noto Serif SC', serif; margin: 2.54cm; color: #000; }
-    h1 { font-size: 18pt; border-bottom: 2px solid #3b82f6; padding-bottom: 4pt; }
+    h1 { font-size: 18pt; border-bottom: 2px solid var(--color-primary-500); padding-bottom: 4pt; }
     table { width: 100%; border-collapse: collapse; }
     th, td { border: 1pt solid #999; padding: 4pt 8pt; text-align: left; }
     th { background: #f0f0f0; }

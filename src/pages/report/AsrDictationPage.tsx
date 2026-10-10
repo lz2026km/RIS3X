@@ -16,7 +16,7 @@ import { reportApi } from '@services/api/reportApi'
 const SECTION_ORDER: DictationSectionKey[] = ['findings', 'impression', 'recommendation', 'conclusion']
 
 const CATEGORY_COLORS: Record<string, string> = {
-  解剖: '#6366f1', 影像: '#0ea5e9', 疾病: '#f43f5e', 单位: '#14b8a6', 操作: '#f59e0b',
+  解剖: '#6366f1', 影像: '#0ea5e9', 疾病: '#f43f5e', 单位: '#14b8a6', 操作: 'var(--color-warning-500)',
 }
 
 const DEMO_STREAM: Array<{ text: string }> = [
@@ -245,14 +245,14 @@ export default function AsrDictationPage() {
 
   return (
     <PageContainer background="slate" maxWidth="wide">
-      <PageHeader icon={<Volume2 size={20} color="#3b82f6" />} title={t('w17.asr.title')} subtitle={t('w17.asr.subtitle')} />
+      <PageHeader icon={<Volume2 size={20} color="var(--color-primary-500)" />} title={t('w17.asr.title')} subtitle={t('w17.asr.subtitle')} />
       {loadError && <ErrorBanner message={loadError} onRetry={() => void loadHotwords()} retryLabel={t('w9.states.retry')} />}
       <div style={{ padding: 24 }}>
         {/* 听写控制台 */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
             <div style={{ width: 64, height: 64, borderRadius: '50%', background: streaming ? '#fee2e2' : '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s' }}>
-              {streaming ? <Square size={26} color="#dc2626" /> : <Mic size={26} color="#3b82f6" />}
+              {streaming ? <Square size={26} color="var(--color-error-600)" /> : <Mic size={26} color="var(--color-primary-500)" />}
             </div>
             <div style={{ flex: 1, minWidth: 220 }}>
               <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary, #1e293b)' }}>
@@ -269,7 +269,7 @@ export default function AsrDictationPage() {
               style={{ padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, width: 220 }}
             />
             {!streaming ? (
-              <button onClick={() => void handleStart()} disabled={loading} style={{ padding: '10px 22px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <button onClick={() => void handleStart()} disabled={loading} style={{ padding: '10px 22px', background: 'var(--color-primary-500)', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Mic size={15} />{loading ? t('w17.asr.starting') : t('w17.asr.start')}
               </button>
             ) : (
@@ -279,11 +279,11 @@ export default function AsrDictationPage() {
                     <Play size={15} />{t('w17.asr.resume')}
                   </button>
                 ) : (
-                  <button onClick={handlePause} style={{ padding: '10px 18px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <button onClick={handlePause} style={{ padding: '10px 18px', background: 'var(--color-warning-500)', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <Pause size={15} />{t('w17.asr.pause')}
                   </button>
                 )}
-                <button onClick={() => void handleStop()} style={{ padding: '10px 18px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <button onClick={() => void handleStop()} style={{ padding: '10px 18px', background: 'var(--color-error-600)', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Square size={15} />{t('w17.asr.stop')}
                 </button>
               </div>
@@ -295,14 +295,14 @@ export default function AsrDictationPage() {
             <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 14 }}>
               <div style={{ border: '1px solid var(--border-default, rgba(0,0,0,0.12))', borderRadius: 8, padding: 12, background: 'var(--bg-primary, #f8fafc)', minHeight: 160 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 12, fontWeight: 600, color: '#334155' }}>
-                  <Activity size={13} color="#3b82f6" />{t('w17.asr.realtimeText')}
-                  {streaming && <span style={{ color: '#dc2626', fontSize: 11, animation: 'pulse 1.2s infinite' }}>●</span>}
+                  <Activity size={13} color="var(--color-primary-500)" />{t('w17.asr.realtimeText')}
+                  {streaming && <span style={{ color: 'var(--color-error-600)', fontSize: 11, animation: 'pulse 1.2s infinite' }}>●</span>}
                 </div>
                 <div style={{ fontSize: 12, lineHeight: 1.9, color: '#0f172a', whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>
                   {session.text || <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{t('w17.asr.streamEmpty')}</span>}
                 </div>
                 {lastCommand && (
-                  <div style={{ marginTop: 10, padding: '6px 10px', background: '#eff6ff', borderRadius: 6, fontSize: 12, color: '#1d4ed8', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ marginTop: 10, padding: '6px 10px', background: '#eff6ff', borderRadius: 6, fontSize: 12, color: 'var(--color-primary-700)', display: 'flex', alignItems: 'center', gap: 6 }}>
                     <Command size={12} />{t('w17.asr.commandDetected')}: 「{lastCommand.phrase}」→ {lastCommand.action} ({lastCommand.at})
                   </div>
                 )}
@@ -316,9 +316,9 @@ export default function AsrDictationPage() {
                     <div
                       key={key}
                       onClick={() => setActiveSection(key)}
-                      style={{ padding: '8px 10px', borderRadius: 6, border: active ? '1.5px solid #3b82f6' : '1px solid var(--border-default, rgba(0,0,0,0.12))', background: active ? '#eff6ff' : 'var(--bg-card, #ffffff)', marginBottom: 6, cursor: 'pointer' }}
+                      style={{ padding: '8px 10px', borderRadius: 6, border: active ? '1.5px solid var(--color-primary-500)' : '1px solid var(--border-default, rgba(0,0,0,0.12))', background: active ? '#eff6ff' : 'var(--bg-card, #ffffff)', marginBottom: 6, cursor: 'pointer' }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 600, color: active ? '#1d4ed8' : '#475569' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 600, color: active ? 'var(--color-primary-700)' : '#475569' }}>
                         <span>{t(`w17.asr.section.${key}`)}</span>
                         <span style={{ color: 'var(--text-muted, #94a3b8)', fontWeight: 400 }}>{text.length}{t('w17.asr.chars')}</span>
                       </div>
@@ -385,7 +385,7 @@ export default function AsrDictationPage() {
               placeholder={t('w17.asr.priority')}
               style={{ padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, width: 80 }}
             />
-            <button onClick={() => void handleHotwordSubmit()} style={{ padding: '6px 14px', background: editingHotwordId ? '#f59e0b' : '#3b82f6', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button onClick={() => void handleHotwordSubmit()} style={{ padding: '6px 14px', background: editingHotwordId ? 'var(--color-warning-500)' : 'var(--color-primary-500)', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
               {editingHotwordId ? <Save size={14} /> : <Plus size={14} />}{editingHotwordId ? t('w17.asr.saveEdit') : t('w17.asr.addHotword')}
             </button>
             {editingHotwordId && (
@@ -420,8 +420,8 @@ export default function AsrDictationPage() {
                     <td style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>
                       {!entry.builtin && (
                         <>
-                          <button onClick={() => { setEditingHotwordId(entry.id); setHotwordForm({ term: entry.term, category: entry.category, priority: entry.priority }) }} title={t('w17.asr.edit')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3b82f6', marginRight: 8 }}><Pencil size={14} /></button>
-                          <button onClick={() => void handleHotwordDelete(entry.id)} title={t('w17.asr.delete')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444' }}><Trash2 size={14} /></button>
+                          <button onClick={() => { setEditingHotwordId(entry.id); setHotwordForm({ term: entry.term, category: entry.category, priority: entry.priority }) }} title={t('w17.asr.edit')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-primary-500)', marginRight: 8 }}><Pencil size={14} /></button>
+                          <button onClick={() => void handleHotwordDelete(entry.id)} title={t('w17.asr.delete')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-error-500)' }}><Trash2 size={14} /></button>
                         </>
                       )}
                       {entry.builtin && <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>—</span>}

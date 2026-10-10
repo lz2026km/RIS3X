@@ -31,7 +31,7 @@ export function EgfrWarning({ egfr }: { egfr?: number }) {
   if (egfr === undefined || Number.isNaN(egfr)) return null
   if (egfr >= 30 && egfr < 60) {
     return (
-      <div style={{ marginTop: 10, padding: '8px 12px', background: '#f59e0b15', border: '1px solid #f59e0b40', borderRadius: 6, fontSize: 12, color: '#fbbf24', display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ marginTop: 10, padding: '8px 12px', background: '#f59e0b15', border: '1px solid #f59e0b40', borderRadius: 6, fontSize: 12, color: 'var(--color-warning-400)', display: 'flex', alignItems: 'center', gap: 8 }}>
         <ShieldAlert size={14} />
         <span>{t('w3d.egfr.warning', { value: egfr })}</span>
       </div>
@@ -39,7 +39,7 @@ export function EgfrWarning({ egfr }: { egfr?: number }) {
   }
   if (egfr >= 60) {
     return (
-      <div style={{ marginTop: 10, fontSize: 12, color: '#22c55e' }}>{t('w3d.egfr.normal', { value: egfr })}</div>
+      <div style={{ marginTop: 10, fontSize: 12, color: 'var(--color-success-500)' }}>{t('w3d.egfr.normal', { value: egfr })}</div>
     )
   }
   return null
@@ -56,7 +56,7 @@ export function ContrastScreeningChecklist() {
           <ListChecks size={16} color="#22d3ee" />
           {t('w3d.screening.title')}
         </div>
-        <span style={{ fontSize: 12, color: done === CONTRAST_SCREENING_ITEMS.length ? '#22c55e' : 'var(--text-muted, #8b949e)' }}>
+        <span style={{ fontSize: 12, color: done === CONTRAST_SCREENING_ITEMS.length ? 'var(--color-success-500)' : 'var(--text-muted, #8b949e)' }}>
           {done}/{CONTRAST_SCREENING_ITEMS.length}
         </span>
       </div>
@@ -73,7 +73,7 @@ export function ContrastScreeningChecklist() {
                 </span>
               </div>
               <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginTop: 2 }}>{item.detail}</div>
-              <div style={{ fontSize: 12, color: '#f59e0b', marginTop: 2 }}>→ {item.action}</div>
+              <div style={{ fontSize: 12, color: 'var(--color-warning-500)', marginTop: 2 }}>→ {item.action}</div>
             </div>
           </label>
         ))}

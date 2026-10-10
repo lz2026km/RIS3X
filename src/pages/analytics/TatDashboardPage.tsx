@@ -56,9 +56,9 @@ const TAT_LEVEL_CONFIG: Record<
   { color: string; bg: string; label: string }
 > = {
   excellent: { color: "#059669", bg: "#d1fae5", label: "优秀 (≤15min)" },
-  normal: { color: "#2563eb", bg: "#dbeafe", label: "正常 (15-30min)" },
-  warning: { color: "#d97706", bg: "#fef3c7", label: "预警 (30-60min)" },
-  critical: { color: "#dc2626", bg: "#fee2e2", label: "超时 (>60min)" },
+  normal: { color: "var(--color-primary-600)", bg: "#dbeafe", label: "正常 (15-30min)" },
+  warning: { color: "var(--color-warning-600)", bg: "#fef3c7", label: "预警 (30-60min)" },
+  critical: { color: "var(--color-error-600)", bg: "#fee2e2", label: "超时 (>60min)" },
 };
 
 function tatLevel(minutes: number): TatLevel {
@@ -370,7 +370,7 @@ export default function TatDashboardPage() {
           <Progress
             percent={v}
             size="small"
-            strokeColor={v >= 80 ? "#059669" : v >= 60 ? "#d97706" : "#dc2626"}
+            strokeColor={v >= 80 ? "#059669" : v >= 60 ? "var(--color-warning-600)" : "var(--color-error-600)"}
           />
         ) : (
           "-"
@@ -404,7 +404,7 @@ export default function TatDashboardPage() {
               style={{
                 fontSize: 20,
                 fontWeight: 700,
-                color: "#1e40af",
+                color: "var(--color-primary-800)",
                 margin: "0 0 6px",
                 display: "flex",
                 alignItems: "center",
@@ -484,13 +484,13 @@ export default function TatDashboardPage() {
               value={stats.completionRate}
               suffix="%"
               icon={<Activity size={18} />}
-              color="#1e40af"
+              color="var(--color-primary-800)"
             />
             <StatCard
               title={t('tatDashboard.totalExams')}
               value={stats.total}
               icon={<BarChart3 size={18} />}
-              color="#1e40af"
+              color="var(--color-primary-800)"
             />
           </StatCardGrid>
 
@@ -631,8 +631,8 @@ export default function TatDashboardPage() {
                                   d.avgTatMinutes <= 15
                                     ? "#059669"
                                     : d.avgTatMinutes <= 30
-                                      ? "#2563eb"
-                                      : "#d97706",
+                                      ? "var(--color-primary-600)"
+                                      : "var(--color-warning-600)",
                               }}
                             >
                               {d.avgTatMinutes > 0
@@ -646,8 +646,8 @@ export default function TatDashboardPage() {
                               d.timelyRate >= 80
                                 ? "#059669"
                                 : d.timelyRate >= 60
-                                  ? "#d97706"
-                                  : "#dc2626"
+                                  ? "var(--color-warning-600)"
+                                  : "var(--color-error-600)"
                             }
                             size="small"
                             showInfo={false}
@@ -741,7 +741,7 @@ export default function TatDashboardPage() {
                         <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                           <span style={{ width: 90, fontSize: 12, color: "#334155", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
                           <div style={{ flex: 1, height: 16, background: "var(--bg-primary)", borderRadius: 4, overflow: "hidden" }}>
-                            <div style={{ width: `${(val / drillChartMax) * 100}%`, height: "100%", background: "#2563eb", borderRadius: 4, transition: "width 0.3s" }} />
+                            <div style={{ width: `${(val / drillChartMax) * 100}%`, height: "100%", background: "var(--color-primary-600)", borderRadius: 4, transition: "width 0.3s" }} />
                           </div>
                           <span style={{ width: 60, fontSize: 12, fontWeight: 600, color: "#334155", textAlign: "right" }}>{val}</span>
                         </div>

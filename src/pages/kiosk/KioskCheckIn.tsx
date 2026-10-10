@@ -28,9 +28,9 @@ const s = {
   value: { fontSize: 16, color: '#f8fafc', fontWeight: 500 },
   row: { display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #334155' },
   badge: (isPrimary: boolean) => ({
-    background: isPrimary ? '#1e40af' : '#334155', color: '#fff', padding: '4px 12px', borderRadius: 6, fontSize: 12, fontWeight: 600,
+    background: isPrimary ? 'var(--color-primary-800)' : '#334155', color: '#fff', padding: '4px 12px', borderRadius: 6, fontSize: 12, fontWeight: 600,
   }),
-  queueNumber: { fontSize: 48, fontWeight: 800, textAlign: 'center' as const, color: '#3b82f6', fontFamily: 'monospace', margin: '20px 0' },
+  queueNumber: { fontSize: 48, fontWeight: 800, textAlign: 'center' as const, color: 'var(--color-primary-500)', fontFamily: 'monospace', margin: '20px 0' },
 }
 
   // ===== Component =====
@@ -135,7 +135,7 @@ const s = {
                   { label: t('kiosk.activeRooms'), value: stats.activeRooms },
                 ].map(it => (
                   <div key={it.label} style={{ background: '#0f172a', borderRadius: 10, padding: '10px 8px', textAlign: 'center', border: '1px solid #334155' }}>
-                    <div style={{ fontSize: 20, fontWeight: 800, color: '#3b82f6' }}>{it.value}</div>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-primary-500)' }}>{it.value}</div>
                     <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>{it.label}</div>
                   </div>
                 ))}
@@ -147,7 +147,7 @@ const s = {
                 <div className="kiosk-marquee" style={{ padding: '10px 0' }}>
                   {activeMessages.map(m => (
                     <div key={m.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, paddingRight: 48, fontSize: 12 }}>
-                      <span style={{ fontWeight: 700, color: m.level === 'urgent' ? '#f87171' : m.level === 'warning' ? '#fbbf24' : '#60a5fa' }}>{m.title}</span>
+                      <span style={{ fontWeight: 700, color: m.level === 'urgent' ? '#f87171' : m.level === 'warning' ? 'var(--color-warning-400)' : '#60a5fa' }}>{m.title}</span>
                       <span style={{ color: '#cbd5e1' }}>{m.content}</span>
                     </div>
                   ))}
@@ -173,7 +173,7 @@ const s = {
             <input style={s.input} placeholder={t('kiosk.idPlaceholder')} maxLength={4} value={idInput}
               onChange={e => /^\d{0,4}$/.test(e.target.value) && setIdInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && idInput.length === 4 && void handleIdSubmit()} />
-            <button style={{ ...s.btn, background: '#3b82f6', color: '#fff', marginTop: 24, opacity: idInput.length === 4 && !loading ? 1 : 0.5 }}
+            <button style={{ ...s.btn, background: 'var(--color-primary-500)', color: '#fff', marginTop: 24, opacity: idInput.length === 4 && !loading ? 1 : 0.5 }}
               disabled={idInput.length !== 4 || loading} onClick={() => void handleIdSubmit()}>
               {loading ? t('kiosk.querying') : t('kiosk.confirmCheckIn')}
             </button>
@@ -194,7 +194,7 @@ const s = {
             </div>
             <div style={{ display: 'flex', gap: 12 }}>
               <button style={{ ...s.btn, flex: 1, background: '#334155', color: '#94a3b8' }} onClick={handleReset}>{t('kiosk.back')}</button>
-              <button style={{ ...s.btn, flex: 2, background: '#3b82f6', color: '#fff', opacity: loading ? 0.7 : 1 }}
+              <button style={{ ...s.btn, flex: 2, background: 'var(--color-primary-500)', color: '#fff', opacity: loading ? 0.7 : 1 }}
                 disabled={loading} onClick={() => void handleConfirm()}>{loading ? t('kiosk.processing') : t('kiosk.confirmCheckIn')}</button>
             </div>
           </>
@@ -214,10 +214,10 @@ const s = {
             </div>
             <div style={{ textAlign: 'center', padding: 12, background: '#0f172a', borderRadius: 8, marginBottom: 20 }}>
               <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('kiosk.goTo')}</span>
-              <span style={{ color: '#3b82f6', fontWeight: 700 }}>{result.roomName}</span>
+              <span style={{ color: 'var(--color-primary-500)', fontWeight: 700 }}>{result.roomName}</span>
               <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('kiosk.waitForCall')}</span>
             </div>
-            <button style={{ ...s.btn, background: '#3b82f6', color: '#fff' }} onClick={handleReset}>{t('kiosk.done')}</button>
+            <button style={{ ...s.btn, background: 'var(--color-primary-500)', color: '#fff' }} onClick={handleReset}>{t('kiosk.done')}</button>
           </>
         )}
       </Card>

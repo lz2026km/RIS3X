@@ -19,10 +19,10 @@ const FALLBACK_STUDIES: EyeStudy[] = [
 ];
 
 const MODALITY_COLORS: Record<string, string> = {
-  OCT: "linear-gradient(135deg,#0ea5e9,#1d4ed8)",
-  Fundus: "linear-gradient(135deg,#f59e0b,#dc2626)",
+  OCT: "linear-gradient(135deg,#0ea5e9,var(--color-primary-700))",
+  Fundus: "linear-gradient(135deg,var(--color-warning-500),var(--color-error-600))",
   FA: "linear-gradient(135deg,#8b5cf6,#4c1d95)",
-  ICG: "linear-gradient(135deg,#06b6d4,#0e7490)",
+  ICG: "linear-gradient(135deg,var(--color-info-500),#0e7490)",
   SlitLamp: "linear-gradient(135deg,#10b981,#065f46)",
   VisualField: "linear-gradient(135deg,#64748b,#1e293b)",
   Biometry: "linear-gradient(135deg,#f97316,#7c2d12)",

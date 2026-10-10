@@ -137,7 +137,7 @@ const OctAngiographyPage: React.FC = () => {
                     styles={{ content: { 
                       fontSize: 18,
                       color:
-                        m.interpretation === "abnormal" ? "#ef4444" : "#0f172a",
+                        m.interpretation === "abnormal" ? "var(--color-error-500)" : "#0f172a",
                      } }}
                   />
                 </Col>

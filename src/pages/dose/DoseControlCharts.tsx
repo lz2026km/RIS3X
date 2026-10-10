@@ -117,7 +117,7 @@ export default function DoseControlCharts() {
         style={{
           padding: "8px 12px",
           background: "#fef3c7",
-          color: "#d97706",
+          color: "var(--color-warning-600)",
           borderRadius: 8,
           fontSize: 12,
           display: "flex",
@@ -145,7 +145,7 @@ export default function DoseControlCharts() {
           }}
         >
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>
               X-bar 控制图（CTDIvol均值）
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
@@ -157,7 +157,7 @@ export default function DoseControlCharts() {
               style={{
                 padding: "4px 10px",
                 background: "#fef2f2",
-                color: "#dc2626",
+                color: "var(--color-error-600)",
                 borderRadius: 6,
                 fontSize: 12,
                 fontWeight: 700,
@@ -178,38 +178,38 @@ export default function DoseControlCharts() {
             <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
             <ReferenceLine
               y={cl}
-              stroke="#16a34a"
+              stroke="var(--color-success-600)"
               strokeDasharray="5 5"
-              label={{ value: `CL(${cl.toFixed(1)})`, position: "left", fontSize: 12, fill: "#16a34a" }}
+              label={{ value: `CL(${cl.toFixed(1)})`, position: "left", fontSize: 12, fill: "var(--color-success-600)" }}
             />
             <ReferenceLine
               y={ucl}
-              stroke="#dc2626"
+              stroke="var(--color-error-600)"
               strokeDasharray="5 5"
               label={{
                 value: `UCL(${ucl})`,
                 position: "center",
                 fontSize: 12,
-                fill: "#dc2626",
+                fill: "var(--color-error-600)",
               }}
             />
             <ReferenceLine
               y={lcl}
-              stroke="#d97706"
+              stroke="var(--color-warning-600)"
               strokeDasharray="5 5"
               label={{
                 value: `LCL(${lcl})`,
                 position: "right",
                 fontSize: 12,
-                fill: "#d97706",
+                fill: "var(--color-warning-600)",
               }}
             />
             <Line
               type="monotone"
               dataKey="mean"
-              stroke="#1e40af"
+              stroke="var(--color-primary-800)"
               strokeWidth={2}
-              dot={{ fill: "#1e40af", r: 4 }}
+              dot={{ fill: "var(--color-primary-800)", r: 4 }}
               name="均值"
             />
           </LineChart>
@@ -228,7 +228,7 @@ export default function DoseControlCharts() {
           style={{
             fontSize: 12,
             fontWeight: 700,
-            color: "#1e40af",
+            color: "var(--color-primary-800)",
             marginBottom: 16,
           }}
         >
@@ -242,21 +242,21 @@ export default function DoseControlCharts() {
             <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
             <ReferenceLine
               y={rangeUcl}
-              stroke="#dc2626"
+              stroke="var(--color-error-600)"
               strokeDasharray="5 5"
               label={{
                 value: `UCL(${rangeUcl})`,
                 position: "right",
                 fontSize: 12,
-                fill: "#dc2626",
+                fill: "var(--color-error-600)",
               }}
             />
             <Line
               type="monotone"
               dataKey="range"
-              stroke="#d97706"
+              stroke="var(--color-warning-600)"
               strokeWidth={2}
-              dot={{ fill: "#d97706", r: 4 }}
+              dot={{ fill: "var(--color-warning-600)", r: 4 }}
               name="极差"
             />
           </LineChart>
@@ -272,13 +272,13 @@ export default function DoseControlCharts() {
       >
         <div style={kpiBox}>
           <div style={{ fontSize: 12, color: "#64748b" }}>均值偏移</div>
-          <div style={{ fontSize: 16, fontWeight: 800, color: "#1e40af", marginTop: 4 }}>
+          <div style={{ fontSize: 16, fontWeight: 800, color: "var(--color-primary-800)", marginTop: 4 }}>
             {meanShift}
           </div>
         </div>
         <div style={kpiBox}>
           <div style={{ fontSize: 12, color: "#64748b" }}>过程能力Cp</div>
-          <div style={{ fontSize: 16, fontWeight: 800, color: "#16a34a", marginTop: 4 }}>
+          <div style={{ fontSize: 16, fontWeight: 800, color: "var(--color-success-600)", marginTop: 4 }}>
             {processCp}
           </div>
         </div>
@@ -288,7 +288,7 @@ export default function DoseControlCharts() {
             style={{
               fontSize: 16,
               fontWeight: 800,
-              color: outOfControl.length > 0 ? "#dc2626" : "#16a34a",
+              color: outOfControl.length > 0 ? "var(--color-error-600)" : "var(--color-success-600)",
               marginTop: 4,
             }}
           >
@@ -301,7 +301,7 @@ export default function DoseControlCharts() {
             style={{
               fontSize: 16,
               fontWeight: 800,
-              color: outOfControl.length > 0 ? "#dc2626" : "#16a34a",
+              color: outOfControl.length > 0 ? "var(--color-error-600)" : "var(--color-success-600)",
               marginTop: 4,
             }}
           >
@@ -324,10 +324,10 @@ export default function DoseControlCharts() {
         >
           <AlertTriangle
             size={14}
-            color="#dc2626"
+            color="var(--color-error-600)"
             style={{ marginTop: 2, flexShrink: 0 }}
           />
-          <div style={{ fontSize: 12, color: "#dc2626" }}>
+          <div style={{ fontSize: 12, color: "var(--color-error-600)" }}>
             <strong>SPC失控告警：</strong>检测到 {outOfControl.length}{" "}
             个数据点超出控制限。 建议检查设备校准状态、扫描参数设置，并在剂量优化后重新评估过程能力。
           </div>

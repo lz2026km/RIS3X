@@ -58,7 +58,7 @@ function GridPreview({ rows, cols, cells }: { rows: number; cols: number; cells?
         <div
           key={i}
           style={{
-            border: `1px dashed ${label ? '#2563eb' : 'var(--border-color)'}`,
+            border: `1px dashed ${label ? 'var(--color-primary-600)' : 'var(--border-color)'}`,
             background: label ? 'var(--color-info-bg)' : 'var(--bg-card)',
             borderRadius: 6,
             height: 44,
@@ -66,7 +66,7 @@ function GridPreview({ rows, cols, cells }: { rows: number; cols: number; cells?
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: 12,
-            color: label ? '#2563eb' : '#bfbfbf',
+            color: label ? 'var(--color-primary-600)' : '#bfbfbf',
             overflow: 'hidden',
             whiteSpace: 'nowrap',
             textOverflow: 'ellipsis',
@@ -246,7 +246,7 @@ const HangingProtocolPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
       <Space style={{ marginBottom: 16 }} align="center">
-        <LayoutGrid size={20} color="#2563eb" />
+        <LayoutGrid size={20} color="var(--color-primary-600)" />
         <Title level={4} style={{ margin: 0 }}>{t('hangProto.title')}</Title>
         <Tag color="geekblue">{t('w9d.hanging.benchmark')}</Tag>
       </Space>

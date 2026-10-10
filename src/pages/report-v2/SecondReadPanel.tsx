@@ -48,7 +48,7 @@ const statusMap: Record<string, { color: string; labelKey: string }> = {
   appended: { color: 'processing', labelKey: 'secondRead.stAppended' },
 }
 
-const riskLevelColor: Record<string, string> = { low: '#16a34a', medium: '#f59e0b', high: '#ef4444' }
+const riskLevelColor: Record<string, string> = { low: 'var(--color-success-600)', medium: 'var(--color-warning-500)', high: 'var(--color-error-500)' }
 
 /** 解包后端 { success, data } 包装 (兼容裸数据) */
 function unwrap<T>(res: { success: boolean; data?: unknown }): T | null {
@@ -198,7 +198,7 @@ const SecondReadPanel: React.FC = () => {
   return (
     <div>
       <Card
-        title={<Space><ShieldAlert size={16} color="#2563eb" /><span>{t('secondRead.title')}</span><Tag color="blue">{t('secondRead.tag')}</Tag></Space>}
+        title={<Space><ShieldAlert size={16} color="var(--color-primary-600)" /><span>{t('secondRead.title')}</span><Tag color="blue">{t('secondRead.tag')}</Tag></Space>}
         extra={<Button type="primary" icon={<ClipboardCheck size={14} />} onClick={() => setAnalyzeOpen(true)}>{t('secondRead.newTask')}</Button>}
       >
         {error && !loading && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}

@@ -255,13 +255,13 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
           return (
             <div key={ev.id ?? idx} style={{ display: 'flex', gap: 12, paddingLeft: 8, paddingBottom: isLast ? 0 : 12, position: 'relative' }}>
               {!isLast && (
-                <div style={{ position: 'absolute', left: 14, top: 20, bottom: -4, width: 2, background: isLast ? '#3b82f6' : '#cbd5e1' }} />
+                <div style={{ position: 'absolute', left: 14, top: 20, bottom: -4, width: 2, background: isLast ? 'var(--color-primary-500)' : '#cbd5e1' }} />
               )}
               <div style={{
                 width: 12, height: 12, borderRadius: '50%',
-                background: isLast ? '#3b82f6' : '#10b981',
+                background: isLast ? 'var(--color-primary-500)' : '#10b981',
                 border: isLast ? '3px solid #dbeafe' : '2px solid #fff',
-                boxShadow: isLast ? '0 0 0 2px #3b82f6' : '0 0 0 1px #cbd5e1',
+                boxShadow: isLast ? '0 0 0 2px var(--color-primary-500)' : '0 0 0 1px #cbd5e1',
                 flexShrink: 0, marginTop: 4, zIndex: 1,
               }} />
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -308,7 +308,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
                 top: 20,
                 bottom: -4,
                 width: 2,
-                background: node.isCurrent ? '#3b82f6' : '#cbd5e1',
+                background: node.isCurrent ? 'var(--color-primary-500)' : '#cbd5e1',
               }} />
             )}
 
@@ -317,9 +317,9 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
               width: 12,
               height: 12,
               borderRadius: '50%',
-              background: node.isCurrent ? '#3b82f6' : node.isFuture ? '#e5e7eb' : '#10b981',
+              background: node.isCurrent ? 'var(--color-primary-500)' : node.isFuture ? '#e5e7eb' : '#10b981',
               border: node.isCurrent ? '3px solid #dbeafe' : '2px solid #fff',
-              boxShadow: node.isCurrent ? '0 0 0 2px #3b82f6' : '0 0 0 1px #cbd5e1',
+              boxShadow: node.isCurrent ? '0 0 0 2px var(--color-primary-500)' : '0 0 0 1px #cbd5e1',
               flexShrink: 0,
               marginTop: 4,
               zIndex: 1,
@@ -361,7 +361,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
           border: '1px solid #bfdbfe',
           borderRadius: 6,
           fontSize: 12,
-          color: '#1e40af',
+          color: 'var(--color-primary-800)',
           display: 'flex',
           alignItems: 'center',
           gap: 6,

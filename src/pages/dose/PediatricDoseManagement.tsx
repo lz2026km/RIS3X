@@ -58,7 +58,7 @@ export default function PediatricDoseManagement() {
         style={{
           padding: "8px 12px",
           background: "#fef3c7",
-          color: "#d97706",
+          color: "var(--color-warning-600)",
           borderRadius: 8,
           fontSize: 12,
           display: "flex",
@@ -75,15 +75,15 @@ export default function PediatricDoseManagement() {
           gap: 12,
         }}
       >
-        <Stat label="儿童检查总量" value={totalPediatricExams} suffix="人次" color="#1e40af" />
-        <Stat label="0-5岁" value={ageGroups["0-5岁"]} suffix="幼儿" color="#dc2626" />
-        <Stat label="5-10岁" value={ageGroups["5-10岁"]} suffix="儿童" color="#d97706" />
-        <Stat label="10-15岁" value={ageGroups["10-15岁"]} suffix="青少年" color="#16a34a" />
+        <Stat label="儿童检查总量" value={totalPediatricExams} suffix="人次" color="var(--color-primary-800)" />
+        <Stat label="0-5岁" value={ageGroups["0-5岁"]} suffix="幼儿" color="var(--color-error-600)" />
+        <Stat label="5-10岁" value={ageGroups["5-10岁"]} suffix="儿童" color="var(--color-warning-600)" />
+        <Stat label="10-15岁" value={ageGroups["10-15岁"]} suffix="青少年" color="var(--color-success-600)" />
         <Stat
           label="平均折扣系数"
           value={`${(avgReductionFactor * 100).toFixed(0)}%`}
           suffix="相对成人"
-          color="#1e40af"
+          color="var(--color-primary-800)"
         />
       </div>
 
@@ -106,8 +106,8 @@ export default function PediatricDoseManagement() {
           gap: 10,
         }}
       >
-        <Info size={14} color="#1e40af" style={{ marginTop: 2, flexShrink: 0 }} />
-        <div style={{ fontSize: 12, color: "#1e40af", lineHeight: 1.6 }}>
+        <Info size={14} color="var(--color-primary-800)" style={{ marginTop: 2, flexShrink: 0 }} />
+        <div style={{ fontSize: 12, color: "var(--color-primary-800)", lineHeight: 1.6 }}>
           <strong>儿童剂量管理要点：</strong>
           儿童患者对辐射更敏感，应根据年龄组选择适当的剂量折扣系数。
           系统会自动计算儿童患者相对于成人剂量的折扣值，确保辐射防护的最优化。
@@ -132,7 +132,7 @@ function ReductionFactorCards() {
         style={{
           fontSize: 12,
           fontWeight: 700,
-          color: "#1e40af",
+          color: "var(--color-primary-800)",
           marginBottom: 16,
         }}
       >
@@ -145,10 +145,10 @@ function ReductionFactorCards() {
           gap: 12,
         }}
       >
-        <ReductionCard age="0-5岁" factor="40%" formula="DLP = 成人 × 0.4" color="#dc2626" bg="#fef2f2" border="#fecaca" />
-        <ReductionCard age="5-10岁" factor="60%" formula="DLP = 成人 × 0.6" color="#d97706" bg="#fffbeb" border="#fde68a" />
-        <ReductionCard age="10-15岁" factor="70%" formula="DLP = 成人 × 0.7" color="#1e40af" bg="#eff6ff" border="#bfdbfe" />
-        <ReductionCard age="15岁以上" factor="100%" formula="DLP = 成人 × 1.0" color="#16a34a" bg="#f0fdf4" border="#bbf7d0" icon="user" />
+        <ReductionCard age="0-5岁" factor="40%" formula="DLP = 成人 × 0.4" color="var(--color-error-600)" bg="#fef2f2" border="#fecaca" />
+        <ReductionCard age="5-10岁" factor="60%" formula="DLP = 成人 × 0.6" color="var(--color-warning-600)" bg="#fffbeb" border="#fde68a" />
+        <ReductionCard age="10-15岁" factor="70%" formula="DLP = 成人 × 0.7" color="var(--color-primary-800)" bg="#eff6ff" border="#bfdbfe" />
+        <ReductionCard age="15岁以上" factor="100%" formula="DLP = 成人 × 1.0" color="var(--color-success-600)" bg="#f0fdf4" border="#bbf7d0" icon="user" />
       </div>
     </div>
   );
@@ -207,7 +207,7 @@ function RecordsTable({ records }: { records: PediatricDoseRecord[] }) {
         style={{
           fontSize: 12,
           fontWeight: 700,
-          color: "#1e40af",
+          color: "var(--color-primary-800)",
           marginBottom: 16,
         }}
       >
@@ -221,12 +221,12 @@ function RecordsTable({ records }: { records: PediatricDoseRecord[] }) {
           showExport={false}
           showDensity={false}
           columns={[
-            { title: "患者姓名", dataIndex: "patientName", key: "patientName", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "#1e40af" }}>{v}</span> },
+            { title: "患者姓名", dataIndex: "patientName", key: "patientName", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{v}</span> },
             { title: "年龄", dataIndex: "age", key: "age", align: "center", render: (v: number) => <span style={{ color: "#334155" }}>{v}</span> },
             {
               title: "年龄组", dataIndex: "ageGroup", key: "ageGroup", align: "center",
               render: (v: string) => {
-                const ageGroupColor = v === "0-5岁" ? "#dc2626" : v === "5-10岁" ? "#d97706" : "#1e40af";
+                const ageGroupColor = v === "0-5岁" ? "var(--color-error-600)" : v === "5-10岁" ? "var(--color-warning-600)" : "var(--color-primary-800)";
                 const ageGroupBg = v === "0-5岁" ? "#fef2f2" : v === "5-10岁" ? "#fffbeb" : "#eff6ff";
                 return <span style={{ padding: "2px 8px", background: ageGroupBg, color: ageGroupColor, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{v}</span>;
               },
@@ -235,10 +235,10 @@ function RecordsTable({ records }: { records: PediatricDoseRecord[] }) {
             { title: "检查日期", dataIndex: "examDate", key: "examDate", align: "center", render: (v: string) => <span style={{ color: "#64748b" }}>{v}</span> },
             { title: "设备", dataIndex: "device", key: "device", align: "center", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
             { title: "检查项目", dataIndex: "examItem", key: "examItem", align: "center", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
-            { title: "剂量值", dataIndex: "doseValue", key: "doseValue", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "#1e40af" }}>{v}</span> },
+            { title: "剂量值", dataIndex: "doseValue", key: "doseValue", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "var(--color-primary-800)" }}>{v}</span> },
             {
               title: "折扣系数", dataIndex: "doseReductionFactor", key: "doseReductionFactor", align: "center",
-              render: (v: number) => <span style={{ padding: "2px 8px", background: "#eff6ff", color: "#1e40af", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>×{v.toFixed(1)}</span>,
+              render: (v: number) => <span style={{ padding: "2px 8px", background: "#eff6ff", color: "var(--color-primary-800)", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>×{v.toFixed(1)}</span>,
             },
             {
               title: "预警级别", dataIndex: "alertLevel", key: "alertLevel", align: "center",

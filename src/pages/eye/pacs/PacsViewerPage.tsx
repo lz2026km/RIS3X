@@ -181,7 +181,7 @@ const PacsViewerPage: React.FC = () => {
             <div style={{ marginTop: 12, fontSize: 14 }}>{t('w9d.pacsViewer.imageArea')}</div>
             <div style={{ fontSize: 12, color: "var(--text-primary)" }}>{study.device}</div>
             {study.criticalFlag && (
-              <div style={{ color: "#ef4444", marginTop: 8, fontSize: 12 }}>
+              <div style={{ color: "var(--color-error-500)", marginTop: 8, fontSize: 12 }}>
                 {t('w9d.pacsViewer.criticalWarning')}
               </div>
             )}

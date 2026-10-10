@@ -4,7 +4,7 @@ import { message } from 'antd';
 import { ArrowLeft, CheckCircle2, XCircle, AlertTriangle, FileText, Microscope } from 'lucide-react';
 import { radpathApi, type RadPathRecord } from '../../services/api/radpathApi';
 
-const consistencyColor: Record<string, string> = { concordant: '#10b981', discordant: '#ef4444', pending: '#94a3b8' };
+const consistencyColor: Record<string, string> = { concordant: '#10b981', discordant: 'var(--color-error-500)', pending: '#94a3b8' };
 const consistencyLabel: Record<string, string> = { concordant: '一致', discordant: '不一致', pending: '待审' };
 
 function diffFields(rad: string, path: string) {
@@ -51,7 +51,7 @@ export default function RadPathDetailPage() {
   }, [record]);
 
   if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>加载中...</div>;
-  if (error) return <div style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
+  if (error) return <div style={{ padding: 40, textAlign: 'center', color: 'var(--color-error-600)' }}>{error}</div>;
   if (!record) return null;
 
   const diffs = diffFields(record.radFinding, record.pathResult);
@@ -80,7 +80,7 @@ export default function RadPathDetailPage() {
       {/* 并排对比 */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
             <FileText size={14} /> 影像报告
           </div>
           <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>所见</div>

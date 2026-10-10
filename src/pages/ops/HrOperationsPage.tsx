@@ -124,7 +124,7 @@ export default function HrOperationsPage() {
       title: t('hrOps.colName'), dataIndex: 'name', key: 'name',
       render: (v: string) => (
         <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Users size={14} color="#3b82f6" />
+          <Users size={14} color="var(--color-primary-500)" />
           <span>{v}</span>
         </span>
       ),
@@ -133,7 +133,7 @@ export default function HrOperationsPage() {
     {
       title: t('hrOps.colTeam'), key: 'status',
       render: (_: unknown, s: Staff) => (
-        <span style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, color: s.status === 'active' ? '#22c55e' : s.status === 'leave' ? '#ef4444' : '#f59e0b' }}>
+        <span style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, color: s.status === 'active' ? 'var(--color-success-500)' : s.status === 'leave' ? 'var(--color-error-500)' : 'var(--color-warning-500)' }}>
           {s.status === 'active' ? <CheckCircle size={12} /> : s.status === 'leave' ? <XCircle size={12} /> : <Clock size={12} />}
           {s.status === 'active' ? t('hrOps.statusActive') : s.status === 'leave' ? t('hrOps.statusLeave') : t('hrOps.statusTraining')}
         </span>
@@ -141,12 +141,12 @@ export default function HrOperationsPage() {
     },
     { title: t('hrOps.colShift'), dataIndex: 'shift', key: 'shift', render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
     { title: t('hrOps.colWeeklyExams'), dataIndex: 'examsThisWeek', key: 'examsThisWeek', render: (v: number) => <strong style={{ color: 'var(--text-primary, #f0f6fc)' }}>{v}</strong> },
-    { title: t('hrOps.colOvertime'), dataIndex: 'overtimeHrs', key: 'overtimeHrs', render: (v: number) => <span style={{ color: v > 5 ? '#ef4444' : 'var(--text-muted, #8b949e)' }}>{v}</span> },
+    { title: t('hrOps.colOvertime'), dataIndex: 'overtimeHrs', key: 'overtimeHrs', render: (v: number) => <span style={{ color: v > 5 ? 'var(--color-error-500)' : 'var(--text-muted, #8b949e)' }}>{v}</span> },
   ]
 
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
-      <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><Users size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('hrOps.title')}</span></div>
         <div style={{ display: 'flex', gap: 8 }}>
           <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{t('hrOps.onDuty', { active: staff.filter(s => s.status === 'active').length, total: staff.length })} · {dataSource === 'api' ? t('hrOps.apiRealtime') : t('hrOps.demoData')}</span>
@@ -157,15 +157,15 @@ export default function HrOperationsPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, fontSize: 12, flexWrap: 'wrap' }}>
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999,
-            background: dataSource === 'api' ? 'rgba(34,197,94,0.13)' : 'rgba(245,158,11,0.13)', color: dataSource === 'api' ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)', fontWeight: 600,
+            background: dataSource === 'api' ? 'rgba(34,197,94,0.13)' : 'rgba(245,158,11,0.13)', color: dataSource === 'api' ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-warning-500, var(--color-warning-500))', fontWeight: 600,
           }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: dataSource === 'api' ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)' }} />
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: dataSource === 'api' ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-warning-500, var(--color-warning-500))' }} />
             {loading ? t('hrOps.syncing') : dataSource === 'api' ? t('hrOps.dataSourceApi') : t('hrOps.dataSourceDemo')}
           </span>
           {apiError && (
-            <span style={{ color: 'var(--color-error-500, #ef4444)' }}>
+            <span style={{ color: 'var(--color-error-500, var(--color-error-500))' }}>
               {apiError}
-              <button onClick={() => void loadStaff()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid var(--color-error-500, #ef4444)', background: 'transparent', color: 'var(--color-error-500, #ef4444)', cursor: 'pointer', fontSize: 12 }}>{t('hrOps.retry')}</button>
+              <button onClick={() => void loadStaff()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid var(--color-error-500, var(--color-error-500))', background: 'transparent', color: 'var(--color-error-500, var(--color-error-500))', cursor: 'pointer', fontSize: 12 }}>{t('hrOps.retry')}</button>
             </span>
           )}
           <span style={{ color: 'var(--text-muted, #8b949e)' }}>{t('hrOps.builtinDemoNote')}</span>
@@ -173,7 +173,7 @@ export default function HrOperationsPage() {
         <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: 'var(--bg-secondary, #21262d)', padding: 4, borderRadius: 8 }}>
           {(['roster', 'shift', 'certs'] as const).map(v => (
             <button key={v} onClick={() => setView(v)}
-              style={{ flex: 1, padding: '8px 0', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, background: view === v ? '#1e40af' : 'transparent', color: view === v ? '#fff' : 'var(--text-muted, #8b949e)' }}>
+              style={{ flex: 1, padding: '8px 0', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, background: view === v ? 'var(--color-primary-800)' : 'transparent', color: view === v ? '#fff' : 'var(--text-muted, #8b949e)' }}>
               {v === 'roster' ? t('hrOps.tabRoster') : v === 'shift' ? t('hrOps.tabShift') : t('hrOps.tabCerts')}
             </button>
           ))}
@@ -184,7 +184,7 @@ export default function HrOperationsPage() {
             <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
               {['all', ...roles].map(r => (
                 <button key={r} onClick={() => setRoleFilter(r)}
-                  style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: roleFilter === r ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: roleFilter === r ? '#fff' : 'var(--text-muted, #8b949e)' }}>
+                  style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: roleFilter === r ? 'var(--color-primary-800)' : 'var(--bg-secondary, #21262d)', color: roleFilter === r ? '#fff' : 'var(--text-muted, #8b949e)' }}>
                   {r === 'all' ? t('hrOps.all') : r}
                 </button>
               ))}
@@ -198,7 +198,7 @@ export default function HrOperationsPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
               <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <TrendingUp size={16} color="#22c55e" />{t('hrOps.weeklyWorkload')} {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>{t('hrOps.apiRealtimeTag')}</span>}
+                  <TrendingUp size={16} color="var(--color-success-500)" />{t('hrOps.weeklyWorkload')} {dataSource === 'api' && <span style={{ fontSize: 11, color: 'var(--color-success-500)' }}>{t('hrOps.apiRealtimeTag')}</span>}
                 </div>
                 <ChartContainer height={220} state={prodData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('hrOps.noWorkload')}>
                   <BarChart data={prodData}>
@@ -206,14 +206,14 @@ export default function HrOperationsPage() {
                     <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
                     <YAxis tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
                     <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, fontSize: 12 }} />
-                    <Bar dataKey="examsThisWeek" fill="#22c55e" radius={[4, 4, 0, 0]} name={t('hrOps.examVolume')} />
+                    <Bar dataKey="examsThisWeek" fill="var(--color-success-500)" radius={[4, 4, 0, 0]} name={t('hrOps.examVolume')} />
                   </BarChart>
                 </ChartContainer>
               </div>
 
               <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <TrendingUp size={16} color="#8b5cf6" />{t('hrOps.satisfactionTrend')} <span style={{ fontSize: 11, color: '#f59e0b' }}>{t('hrOps.demoTag')}</span>
+                  <TrendingUp size={16} color="#8b5cf6" />{t('hrOps.satisfactionTrend')} <span style={{ fontSize: 11, color: 'var(--color-warning-500)' }}>{t('hrOps.demoTag')}</span>
                 </div>
                 <ChartContainer height={220} state={SATISFACTION_TREND.length === 0 ? 'empty' : 'ready'} emptyDescription={t('hrOps.noSatisfaction')}>
                   <LineChart data={SATISFACTION_TREND}>
@@ -243,7 +243,7 @@ export default function HrOperationsPage() {
                     return (
                       <div style={{ display: 'flex', gap: 24, fontSize: 12 }}>
                         <div><span style={{ color: '#6e7681' }}>{t('hrOps.certificationLabel')} </span><span>{s.certification}</span></div>
-                        <div><span style={{ color: '#6e7681' }}>{t('hrOps.satisfactionLabel')} </span><span style={{ color: s.satisfaction >= 85 ? '#22c55e' : '#f59e0b' }}>{s.satisfaction}%</span></div>
+                        <div><span style={{ color: '#6e7681' }}>{t('hrOps.satisfactionLabel')} </span><span style={{ color: s.satisfaction >= 85 ? 'var(--color-success-500)' : 'var(--color-warning-500)' }}>{s.satisfaction}%</span></div>
                       </div>
                     )
                   },
@@ -256,7 +256,7 @@ export default function HrOperationsPage() {
 
         {view === 'shift' && (
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: 'var(--text-primary, #f0f6fc)' }}>{t('hrOps.weeklyShift')} <span style={{ fontSize: 11, color: '#f59e0b' }}>{t('hrOps.demoTag')}</span></div>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: 'var(--text-primary, #f0f6fc)' }}>{t('hrOps.weeklyShift')} <span style={{ fontSize: 11, color: 'var(--color-warning-500)' }}>{t('hrOps.demoTag')}</span></div>
             <DataTable
               dataSource={SHIFT_GRID}
               rowKey="day"
@@ -274,7 +274,7 @@ export default function HrOperationsPage() {
         {view === 'certs' && (
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Award size={16} color="#f59e0b" />{t('hrOps.certExpiry')} {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>{t('hrOps.certExpiryTag')}</span>}
+              <Award size={16} color="var(--color-warning-500)" />{t('hrOps.certExpiry')} {dataSource === 'api' && <span style={{ fontSize: 11, color: 'var(--color-success-500)' }}>{t('hrOps.certExpiryTag')}</span>}
             </div>
             <DataTable
               dataSource={certRows}
@@ -287,7 +287,7 @@ export default function HrOperationsPage() {
                 {
                   title: t('hrOps.colStatus'), dataIndex: 'status',
                   render: (v: string) => (
-                    <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: v === 'valid' ? '#22c55e20' : '#f59e0b20', color: v === 'valid' ? '#22c55e' : '#f59e0b' }}>
+                    <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: v === 'valid' ? '#22c55e20' : '#f59e0b20', color: v === 'valid' ? 'var(--color-success-500)' : 'var(--color-warning-500)' }}>
                       {v === 'valid' ? t('hrOps.certValid') : t('hrOps.certExpiring')}
                     </span>
                   ),

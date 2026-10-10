@@ -30,8 +30,8 @@ interface Props {
 // ---------- 语言 ----------
 
 const LANG_OPTIONS = [
-  { value: 'zh-CN', label: t('aiDraft.voice.lang.zh'), color: '#dc2626' },
-  { value: 'en-US', label: 'English', color: '#3b82f6' },
+  { value: 'zh-CN', label: t('aiDraft.voice.lang.zh'), color: 'var(--color-error-600)' },
+  { value: 'en-US', label: 'English', color: 'var(--color-primary-500)' },
   { value: 'zh-EN', label: t('aiDraft.voice.lang.mixed'), color: '#7c3aed' },
 ];
 
@@ -447,7 +447,7 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
       title={
         <div className="flex items-center justify-between">
           <Space>
-            <Volume2 className="w-4 h-4" style={{ color: state === 'listening' ? '#dc2626' : '#94a3b8' }} />
+            <Volume2 className="w-4 h-4" style={{ color: state === 'listening' ? 'var(--color-error-600)' : '#94a3b8' }} />
             <span className="font-semibold">{t('aiDraft.voice.title')}</span>
             <Tag color={state === 'listening' ? 'red' : state === 'paused' ? 'orange' : 'default'}>
               {({ idle: t('aiDraft.voice.state.idle'), listening: t('aiDraft.voice.state.listening'), paused: t('aiDraft.voice.state.paused'), processing: t('aiDraft.voice.state.processing'), error: t('aiDraft.voice.state.error') } as Record<string, string>)[String(state)] ?? state}

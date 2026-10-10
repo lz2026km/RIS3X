@@ -110,7 +110,7 @@ const WORKFLOW_OPTIONS = [
   'critical-value-escalation',
 ].map((w) => ({ label: w, value: w }));
 
-const VENDOR_COLORS = ['#8b5cf6', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#14b8a6', '#6366f1'];
+const VENDOR_COLORS = ['#8b5cf6', '#0ea5e9', '#10b981', 'var(--color-warning-500)', 'var(--color-error-500)', '#ec4899', '#14b8a6', '#6366f1'];
 
 function vendorColor(vendor: string | null): string {
   if (!vendor) return '#94a3b8';
@@ -193,15 +193,15 @@ function FindingViewer({
             <rect
               x={x} y={y} width={w} height={h}
               fill={active ? 'rgba(239,68,68,0.25)' : 'rgba(250,204,21,0.14)'}
-              stroke={active ? '#ef4444' : '#f59e0b'}
+              stroke={active ? 'var(--color-error-500)' : 'var(--color-warning-500)'}
               strokeWidth={active ? 2.5 : 1.5}
               strokeDasharray={active ? 'none' : '4 3'}
               rx="2"
             />
-            <line x1={x} y1={y} x2={x + w * 1.8} y2={y} stroke="#fbbf24" strokeWidth="1" />
-            <line x1={x} y1={y} x2={x} y2={y + h * 1.8} stroke="#fbbf24" strokeWidth="1" />
+            <line x1={x} y1={y} x2={x + w * 1.8} y2={y} stroke="var(--color-warning-400)" strokeWidth="1" />
+            <line x1={x} y1={y} x2={x} y2={y + h * 1.8} stroke="var(--color-warning-400)" strokeWidth="1" />
             <g transform={`translate(${Math.min(x + w, W - 8)}, ${Math.max(y - 4, 10)})`}>
-              <rect x="-8" y="-16" width={8 + f.label.length * 6.5} height="18" rx="3" fill={active ? '#ef4444' : '#0f172a'} stroke={active ? '#fca5a5' : '#475569'} strokeWidth="0.8" />
+              <rect x="-8" y="-16" width={8 + f.label.length * 6.5} height="18" rx="3" fill={active ? 'var(--color-error-500)' : '#0f172a'} stroke={active ? '#fca5a5' : '#475569'} strokeWidth="0.8" />
               <text x="0" y="-2" fontSize="10" fill="#f8fafc">{f.label}</text>
             </g>
           </g>
@@ -718,7 +718,7 @@ export default function AIOrchestrationPage() {
     {
       title: t('aiOrch.colResult'), dataIndex: 'result', key: 'result',
       render: (_v: unknown, r) => {
-        if (r.status === 'FAILED') return <span style={{ color: '#ef4444', fontSize: 12 }}>{r.error ?? t('aiOrch.inferenceFailed')}</span>;
+        if (r.status === 'FAILED') return <span style={{ color: 'var(--color-error-500)', fontSize: 12 }}>{r.error ?? t('aiOrch.inferenceFailed')}</span>;
         if (r.status !== 'COMPLETED') return <span style={{ color: 'var(--text-secondary)' }}>--</span>;
         const findings = r.result?.findings?.length ?? 0;
         const priority = r.result?.structured?.priority;
@@ -1081,7 +1081,7 @@ export default function AIOrchestrationPage() {
                       <Space>
                         <span style={{ fontWeight: 600 }}><Workflow size={14} style={{ marginRight: 6, color: '#8b5cf6' }} />{t('aiOrch.orchPipeline')}</span>
                         {orchLoading && <Spin size="small" />}
-                        {orchError && <span style={{ color: '#ef4444', fontSize: 12 }}>{orchError}</span>}
+                        {orchError && <span style={{ color: 'var(--color-error-500)', fontSize: 12 }}>{orchError}</span>}
                       </Space>
                       <Button size="small" type="primary" icon={<Plus size={14} />} onClick={() => setOrchOpen(true)}>
                         {t('aiOrch.newOrch')}
@@ -1139,7 +1139,7 @@ export default function AIOrchestrationPage() {
                         <span style={{ color: 'var(--text-secondary)' }}>{t('aiOrch.srGenerated')}</span>
                       </Badge>
                       {srLoading && <Spin size="small" />}
-                      {srError && <span style={{ color: '#ef4444', fontSize: 12 }}>{srError}</span>}
+                      {srError && <span style={{ color: 'var(--color-error-500)', fontSize: 12 }}>{srError}</span>}
                     </Space>
                     <Button type="primary" icon={<Plus size={15} />} onClick={() => setSrOpen(true)}>
                       {t('aiOrch.generateSr')}
@@ -1168,7 +1168,7 @@ export default function AIOrchestrationPage() {
                         <span style={{ color: 'var(--text-secondary)' }}>{t('aiOrch.fusionTasks')}</span>
                       </Badge>
                       {fusionLoading && <Spin size="small" />}
-                      {fusionError && <span style={{ color: '#ef4444', fontSize: 12 }}>{fusionError}</span>}
+                      {fusionError && <span style={{ color: 'var(--color-error-500)', fontSize: 12 }}>{fusionError}</span>}
                     </Space>
                     <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{t('aiOrch.fusionSupport')}</span>
                   </div>
@@ -1195,7 +1195,7 @@ export default function AIOrchestrationPage() {
                         <span style={{ color: 'var(--text-secondary)' }}>{t('aiOrch.assistTemplates')}</span>
                       </Badge>
                       {assistLoading && <Spin size="small" />}
-                      {assistError && <span style={{ color: '#ef4444', fontSize: 12 }}>{assistError}</span>}
+                      {assistError && <span style={{ color: 'var(--color-error-500)', fontSize: 12 }}>{assistError}</span>}
                     </Space>
                     <Button icon={<Copy size={14} />} onClick={() => {
                       const all = assistItems.map((a) => String(detailOf(a, 'suggestion') ?? '')).filter(Boolean).join('\n\n');
@@ -1598,7 +1598,7 @@ export default function AIOrchestrationPage() {
               </Descriptions.Item>
               {drawerJob.error && (
                 <Descriptions.Item label={t('aiOrch.labelError')} span={2}>
-                  <span style={{ color: '#ef4444' }}>{drawerJob.error}</span>
+                  <span style={{ color: 'var(--color-error-500)' }}>{drawerJob.error}</span>
                 </Descriptions.Item>
               )}
             </Descriptions>
@@ -1652,14 +1652,14 @@ export default function AIOrchestrationPage() {
                             style={{
                               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                               padding: '8px 12px', borderRadius: 8, cursor: 'pointer',
-                              border: active ? '1.5px solid #ef4444' : '1px solid #e5e7eb',
+                              border: active ? '1.5px solid var(--color-error-500)' : '1px solid #e5e7eb',
                               background: active ? '#fff1f0' : '#fafafa',
                             }}
                           >
                             <Space>
                               <span style={{
                                 width: 10, height: 10, borderRadius: 3,
-                                background: active ? '#ef4444' : '#f59e0b', display: 'inline-block',
+                                background: active ? 'var(--color-error-500)' : 'var(--color-warning-500)', display: 'inline-block',
                               }} />
                               <span style={{ fontWeight: active ? 700 : 500 }}>{f.label}</span>
                               <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>

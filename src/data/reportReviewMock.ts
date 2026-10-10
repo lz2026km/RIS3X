@@ -450,14 +450,14 @@ export const REJECT_TEMPLATES: RejectTemplate[] = [
 export const REVIEW_COMMENTS: ReviewComment[] = [
   {
     id: 'cmt-001', taskId: 'rt-001', reportId: 'RP20260615001',
-    authorId: 'D006', authorName: '赵雪琴', authorColor: '#dc2626',
+    authorId: 'D006', authorName: '赵雪琴', authorColor: 'var(--color-error-600)',
     content: '左肺下叶肿块的强化特征建议补充"不均匀强化"的具体描述。',
     fieldRef: 'findings', position: { x: 120, y: 280 },
     resolved: false, mentions: ['D002'], createdAt: isoOffset(-1),
   },
   {
     id: 'cmt-002', taskId: 'rt-001', reportId: 'RP20260615001',
-    authorId: 'D006', authorName: '赵雪琴', authorColor: '#dc2626',
+    authorId: 'D006', authorName: '赵雪琴', authorColor: 'var(--color-error-600)',
     content: '@李慧敏 这里建议增加"与周围血管关系"的描述。',
     fieldRef: 'findings', position: { x: 220, y: 320 },
     resolved: false, parentId: 'cmt-001', mentions: ['D002'], createdAt: isoOffset(-1.5),
@@ -472,7 +472,7 @@ export const REVIEW_COMMENTS: ReviewComment[] = [
   },
   {
     id: 'cmt-004', taskId: 'rt-005', reportId: 'RP20260614005',
-    authorId: 'D001', authorName: '张明远', authorColor: '#0891b2',
+    authorId: 'D001', authorName: '张明远', authorColor: 'var(--color-info-600)',
     content: 'BI-RADS 5 类建议明确具体可疑征象的个数和大小。',
     fieldRef: 'impression', position: { x: 350, y: 420 },
     resolved: false, mentions: ['D006'], createdAt: isoOffset(-2),

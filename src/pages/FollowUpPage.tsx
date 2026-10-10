@@ -1052,7 +1052,7 @@ export default function FollowUpPage() {
           <span style={{
             fontSize: 11, padding: '2px 10px', borderRadius: 10, fontWeight: 600,
             background: dataSource === 'real' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)',
-            color: dataSource === 'real' ? '#059669' : '#d97706',
+            color: dataSource === 'real' ? '#059669' : 'var(--color-warning-600)',
             border: `1px solid ${dataSource === 'real' ? '#bbf7d0' : '#fcd34d'}`,
           }}>
             {dataSource === 'real' ? t('followUp.realData') : t('followUp.demoFallback')}

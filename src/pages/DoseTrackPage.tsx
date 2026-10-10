@@ -234,11 +234,11 @@ export default function DoseTrackPage() {
       <SecondaryStats pendingAlerts={alerts.filter((a) => a.status === "pending").length} stats={stats} />
 
       {dataSource === 'api' && overviewSource === 'api' ? (
-        <div style={{ marginBottom: 12, padding: '8px 12px', background: 'var(--color-success-bg)', color: '#16a34a', borderRadius: 8, fontSize: 12 }}>
+        <div style={{ marginBottom: 12, padding: '8px 12px', background: 'var(--color-success-bg)', color: 'var(--color-success-600)', borderRadius: 8, fontSize: 12 }}>
           {t('doseTrack.dataSourceLine')} {today?.date ?? '-'}
         </div>
       ) : (
-        <div style={{ marginBottom: 12, padding: '8px 12px', background: 'var(--color-warning-bg)', color: '#d97706', borderRadius: 8, fontSize: 12 }}>
+        <div style={{ marginBottom: 12, padding: '8px 12px', background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', borderRadius: 8, fontSize: 12 }}>
           {dataError ? t('doseTrack.apiErrorPrefix', { error: dataError }) : ''}
           {overviewSource === 'demo' ? t('w8Dose.doseTrackDemo') : t('doseTrack.demoDataNote')}
         </div>
@@ -387,14 +387,14 @@ function PageHeader({
           style={{
             fontSize: 20,
             fontWeight: 700,
-            color: "#1e40af",
+            color: "var(--color-primary-800)",
             margin: "0 0 4px",
             display: "flex",
             alignItems: "center",
             gap: 8,
           }}
         >
-          <Gauge size={18} color="#1e40af" />
+          <Gauge size={18} color="var(--color-primary-800)" />
           {t("doseTrack.title")}
         </h1>
         <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: 0 }}>
@@ -427,26 +427,26 @@ function PrimaryStats({ stats }: { stats: CumulativeStats }) {
         label={t("doseTrack.stats.patientsToday")}
         value={stats.totalPatientsToday}
         delta="+5.2%"
-        deltaColor="#16a34a"
+        deltaColor="var(--color-success-600)"
         icon={<Activity size={18} />}
         iconBg="var(--color-info-bg)"
-        iconColor="#3b82f6"
+        iconColor="var(--color-primary-500)"
       />
       <PrimaryStat
         label={t("doseTrack.stats.highDose")}
         value={stats.highDosePatients}
         delta={t('doseTrack.deltaNewPatients')}
-        deltaColor="#dc2626"
+        deltaColor="var(--color-error-600)"
         icon={<AlertTriangle size={18} />}
         iconBg="#fef2f2"
-        iconColor="#dc2626"
+        iconColor="var(--color-error-600)"
       />
       <PrimaryStat
         label={t("doseTrack.stats.totalDLP")}
         value={stats.totalDLPToday}
         suffix=" mGy·cm"
         delta="-3.1%"
-        deltaColor="#dc2626"
+        deltaColor="var(--color-error-600)"
         deltaIcon={<TrendingDown size={11} />}
         icon={<TrendingUp size={18} />}
         iconBg="#f5f3ff"
@@ -459,7 +459,7 @@ function PrimaryStats({ stats }: { stats: CumulativeStats }) {
         deltaColor="var(--text-secondary, #475569)"
         icon={<ShieldAlert size={18} />}
         iconBg="var(--color-warning-bg)"
-        iconColor="#d97706"
+        iconColor="var(--color-warning-600)"
       />
       <PrimaryStat
         label={t("doseTrack.stats.devicesOnline")}
@@ -513,7 +513,7 @@ function PrimaryStat({
           style={{
             fontSize: 20,
             fontWeight: 800,
-            color: "#1e40af",
+            color: "var(--color-primary-800)",
             lineHeight: 1.2,
             marginTop: 4,
           }}
@@ -579,7 +579,7 @@ function SecondaryStats({ pendingAlerts, stats }: { pendingAlerts: number; stats
         value={stats.totalExamCount}
         icon={<Zap size={16} />}
         iconBg="var(--color-info-bg)"
-        iconColor="#3b82f6"
+        iconColor="var(--color-primary-500)"
       />
       <MiniStat
         label={t("doseTrack.stats.avgCTDIvol")}
@@ -593,7 +593,7 @@ function SecondaryStats({ pendingAlerts, stats }: { pendingAlerts: number; stats
         value={pendingAlerts}
         icon={<CheckCircle size={16} />}
         iconBg="#fef2f2"
-        iconColor="#dc2626"
+        iconColor="var(--color-error-600)"
       />
     </div>
   );
@@ -796,7 +796,7 @@ function DoseAnalyticsSection({
   const patientRankColumns: ColumnsType<PatientRankRow> = [
     {
       title: t("w3tables.col.index"), key: "rank", width: 70, align: "center",
-      render: (_: unknown, _row, index) => <span style={{ fontSize: 12, fontWeight: 800, color: index < 3 ? "#d97706" : "var(--text-muted, #94a3b8)" }}>#{index + 1}</span>,
+      render: (_: unknown, _row, index) => <span style={{ fontSize: 12, fontWeight: 800, color: index < 3 ? "var(--color-warning-600)" : "var(--text-muted, #94a3b8)" }}>#{index + 1}</span>,
     },
     {
       title: t("w3tables.col.patient"), dataIndex: "name", key: "name",
@@ -811,7 +811,7 @@ function DoseAnalyticsSection({
       title: t("doseTrack.patientRankTitle"), dataIndex: "dlp1y", key: "dlp1y",
       render: (v: number) => {
         const pct = Math.min(100, Math.round((v / 2500) * 100));
-        const color = v > 2000 ? "#dc2626" : v > 1200 ? "#d97706" : "#3b82f6";
+        const color = v > 2000 ? "var(--color-error-600)" : v > 1200 ? "var(--color-warning-600)" : "var(--color-primary-500)";
         return (
           <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 220 }}>
             <div style={{ flex: 1, height: 12, background: "var(--bg-primary, #f8fafc)", borderRadius: 6, overflow: "hidden" }}>
@@ -826,7 +826,7 @@ function DoseAnalyticsSection({
     {
       title: t("w3tables.col.count"), dataIndex: "overDrl", key: "overDrl", width: 100, align: "center",
       render: (v: number) => v > 0
-        ? <span style={{ padding: "1px 8px", borderRadius: 999, fontSize: 11, fontWeight: 700, background: "var(--color-error-bg)", color: "#dc2626" }}>{t("doseTrack.overCount", { count: v })}</span>
+        ? <span style={{ padding: "1px 8px", borderRadius: 999, fontSize: 11, fontWeight: 700, background: "var(--color-error-bg)", color: "var(--color-error-600)" }}>{t("doseTrack.overCount", { count: v })}</span>
         : <span style={{ color: "var(--text-secondary)" }}>—</span>,
     },
   ];
@@ -849,10 +849,10 @@ function DoseAnalyticsSection({
 
       {/* G2. 剂量趋势 (近 30 日) */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)', marginBottom: 16 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
           <TrendingUp size={14} /> {t('doseTrack.trendTitle')}
           <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>
-            {t('doseTrack.trendMeta', { total: statsMeta.totalExams })} <b style={{ color: '#dc2626' }}>{statsMeta.maxCtdiVol}</b> mGy
+            {t('doseTrack.trendMeta', { total: statsMeta.totalExams })} <b style={{ color: 'var(--color-error-600)' }}>{statsMeta.maxCtdiVol}</b> mGy
           </span>
         </div>
         <ChartContainer type="line" height={220}>
@@ -862,13 +862,13 @@ function DoseAnalyticsSection({
             <YAxis yAxisId="left" {...chartDefaults.axis} />
             <YAxis yAxisId="right" orientation="right" {...chartDefaults.axis} />
             <Tooltip {...chartDefaults.tooltip} />
-            <Line yAxisId="left" type="monotone" dataKey="avgCtdiVol" name={t('doseTrack.avgCtdiVol')} stroke="#3b82f6" strokeWidth={2} dot={false} />
-            <Line yAxisId="right" type="monotone" dataKey="avgDlp" name={t('doseTrack.avgDlp')} stroke="#d97706" strokeWidth={2} dot={false} />
+            <Line yAxisId="left" type="monotone" dataKey="avgCtdiVol" name={t('doseTrack.avgCtdiVol')} stroke="var(--color-primary-500)" strokeWidth={2} dot={false} />
+            <Line yAxisId="right" type="monotone" dataKey="avgDlp" name={t('doseTrack.avgDlp')} stroke="var(--color-warning-600)" strokeWidth={2} dot={false} />
           </LineChart>
         </ChartContainer>
         <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: 11, color: 'var(--text-secondary)', flexWrap: 'wrap' }}>
-          <span>{t('doseTrack.maxCtdi')} <b style={{ color: '#dc2626' }}>{statsMeta.maxCtdiVol} mGy</b></span>
-          <span>{t('doseTrack.maxDlp')} <b style={{ color: '#d97706' }}>{statsMeta.maxDlp} mGy·cm</b></span>
+          <span>{t('doseTrack.maxCtdi')} <b style={{ color: 'var(--color-error-600)' }}>{statsMeta.maxCtdiVol} mGy</b></span>
+          <span>{t('doseTrack.maxDlp')} <b style={{ color: 'var(--color-warning-600)' }}>{statsMeta.maxDlp} mGy·cm</b></span>
           <span>{t('doseTrack.warningCritical', { warning: statsMeta.warningCount, critical: statsMeta.criticalCount })}</span>
           <span style={{ marginLeft: 'auto' }}>{t('doseTrack.headCtdiReference')}</span>
         </div>
@@ -876,7 +876,7 @@ function DoseAnalyticsSection({
 
       {/* G1. 患者剂量排行 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)', marginBottom: 16 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Award size={14} /> {t('doseTrack.patientRankTitle')}
           <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>{t('doseTrack.patientRankSubtitle')}</span>
         </div>
@@ -891,7 +891,7 @@ function DoseAnalyticsSection({
 
       {/* G3. DRL 超标清单 (按设备) */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)', marginBottom: 16 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
           <ShieldAlert size={14} /> {t('doseTrack.drlOverTitle')}
           <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>
             {t('doseTrack.drlOverMeta', { over: overTotal, total: drlOverDevice.reduce((s, d) => s + d.total, 0) })}
@@ -903,19 +903,19 @@ function DoseAnalyticsSection({
             return (
               <div key={d.device} style={{ padding: 12, background: 'var(--bg-primary, #f8fafc)', borderRadius: 8, border: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                  <Monitor size={13} color="#1e40af" />
+                  <Monitor size={13} color="var(--color-primary-800)" />
                   <b style={{ fontSize: 12, color: 'var(--text-primary, #1e293b)', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.device}</b>
                   <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{d.modality}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <div style={{ flex: 1, height: 8, background: 'var(--border-default, rgba(0,0,0,0.12))', borderRadius: 999, overflow: 'hidden' }}>
-                    <div style={{ width: `${Math.min(100, rate)}%`, height: '100%', background: rate > 12 ? '#dc2626' : rate > 6 ? '#d97706' : '#16a34a', borderRadius: 999 }} />
+                    <div style={{ width: `${Math.min(100, rate)}%`, height: '100%', background: rate > 12 ? 'var(--color-error-600)' : rate > 6 ? 'var(--color-warning-600)' : 'var(--color-success-600)', borderRadius: 999 }} />
                   </div>
-                  <b style={{ fontSize: 12, color: rate > 12 ? '#dc2626' : '#d97706', width: 34, textAlign: 'right' }}>{rate}%</b>
+                  <b style={{ fontSize: 12, color: rate > 12 ? 'var(--color-error-600)' : 'var(--color-warning-600)', width: 34, textAlign: 'right' }}>{rate}%</b>
                 </div>
                 <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-secondary)' }}>
-                  <span>{t('doseTrack.overLabel')} <b style={{ color: '#dc2626' }}>{d.over}</b> / {d.total} {t('doseTrack.casesUnit')}</span>
-                  <span>{t('doseTrack.avgExceed')} <b style={{ color: '#d97706' }}>{d.avgExceed}</b> mGy·cm</span>
+                  <span>{t('doseTrack.overLabel')} <b style={{ color: 'var(--color-error-600)' }}>{d.over}</b> / {d.total} {t('doseTrack.casesUnit')}</span>
+                  <span>{t('doseTrack.avgExceed')} <b style={{ color: 'var(--color-warning-600)' }}>{d.avgExceed}</b> mGy·cm</span>
                 </div>
               </div>
             );
@@ -928,7 +928,7 @@ function DoseAnalyticsSection({
 
       {/* G4. 检查类型剂量对比 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)' }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
           <BarChart3 size={14} /> {t('doseTrack.typeCompareTitle')}
           <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>{t('doseTrack.typeCompareSubtitle')}</span>
         </div>
@@ -940,7 +940,7 @@ function DoseAnalyticsSection({
               <Tooltip {...chartDefaults.tooltip} formatter={(v: any, name: any) => [name === 'avgDlp' ? `${v} mGy·cm` : v, name === 'avgDlp' ? t('doseTrack.avgDlpShort') : t('doseTrack.examVolume')]} />
               <Bar dataKey="avgDlp" barSize={16} radius={[0, 4, 4, 0]}>
                 {typeCompare.map((t, i) => (
-                  <Cell key={i} fill={t.avgDlp > 700 ? '#dc2626' : t.avgDlp > 500 ? '#d97706' : '#3b82f6'} />
+                  <Cell key={i} fill={t.avgDlp > 700 ? 'var(--color-error-600)' : t.avgDlp > 500 ? 'var(--color-warning-600)' : 'var(--color-primary-500)'} />
                 ))}
               </Bar>
             </RBChart>
@@ -954,7 +954,7 @@ function DoseAnalyticsSection({
       {/* G5. DRL 超标月度趋势 + G6. 预警等级构成 */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 16, marginTop: 16 }}>
         <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
             <TrendingDown size={14} /> {t('doseTrack.monthlyTrendTitle')}
             <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>{t('doseTrack.monthlyTrendSubtitle')}</span>
           </div>
@@ -966,10 +966,10 @@ function DoseAnalyticsSection({
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, height: 130, padding: '0 6px' }}>
                 {months.map((m, i) => (
                   <div key={m} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: i === 5 ? '#dc2626' : '#1e40af' }}>{counts[i]}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: i === 5 ? 'var(--color-error-600)' : 'var(--color-primary-800)' }}>{counts[i]}</span>
                     <div style={{
                       width: '65%', height: Math.max(6, Math.round(((counts[i] ?? 0) / max) * 100)), borderRadius: '4px 4px 0 0',
-                      background: i === 5 ? '#dc2626' : i < 3 ? '#d97706' : '#22c55e', opacity: 0.85,
+                      background: i === 5 ? 'var(--color-error-600)' : i < 3 ? 'var(--color-warning-600)' : 'var(--color-success-500)', opacity: 0.85,
                     }} />
                     <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{m}</span>
                   </div>
@@ -978,20 +978,20 @@ function DoseAnalyticsSection({
             );
           })()}
           <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-secondary)' }}>
-            <span>{t('doseTrack.quarterOnQuarter')} <b style={{ color: '#16a34a' }}>-38.5%</b></span>
+            <span>{t('doseTrack.quarterOnQuarter')} <b style={{ color: 'var(--color-success-600)' }}>-38.5%</b></span>
             <span>{t('doseTrack.optimizationTarget')}</span>
           </div>
         </div>
 
         <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
             <AlertTriangle size={14} /> {t('doseTrack.alertCompositionTitle')}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
-              { label: t('doseTrack.levelCritical'), value: statsMeta.criticalCount, color: '#dc2626' },
-              { label: t('doseTrack.levelWarning'), value: statsMeta.warningCount, color: '#d97706' },
-              { label: t('doseTrack.levelNormal'), value: Math.max(0, statsMeta.totalExams - statsMeta.criticalCount - statsMeta.warningCount), color: '#16a34a' },
+              { label: t('doseTrack.levelCritical'), value: statsMeta.criticalCount, color: 'var(--color-error-600)' },
+              { label: t('doseTrack.levelWarning'), value: statsMeta.warningCount, color: 'var(--color-warning-600)' },
+              { label: t('doseTrack.levelNormal'), value: Math.max(0, statsMeta.totalExams - statsMeta.criticalCount - statsMeta.warningCount), color: 'var(--color-success-600)' },
             ].map(l => {
               const pct = statsMeta.totalExams > 0 ? Math.round((l.value / statsMeta.totalExams) * 100) : 0;
               return (
@@ -1016,7 +1016,7 @@ function DoseAnalyticsSection({
 
       {/* G7. 剂量优化建议 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)', marginTop: 16 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Zap size={14} /> {t('doseTrack.optimizationTitle')}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -1030,7 +1030,7 @@ function DoseAnalyticsSection({
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                 <span style={{ fontSize: 16 }}>{s.icon}</span>
                 <b style={{ fontSize: 12, color: 'var(--text-primary, #1e293b)' }}>{s.title}</b>
-                <span style={{ marginLeft: 'auto', padding: '1px 8px', borderRadius: 999, fontSize: 10, fontWeight: 700, background: s.priority === t('doseTrack.priorityHigh') ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: s.priority === t('doseTrack.priorityHigh') ? '#dc2626' : '#d97706' }}>{t('doseTrack.prioritySuffix', { priority: s.priority })}</span>
+                <span style={{ marginLeft: 'auto', padding: '1px 8px', borderRadius: 999, fontSize: 10, fontWeight: 700, background: s.priority === t('doseTrack.priorityHigh') ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: s.priority === t('doseTrack.priorityHigh') ? 'var(--color-error-600)' : 'var(--color-warning-600)' }}>{t('doseTrack.prioritySuffix', { priority: s.priority })}</span>
               </div>
               <div style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{s.desc}</div>
             </div>
@@ -1040,7 +1040,7 @@ function DoseAnalyticsSection({
 
       {/* G8. 设备剂量水平对比 (平均 DLP / CTDIvol) */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)', marginTop: 16 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Monitor size={14} /> {t('doseTrack.deviceLevelTitle')}
           <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>{t('doseTrack.deviceLevelSubtitle')}</span>
         </div>
@@ -1057,10 +1057,10 @@ function DoseAnalyticsSection({
                   <div key={d.device} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <b style={{ width: 130, fontSize: 12, color: 'var(--text-primary, #1e293b)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.device}</b>
                     <div style={{ flex: 1, height: 12, background: 'var(--bg-primary, #f8fafc)', borderRadius: 6, overflow: 'hidden', position: 'relative' }}>
-                      <div style={{ width: `${(dlp / maxDlp) * 100}%`, height: '100%', background: over ? '#dc2626' : '#3b82f6', borderRadius: 6, opacity: 0.9 }} />
+                      <div style={{ width: `${(dlp / maxDlp) * 100}%`, height: '100%', background: over ? 'var(--color-error-600)' : 'var(--color-primary-500)', borderRadius: 6, opacity: 0.9 }} />
                       <div style={{ position: 'absolute', left: '55%', top: 0, bottom: 0, width: 2, background: '#94a3b8', opacity: 0.6 }} title={t('doseTrack.referenceLine')} />
                     </div>
-                    <span style={{ width: 90, fontSize: 12, fontWeight: 700, color: over ? '#dc2626' : 'var(--text-primary, #1e293b)', textAlign: 'right' }}>{dlp.toLocaleString()} mGy·cm</span>
+                    <span style={{ width: 90, fontSize: 12, fontWeight: 700, color: over ? 'var(--color-error-600)' : 'var(--text-primary, #1e293b)', textAlign: 'right' }}>{dlp.toLocaleString()} mGy·cm</span>
                     <span style={{ width: 90, fontSize: 11, color: 'var(--text-secondary)', textAlign: 'right' }}>CTDIvol {ctdi} mGy</span>
                   </div>
                 );
@@ -1076,7 +1076,7 @@ function DoseAnalyticsSection({
 
       {/* G9. 复查患者剂量叠加关注清单 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)', marginTop: 16 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Info size={14} /> {t('doseTrack.reviewListTitle')}
           <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)' }}>
             {t('doseTrack.reviewListSubtitle')}
@@ -1098,7 +1098,7 @@ function DoseAnalyticsSection({
                   <code style={{ fontSize: 11, color: 'var(--text-secondary)', fontFamily: 'monospace' }}>{p.id}</code>
                   <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('doseTrack.examCount', { count: p.exams })}</span>
                   {p.watch && (
-                    <span style={{ marginLeft: 'auto', padding: '1px 8px', borderRadius: 999, fontSize: 11, fontWeight: 700, background: 'var(--color-error-bg)', color: '#dc2626' }}>
+                    <span style={{ marginLeft: 'auto', padding: '1px 8px', borderRadius: 999, fontSize: 11, fontWeight: 700, background: 'var(--color-error-bg)', color: 'var(--color-error-600)' }}>
                       {t('doseTrack.cumulativeHigh')}
                     </span>
                   )}
@@ -1107,16 +1107,16 @@ function DoseAnalyticsSection({
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11 }}>
                     <span style={{ width: 84, color: 'var(--text-secondary)' }}>{t('doseTrack.cumulative30d')}</span>
                     <div style={{ flex: 1, height: 7, background: 'var(--border-default, rgba(0,0,0,0.12))', borderRadius: 999, overflow: 'hidden' }}>
-                      <div style={{ width: `${Math.min(100, p.pct30)}%`, height: '100%', background: p.pct30 > 60 ? '#dc2626' : p.pct30 > 30 ? '#d97706' : '#3b82f6', borderRadius: 999 }} />
+                      <div style={{ width: `${Math.min(100, p.pct30)}%`, height: '100%', background: p.pct30 > 60 ? 'var(--color-error-600)' : p.pct30 > 30 ? 'var(--color-warning-600)' : 'var(--color-primary-500)', borderRadius: 999 }} />
                     </div>
                     <b style={{ width: 90, textAlign: 'right', color: 'var(--text-primary, #1e293b)' }}>{p.dlp30d} mGy·cm</b>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11 }}>
                     <span style={{ width: 84, color: 'var(--text-secondary)' }}>{t('doseTrack.cumulative1y')}</span>
                     <div style={{ flex: 1, height: 7, background: 'var(--border-default, rgba(0,0,0,0.12))', borderRadius: 999, overflow: 'hidden' }}>
-                      <div style={{ width: `${Math.min(100, p.pct1y)}%`, height: '100%', background: p.pct1y > 100 ? '#dc2626' : p.pct1y > 60 ? '#d97706' : '#16a34a', borderRadius: 999 }} />
+                      <div style={{ width: `${Math.min(100, p.pct1y)}%`, height: '100%', background: p.pct1y > 100 ? 'var(--color-error-600)' : p.pct1y > 60 ? 'var(--color-warning-600)' : 'var(--color-success-600)', borderRadius: 999 }} />
                     </div>
-                    <b style={{ width: 90, textAlign: 'right', color: p.pct1y > 100 ? '#dc2626' : 'var(--text-primary, #1e293b)' }}>{p.dlp1y} mGy·cm</b>
+                    <b style={{ width: 90, textAlign: 'right', color: p.pct1y > 100 ? 'var(--color-error-600)' : 'var(--text-primary, #1e293b)' }}>{p.dlp1y} mGy·cm</b>
                   </div>
                 </div>
               </div>

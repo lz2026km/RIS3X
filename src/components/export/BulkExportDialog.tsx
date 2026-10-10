@@ -70,7 +70,7 @@ export const BulkExportDialog: React.FC<BulkExportDialogProps> = ({ open, onClos
       <div style={{ background: 'var(--bg-card)', borderRadius: 12, width: 520, maxHeight: '80vh', overflow: 'auto', boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Download size={18} color="#dc2626" />
+            <Download size={18} color="var(--color-error-600)" />
             <span style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>批量导出 ({reportIds.length} 份)</span>
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={18} /></button>
@@ -100,7 +100,7 @@ export const BulkExportDialog: React.FC<BulkExportDialogProps> = ({ open, onClos
 
           {result && (
             <div style={{ padding: 12, background: result.failureCount === 0 ? '#f0fdf4' : '#fef2f2', borderRadius: 8, marginBottom: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: result.failureCount === 0 ? '#16a34a' : '#dc2626' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: result.failureCount === 0 ? 'var(--color-success-600)' : 'var(--color-error-600)' }}>
                 {result.failureCount === 0 ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
                 {result.failureCount === 0 ? '全部导出成功' : `${result.successCount} 成功, ${result.failureCount} 失败`}
               </div>
@@ -130,7 +130,7 @@ export const BulkExportDialog: React.FC<BulkExportDialogProps> = ({ open, onClos
 
 const btnPrimary: React.CSSProperties = {
   flex: 1, padding: '8px 16px', border: 'none', borderRadius: 6,
-  background: 'linear-gradient(135deg, #dc2626, #b91c1c)', color: '#fff',
+  background: 'linear-gradient(135deg, var(--color-error-600), #b91c1c)', color: '#fff',
   fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center',
 };
 const btnSecondary: React.CSSProperties = {

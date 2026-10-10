@@ -125,7 +125,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <BarChart3 size={20} color="#2563eb" />
+        <BarChart3 size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('radiomics.title')}</span>
         <Tag color="blue">{t('radiomics.tag')}</Tag>
       </Space>
@@ -194,7 +194,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
         }}>{t('radiomics.exportCsv')}</Button>}>
           {Object.entries(groupedFeatures).map(([category, feats]) => (
             <div key={category} style={{ marginBottom: 16 }}>
-              <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 12, color: '#2563eb' }}>{category}</div>
+              <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 12, color: 'var(--color-primary-600)' }}>{category}</div>
               <DataTable dataSource={feats} columns={featureColumns} rowKey="name" pagination={false} scroll={{ x: 'max-content' }} />
             </div>
           ))}

@@ -48,14 +48,14 @@ const toExamFromWorklist = (dto: WorklistItemDto): RadiologyExam => {
 // [v3.0.6.11-104 Wave 2B] 检查时间线事件配色
 const TIMELINE_COLOR: Record<string, string> = {
   register: '#64748b',
-  scheduled: '#3b82f6',
-  checkin: '#0891b2',
-  start: '#f59e0b',
-  pause: '#d97706',
-  complete: '#16a34a',
-  retake: '#dc2626',
+  scheduled: 'var(--color-primary-500)',
+  checkin: 'var(--color-info-600)',
+  start: 'var(--color-warning-500)',
+  pause: 'var(--color-warning-600)',
+  complete: 'var(--color-success-600)',
+  retake: 'var(--color-error-600)',
   'qc-rating': '#7c3aed',
-  notes: '#2563eb',
+  notes: 'var(--color-primary-600)',
   report: '#059669',
   op: '#94a3b8',
 }
@@ -213,7 +213,7 @@ export default function ExamDetailPage() {
           display: "flex",
           alignItems: "center",
           gap: 12,
-          background: "linear-gradient(135deg, #1e40af 0%, #2563eb 100%)",
+          background: "linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-primary-600) 100%)",
         }}
       >
         <button
@@ -321,7 +321,7 @@ export default function ExamDetailPage() {
             alignItems: "center",
             justifyContent: "center",
             gap: 12,
-            color: "#dc2626",
+            color: "var(--color-error-600)",
             fontSize: 12,
           }}
         >
@@ -382,7 +382,7 @@ export default function ExamDetailPage() {
                   <div style={{ position: "relative", paddingLeft: 20 }}>
                     <div style={{ position: "absolute", left: 5, top: 4, bottom: 4, width: 2, background: "var(--border-color)" }} />
                     {timeline.events.map((ev, i) => {
-                      const color = TIMELINE_COLOR[ev.type] ?? "#3b82f6"
+                      const color = TIMELINE_COLOR[ev.type] ?? "var(--color-primary-500)"
                       return (
                         <div key={`${ev.type}-${i}`} style={{ position: "relative", paddingBottom: 14 }}>
                           <div style={{ position: "absolute", left: -20, top: 3, width: 10, height: 10, borderRadius: "50%", background: color, boxShadow: `0 0 0 3px ${color}22` }} />
@@ -418,7 +418,7 @@ export default function ExamDetailPage() {
                 <button
                   onClick={() => void handleSaveNotes()}
                   disabled={savingNote}
-                  style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 6, border: "none", background: "#1e40af", color: "#fff", fontSize: 12, fontWeight: 600, cursor: savingNote ? "not-allowed" : "pointer", opacity: savingNote ? 0.6 : 1 }}
+                  style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 6, border: "none", background: "var(--color-primary-800)", color: "#fff", fontSize: 12, fontWeight: 600, cursor: savingNote ? "not-allowed" : "pointer", opacity: savingNote ? 0.6 : 1 }}
                 >
                   <Send size={13} /> {savingNote ? t("examPage.savingNotes") : t("examPage.saveNotes")}
                 </button>

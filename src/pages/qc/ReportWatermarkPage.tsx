@@ -348,8 +348,8 @@ export default function ReportWatermarkPage() {
 
   const statsCards = useMemo(
     () => [
-      { label: t('reportWatermark.kpiTotal'), value: signStats?.total ?? 0, icon: <FileSignature size={18} />, color: '#3b82f6' },
-      { label: t('reportWatermark.kpiPending'), value: signStats?.pending ?? 0, icon: <History size={18} />, color: '#f59e0b' },
+      { label: t('reportWatermark.kpiTotal'), value: signStats?.total ?? 0, icon: <FileSignature size={18} />, color: 'var(--color-primary-500)' },
+      { label: t('reportWatermark.kpiPending'), value: signStats?.pending ?? 0, icon: <History size={18} />, color: 'var(--color-warning-500)' },
       { label: t('reportWatermark.kpiSigned'), value: signStats?.approved ?? 0, icon: <CheckCircle2 size={18} />, color: '#10b981' },
       { label: t('reportWatermark.kpiToday'), value: signStats?.signedToday ?? 0, icon: <Stamp size={18} />, color: '#8b5cf6' },
     ],
@@ -410,7 +410,7 @@ export default function ReportWatermarkPage() {
                       <code style={{ fontSize: 12 }}>{preview?.tamperCode ?? '-'}</code>
                     </Space>
                     <Space>
-                      <ShieldCheck size={14} color="#3b82f6" />
+                      <ShieldCheck size={14} color="var(--color-primary-500)" />
                       <span style={{ fontSize: 12, color: '#666' }}>{t('reportWatermark.paramHash')}</span>
                       <code style={{ fontSize: 12 }}>{(preview?.contentHash ?? '').slice(0, 16)}...</code>
                     </Space>

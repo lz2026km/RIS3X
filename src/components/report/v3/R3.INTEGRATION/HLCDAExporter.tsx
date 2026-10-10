@@ -100,8 +100,8 @@ export const HLCDAExporter: React.FC<Props> = ({ reportId, patientId, onExport }
       <Row gutter={8}>
         <Col span={6}><Card size="small"><Statistic title={t('reportIntegration.cda.stat.documents')} value={documents.length} prefix={<FileCode className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title={t('reportIntegration.cda.stat.validated')} value={documents.filter((d) => d.validation.passed).length} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('reportIntegration.cda.stat.totalSize')} value={(documents.reduce((a, d) => a + d.size, 0) / 1024).toFixed(1)} suffix="KB" prefix={<Layers className="w-3 h-3" style={{ color: '#0891b2' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('reportIntegration.signatureAlgorithm')} value="SM2" prefix={<Shield className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('reportIntegration.cda.stat.totalSize')} value={(documents.reduce((a, d) => a + d.size, 0) / 1024).toFixed(1)} suffix="KB" prefix={<Layers className="w-3 h-3" style={{ color: 'var(--color-info-600)' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('reportIntegration.signatureAlgorithm')} value="SM2" prefix={<Shield className="w-3 h-3" style={{ color: 'var(--color-error-600)' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
       </Row>
 
       <div className="grid grid-cols-4 gap-3">

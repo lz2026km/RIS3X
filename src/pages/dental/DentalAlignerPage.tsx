@@ -221,7 +221,7 @@ export const DentalAlignerPage: React.FC = () => {
         ctx.arc(0, 0, size, 0, Math.PI * 2);
         ctx.fillStyle = [11, 21, 31, 41].includes(m.toothNo)
           ? "#52c41a"
-          : "#2563eb";
+          : "var(--color-primary-600)";
         ctx.fill();
         ctx.strokeStyle = "#fff";
         ctx.lineWidth = 1;
@@ -254,7 +254,7 @@ export const DentalAlignerPage: React.FC = () => {
     return (
       <PageContainer padding={24}>
         <Space style={{ marginBottom: 16 }}>
-          <Activity size={20} color="#2563eb" />
+          <Activity size={20} color="var(--color-primary-600)" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>
             {t('dentalAligner.title')}
           </span>
@@ -282,7 +282,7 @@ export const DentalAlignerPage: React.FC = () => {
                 onClick={() => handleSelect(p)}
                 style={{
                   cursor: "pointer",
-                  borderLeft: `4px solid ${p.status === "completed" ? "#52c41a" : p.status === "in-progress" ? "#2563eb" : "#faad14"}`,
+                  borderLeft: `4px solid ${p.status === "completed" ? "#52c41a" : p.status === "in-progress" ? "var(--color-primary-600)" : "#faad14"}`,
                 }}
               >
                 <Space
@@ -358,7 +358,7 @@ export const DentalAlignerPage: React.FC = () => {
         <Button icon={<RotateCcw size={14} />} onClick={() => setMode("list")}>
            {t('dentalAligner.back')}
         </Button>
-        <Layers size={18} color="#2563eb" />
+        <Layers size={18} color="var(--color-primary-600)" />
         <span style={{ fontSize: 16, fontWeight: 600 }}>
           {current?.patientName} - {t('dentalAligner.planSuffix')}
         </span>

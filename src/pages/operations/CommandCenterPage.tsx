@@ -98,7 +98,7 @@ export const CommandCenterPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: 'var(--bg-card)',}}>
       <Space style={{ marginBottom: 16 }}>
-        <BarChart3 size={20} color="#2563eb" />
+        <BarChart3 size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('commandCenter.title')}</span>
         <Tag color="cyan">{t('commandCenter.realtime')}</Tag>
         <Space>
@@ -179,7 +179,7 @@ export const CommandCenterPage: React.FC = () => {
                   <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{tr.count}</div>
                   <div style={{
                     width: '70%', height: `${Math.max(6, (tr.count / maxTrend) * 150)}px`,
-                    background: '#2563eb', borderRadius: '4px 4px 0 0', opacity: 0.6 + i * 0.03,
+                    background: 'var(--color-primary-600)', borderRadius: '4px 4px 0 0', opacity: 0.6 + i * 0.03,
                   }} />
                   <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{tr.label}</div>
                 </div>

@@ -6,7 +6,7 @@ const bannerStyle: CSSProperties = {
   top: 52,
   zIndex: 'var(--z-fixed)' as unknown as number,
   padding: '6px 16px',
-  background: '#dc2626',
+  background: 'var(--color-error-600)',
   color: '#ffffff',
   fontSize: 12,
   fontWeight: 600,

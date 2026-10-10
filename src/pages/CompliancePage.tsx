@@ -7,11 +7,11 @@ import { THEME_TOKENS } from '../components/common/ThemeTokens'
 import { DataTable } from '../components/common'
 
 const COLORS = {
-  primary: '#1e40af',
-  accent: '#3b82f6',
+  primary: 'var(--color-primary-800)',
+  accent: 'var(--color-primary-500)',
   success: '#10b981',
-  danger: '#ef4444',
-  warning: '#f59e0b',
+  danger: 'var(--color-error-500)',
+  warning: 'var(--color-warning-500)',
   border: 'var(--border-color)',
   textDark: '#1e293b',
   textMid: '#475569',
@@ -84,7 +84,7 @@ export default function CompliancePage() {
     <div style={{ padding: 24, maxWidth: 1400, margin: '0 auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg, #1e40af, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Shield size={22} color="#fff" />
           </div>
           <div>

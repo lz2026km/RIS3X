@@ -40,10 +40,10 @@ const TYPE_ICONS: Record<MobileApprovalType, React.ReactNode> = {
 }
 
 const STATUS_LABELS: Record<string, { labelKey: string; color: string; bg: string }> = {
-  pending: { labelKey: 'mobileApproval.stPending', color: '#3b82f6', bg: '#dbeafe' },
+  pending: { labelKey: 'mobileApproval.stPending', color: 'var(--color-primary-500)', bg: '#dbeafe' },
   approved: { labelKey: 'mobileApproval.stApproved', color: '#10b981', bg: '#d1fae5' },
-  rejected: { labelKey: 'mobileApproval.stRejected', color: '#ef4444', bg: '#ffe4e6' },
-  delegated: { labelKey: 'mobileApproval.stDelegated', color: '#f59e0b', bg: '#fef3c7' },
+  rejected: { labelKey: 'mobileApproval.stRejected', color: 'var(--color-error-500)', bg: '#ffe4e6' },
+  delegated: { labelKey: 'mobileApproval.stDelegated', color: 'var(--color-warning-500)', bg: '#fef3c7' },
 }
 
 const DELEGATE_OPTIONS = [
@@ -162,10 +162,10 @@ export default function MobileApprovalPage() {
 
   const statCards = useMemo(() => {
     const cards = [
-      { key: 'pending', label: t('mobileApproval.cardPending'), value: stats?.pending ?? pending.filter((i) => i.status === 'pending').length, color: '#3b82f6', bg: '#dbeafe', icon: <Inbox size={18} /> },
+      { key: 'pending', label: t('mobileApproval.cardPending'), value: stats?.pending ?? pending.filter((i) => i.status === 'pending').length, color: 'var(--color-primary-500)', bg: '#dbeafe', icon: <Inbox size={18} /> },
       { key: 'approved', label: t('mobileApproval.cardApproved'), value: stats ? stats.approved + stats.rejected : history.length, color: '#10b981', bg: '#d1fae5', icon: <CheckCircle2 size={18} /> },
-      { key: 'delegated', label: t('mobileApproval.cardDelegated'), value: stats?.delegated ?? pending.filter((i) => i.status === 'delegated').length, color: '#f59e0b', bg: '#fef3c7', icon: <UserRoundCog size={18} /> },
-      { key: 'overdue', label: t('mobileApproval.cardOverdue'), value: stats?.overdue ?? pending.filter(isOverdue).length, color: '#ef4444', bg: '#ffe4e6', icon: <AlertTriangle size={18} /> },
+      { key: 'delegated', label: t('mobileApproval.cardDelegated'), value: stats?.delegated ?? pending.filter((i) => i.status === 'delegated').length, color: 'var(--color-warning-500)', bg: '#fef3c7', icon: <UserRoundCog size={18} /> },
+      { key: 'overdue', label: t('mobileApproval.cardOverdue'), value: stats?.overdue ?? pending.filter(isOverdue).length, color: 'var(--color-error-500)', bg: '#ffe4e6', icon: <AlertTriangle size={18} /> },
     ]
     return cards
   }, [stats, pending, history])
@@ -222,7 +222,7 @@ export default function MobileApprovalPage() {
         <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <Clock size={12} />{t('mobileApproval.due')}: {fmtTime(item.dueAt)}
           {isOverdue(item) && (
-            <span style={{ color: '#dc2626', fontWeight: 700, background: '#fee2e2', padding: '0 6px', borderRadius: 4, fontSize: 11 }}>{t('mobileApproval.overdue')}</span>
+            <span style={{ color: 'var(--color-error-600)', fontWeight: 700, background: '#fee2e2', padding: '0 6px', borderRadius: 4, fontSize: 11 }}>{t('mobileApproval.overdue')}</span>
           )}
         </span>
       </div>
@@ -255,7 +255,7 @@ export default function MobileApprovalPage() {
           <span style={{ color: '#059669', background: '#ecfdf5', padding: '4px 8px', borderRadius: 6 }}>{t('mobileApproval.comment')}: {item.comment}</span>
         )}
         {item.reason && (
-          <span style={{ color: '#dc2626', background: '#fef2f2', padding: '4px 8px', borderRadius: 6 }}>{t('mobileApproval.rejectReason')}: {item.reason}</span>
+          <span style={{ color: 'var(--color-error-600)', background: '#fef2f2', padding: '4px 8px', borderRadius: 6 }}>{t('mobileApproval.rejectReason')}: {item.reason}</span>
         )}
       </div>
       {renderDetail(item)}
@@ -265,7 +265,7 @@ export default function MobileApprovalPage() {
   return (
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader
-        icon={<Smartphone size={20} color="#3b82f6" />}
+        icon={<Smartphone size={20} color="var(--color-primary-500)" />}
         title={t('mobileApproval.title')}
         subtitle={t('mobileApproval.subtitle')}
       />
@@ -404,7 +404,7 @@ export default function MobileApprovalPage() {
             )}
             {modalKind === 'reject' && (
               <div>
-                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{t('mobileApproval.rejectReason')} <span style={{ color: '#dc2626' }}>*</span></div>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{t('mobileApproval.rejectReason')} <span style={{ color: 'var(--color-error-600)' }}>*</span></div>
                 <Input.TextArea
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
@@ -417,7 +417,7 @@ export default function MobileApprovalPage() {
             )}
             {modalKind === 'delegate' && (
               <div>
-                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{t('mobileApproval.delegateTo')} <span style={{ color: '#dc2626' }}>*</span></div>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{t('mobileApproval.delegateTo')} <span style={{ color: 'var(--color-error-600)' }}>*</span></div>
                 <Select
                   value={toUserId}
                   onChange={setToUserId}

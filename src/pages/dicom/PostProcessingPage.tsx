@@ -4,7 +4,7 @@ import { Layers, Save, Download } from 'lucide-react'
 import { seededUnit } from '../../utils/seededRandom'
 import { t } from '../../i18n/appI18n'
 
-const BLUE = '#3b82f6'
+const BLUE = 'var(--color-primary-500)'
 const CARD_BG = '#0f172a'
 const PANEL_BG = '#1e293b'
 

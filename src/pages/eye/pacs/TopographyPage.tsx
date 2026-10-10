@@ -83,7 +83,7 @@ const TopographyPage: React.FC = () => {
                 <Col span={8} key={m.key}>
                   <div
                     style={{
-                      background: "linear-gradient(135deg, #1e40af, #0f172a)",
+                      background: "linear-gradient(135deg, var(--color-primary-800), #0f172a)",
                       height: 240,
                       borderRadius: 6,
                       display: "flex",
@@ -138,25 +138,25 @@ const TopographyPage: React.FC = () => {
                 {
                   title: "BAD D",
                   value: "0.82",
-                  color: "#22c55e",
+                  color: "var(--color-success-500)",
                   note: t('topography.normalLt'),
                 },
                 {
                   title: "BAD D_Δ",
                   value: "0.64",
-                  color: "#22c55e",
+                  color: "var(--color-success-500)",
                   note: t('topography.normal'),
                 },
                 {
                   title: t('topography.anteriorElevation'),
                   value: "+0.008",
-                  color: "#22c55e",
+                  color: "var(--color-success-500)",
                   note: "mm",
                 },
                 {
                   title: t('topography.posteriorElevation'),
                   value: "+0.014",
-                  color: "#22c55e",
+                  color: "var(--color-success-500)",
                   note: "mm",
                 },
               ].map((s) => (

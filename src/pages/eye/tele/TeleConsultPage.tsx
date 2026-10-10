@@ -477,7 +477,7 @@ export const TeleConsultPage: React.FC = () => {
                   <Card
                     title={
                       <Space>
-                        <MonitorSmartphone size={16} color="#2563eb" />
+                        <MonitorSmartphone size={16} color="var(--color-primary-600)" />
                         {t("eye.tele.liveView")}
                         {session && (
                           <Tag color="green">
@@ -508,7 +508,7 @@ export const TeleConsultPage: React.FC = () => {
                         <>
                           <Video
                             size={64}
-                            color={videoOn ? "#2563eb" : "#444"}
+                            color={videoOn ? "var(--color-primary-600)" : "#444"}
                           />
                           <div style={{ marginTop: 16, fontSize: 14 }}>
                             {t("eye.tele.consultLabel")} {session.sessionId}
@@ -612,7 +612,7 @@ export const TeleConsultPage: React.FC = () => {
                   <Card
                     title={
                       <Space>
-                        <Activity size={16} color="#2563eb" />
+                        <Activity size={16} color="var(--color-primary-600)" />
                         {t("eye.tele.consultRecords")}
                         {teleStats && (
                           <Tag color="blue">
@@ -945,7 +945,7 @@ export const TeleConsultPage: React.FC = () => {
                   <Card
                     title={
                       <Space>
-                        <Database size={16} color="#0891b2" />
+                        <Database size={16} color="var(--color-info-600)" />
                         {t("eye.tele.streams")}
                         <Tag color="blue">{teleStreams.length}</Tag>
                       </Space>
@@ -996,7 +996,7 @@ export const TeleConsultPage: React.FC = () => {
                   <Card
                     title={
                       <Space>
-                        <ListTree size={16} color="#2563eb" />
+                        <ListTree size={16} color="var(--color-primary-600)" />
                         {t("eye.tele.sessionDetail")}
                       </Space>
                     }

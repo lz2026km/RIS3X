@@ -162,7 +162,7 @@ export const DefectCategoryTree: React.FC<{
     <div data-testid="defect-category-tree" role="region" aria-label={t('w9e.defectCategoryTree.ariaLabel')}>
       <div
         style={{
-          background: 'linear-gradient(135deg, #1e40af 0%, #7c3aed 100%)',
+          background: 'linear-gradient(135deg, var(--color-primary-800) 0%, #7c3aed 100%)',
           color: '#fff',
           padding: '12px 16px',
           borderRadius: 8,

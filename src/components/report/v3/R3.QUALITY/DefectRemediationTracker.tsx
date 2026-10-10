@@ -47,8 +47,8 @@ const STATUS_META: Record<
   DefectRemediation['status'],
   { color: string; label: string; bg: string; stage: 'plan' | 'do' | 'check' | 'act' }
 > = {
-  pending: { color: '#dc2626', label: t('defectRemediation.status.pending'), bg: 'var(--color-error-bg)', stage: 'plan' },
-  'in-progress': { color: '#f59e0b', label: t('defectRemediation.status.inProgress'), bg: 'var(--color-warning-bg)', stage: 'do' },
+  pending: { color: 'var(--color-error-600)', label: t('defectRemediation.status.pending'), bg: 'var(--color-error-bg)', stage: 'plan' },
+  'in-progress': { color: 'var(--color-warning-500)', label: t('defectRemediation.status.inProgress'), bg: 'var(--color-warning-bg)', stage: 'do' },
   rectified: { color: '#10b981', label: t('defectRemediation.status.rectified'), bg: 'var(--color-success-bg)', stage: 'check' },
   overdue: { color: '#7f1d1d', label: t('defectRemediation.status.overdue'), bg: 'var(--color-error-bg)', stage: 'plan' },
   cancelled: { color: '#64748b', label: t('defectRemediation.status.cancelled'), bg: 'var(--border-color)', stage: 'act' },
@@ -61,8 +61,8 @@ const SEVERITY_META: Record<DefectSeverityLevel, { color: string; label: string 
 };
 
 const PDCA_META: Record<'plan' | 'do' | 'check' | 'act', { color: string; label: string; icon: React.ReactNode }> = {
-  plan: { color: '#3b82f6', label: t('defectRemediation.pdca.plan'), icon: <Target size={12} /> },
-  do: { color: '#f59e0b', label: t('defectRemediation.pdca.do'), icon: <PlayCircle size={12} /> },
+  plan: { color: 'var(--color-primary-500)', label: t('defectRemediation.pdca.plan'), icon: <Target size={12} /> },
+  do: { color: 'var(--color-warning-500)', label: t('defectRemediation.pdca.do'), icon: <PlayCircle size={12} /> },
   check: { color: '#10b981', label: t('defectRemediation.pdca.check'), icon: <ShieldCheck size={12} /> },
   act: { color: '#7c3aed', label: t('defectRemediation.pdca.act'), icon: <RotateCcw size={12} /> },
 };
@@ -180,7 +180,7 @@ export const DefectRemediationTracker: React.FC = () => {
     <div data-testid="defect-remediation-tracker" role="region" aria-label={t('defectRemediation.title')}>
       <div
         style={{
-          background: 'linear-gradient(135deg, #f59e0b 0%, #dc2626 100%)',
+          background: 'linear-gradient(135deg, var(--color-warning-500) 0%, var(--color-error-600) 100%)',
           color: '#fff',
           padding: '12px 16px',
           borderRadius: 8,
@@ -292,7 +292,7 @@ export const DefectRemediationTracker: React.FC = () => {
                       background: overdue ? 'var(--color-error-bg)' : sm.bg,
                       borderRadius: 6,
                       borderLeft: overdue
-                        ? '3px solid #dc2626'
+                        ? '3px solid var(--color-error-600)'
                         : r.status === 'rectified'
                         ? '3px solid #10b981'
                         : '3px solid transparent',
@@ -313,7 +313,7 @@ export const DefectRemediationTracker: React.FC = () => {
                         >
                           <AlertTriangle
                             size={18}
-                            color={sev.color === 'red' ? '#dc2626' : '#f59e0b'}
+                            color={sev.color === 'red' ? 'var(--color-error-600)' : 'var(--color-warning-500)'}
                           />
                         </div>
                       }
@@ -333,7 +333,7 @@ export const DefectRemediationTracker: React.FC = () => {
                       description={
                         <div>
                           <div style={{ fontSize: 12, color: '#475569' }}>{r.description}</div>
-                          <div style={{ fontSize: 12, color: '#0891b2', marginTop: 4 }}>
+                          <div style={{ fontSize: 12, color: 'var(--color-info-600)', marginTop: 4 }}>
                             {t('defectRemediation.suggestionPrefix')}{r.suggestedFix}
                           </div>
                           <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
@@ -457,7 +457,7 @@ export const DefectRemediationTracker: React.FC = () => {
                         percent={rate}
                         size="small"
                         showInfo={false}
-                        strokeColor={rate >= 80 ? '#10b981' : rate >= 50 ? '#f59e0b' : '#dc2626'}
+                        strokeColor={rate >= 80 ? '#10b981' : rate >= 50 ? 'var(--color-warning-500)' : 'var(--color-error-600)'}
                       />
                     </div>
                   );
@@ -531,7 +531,7 @@ export const DefectRemediationTracker: React.FC = () => {
             </div>
             <div>
               <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('defectRemediation.suggestedFix')}</div>
-              <div style={{ fontSize: 12, color: '#0891b2' }}>{detailModal.suggestedFix}</div>
+              <div style={{ fontSize: 12, color: 'var(--color-info-600)' }}>{detailModal.suggestedFix}</div>
             </div>
             {detailModal.rectifiedNote && (
               <div>

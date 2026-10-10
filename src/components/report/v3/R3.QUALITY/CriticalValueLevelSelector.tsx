@@ -77,7 +77,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
     <div data-testid="critical-value-level-selector" role="region" aria-label={t('w9e.criticalLevelSelector.ariaLabel')}>
       <div
         style={{
-          background: 'linear-gradient(135deg, #7c2d12 0%, #dc2626 100%)',
+          background: 'linear-gradient(135deg, #7c2d12 0%, var(--color-error-600) 100%)',
           color: '#fff',
           padding: '12px 16px',
           borderRadius: 8,

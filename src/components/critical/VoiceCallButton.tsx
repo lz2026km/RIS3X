@@ -205,7 +205,7 @@ export const VoiceCallButton: React.FC<VoiceCallButtonProps> = ({
           <Space orientation="vertical" style={{ width: '100%' }}>
             <Result
               status={call.status === 'failed' ? 'warning' : 'success'}
-              icon={<PhoneCall size={36} color={call.status === 'failed' ? '#dc2626' : '#10b981'} />}
+              icon={<PhoneCall size={36} color={call.status === 'failed' ? 'var(--color-error-600)' : '#10b981'} />}
               title={renderStatus(call.status)}
               subTitle={call.startedAt ? <><Clock size={10} /> 发起于 {new Date(call.startedAt).toLocaleTimeString()}</> : undefined}
             />

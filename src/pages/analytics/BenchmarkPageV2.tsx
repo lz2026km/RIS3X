@@ -274,7 +274,7 @@ export default function BenchmarkPageV2() {
         const isWorst = val === worstPerMetric[code]
         return (
           <span style={{
-            color: isBest ? '#10b981' : isWorst ? '#ef4444' : '#1e293b',
+            color: isBest ? '#10b981' : isWorst ? 'var(--color-error-500)' : '#1e293b',
             fontWeight: isBest || isWorst ? 700 : 400,
             backgroundColor: isBest ? '#ecfdf5' : isWorst ? '#fef2f2' : 'transparent',
             padding: '2px 6px',
@@ -307,7 +307,7 @@ export default function BenchmarkPageV2() {
     <div style={{ padding: 24, maxWidth: 1600, margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <Space>
-          <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg, #3b82f6, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg, var(--color-primary-500), #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <BarChart3 size={22} color="#fff" />
           </div>
           <div>
@@ -324,15 +324,15 @@ export default function BenchmarkPageV2() {
       )}
 
       {usingDemo && (
-        <div style={{ marginBottom: 12, padding: '8px 12px', background: '#fef3c7', border: '1px solid #fcd34d', color: '#d97706', borderRadius: 6, fontSize: 12 }}>
+        <div style={{ marginBottom: 12, padding: '8px 12px', background: '#fef3c7', border: '1px solid #fcd34d', color: 'var(--color-warning-600)', borderRadius: 6, fontSize: 12 }}>
           {t('w8Dose.benchmarkDemo')}
         </div>
       )}
 
       <Spin spinning={loading}>
         <StatCardGrid>
-          <StatCard title="总检查量" value={stats.totalExams ?? '--'} suffix="例" color="#3b82f6" />
-          <StatCard title="阳性率" value={stats.positiveRate ?? '--'} suffix="%" color="#f59e0b" />
+          <StatCard title="总检查量" value={stats.totalExams ?? '--'} suffix="例" color="var(--color-primary-500)" />
+          <StatCard title="阳性率" value={stats.positiveRate ?? '--'} suffix="%" color="var(--color-warning-500)" />
           <StatCard title="甲级片率" value={stats.gradeARate ?? '--'} suffix="%" color="#10b981" />
           <StatCard title="报告及时率" value={stats.reportOnTimeRate ?? '--'} suffix="%" color="#6366f1" />
           <StatCard title="危急值闭环率" value={stats.criticalClosedRate ?? '--'} suffix="%" color="#ec4899" />

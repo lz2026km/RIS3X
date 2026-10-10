@@ -168,7 +168,7 @@ export function PageHeader({
     ) : null;
 
   if (variant === "banner") {
-    const bg = bannerBg ?? "linear-gradient(135deg, #1e40af, #2563eb)";
+    const bg = bannerBg ?? "linear-gradient(135deg, var(--color-primary-800), var(--color-primary-600))";
     return (
       <div
         data-testid={testId}
@@ -311,7 +311,7 @@ export function PageHeader({
                 margin: 0,
                 fontSize: headingFont,
                 fontWeight: 700,
-                color: "var(--color-primary-900, #1e40af)",
+                color: "var(--color-primary-900, var(--color-primary-800))",
                 letterSpacing: "-0.01em",
               }}
             >

@@ -92,7 +92,7 @@ export default function StructuredReportV3Page() {
 
   return (
     <PageContainer background="slate" maxWidth="wide">
-      <PageHeader icon={<FileCheck2 size={20} color="#2563eb" />} title={t('w17.srPage.title')} subtitle={t('w17.srPage.subtitle')} />
+      <PageHeader icon={<FileCheck2 size={20} color="var(--color-primary-600)" />} title={t('w17.srPage.title')} subtitle={t('w17.srPage.subtitle')} />
       <div style={{ padding: 24 }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
           <label style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>{t('w17.srPage.reportIdLabel')}</label>

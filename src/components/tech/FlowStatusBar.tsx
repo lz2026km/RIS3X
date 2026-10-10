@@ -52,11 +52,11 @@ export interface FlowStatusBarProps {
 }
 
 const ACTION_META: Record<FlowAction, { icon: React.ReactNode; labelKey: string; color: string; bg: string }> = {
-  checkin: { icon: <ClipboardCheck size={13} />, labelKey: 'flowStatus.actionCheckin', color: '#2563eb', bg: '#dbeafe' },
+  checkin: { icon: <ClipboardCheck size={13} />, labelKey: 'flowStatus.actionCheckin', color: 'var(--color-primary-600)', bg: '#dbeafe' },
   start: { icon: <Play size={13} />, labelKey: 'flowStatus.actionStart', color: '#7c3aed', bg: '#ede9fe' },
   complete: { icon: <CheckCircle2 size={13} />, labelKey: 'flowStatus.actionComplete', color: '#059669', bg: '#d1fae5' },
-  resume: { icon: <RotateCcw size={13} />, labelKey: 'flowStatus.actionResume', color: '#16a34a', bg: '#dcfce7' },
-  retake: { icon: <RefreshCw size={13} />, labelKey: 'flowStatus.actionRetake', color: '#dc2626', bg: '#fee2e2' },
+  resume: { icon: <RotateCcw size={13} />, labelKey: 'flowStatus.actionResume', color: 'var(--color-success-600)', bg: '#dcfce7' },
+  retake: { icon: <RefreshCw size={13} />, labelKey: 'flowStatus.actionRetake', color: 'var(--color-error-600)', bg: '#fee2e2' },
 }
 
 /** 当前状态 → 下一步动作 (无动作返回 null) */
@@ -91,7 +91,7 @@ export default function FlowStatusBar({ status, onAction, busy = false, showActi
         padding: '10px 14px',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: '#1e40af', whiteSpace: 'nowrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', whiteSpace: 'nowrap' }}>
         <ArrowRight size={13} />
         {t('techWorkbench.flowTitle')}
         <Tag

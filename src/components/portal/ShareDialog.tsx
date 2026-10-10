@@ -142,7 +142,7 @@ export default function ShareDialog({
               </div>
 
               {error && (
-                <div style={{ padding: '6px 10px', background: '#fef2f2', borderRadius: 4, fontSize: 12, color: '#dc2626', marginBottom: 8 }}>{error}</div>
+                <div style={{ padding: '6px 10px', background: '#fef2f2', borderRadius: 4, fontSize: 12, color: 'var(--color-error-600)', marginBottom: 8 }}>{error}</div>
               )}
 
               <button

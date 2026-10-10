@@ -78,7 +78,7 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
   // 协同编辑
   const collab = useCollaborativeYjs({
     roomId: reportId,
-    user: { id: userId ?? `user-${Math.random().toString(36).slice(2, 8)}`, name: userName, color: '#0891b2' },
+    user: { id: userId ?? `user-${Math.random().toString(36).slice(2, 8)}`, name: userName, color: 'var(--color-info-600)' },
     wsUrl,
     autoConnect: enableCollaboration,
   });
@@ -358,14 +358,14 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
 
   const insertEmbedPlaceholder = useCallback((type: string, label: string) => {
     if (readOnly) return;
-    const html = `<div style="border:2px dashed #0891b2;border-radius:8px;padding:16px;margin:8px 0;background:#f0f9ff;text-align:center;font-weight:bold;color:#0891b2;">${t('w9b.reportRich.embedPlaceholder', { label, type })}</div>`;
+    const html = `<div style="border:2px dashed var(--color-info-600);border-radius:8px;padding:16px;margin:8px 0;background:#f0f9ff;text-align:center;font-weight:bold;color:var(--color-info-600);">${t('w9b.reportRich.embedPlaceholder', { label, type })}</div>`;
     applyFormat('insertHTML', html);
     message.success(t('w9b.reportRich.embedInserted', { label }));
   }, [readOnly, applyFormat]);
 
   const insertComparison = useCallback((prior: { date: string; findings: string; impression: string }) => {
     if (readOnly) return;
-    const html = `<div style="border-left:4px solid #f59e0b;padding:8px 12px;margin:8px 0;background:#fffbeb;border-radius:4px;"><strong>${t('w9b.reportRich.priorCompare', { date: prior.date })}</strong><br/>${t('w9b.reportRich.findingsLabel')} ${prior.findings}<br/>${t('w9b.reportRich.impressionLabel')} ${prior.impression}</div>`;
+    const html = `<div style="border-left:4px solid var(--color-warning-500);padding:8px 12px;margin:8px 0;background:#fffbeb;border-radius:4px;"><strong>${t('w9b.reportRich.priorCompare', { date: prior.date })}</strong><br/>${t('w9b.reportRich.findingsLabel')} ${prior.findings}<br/>${t('w9b.reportRich.impressionLabel')} ${prior.impression}</div>`;
     applyFormat('insertHTML', html);
     message.success(t('w9b.reportRich.comparisonInserted'));
     setShowComparison(false);
@@ -386,7 +386,7 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
     const summary = findings
       ? '总结: 上述所见提示无明显异常发现。建议临床随访，必要时进一步检查。'
       : '印象: 未见明确异常。';
-    applyFormat('insertHTML', `<p style="border-top:2px solid #0891b2;padding-top:8px;margin-top:16px;"><strong>${t('w9b.reportRich.autoSummaryLabel')}</strong> ${summary}</p>`);
+    applyFormat('insertHTML', `<p style="border-top:2px solid var(--color-info-600);padding-top:8px;margin-top:16px;"><strong>${t('w9b.reportRich.autoSummaryLabel')}</strong> ${summary}</p>`);
     setSummarizing(false);
     message.success(t('w9b.reportRich.summaryGenerated'));
   }, [readOnly, applyFormat]);
@@ -557,7 +557,7 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
         title={
           <div className="flex items-center justify-between">
             <Space>
-              <Type className="w-4 h-4" style={{ color: '#0891b2' }} />
+              <Type className="w-4 h-4" style={{ color: 'var(--color-info-600)' }} />
               <span>{t('w9b.reportRich.title')}</span>
               <Tag color="blue">v{doc.version}</Tag>
               {autoSaving && <Tag color="processing">{t('w9b.reportRich.autoSaving')}</Tag>}
@@ -587,7 +587,7 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
                     <Avatar
                       size={28}
                       icon={collab.isConnected ? <Wifi className="w-3.5 h-3.5" /> : <WifiOff className="w-3.5 h-3.5" />}
-                      style={{ backgroundColor: collab.isConnected ? '#0891b2' : '#94a3b8', cursor: 'pointer' }}
+                      style={{ backgroundColor: collab.isConnected ? 'var(--color-info-600)' : '#94a3b8', cursor: 'pointer' }}
                     />
                   </Badge>
                 </Popover>

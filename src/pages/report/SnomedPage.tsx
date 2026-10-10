@@ -83,7 +83,7 @@ export default function SnomedPage() {
 
   return (
     <PageContainer background="slate" maxWidth="wide">
-      <PageHeader icon={<Code size={20} color="#3b82f6" />} title={t("title")} subtitle={t("subtitle")} />
+      <PageHeader icon={<Code size={20} color="var(--color-primary-500)" />} title={t("title")} subtitle={t("subtitle")} />
       {/* [v3.0.6.11-104 Wave 5C] SNOMED 收敛: 编码 / 编码器 / 自动编码 三 Tab 同页 */}
       <div style={{ display: "flex", gap: 8, padding: "12px 24px 0", flexWrap: "wrap" }}>
         {SNOMED_TABS.map(tab => (
@@ -94,7 +94,7 @@ export default function SnomedPage() {
             style={{
               display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8,
               fontSize: 12, fontWeight: 600, cursor: "pointer", border: "1px solid var(--border-color)",
-              background: activeTab === tab.key ? "#1e40af" : "var(--bg-card)",
+              background: activeTab === tab.key ? "var(--color-primary-800)" : "var(--bg-card)",
               color: activeTab === tab.key ? "#fff" : "#64748b",
             }}
           >
@@ -115,7 +115,7 @@ export default function SnomedPage() {
         <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
           <div style={{ flex: 1, minWidth: 320, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
-              <FileText size={16} color="#3b82f6" />{t("reportInput")}
+              <FileText size={16} color="var(--color-primary-500)" />{t("reportInput")}
             </h3>
             <textarea
               value={text}

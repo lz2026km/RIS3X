@@ -29,9 +29,9 @@ export interface PresenceIndicatorProps {
 
 const STATUS_META: Record<CollabUserStatus, { label: string; color: string; bg: string; Icon: React.ElementType }> = {
   viewing: { label: '正在查看', color: '#10b981', bg: 'var(--color-success-bg)', Icon: Eye },
-  editing: { label: '正在编辑', color: '#3b82f6', bg: 'var(--color-info-bg)', Icon: Edit3 },
+  editing: { label: '正在编辑', color: 'var(--color-primary-500)', bg: 'var(--color-info-bg)', Icon: Edit3 },
   idle: { label: '空闲', color: '#94a3b8', bg: 'var(--border-color)', Icon: Clock },
-  speaking: { label: '发言中', color: '#f59e0b', bg: 'var(--color-warning-bg)', Icon: Mic },
+  speaking: { label: '发言中', color: 'var(--color-warning-500)', bg: 'var(--color-warning-bg)', Icon: Mic },
   away: { label: '离开', color: '#f97316', bg: 'var(--color-warning-bg)', Icon: Clock },
   offline: { label: '离线', color: '#64748b', bg: 'var(--border-color)', Icon: WifiOff },
 };
@@ -122,7 +122,7 @@ export const PresenceIndicator: React.FC<PresenceIndicatorProps> = ({
                   <div style={{ fontWeight: 600 }}>{u.name}</div>
                   <div style={{ color: '#cbd5e1' }}>{ROLE_LABEL[u.role] ?? u.role} · {u.title ?? ''}</div>
                   <div style={{ marginTop: 2 }}>
-                    <Tag color={meta.color === '#10b981' ? 'green' : meta.color === '#3b82f6' ? 'blue' : 'default'} style={{ marginInlineEnd: 0 }}>
+                    <Tag color={meta.color === '#10b981' ? 'green' : meta.color === 'var(--color-primary-500)' ? 'blue' : 'default'} style={{ marginInlineEnd: 0 }}>
                       {meta.label}
                     </Tag>
                   </div>

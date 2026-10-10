@@ -416,7 +416,7 @@ export const DentalImplant3DPage: React.FC = () => {
     return (
       <PageContainer padding={24}>
         <Space style={{ marginBottom: 16 }}>
-          <Box size={20} color="#2563eb" />
+          <Box size={20} color="var(--color-primary-600)" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>
             {t('dentalImplant3d.title')}
           </span>
@@ -635,7 +635,7 @@ export const DentalImplant3DPage: React.FC = () => {
         <Button icon={<RotateCcw size={14} />} onClick={() => setMode("list")}>
           {t('dentalImplant3d.backToList')}
         </Button>
-        <Box size={18} color="#2563eb" />
+        <Box size={18} color="var(--color-primary-600)" />
         <span style={{ fontSize: 16, fontWeight: 600 }}>
           {t('dentalImplant3d.planTitle', { toothNo: current.toothNo })}
         </span>
@@ -867,7 +867,7 @@ export const DentalImplant3DPage: React.FC = () => {
                 <Statistic
                   title={t('dentalImplant3d.boneQuality')}
                   value={boneData?.overallQuality || "D2/D3"}
-                  styles={{ content: {  color: "#2563eb", fontSize: 12  } }}
+                  styles={{ content: {  color: "var(--color-primary-600)", fontSize: 12  } }}
                 />
                 <div style={{ display: "flex", gap: 4, marginTop: 8 }}>
                   {boneData?.measurements

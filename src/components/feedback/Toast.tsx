@@ -83,7 +83,7 @@ export function useNotification() {
         description: finding,
         placement: 'topRight',
         duration: 0,  // 不自动关闭
-        icon: <CloseCircleOutlined style={{ color: '#dc2626' }} />,
+        icon: <CloseCircleOutlined style={{ color: 'var(--color-error-600)' }} />,
       });
     },
   };
@@ -135,7 +135,7 @@ export function useConfirm() {
         cancelText: t('common.cancel'),
         okButtonProps: { danger: true },
         onOk,
-        icon: <ExclamationCircleOutlined style={{ color: '#dc2626' }} />,
+        icon: <ExclamationCircleOutlined style={{ color: 'var(--color-error-600)' }} />,
       });
     },
     // 业务:提交确认

@@ -27,10 +27,10 @@ const MONTHLY_REVENUE = [
 ]
 
 const REVENUE_BY_MODALITY = [
-  { name: 'CT', value: 425000, color: '#3b82f6' },
-  { name: 'MRI', value: 512000, color: '#22c55e' },
-  { name: 'X-Ray', value: 258000, color: '#f59e0b' },
-  { name: 'Mammo', value: 185000, color: '#ef4444' },
+  { name: 'CT', value: 425000, color: 'var(--color-primary-500)' },
+  { name: 'MRI', value: 512000, color: 'var(--color-success-500)' },
+  { name: 'X-Ray', value: 258000, color: 'var(--color-warning-500)' },
+  { name: 'Mammo', value: 185000, color: 'var(--color-error-500)' },
   { name: 'Ultrasound', value: 156000, color: '#8b5cf6' },
   { name: '其他', value: 89000, color: '#6e7681' },
 ]
@@ -78,7 +78,7 @@ const fmtMoney = (v?: number) => `¥${(Number.isFinite(v) ? (v as number) : 0).t
 
 function DemoBadge() {
   return (
-    <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>
+    <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: 'var(--color-warning-600)', border: '1px solid #fcd34d', fontWeight: 600 }}>
       {t('deptFinance.demoData')}
     </span>
   )
@@ -252,10 +252,10 @@ export default function DepartmentFinancePage() {
   const hasApiCost = !!costData && Number.isFinite(costData.total)
   const apiCostItems = costData
     ? [
-        { label: t('w1Controls.deptFinance.labor'), value: Number(costData.laborCost) || 0, color: '#ef4444' },
-        { label: t('w1Controls.deptFinance.equipment'), value: Number(costData.equipmentDepreciation) || 0, color: '#f59e0b' },
-        { label: t('w1Controls.deptFinance.material'), value: Number(costData.materialCost) || 0, color: '#3b82f6' },
-        { label: t('w1Controls.deptFinance.maintenance'), value: Number(costData.maintenanceCost) || 0, color: '#22c55e' },
+        { label: t('w1Controls.deptFinance.labor'), value: Number(costData.laborCost) || 0, color: 'var(--color-error-500)' },
+        { label: t('w1Controls.deptFinance.equipment'), value: Number(costData.equipmentDepreciation) || 0, color: 'var(--color-warning-500)' },
+        { label: t('w1Controls.deptFinance.material'), value: Number(costData.materialCost) || 0, color: 'var(--color-primary-500)' },
+        { label: t('w1Controls.deptFinance.maintenance'), value: Number(costData.maintenanceCost) || 0, color: 'var(--color-success-500)' },
         { label: t('w1Controls.deptFinance.other'), value: Number(costData.otherCost) || 0, color: '#8b5cf6' },
       ]
     : []
@@ -276,12 +276,12 @@ export default function DepartmentFinancePage() {
     : MONTHLY_REVENUE
   const monthlyTrendIsDemo = !(revenueData?.monthly && revenueData.monthly.length > 0)
   const modalityBarData = hasApiRevenue && revenueData!.byModality.length > 0
-    ? revenueData!.byModality.map((m, i) => ({ name: m.modality, value: m.revenue, color: ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#6e7681'][i % 6] }))
+    ? revenueData!.byModality.map((m, i) => ({ name: m.modality, value: m.revenue, color: ['var(--color-primary-500)', 'var(--color-success-500)', 'var(--color-warning-500)', 'var(--color-error-500)', '#8b5cf6', '#6e7681'][i % 6] }))
     : REVENUE_BY_MODALITY
   const modalityIsDemo = !(hasApiRevenue && revenueData!.byModality.length > 0)
   const costPieData = hasApiCost
     ? apiCostItems.map(c => ({ category: c.label, amount: c.value, color: c.color }))
-    : COST_BREAKDOWN.map((c, i) => ({ category: c.category, amount: c.amount, color: ['#ef4444', '#f59e0b', '#3b82f6', '#22c55e', '#8b5cf6'][i % 5] }))
+    : COST_BREAKDOWN.map((c, i) => ({ category: c.category, amount: c.amount, color: ['var(--color-error-500)', 'var(--color-warning-500)', 'var(--color-primary-500)', 'var(--color-success-500)', '#8b5cf6'][i % 5] }))
   const costPieIsDemo = !hasApiCost
 
   const invoiceColumns = [
@@ -434,8 +434,8 @@ export default function DepartmentFinancePage() {
                         <YAxis tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} tickFormatter={v => `¥${(v / 1000).toFixed(0)}k`} />
                         <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, t('w1Controls.deptFinance.revenue')]} />
                         <Legend wrapperStyle={{ fontSize: 12 }} />
-                        <Bar dataKey="revenue" fill="#22c55e" radius={[4, 4, 0, 0]} name={t('w1Controls.deptFinance.revenue')} />
-                        <Bar dataKey="cost" fill="#ef4444" radius={[4, 4, 0, 0]} name={t('w1Controls.deptFinance.cost')} />
+                        <Bar dataKey="revenue" fill="var(--color-success-500)" radius={[4, 4, 0, 0]} name={t('w1Controls.deptFinance.revenue')} />
+                        <Bar dataKey="cost" fill="var(--color-error-500)" radius={[4, 4, 0, 0]} name={t('w1Controls.deptFinance.cost')} />
                       </BarChart>
                     </ChartContainer>
                   )}
@@ -494,9 +494,9 @@ export default function DepartmentFinancePage() {
                   <YAxis tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} tickFormatter={v => `¥${(v / 1000).toFixed(0)}k`} />
                   <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, undefined]} />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Line type="monotone" dataKey="revenue" stroke="#22c55e" strokeWidth={2} dot={false} name={t('deptFinance.revenue')} />
-                  <Line type="monotone" dataKey="cost" stroke="#ef4444" strokeWidth={2} dot={false} name={t('deptFinance.cost')} />
-                  <Line type="monotone" dataKey="profit" stroke="#3b82f6" strokeWidth={2} dot={false} name={t('deptFinance.profit')} />
+                  <Line type="monotone" dataKey="revenue" stroke="var(--color-success-500)" strokeWidth={2} dot={false} name={t('deptFinance.revenue')} />
+                  <Line type="monotone" dataKey="cost" stroke="var(--color-error-500)" strokeWidth={2} dot={false} name={t('deptFinance.cost')} />
+                  <Line type="monotone" dataKey="profit" stroke="var(--color-primary-500)" strokeWidth={2} dot={false} name={t('deptFinance.profit')} />
                 </LineChart>
               </ChartContainer>
             </div>
@@ -564,7 +564,7 @@ export default function DepartmentFinancePage() {
                     <span style={{ color: 'var(--text-primary)' }}>{im.percent}%</span>
                   </div>
                   <div style={{ height: 8, background: 'var(--bg-secondary,#f8fafc)', borderRadius: 4, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${im.percent}%`, background: i === 0 ? '#3b82f6' : i === 1 ? '#22c55e' : i === 2 ? '#f59e0b' : '#8b5cf6', borderRadius: 4 }} />
+                    <div style={{ height: '100%', width: `${im.percent}%`, background: i === 0 ? 'var(--color-primary-500)' : i === 1 ? 'var(--color-success-500)' : i === 2 ? 'var(--color-warning-500)' : '#8b5cf6', borderRadius: 4 }} />
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>¥{im.amount.toLocaleString()}</div>
                 </div>
@@ -767,8 +767,8 @@ export default function DepartmentFinancePage() {
                       <YAxis tick={{ fontSize: 12, fill: 'var(--text-secondary)' }} tickFormatter={v => `¥${(v / 1000).toFixed(0)}k`} />
                       <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, undefined]} />
                       <Legend wrapperStyle={{ fontSize: 12 }} />
-                      <Line type="monotone" dataKey="revenue" stroke="#f59e0b" strokeWidth={2} dot={false} name={t('deptFinance.receivable')} />
-                      <Line type="monotone" dataKey="paid" stroke="#22c55e" strokeWidth={2} dot={false} name={t('deptFinance.received')} />
+                      <Line type="monotone" dataKey="revenue" stroke="var(--color-warning-500)" strokeWidth={2} dot={false} name={t('deptFinance.receivable')} />
+                      <Line type="monotone" dataKey="paid" stroke="var(--color-success-500)" strokeWidth={2} dot={false} name={t('deptFinance.received')} />
                     </LineChart>
                   </ChartContainer>
                 )}

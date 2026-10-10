@@ -55,13 +55,13 @@ function fmtTime(iso: string): string {
 function colorToHex(color: string): string {
   const map: Record<string, string> = {
     green: '#10b981',
-    red: '#dc2626',
-    blue: '#3b82f6',
-    orange: '#f59e0b',
-    gold: '#d97706',
+    red: 'var(--color-error-600)',
+    blue: 'var(--color-primary-500)',
+    orange: 'var(--color-warning-500)',
+    gold: 'var(--color-warning-600)',
     purple: '#7c3aed',
-    cyan: '#06b6d4',
-    volcano: '#ef4444',
+    cyan: 'var(--color-info-500)',
+    volcano: 'var(--color-error-500)',
     magenta: '#d946ef',
   };
   return map[color] ?? '#94a3b8';
@@ -219,7 +219,7 @@ export const ReviewHistory: React.FC<ReviewHistoryProps> = ({ reportId, entries:
                     </div>
                   )}
                   {e.reason && (
-                    <div style={{ fontSize: 12, color: '#dc2626', marginBottom: 4 }}>
+                    <div style={{ fontSize: 12, color: 'var(--color-error-600)', marginBottom: 4 }}>
                       {t('w9e.reviewHistory.reasonPrefix', { reason: e.reason })}
                     </div>
                   )}

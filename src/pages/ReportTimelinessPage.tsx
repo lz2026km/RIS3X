@@ -140,7 +140,7 @@ export default function ReportTimelinessPage() {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Clock size={20} color="#1e40af" /> {t('timeliness.title')}
+            <Clock size={20} color="var(--color-primary-800)" /> {t('timeliness.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
@@ -155,7 +155,7 @@ export default function ReportTimelinessPage() {
                 onClick={() => setPeriod(p)}
                 style={{
                   padding: '4px 10px', border: 'none', borderRadius: 4,
-                  background: period === p ? '#3b82f6' : 'transparent',
+                  background: period === p ? 'var(--color-primary-500)' : 'transparent',
                   color: period === p ? '#fff' : '#475569',
                   fontSize: 12, fontWeight: 600, cursor: 'pointer',
                 }}
@@ -180,17 +180,17 @@ export default function ReportTimelinessPage() {
             display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 4,
             fontSize: 12, fontWeight: 600,
             background: loading ? 'var(--bg-card)' : dataSource === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-            color: loading ? '#64748b' : dataSource === 'api' ? '#059669' : '#d97706',
+            color: loading ? '#64748b' : dataSource === 'api' ? '#059669' : 'var(--color-warning-600)',
             border: '1px solid ' + (dataSource === 'api' ? '#a7f3d0' : '#fde68a'),
           }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: loading ? '#94a3b8' : dataSource === 'api' ? '#10b981' : '#f59e0b' }} />
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: loading ? '#94a3b8' : dataSource === 'api' ? '#10b981' : 'var(--color-warning-500)' }} />
             {loading ? t('timeliness.syncing') : dataSource === 'api' ? t('timeliness.dataSourceApi') : t('timeliness.dataSourceDemo')}
           </span>
           {apiError && (
             <button
               onClick={() => void loadData()}
               title={apiError}
-              style={{ padding: '4px 10px', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: 'var(--bg-card)', color: '#dc2626', border: '1px solid #fecaca', display: 'flex', alignItems: 'center', gap: 4 }}
+              style={{ padding: '4px 10px', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: 'var(--bg-card)', color: 'var(--color-error-600)', border: '1px solid #fecaca', display: 'flex', alignItems: 'center', gap: 4 }}
             >
               <AlertTriangle size={12} /> {t('timeliness.retry')}
             </button>
@@ -205,15 +205,15 @@ export default function ReportTimelinessPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 12 }}>
         <BigStat icon={CheckCircle2} label={t('timeliness.overallOnTimeRate')} value={onTimeRate} suffix="%" color="#10b981" trend="up" trendValue="2.3%" />
         <BigStat icon={Timer} label={t('timeliness.avgSignTime')} value={avgSignTime} suffix={t('timeliness.unitMinutes')} color="#7c3aed" trend="down" trendValue="3.1m" />
-        <BigStat icon={AlertTriangle} label={t('timeliness.overdueTickets')} value={overdueCount} suffix={t('timeliness.unitTickets')} color="#dc2626" alert />
-        <BigStat icon={Bell} label={t('timeliness.alertNotifications')} value={3} suffix={t('timeliness.unitDemoTickets')} color="#f59e0b" />
+        <BigStat icon={AlertTriangle} label={t('timeliness.overdueTickets')} value={overdueCount} suffix={t('timeliness.unitTickets')} color="var(--color-error-600)" alert />
+        <BigStat icon={Bell} label={t('timeliness.alertNotifications')} value={3} suffix={t('timeliness.unitDemoTickets')} color="var(--color-warning-500)" />
       </div>
 
       {/* 优先级及时率 */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{t('timeliness.byPriority')}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('timeliness.byPriority')}</div>
             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{dataSource === 'api' ? t('timeliness.apiBuckets') : t('timeliness.tatMonitor')}</span>
           </div>
           {priorityData.map(p => (
@@ -224,14 +224,14 @@ export default function ReportTimelinessPage() {
                   <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('timeliness.priorityTarget', { target: p.target, onTime: p.onTime })}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: p.rate >= 90 ? '#10b981' : p.rate >= 80 ? '#f59e0b' : '#dc2626' }}>{p.rate}%</span>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: p.rate >= 90 ? '#10b981' : p.rate >= 80 ? 'var(--color-warning-500)' : 'var(--color-error-600)' }}>{p.rate}%</span>
                 </div>
               </div>
               <div style={{ height: 8, background: 'var(--bg-card)', borderRadius: 4, overflow: 'hidden' }}>
                 <div style={{
                   height: '100%',
                   width: p.rate + '%',
-                  background: p.rate >= 90 ? 'linear-gradient(90deg, #10b981, #22c55e)' : p.rate >= 80 ? 'linear-gradient(90deg, #f59e0b, #fbbf24)' : 'linear-gradient(90deg, #dc2626, #ef4444)',
+                  background: p.rate >= 90 ? 'linear-gradient(90deg, #10b981, var(--color-success-500))' : p.rate >= 80 ? 'linear-gradient(90deg, var(--color-warning-500), var(--color-warning-400))' : 'linear-gradient(90deg, var(--color-error-600), var(--color-error-500))',
                   transition: 'width 0.5s',
                 }} />
               </div>
@@ -241,7 +241,7 @@ export default function ReportTimelinessPage() {
 
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{t('timeliness.byModality')}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('timeliness.byModality')}</div>
             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('timeliness.demoData')}</span>
           </div>
           {data.onTimeByModality.map(m => (
@@ -251,7 +251,7 @@ export default function ReportTimelinessPage() {
                   <div style={{ width: 8, height: 8, borderRadius: 4, background: modalityColor(m.modality) }} />
                   <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('timeliness.modalityTarget', { modality: m.modality, onTime: m.onTime, target: m.target })}</span>
                 </div>
-                <span style={{ fontSize: 12, fontWeight: 700, color: m.rate >= 90 ? '#10b981' : m.rate >= 80 ? '#f59e0b' : '#dc2626' }}>{m.rate}%</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: m.rate >= 90 ? '#10b981' : m.rate >= 80 ? 'var(--color-warning-500)' : 'var(--color-error-600)' }}>{m.rate}%</span>
               </div>
               <div style={{ height: 6, background: 'var(--bg-card)', borderRadius: 3, overflow: 'hidden' }}>
                 <div style={{
@@ -268,7 +268,7 @@ export default function ReportTimelinessPage() {
       {/* 7日趋势 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)', marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{t('timeliness.trend7d')}</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('timeliness.trend7d')}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#10b981' }}>
             <TrendingUp size={12} /> {dataSource === 'api' ? `biApi 实时 (${period === 'month' ? '近30日' : '近7日'})` : t('timeliness.overallUp')}
           </div>
@@ -283,7 +283,7 @@ export default function ReportTimelinessPage() {
                 <div style={{
                   width: '70%',
                   height: h + '%',
-                  background: p.onTimeRate >= 88 ? 'linear-gradient(180deg, #10b981, #22c55e)' : p.onTimeRate >= 85 ? 'linear-gradient(180deg, #f59e0b, #fbbf24)' : 'linear-gradient(180deg, #dc2626, #ef4444)',
+                  background: p.onTimeRate >= 88 ? 'linear-gradient(180deg, #10b981, var(--color-success-500))' : p.onTimeRate >= 85 ? 'linear-gradient(180deg, var(--color-warning-500), var(--color-warning-400))' : 'linear-gradient(180deg, var(--color-error-600), var(--color-error-500))',
                   borderRadius: '4px 4px 0 0',
                   transition: 'all 0.3s',
                 }} />
@@ -297,11 +297,11 @@ export default function ReportTimelinessPage() {
       {/* 超时工单 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#dc2626', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-error-600)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <AlertTriangle size={13} /> {t('timeliness.overdueList')}
             <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)', marginLeft: 6 }}>{t('timeliness.overdueDemoNote')}</span>
           </div>
-          <button onClick={() => void handleUrgeAll()} disabled={reminding} style={{ padding: '4px 10px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: reminding ? 'wait' : 'pointer', opacity: reminding ? 0.7 : 1 }}>
+          <button onClick={() => void handleUrgeAll()} disabled={reminding} style={{ padding: '4px 10px', background: 'var(--color-error-600)', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: reminding ? 'wait' : 'pointer', opacity: reminding ? 0.7 : 1 }}>
             {reminding ? t('timeliness.urging') : t('timeliness.urgeAll')}
           </button>
         </div>
@@ -312,17 +312,17 @@ export default function ReportTimelinessPage() {
             { title: t('timeliness.colReportId'), dataIndex: 'reportId', key: 'reportId', render: (v: string) => <span style={{ fontFamily: 'monospace', color: '#7f1d1d' }}>{v}</span> },
             { title: t('timeliness.colPatient'), dataIndex: 'patientName', key: 'patientName', render: (v: string) => <span><User size={10} /> {v}</span> },
             { title: t('timeliness.colDoctor'), dataIndex: 'doctor', key: 'doctor', render: (v: string) => <span style={{ color: 'var(--text-secondary)' }}>{v}</span> },
-            { title: t('timeliness.colOverdue'), dataIndex: 'minutes', key: 'minutes', align: 'right', render: (v: number) => <span style={{ color: v > 60 ? '#dc2626' : '#f59e0b', fontWeight: 700 }}>+{v} min</span> },
+            { title: t('timeliness.colOverdue'), dataIndex: 'minutes', key: 'minutes', align: 'right', render: (v: number) => <span style={{ color: v > 60 ? 'var(--color-error-600)' : 'var(--color-warning-500)', fontWeight: 700 }}>+{v} min</span> },
             {
               title: t('timeliness.colActions'),
               key: 'actions',
               align: 'center',
               render: (_v, o) => (
                 <>
-                  <button onClick={() => void handleUrgeOne(o)} style={{ padding: '2px 8px', background: 'var(--bg-card)', border: '1px solid #dc2626', color: '#dc2626', borderRadius: 3, fontSize: 12, cursor: 'pointer', marginRight: 4 }}>
+                  <button onClick={() => void handleUrgeOne(o)} style={{ padding: '2px 8px', background: 'var(--bg-card)', border: '1px solid var(--color-error-600)', color: 'var(--color-error-600)', borderRadius: 3, fontSize: 12, cursor: 'pointer', marginRight: 4 }}>
                     {t('timeliness.urge')}
                   </button>
-                  <button onClick={() => handleEscalate(o)} disabled={!!escalated[o.reportId]} style={{ padding: '2px 8px', background: escalated[o.reportId] ? '#fca5a5' : '#dc2626', color: '#fff', border: 'none', borderRadius: 3, fontSize: 12, cursor: escalated[o.reportId] ? 'default' : 'pointer' }}>
+                  <button onClick={() => handleEscalate(o)} disabled={!!escalated[o.reportId]} style={{ padding: '2px 8px', background: escalated[o.reportId] ? '#fca5a5' : 'var(--color-error-600)', color: '#fff', border: 'none', borderRadius: 3, fontSize: 12, cursor: escalated[o.reportId] ? 'default' : 'pointer' }}>
                     {escalated[o.reportId] ? t('timeliness.escalated') : t('timeliness.escalate')}
                   </button>
                 </>
@@ -346,7 +346,7 @@ function BigStat({ icon: Icon, label, value, suffix, color, trend, trendValue, a
           <Icon size={12} /> {label}
         </div>
         {trend && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 12, color: trend === 'up' ? '#10b981' : '#dc2626' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 12, color: trend === 'up' ? '#10b981' : 'var(--color-error-600)' }}>
             {trend === 'up' ? <ChevronUp size={10} /> : <ChevronDown size={10} />} {trendValue}
           </div>
         )}
@@ -360,9 +360,9 @@ function BigStat({ icon: Icon, label, value, suffix, color, trend, trendValue, a
 
 function PriorityBadge({ priority }: { priority: string }) {
   const map: any = {
-    '急诊': { bg: '#ef444422', color: '#ef4444' },
-    '加急': { bg: '#f59e0b22', color: '#f59e0b' },
-    '普通': { bg: '#3b82f622', color: '#1e40af' },
+    '急诊': { bg: '#ef444422', color: 'var(--color-error-500)' },
+    '加急': { bg: '#f59e0b22', color: 'var(--color-warning-500)' },
+    '普通': { bg: '#3b82f622', color: 'var(--color-primary-800)' },
   };
   const s = map[priority] || { bg: 'var(--bg-deep)', color: 'var(--text-secondary)' };
   return (
@@ -374,7 +374,7 @@ function PriorityBadge({ priority }: { priority: string }) {
 
 function modalityColor(m: string) {
   const map: any = {
-    'CT': '#3b82f6', 'MR': '#7c3aed', 'DR': '#10b981', 'US': '#f59e0b', 'MG': '#dc2626',
+    'CT': 'var(--color-primary-500)', 'MR': '#7c3aed', 'DR': '#10b981', 'US': 'var(--color-warning-500)', 'MG': 'var(--color-error-600)',
   };
   return map[m] || '#64748b';
 }

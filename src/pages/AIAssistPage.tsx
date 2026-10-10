@@ -205,7 +205,7 @@ const AIAssistPage: React.FC = () => {
 
           <Card
             size="small"
-            title={<Space><History size={14} color="#2563eb" />{t('aiAssist.historyTitle')}</Space>}
+            title={<Space><History size={14} color="var(--color-primary-600)" />{t('aiAssist.historyTitle')}</Space>}
             style={{ marginBottom: 16 }}
           >
             {loadingHistory ? (
@@ -234,7 +234,7 @@ const AIAssistPage: React.FC = () => {
         <Col xs={24} lg={15}>
           <Card
             size="small"
-            title={<Space><FileText size={14} color="#2563eb" />{t('aiAssist.draftTitle')}</Space>}
+            title={<Space><FileText size={14} color="var(--color-primary-600)" />{t('aiAssist.draftTitle')}</Space>}
             extra={draft && (
               <Space size={4}>
                 <Tooltip title={t('aiAssist.copyAll')}>
@@ -264,7 +264,7 @@ const AIAssistPage: React.FC = () => {
                 {draft.sections.map((s) => (
                   <div key={s.heading} style={{ marginBottom: 12, border: '1px solid var(--border-color)', borderRadius: 8, padding: 12, background: 'var(--bg-card)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                      <Text strong style={{ color: '#1e40af' }}>{s.heading}</Text>
+                      <Text strong style={{ color: 'var(--color-primary-800)' }}>{s.heading}</Text>
                       <Button
                         size="small"
                         type="link"
@@ -289,7 +289,7 @@ const AIAssistPage: React.FC = () => {
           </Card>
           {draft && draft.sections.length > 0 && (
             <div style={{ marginTop: 12 }}>
-              <Card size="small" title={<Space><Sparkles size={13} color="#f59e0b" />{t('aiAssist.sectionConfidence')}</Space>}>
+              <Card size="small" title={<Space><Sparkles size={13} color="var(--color-warning-500)" />{t('aiAssist.sectionConfidence')}</Space>}>
                 <Row gutter={[12, 8]}>
                   {draft.sections.map((s) => (
                     <Col span={12} key={s.heading}>

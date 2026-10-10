@@ -102,7 +102,7 @@ const DIMENSIONS: RubricDimension[] = [
 
 const GRADE_BANDS = [
   { grade: 'A', min: 90, max: 100, label: 'A 级 · 优秀', labelEn: 'Grade A · Excellent', publishable: true, bonusEligible: true, color: '#047857' },
-  { grade: 'B', min: 75, max: 89, label: 'B 级 · 良好', labelEn: 'Grade B · Good', publishable: true, bonusEligible: true, color: '#1e40af' },
+  { grade: 'B', min: 75, max: 89, label: 'B 级 · 良好', labelEn: 'Grade B · Good', publishable: true, bonusEligible: true, color: 'var(--color-primary-800)' },
   { grade: 'C', min: 60, max: 74, label: 'C 级 · 合格', labelEn: 'Grade C · Pass', publishable: false, bonusEligible: false, color: '#92400e' },
   { grade: 'D', min: 0, max: 59, label: 'D 级 · 不合格', labelEn: 'Grade D · Fail', publishable: false, bonusEligible: false, color: '#7f1d1d' },
 ];

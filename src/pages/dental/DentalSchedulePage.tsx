@@ -179,7 +179,7 @@ export const DentalSchedulePage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <Calendar size={20} color="#2563eb" />
+        <Calendar size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalSchedule.pageTitle')}</span>
         <Tag color="cyan">v3.0.6.8-103</Tag>
         <Tag color="blue">{t('dentalSchedule.benchmarkTag')}</Tag>
@@ -200,13 +200,13 @@ export const DentalSchedulePage: React.FC = () => {
         {chairs.map((c: any) => (
           <Col span={4} key={c.id}>
             <Card size="small" hoverable onClick={() => setSelectedChair(c.id)}
-              style={{ cursor:'pointer', borderColor: selectedChair === c.id ? '#2563eb' : '#d9d9d9', borderLeft: `4px solid ${chairColors[c.status] || '#999'}` }}>
+              style={{ cursor:'pointer', borderColor: selectedChair === c.id ? 'var(--color-primary-600)' : '#d9d9d9', borderLeft: `4px solid ${chairColors[c.status] || '#999'}` }}>
               <Space><Armchair size={14}/><span style={{fontSize:12}}>{c.name}</span></Space>
               <Tag style={{fontSize:10,margin:0}} color={chairColors[c.status]}>{({online:t('dentalSchedule.chairOnline'), offline:t('dentalSchedule.chairOffline'), maintenance:t('dentalSchedule.chairMaintenance')} as any)[c.status] || c.status}</Tag>
             </Card>
           </Col>
         ))}
-        <Col span={4}><Card size="small" hoverable onClick={() => setSelectedChair('all')} style={{cursor:'pointer',borderColor:selectedChair==='all'?'#2563eb':'#d9d9d9'}}><Space><User size={14}/><span>{t('dentalSchedule.all')}</span></Space><div style={{fontSize:11,color:'var(--text-secondary)',marginTop:4}}>{t('dentalSchedule.totalPrefix')} {appts.length} {t('dentalSchedule.apptUnit')}</div></Card></Col>
+        <Col span={4}><Card size="small" hoverable onClick={() => setSelectedChair('all')} style={{cursor:'pointer',borderColor:selectedChair==='all'?'var(--color-primary-600)':'#d9d9d9'}}><Space><User size={14}/><span>{t('dentalSchedule.all')}</span></Space><div style={{fontSize:11,color:'var(--text-secondary)',marginTop:4}}>{t('dentalSchedule.totalPrefix')} {appts.length} {t('dentalSchedule.apptUnit')}</div></Card></Col>
       </Row>
       <Tabs activeKey={tab} onChange={setTab} items={[
         {key:'schedule', label:t('dentalSchedule.tabSchedule'), children:<>

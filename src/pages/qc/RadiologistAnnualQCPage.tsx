@@ -166,7 +166,7 @@ export default function RadiologistAnnualQCPage() {
                     render: (_: unknown, c: AnnualCompareRow) => {
                       const diff = parseFloat(String(c.selected)) - parseFloat(String(c.dept));
                       return (
-                        <span style={{ color: diff === 0 ? '#64748b' : diff > 0 ? '#059669' : '#dc2626', fontWeight: 600 }}>
+                        <span style={{ color: diff === 0 ? '#64748b' : diff > 0 ? '#059669' : 'var(--color-error-600)', fontWeight: 600 }}>
                           {diff > 0 ? '+' : ''}{Math.abs(diff) < 0.05 ? '0' : diff.toFixed(1)} {t(c.unit)}
                         </span>
                       );
@@ -207,7 +207,7 @@ export default function RadiologistAnnualQCPage() {
                 width: "100%",
                 padding: 10,
                 background: selectedId === d.id ? "var(--color-info-bg)" : "transparent",
-                border: "1px solid " + (selectedId === d.id ? "#3b82f6" : "transparent"),
+                border: "1px solid " + (selectedId === d.id ? "var(--color-primary-500)" : "transparent"),
                 borderRadius: 6,
                 cursor: "pointer",
                 marginBottom: 4,
@@ -217,14 +217,14 @@ export default function RadiologistAnnualQCPage() {
                 textAlign: "left",
               }}
             >
-              <div style={{ width: 32, height: 32, background: "#1e40af", color: "#fff", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700 }}>
+              <div style={{ width: 32, height: 32, background: "var(--color-primary-800)", color: "#fff", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700 }}>
                 {d.name[0]}
               </div>
               <div style={{ flex: 1 }}>
                 <AppText size="sm" weight={600} style={{ display: "block" }}>{d.name}</AppText>
                 <AppText size="xs" color="muted" as="div">{d.id} · {d.title}</AppText>
               </div>
-              {selectedId === d.id && <ChevronRight size={14} color="#3b82f6" />}
+              {selectedId === d.id && <ChevronRight size={14} color="var(--color-primary-500)" />}
             </button>
           ))}
         </div>
@@ -234,7 +234,7 @@ export default function RadiologistAnnualQCPage() {
           <div>
             <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginBottom: 16 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
-                <div style={{ width: 64, height: 64, background: "linear-gradient(135deg, #1e40af, #3b82f6)", color: "#fff", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30, fontWeight: 700 }}>
+                <div style={{ width: 64, height: 64, background: "linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))", color: "#fff", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30, fontWeight: 700 }}>
                   {selected.name[0]}
                 </div>
                 <div style={{ flex: 1 }}>
@@ -244,15 +244,15 @@ export default function RadiologistAnnualQCPage() {
                   </AppText>
                 </div>
                 <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: 24, fontWeight: 700, color: selected.annualQCScore >= 90 ? "#10b981" : "#f59e0b" }}>{selected.annualQCScore}</div>
+                  <div style={{ fontSize: 24, fontWeight: 700, color: selected.annualQCScore >= 90 ? "#10b981" : "var(--color-warning-500)" }}>{selected.annualQCScore}</div>
                   <AppText size="xs" color="muted" as="div">{t('annualQc.annualScore')}</AppText>
                 </div>
               </div>
               <StatCardGrid columns={5} gap={8}>
-                <StatCard label={t('annualQc.monthlyReports')} value={selected.monthlyReportCount} icon={<Award size={16} />} color="#1e40af" />
-                <StatCard label={t('annualQc.monthlyCritical')} value={selected.monthlyCriticalValueCount} icon={<Award size={16} />} color="#dc2626" />
-                <StatCard label={t('annualQc.monthlyCosign')} value={selected.monthlyCosignCount} icon={<Award size={16} />} color="#f59e0b" />
-                <StatCard label={t('annualQc.defectRate')} value={selected.defectRate as unknown as string} icon={<TrendingDown size={16} />} color="#dc2626" />
+                <StatCard label={t('annualQc.monthlyReports')} value={selected.monthlyReportCount} icon={<Award size={16} />} color="var(--color-primary-800)" />
+                <StatCard label={t('annualQc.monthlyCritical')} value={selected.monthlyCriticalValueCount} icon={<Award size={16} />} color="var(--color-error-600)" />
+                <StatCard label={t('annualQc.monthlyCosign')} value={selected.monthlyCosignCount} icon={<Award size={16} />} color="var(--color-warning-500)" />
+                <StatCard label={t('annualQc.defectRate')} value={selected.defectRate as unknown as string} icon={<TrendingDown size={16} />} color="var(--color-error-600)" />
                 <StatCard label={t('annualQc.timelyRate')} value={selected.timelyRate as unknown as string} icon={<TrendingUp size={16} />} color="#10b981" />
               </StatCardGrid>
             </div>
@@ -267,7 +267,7 @@ export default function RadiologistAnnualQCPage() {
                     {selectedHistory.map((h) => (
                       <div key={h.id} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
                         <div style={{ fontSize: 10, color: "var(--text-primary)", fontWeight: 700 }}>{h.qcScore}</div>
-                        <div style={{ width: "100%", height: `${(h.qcScore / 100) * 160}px`, background: h.qcScore >= 90 ? "linear-gradient(180deg, #10b981, #059669)" : h.qcScore >= 80 ? "linear-gradient(180deg, #f59e0b, #d97706)" : "linear-gradient(180deg, #dc2626, #991b1b)", borderRadius: "4px 4px 0 0", minHeight: 4 }} />
+                        <div style={{ width: "100%", height: `${(h.qcScore / 100) * 160}px`, background: h.qcScore >= 90 ? "linear-gradient(180deg, #10b981, #059669)" : h.qcScore >= 80 ? "linear-gradient(180deg, var(--color-warning-500), var(--color-warning-600))" : "linear-gradient(180deg, var(--color-error-600), #991b1b)", borderRadius: "4px 4px 0 0", minHeight: 4 }} />
                         <div style={{ fontSize: 10, color: "#94a3b8" }}>{h.month.slice(5)}</div>
                       </div>
                     ))}

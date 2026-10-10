@@ -49,13 +49,13 @@ export default function CTDIvolTrendChart() {
             boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
           }}
         >
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", marginBottom: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 8 }}>
             {label}
           </div>
           <div style={{ fontSize: 12, color: "#64748b" }}>
             <div>
               CT-1:{" "}
-              <span style={{ fontWeight: 600, color: "#3b82f6" }}>
+              <span style={{ fontWeight: 600, color: "var(--color-primary-500)" }}>
                 {payload[0]?.value} mGy
               </span>
             </div>
@@ -67,7 +67,7 @@ export default function CTDIvolTrendChart() {
             </div>
             <div>
               法规阈值:{" "}
-              <span style={{ fontWeight: 600, color: "#dc2626" }}>
+              <span style={{ fontWeight: 600, color: "var(--color-error-600)" }}>
                 {payload[2]?.value} mGy
               </span>
             </div>
@@ -105,7 +105,7 @@ export default function CTDIvolTrendChart() {
         }}
       >
         <div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>
             CTDIvol 趋势监控
           </div>
           <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
@@ -121,9 +121,9 @@ export default function CTDIvolTrendChart() {
           演示数据 · 未接入接口
         </span>
         <div style={{ display: "flex", gap: 12 }}>
-          <LineLegend color="#3b82f6" label="CT-1" />
+          <LineLegend color="var(--color-primary-500)" label="CT-1" />
           <LineLegend color="#8b5cf6" label="CT-2" />
-          <LineLegend color="#dc2626" label="阈值" />
+          <LineLegend color="var(--color-error-600)" label="阈值" />
         </div>
       </div>
       <ChartContainer height={240} state={CTDIVOL_TREND.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
@@ -135,9 +135,9 @@ export default function CTDIvolTrendChart() {
           <Line
             type="monotone"
             dataKey="CT1"
-            stroke="#3b82f6"
+            stroke="var(--color-primary-500)"
             strokeWidth={2}
-            dot={{ fill: "#3b82f6", strokeWidth: 2, r: 3 }}
+            dot={{ fill: "var(--color-primary-500)", strokeWidth: 2, r: 3 }}
             name="CT-1"
           />
           <Line
@@ -151,7 +151,7 @@ export default function CTDIvolTrendChart() {
           <Line
             type="monotone"
             dataKey="threshold"
-            stroke="#dc2626"
+            stroke="var(--color-error-600)"
             strokeWidth={2}
             strokeDasharray="5 5"
             dot={false}
@@ -170,10 +170,10 @@ export default function CTDIvolTrendChart() {
           borderRadius: 8,
         }}
       >
-        <Stat color="#3b82f6" value={avgCT1.toFixed(1)} label="CT-1均值" />
+        <Stat color="var(--color-primary-500)" value={avgCT1.toFixed(1)} label="CT-1均值" />
         <Stat color="#8b5cf6" value={avgCT2.toFixed(1)} label="CT-2均值" />
-        <Stat color={trendPct.startsWith('-') ? "#16a34a" : "#dc2626"} value={trendPct} label="较上周" />
-        <Stat color="#dc2626" value={String(overThresholdDays)} label="超阈值天数" />
+        <Stat color={trendPct.startsWith('-') ? "var(--color-success-600)" : "var(--color-error-600)"} value={trendPct} label="较上周" />
+        <Stat color="var(--color-error-600)" value={String(overThresholdDays)} label="超阈值天数" />
       </div>
     </div>
   );

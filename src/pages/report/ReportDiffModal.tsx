@@ -106,7 +106,7 @@ export default function ReportDiffModal({ report, data, loading, onClose }: Repo
         }}
       >
         <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <GitCompare size={18} color="#f59e0b" />
+          <GitCompare size={18} color="var(--color-warning-500)" />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>多版本并排对比</div>
             <div style={{ fontSize: 12, color: '#64748b', marginTop: 1 }}>
@@ -164,7 +164,7 @@ export default function ReportDiffModal({ report, data, loading, onClose }: Repo
               {merged && merged.length > 0 ? (
                 merged.map(f => (
                   <div key={f.field} style={{ marginBottom: 12, padding: 12, background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, padding: '2px 8px', background: 'var(--color-info-bg)', borderRadius: 4, display: 'inline-block' }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 6, padding: '2px 8px', background: 'var(--color-info-bg)', borderRadius: 4, display: 'inline-block' }}>
                       {f.label}
                     </div>
                     <div style={{ fontSize: 12 }}>

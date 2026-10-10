@@ -144,7 +144,7 @@ export function Card({
               height: 32,
               borderRadius: "var(--radius-sm, 6px)",
               background: "var(--color-primary-50, #eff6ff)",
-              color: "var(--color-primary-700, #1d4ed8)",
+              color: "var(--color-primary-700, var(--color-primary-700))",
               flexShrink: 0,
             }}
             aria-hidden="true"

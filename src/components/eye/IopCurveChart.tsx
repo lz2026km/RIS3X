@@ -50,7 +50,7 @@ const IopCurveChart: React.FC<Props> = ({ records, patientId }) => {
           y1={yScale(21)}
           x2={chartWidth - padding.right}
           y2={yScale(21)}
-          stroke="#ef4444"
+          stroke="var(--color-error-500)"
           strokeWidth={1}
           strokeDasharray="3,3"
         />
@@ -60,9 +60,9 @@ const IopCurveChart: React.FC<Props> = ({ records, patientId }) => {
           </text>
         ))}
         {/* OD 线 */}
-        <polyline points={odPoints} fill="none" stroke="#3b82f6" strokeWidth={2} />
+        <polyline points={odPoints} fill="none" stroke="var(--color-primary-500)" strokeWidth={2} />
         {records.map((r, i) => (
-          <circle key={`od-${i}`} cx={xScale(i)} cy={yScale(r.od)} r={3} fill="#3b82f6" />
+          <circle key={`od-${i}`} cx={xScale(i)} cy={yScale(r.od)} r={3} fill="var(--color-primary-500)" />
         ))}
         {/* OS 线 */}
         <polyline points={osPoints} fill="none" stroke="#8b5cf6" strokeWidth={2} />
@@ -71,9 +71,9 @@ const IopCurveChart: React.FC<Props> = ({ records, patientId }) => {
         ))}
         {records.length > 0 && (
           <>
-            <text x={chartWidth - padding.right - 40} y={padding.top + 10} fontSize={9} fill="#3b82f6">OD</text>
+            <text x={chartWidth - padding.right - 40} y={padding.top + 10} fontSize={9} fill="var(--color-primary-500)">OD</text>
             <text x={chartWidth - padding.right - 40} y={padding.top + 22} fontSize={9} fill="#8b5cf6">OS</text>
-            <text x={chartWidth - padding.right - 40} y={padding.top + 34} fontSize={8} fill="#ef4444">21 参考</text>
+            <text x={chartWidth - padding.right - 40} y={padding.top + 34} fontSize={8} fill="var(--color-error-500)">21 参考</text>
           </>
         )}
       </svg>

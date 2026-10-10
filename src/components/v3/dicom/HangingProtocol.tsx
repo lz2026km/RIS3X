@@ -175,7 +175,7 @@ export const HangingProtocolSwitcher: React.FC<HangingProtocolSwitcherProps> = (
           value: p.id,
           label: (
             <span>
-              {p.builtin && <Star size={10} style={{ marginRight: 4, color: '#f59e0b' }} />}
+              {p.builtin && <Star size={10} style={{ marginRight: 4, color: 'var(--color-warning-500)' }} />}
               {p.name}
             </span>
           ),
@@ -203,7 +203,7 @@ export const HangingProtocolSwitcher: React.FC<HangingProtocolSwitcherProps> = (
               title={
                 <span>
                   {p.name}
-                  {p.builtin && <Star size={12} style={{ marginLeft: 4, color: '#f59e0b' }} />}
+                  {p.builtin && <Star size={12} style={{ marginLeft: 4, color: 'var(--color-warning-500)' }} />}
                 </span>
               }
               extra={

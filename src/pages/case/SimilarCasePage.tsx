@@ -170,7 +170,7 @@ function ImageSearchTab() {
                   <Progress
                     percent={r.similarity}
                     size="small"
-                    strokeColor={r.similarity >= 70 ? '#16a34a' : r.similarity >= 40 ? '#f59e0b' : '#94a3b8'}
+                    strokeColor={r.similarity >= 70 ? 'var(--color-success-600)' : r.similarity >= 40 ? 'var(--color-warning-500)' : '#94a3b8'}
                     format={(p) => <Text strong style={{ color: '#334155' }}>{p}%</Text>}
                   />
                   <div style={{ marginTop: 8 }}>
@@ -324,7 +324,7 @@ function HybridSearchTab() {
                   <Progress
                     percent={r.similarity}
                     size="small"
-                    strokeColor={r.similarity >= 70 ? '#16a34a' : r.similarity >= 40 ? '#f59e0b' : '#94a3b8'}
+                    strokeColor={r.similarity >= 70 ? 'var(--color-success-600)' : r.similarity >= 40 ? 'var(--color-warning-500)' : '#94a3b8'}
                     format={(p) => <Text strong style={{ color: '#334155' }}>{p}%</Text>}
                   />
                   <div style={{ marginTop: 8, fontSize: 12, color: '#334155', lineHeight: 1.6, minHeight: 38 }}>
@@ -526,7 +526,7 @@ const SimilarCasePage: React.FC = () => {
                   <Progress
                     percent={c.similarity}
                     size="small"
-                    strokeColor={c.similarity >= 70 ? '#16a34a' : c.similarity >= 40 ? '#f59e0b' : '#94a3b8'}
+                    strokeColor={c.similarity >= 70 ? 'var(--color-success-600)' : c.similarity >= 40 ? 'var(--color-warning-500)' : '#94a3b8'}
                     format={(p) => <Text strong style={{ color: '#334155' }}>{p}%</Text>}
                   />
                   <div style={{ marginTop: 8, fontSize: 12, color: '#334155', lineHeight: 1.7, minHeight: 54 }}>

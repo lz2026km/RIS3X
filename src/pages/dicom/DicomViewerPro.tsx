@@ -189,7 +189,7 @@ const DicomViewerProPage: React.FC = () => {
       type,
       x1: Math.round(x1), y1: Math.round(y1), x2: Math.round(x2), y2: Math.round(y2),
       label: m.label || m.type,
-      color: '#fbbf24',
+      color: 'var(--color-warning-400)',
     }
   }
 
@@ -397,7 +397,7 @@ const DicomViewerProPage: React.FC = () => {
         <Row gutter={[12, 8]} align="middle">
           <Col flex="auto">
             <Space size={12} wrap>
-              <MonitorPlay size={18} color="#3b82f6" />
+              <MonitorPlay size={18} color="var(--color-primary-500)" />
               <Text strong style={{ color: '#e2e8f0', fontSize: 14 }}>{t('dicomViewer.title')}</Text>
               <Segmented
                 size="small"
@@ -642,11 +642,11 @@ const DicomViewerProPage: React.FC = () => {
                     color: '#e2e8f0',
                   }}
                 >
-                  <LayoutGrid size={12} color="#3b82f6" />
+                  <LayoutGrid size={12} color="var(--color-primary-500)" />
                   <span>{t('dicomViewer.hangingLabel')} <b>{hanging.name}</b> ({hanging.rows}×{hanging.cols})</span>
                   <button
                     onClick={() => setHanging(null)}
-                    style={{ border: 'none', background: 'transparent', color: '#ef4444', cursor: 'pointer', display: 'flex', padding: 2 }}
+                    style={{ border: 'none', background: 'transparent', color: 'var(--color-error-500)', cursor: 'pointer', display: 'flex', padding: 2 }}
                     aria-label={t('dicomViewer.exitHanging')}
                     data-testid="hp-exit"
                   >

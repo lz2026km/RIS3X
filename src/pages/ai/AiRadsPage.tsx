@@ -232,7 +232,7 @@ const AiRadsPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <Cpu size={20} color="#2563eb" />
+        <Cpu size={20} color="var(--color-primary-600)" />
         <Title level={4} style={{ margin: 0 }}>{t('aiRads.title')}</Title>
         <Tag color="blue">Lung / BI / PI / LI / TI-RADS</Tag>
       </Space>

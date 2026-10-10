@@ -47,8 +47,8 @@ const SEED: ReportImageAnnotationsRecord[] = [
     instanceUid: '1.2.840.10008.5.1.4.1.1.2.1.1.1.1',
     annotations: [
       { id: 'img-ann-001', type: 'arrow', x1: 120, y1: 140, x2: 165, y2: 120, label: '右肺上叶结节', color: '#ff4d4f' },
-      { id: 'img-ann-002', type: 'ruler', x1: 210, y1: 230, x2: 280, y2: 230, label: '长径 12.5mm', color: '#fbbf24' },
-      { id: 'img-ann-003', type: 'circle', x1: 300, y1: 180, x2: 360, y2: 240, label: '磨玻璃影 ROI', color: '#22c55e' },
+      { id: 'img-ann-002', type: 'ruler', x1: 210, y1: 230, x2: 280, y2: 230, label: '长径 12.5mm', color: 'var(--color-warning-400)' },
+      { id: 'img-ann-003', type: 'circle', x1: 300, y1: 180, x2: 360, y2: 240, label: '磨玻璃影 ROI', color: 'var(--color-success-500)' },
     ],
     imageBase64: '',
     createdAt: iso(60 * 5),

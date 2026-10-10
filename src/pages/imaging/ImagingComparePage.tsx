@@ -29,7 +29,7 @@ import {
   type PatientStudyDto,
 } from '../../services/api/imagingCompareApi'
 
-const BLUE = '#3b82f6'
+const BLUE = 'var(--color-primary-500)'
 const CYAN = '#22d3ee'
 const CARD_BG = '#0f172a'
 const PANEL_BG = '#1e293b'
@@ -890,12 +890,12 @@ export default function ImagingComparePage() {
               <>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, marginBottom: 6 }}>
                   <span style={{ fontSize: 11, fontWeight: 700, color: '#e2e8f0' }}>{t('imagingCompare.hotRegion')}</span>
-                  <span style={{ fontSize: 20, fontWeight: 800, color: diffMetrics.hotRegionRatio > 0.3 ? '#ef4444' : diffMetrics.hotRegionRatio > 0.1 ? '#facc15' : '#22c55e' }}>
+                  <span style={{ fontSize: 20, fontWeight: 800, color: diffMetrics.hotRegionRatio > 0.3 ? 'var(--color-error-500)' : diffMetrics.hotRegionRatio > 0.1 ? '#facc15' : 'var(--color-success-500)' }}>
                     {(diffMetrics.hotRegionRatio * 100).toFixed(2)}%
                   </span>
                   <div style={{ flex: 1 }} />
                   {diffMetrics.source === 'derived' ? (
-                    <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 10, background: '#16a34a22', color: '#16a34a', border: '1px solid #16a34a55' }}>{t('imagingCompare.realData')}</span>
+                    <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 10, background: '#16a34a22', color: 'var(--color-success-600)', border: '1px solid #16a34a55' }}>{t('imagingCompare.realData')}</span>
                   ) : (
                     <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 10, background: '#ea580c22', color: '#ea580c', border: '1px solid #ea580c55' }}>{t('imagingCompare.seedData')}</span>
                   )}
@@ -918,7 +918,7 @@ export default function ImagingComparePage() {
                     ))}
                   </div>
                   <div style={{ display: 'flex', gap: 10, marginTop: 3, fontSize: 10, color: '#64748b' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 8, background: '#3b82f6', display: 'inline-block' }} /> A</span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 8, background: 'var(--color-primary-500)', display: 'inline-block' }} /> A</span>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 8, background: '#facc15', display: 'inline-block' }} /> B</span>
                   </div>
                 </div>
@@ -933,7 +933,7 @@ export default function ImagingComparePage() {
                   ]}
                   columns={[
                     { title: '', dataIndex: 'name', width: 86, render: (v: string) => <span style={{ fontSize: 11, color: '#94a3b8' }}>{v}</span> },
-                    { title: 'A', dataIndex: 'a', width: 64, render: (v: string) => <span style={{ fontSize: 11, color: '#3b82f6' }}>{v}</span> },
+                    { title: 'A', dataIndex: 'a', width: 64, render: (v: string) => <span style={{ fontSize: 11, color: 'var(--color-primary-500)' }}>{v}</span> },
                     { title: 'B', dataIndex: 'b', width: 64, render: (v: string) => <span style={{ fontSize: 11, color: '#facc15' }}>{v}</span> },
                     { title: 'Δ', dataIndex: 'diff', render: (v: string) => <span style={{ fontSize: 11, fontWeight: 700, color: CYAN }}>{v}</span> },
                   ]}

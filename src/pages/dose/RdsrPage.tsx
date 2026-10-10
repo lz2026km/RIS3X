@@ -77,14 +77,14 @@ export default function RdsrPage() {
 
   const alertColor = (level: string) => {
     switch (level) {
-      case "critical": return { bg: "#fee2e2", text: "#dc2626", icon: <AlertCircle size={14} color="#dc2626" /> }
-      case "warning": return { bg: "#fef3c7", text: "#f59e0b", icon: <AlertTriangle size={14} color="#f59e0b" /> }
+      case "critical": return { bg: "#fee2e2", text: "var(--color-error-600)", icon: <AlertCircle size={14} color="var(--color-error-600)" /> }
+      case "warning": return { bg: "#fef3c7", text: "var(--color-warning-500)", icon: <AlertTriangle size={14} color="var(--color-warning-500)" /> }
       default: return { bg: "#d1fae5", text: "#10b981", icon: <Activity size={14} color="#10b981" /> }
     }
   }
 
   const drlColumns: TableColumnsType<DrlEntry> = [
-    { title: t("modality"), dataIndex: "modality", key: "modality", render: (v: string) => <span style={{ background: "#dbeafe", color: "#1e40af", padding: "2px 8px", borderRadius: 4, fontWeight: 600 }}>{v}</span> },
+    { title: t("modality"), dataIndex: "modality", key: "modality", render: (v: string) => <span style={{ background: "#dbeafe", color: "var(--color-primary-800)", padding: "2px 8px", borderRadius: 4, fontWeight: 600 }}>{v}</span> },
     { title: t("bodyPart"), dataIndex: "bodyPart", key: "bodyPart", render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
     { title: "CTDIvol DRL", dataIndex: "ctdivolDrl", key: "ctdivolDrl", render: (v: number) => `${v} mGy` },
     { title: "DLP DRL", dataIndex: "dlpDrl", key: "dlpDrl", render: (v: number) => `${v} mGy·cm` },
@@ -97,7 +97,7 @@ export default function RdsrPage() {
     { title: tApp("rdsr.examCount"), dataIndex: "examCount", key: "examCount" },
     { title: tApp("rdsr.dlp30d"), dataIndex: "totalDlp30d", key: "totalDlp30d", render: (v: number) => Number(v ?? 0).toFixed(0) },
     { title: tApp("rdsr.dlp1y"), dataIndex: "totalDlp1y", key: "totalDlp1y", render: (v: number) => Number(v ?? 0).toFixed(0) },
-    { title: tApp("rdsr.overDrl"), dataIndex: "overDrlCount", key: "overDrlCount", render: (v: number) => <span style={{ fontWeight: 700, color: (v ?? 0) > 0 ? "#dc2626" : "#16a34a" }}>{v ?? 0}</span> },
+    { title: tApp("rdsr.overDrl"), dataIndex: "overDrlCount", key: "overDrlCount", render: (v: number) => <span style={{ fontWeight: 700, color: (v ?? 0) > 0 ? "var(--color-error-600)" : "var(--color-success-600)" }}>{v ?? 0}</span> },
     { title: tApp("rdsr.lastExam"), dataIndex: "lastExamDate", key: "lastExamDate", render: (v: string) => <span style={{ color: "#64748b" }}>{v}</span> },
   ]
 
@@ -111,7 +111,7 @@ export default function RdsrPage() {
     {
       title: tApp("rdsr.level"), dataIndex: "level", key: "level",
       render: (v: string) => (
-        <span style={{ padding: "2px 8px", borderRadius: 4, fontWeight: 600, color: v === "critical" ? "#dc2626" : "#d97706", background: v === "critical" ? "#fee2e2" : "#fef3c7" }}>
+        <span style={{ padding: "2px 8px", borderRadius: 4, fontWeight: 600, color: v === "critical" ? "var(--color-error-600)" : "var(--color-warning-600)", background: v === "critical" ? "#fee2e2" : "#fef3c7" }}>
           {v === "critical" ? t("critical") : t("warning")}
         </span>
       ),
@@ -119,7 +119,7 @@ export default function RdsrPage() {
     {
       title: tApp("rdsr.status"), dataIndex: "acknowledged", key: "acknowledged",
       render: (v: boolean) => (
-        <span style={{ color: v ? "#16a34a" : "#dc2626", fontWeight: 600 }}>
+        <span style={{ color: v ? "var(--color-success-600)" : "var(--color-error-600)", fontWeight: 600 }}>
           {v ? tApp("rdsr.acked") : tApp("rdsr.pending")}
         </span>
       ),
@@ -128,22 +128,22 @@ export default function RdsrPage() {
 
   return (
     <PageContainer background="slate" maxWidth="wide">
-      <PageHeader icon={<Radio size={20} color="#3b82f6" />} title={t("title")} subtitle={t("subtitle")} />
+      <PageHeader icon={<Radio size={20} color="var(--color-primary-500)" />} title={t("title")} subtitle={t("subtitle")} />
       <div style={{ padding: 24 }}>
         <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-          <button onClick={() => setActiveTab("parse")} style={{ padding: "6px 16px", background: activeTab === "parse" ? "#1e40af" : "var(--bg-card)", color: activeTab === "parse" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "parse" ? "#1e40af" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+          <button onClick={() => setActiveTab("parse")} style={{ padding: "6px 16px", background: activeTab === "parse" ? "var(--color-primary-800)" : "var(--bg-card)", color: activeTab === "parse" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "parse" ? "var(--color-primary-800)" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
             <Upload size={14} />{t("parse")}
           </button>
-          <button onClick={handleLoadDrls} style={{ padding: "6px 16px", background: activeTab === "drls" ? "#1e40af" : "var(--bg-card)", color: activeTab === "drls" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "drls" ? "#1e40af" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+          <button onClick={handleLoadDrls} style={{ padding: "6px 16px", background: activeTab === "drls" ? "var(--color-primary-800)" : "var(--bg-card)", color: activeTab === "drls" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "drls" ? "var(--color-primary-800)" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
             <BarChart3 size={14} />{t("drls")}
           </button>
-          <button onClick={handleLoadStats} style={{ padding: "6px 16px", background: activeTab === "stats" ? "#1e40af" : "var(--bg-card)", color: activeTab === "stats" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "stats" ? "#1e40af" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+          <button onClick={handleLoadStats} style={{ padding: "6px 16px", background: activeTab === "stats" ? "var(--color-primary-800)" : "var(--bg-card)", color: activeTab === "stats" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "stats" ? "var(--color-primary-800)" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
             <TrendingUp size={14} />{t("stats")}
           </button>
-          <button onClick={handleLoadPatients} style={{ padding: "6px 16px", background: activeTab === "patients" ? "#1e40af" : "var(--bg-card)", color: activeTab === "patients" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "patients" ? "#1e40af" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+          <button onClick={handleLoadPatients} style={{ padding: "6px 16px", background: activeTab === "patients" ? "var(--color-primary-800)" : "var(--bg-card)", color: activeTab === "patients" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "patients" ? "var(--color-primary-800)" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
             <Users size={14} />{tApp("rdsr.patients")}
           </button>
-          <button onClick={handleLoadAlerts} style={{ padding: "6px 16px", background: activeTab === "alerts" ? "#1e40af" : "var(--bg-card)", color: activeTab === "alerts" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "alerts" ? "#1e40af" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+          <button onClick={handleLoadAlerts} style={{ padding: "6px 16px", background: activeTab === "alerts" ? "var(--color-primary-800)" : "var(--bg-card)", color: activeTab === "alerts" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "alerts" ? "var(--color-primary-800)" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
             <ShieldAlert size={14} />{tApp("rdsr.alertsTab")}
           </button>
         </div>
@@ -152,10 +152,10 @@ export default function RdsrPage() {
           <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <div style={{ textAlign: "center", padding: "20px 0" }}>
               <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#dbeafe", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}>
-                <Upload size={28} color="#3b82f6" />
+                <Upload size={28} color="var(--color-primary-500)" />
               </div>
               <div style={{ fontSize: 14, color: "#64748b", marginBottom: 16 }}>{t("uploadHint")}</div>
-              <button onClick={handleParse} disabled={loading} style={{ padding: "10px 28px", background: "#1e40af", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 14, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <button onClick={handleParse} disabled={loading} style={{ padding: "10px 28px", background: "var(--color-primary-800)", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 14, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 8 }}>
                 <Zap size={16} />{loading ? t("parsing") : t("parseRdsr")}
               </button>
             </div>
@@ -164,10 +164,10 @@ export default function RdsrPage() {
               <div style={{ marginTop: 16, borderTop: "1px solid #e2e8f0", paddingTop: 16 }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px" }}>{t("parseResult")}</h3>
                 <StatCardGrid minWidth={190} gap={12}>
-                  <StatCard title="CTDIvol" value={`${rdsrResult.ctdivol} mGy`} icon={<Activity size={20} />} color={rdsrResult.alertLevel === "critical" ? "#dc2626" : rdsrResult.alertLevel === "warning" ? "#f59e0b" : "#10b981"} />
-                  <StatCard title="DLP" value={`${rdsrResult.dlp} mGy·cm`} icon={<BarChart3 size={20} />} color="#3b82f6" />
+                  <StatCard title="CTDIvol" value={`${rdsrResult.ctdivol} mGy`} icon={<Activity size={20} />} color={rdsrResult.alertLevel === "critical" ? "var(--color-error-600)" : rdsrResult.alertLevel === "warning" ? "var(--color-warning-500)" : "#10b981"} />
+                  <StatCard title="DLP" value={`${rdsrResult.dlp} mGy·cm`} icon={<BarChart3 size={20} />} color="var(--color-primary-500)" />
                   <StatCard title="SSDE" value={rdsrResult.ssde ? `${rdsrResult.ssde} mGy` : "—"} icon={<Calculator size={20} />} color="#8b5cf6" />
-                  <StatCard title={t("alertLevel")} value={<span style={{ display: "flex", alignItems: "center", gap: 4 }}>{alertColor(rdsrResult.alertLevel).icon}{t(rdsrResult.alertLevel)}</span>} icon={<AlertTriangle size={20} />} color={rdsrResult.alertLevel === "critical" ? "#dc2626" : rdsrResult.alertLevel === "warning" ? "#f59e0b" : "#10b981"} />
+                  <StatCard title={t("alertLevel")} value={<span style={{ display: "flex", alignItems: "center", gap: 4 }}>{alertColor(rdsrResult.alertLevel).icon}{t(rdsrResult.alertLevel)}</span>} icon={<AlertTriangle size={20} />} color={rdsrResult.alertLevel === "critical" ? "var(--color-error-600)" : rdsrResult.alertLevel === "warning" ? "var(--color-warning-500)" : "#10b981"} />
                 </StatCardGrid>
                 <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontSize: 12, color: "#475569" }}>
                   <div><strong>{t("modality")}:</strong> {rdsrResult.modality}</div>
@@ -181,7 +181,7 @@ export default function RdsrPage() {
                 {rdsrResult.alertLevel !== "normal" && (
                   <div style={{ marginTop: 12, padding: 12, background: rdsrResult.alertLevel === "critical" ? "#fee2e2" : "#fef3c7", borderRadius: 6, display: "flex", alignItems: "center", gap: 8 }}>
                     {alertColor(rdsrResult.alertLevel).icon}
-                    <span style={{ fontSize: 12, fontWeight: 600, color: rdsrResult.alertLevel === "critical" ? "#dc2626" : "#92400e" }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: rdsrResult.alertLevel === "critical" ? "var(--color-error-600)" : "#92400e" }}>
                       {t(rdsrResult.alertLevel === "critical" ? "alertCritical" : "alertWarning")}
                     </span>
                   </div>
@@ -223,10 +223,10 @@ export default function RdsrPage() {
             {stats ? (
               <>
                 <StatCardGrid minWidth={190} gap={12}>
-                  <StatCard title={t("totalExams")} value={stats.totalExams ?? 0} icon={<Activity size={20} />} color="#3b82f6" />
+                  <StatCard title={t("totalExams")} value={stats.totalExams ?? 0} icon={<Activity size={20} />} color="var(--color-primary-500)" />
                   <StatCard title={t("avgCtdivol")} value={`${Number(stats.avgCtdivol ?? 0).toFixed(1)} mGy`} icon={<Calculator size={20} />} color="#10b981" />
                   <StatCard title={t("avgDlp")} value={`${Number(stats.avgDlp ?? 0).toFixed(0)} mGy·cm`} icon={<BarChart3 size={20} />} color="#8b5cf6" />
-                  <StatCard title={t("alerts")} value={(stats.warningCount ?? 0) + (stats.criticalCount ?? 0)} icon={<AlertTriangle size={20} />} color={(stats.criticalCount ?? 0) > 0 ? "#dc2626" : "#f59e0b"} sub={`${t("warning")} ${stats.warningCount ?? 0} / ${t("critical")} ${stats.criticalCount ?? 0}`} />
+                  <StatCard title={t("alerts")} value={(stats.warningCount ?? 0) + (stats.criticalCount ?? 0)} icon={<AlertTriangle size={20} />} color={(stats.criticalCount ?? 0) > 0 ? "var(--color-error-600)" : "var(--color-warning-500)"} sub={`${t("warning")} ${stats.warningCount ?? 0} / ${t("critical")} ${stats.criticalCount ?? 0}`} />
                 </StatCardGrid>
 
                 {Array.isArray(stats.trend) && stats.trend.length > 0 && (
@@ -239,11 +239,11 @@ export default function RdsrPage() {
                         return (
                           <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
                             <div style={{ width: "100%", maxWidth: 28, height: 80, background: "var(--bg-primary)", borderRadius: "3px 3px 0 0", position: "relative", overflow: "hidden" }}>
-                              <div style={{ position: "absolute", bottom: 0, left: 0, width: "50%", height: `${h}%`, background: "#3b82f6", borderRadius: "3px 0 0 0", transition: "height 0.3s" }} />
+                              <div style={{ position: "absolute", bottom: 0, left: 0, width: "50%", height: `${h}%`, background: "var(--color-primary-500)", borderRadius: "3px 0 0 0", transition: "height 0.3s" }} />
                               <div style={{ position: "absolute", bottom: 0, right: 0, width: "50%", height: `${h2}%`, background: "#10b981", borderRadius: "0 3px 0 0", transition: "height 0.3s" }} />
                             </div>
                             <div style={{ display: "flex", gap: 4 }}>
-                              <span style={{ fontSize: 10, color: "#3b82f6" }}>{Number(p.avgCtdivol ?? 0).toFixed(0)}</span>
+                              <span style={{ fontSize: 10, color: "var(--color-primary-500)" }}>{Number(p.avgCtdivol ?? 0).toFixed(0)}</span>
                               <span style={{ fontSize: 10, color: "#10b981" }}>{Number(p.avgDlp ?? 0).toFixed(0)}</span>
                             </div>
                             <span style={{ fontSize: 10, color: "#94a3b8" }}>{String(p.date ?? "").slice(5)}</span>
@@ -252,7 +252,7 @@ export default function RdsrPage() {
                       })}
                     </div>
                     <div style={{ display: "flex", gap: 16, marginTop: 4, fontSize: 10, color: "#64748b" }}>
-                      <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 8, height: 8, background: "#3b82f6", borderRadius: 2, display: "inline-block" }} />CTDIvol</span>
+                      <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 8, height: 8, background: "var(--color-primary-500)", borderRadius: 2, display: "inline-block" }} />CTDIvol</span>
                       <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 8, height: 8, background: "#10b981", borderRadius: 2, display: "inline-block" }} />DLP</span>
                     </div>
                   </div>
@@ -260,8 +260,8 @@ export default function RdsrPage() {
 
                 {(stats.warningCount ?? 0) + (stats.criticalCount ?? 0) > 0 && (
                   <div style={{ marginTop: 12, padding: 12, background: (stats.criticalCount ?? 0) > 0 ? "#fee2e2" : "#fef3c7", borderRadius: 6, display: "flex", alignItems: "center", gap: 8 }}>
-                    <AlertTriangle size={16} color={(stats.criticalCount ?? 0) > 0 ? "#dc2626" : "#f59e0b"} />
-                    <span style={{ fontSize: 12, fontWeight: 600, color: (stats.criticalCount ?? 0) > 0 ? "#dc2626" : "#92400e" }}>
+                    <AlertTriangle size={16} color={(stats.criticalCount ?? 0) > 0 ? "var(--color-error-600)" : "var(--color-warning-500)"} />
+                    <span style={{ fontSize: 12, fontWeight: 600, color: (stats.criticalCount ?? 0) > 0 ? "var(--color-error-600)" : "#92400e" }}>
                       {t("overThreshold")}: {t("warning")} {stats.warningCount ?? 0}, {t("critical")} {stats.criticalCount ?? 0}
                     </span>
                   </div>
@@ -277,7 +277,7 @@ export default function RdsrPage() {
         {activeTab === "patients" && (
           <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
-              <Users size={16} color="#3b82f6" />{tApp("rdsr.patients")}
+              <Users size={16} color="var(--color-primary-500)" />{tApp("rdsr.patients")}
             </h3>
             <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
               <input
@@ -287,7 +287,7 @@ export default function RdsrPage() {
                 placeholder={tApp("rdsr.patientSearchPlaceholder")}
                 style={{ flex: 1, maxWidth: 320, padding: "7px 10px", borderRadius: 6, border: "1px solid #cbd5e1", fontSize: 12, background: "var(--bg-card)", color: "var(--text-primary)" }}
               />
-              <button onClick={() => void handleLoadPatients()} disabled={patientsLoading} style={{ padding: "7px 18px", background: "#1e40af", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
+              <button onClick={() => void handleLoadPatients()} disabled={patientsLoading} style={{ padding: "7px 18px", background: "var(--color-primary-800)", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
                 {tApp("rdsr.search")}
               </button>
             </div>
@@ -311,16 +311,16 @@ export default function RdsrPage() {
         {activeTab === "alerts" && (
           <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
-              <ShieldAlert size={16} color="#dc2626" />{tApp("rdsr.alertsTab")}
+              <ShieldAlert size={16} color="var(--color-error-600)" />{tApp("rdsr.alertsTab")}
               {alerts.length > 0 && (
-                <span style={{ fontSize: 12, fontWeight: 600, color: "#dc2626", background: "#fee2e2", padding: "2px 8px", borderRadius: 8 }}>{alerts.length}</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-error-600)", background: "#fee2e2", padding: "2px 8px", borderRadius: 8 }}>{alerts.length}</span>
               )}
             </h3>
             {alertsLoading ? (
               <div style={{ padding: 32, textAlign: "center", color: "#94a3b8" }}>{tApp("rdsr.loading")}</div>
             ) : alerts.length === 0 ? (
               <div style={{ padding: 32, textAlign: "center", color: "#94a3b8", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                <CheckCircle size={16} color="#16a34a" />{tApp("rdsr.noData")}
+                <CheckCircle size={16} color="var(--color-success-600)" />{tApp("rdsr.noData")}
               </div>
             ) : (
               <div style={{ overflowX: "auto" }}>

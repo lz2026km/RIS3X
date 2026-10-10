@@ -356,7 +356,7 @@ const TriageTab: React.FC = () => {
       <Card size="small">
         <Space wrap style={{ width: "100%", justifyContent: "space-between" }}>
           <Space size={8}>
-            <Siren size={16} color="#dc2626" />
+            <Siren size={16} color="var(--color-error-600)" />
             <Text strong>{t("w4ai.triage.title")}</Text>
             <Text type="secondary" style={{ fontSize: 12 }}>
               {t("w4ai.triage.hint")}
@@ -444,9 +444,9 @@ const ReviewTab: React.FC = () => {
       width: 160,
       render: (v: number) => (
         <Space size={6}>
-          <span style={{ width: 44, fontWeight: 600, color: "#16a34a" }}>{v.toFixed(1)}%</span>
+          <span style={{ width: 44, fontWeight: 600, color: "var(--color-success-600)" }}>{v.toFixed(1)}%</span>
           <div style={{ width: 70 }}>
-            <Progress percent={v} showInfo={false} size="small" strokeColor="#16a34a" />
+            <Progress percent={v} showInfo={false} size="small" strokeColor="var(--color-success-600)" />
           </div>
         </Space>
       ),
@@ -456,14 +456,14 @@ const ReviewTab: React.FC = () => {
       dataIndex: "rejectRate",
       key: "rejectRate",
       width: 100,
-      render: (v: number) => <span style={{ color: "#dc2626" }}>{v.toFixed(1)}%</span>,
+      render: (v: number) => <span style={{ color: "var(--color-error-600)" }}>{v.toFixed(1)}%</span>,
     },
     {
       title: t("w4ai.review.col.modify"),
       dataIndex: "modifyRate",
       key: "modifyRate",
       width: 100,
-      render: (v: number) => <span style={{ color: "#d97706" }}>{v.toFixed(1)}%</span>,
+      render: (v: number) => <span style={{ color: "var(--color-warning-600)" }}>{v.toFixed(1)}%</span>,
     },
     {
       title: t("w4ai.review.col.consistency"),
@@ -474,7 +474,7 @@ const ReviewTab: React.FC = () => {
         <Space size={6}>
           <span style={{ width: 44, fontWeight: 600 }}>{v.toFixed(1)}%</span>
           <div style={{ width: 60 }}>
-            <Progress percent={v} showInfo={false} size="small" strokeColor="#2563eb" />
+            <Progress percent={v} showInfo={false} size="small" strokeColor="var(--color-primary-600)" />
           </div>
         </Space>
       ),
@@ -519,15 +519,15 @@ const ReviewTab: React.FC = () => {
       <Card size="small" title={t("w4ai.review.trend")}>
         <Space size={16} style={{ marginBottom: 12 }} wrap>
           <Space size={4}>
-            <span style={{ width: 10, height: 10, background: "#16a34a", display: "inline-block" }} />
+            <span style={{ width: 10, height: 10, background: "var(--color-success-600)", display: "inline-block" }} />
             <Text style={{ fontSize: 12 }}>{t("w4ai.review.legendAdopt")}</Text>
           </Space>
           <Space size={4}>
-            <span style={{ width: 10, height: 10, background: "#d97706", display: "inline-block" }} />
+            <span style={{ width: 10, height: 10, background: "var(--color-warning-600)", display: "inline-block" }} />
             <Text style={{ fontSize: 12 }}>{t("w4ai.review.legendModify")}</Text>
           </Space>
           <Space size={4}>
-            <span style={{ width: 10, height: 10, background: "#dc2626", display: "inline-block" }} />
+            <span style={{ width: 10, height: 10, background: "var(--color-error-600)", display: "inline-block" }} />
             <Text style={{ fontSize: 12 }}>{t("w4ai.review.legendReject")}</Text>
           </Space>
         </Space>
@@ -554,13 +554,13 @@ const ReviewTab: React.FC = () => {
                 }}
               >
                 <Tooltip title={`${t("w4ai.review.legendAdopt")} ${p.adopt.toFixed(1)}%`}>
-                  <div style={{ width: 16, height: `${p.adopt}%`, background: "#16a34a", borderRadius: 3 }} />
+                  <div style={{ width: 16, height: `${p.adopt}%`, background: "var(--color-success-600)", borderRadius: 3 }} />
                 </Tooltip>
                 <Tooltip title={`${t("w4ai.review.legendModify")} ${p.modify.toFixed(1)}%`}>
-                  <div style={{ width: 16, height: `${p.modify}%`, background: "#d97706", borderRadius: 3 }} />
+                  <div style={{ width: 16, height: `${p.modify}%`, background: "var(--color-warning-600)", borderRadius: 3 }} />
                 </Tooltip>
                 <Tooltip title={`${t("w4ai.review.legendReject")} ${p.reject.toFixed(1)}%`}>
-                  <div style={{ width: 16, height: `${p.reject}%`, background: "#dc2626", borderRadius: 3 }} />
+                  <div style={{ width: 16, height: `${p.reject}%`, background: "var(--color-error-600)", borderRadius: 3 }} />
                 </Tooltip>
               </div>
               <div style={{ fontSize: 12, color: "#8c8c8c", marginTop: 6 }}>{p.week}</div>
@@ -662,7 +662,7 @@ const QcTab: React.FC = () => {
       key: "delta",
       width: 90,
       render: (v: number) => (
-        <span style={{ color: "#dc2626", fontWeight: 600 }}>{v.toFixed(1)}%</span>
+        <span style={{ color: "var(--color-error-600)", fontWeight: 600 }}>{v.toFixed(1)}%</span>
       ),
     },
     {
@@ -749,7 +749,7 @@ const QcTab: React.FC = () => {
         size="small"
         title={
           <Space size={6}>
-            <ShieldAlert size={16} color="#2563eb" />
+            <ShieldAlert size={16} color="var(--color-primary-600)" />
             {t("w4ai.qc.imageTitle")}
           </Space>
         }
@@ -767,7 +767,7 @@ const QcTab: React.FC = () => {
         size="small"
         title={
           <Space size={6}>
-            <AlertTriangle size={16} color="#d97706" />
+            <AlertTriangle size={16} color="var(--color-warning-600)" />
             {t("w4ai.qc.driftTitle")}
           </Space>
         }
@@ -785,7 +785,7 @@ const QcTab: React.FC = () => {
         size="small"
         title={
           <Space size={6}>
-            <ListChecks size={16} color="#dc2626" />
+            <ListChecks size={16} color="var(--color-error-600)" />
             {t("w4ai.qc.errorTitle")}
           </Space>
         }
@@ -838,7 +838,7 @@ const ReportTab: React.FC = () => {
           size="small"
           title={
             <Space size={6}>
-              <FileText size={16} color="#2563eb" />
+              <FileText size={16} color="var(--color-primary-600)" />
               {t("w4ai.report.draft")}
             </Space>
           }
@@ -896,7 +896,7 @@ const ReportTab: React.FC = () => {
           size="small"
           title={
             <Space size={6}>
-              <Sparkles size={16} color="#2563eb" />
+              <Sparkles size={16} color="var(--color-primary-600)" />
               {t("w4ai.report.suggestions")}
             </Space>
           }
@@ -952,7 +952,7 @@ const ReportTab: React.FC = () => {
 
                     {s.guardrails.length > 0 ? (
                       <Space size={[6, 4]} wrap style={{ marginBottom: 8 }}>
-                        <Brain size={13} color="#d97706" />
+                        <Brain size={13} color="var(--color-warning-600)" />
                         {s.guardrails.map((g) => (
                           <Tag
                             key={g.key}
@@ -967,7 +967,7 @@ const ReportTab: React.FC = () => {
 
                     <div>
                       <Space size={6} style={{ marginBottom: 4 }}>
-                        <Quote size={13} color="#2563eb" />
+                        <Quote size={13} color="var(--color-primary-600)" />
                         <Text type="secondary" style={{ fontSize: 12 }}>
                           {t("w4ai.report.citations")}
                         </Text>
@@ -1061,7 +1061,7 @@ const AiWorkflowCenterPage: React.FC = () => {
   return (
     <PageContainer testId="ai-workflow-center">
       <PageHeader
-        icon={<Brain size={22} color="#2563eb" />}
+        icon={<Brain size={22} color="var(--color-primary-600)" />}
         title={t("w4ai.wf.title")}
         subtitle={t("w4ai.wf.subtitle")}
         actions={

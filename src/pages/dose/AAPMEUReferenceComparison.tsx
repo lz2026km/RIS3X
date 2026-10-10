@@ -88,7 +88,7 @@ export default function AAPMEUReferenceComparison() {
             style={{
               fontSize: 12,
               fontWeight: 700,
-              color: "#1e40af",
+              color: "var(--color-primary-800)",
               marginBottom: 8,
             }}
           >
@@ -97,7 +97,7 @@ export default function AAPMEUReferenceComparison() {
           <div style={{ fontSize: 12, color: "#64748b" }}>
             <div>
               AAPM参考值:{" "}
-              <span style={{ fontWeight: 600, color: "#1e40af" }}>
+              <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>
                 {payload[0]?.value} mGy
               </span>
             </div>
@@ -109,7 +109,7 @@ export default function AAPMEUReferenceComparison() {
             </div>
             <div>
               本院平均值:{" "}
-              <span style={{ fontWeight: 600, color: "#dc2626" }}>
+              <span style={{ fontWeight: 600, color: "var(--color-error-600)" }}>
                 {payload[2]?.value} mGy
               </span>
             </div>
@@ -119,7 +119,7 @@ export default function AAPMEUReferenceComparison() {
                 <span
                   style={{
                     fontWeight: 600,
-                    color: ref.exceedRate > 0.5 ? "#dc2626" : "#16a34a",
+                    color: ref.exceedRate > 0.5 ? "var(--color-error-600)" : "var(--color-success-600)",
                   }}
                 >
                   {(ref.exceedRate * 100).toFixed(0)}%
@@ -140,7 +140,7 @@ export default function AAPMEUReferenceComparison() {
         style={{
           padding: "8px 12px",
           background: "#eff6ff",
-          color: "#1e40af",
+          color: "var(--color-primary-800)",
           borderRadius: 8,
           fontSize: 12,
           display: "flex",
@@ -167,7 +167,7 @@ export default function AAPMEUReferenceComparison() {
         }}
       >
         <div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>
             AAPM/欧盟 CT剂量参考值对比
           </div>
           <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
@@ -181,7 +181,7 @@ export default function AAPMEUReferenceComparison() {
                 width: 10,
                 height: 10,
                 borderRadius: 2,
-                background: "#1e40af",
+                background: "var(--color-primary-800)",
               }}
             />
             <span style={{ fontSize: 12, color: "#64748b" }}>AAPM参考值</span>
@@ -203,7 +203,7 @@ export default function AAPMEUReferenceComparison() {
                 width: 10,
                 height: 10,
                 borderRadius: 2,
-                background: "#dc2626",
+                background: "var(--color-error-600)",
               }}
             />
             <span style={{ fontSize: 12, color: "#64748b" }}>本院平均值</span>
@@ -219,7 +219,7 @@ export default function AAPMEUReferenceComparison() {
           <Tooltip content={<CustomTooltip />} />
           <Bar
             dataKey="aapm"
-            fill="#1e40af"
+            fill="var(--color-primary-800)"
             radius={[4, 4, 0, 0]}
             name="AAPM参考值"
           />
@@ -231,14 +231,14 @@ export default function AAPMEUReferenceComparison() {
           />
           <Bar
             dataKey="hospital"
-            fill="#dc2626"
+            fill="var(--color-error-600)"
             radius={[4, 4, 0, 0]}
             name="本院平均值"
           >
             {chartData.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={entry.hospital > entry.aapm ? "#dc2626" : "#16a34a"}
+                fill={entry.hospital > entry.aapm ? "var(--color-error-600)" : "var(--color-success-600)"}
               />
             ))}
           </Bar>
@@ -251,7 +251,7 @@ export default function AAPMEUReferenceComparison() {
           style={{
             fontSize: 12,
             fontWeight: 700,
-            color: "#1e40af",
+            color: "var(--color-primary-800)",
             marginBottom: 12,
           }}
         >
@@ -264,13 +264,13 @@ export default function AAPMEUReferenceComparison() {
           showExport={false}
           showDensity={false}
           columns={[
-            { title: "检查类型", dataIndex: "examType", key: "examType", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "#1e40af" }}>{v}</span> },
+            { title: "检查类型", dataIndex: "examType", key: "examType", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{v}</span> },
             { title: "AAPM参考值", dataIndex: "aapmRef", key: "aapmRef", align: "center", render: (v: number) => <span style={{ color: "#334155" }}>{v} mGy</span> },
             { title: "欧盟参考值", dataIndex: "euRef", key: "euRef", align: "center", render: (v: number) => <span style={{ color: "#334155" }}>{v} mGy</span> },
             {
               title: "本院平均值", dataIndex: "hospitalAvg", key: "hospitalAvg", align: "center",
               render: (v: number, ref: AAPMReference) => (
-                <span style={{ fontWeight: 700, color: ref.exceedRate > 0 ? "#dc2626" : "#16a34a" }}>{v} mGy</span>
+                <span style={{ fontWeight: 700, color: ref.exceedRate > 0 ? "var(--color-error-600)" : "var(--color-success-600)" }}>{v} mGy</span>
               ),
             },
             {
@@ -282,7 +282,7 @@ export default function AAPMEUReferenceComparison() {
                     style={{
                       padding: "3px 8px",
                       background: isExceed ? "#fef2f2" : "#f0fdf4",
-                      color: isExceed ? "#dc2626" : "#16a34a",
+                      color: isExceed ? "var(--color-error-600)" : "var(--color-success-600)",
                       borderRadius: 4,
                       fontSize: 12,
                       fontWeight: 700,
@@ -313,10 +313,10 @@ export default function AAPMEUReferenceComparison() {
         >
           <AlertTriangle
             size={16}
-            color="#dc2626"
+            color="var(--color-error-600)"
             style={{ marginTop: 2, flexShrink: 0 }}
           />
-          <div style={{ fontSize: 12, color: "#dc2626" }}>
+          <div style={{ fontSize: 12, color: "var(--color-error-600)" }}>
             <strong>超标告警：</strong>
             胸部CT和腹部CT的本院平均值超过AAPM参考值，需要进行剂量优化分析。建议检查扫描参数设置，考虑降低剂量配置。
           </div>

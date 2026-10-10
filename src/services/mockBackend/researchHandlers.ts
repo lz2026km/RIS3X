@@ -27,10 +27,10 @@ let projects: any[] = [
 ];
 
 let labels: any[] = [
-  { id: 'LBL001', name: '肺结节', type: '诊断', color: '#3b82f6', useCount: 356 },
-  { id: 'LBL002', name: '磨玻璃影', type: '特征', color: '#22c55e', useCount: 289 },
-  { id: 'LBL003', name: '右肺上叶', type: '部位', color: '#f59e0b', useCount: 176 },
-  { id: 'LBL004', name: '钙化', type: '特征', color: '#ef4444', useCount: 122 },
+  { id: 'LBL001', name: '肺结节', type: '诊断', color: 'var(--color-primary-500)', useCount: 356 },
+  { id: 'LBL002', name: '磨玻璃影', type: '特征', color: 'var(--color-success-500)', useCount: 289 },
+  { id: 'LBL003', name: '右肺上叶', type: '部位', color: 'var(--color-warning-500)', useCount: 176 },
+  { id: 'LBL004', name: '钙化', type: '特征', color: 'var(--color-error-500)', useCount: 122 },
 ];
 
 const examRecords: any[] = [
@@ -146,7 +146,7 @@ export const researchHandlers = [
       id: `LBL${Date.now().toString(36).toUpperCase()}`,
       name: String(body?.name ?? '未命名标签'),
       type: String(body?.type ?? '诊断'),
-      color: String(body?.color ?? '#3b82f6'),
+      color: String(body?.color ?? 'var(--color-primary-500)'),
       useCount: 0,
     };
     labels = [newItem, ...labels];

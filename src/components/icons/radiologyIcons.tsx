@@ -8,7 +8,7 @@
  *   - 状态类 (5):  危急值 / 正常 / 待处理 / 已过期 / 异常
  *   - 补充类 (5):  辐射警示 / X 射线 / 放射医师 / 骨 / 脑
  *
- * 用法: <IconCt size={20} color="#3b82f6" />
+ * 用法: <IconCt size={20} color="var(--color-primary-500)" />
  */
 import type { FC, ReactNode } from "react";
 import {

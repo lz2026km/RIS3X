@@ -181,7 +181,7 @@ const CrossModalSearchPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
-        <ScanSearch size={20} color="#2563eb" />
+        <ScanSearch size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('crossModal.title')}</span>
         <Tag color="cyan">v3.0.6.11-75</Tag>
         {indexStatus && (

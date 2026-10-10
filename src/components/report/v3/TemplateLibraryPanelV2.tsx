@@ -239,7 +239,7 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
         return <span style={{ color: (s?.adoptionRate ?? 0) >= 50 ? '#10b981' : '#64748b' }}>{(s?.adoptionRate ?? 0).toFixed(1)}%</span>
       } },
     { title: t('templateLibrary.col.lastUsed'), width: 100, render: (_, row) => formatDateTime(row.lastUsedAt) },
-    { title: t('templateLibrary.col.favorite'), dataIndex: 'favoriteCount', width: 55, align: 'center' as const, render: (v: number) => v > 0 ? <Star size={13} color="#f59e0b" fill="#f59e0b" /> : <span style={{ color: '#cbd5e1' }}>0</span> },
+    { title: t('templateLibrary.col.favorite'), dataIndex: 'favoriteCount', width: 55, align: 'center' as const, render: (v: number) => v > 0 ? <Star size={13} color="var(--color-warning-500)" fill="var(--color-warning-500)" /> : <span style={{ color: '#cbd5e1' }}>0</span> },
     { title: t('templateLibrary.col.action'), width: 210, fixed: 'right' as const, render: (_, row) => (
         <Space size={4} wrap>
           <Tooltip title={t('templateLibrary.useTip')}>
@@ -376,7 +376,7 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
       )}
 
       {tab === 'favorites' && (
-        <Card size="small" title={<Space><Star size={14} color="#f59e0b" />{t('templateLibrary.myFavorites', { count: favorites.length })}</Space>}>
+        <Card size="small" title={<Space><Star size={14} color="var(--color-warning-500)" />{t('templateLibrary.myFavorites', { count: favorites.length })}</Space>}>
           <Table
             rowKey="id" size="small" loading={loading} dataSource={favorites} columns={columns}
             pagination={{ pageSize: 8, showSizeChanger: false }}

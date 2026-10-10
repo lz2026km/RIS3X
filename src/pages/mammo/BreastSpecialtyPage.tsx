@@ -19,7 +19,7 @@ import { DataTable } from '../../components/common';
 import type { TableColumnsType } from 'antd';
 import { uniqueId } from '../../utils/uniqueId';
 
-const BIRADS_COLORS: Record<string, string> = { 0: '#94a3b8', 1: '#16a34a', 2: '#16a34a', 3: '#ca8a04', '4A': '#ea580c', '4B': '#dc2626', 4: '#dc2626', 5: '#dc2626', 6: '#7c3aed' };
+const BIRADS_COLORS: Record<string, string> = { 0: '#94a3b8', 1: 'var(--color-success-600)', 2: 'var(--color-success-600)', 3: '#ca8a04', '4A': '#ea580c', '4B': 'var(--color-error-600)', 4: 'var(--color-error-600)', 5: 'var(--color-error-600)', 6: '#7c3aed' };
 const DENSITY_LABELS: Record<string, string> = { a: 'breastSpecialty.densityFatty', b: 'breastSpecialty.densityScattered', c: 'breastSpecialty.densityHeterogeneous', d: 'breastSpecialty.densityExtreme' };
 const OUTCOME_LABELS: Record<string, string> = { normal: 'breastSpecialty.outcomeNormal', benign: 'breastSpecialty.outcomeBenign', 'probably-benign': 'breastSpecialty.outcomeProbablyBenign', suspicious: 'breastSpecialty.outcomeSuspicious', 'highly-suspicious': 'breastSpecialty.outcomeHighlySuspicious', 'known-malignancy': 'breastSpecialty.outcomeKnownMalignancy' };
 
@@ -58,7 +58,7 @@ const DUAL_STATUS_LABELS: Record<string, { label: string; color: string }> = {
   reader1_done: { label: 'breastSpecialty.dualReader1Done', color: '#ca8a04' },
   reader2_done: { label: 'breastSpecialty.dualReader2Done', color: '#ca8a04' },
   both_done: { label: 'breastSpecialty.dualBothDone', color: '#ea580c' },
-  arbitrated: { label: 'breastSpecialty.dualArbitrated', color: '#16a34a' },
+  arbitrated: { label: 'breastSpecialty.dualArbitrated', color: 'var(--color-success-600)' },
 };
 
 const BiradsTag = ({ v }: { v: string | number }) => {
@@ -131,7 +131,7 @@ function toDensityRow(s: DbtStudyDto): any {
 // 数据源徽标 (绿色=真实, 橙色=演示回退)
 const SrcBadge = ({ real, label, demoLabel }: { real: boolean; label: string; demoLabel: string }) => (
   real
-    ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: '#16a34a', border: '1px solid #bbf7d0' }}>{label}</span>
+    ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: 'var(--color-success-600)', border: '1px solid #bbf7d0' }}>{label}</span>
     : <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#ec489922', color: '#be185d', border: '1px solid #fbcfe8' }}>{demoLabel}</span>
 );
 
@@ -406,7 +406,7 @@ const BreastSpecialtyPage = () => {
         a.status === 'both_done'
           ? <button onClick={() => { setArbitrateTarget(a); setArbitrateReport('') }} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #ddd6fe', background: '#8b5cf622', color: '#7c3aed', fontSize: 12, cursor: 'pointer' }}>{t('breastSpecialty.arbitrate')}</button>
           : a.status === 'arbitrated'
-            ? <span style={{ fontSize: 12, color: '#16a34a' }}>{t('breastSpecialty.completed')}</span>
+            ? <span style={{ fontSize: 12, color: 'var(--color-success-600)' }}>{t('breastSpecialty.completed')}</span>
             : <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>—</span>
       ),
     },
@@ -417,7 +417,7 @@ const BreastSpecialtyPage = () => {
     { title: t('breastSpecialty.colShape'), dataIndex: 'shape', key: 'shape' },
     { title: t('breastSpecialty.colMargin'), dataIndex: 'margin', key: 'margin' },
     { title: 'BI-RADS', dataIndex: 'biRads', key: 'biRads', render: (v: string | number) => <BiradsTag v={v} /> },
-    { title: t('breastSpecialty.colMalignancyRisk'), dataIndex: 'malignancyRisk', key: 'malignancyRisk', render: (v: number) => <span style={{ color: v > 0.5 ? '#dc2626' : '#64748b', fontWeight: 600 }}>{(v * 100).toFixed(0)}%</span> },
+    { title: t('breastSpecialty.colMalignancyRisk'), dataIndex: 'malignancyRisk', key: 'malignancyRisk', render: (v: number) => <span style={{ color: v > 0.5 ? 'var(--color-error-600)' : '#64748b', fontWeight: 600 }}>{(v * 100).toFixed(0)}%</span> },
   ]
 
   const handleCreateScreening = async () => {
@@ -488,7 +488,7 @@ const BreastSpecialtyPage = () => {
     <div style={{ padding: 0 }}>
       <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Heart size={24} color="#be185d" /> {t('breastSpecialty.title')} <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: dataSource === 'real' ? '#16a34a' : '#be185d', border: `1px solid ${dataSource === 'real' ? '#bbf7d0' : '#fbcfe8'}` }}>{dataSource === 'real' ? t('breastSpecialty.sourceRealtime') : t('breastSpecialty.sourceDemoFallback')}</span></h1>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Heart size={24} color="#be185d" /> {t('breastSpecialty.title')} <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: dataSource === 'real' ? 'var(--color-success-600)' : '#be185d', border: `1px solid ${dataSource === 'real' ? '#bbf7d0' : '#fbcfe8'}` }}>{dataSource === 'real' ? t('breastSpecialty.sourceRealtime') : t('breastSpecialty.sourceDemoFallback')}</span></h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('breastSpecialty.subtitle')}</p>
         </div>
         <button onClick={() => setShowNewModal(true)} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 500 }}>{t('breastSpecialty.newScreening')}</button>
@@ -497,9 +497,9 @@ const BreastSpecialtyPage = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 20 }}>
         {[
           { label: t('breastSpecialty.statsTodayExams'), value: screeningStats ? String(screeningStats.monthlyNew) : '28', icon: Activity, color: '#be185d', bg: '#ec489922' },
-          { label: 'BI-RADS 4-5', value: screeningStats ? String(screeningStats.birads4Plus) : String(suspicious), icon: AlertTriangle, color: '#dc2626', bg: '#ef444422' },
+          { label: 'BI-RADS 4-5', value: screeningStats ? String(screeningStats.birads4Plus) : String(suspicious), icon: AlertTriangle, color: 'var(--color-error-600)', bg: '#ef444422' },
           { label: t('breastSpecialty.statsPendingRecall'), value: String(recalls), icon: Clock, color: '#ea580c', bg: '#f9731622' },
-          { label: t('breastSpecialty.statsTodayReports'), value: screeningStats ? String(screeningStats.earlyCancerCount) : '18', icon: FileText, color: '#16a34a', bg: '#22c55e22' },
+          { label: t('breastSpecialty.statsTodayReports'), value: screeningStats ? String(screeningStats.earlyCancerCount) : '18', icon: FileText, color: 'var(--color-success-600)', bg: '#22c55e22' },
           { label: t('breastSpecialty.statsDetectionRate'), value: screeningStats && (screeningStats.ldctCount + screeningStats.breastCount) > 0 ? `${((screeningStats.highRiskCount / (screeningStats.ldctCount + screeningStats.breastCount)) * 100).toFixed(1)}%` : '4.2%', icon: TrendingUp, color: '#7c3aed', bg: '#8b5cf622' },
         ].map((k, i) => (
           <div key={i} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '18px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
@@ -621,7 +621,7 @@ const BreastSpecialtyPage = () => {
               return steps.map((w, i) => (
                 <div key={i} style={{ padding: 16, background: w.status === 'active' ? 'var(--color-error-bg)' : 'var(--bg-card)', borderRadius: 10, border: `1px solid ${w.status === 'active' ? '#fbcfe8' : '#e2e8f0'}` }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                    {w.status === 'done' ? <CheckCircle size={16} color="#16a34a" /> : w.status === 'active' ? <Clock size={16} color="#be185d" /> : <span style={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid var(--border-color)', display: 'inline-block' }} />}
+                    {w.status === 'done' ? <CheckCircle size={16} color="var(--color-success-600)" /> : w.status === 'active' ? <Clock size={16} color="#be185d" /> : <span style={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid var(--border-color)', display: 'inline-block' }} />}
                     <span style={{ fontSize: 12, fontWeight: 700, color: w.status === 'active' ? '#be185d' : 'var(--text-primary)' }}>{w.step}</span>
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{w.desc}</div>
@@ -653,7 +653,7 @@ const BreastSpecialtyPage = () => {
             </div>
           </div>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><AlertTriangle size={16} color="#dc2626" /> {t('breastSpecialty.recallTrend')}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><AlertTriangle size={16} color="var(--color-error-600)" /> {t('breastSpecialty.recallTrend')}</div>
             {[{ month: '2026-07', rate: 8.5, cases: 11 }, { month: '2026-06', rate: 7.2, cases: 9 }, { month: '2026-05', rate: 9.1, cases: 13 }, { month: '2026-04', rate: 6.8, cases: 7 }].map(t => (
               <div key={t.month} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
                 <span style={{ width: 80, fontSize: 12, color: 'var(--text-secondary)' }}>{t.month}</span>
@@ -671,7 +671,7 @@ const BreastSpecialtyPage = () => {
             <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
               <BrainCircuit size={16} color="#be185d" /> {t('breastSpecialty.cadList')}
               {dataSource === 'real'
-                ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: '#16a34a', border: '1px solid #bbf7d0' }}>{t('breastSpecialty.sourceCadRealtime')}</span>
+                ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: 'var(--color-success-600)', border: '1px solid #bbf7d0' }}>{t('breastSpecialty.sourceCadRealtime')}</span>
                 : <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#ec489922', color: '#be185d', border: '1px solid #fbcfe8' }}>{t('breastSpecialty.sourceDemoFallbackShort')}</span>}
             </div>
             <button onClick={() => setTab('stats' as any)} style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', fontSize: 12, color: 'var(--text-secondary)' }}>{t('breastSpecialty.viewStats')}</button>
@@ -709,7 +709,7 @@ const BreastSpecialtyPage = () => {
               { label: t('breastSpecialty.dualTotalAssigned'), value: dualList.length, color: '#be185d', bg: '#ec489922' },
               { label: t('breastSpecialty.dualPendingStat'), value: dualList.filter(a => a.status === 'pending' || a.status === 'both_done').length, color: '#ea580c', bg: '#f9731622' },
               { label: t('breastSpecialty.dualBothDonePending'), value: dualList.filter(a => a.status === 'both_done').length, color: '#7c3aed', bg: '#8b5cf622' },
-              { label: t('breastSpecialty.dualArbitratedLabel'), value: dualList.filter(a => a.status === 'arbitrated').length, color: '#16a34a', bg: '#22c55e22' },
+              { label: t('breastSpecialty.dualArbitratedLabel'), value: dualList.filter(a => a.status === 'arbitrated').length, color: 'var(--color-success-600)', bg: '#22c55e22' },
             ].map((k, i) => (
               <div key={i} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 12px', border: '1px solid var(--border-light)' }}>
                 <div style={{ fontSize: 20, fontWeight: 700, color: k.color }}>{k.value}</div>

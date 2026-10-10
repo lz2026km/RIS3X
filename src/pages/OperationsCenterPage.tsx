@@ -39,7 +39,7 @@ const KPI_DATA = [
 const ROOMS = [
   { name: 'CT1室', status: t('opsCenter.roomOccupied'), patient: '王建国', color: '#4ade80' },
   { name: 'CT2室', status: t('opsCenter.roomIdle'), patient: '-', color: 'var(--text-secondary)' },
-  { name: 'MRI1室', status: t('opsCenter.roomPreparing'), patient: '李秀英', color: '#fbbf24' },
+  { name: 'MRI1室', status: t('opsCenter.roomPreparing'), patient: '李秀英', color: 'var(--color-warning-400)' },
   { name: 'MRI2室', status: t('opsCenter.roomOccupied'), patient: '张志明', color: '#4ade80' },
   { name: 'X线室', status: t('opsCenter.roomOccupied'), patient: '陈晓燕', color: '#4ade80' },
   { name: '乳腺室', status: t('opsCenter.roomIdle'), patient: '-', color: 'var(--text-secondary)' },
@@ -95,18 +95,18 @@ const DOCTOR_RANKING = [
 ]
 
 const PROJECT_DATA = [
-  { name: 'CT', value: 128, color: '#3b82f6' },
+  { name: 'CT', value: 128, color: 'var(--color-primary-500)' },
   { name: 'MRI', value: 85, color: '#4ade80' },
-  { name: t('opsCenter.projXray'), value: 72, color: '#fbbf24' },
+  { name: t('opsCenter.projXray'), value: 72, color: 'var(--color-warning-400)' },
   { name: 'MG', value: 28, color: '#f97316' },
   { name: t('opsCenter.projOther'), value: 13, color: '#8b5cf6' },
 ]
 
 const QUALITY_DATA = [
-  { label: t('opsCenter.qCritical'), value: 2, icon: AlertTriangle, color: '#ef4444', status: 'warning' },
+  { label: t('opsCenter.qCritical'), value: 2, icon: AlertTriangle, color: 'var(--color-error-500)', status: 'warning' },
   { label: t('opsCenter.qInfection'), value: 0, icon: Activity, color: '#4ade80', status: 'normal' },
-  { label: t('opsCenter.qFault'), value: 0, icon: Wrench, color: '#fbbf24', status: 'warning' },
-  { label: t('opsCenter.qComplaint'), value: 1, icon: MessageSquare, color: '#3b82f6', status: 'info' },
+  { label: t('opsCenter.qFault'), value: 0, icon: Wrench, color: 'var(--color-warning-400)', status: 'warning' },
+  { label: t('opsCenter.qComplaint'), value: 1, icon: MessageSquare, color: 'var(--color-primary-500)', status: 'info' },
 ]
 
 const EFFICIENCY_DATA = {
@@ -123,14 +123,14 @@ const ALERT_MATERIALS = [
   { name: t('opsCenter.matXrayFilm'), stock: 25, threshold: 50 },
 ]
 
-const PIE_COLORS = ['#3b82f6', '#4ade80', '#fbbf24', '#f97316', '#8b5cf6']
+const PIE_COLORS = ['var(--color-primary-500)', '#4ade80', 'var(--color-warning-400)', '#f97316', '#8b5cf6']
 
 // [W2-A] 检查室状态映射 (occupancyApi)
 const ROOM_STATUS_MAP: Record<string, { label: string; color: string }> = {
   occupied: { label: t('opsCenter.roomOccupied'), color: '#4ade80' },
   idle: { label: t('opsCenter.roomIdle'), color: 'var(--text-secondary)' },
-  disinfecting: { label: t('opsCenter.roomDisinfecting'), color: '#fbbf24' },
-  fault: { label: t('opsCenter.roomFault'), color: '#ef4444' },
+  disinfecting: { label: t('opsCenter.roomDisinfecting'), color: 'var(--color-warning-400)' },
+  fault: { label: t('opsCenter.roomFault'), color: 'var(--color-error-500)' },
 }
 
 function toNum(v: unknown): number {
@@ -200,7 +200,7 @@ const s: Record<string, React.CSSProperties> = {
     left: 0,
     right: 0,
     height: 3,
-    background: 'linear-gradient(90deg, #3b82f6, #4ade80)',
+    background: 'linear-gradient(90deg, var(--color-primary-500), #4ade80)',
   },
   kpiLabel: {
     fontSize: 14,
@@ -227,7 +227,7 @@ const s: Record<string, React.CSSProperties> = {
     marginTop: 8,
   },
   kpiTrendUp: { color: '#4ade80' },
-  kpiTrendDown: { color: '#ef4444' },
+  kpiTrendDown: { color: 'var(--color-error-500)' },
   // 主内容区
   mainGrid: {
     display: 'grid',
@@ -270,7 +270,7 @@ const s: Record<string, React.CSSProperties> = {
   callingPatient: {
     fontSize: 56,
     fontWeight: 800,
-    color: '#3b82f6',
+    color: 'var(--color-primary-500)',
     marginBottom: 8,
   },
   callingRoom: {
@@ -485,7 +485,7 @@ const s: Record<string, React.CSSProperties> = {
   alertStock: {
     fontSize: 14,
     fontWeight: 700,
-    color: '#ef4444',
+    color: 'var(--color-error-500)',
   },
   // 底部区域
   bottomGrid: {
@@ -499,7 +499,7 @@ const s: Record<string, React.CSSProperties> = {
 
 // KPI卡片
 function KPICard({ data }: { data: typeof KPI_DATA[0] }) {
-  const trendColor = data.trend === 'up' ? '#4ade80' : data.trend === 'down' ? '#ef4444' : '#94a3b8'
+  const trendColor = data.trend === 'up' ? '#4ade80' : data.trend === 'down' ? 'var(--color-error-500)' : '#94a3b8'
   const TrendIcon = data.trend === 'up' ? ArrowUp : data.trend === 'down' ? ArrowDown : Minus
   const diff = data.value - (data.yesterday ?? 0)
   const percent = data.yesterday ? Math.abs((diff / data.yesterday) * 100).toFixed(1) : '0.0'
@@ -546,7 +546,7 @@ function QueueChart({ data }: { data: typeof QUEUE_DATA }) {
             style={{
               ...s.bar,
               height: `${(item.count / maxCount) * 80}px`,
-              background: idx === data.length - 1 ? '#4ade80' : '#3b82f6',
+              background: idx === data.length - 1 ? '#4ade80' : 'var(--color-primary-500)',
             }}
           />
           <div style={s.barLabel}>{item.time}</div>
@@ -611,8 +611,8 @@ function TrendChart({ data }: { data: typeof HOURLY_DATA }) {
           strokeWidth="1.2"
         />
         {/* 峰值标注 */}
-        <circle cx={peakX} cy={peakY} r="2" fill="#fbbf24" />
-        <text x={peakX} y={peakY - 3} fill="#fbbf24" fontSize="3" textAnchor="middle">{t('opsCenter.peakLabel')}</text>
+        <circle cx={peakX} cy={peakY} r="2" fill="var(--color-warning-400)" />
+        <text x={peakX} y={peakY - 3} fill="var(--color-warning-400)" fontSize="3" textAnchor="middle">{t('opsCenter.peakLabel')}</text>
       </svg>
       {/* X轴标签 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-secondary)', padding: '0 5px' }}>
@@ -902,7 +902,7 @@ export default function OperationsCenterPage() {
 
       // ---- 检查项目分布 (statsApi/by-modality) ----
       const modalityEntries = Object.entries(byModality || {}).slice(0, 5)
-        .map(([name, v]: [string, any], i: number) => ({ name, value: Math.round(toNum(v?.total ?? v)), color: PIE_COLORS[i % PIE_COLORS.length] ?? '#3b82f6' }))
+        .map(([name, v]: [string, any], i: number) => ({ name, value: Math.round(toNum(v?.total ?? v)), color: PIE_COLORS[i % PIE_COLORS.length] ?? 'var(--color-primary-500)' }))
         .filter((d) => d.value > 0)
       if (modalityEntries.length > 0) setProjectData(modalityEntries)
 
@@ -1164,7 +1164,7 @@ export default function OperationsCenterPage() {
             style={{
               padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600,
-              background: activeSection === tab.key ? '#3b82f6' : 'transparent',
+              background: activeSection === tab.key ? 'var(--color-primary-500)' : 'transparent',
               color: activeSection === tab.key ? '#fff' : 'var(--text-secondary)',
             }}
           >
@@ -1184,13 +1184,13 @@ export default function OperationsCenterPage() {
         {extSource === 'demo' && (
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999,
-            background: 'rgba(245,158,11,0.15)', color: '#fbbf24', fontWeight: 600, fontSize: 12, marginLeft: 8,
+            background: 'rgba(245,158,11,0.15)', color: 'var(--color-warning-400)', fontWeight: 600, fontSize: 12, marginLeft: 8,
           }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#fbbf24' }} />
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--color-warning-400)' }} />
             {t('opsCenter.extDemoBadge')}
           </span>
         )}
-        {extLoading && <span style={{ fontSize: 12, color: '#fbbf24', alignSelf: 'center' }}>{t('opsCenter.extSyncing')}</span>}
+        {extLoading && <span style={{ fontSize: 12, color: 'var(--color-warning-400)', alignSelf: 'center' }}>{t('opsCenter.extSyncing')}</span>}
       </div>
     )
   }
@@ -1206,7 +1206,7 @@ export default function OperationsCenterPage() {
   const renderAlertsPanel = () => (
     <div style={{ ...s.panel, marginBottom: 16 }}>
       <div style={s.panelTitle}>
-        <BadgeAlert size={18} color={alerts.some(a => a.level === 'danger') ? '#ef4444' : '#fbbf24'} />
+        <BadgeAlert size={18} color={alerts.some(a => a.level === 'danger') ? 'var(--color-error-500)' : 'var(--color-warning-400)'} />
         {t('opsCenter.alertsTitle')}
         <span style={{ marginLeft: 8, fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>
           {t('opsCenter.alertsPending', { n: alerts.length })}
@@ -1228,7 +1228,7 @@ export default function OperationsCenterPage() {
               width: 36, height: 36, borderRadius: 8, flexShrink: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               background: a.level === 'danger' ? '#ef444422' : a.level === 'warning' ? '#f59e0b22' : '#3b82f622',
-              color: a.level === 'danger' ? '#ef4444' : a.level === 'warning' ? '#f59e0b' : '#3b82f6',
+              color: a.level === 'danger' ? 'var(--color-error-500)' : a.level === 'warning' ? 'var(--color-warning-500)' : 'var(--color-primary-500)',
             }}>
               {a.type === 'device' ? <WifiOff size={18} /> : a.type === 'queue' ? <TimerReset size={18} /> : <AlertTriangle size={18} />}
             </div>
@@ -1238,7 +1238,7 @@ export default function OperationsCenterPage() {
                 <span style={{
                   padding: '1px 8px', borderRadius: 999, fontSize: 11, fontWeight: 600,
                   background: a.level === 'danger' ? 'rgba(239,68,68,0.2)' : 'rgba(245,158,11,0.2)',
-                  color: a.level === 'danger' ? '#ef4444' : '#fbbf24',
+                  color: a.level === 'danger' ? 'var(--color-error-500)' : 'var(--color-warning-400)',
                 }}>
                   {a.level === 'danger' ? t('opsCenter.alertUrgent') : t('opsCenter.alertAttention')}
                 </span>
@@ -1252,9 +1252,9 @@ export default function OperationsCenterPage() {
         ))}
       </div>
       {extError && (
-        <div style={{ marginTop: 10, fontSize: 11, color: '#fbbf24', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ marginTop: 10, fontSize: 11, color: 'var(--color-warning-400)', display: 'flex', alignItems: 'center', gap: 4 }}>
           <AlertTriangle size={11} /> {extError}
-          <button onClick={() => void loadOpsExt()} style={{ marginLeft: 8, padding: '1px 8px', borderRadius: 4, border: '1px solid #fbbf24', background: 'transparent', color: '#fbbf24', cursor: 'pointer', fontSize: 11 }}>{t('opsCenter.retry')}</button>
+          <button onClick={() => void loadOpsExt()} style={{ marginLeft: 8, padding: '1px 8px', borderRadius: 4, border: '1px solid var(--color-warning-400)', background: 'transparent', color: 'var(--color-warning-400)', cursor: 'pointer', fontSize: 11 }}>{t('opsCenter.retry')}</button>
         </div>
       )}
     </div>
@@ -1269,7 +1269,7 @@ export default function OperationsCenterPage() {
         <span style={{
           padding: '2px 10px', borderRadius: 999, fontSize: 12, fontWeight: 600,
           background: v === '运行中' || v === 'online' || v === '正常' ? 'rgba(34,197,94,0.15)' : v === '故障' || v === 'fault' || v === '离线' ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)',
-          color: v === '运行中' || v === 'online' || v === '正常' ? '#4ade80' : v === '故障' || v === 'fault' || v === '离线' ? '#ef4444' : '#fbbf24',
+          color: v === '运行中' || v === 'online' || v === '正常' ? '#4ade80' : v === '故障' || v === 'fault' || v === '离线' ? 'var(--color-error-500)' : 'var(--color-warning-400)',
         }}>{v}</span>
       ),
     },
@@ -1278,13 +1278,13 @@ export default function OperationsCenterPage() {
       render: (v: number) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 80, height: 6, background: 'rgba(51,65,85,0.8)', borderRadius: 3, overflow: 'hidden' }}>
-            <div style={{ width: `${Math.min(100, v)}%`, height: '100%', background: v >= 80 ? '#4ade80' : v >= 50 ? '#fbbf24' : '#3b82f6', borderRadius: 3 }} />
+            <div style={{ width: `${Math.min(100, v)}%`, height: '100%', background: v >= 80 ? '#4ade80' : v >= 50 ? 'var(--color-warning-400)' : 'var(--color-primary-500)', borderRadius: 3 }} />
           </div>
           <span style={{ fontSize: 12 }}>{v}%</span>
         </div>
       ),
     },
-    { title: t('opsCenter.thFaultCount'), dataIndex: 'faultCount', key: 'faultCount', render: (v: number) => <span style={{ color: v > 0 ? '#ef4444' : 'inherit' }}>{v}</span> },
+    { title: t('opsCenter.thFaultCount'), dataIndex: 'faultCount', key: 'faultCount', render: (v: number) => <span style={{ color: v > 0 ? 'var(--color-error-500)' : 'inherit' }}>{v}</span> },
     { title: t('opsCenter.thHeartbeat'), dataIndex: 'lastHeartbeat', key: 'lastHeartbeat' },
   ]
 
@@ -1307,7 +1307,7 @@ export default function OperationsCenterPage() {
             <div style={{
               width: `${Math.min(100, m.avgDurationMin ? (30 / m.avgDurationMin) * 100 : 50)}%`,
               height: '100%', borderRadius: 3,
-              background: m.avgDurationMin && m.avgDurationMin <= 20 ? '#4ade80' : m.avgDurationMin && m.avgDurationMin <= 30 ? '#fbbf24' : '#ef4444',
+              background: m.avgDurationMin && m.avgDurationMin <= 20 ? '#4ade80' : m.avgDurationMin && m.avgDurationMin <= 30 ? 'var(--color-warning-400)' : 'var(--color-error-500)',
             }} />
           </div>
           <span style={{ fontSize: 12 }}>{m.avgDurationMin || '—'} {t('opsCenter.unitMinute')}</span>
@@ -1317,8 +1317,8 @@ export default function OperationsCenterPage() {
     {
       title: t('opsCenter.thStatus'), key: 'online',
       render: (_v: unknown, m: any) => (
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: m.online ? '#4ade80' : '#fbbf24' }}>
-          <span style={{ width: 7, height: 7, borderRadius: '50%', background: m.online ? '#4ade80' : '#fbbf24' }} />
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: m.online ? '#4ade80' : 'var(--color-warning-400)' }}>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: m.online ? '#4ade80' : 'var(--color-warning-400)' }} />
           {m.online ? t('opsCenter.statusOnline') : t('opsCenter.statusOffline')}
         </span>
       ),
@@ -1333,7 +1333,7 @@ export default function OperationsCenterPage() {
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           width: 24, height: 24, borderRadius: '50%', fontSize: 12, fontWeight: 700,
           background: v === 1 ? 'rgba(239,68,68,0.2)' : v <= 3 ? 'rgba(245,158,11,0.2)' : 'rgba(59,130,246,0.2)',
-          color: v === 1 ? '#ef4444' : v <= 3 ? '#fbbf24' : '#60a5fa',
+          color: v === 1 ? 'var(--color-error-500)' : v <= 3 ? 'var(--color-warning-400)' : '#60a5fa',
         }}>
           {v}
         </span>
@@ -1358,7 +1358,7 @@ export default function OperationsCenterPage() {
       render: (_v: unknown, _doc: any, idx: number) => (
         <span style={{
           ...s.rankBadge,
-          background: idx === 0 ? '#fbbf24' : idx === 1 ? '#94a3b8' : idx === 2 ? '#cd7c32' : 'rgba(71, 85, 105, 0.5)',
+          background: idx === 0 ? 'var(--color-warning-400)' : idx === 1 ? '#94a3b8' : idx === 2 ? '#cd7c32' : 'rgba(71, 85, 105, 0.5)',
           color: idx < 3 ? '#0f172a' : '#94a3b8'
         }}>
           {_doc.rank}
@@ -1368,14 +1368,14 @@ export default function OperationsCenterPage() {
     { title: t('opsCenter.thDoctor'), dataIndex: 'name', key: 'name', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
     { title: t('opsCenter.thReports'), dataIndex: 'exams', key: 'exams' },
     { title: t('opsCenter.thCritical'), dataIndex: 'reports', key: 'reports' },
-    { title: t('opsCenter.thQcScore'), dataIndex: 'rate', key: 'rate', render: (v: number) => <span style={{ color: v >= 90 ? '#4ade80' : v >= 80 ? '#fbbf24' : '#ef4444' }}>{v}%</span> },
+    { title: t('opsCenter.thQcScore'), dataIndex: 'rate', key: 'rate', render: (v: number) => <span style={{ color: v >= 90 ? '#4ade80' : v >= 80 ? 'var(--color-warning-400)' : 'var(--color-error-500)' }}>{v}%</span> },
   ]
 
   // 渲染: 设备维度看板
   const renderEquipmentView = () => (
     <div style={s.panel}>
       <div style={s.panelTitle}>
-        <Monitor size={18} color="#3b82f6" />
+        <Monitor size={18} color="var(--color-primary-500)" />
         {t('opsCenter.equipmentBoardTitle')}
         <span style={{ marginLeft: 8, fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>
           {t('opsCenter.equipmentBoardSub')}
@@ -1395,7 +1395,7 @@ export default function OperationsCenterPage() {
       {/* [v3.0.6.11-99 Wave10B] 开机率/利用率 7 日趋势 (oeeApi dailyTrend 回退演示) */}
       <div style={{ marginTop: 16 }}>
         <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Zap size={14} color="#fbbf24" /> {t('opsCenter.uptimeTrend')}
+          <Zap size={14} color="var(--color-warning-400)" /> {t('opsCenter.uptimeTrend')}
         </div>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 14, height: 130 }}>
           {[
@@ -1411,11 +1411,11 @@ export default function OperationsCenterPage() {
               <div style={{ display: 'flex', gap: 3, alignItems: 'flex-end', height: 100 }}>
                 <div style={{
                   width: 12, borderRadius: '3px 3px 0 0', height: `${d.uptime}px`,
-                  background: 'linear-gradient(180deg, #4ade80, #16a34a)', opacity: 0.9,
+                  background: 'linear-gradient(180deg, #4ade80, var(--color-success-600))', opacity: 0.9,
                 }} title={t('opsCenter.uptimeTooltip', { n: d.uptime })} />
                 <div style={{
                   width: 12, borderRadius: '3px 3px 0 0', height: `${d.util}px`,
-                  background: 'linear-gradient(180deg, #60a5fa, #2563eb)', opacity: 0.85,
+                  background: 'linear-gradient(180deg, #60a5fa, var(--color-primary-600))', opacity: 0.85,
                 }} title={t('opsCenter.utilTooltip', { n: d.util })} />
               </div>
               <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{d.day}</span>
@@ -1474,7 +1474,7 @@ export default function OperationsCenterPage() {
               background: q.ok ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.1)',
               border: `1px solid ${q.ok ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`,
             }}>
-              <div style={{ fontSize: 30, fontWeight: 800, color: q.ok ? '#4ade80' : '#ef4444' }}>
+              <div style={{ fontSize: 30, fontWeight: 800, color: q.ok ? '#4ade80' : 'var(--color-error-500)' }}>
                 {q.value}
                 <span style={{ fontSize: 14, fontWeight: 400, marginLeft: 2 }}>{q.unit}</span>
               </div>
@@ -1486,7 +1486,7 @@ export default function OperationsCenterPage() {
           {qualityBoard.map(q => (
             <span key={q.id} style={{
               display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12,
-              color: q.ok ? '#4ade80' : '#ef4444', padding: '4px 10px', borderRadius: 999,
+              color: q.ok ? '#4ade80' : 'var(--color-error-500)', padding: '4px 10px', borderRadius: 999,
               background: q.ok ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
             }}>
               <CheckCircle size={12} /> {q.label} {q.ok ? t('opsCenter.qOk') : t('opsCenter.qAttention')}
@@ -1496,15 +1496,15 @@ export default function OperationsCenterPage() {
       </div>
       <div style={s.panel}>
         <div style={s.panelTitle}>
-          <Gauge size={18} color="#fbbf24" />
+          <Gauge size={18} color="var(--color-warning-400)" />
           {t('opsCenter.qualityDetailSub')}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {[
             { label: t('opsCenter.kpiCriticalClosure'), value: kpiExt[3]!.value, color: '#4ade80' },
-            { label: t('opsCenter.kpiReportTimely'), value: kpiExt[2]!.value, color: '#3b82f6' },
+            { label: t('opsCenter.kpiReportTimely'), value: kpiExt[2]!.value, color: 'var(--color-primary-500)' },
             { label: t('opsCenter.kpiUptime'), value: kpiExt[0]!.value, color: '#8b5cf6' },
-            { label: t('opsCenter.qTechEfficiency'), value: kpiExt[1]!.value > 0 && kpiExt[1]!.value <= 25 ? 100 : 80, color: '#fbbf24' },
+            { label: t('opsCenter.qTechEfficiency'), value: kpiExt[1]!.value > 0 && kpiExt[1]!.value <= 25 ? 100 : 80, color: 'var(--color-warning-400)' },
           ].map(item => (
             <div key={item.label}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>
@@ -1527,8 +1527,8 @@ export default function OperationsCenterPage() {
       {/* [v3.0.6.11-99 Wave10B] 急诊通道统计条 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
         {[
-          { label: t('opsCenter.ecTotal'), value: emergencySummary.total, color: '#3b82f6', unit: t('opsCenter.ecUnit') },
-          { label: t('opsCenter.ecToday'), value: emergencySummary.todayCount, color: '#fbbf24', unit: t('opsCenter.ecUnit') },
+          { label: t('opsCenter.ecTotal'), value: emergencySummary.total, color: 'var(--color-primary-500)', unit: t('opsCenter.ecUnit') },
+          { label: t('opsCenter.ecToday'), value: emergencySummary.todayCount, color: 'var(--color-warning-400)', unit: t('opsCenter.ecUnit') },
           { label: t('opsCenter.ecAcknowledged'), value: emergencySummary.acknowledged, color: '#60a5fa', unit: t('opsCenter.ecUnit') },
           { label: t('opsCenter.ecCompleted'), value: emergencySummary.completed, color: '#4ade80', unit: t('opsCenter.ecUnit') },
           { label: t('opsCenter.ecAvgResponse'), value: emergencySummary.avgMinutes, color: '#a78bfa', unit: t('opsCenter.ecAvgUnit', { n: emergencySummary.slaMin }) },
@@ -1548,7 +1548,7 @@ export default function OperationsCenterPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 20 }}>
       <div style={s.panel}>
         <div style={s.panelTitle}>
-          <Siren size={18} color="#ef4444" />
+          <Siren size={18} color="var(--color-error-500)" />
           {t('opsCenter.ecConfigTitle')}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -1568,7 +1568,7 @@ export default function OperationsCenterPage() {
               {t('opsCenter.ecKeywords')}
               {emergencyConfig.keywords.length === 0 && <span>—</span>}
               {emergencyConfig.keywords.map(k => (
-                <span key={k} style={{ padding: '2px 8px', borderRadius: 999, background: 'rgba(239,68,68,0.15)', color: '#ef4444', fontSize: 11 }}>
+                <span key={k} style={{ padding: '2px 8px', borderRadius: 999, background: 'rgba(239,68,68,0.15)', color: 'var(--color-error-500)', fontSize: 11 }}>
                   {k}
                 </span>
               ))}
@@ -1587,7 +1587,7 @@ export default function OperationsCenterPage() {
       </div>
       <div style={s.panel}>
         <div style={s.panelTitle}>
-          <Stethoscope size={18} color="#3b82f6" />
+          <Stethoscope size={18} color="var(--color-primary-500)" />
           {t('opsCenter.ecRecordsTitle')}
           <span style={{ marginLeft: 8, fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>
             emergencyChannelApi.listRecords
@@ -1610,14 +1610,14 @@ export default function OperationsCenterPage() {
                   width: 38, height: 38, borderRadius: 10, flexShrink: 0,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   background: r.status === 'completed' ? 'rgba(34,197,94,0.15)' : r.status === 'acknowledged' ? 'rgba(59,130,246,0.15)' : 'rgba(239,68,68,0.15)',
-                  color: r.status === 'completed' ? '#4ade80' : r.status === 'acknowledged' ? '#60a5fa' : '#ef4444',
+                  color: r.status === 'completed' ? '#4ade80' : r.status === 'acknowledged' ? '#60a5fa' : 'var(--color-error-500)',
                 }}>
                   {r.status === 'completed' ? <CheckCircle size={18} /> : r.status === 'acknowledged' ? <Bell size={18} /> : <AlertTriangle size={18} />}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: '#f1f5f9' }}>
                     {r.patientName || r.patientId}
-                    <span style={{ marginLeft: 8, fontSize: 11, color: '#ef4444', background: 'rgba(239,68,68,0.15)', padding: '1px 8px', borderRadius: 999 }}>{r.type}</span>
+                    <span style={{ marginLeft: 8, fontSize: 11, color: 'var(--color-error-500)', background: 'rgba(239,68,68,0.15)', padding: '1px 8px', borderRadius: 999 }}>{r.type}</span>
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {r.reason} · {r.channels.join(' / ')}
@@ -1629,7 +1629,7 @@ export default function OperationsCenterPage() {
                 <span style={{
                   padding: '2px 10px', borderRadius: 999, fontSize: 11, fontWeight: 600, flexShrink: 0,
                   background: r.status === 'completed' ? 'rgba(34,197,94,0.15)' : r.status === 'acknowledged' ? 'rgba(59,130,246,0.15)' : 'rgba(239,68,68,0.15)',
-                  color: r.status === 'completed' ? '#4ade80' : r.status === 'acknowledged' ? '#60a5fa' : '#ef4444',
+                  color: r.status === 'completed' ? '#4ade80' : r.status === 'acknowledged' ? '#60a5fa' : 'var(--color-error-500)',
                 }}>
                 {r.status === 'completed' ? t('opsCenter.ecStatusCompleted') : r.status === 'acknowledged' ? t('opsCenter.ecStatusAcknowledged') : t('opsCenter.ecStatusSent')}
               </span>
@@ -1658,7 +1658,7 @@ export default function OperationsCenterPage() {
         </div>
         <div style={s.panel}>
           <div style={s.panelTitle}>
-            <HeartPulse size={18} color="#ef4444" />
+            <HeartPulse size={18} color="var(--color-error-500)" />
             {t('opsCenter.ecTypeDist')}
           </div>
           {emergencySummary.byType.length === 0 ? (
@@ -1673,12 +1673,12 @@ export default function OperationsCenterPage() {
                   <div key={type}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>
                       <span>{type}</span>
-                      <span style={{ color: '#ef4444', fontWeight: 700 }}>{count} {t('opsCenter.ecUnit')}</span>
+                      <span style={{ color: 'var(--color-error-500)', fontWeight: 700 }}>{count} {t('opsCenter.ecUnit')}</span>
                     </div>
                     <div style={{ height: 8, background: 'rgba(51,65,85,0.8)', borderRadius: 4, overflow: 'hidden' }}>
                       <div style={{
                         width: `${(count / maxType) * 100}%`, height: '100%', borderRadius: 4,
-                        background: 'linear-gradient(90deg, #ef4444, #f97316)', transition: 'width 0.4s',
+                        background: 'linear-gradient(90deg, var(--color-error-500), #f97316)', transition: 'width 0.4s',
                       }} />
                     </div>
                   </div>
@@ -1702,7 +1702,7 @@ export default function OperationsCenterPage() {
       {/* 顶部标题栏 */}
       <div style={s.headerBar}>
         <div style={s.headerTitle}>
-          <Scan size={32} color="#3b82f6" />
+          <Scan size={32} color="var(--color-primary-500)" />
           <div>
             <h1 style={s.headerText}>{t('opsCenter.headerTitle')}</h1>
             <p style={s.headerSub}>{t('opsCenter.headerSub')}</p>
@@ -1710,7 +1710,7 @@ export default function OperationsCenterPage() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
           {loading && (
-            <span style={{ fontSize: 12, color: '#fbbf24' }}>
+            <span style={{ fontSize: 12, color: 'var(--color-warning-400)' }}>
               <RefreshCw size={14} style={{ marginRight: 6, verticalAlign: -2, animation: 'spin 1s linear infinite' }} />
               {t('opsCenter.syncing')}
             </span>
@@ -1730,15 +1730,15 @@ export default function OperationsCenterPage() {
         <span style={{
           display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999,
           background: dataSource === 'api' ? 'rgba(34,197,94,0.15)' : 'rgba(245,158,11,0.15)',
-          color: dataSource === 'api' ? '#4ade80' : '#fbbf24', fontWeight: 600,
+          color: dataSource === 'api' ? '#4ade80' : 'var(--color-warning-400)', fontWeight: 600,
         }}>
-          <span style={{ width: 8, height: 8, borderRadius: '50%', background: dataSource === 'api' ? '#4ade80' : '#fbbf24' }} />
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: dataSource === 'api' ? '#4ade80' : 'var(--color-warning-400)' }} />
           {dataSource === 'api' ? t('opsCenter.dataSourceApi') : t('opsCenter.dataSourceDemo')}
         </span>
         {apiError && (
-          <span style={{ color: '#ef4444' }}>
+          <span style={{ color: 'var(--color-error-500)' }}>
             {apiError}
-            <button onClick={() => void loadDashboard()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>{t('opsCenter.retry')}</button>
+            <button onClick={() => void loadDashboard()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid var(--color-error-500)', background: 'transparent', color: 'var(--color-error-500)', cursor: 'pointer', fontSize: 12 }}>{t('opsCenter.retry')}</button>
           </span>
         )}
       </div>
@@ -1767,7 +1767,7 @@ export default function OperationsCenterPage() {
         {/* 左侧：实时叫号与候诊态势 */}
         <div style={s.panel}>
           <div style={s.panelTitle}>
-            <Bell size={20} color="#3b82f6" />
+            <Bell size={20} color="var(--color-primary-500)" />
             {t('opsCenter.callingTitle')}
           </div>
           
@@ -1797,7 +1797,7 @@ export default function OperationsCenterPage() {
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{hourlyCaption}</span>
-            <span style={{ fontSize: 12, color: '#fbbf24', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ fontSize: 12, color: 'var(--color-warning-400)', display: 'flex', alignItems: 'center', gap: 4 }}>
               <Zap size={14} /> {peakText}
             </span>
           </div>
@@ -1809,7 +1809,7 @@ export default function OperationsCenterPage() {
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.todayTotal')}</div>
             </div>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
-              <div style={{ fontSize: 30, fontWeight: 700, color: '#3b82f6' }}>{yesterdayTotal}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-primary-500)' }}>{yesterdayTotal}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.yesterdayTotal')}</div>
             </div>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
@@ -1817,7 +1817,7 @@ export default function OperationsCenterPage() {
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.momGrowth')}</div>
             </div>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
-              <div style={{ fontSize: 30, fontWeight: 700, color: '#fbbf24' }}>{(peakText.split('(')[0] ?? '').replace(t('opsCenter.peakDayPrefix'), '').replace(t('opsCenter.peakHourPrefix'), '').trim()}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-warning-400)' }}>{(peakText.split('(')[0] ?? '').replace(t('opsCenter.peakDayPrefix'), '').replace(t('opsCenter.peakHourPrefix'), '').trim()}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.peakPeriod')}</div>
             </div>
           </div>
@@ -1848,7 +1848,7 @@ export default function OperationsCenterPage() {
         {/* 左下：质量与安全指标 */}
         <div style={s.panel}>
           <div style={s.panelTitle}>
-            <Shield size={20} color="#ef4444" />
+            <Shield size={20} color="var(--color-error-500)" />
             {t('opsCenter.qualitySafetyTitle')}
           </div>
           <div style={s.qualityGrid}>
@@ -1865,11 +1865,11 @@ export default function OperationsCenterPage() {
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.adverseEvents')}</div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 30, fontWeight: 700, color: '#3b82f6' }}>{summaryOverview.normal}</div>
+                <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-primary-500)' }}>{summaryOverview.normal}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.normalExams')}</div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 30, fontWeight: 700, color: '#fbbf24' }}>{summaryOverview.safety}%</div>
+                <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-warning-400)' }}>{summaryOverview.safety}%</div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.safetyRate')}</div>
               </div>
             </div>
@@ -1883,13 +1883,13 @@ export default function OperationsCenterPage() {
             {t('opsCenter.resourcesEfficiency')}
           </div>
           
-          <ProgressBar label={t('opsCenter.progressEquipmentUsage')} value={efficiencyData.equipmentUsage} color="#3b82f6" />
+          <ProgressBar label={t('opsCenter.progressEquipmentUsage')} value={efficiencyData.equipmentUsage} color="var(--color-primary-500)" />
           <ProgressBar label={t('opsCenter.progressRoomOccupancy')} value={efficiencyData.roomOccupancy} color="#8b5cf6" />
           <ProgressBar label={t('opsCenter.progressReportTimely')} value={efficiencyData.reportTimelyRate} color="#4ade80" />
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginTop: 8 }}>
             <div style={{ padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8, textAlign: 'center' }}>
-              <Clock size={20} color="#fbbf24" style={{ marginBottom: 8 }} />
+              <Clock size={20} color="var(--color-warning-400)" style={{ marginBottom: 8 }} />
               <div style={{ fontSize: 30, fontWeight: 700, color: '#f1f5f9' }}>{efficiencyData.avgExamTime}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.avgExamTime')}</div>
             </div>
@@ -1901,7 +1901,7 @@ export default function OperationsCenterPage() {
           </div>
 
           <div style={{ marginTop: 20 }}>
-            <div style={{ fontSize: 14, color: '#ef4444', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 14, color: 'var(--color-error-500)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
               <AlertTriangle size={16} />
               {t('opsCenter.materialAlert')}
             </div>
@@ -1909,7 +1909,7 @@ export default function OperationsCenterPage() {
               {alertMaterials.map((item, idx) => (
                 <div key={idx} style={s.alertItem}>
                   <div style={s.alertName}>
-                    <Film size={14} color="#ef4444" />
+                    <Film size={14} color="var(--color-error-500)" />
                     {item.name}
                   </div>
                   <div style={s.alertStock}>

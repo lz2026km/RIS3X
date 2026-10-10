@@ -17,7 +17,7 @@ function timeAgo(iso: string): string {
   return t('w9e.reviewComment.daysAgo', { count: Math.floor(h / 24) });
 }
 
-const COLORS = ['#dc2626', '#7c3aed', '#0891b2', '#10b981', '#f59e0b', '#a855f7'];
+const COLORS = ['var(--color-error-600)', '#7c3aed', 'var(--color-info-600)', '#10b981', 'var(--color-warning-500)', '#a855f7'];
 
 export interface ReviewCommentThreadProps {
   taskId: string;
@@ -105,7 +105,7 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
         }}
       >
         <Space style={{ width: '100%' }}>
-          <MessageCircle size={14} color="#3b82f6" />
+          <MessageCircle size={14} color="var(--color-primary-500)" />
           <strong style={{ fontSize: 12 }}>{t('w9e.reviewComment.title')}</strong>
           <Tag color="purple">R3.REVIEW.063</Tag>
           <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('w9e.reviewComment.countUnit', { count: comments.length })}</span>
@@ -145,7 +145,7 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
             {t('w9e.reviewComment.publish')}
           </Button>
           {mentions.length > 0 && (
-            <span style={{ fontSize: 12, color: '#3b82f6' }}>@ {mentions.join(', ')}</span>
+            <span style={{ fontSize: 12, color: 'var(--color-primary-500)' }}>@ {mentions.join(', ')}</span>
           )}
         </Space>
       </div>

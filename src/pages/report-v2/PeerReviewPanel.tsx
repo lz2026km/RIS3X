@@ -209,7 +209,7 @@ const PeerReviewPanel: React.FC = () => {
       title: t('peerReview.colReviewer'), dataIndex: 'reviewerName', key: 'reviewerName',
       render: (v: string, task: PeerReviewTask) => (
         <Space size={4}>
-          <UserCheck size={13} color={task.autoAssigned ? '#2563eb' : '#f59e0b'} />
+          <UserCheck size={13} color={task.autoAssigned ? 'var(--color-primary-600)' : 'var(--color-warning-500)'} />
           {v}
           {task.autoAssigned ? <Tag color="blue" style={{ marginInlineEnd: 0 }}>{t('peerReview.auto')}</Tag> : <Tag color="orange" style={{ marginInlineEnd: 0 }}>{t('peerReview.manual')}</Tag>}
         </Space>
@@ -224,7 +224,7 @@ const PeerReviewPanel: React.FC = () => {
       render: (_: unknown, task: PeerReviewTask) => task.scores ? (
         <Tooltip title={`${t('peerReview.dimAccuracy')} ${task.scores.accuracy} / ${t('peerReview.dimCompleteness')} ${task.scores.completeness} / ${t('peerReview.dimNormativity')} ${task.scores.normativity}`}>
           <Space size={6}>
-            <Star size={13} color="#f59e0b" fill="#f59e0b" />
+            <Star size={13} color="var(--color-warning-500)" fill="var(--color-warning-500)" />
             <AppText weight={600}>{overallOf(task)}</AppText>
             <Rate disabled value={Math.round(overallOf(task))} count={5} style={{ fontSize: 11 }} />
           </Space>
@@ -253,7 +253,7 @@ const PeerReviewPanel: React.FC = () => {
   return (
     <div>
       <Card
-        title={<Space><Star size={16} color="#2563eb" /><span>{t('peerReview.title')}</span><Tag color="blue">{t('peerReview.tag')}</Tag></Space>}
+        title={<Space><Star size={16} color="var(--color-primary-600)" /><span>{t('peerReview.title')}</span><Tag color="blue">{t('peerReview.tag')}</Tag></Space>}
         extra={<Button type="primary" icon={<PlusCircle size={14} />} onClick={() => setAssignOpen(true)}>{t('peerReview.assignTask')}</Button>}
       >
         {error && !loading && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
@@ -283,7 +283,7 @@ const PeerReviewPanel: React.FC = () => {
                   <Tooltip key={d.score} title={`${d.score} ${t('peerReview.points')}: ${d.count} ${t('peerReview.copies')}`}>
                     <Space direction="vertical" size={0} align="center">
                       <AppText weight={600}>{d.count}</AppText>
-                      <Progress percent={distSum > 0 ? Math.round((d.count / distSum) * 100) : 0} showInfo={false} size="small" strokeColor="#f59e0b" style={{ width: 42 }} />
+                      <Progress percent={distSum > 0 ? Math.round((d.count / distSum) * 100) : 0} showInfo={false} size="small" strokeColor="var(--color-warning-500)" style={{ width: 42 }} />
                       <AppText color="secondary" size="xs">{d.score} {t('peerReview.points')}</AppText>
                     </Space>
                   </Tooltip>

@@ -111,13 +111,13 @@ export default function AutoCodingPage() {
 
   return (
     <PageContainer background="slate" maxWidth="wide">
-      <PageHeader icon={<Code size={20} color="#3b82f6" />} title={t('w17.coding.title')} subtitle={t('w17.coding.subtitle')} />
+      <PageHeader icon={<Code size={20} color="var(--color-primary-500)" />} title={t('w17.coding.title')} subtitle={t('w17.coding.subtitle')} />
       <div style={{ padding: 24 }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12, marginBottom: 16 }}>
           {[
-            { label: t('w17.coding.statsTerms'), value: result?.total ?? 0, color: '#3b82f6' },
+            { label: t('w17.coding.statsTerms'), value: result?.total ?? 0, color: 'var(--color-primary-500)' },
             { label: t('w17.coding.statsConfirmed'), value: confirmedTerms.length, color: '#10b981' },
-            { label: t('w17.coding.statsAvgConfidence'), value: result ? `${avgConfidence}%` : '-', color: '#f59e0b' },
+            { label: t('w17.coding.statsAvgConfidence'), value: result ? `${avgConfidence}%` : '-', color: 'var(--color-warning-500)' },
             { label: t('w17.coding.statsSnomed'), value: structuredPayload.snomed.length, color: '#8b5cf6' },
             { label: t('w17.coding.statsIcd10'), value: structuredPayload.icd10.length, color: '#f43f5e' },
           ].map((card) => (
@@ -132,7 +132,7 @@ export default function AutoCodingPage() {
           {/* 输入 */}
           <div style={{ flex: 1, minWidth: 320, background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1e293b', margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <FileText size={16} color="#3b82f6" />{t('w17.coding.input')}
+              <FileText size={16} color="var(--color-primary-500)" />{t('w17.coding.input')}
             </h3>
             <textarea
               value={text}
@@ -159,7 +159,7 @@ export default function AutoCodingPage() {
               <div style={{ marginTop: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
                   <span style={{ fontSize: 12, fontWeight: 700, color: '#1e293b' }}>{t('w17.coding.termList')} ({result.terms.length})</span>
-                  <button onClick={() => setConfirmed(new Set(result.terms.map((term) => term.keyword)))} style={{ fontSize: 11, color: '#1d4ed8', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 4, padding: '2px 8px', cursor: 'pointer' }}>
+                  <button onClick={() => setConfirmed(new Set(result.terms.map((term) => term.keyword)))} style={{ fontSize: 11, color: 'var(--color-primary-700)', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 4, padding: '2px 8px', cursor: 'pointer' }}>
                     {t('w17.coding.confirmAll')}
                   </button>
                   <button onClick={() => setConfirmed(new Set())} style={{ fontSize: 11, color: '#64748b', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: 4, padding: '2px 8px', cursor: 'pointer' }}>
@@ -182,7 +182,7 @@ export default function AutoCodingPage() {
                           <span style={{ fontSize: 11, fontWeight: 600, color: SECTION_COLORS[term.section] ?? '#94a3b8', background: '#f8fafc', padding: '2px 8px', borderRadius: 10, border: '1px solid #e2e8f0' }}>
                             {t(`w17.coding.section.${term.section}`)}
                           </span>
-                          <span style={{ fontSize: 11, fontWeight: 600, color: term.confidence >= 0.9 ? '#059669' : '#d97706', background: term.confidence >= 0.9 ? '#d1fae5' : '#fef3c7', padding: '2px 8px', borderRadius: 10 }}>
+                          <span style={{ fontSize: 11, fontWeight: 600, color: term.confidence >= 0.9 ? '#059669' : 'var(--color-warning-600)', background: term.confidence >= 0.9 ? '#d1fae5' : '#fef3c7', padding: '2px 8px', borderRadius: 10 }}>
                             {t('w17.coding.confidence')}: {(term.confidence * 100).toFixed(0)}%
                           </span>
                         </div>

@@ -11,11 +11,11 @@ import { DataTable } from "../../components/common";
 import { t } from "../../i18n/appI18n";
 
 const C = {
-  primary: "#1e40af", primaryLight: "#3b82f6", primaryLighter: "#dbeafe",
-  accent: "#0891b2", white: "#ffffff", bg: "#e8e8e8", border: "#d1d5db",
+  primary: "var(--color-primary-800)", primaryLight: "var(--color-primary-500)", primaryLighter: "#dbeafe",
+  accent: "var(--color-info-600)", white: "#ffffff", bg: "#e8e8e8", border: "#d1d5db",
   borderLight: "#e5e7eb", textDark: "#1f2937", textMid: "#4b5563", textLight: "#9ca3af",
-  success: "#059669", successBg: "#d1fae5", warning: "#d97706", warningBg: "#fef3c7",
-  danger: "#dc2626", dangerBg: "#fee2e2", info: "#2563eb", infoBg: "#dbeafe",
+  success: "#059669", successBg: "#d1fae5", warning: "var(--color-warning-600)", warningBg: "#fef3c7",
+  danger: "var(--color-error-600)", dangerBg: "#fee2e2", info: "var(--color-primary-600)", infoBg: "#dbeafe",
   purple: "#7c3aed", purpleBg: "#ede9fe",
 };
 
@@ -171,7 +171,7 @@ export default function DepartmentSchedule() {
     <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 16, marginBottom: 16 }}>
       <div style={panelStyle}>
         <div style={panelHeaderStyle}>
-          <span>{t("deptSched.attendanceRecords")} {/* [G005 Wave2B P2] ATTENDANCE_DATA 等硬编码 → 演示数据徽标 */}<span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: '#d97706', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("deptSched.demoBadge")}</span></span>
+          <span>{t("deptSched.attendanceRecords")} {/* [G005 Wave2B P2] ATTENDANCE_DATA 等硬编码 → 演示数据徽标 */}<span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: 'var(--color-warning-600)', border: '1px solid #fcd34d', fontWeight: 600 }}>{t("deptSched.demoBadge")}</span></span>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
             <span style={{ fontSize: 12, color: C.textMid }}>{t("deptSched.to")}</span>

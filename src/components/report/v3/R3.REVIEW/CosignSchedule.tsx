@@ -83,18 +83,18 @@ import { Inbox } from 'lucide-react'
 import { t } from '../../../../i18n/appI18n';
 
 const SHIFT_META: Record<string, { color: string; label: string; bg: string }> = {
-  morning: { color: '#f59e0b', label: 'reportReview.cosign.shift.morning', bg: '#fef3c7' },
-  afternoon: { color: '#3b82f6', label: 'reportReview.cosign.shift.afternoon', bg: '#dbeafe' },
+  morning: { color: 'var(--color-warning-500)', label: 'reportReview.cosign.shift.morning', bg: '#fef3c7' },
+  afternoon: { color: 'var(--color-primary-500)', label: 'reportReview.cosign.shift.afternoon', bg: '#dbeafe' },
   evening: { color: '#7c3aed', label: 'reportReview.cosign.shift.evening', bg: '#ede9fe' },
   night: { color: '#1e293b', label: 'reportReview.cosign.shift.night', bg: '#e2e8f0' },
 };
 
 const STATUS_META: Record<CosignStatus, { color: string; label: string; bg: string }> = {
-  pending: { color: '#f59e0b', label: 'reportReview.cosign.status.pending', bg: '#fef3c7' },
-  scheduled: { color: '#3b82f6', label: 'reportReview.cosign.status.scheduled', bg: '#dbeafe' },
-  'in-progress': { color: '#0891b2', label: 'reportReview.cosign.status.inProgress', bg: '#cffafe' },
+  pending: { color: 'var(--color-warning-500)', label: 'reportReview.cosign.status.pending', bg: '#fef3c7' },
+  scheduled: { color: 'var(--color-primary-500)', label: 'reportReview.cosign.status.scheduled', bg: '#dbeafe' },
+  'in-progress': { color: 'var(--color-info-600)', label: 'reportReview.cosign.status.inProgress', bg: '#cffafe' },
   signed: { color: '#10b981', label: 'reportReview.cosign.status.signed', bg: '#d1fae5' },
-  rejected: { color: '#dc2626', label: 'reportReview.cosign.status.rejected', bg: '#fee2e2' },
+  rejected: { color: 'var(--color-error-600)', label: 'reportReview.cosign.status.rejected', bg: '#fee2e2' },
   expired: { color: '#7f1d1d', label: 'reportReview.cosign.status.expired', bg: '#fecaca' },
   escalated: { color: '#7c3aed', label: 'reportReview.cosign.status.escalated', bg: '#ede9fe' },
   skipped: { color: '#6b7280', label: 'reportReview.cosign.status.skipped', bg: '#f3f4f6' },
@@ -445,7 +445,7 @@ export const CosignSchedule: React.FC = () => {
                               const eSm: { color: string; label: string; bg: string } = SHIFT_META[e.shiftType] ?? { color: '#64748b', label: 'reportReview.cosign.unknown', bg: '#f1f5f9' };
                               const eLabel = t(eSm.label).split(' ')[0]?.slice(0, 2) ?? '';
                               return (
-                                <Tag key={e.id} color={eSm.color === '#f59e0b' ? 'gold' : eSm.color === '#3b82f6' ? 'blue' : 'purple'} style={{ fontSize: 12, margin: 1 }}>
+                                <Tag key={e.id} color={eSm.color === 'var(--color-warning-500)' ? 'gold' : eSm.color === 'var(--color-primary-500)' ? 'blue' : 'purple'} style={{ fontSize: 12, margin: 1 }}>
                                   {eLabel} {e.reviewerName.slice(0, 1)}
                                 </Tag>
                               );
@@ -478,7 +478,7 @@ export const CosignSchedule: React.FC = () => {
                   </Card>
                 </Col>
                 <Col span={10}>
-                  <Card title={<Space><Zap size={14} color="#dc2626" />{t('reportReview.cosign.emergencyCosign')}</Space>} size="small">
+                  <Card title={<Space><Zap size={14} color="var(--color-error-600)" />{t('reportReview.cosign.emergencyCosign')}</Space>} size="small">
                     <List
                       size="small"
                       dataSource={emergency}
@@ -554,7 +554,7 @@ export const CosignSchedule: React.FC = () => {
                       title: t('reportReview.cosign.colProgress'), dataIndex: 'slaMinutes', width: 200,
                       render: (_: any, r: CosignSLAMetric) => {
                         const pct = Math.min(100, (r.elapsedMinutes / r.slaMinutes) * 100);
-                        const color = r.status === 'breached' ? '#dc2626' : r.status === 'warning' ? '#f59e0b' : '#10b981';
+                        const color = r.status === 'breached' ? 'var(--color-error-600)' : r.status === 'warning' ? 'var(--color-warning-500)' : '#10b981';
                         return <Progress percent={Math.round(pct)} strokeColor={color} format={() => `${r.remainingMinutes}m`} />;
                       },
                     },
@@ -568,7 +568,7 @@ export const CosignSchedule: React.FC = () => {
             key: 'conflicts',
             label: <Space><AlertTriangle size={14} />{t('reportReview.cosign.tabConflicts')}</Space>,
             children: (
-              <Card size="small" title={<Space><AlertTriangle size={14} color="#dc2626" />{t('reportReview.cosign.conflictList')}</Space>}>
+              <Card size="small" title={<Space><AlertTriangle size={14} color="var(--color-error-600)" />{t('reportReview.cosign.conflictList')}</Space>}>
                 <Table scroll={{ x: 'max-content' }}
                   size="small"
                   rowKey="id"

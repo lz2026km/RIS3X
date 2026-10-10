@@ -2,7 +2,7 @@ import { Briefcase, Download, Plus } from "lucide-react";
 import { PageHeader } from "../../components/common";
 import { t } from "../../i18n/appI18n";
 
-const C = { primary: "#1e40af", white: "#ffffff", border: "#d1d5db" };
+const C = { primary: "var(--color-primary-800)", white: "#ffffff", border: "#d1d5db" };
 
 interface DepartmentHeaderProps {
   onExport: () => void;

@@ -162,7 +162,7 @@ const VisionExamPage: React.FC = () => {
   return (
     <div style={{ padding: 16, background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-        <Eye className="v4-icon" style={{ width: 24, height: 24, color: '#2563eb' }} />
+        <Eye className="v4-icon" style={{ width: 24, height: 24, color: 'var(--color-primary-600)' }} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('visionExam.title')}</span>
         <EyeLateralityBadge eyeSide="OD" />
         <EyeLateralityBadge eyeSide="OS" />

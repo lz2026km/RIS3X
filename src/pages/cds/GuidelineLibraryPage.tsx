@@ -154,7 +154,7 @@ export default function GuidelineLibraryPage() {
 
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
-      <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <BookOpen size={24} />
           <span style={{ fontSize: 20, fontWeight: 600 }}>{t('guideline.title')}</span>
@@ -214,7 +214,7 @@ export default function GuidelineLibraryPage() {
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 12, padding: 24, width: 520, maxWidth: '90vw' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <BookOpen size={18} style={{ color: '#3b82f6' }} /> {t('guideline.newGuideline')}
+                <BookOpen size={18} style={{ color: 'var(--color-primary-500)' }} /> {t('guideline.newGuideline')}
               </div>
               <button onClick={() => setShowCreateModal(false)} style={{ border: 'none', background: 'transparent', color: '#6e7681', cursor: 'pointer' }}>
                 <X size={18} />
@@ -256,7 +256,7 @@ export default function GuidelineLibraryPage() {
             </div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 20 }}>
               <button onClick={() => setShowCreateModal(false)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>{t('guideline.cancel')}</button>
-              <button onClick={handleCreate} disabled={creating} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#1e40af', color: '#fff', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <button onClick={handleCreate} disabled={creating} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: 'var(--color-primary-800)', color: '#fff', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Save size={14} />{creating ? t('guideline.creating') : t('guideline.createGuideline')}
               </button>
             </div>
@@ -269,7 +269,7 @@ export default function GuidelineLibraryPage() {
           <div style={{ width: 480, maxWidth: '92vw', height: '100%', background: 'var(--bg-card, #161b22)', borderLeft: '1px solid var(--border-default, #30363d)', padding: 24, overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <BookOpen size={18} style={{ color: '#3b82f6' }} /> {t('guideline.detailTitle')}
+                <BookOpen size={18} style={{ color: 'var(--color-primary-500)' }} /> {t('guideline.detailTitle')}
               </div>
               <button onClick={() => setDetailOpen(false)} style={{ border: 'none', background: 'transparent', color: '#6e7681', cursor: 'pointer' }}>
                 <X size={18} />
@@ -306,7 +306,7 @@ export default function GuidelineLibraryPage() {
       )}
 
       {toast.show && (
-        <div style={{ position: 'fixed', top: 24, left: '50%', transform: 'translateX(-50%)', background: toast.type === 'success' ? 'var(--color-success-600, #16a34a)' : 'var(--color-error-600, #dc2626)', color: '#fff', padding: '10px 20px', borderRadius: 8, fontSize: 12, fontWeight: 600, boxShadow: '0 4px 12px rgba(0,0,0,0.3)', zIndex: 1100 }}>
+        <div style={{ position: 'fixed', top: 24, left: '50%', transform: 'translateX(-50%)', background: toast.type === 'success' ? 'var(--color-success-600, var(--color-success-600))' : 'var(--color-error-600, var(--color-error-600))', color: '#fff', padding: '10px 20px', borderRadius: 8, fontSize: 12, fontWeight: 600, boxShadow: '0 4px 12px rgba(0,0,0,0.3)', zIndex: 1100 }}>
           {toast.message}
         </div>
       )}

@@ -23,11 +23,11 @@ import NotificationPreferencesSection from './NotificationPreferencesSection'
 // ============================================================
 // 常量定义
 // ============================================================
-const PRIMARY = '#1e40af'
+const PRIMARY = 'var(--color-primary-800)'
 const ACCENT = '#3182ce'
 const SUCCESS = '#059669'
-const WARNING = '#d97706'
-const DANGER = '#dc2626'
+const WARNING = 'var(--color-warning-600)'
+const DANGER = 'var(--color-error-600)'
 const PURPLE = '#7c3aed'
 const GRAY = 'var(--text-secondary, #475569)'
 const BG = 'var(--bg-primary)'
@@ -35,7 +35,7 @@ const WHITE = 'var(--bg-card, #ffffff)'
 
 const NOTIFICATION_TYPES = [
   { key: 'all', label: t('notification.typeAll'), icon: <Bell size={14} />, color: PRIMARY },
-  { key: 'report_completed', label: t('notification.typeReport'), icon: <FileText size={14} />, color: '#3b82f6' },
+  { key: 'report_completed', label: t('notification.typeReport'), icon: <FileText size={14} />, color: 'var(--color-primary-500)' },
   { key: 'critical_value', label: t('notification.typeCritical'), icon: <AlertTriangle size={14} />, color: DANGER },
   // [v3.0.6.11-99 Wave10B] 新增筛选类型: 随访 / 质控
   { key: 'followup', label: t('notification.typeFollowup'), icon: <Calendar size={14} />, color: '#8b5cf6' },
@@ -389,7 +389,7 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
             background: 'var(--bg-card)', borderRadius: 12, width: '90%', maxWidth: 400,
             padding: 24, boxShadow: '0 20px 60px rgba(0,0,0,0.3)', textAlign: 'center',
           }} onClick={e => e.stopPropagation()}>
-            <div style={{ fontSize: 16, fontWeight: 600, color: '#1e40af', marginBottom: 8 }}>
+            <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-primary-800)', marginBottom: 8 }}>
               跳转到{notification.relatedType}详情
             </div>
             <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 16 }}>
@@ -397,7 +397,7 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('notification.jumpHint')}</div>
             <button onClick={handleCloseJumpModal} style={{
-              marginTop: 20, padding: '10px 24px', background: '#1e40af', color: '#fff',
+              marginTop: 20, padding: '10px 24px', background: 'var(--color-primary-800)', color: '#fff',
               border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14,
             }}>{t('notification.confirm')}</button>
           </div>
@@ -825,7 +825,7 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
             <svg viewBox="0 0 100 100" width={104} height={104}>
               {(() => {
                 const total = Math.max(1, notifications.length)
-                const colors = ['#3b82f6', '#dc2626', '#8b5cf6', '#10b981', '#64748b', '#059669', '#7c3aed']
+                const colors = ['var(--color-primary-500)', 'var(--color-error-600)', '#8b5cf6', '#10b981', '#64748b', '#059669', '#7c3aed']
                 let acc = 0
                 const R = 40
                 const C = 2 * Math.PI * R
@@ -858,7 +858,7 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
           </div>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
             {typeDistribution.filter(t => t.count > 0).slice(0, 6).map((t, i) => {
-              const colors = ['#3b82f6', '#dc2626', '#8b5cf6', '#10b981', '#64748b', '#059669']
+              const colors = ['var(--color-primary-500)', 'var(--color-error-600)', '#8b5cf6', '#10b981', '#64748b', '#059669']
               const pct = notifications.length > 0 ? Math.round((t.count / notifications.length) * 1000) / 10 : 0
               return (
                 <div key={t.key} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11 }}>
@@ -983,15 +983,15 @@ function HistoryPanel({ notifications, onViewNotification }: HistoryPanelProps) 
 function DeliveryStatusBadge({ delivery }: { delivery: DeliveryStatus }) {
   const getStatus = () => {
     if (!delivery.sent) return { label: t('notification.sending'), color: 'var(--text-secondary)', bg: 'var(--bg-deep)' }
-    if (!delivery.delivered) return { label: t('notification.sendFailed'), color: '#ef4444', bg: '#ef444422' }
+    if (!delivery.delivered) return { label: t('notification.sendFailed'), color: 'var(--color-error-500)', bg: '#ef444422' }
     if (delivery.read) return { label: t('notification.readDone'), color: '#059669', bg: '#22c55e22' }
-    return { label: t('notification.delivered'), color: '#3b82f6', bg: '#3b82f622' }
+    return { label: t('notification.delivered'), color: 'var(--color-primary-500)', bg: '#3b82f622' }
   }
   const s = getStatus()
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
       <span style={{ padding: '2px 8px', borderRadius: 4, background: s.bg, color: s.color, fontWeight: 500 }}>{s.label}</span>
-      {delivery.retryCount > 0 && <span style={{ color: '#d97706' }}>重试{delivery.retryCount}次</span>}
+      {delivery.retryCount > 0 && <span style={{ color: 'var(--color-warning-600)' }}>重试{delivery.retryCount}次</span>}
       <span style={{ color: 'var(--text-secondary)' }}>{delivery.channel === 'in-app' ? t('notification.channelInApp') : delivery.channel === 'sms' ? t('notification.channelSms') : t('notification.channelEmail')}</span>
     </div>
   )
@@ -1013,7 +1013,7 @@ function RulesEnginePanel({ rules, onToggle, onDelete }: { rules: NotificationRu
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>{rule.name}</span>
-              <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, background: rule.priority === 'high' ? 'var(--color-error-bg)' : 'var(--bg-card)', color: rule.priority === 'high' ? '#dc2626' : 'var(--text-secondary, #475569)' }}>
+              <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, background: rule.priority === 'high' ? 'var(--color-error-bg)' : 'var(--bg-card)', color: rule.priority === 'high' ? 'var(--color-error-600)' : 'var(--text-secondary, #475569)' }}>
                 {rule.priority === 'high' ? t('notification.priorityHighLabel') : t('notification.priorityNormal')}
               </span>
             </div>
@@ -1697,7 +1697,7 @@ export default function NotificationCenter() {
         <div style={{ marginTop: 'auto', padding: 12, borderTop: '1px solid var(--border-color)' }}>
           {/* 实时推送状态 */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', marginBottom: 8, borderRadius: 6, background: realtimeConnected ? '#d1fae5' : '#fef3c7' }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: realtimeConnected ? '#059669' : '#d97706' }} />
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: realtimeConnected ? '#059669' : 'var(--color-warning-600)' }} />
             <span style={{ fontSize: 12, color: realtimeConnected ? '#059669' : '#b45309', fontWeight: 500 }}>
               {realtimeConnected ? t('notification.realtimeConnected') : t('notification.pollingFallback')}
             </span>

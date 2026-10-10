@@ -134,13 +134,13 @@ const FONT_FAMILY =
   '"Helvetica Neue", Arial, sans-serif';
 
 const LIGHT_TOKENS = {
-  colorPrimary: "#1d4ed8",
-  colorPrimaryHover: "#2563eb",
-  colorPrimaryActive: "#1e40af",
+  colorPrimary: "var(--color-primary-700)",
+  colorPrimaryHover: "var(--color-primary-600)",
+  colorPrimaryActive: "var(--color-primary-800)",
   colorSuccess: "#059669",
-  colorWarning: "#d97706",
-  colorError: "#dc2626",
-  colorInfo: "#2563eb",
+  colorWarning: "var(--color-warning-600)",
+  colorError: "var(--color-error-600)",
+  colorInfo: "var(--color-primary-600)",
   colorBgLayout: "#f1f5f9",
   colorTextBase: "#0f172a",
   borderRadius: 8,
@@ -195,7 +195,7 @@ const HIGH_CONTRAST_TOKENS: ThemeTokens = {
  */
 function buildThemeComponents(isDark: boolean, isHighContrast: boolean) {
   const rad = isDark ? RADIOLOGY_COMPONENT_TOKENS_DARK : RADIOLOGY_COMPONENT_TOKENS;
-  const primary = isHighContrast ? "#ffff00" : "#1d4ed8";
+  const primary = isHighContrast ? "#ffff00" : "var(--color-primary-700)";
   const border = isHighContrast ? "#ffffff" : isDark ? "#334155" : "#e2e8f0";
   const text = isHighContrast ? "#ffffff" : isDark ? "#f1f5f9" : "#0f172a";
   const textSecondary = isHighContrast ? "#f0f0f0" : isDark ? "#cbd5e1" : "#475569";
@@ -211,7 +211,7 @@ function buildThemeComponents(isDark: boolean, isHighContrast: boolean) {
   return {
     Layout: {
       headerBg,
-      siderBg: isHighContrast ? "#000000" : isDark ? "#0f172a" : "#1e40af",
+      siderBg: isHighContrast ? "#000000" : isDark ? "#0f172a" : "var(--color-primary-800)",
       bodyBg: layoutBg,
       footerBg: isHighContrast ? "#0a0a0a" : isDark ? "#1e293b" : "#f8fafc",
       headerHeight: 56,
@@ -267,7 +267,7 @@ function buildThemeComponents(isDark: boolean, isHighContrast: boolean) {
       itemMarginBottom: 16,
       verticalLabelPadding: "0 0 4px",
       labelColor: textSecondary,
-      labelRequiredMarkColor: "#dc2626",
+      labelRequiredMarkColor: "var(--color-error-600)",
     },
     Input: {
       borderRadius: rad.Input.borderRadius,
@@ -367,7 +367,7 @@ function ErrorFallback({
         fontFamily: "system-ui, sans-serif",
       }}
     >
-      <h1 style={{ color: "var(--color-error, #dc2626)", fontSize: 24, marginBottom: 16 }}>
+      <h1 style={{ color: "var(--color-error, var(--color-error-600))", fontSize: 24, marginBottom: 16 }}>
         出现错误
       </h1>
       <pre
@@ -388,7 +388,7 @@ function ErrorFallback({
         onClick={resetErrorBoundary}
         style={{
           padding: "8px 16px",
-          background: "var(--color-primary-700, #1e40af)",
+          background: "var(--color-primary-700, var(--color-primary-800))",
           color: "var(--color-gray-0, #fff)",
           border: "none",
           borderRadius: 6,

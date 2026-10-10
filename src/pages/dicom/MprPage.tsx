@@ -13,7 +13,7 @@ import {
 
 type ViewPlane = 'axial' | 'coronal' | 'sagittal'
 
-const BLUE = '#3b82f6'
+const BLUE = 'var(--color-primary-500)'
 const CARD_BG = '#0f172a'
 
 function generateMprSlice(plane: ViewPlane, slice: number, size: number): number[][] {

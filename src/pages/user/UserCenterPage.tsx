@@ -172,7 +172,7 @@ export default function UserCenterPage() {
             >
               <Avatar
                 size={72}
-                style={{ background: "#2563eb", fontSize: 30 }}
+                style={{ background: "var(--color-primary-600)", fontSize: 30 }}
               >
                 {displayName.slice(0, 1)}
               </Avatar>

@@ -127,7 +127,7 @@ export function ShortcutHelpModal({ open, onClose, shortcuts }: ShortcutHelpModa
             borderBottom: "1px solid var(--border-subtle, rgba(0,0,0,0.06))",
           }}
         >
-          <Keyboard size={20} style={{ color: "var(--color-primary-600, #2563eb)" }} aria-hidden="true" />
+          <Keyboard size={20} style={{ color: "var(--color-primary-600, var(--color-primary-600))" }} aria-hidden="true" />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 16, fontWeight: 700 }}>{t("w14Ux.shortcuts.title")}</div>
             <div style={{ fontSize: 12, color: "var(--text-secondary, #475569)" }}>
@@ -192,7 +192,7 @@ export function ShortcutHelpModal({ open, onClose, shortcuts }: ShortcutHelpModa
                   fontWeight: 700,
                   letterSpacing: "0.05em",
                   textTransform: "uppercase",
-                  color: "var(--color-primary-600, #2563eb)",
+                  color: "var(--color-primary-600, var(--color-primary-600))",
                   marginBottom: 8,
                 }}
               >

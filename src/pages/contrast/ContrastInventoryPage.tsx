@@ -164,7 +164,7 @@ const ContrastInventoryPage: React.FC = () => {
   const totalQty = inventory.reduce((s, i) => s + (i.quantity ?? 0), 0)
 
   const columns = [
-    { title: t('contrastInv.colName'), dataIndex: 'name', key: 'name', width: 180, render: (v: string) => <Space><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#3b82f6', display: 'inline-block' }} />{v}</Space> },
+    { title: t('contrastInv.colName'), dataIndex: 'name', key: 'name', width: 180, render: (v: string) => <Space><span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--color-primary-500)', display: 'inline-block' }} />{v}</Space> },
     { title: t('contrastInv.colBatchNo'), dataIndex: 'batchNo', key: 'batchNo', width: 130, render: (v?: string) => v ? <Text code>{v}</Text> : '-' },
     { title: t('contrastInv.colRemaining'), dataIndex: 'quantity', key: 'quantity', width: 100,       render: (v: number) => (
         <Tag color={v <= LOW_THRESHOLD ? 'red' : 'green'} style={{ fontWeight: 600 }}>{v} ml</Tag>
@@ -189,7 +189,7 @@ const ContrastInventoryPage: React.FC = () => {
 
   return (
     <PageContainer padding={24}>
-      <Card size="small" style={{ marginBottom: 16, background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', border: 'none' }}>
+      <Card size="small" style={{ marginBottom: 16, background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', border: 'none' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
           <Space>
             <Package size={20} color="#fff" />
@@ -302,7 +302,7 @@ const ContrastInventoryPage: React.FC = () => {
               { title: t('contrastInv.colTime'), dataIndex: 'at', width: 160 },
               { title: t('contrastInv.colContrast'), dataIndex: 'name' },
               { title: t('contrastInv.colDirection'), dataIndex: 'action', width: 80, render: (v: string) => <Tag color={v === 'in' ? 'green' : 'red'}>{v === 'in' ? t('contrastInv.in') : t('contrastInv.out')}</Tag> },
-              { title: t('contrastInv.colQty'), dataIndex: 'quantity', width: 100, render: (v: number, r: StockLog) => <span style={{ fontWeight: 600, color: r.action === 'in' ? '#16a34a' : '#dc2626' }}>{r.action === 'in' ? '+' : '-'}{v} ml</span> },
+              { title: t('contrastInv.colQty'), dataIndex: 'quantity', width: 100, render: (v: number, r: StockLog) => <span style={{ fontWeight: 600, color: r.action === 'in' ? 'var(--color-success-600)' : 'var(--color-error-600)' }}>{r.action === 'in' ? '+' : '-'}{v} ml</span> },
               { title: t('contrastInv.colOperator'), dataIndex: 'operator', width: 100 },
             ]}
          

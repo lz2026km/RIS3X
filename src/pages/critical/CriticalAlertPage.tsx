@@ -320,7 +320,7 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <AlertTriangle size={20} color="#2563eb" />
+        <AlertTriangle size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{tr('criticalAlert.title')}</span>
         <Input.Search
           size="small"
@@ -365,7 +365,7 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
       {/* [v3.0.6.11-104 Wave 2C] 危急值聚合列表: GET /critical-alert (默认聚合, 与 /alerts 同一处理器) */}
       <Card
         size="small"
-        title={<Space size={6}><Bell size={13} color="#2563eb" />{tr('criticalAgg.title')}</Space>}
+        title={<Space size={6}><Bell size={13} color="var(--color-primary-600)" />{tr('criticalAgg.title')}</Space>}
         style={{ marginBottom: 16 }}
         extra={<Button size="small" icon={<RefreshCw size={12} />} loading={aggregateLoading} onClick={() => void loadAggregate()}>{tr('criticalAgg.refresh')}</Button>}
         data-testid="critical-aggregate"
@@ -552,7 +552,7 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
             </Card>
 
             {/* [v3.0.6.11-103 Wave 13] 5 步流程进度: 触发→通知→确认→处置→记录 (闭环) */}
-            <Card size="small" style={{ marginBottom: 16 }} title={<Space size={6}><AlertTriangle size={13} color="#2563eb" />{t('flowTitle')}</Space>}>
+            <Card size="small" style={{ marginBottom: 16 }} title={<Space size={6}><AlertTriangle size={13} color="var(--color-primary-600)" />{t('flowTitle')}</Space>}>
               <Steps
                 size="small"
                 current={selected.flowStatus === 'escalated' ? 0 : Math.max(0, selected.step ?? 0)}
@@ -600,7 +600,7 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
 
       {/* [G005 Wave1A] 通知记录 (GET /critical-alert/alerts/:id/communication-log) */}
       <Modal
-        title={<Space><MessageSquare size={14} color="#3b82f6" />{t('communicationLog')}</Space>}
+        title={<Space><MessageSquare size={14} color="var(--color-primary-500)" />{t('communicationLog')}</Space>}
         open={logOpen}
         onCancel={() => setLogOpen(false)}
         footer={<Button onClick={() => setLogOpen(false)}>{tr('criticalAlert.close')}</Button>}

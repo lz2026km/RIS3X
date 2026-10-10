@@ -107,9 +107,9 @@ export default function AiAssistantPanel({ context, currentReport = '', onApply,
             onClick={() => setTab(t)}
             style={{
               background: 'transparent',
-              color: tab === t ? '#3b82f6' : '#94a3b8',
+              color: tab === t ? 'var(--color-primary-500)' : '#94a3b8',
               border: 'none',
-              borderBottom: tab === t ? '2px solid #3b82f6' : '2px solid transparent',
+              borderBottom: tab === t ? '2px solid var(--color-primary-500)' : '2px solid transparent',
               padding: '6px 12px',
               fontSize: 12,
               fontWeight: tab === t ? 600 : 400,
@@ -130,7 +130,7 @@ export default function AiAssistantPanel({ context, currentReport = '', onApply,
                 data-testid={`ai-task-${t}`}
                 onClick={() => setTask(t)}
                 style={{
-                  background: task === t ? '#3b82f6' : '#1e293b',
+                  background: task === t ? 'var(--color-primary-500)' : '#1e293b',
                   color: task === t ? 'white' : '#cbd5e1',
                   border: '1px solid #334155',
                   borderRadius: 14,
@@ -181,7 +181,7 @@ export default function AiAssistantPanel({ context, currentReport = '', onApply,
                 tokens: {llm.usage.total} (↑{llm.usage.prompt} ↓{llm.usage.completion})
               </span>
             )}
-            {llm.streaming && <span data-testid="ai-streaming-badge" style={{ color: '#fbbf24' }}>● 流式中</span>}
+            {llm.streaming && <span data-testid="ai-streaming-badge" style={{ color: 'var(--color-warning-400)' }}>● 流式中</span>}
             <div style={{ flex: 1 }} />
             {llm.output && onApply && (
               <button
@@ -226,7 +226,7 @@ export default function AiAssistantPanel({ context, currentReport = '', onApply,
                       <button
                         data-testid={`ai-install-${l.algorithm.id}`}
                         onClick={() => handleInstall(l.algorithm.id)}
-                        style={{ background: '#3b82f6', color: 'white', border: 'none', borderRadius: 3, padding: '3px 8px', fontSize: 12, cursor: 'pointer' }}
+                        style={{ background: 'var(--color-primary-500)', color: 'white', border: 'none', borderRadius: 3, padding: '3px 8px', fontSize: 12, cursor: 'pointer' }}
                       >
                         安装
                       </button>

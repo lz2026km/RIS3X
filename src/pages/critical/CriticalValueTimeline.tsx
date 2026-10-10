@@ -2,18 +2,18 @@ import { AlertOctagon, PhoneIncoming, Activity, CheckCircle, AlertTriangle, type
 import type { CriticalValue, ClosedLoopStage5 } from './types'
 
 const stageConfig: Record<string, { bg: string; color: string; borderColor: string; icon: LucideIcon }> = {
-  '发出': { bg: 'var(--color-error-bg)', color: '#dc2626', borderColor: '#dc2626', icon: AlertOctagon },
-  '确认': { bg: 'var(--color-info-bg)', color: '#2563eb', borderColor: '#2563eb', icon: PhoneIncoming },
-  '处理': { bg: 'var(--color-warning-bg)', color: '#d97706', borderColor: '#d97706', icon: Activity },
+  '发出': { bg: 'var(--color-error-bg)', color: 'var(--color-error-600)', borderColor: 'var(--color-error-600)', icon: AlertOctagon },
+  '确认': { bg: 'var(--color-info-bg)', color: 'var(--color-primary-600)', borderColor: 'var(--color-primary-600)', icon: PhoneIncoming },
+  '处理': { bg: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', borderColor: 'var(--color-warning-600)', icon: Activity },
   '完成': { bg: 'var(--color-success-bg)', color: '#059669', borderColor: '#059669', icon: CheckCircle },
 }
 
 const stageColors: Record<string, { bg: string; color: string; borderColor: string; glowColor: string }> = {
-  '发现': { bg: 'var(--color-error-bg)', color: '#dc2626', borderColor: '#dc2626', glowColor: 'rgba(220,38,38,0.4)' },
+  '发现': { bg: 'var(--color-error-bg)', color: 'var(--color-error-600)', borderColor: 'var(--color-error-600)', glowColor: 'rgba(220,38,38,0.4)' },
   '电话通知': { bg: 'var(--color-warning-bg)', color: '#ea580c', borderColor: '#ea580c', glowColor: 'rgba(234,88,12,0.4)' },
   '临床确认': { bg: 'var(--color-warning-bg)', color: '#ca8a04', borderColor: '#ca8a04', glowColor: 'rgba(202,138,4,0.4)' },
-  '临床回执': { bg: 'var(--color-success-bg)', color: '#16a34a', borderColor: '#16a34a', glowColor: 'rgba(22,163,74,0.4)' },
-  '闭环完成': { bg: 'var(--color-info-bg)', color: '#2563eb', borderColor: '#2563eb', glowColor: 'rgba(37,99,235,0.4)' },
+  '临床回执': { bg: 'var(--color-success-bg)', color: 'var(--color-success-600)', borderColor: 'var(--color-success-600)', glowColor: 'rgba(22,163,74,0.4)' },
+  '闭环完成': { bg: 'var(--color-info-bg)', color: 'var(--color-primary-600)', borderColor: 'var(--color-primary-600)', glowColor: 'rgba(37,99,235,0.4)' },
 }
 
 export const ClosedLoopTracker = ({ cv }: { cv: CriticalValue }) => {
@@ -41,7 +41,7 @@ export const ClosedLoopTracker = ({ cv }: { cv: CriticalValue }) => {
 
   return (
     <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: 16 }}>
-      <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 16 }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}>
         闭环状态追踪
       </div>
       <div style={{ display: 'flex', alignItems: 'stretch', gap: 0, marginBottom: 16 }}>
@@ -62,7 +62,7 @@ export const ClosedLoopTracker = ({ cv }: { cv: CriticalValue }) => {
                   {stage.active && (
                     <div style={{
                       position: 'absolute', top: -2, right: -2, width: 14, height: 14, borderRadius: '50%',
-                      background: '#d97706', border: '2px solid #fff', animation: 'pulse 1.5s infinite',
+                      background: 'var(--color-warning-600)', border: '2px solid #fff', animation: 'pulse 1.5s infinite',
                     }} />
                   )}
                 </div>
@@ -86,13 +86,13 @@ export const ClosedLoopTracker = ({ cv }: { cv: CriticalValue }) => {
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)' }}>
         <div style={{ display: 'flex', gap: 16 }}>
           {[
-            { label: '总耗时', value: cv.processingDuration || '进行中', color: '#1e40af' },
+            { label: '总耗时', value: cv.processingDuration || '进行中', color: 'var(--color-primary-800)' },
             { label: '确认耗时', value: cv.acknowledgedTime && cv.reportedTime
               ? (() => { const t1 = new Date(cv.reportedTime).getTime(); const t2 = new Date(cv.acknowledgedTime).getTime(); const mins = Math.round((t2 - t1) / 60000); return mins < 60 ? `${mins}分钟` : `${Math.floor(mins / 60)}小时${mins % 60}分钟` })()
-              : '待确认', color: '#2563eb' },
+              : '待确认', color: 'var(--color-primary-600)' },
             { label: '处理耗时', value: cv.processingTime && cv.acknowledgedTime
               ? (() => { const t1 = new Date(cv.acknowledgedTime).getTime(); const t2 = new Date(cv.processingTime).getTime(); const mins = Math.round((t2 - t1) / 60000); return mins < 60 ? `${mins}分钟` : `${Math.floor(mins / 60)}小时${mins % 60}分钟` })()
-              : '进行中', color: '#d97706' },
+              : '进行中', color: 'var(--color-warning-600)' },
           ].map(item => (
             <div key={item.label} style={{ flex: 1, textAlign: 'center' }}>
               <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>{item.label}</div>
@@ -129,7 +129,7 @@ export const ClosedLoopTracker5Nodes = ({ cv }: { cv: CriticalValue }) => {
 
   return (
     <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: 16 }}>
-      <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 16 }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}>
         5节点闭环追踪
       </div>
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 0, marginBottom: 16 }}>
@@ -155,7 +155,7 @@ export const ClosedLoopTracker5Nodes = ({ cv }: { cv: CriticalValue }) => {
                     </div>
                   )}
                   {isActive && (
-                    <div style={{ position: 'absolute', top: -2, right: -2, width: 16, height: 16, borderRadius: '50%', background: '#f59e0b', border: '3px solid #fff', animation: 'pulse 1.5s infinite' }} />
+                    <div style={{ position: 'absolute', top: -2, right: -2, width: 16, height: 16, borderRadius: '50%', background: 'var(--color-warning-500)', border: '3px solid #fff', animation: 'pulse 1.5s infinite' }} />
                   )}
                   <span style={{ width: 18, height: 18, borderRadius: '50%', background: isDone ? cfg.color : '#cbd5e1', boxShadow: isDone ? `0 0 8px ${cfg.glowColor}` : 'none' }} />
                 </div>
@@ -189,8 +189,8 @@ export const ClosedLoopTracker5Nodes = ({ cv }: { cv: CriticalValue }) => {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {currentStageIndex === 4 ? <CheckCircle size={16} style={{ color: '#059669' }} /> : currentStageIndex >= 0 ? <Activity size={16} style={{ color: '#2563eb' }} /> : <AlertTriangle size={16} style={{ color: '#dc2626' }} />}
-          <span style={{ fontSize: 12, fontWeight: 600, color: currentStageIndex === 4 ? '#059669' : (currentStageIndex >= 0 ? '#2563eb' : '#dc2626') }}>
+          {currentStageIndex === 4 ? <CheckCircle size={16} style={{ color: '#059669' }} /> : currentStageIndex >= 0 ? <Activity size={16} style={{ color: 'var(--color-primary-600)' }} /> : <AlertTriangle size={16} style={{ color: 'var(--color-error-600)' }} />}
+          <span style={{ fontSize: 12, fontWeight: 600, color: currentStageIndex === 4 ? '#059669' : (currentStageIndex >= 0 ? 'var(--color-primary-600)' : 'var(--color-error-600)') }}>
             {currentStageIndex === 4 ? `已归档 - 随访编号：${cv.followUpId}` : currentStageIndex >= 0 ? `当前阶段：${stages[currentStageIndex]!.key}` : '未开始'}
           </span>
         </div>

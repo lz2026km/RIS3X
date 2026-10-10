@@ -89,7 +89,7 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
     <div data-testid="review-ai-hint" role="region" aria-label={t('reportReview.aiHint.title')}>
       <div
         style={{
-          background: 'linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%)',
+          background: 'linear-gradient(135deg, #7c3aed 0%, var(--color-primary-500) 100%)',
           color: '#fff',
           padding: '12px 16px',
           borderRadius: 8,
@@ -184,7 +184,7 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
         <Card
           title={
             <Space>
-              <AlertTriangle size={14} color="#dc2626" />
+              <AlertTriangle size={14} color="var(--color-error-600)" />
               {t('reportReview.aiHint.defectsDetected', { n: result.defects.length })}
             </Space>
           }
@@ -222,7 +222,7 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
                 <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{t('reportReview.aiHint.position')}{d.position}</div>
               )}
               {d.suggestion && (
-                <div style={{ fontSize: 12, color: '#0891b2', marginTop: 2 }}>{t('reportReview.aiHint.suggestion')}{d.suggestion}</div>
+                <div style={{ fontSize: 12, color: 'var(--color-info-600)', marginTop: 2 }}>{t('reportReview.aiHint.suggestion')}{d.suggestion}</div>
               )}
             </div>
           ))}

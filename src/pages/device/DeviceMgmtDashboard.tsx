@@ -133,9 +133,9 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
                   fontSize: 12,
                   fontWeight: 600,
                   cursor: 'pointer',
-                  border: `1px solid ${days === d ? 'var(--color-primary-600, #2563eb)' : 'var(--border-color, #e2e8f0)'}`,
+                  border: `1px solid ${days === d ? 'var(--color-primary-600, var(--color-primary-600))' : 'var(--border-color, #e2e8f0)'}`,
                   background: days === d ? 'var(--color-primary-50, #eff6ff)' : 'transparent',
-                  color: days === d ? 'var(--color-primary-700, #1d4ed8)' : 'var(--text-secondary, #475569)',
+                  color: days === d ? 'var(--color-primary-700, var(--color-primary-700))' : 'var(--text-secondary, #475569)',
                 }}
               >
                 {t('deviceMgmtBoard.days', { count: d })}
@@ -169,7 +169,7 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
                 type="area"
                 data={trendData}
                 xKey="date"
-                series={[{ key: 'count', name: t('deviceMgmtBoard.examCount'), color: '#2563eb' }]}
+                series={[{ key: 'count', name: t('deviceMgmtBoard.examCount'), color: 'var(--color-primary-600)' }]}
                 height={220}
                 testId="device-usage-trend"
               />
@@ -193,7 +193,7 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
                   columns={[
                     { title: t('deviceMgmtBoard.room'), dataIndex: 'room', key: 'room', render: (v: string) => <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{v}</span> },
                     { title: t('deviceMgmtBoard.deviceCount'), dataIndex: 'devices', key: 'devices', render: (v: number) => NUM(v), align: 'right' },
-                    { title: t('deviceMgmtBoard.onlineCount'), dataIndex: 'online', key: 'online', render: (v: number) => <span style={{ color: '#16a34a', fontWeight: 600 }}>{NUM(v)}</span>, align: 'right' },
+                    { title: t('deviceMgmtBoard.onlineCount'), dataIndex: 'online', key: 'online', render: (v: number) => <span style={{ color: 'var(--color-success-600)', fontWeight: 600 }}>{NUM(v)}</span>, align: 'right' },
                     { title: t('deviceMgmtBoard.examsCount'), dataIndex: 'todayExams', key: 'todayExams', render: (v: number) => NUM(v), align: 'right' },
                   ]}
                 />
@@ -219,7 +219,7 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxHeight: 320, overflowY: 'auto' }}>
                 {(calendar?.months ?? []).map((m) => (
                   <div key={m.month}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-700, #1d4ed8)', marginBottom: 6 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-700, var(--color-primary-700))', marginBottom: 6 }}>
                       {m.month} · {m.count}
                     </div>
                     {m.items.map((item) => (
@@ -238,7 +238,7 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
                       >
                         <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{item.deviceName}</span>
                         <span style={{ color: 'var(--text-secondary, #64748b)' }}>{String(item.maintenanceDate).slice(0, 10)}</span>
-                        <span style={{ color: item.status === 'COMPLETED' ? '#16a34a' : '#d97706' }}>{item.type}</span>
+                        <span style={{ color: item.status === 'COMPLETED' ? 'var(--color-success-600)' : 'var(--color-warning-600)' }}>{item.type}</span>
                       </div>
                     ))}
                   </div>

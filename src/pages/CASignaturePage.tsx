@@ -26,14 +26,14 @@ type SignatureAlgorithm = 'RSA-SHA256' | 'SM2-SM3';
 
 const STATUS_CONFIG: Record<CertificateStatus, { label: string; color: string; bg: string; icon: any }> = {
   valid:    { label: t('caSignature.statusCfg.valid'), color: '#10b981', bg: '#22c55e22', icon: CheckCircle2 },
-  expiring: { label: t('caSignature.statusCfg.expiring'), color: '#f59e0b', bg: '#f59e0b22', icon: AlertTriangle },
-  expired:  { label: t('caSignature.statusCfg.expired'), color: '#ef4444', bg: '#ef444422', icon: XCircle },
+  expiring: { label: t('caSignature.statusCfg.expiring'), color: 'var(--color-warning-500)', bg: '#f59e0b22', icon: AlertTriangle },
+  expired:  { label: t('caSignature.statusCfg.expired'), color: 'var(--color-error-500)', bg: '#ef444422', icon: XCircle },
   revoked:  { label: t('caSignature.statusCfg.revoked'), color: '#7f1d1d', bg: '#ef444422', icon: XCircle },
 };
 
 const ALGO_CONFIG: Record<SignatureAlgorithm, { label: string; color: string; bg: string; description: string }> = {
-  'RSA-SHA256': { label: 'RSA-SHA256', color: '#3b82f6', bg: '#3b82f622', description: t('caSignature.algo.rsaDesc') },
-  'SM2-SM3':    { label: t('caSignature.gmSmFull'), color: '#ef4444', bg: '#ef444422', description: t('caSignature.algo.sm2Desc') },
+  'RSA-SHA256': { label: 'RSA-SHA256', color: 'var(--color-primary-500)', bg: '#3b82f622', description: t('caSignature.algo.rsaDesc') },
+  'SM2-SM3':    { label: t('caSignature.gmSmFull'), color: 'var(--color-error-500)', bg: '#ef444422', description: t('caSignature.algo.sm2Desc') },
 };
 
 export default function CASignaturePage() {
@@ -299,7 +299,7 @@ export default function CASignaturePage() {
     {
       title: t('caSignature.colAlgorithm'), dataIndex: 'algorithm', key: 'algorithm',
       render: (v: string) => (
-        <span style={{ padding: '1px 6px', borderRadius: 2, background: v === 'SM2-SM3' ? 'var(--color-error-bg)' : 'var(--color-info-bg)', color: v === 'SM2-SM3' ? '#b91c1c' : '#1d4ed8', fontWeight: 600 }}>{v}</span>
+        <span style={{ padding: '1px 6px', borderRadius: 2, background: v === 'SM2-SM3' ? 'var(--color-error-bg)' : 'var(--color-info-bg)', color: v === 'SM2-SM3' ? '#b91c1c' : 'var(--color-primary-700)', fontWeight: 600 }}>{v}</span>
       ),
     },
     { title: t('caSignature.colVerifyCode'), dataIndex: 'verificationCode', key: 'verificationCode', render: (v: string) => <span style={{ fontFamily: 'monospace' }}>{v}</span> },
@@ -363,9 +363,9 @@ export default function CASignaturePage() {
         <>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
             <KpiCard icon={ShieldCheck} label={t('caSignature.kpiValid')} value={certs.filter(c => c.status === 'valid').length} color="#10b981" />
-            <KpiCard icon={AlertTriangle} label={t('caSignature.kpiExpiring')} value={certs.filter(c => c.status === 'expiring').length} color="#f59e0b" alert />
-            <KpiCard icon={XCircle} label={t('caSignature.kpiExpired')} value={certs.filter(c => c.status === 'expired').length} color="#dc2626" />
-            <KpiCard icon={Activity} label={t('caSignature.kpiMonthSignatures')} value={totalUsage} color="#3b82f6" />
+            <KpiCard icon={AlertTriangle} label={t('caSignature.kpiExpiring')} value={certs.filter(c => c.status === 'expiring').length} color="var(--color-warning-500)" alert />
+            <KpiCard icon={XCircle} label={t('caSignature.kpiExpired')} value={certs.filter(c => c.status === 'expired').length} color="var(--color-error-600)" />
+            <KpiCard icon={Activity} label={t('caSignature.kpiMonthSignatures')} value={totalUsage} color="var(--color-primary-500)" />
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 12 }}>
@@ -565,7 +565,7 @@ export default function CASignaturePage() {
                         {t('caSignature.signingWithPrefix')} {ALGO_CONFIG[selectedCert.algorithm].label} {t('caSignature.signingWithSuffix')}
                       </div>
                       <div style={{ height: 6, background: 'var(--color-success-bg)', borderRadius: 3, overflow: 'hidden' }}>
-                        <div style={{ width: `${signingProgress}%`, height: '100%', background: 'linear-gradient(90deg, #10b981, #3b82f6)' }} />
+                        <div style={{ width: `${signingProgress}%`, height: '100%', background: 'linear-gradient(90deg, #10b981, var(--color-primary-500))' }} />
                       </div>
                     </div>
                   )}
@@ -587,13 +587,13 @@ export default function CASignaturePage() {
                 </div>
 
                 <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <Key size={13} /> {t('caSignature.certChainVerify')}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {[
-                      { name: t('caSignature.chain.rootName'), desc: t('caSignature.chain.rootDesc'), color: '#dc2626' },
-                      { name: t('caSignature.chain.midName'), desc: 'CFCA / GMCA', color: '#f59e0b' },
+                      { name: t('caSignature.chain.rootName'), desc: t('caSignature.chain.rootDesc'), color: 'var(--color-error-600)' },
+                      { name: t('caSignature.chain.midName'), desc: 'CFCA / GMCA', color: 'var(--color-warning-500)' },
                       { name: t('caSignature.chain.userName'), desc: selectedCert.holderName, color: '#10b981' },
                     ].map((c, i) => (
                       <React.Fragment key={i}>
@@ -690,7 +690,7 @@ export default function CASignaturePage() {
 
       {/* ===== 吊销证书 Modal ===== */}
       <Modal
-        title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Ban size={14} color="#dc2626" /> {t('caSignature.revokeCert')}</span>}
+        title={<span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Ban size={14} color="var(--color-error-600)" /> {t('caSignature.revokeCert')}</span>}
         open={showRevokeModal}
         onCancel={() => setShowRevokeModal(false)}
         onOk={() => void handleRevoke()}
@@ -804,7 +804,7 @@ export default function CASignaturePage() {
           ) : (
             <div>
               {history.map(h => {
-                const actionColor = h.action === 'REVOKE' ? '#dc2626' : h.action === 'UPLOAD' ? '#059669' : h.action === 'VERIFY' ? '#7c3aed' : '#2563eb';
+                const actionColor = h.action === 'REVOKE' ? 'var(--color-error-600)' : h.action === 'UPLOAD' ? '#059669' : h.action === 'VERIFY' ? '#7c3aed' : 'var(--color-primary-600)';
                 return (
                   <div key={h.id} style={{ display: 'flex', gap: 10, padding: '10px 12px', borderBottom: '1px solid var(--border-light)' }}>
                     <span style={{ padding: '2px 8px', borderRadius: 4, background: `${actionColor}15`, color: actionColor, fontSize: 11, fontWeight: 700, alignSelf: 'center' }}>{h.action}</span>
@@ -829,12 +829,12 @@ const fieldLabelStyle: React.CSSProperties = {
 
 const KpiCard: React.FC<{ icon: any; label: string; value: number | string; color: string; alert?: boolean }> = ({ icon: Icon, label, value, color, alert }) => {
   const c = ({
-    '#dc2626': 'error', '#ef4444': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
-    '#f59e0b': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
-    '#16a34a': 'success', '#22c55e': 'success', '#52c41a': 'success', '#10b981': 'success',
-    '#2563eb': 'primary', '#1890ff': 'primary', '#1d4ed8': 'primary',
+    'var(--color-error-600)': 'error', 'var(--color-error-500)': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
+    'var(--color-warning-500)': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
+    'var(--color-success-600)': 'success', 'var(--color-success-500)': 'success', '#52c41a': 'success', '#10b981': 'success',
+    'var(--color-primary-600)': 'primary', '#1890ff': 'primary', 'var(--color-primary-700)': 'primary',
   } as Record<string, string>)[color] ?? color;
-  return <StatCard title={label} value={alert ? <span style={{ color: '#dc2626' }}>{value}</span> : value} icon={<Icon size={18} />} color={c} />;
+  return <StatCard title={label} value={alert ? <span style={{ color: 'var(--color-error-600)' }}>{value}</span> : value} icon={<Icon size={18} />} color={c} />;
 };
 
 const InfoCell: React.FC<{ label: string; value: string; color?: string }> = ({ label, value, color }) => (

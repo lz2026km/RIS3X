@@ -42,7 +42,7 @@ export interface MobileNotification {
 // ===== Styles =====
 const s = {
   wrapper: { maxWidth: 380, margin: '0 auto', background: 'var(--bg-primary)', minHeight: 700, borderRadius: 24, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.15)', fontFamily: '-apple-system, sans-serif' },
-  header: { background: 'linear-gradient(135deg, #1e40af, #3b82f6)', color: '#fff', padding: '20px 16px 16px' },
+  header: { background: 'linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))', color: '#fff', padding: '20px 16px 16px' },
   headerTop: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
   userRow: { display: 'flex', alignItems: 'center', gap: 10 },
   avatar: { width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 },
@@ -58,11 +58,11 @@ const s = {
   }),
   tab: (active: boolean) => ({
     flex: 1, padding: '8px 0', textAlign: 'center' as const, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-    color: active ? '#1e40af' : '#94a3b8', borderBottom: active ? '2px solid #1e40af' : '2px solid transparent',
+    color: active ? 'var(--color-primary-800)' : '#94a3b8', borderBottom: active ? '2px solid var(--color-primary-800)' : '2px solid transparent',
   }),
   nav: { display: 'flex', background: 'var(--bg-card)', borderTop: '1px solid var(--border-color)', padding: '6px 0' },
   navItem: (active: boolean) => ({
-    flex: 1, textAlign: 'center' as const, padding: '4px 0', fontSize: 12, color: active ? '#1e40af' : '#94a3b8', cursor: 'pointer' as const, fontWeight: active ? 700 : 400,
+    flex: 1, textAlign: 'center' as const, padding: '4px 0', fontSize: 12, color: active ? 'var(--color-primary-800)' : '#94a3b8', cursor: 'pointer' as const, fontWeight: active ? 700 : 400,
   }),
 }
 
@@ -297,8 +297,8 @@ export default function PatientMobileApp() {
     <>
       {/* Banner */}
       <Card bordered={false} style={{ ...s.card, background: 'linear-gradient(135deg, #eff6ff, #dbeafe)', border: 'none' }} styles={{ body: { padding: 0 } }}>
-        <div style={{ fontSize: 12, color: '#1e40af', fontWeight: 600 }}>{t('mobileApp.welcomeBack')}</div>
-        <div style={{ fontSize: 20, fontWeight: 700, color: '#1e40af', margin: '4px 0' }}>{mobileUser.name}</div>
+        <div style={{ fontSize: 12, color: 'var(--color-primary-800)', fontWeight: 600 }}>{t('mobileApp.welcomeBack')}</div>
+        <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: '4px 0' }}>{mobileUser.name}</div>
         <div style={{ fontSize: 12, color: '#64748b' }}>{t('mobileApp.newReports', { count: mobileReports.filter(r => r.status === 'ready').length })}</div>
       </Card>
 
@@ -322,7 +322,7 @@ export default function PatientMobileApp() {
       <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <div style={s.cardTitle}>{t('mobileApp.recentReports')}</div>
-          <span role="button" tabIndex={0} style={{ fontSize: 12, color: '#3b82f6', cursor: 'pointer' }} onClick={() => setActiveTab('reports')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab('reports') } }}>{t('mobileApp.viewAll')}</span>
+          <span role="button" tabIndex={0} style={{ fontSize: 12, color: 'var(--color-primary-500)', cursor: 'pointer' }} onClick={() => setActiveTab('reports')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab('reports') } }}>{t('mobileApp.viewAll')}</span>
         </div>
         {mobileReports.slice(0, 2).map(r => (
           <div key={r.id} role="button" tabIndex={0} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' }}
@@ -341,11 +341,11 @@ export default function PatientMobileApp() {
       <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <div style={s.cardTitle}>{t('mobileApp.messages')}</div>
-          <span role="button" tabIndex={0} style={{ fontSize: 12, color: '#3b82f6', cursor: 'pointer' }} onClick={() => setActiveTab('notifications')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab('notifications') } }}>{t('mobileApp.viewAll')}</span>
+          <span role="button" tabIndex={0} style={{ fontSize: 12, color: 'var(--color-primary-500)', cursor: 'pointer' }} onClick={() => setActiveTab('notifications')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab('notifications') } }}>{t('mobileApp.viewAll')}</span>
         </div>
         {mobileNotifications.filter(n => !n.read).slice(0, 2).map(n => (
           <div key={n.id} style={{ display: 'flex', gap: 10, padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#3b82f6', marginTop: 4, flexShrink: 0 }} />
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--color-primary-500)', marginTop: 4, flexShrink: 0 }} />
             <div>
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{n.title}</div>
               <div style={{ fontSize: 12, color: '#94a3b8' }}>{n.body}</div>
@@ -360,7 +360,7 @@ export default function PatientMobileApp() {
     <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
       {selectedReport ? (
         <div>
-          <button style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, color: '#3b82f6', marginBottom: 12, padding: 0 }} onClick={() => setSelectedReport(null)}>
+          <button style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--color-primary-500)', marginBottom: 12, padding: 0 }} onClick={() => setSelectedReport(null)}>
             {t('mobileApp.backToList')}
           </button>
           <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>{selectedReport.examType}</div>
@@ -369,7 +369,7 @@ export default function PatientMobileApp() {
             检查描述：双肺野清晰，肺纹理走行自然。\n诊断意见：未见明显异常。
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={() => void handleDownloadPdf(selectedReport)} disabled={downloadingPdf} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: downloadingPdf ? '#93c5fd' : '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600, cursor: downloadingPdf ? 'wait' : 'pointer' }}>{downloadingPdf ? t('mobileApp.exporting') : t('mobileApp.downloadPdf')}</button>
+            <button onClick={() => void handleDownloadPdf(selectedReport)} disabled={downloadingPdf} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: downloadingPdf ? '#93c5fd' : 'var(--color-primary-500)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: downloadingPdf ? 'wait' : 'pointer' }}>{downloadingPdf ? t('mobileApp.exporting') : t('mobileApp.downloadPdf')}</button>
             <button onClick={() => void handleViewImages(selectedReport)} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: '#059669', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('mobileApp.viewImagesBtn')}</button>
           </div>
           <div style={{ marginTop: 12, padding: 10, background: '#f0f9ff', borderRadius: 8, border: '1px solid #bae6fd' }}>
@@ -423,7 +423,7 @@ export default function PatientMobileApp() {
       <div style={s.cardTitle}>{t('mobileApp.action.messageCenter')}</div>
       {mobileNotifications.map(n => (
         <div key={n.id} style={{ display: 'flex', gap: 10, padding: '10px 0', borderBottom: '1px solid var(--border-color)' }}>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', background: n.read ? 'var(--border-color)' : '#3b82f6', marginTop: 5, flexShrink: 0 }} />
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: n.read ? 'var(--border-color)' : 'var(--color-primary-500)', marginTop: 5, flexShrink: 0 }} />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{n.title}</div>
             <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{n.body}</div>
@@ -450,7 +450,7 @@ export default function PatientMobileApp() {
         <div style={{ marginTop: 12, fontSize: 12, color: loginState === 'success' ? '#059669' : '#94a3b8' }}>
           {t('mobileApp.loginStatus')} {loginState === 'success' ? t('mobileApp.smsVerified') : t('mobileApp.notLoggedIn')}
           {loginState !== 'success' && (
-            <button onClick={() => setActiveTab('login')} style={{ marginLeft: 8, border: 'none', background: '#3b82f6', color: '#fff', padding: '4px 10px', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
+            <button onClick={() => setActiveTab('login')} style={{ marginLeft: 8, border: 'none', background: 'var(--color-primary-500)', color: '#fff', padding: '4px 10px', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
               {t('mobileApp.goLogin')}
             </button>
           )}
@@ -476,7 +476,7 @@ export default function PatientMobileApp() {
   const renderLogin = () => (
     <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
       <div style={{ ...s.cardTitle, display: 'flex', alignItems: 'center', gap: 6 }}>
-        <Smartphone size={16} color="#1e40af" /> {t('mobileApp.phoneLogin')}
+        <Smartphone size={16} color="var(--color-primary-800)" /> {t('mobileApp.phoneLogin')}
       </div>
       <div style={{ fontSize: 12, color: '#64748b', marginBottom: 12 }}>
         {t('mobileApp.phoneLoginHint')}
@@ -505,7 +505,7 @@ export default function PatientMobileApp() {
           disabled={smsCountdown > 0 || loginState === 'sending'}
           style={{
             border: 'none',
-            background: smsCountdown > 0 ? '#e2e8f0' : '#3b82f6',
+            background: smsCountdown > 0 ? '#e2e8f0' : 'var(--color-primary-500)',
             color: smsCountdown > 0 ? '#94a3b8' : '#fff',
             padding: '6px 10px',
             borderRadius: 6,
@@ -517,7 +517,7 @@ export default function PatientMobileApp() {
           {smsCountdown > 0 ? `${smsCountdown}s 后重发` : t('mobileApp.getSmsCode')}
         </button>
       </div>
-      {loginError && <div style={{ fontSize: 12, color: '#dc2626', marginBottom: 8 }}>{loginError}</div>}
+      {loginError && <div style={{ fontSize: 12, color: 'var(--color-error-600)', marginBottom: 8 }}>{loginError}</div>}
       <button
         onClick={verifySmsCode}
         disabled={loginState === 'verifying'}
@@ -548,7 +548,7 @@ export default function PatientMobileApp() {
   return (
     <div style={s.wrapper}>
       {/* Status Bar */}
-      <div style={{ background: '#1e40af', color: '#fff', padding: '6px 16px', fontSize: 12, display: 'flex', justifyContent: 'space-between' }}>
+      <div style={{ background: 'var(--color-primary-800)', color: '#fff', padding: '6px 16px', fontSize: 12, display: 'flex', justifyContent: 'space-between' }}>
         <span>9:41</span>
         <span>100%</span>
       </div>
@@ -622,7 +622,7 @@ export default function PatientMobileApp() {
                 </div>
                 <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
                   <button onClick={() => setImageViewer(null)} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: '1px solid #334155', background: 'transparent', color: '#cbd5e1', fontSize: 12, cursor: 'pointer' }}>{t('mobileApp.close')}</button>
-                  <button onClick={() => void document.documentElement.requestFullscreen?.().catch(() => {})} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: '#3b82f6', color: '#fff', fontSize: 12, cursor: 'pointer' }}>{t('mobileApp.fullscreen')}</button>
+                  <button onClick={() => void document.documentElement.requestFullscreen?.().catch(() => {})} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: 'var(--color-primary-500)', color: '#fff', fontSize: 12, cursor: 'pointer' }}>{t('mobileApp.fullscreen')}</button>
                 </div>
               </>
             )}

@@ -277,7 +277,7 @@ export default function DeptDashboardPage() {
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16, justifyContent: 'space-between', width: '100%' }}>
         <Space>
-          <BarChart3 size={20} color="#2563eb" />
+          <BarChart3 size={20} color="var(--color-primary-600)" />
           <Title level={4} style={{ margin: 0 }}>
             {t('deptDash.title')}
           </Title>
@@ -348,7 +348,7 @@ export default function DeptDashboardPage() {
                             dataKey={k}
                             stackId="t"
                             name={state.timeliness?.buckets[i]?.bucket ?? k}
-                            fill={TIMELINESS_COLORS[i % TIMELINESS_COLORS.length] ?? '#2563eb'}
+                            fill={TIMELINESS_COLORS[i % TIMELINESS_COLORS.length] ?? 'var(--color-primary-600)'}
                           />
                         ))}
                   </BarChart>
@@ -368,7 +368,7 @@ export default function DeptDashboardPage() {
                   <YAxis />
                   <ReTooltip />
                   <Legend />
-                  <Bar dataKey="reportCount" name={t('deptDash.reportCount')} fill="#2563eb" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="reportCount" name={t('deptDash.reportCount')} fill="var(--color-primary-600)" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="rvu" name="RVU" fill="#52c41a" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ChartContainer>
@@ -505,7 +505,7 @@ export default function DeptDashboardPage() {
                   <YAxis />
                   <ReTooltip />
                   <Legend />
-                  <Line type="monotone" dataKey={t('deptDash.examCount')} stroke="#2563eb" dot={false} />
+                  <Line type="monotone" dataKey={t('deptDash.examCount')} stroke="var(--color-primary-600)" dot={false} />
                   <Line type="monotone" dataKey={t('deptDash.reportVolume')} stroke="#52c41a" dot={false} />
                 </LineChart>
               </ChartContainer>

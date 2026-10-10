@@ -115,8 +115,8 @@ export function Hl7AnalyticsSection() {
           percent
           height={240}
           series={[
-            { key: 'success', name: t('hl7Ext.success'), color: '#16a34a' },
-            { key: 'failed', name: t('hl7Ext.failed'), color: '#dc2626' },
+            { key: 'success', name: t('hl7Ext.success'), color: 'var(--color-success-600)' },
+            { key: 'failed', name: t('hl7Ext.failed'), color: 'var(--color-error-600)' },
           ]}
         />
       </DashboardCard>

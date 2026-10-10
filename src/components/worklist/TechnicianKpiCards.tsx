@@ -17,11 +17,11 @@ interface Props {
 
 const CARD_DEFS = (t: KpiTotals) => [
   { key: 'completedCount', label: '完成检查数', value: String(t.completedCount), unit: '项', color: '#059669', icon: <CheckCircle2 size={16} /> },
-  { key: 'avgDurationMin', label: '平均检查时长', value: String(t.avgDurationMin), unit: 'min', color: '#2563eb', icon: <Timer size={16} /> },
-  { key: 'retakeRate', label: '重拍率', value: String(t.retakeRate), unit: '%', color: '#dc2626', icon: <RefreshCw size={16} /> },
+  { key: 'avgDurationMin', label: '平均检查时长', value: String(t.avgDurationMin), unit: 'min', color: 'var(--color-primary-600)', icon: <Timer size={16} /> },
+  { key: 'retakeRate', label: '重拍率', value: String(t.retakeRate), unit: '%', color: 'var(--color-error-600)', icon: <RefreshCw size={16} /> },
   { key: 'deviceUtilization', label: '设备占用率', value: String(t.deviceUtilization), unit: '%', color: '#7c3aed', icon: <Monitor size={16} /> },
   { key: 'onTimeRate', label: '按时签到率', value: String(t.onTimeRate), unit: '%', color: '#0d9488', icon: <CalendarCheck size={16} /> },
-  { key: 'avgWaitTime', label: '平均等待', value: String(t.avgWaitTime), unit: 'min', color: '#d97706', icon: <Clock size={16} /> },
+  { key: 'avgWaitTime', label: '平均等待', value: String(t.avgWaitTime), unit: 'min', color: 'var(--color-warning-600)', icon: <Clock size={16} /> },
 ]
 
 export default function TechnicianKpiCards({ totals, loading }: Props) {

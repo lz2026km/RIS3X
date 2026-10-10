@@ -22,12 +22,12 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { t } from "../../i18n/appI18n";
 
 const CADRADS_COLORS: Record<string, string> = {
-  0: "#16a34a",
-  1: "#16a34a",
+  0: "var(--color-success-600)",
+  1: "var(--color-success-600)",
   2: "#ca8a04",
   3: "#ea580c",
-  "4A": "#dc2626",
-  "4B": "#dc2626",
+  "4A": "var(--color-error-600)",
+  "4B": "var(--color-error-600)",
   5: "#7f1d1d",
   N: "#94a3b8",
 };
@@ -64,10 +64,10 @@ const CadRadsTag = ({ v }: { v: string | number }) => {
 };
 
 const MODALITY_COLORS: Record<string, string> = {
-  CCTA: "#1e40af",
+  CCTA: "var(--color-primary-800)",
   CMR: "#7c3aed",
-  Echo: "#0891b2",
-  Cath: "#d97706",
+  Echo: "var(--color-info-600)",
+  Cath: "var(--color-warning-600)",
 };
 
 const CardiacSpecialtyPage = () => {
@@ -243,9 +243,9 @@ const CardiacSpecialtyPage = () => {
               gap: 8,
             }}
           >
-            <Heart size={24} color="#1e40af" /> {t('cardiacSpec.title')} <span style={{           fontSize: 11,
+            <Heart size={24} color="var(--color-primary-800)" /> {t('cardiacSpec.title')} <span style={{           fontSize: 11,
           padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-info-bg)',
-          color: dataSource === 'real' ? '#16a34a' : '#1e40af', border: `1px solid ${dataSource === 'real' ? 'var(--color-success-border)' : 'var(--color-pending-border)'}`  }}>{dataSource === 'real' ? t('cardiacSpec.dataRealtime') : t('cardiacSpec.dataDemo')}</span>
+          color: dataSource === 'real' ? 'var(--color-success-600)' : 'var(--color-primary-800)', border: `1px solid ${dataSource === 'real' ? 'var(--color-success-border)' : 'var(--color-pending-border)'}`  }}>{dataSource === 'real' ? t('cardiacSpec.dataRealtime') : t('cardiacSpec.dataDemo')}</span>
           </h1>
           <p style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
             {t('cardiacSpec.subtitle')}
@@ -303,21 +303,21 @@ const CardiacSpecialtyPage = () => {
               label: "cardiacSpec.kpi.total",
               value: String(analyses.length),
               icon: Activity,
-              color: "#1e40af",
+              color: "var(--color-primary-800)",
               bg: "var(--color-info-bg)",
             },
             {
               label: "cardiacSpec.kpi.severeStenosis",
               value: String(highStenosis),
               icon: AlertTriangle,
-              color: "#dc2626",
+              color: "var(--color-error-600)",
               bg: "var(--color-error-bg)",
             },
             {
               label: "cardiacSpec.kpi.avgEf",
               value: `${avgEf}%`,
               icon: Gauge,
-              color: "#16a34a",
+              color: "var(--color-success-600)",
               bg: "var(--color-success-bg)",
             },
             {
@@ -387,7 +387,7 @@ const CardiacSpecialtyPage = () => {
                 cursor: "pointer",
                 fontSize: 12,
                 fontWeight: 600,
-                background: tab === tb.key ? "#1e40af" : "var(--content-bg)",
+                background: tab === tb.key ? "var(--color-primary-800)" : "var(--content-bg)",
                 color: tab === tb.key ? "#fff" : "#64748b",
               }}
             >
@@ -423,7 +423,7 @@ const CardiacSpecialtyPage = () => {
                   gap: 8,
                 }}
               >
-                <Activity size={16} color="#1e40af" /> {t('cardiacSpec.coronaryList')}
+                <Activity size={16} color="var(--color-primary-800)" /> {t('cardiacSpec.coronaryList')}
               </div>
               <div style={{ display: "flex", gap: 8 }}>
                 <div
@@ -529,10 +529,10 @@ const CardiacSpecialtyPage = () => {
                               ef == null
                                 ? "#94a3b8"
                                 : ef < 40
-                                  ? "#dc2626"
+                                  ? "var(--color-error-600)"
                                   : ef < 50
                                     ? "#ea580c"
-                                    : "#16a34a",
+                                    : "var(--color-success-600)",
                             fontWeight: 700,
                           }}
                         >
@@ -554,7 +554,7 @@ const CardiacSpecialtyPage = () => {
                               calcium == null
                                 ? "#94a3b8"
                                 : calcium > 400
-                                  ? "#dc2626"
+                                  ? "var(--color-error-600)"
                                   : calcium > 100
                                     ? "#ea580c"
                                     : "#64748b",
@@ -588,10 +588,10 @@ const CardiacSpecialtyPage = () => {
                                   : "var(--color-success-bg)",
                             color:
                               maxStenosis >= 70
-                                ? "#dc2626"
+                                ? "var(--color-error-600)"
                                 : maxStenosis >= 50
                                   ? "#ea580c"
-                                  : "#16a34a",
+                                  : "var(--color-success-600)",
                           }}
                         >
                           {maxStenosis >= 70
@@ -635,7 +635,7 @@ const CardiacSpecialtyPage = () => {
                   marginBottom: 16,
                 }}
               >
-                <Gauge size={16} color="#1e40af" /> {t('cardiacSpec.functionOverview')}
+                <Gauge size={16} color="var(--color-primary-800)" /> {t('cardiacSpec.functionOverview')}
               </div>
               {analyses
                 .filter((a) => a.lvFunction)
@@ -662,7 +662,7 @@ const CardiacSpecialtyPage = () => {
             justifyContent: "center",
             fontWeight: 700,
                         fontSize: 12,
-                        color: "#1e40af",
+                        color: "var(--color-primary-800)",
                       }}
                     >
                       {a.patientName[0]}
@@ -682,10 +682,10 @@ const CardiacSpecialtyPage = () => {
                           fontWeight: 800,
                           color:
                             (a.lvFunction?.efPercent ?? 100) < 40
-                              ? "#dc2626"
+                              ? "var(--color-error-600)"
                               : (a.lvFunction?.efPercent ?? 100) < 50
                                 ? "#ea580c"
-                                : "#16a34a",
+                                : "var(--color-success-600)",
                         }}
                       >
                         {a.lvFunction?.efPercent}%
@@ -778,7 +778,7 @@ const CardiacSpecialtyPage = () => {
                 }}
               >
                 <span>
-                  <Stethoscope size={16} color="#1e40af" /> {t('cardiacSpec.coronarySegments')}
+                  <Stethoscope size={16} color="var(--color-primary-800)" /> {t('cardiacSpec.coronarySegments')}
                 </span>
                 <Select
                   size="small"
@@ -799,12 +799,12 @@ const CardiacSpecialtyPage = () => {
                   const stenosis = found?.stenosisPercent ?? 0;
                   const severity =
                     stenosis >= 70
-                      ? "#dc2626"
+                      ? "var(--color-error-600)"
                       : stenosis >= 50
                         ? "#ea580c"
                         : stenosis >= 25
                           ? "#ca8a04"
-                          : "#16a34a";
+                          : "var(--color-success-600)";
                   return (
                     <div
                       key={seg.key}
@@ -872,7 +872,7 @@ const CardiacSpecialtyPage = () => {
                   marginBottom: 16,
                 }}
               >
-                <Heart size={16} color="#dc2626" /> {t('cardiacSpec.calciumDistribution')}
+                <Heart size={16} color="var(--color-error-600)" /> {t('cardiacSpec.calciumDistribution')}
               </div>
               {selected?.calciumScore ? (
                 <>
@@ -970,7 +970,7 @@ const CardiacSpecialtyPage = () => {
                   marginBottom: 16,
                 }}
               >
-                <BarChart3 size={16} color="#1e40af" /> {t('cardiacSpec.cadRadsDistribution')}
+                <BarChart3 size={16} color="var(--color-primary-800)" /> {t('cardiacSpec.cadRadsDistribution')}
               </div>
               {cadRadsDistribution.length === 0 ? (
                 <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('cardiacSpec.noData')} />
@@ -1049,7 +1049,7 @@ const CardiacSpecialtyPage = () => {
                   marginBottom: 16,
                 }}
               >
-                <TrendingUp size={16} color="#16a34a" /> {t('cardiacSpec.efTrend')}
+                <TrendingUp size={16} color="var(--color-success-600)" /> {t('cardiacSpec.efTrend')}
               </div>
               {efTrend.length === 0 ? (
                 <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('cardiacSpec.noData')} />
@@ -1079,7 +1079,7 @@ const CardiacSpecialtyPage = () => {
                         style={{
                           height: "100%",
                           width: `${Math.min(tr.avgEf, 100)}%`,
-                          background: "#16a34a",
+                          background: "var(--color-success-600)",
                           borderRadius: 3,
                         }}
                       />

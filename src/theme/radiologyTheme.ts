@@ -15,18 +15,18 @@
 /** 放射专业色板 (浅色) */
 export const RADIOLOGY_PALETTE_LIGHT = {
   /** 主色: 医疗蓝 */
-  primary: "#2563eb",
-  primaryHover: "#1d4ed8",
-  primaryActive: "#1e40af",
+  primary: "var(--color-primary-600)",
+  primaryHover: "var(--color-primary-700)",
+  primaryActive: "var(--color-primary-800)",
   primaryBg: "#eff6ff",
   /** 功能色 */
-  critical: "#dc2626",
+  critical: "var(--color-error-600)",
   criticalBg: "#fef2f2",
-  warning: "#f59e0b",
+  warning: "var(--color-warning-500)",
   warningBg: "#fffbeb",
-  success: "#16a34a",
+  success: "var(--color-success-600)",
   successBg: "#f0fdf4",
-  info: "#0891b2",
+  info: "var(--color-info-600)",
   infoBg: "#ecfeff",
   /** 背景层级: 页面 / 卡片 / 悬浮 */
   bgPage: "#f1f5f9",
@@ -45,13 +45,13 @@ export const RADIOLOGY_PALETTE_LIGHT = {
 
 /** 放射专业色板 (深色 - 强化对比度与专业感) */
 export const RADIOLOGY_PALETTE_DARK = {
-  primary: "#3b82f6",
+  primary: "var(--color-primary-500)",
   primaryHover: "#60a5fa",
-  primaryActive: "#2563eb",
+  primaryActive: "var(--color-primary-600)",
   primaryBg: "rgba(59, 130, 246, 0.14)",
   critical: "#f87171",
   criticalBg: "rgba(248, 113, 113, 0.12)",
-  warning: "#fbbf24",
+  warning: "var(--color-warning-400)",
   warningBg: "rgba(251, 191, 36, 0.12)",
   success: "#4ade80",
   successBg: "rgba(74, 222, 128, 0.12)",
@@ -135,27 +135,27 @@ export const RADIOLOGY_TOKENS = {
 
 /** 模态设备色 (PACS 工作站习惯色) */
 export const RADIOLOGY_MODALITY_COLORS: Record<string, string> = {
-  CT: "#3b82f6",
+  CT: "var(--color-primary-500)",
   MR: "#8b5cf6",
-  DR: "#22c55e",
+  DR: "var(--color-success-500)",
   CR: "#14b8a6",
-  US: "#06b6d4",
+  US: "var(--color-info-500)",
   MG: "#ec4899",
-  NM: "#f59e0b",
+  NM: "var(--color-warning-500)",
   PET: "#f97316",
   DSA: "#eab308",
   RF: "#64748b",
   XA: "#eab308",
-  DX: "#22c55e",
+  DX: "var(--color-success-500)",
   OT: "#94a3b8",
 };
 
 /** 状态色 (危急值体系) */
 export const RADIOLOGY_STATUS_COLORS = {
-  critical: "#dc2626",
-  warning: "#f59e0b",
-  success: "#16a34a",
-  pending: "#2563eb",
+  critical: "var(--color-error-600)",
+  warning: "var(--color-warning-500)",
+  success: "var(--color-success-600)",
+  pending: "var(--color-primary-600)",
   expired: "#64748b",
   abnormal: "#b91c1c",
 } as const;
@@ -170,7 +170,7 @@ export const RADIOLOGY_COMPONENT_TOKENS = {
   Menu: {
     darkItemBg: "#0f172a",
     darkSubMenuItemBg: "#0f172a",
-    darkItemSelectedBg: "#1e40af",
+    darkItemSelectedBg: "var(--color-primary-800)",
     darkItemColor: "#cbd5e1",
   },
   Card: {
@@ -208,7 +208,7 @@ export const RADIOLOGY_COMPONENT_TOKENS_DARK = {
   Menu: {
     darkItemBg: "#0f172a",
     darkSubMenuItemBg: "#0f172a",
-    darkItemSelectedBg: "#2563eb",
+    darkItemSelectedBg: "var(--color-primary-600)",
     darkItemColor: "#cbd5e1",
   },
   Card: {

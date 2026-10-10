@@ -164,7 +164,7 @@ const CoronaryPanel: React.FC<{ r: CoronaryResult }> = ({ r }) => {
   return (
     <Space orientation="vertical" size={16} style={{ width: "100%" }}>
       <div>
-        <SectionTitle icon={<HeartPulse size={15} color="#2563eb" />} text={t("w3quant.coronary.title")} />
+        <SectionTitle icon={<HeartPulse size={15} color="var(--color-primary-600)" />} text={t("w3quant.coronary.title")} />
         <Row gutter={[12, 12]}>
           <Col xs={12} sm={8} md={6}>
             <MetricCard
@@ -177,7 +177,7 @@ const CoronaryPanel: React.FC<{ r: CoronaryResult }> = ({ r }) => {
             <MetricCard
               title="CAD-RADS"
               value={r.cadRads}
-              tone={r.cadRads >= 4 ? "#f5222d" : r.cadRads === 3 ? "#fa8c16" : "#2563eb"}
+              tone={r.cadRads >= 4 ? "#f5222d" : r.cadRads === 3 ? "#fa8c16" : "var(--color-primary-600)"}
               hint={pick("分级 0-5", "Category 0-5")}
             />
           </Col>
@@ -329,7 +329,7 @@ function severityOf(v: number): StenosisSeverity {
 const StrokePanel: React.FC<{ r: StrokeResult }> = ({ r }) => (
   <Space orientation="vertical" size={16} style={{ width: "100%" }}>
     <div>
-      <SectionTitle icon={<Brain size={15} color="#2563eb" />} text={t("w3quant.stroke.title")} />
+      <SectionTitle icon={<Brain size={15} color="var(--color-primary-600)" />} text={t("w3quant.stroke.title")} />
       <Row gutter={[12, 12]}>
         <Col xs={12} sm={8} md={6}>
           <MetricCard
@@ -340,7 +340,7 @@ const StrokePanel: React.FC<{ r: StrokeResult }> = ({ r }) => (
           />
         </Col>
         <Col xs={12} sm={8} md={6}>
-          <MetricCard title={t("w3quant.stroke.collateral")} value={r.collateralScore} unit="0-3" tone="#2563eb" />
+          <MetricCard title={t("w3quant.stroke.collateral")} value={r.collateralScore} unit="0-3" tone="var(--color-primary-600)" />
         </Col>
         <Col xs={12} sm={8} md={6}>
           <MetricCard title={t("w3quant.stroke.core")} value={r.coreVolumeMl} unit="mL" tone={r.coreVolumeMl > 70 ? "#f5222d" : "#1f1f1f"} />
@@ -366,7 +366,7 @@ const StrokePanel: React.FC<{ r: StrokeResult }> = ({ r }) => (
         />
       </Col>
       <Col xs={12} sm={8}>
-        <MetricCard title={t("w3quant.stroke.window")} value={r.treatmentWindow} tone="#2563eb" />
+        <MetricCard title={t("w3quant.stroke.window")} value={r.treatmentWindow} tone="var(--color-primary-600)" />
       </Col>
       <Col xs={12} sm={8}>
         <MetricCard
@@ -423,7 +423,7 @@ const StrokePanel: React.FC<{ r: StrokeResult }> = ({ r }) => (
 const CarotidPanel: React.FC<{ r: CarotidResult }> = ({ r }) => (
   <Space orientation="vertical" size={16} style={{ width: "100%" }}>
     <div>
-      <SectionTitle icon={<Brain size={15} color="#2563eb" />} text={t("w3quant.carotid.title")} />
+      <SectionTitle icon={<Brain size={15} color="var(--color-primary-600)" />} text={t("w3quant.carotid.title")} />
       <Row gutter={[12, 12]}>
         <Col xs={12} sm={8}>
           <MetricCard title={t("w3quant.carotid.maxStenosis")} value={r.maxStenosis} unit="%" tone={r.maxStenosis >= 70 ? "#f5222d" : "#1f1f1f"} />
@@ -483,10 +483,10 @@ const CarotidPanel: React.FC<{ r: CarotidResult }> = ({ r }) => (
 const LiverPanel: React.FC<{ r: LiverResult }> = ({ r }) => (
   <Space orientation="vertical" size={16} style={{ width: "100%" }}>
     <div>
-      <SectionTitle icon={<Stethoscope size={15} color="#2563eb" />} text={t("w3quant.liver.title")} />
+      <SectionTitle icon={<Stethoscope size={15} color="var(--color-primary-600)" />} text={t("w3quant.liver.title")} />
       <Row gutter={[12, 12]}>
         <Col xs={12} sm={8} md={6}>
-          <MetricCard title={t("w3quant.liver.totalVolume")} value={r.totalVolumeMl} unit="mL" tone="#2563eb" />
+          <MetricCard title={t("w3quant.liver.totalVolume")} value={r.totalVolumeMl} unit="mL" tone="var(--color-primary-600)" />
         </Col>
         <Col xs={12} sm={8} md={6}>
           <MetricCard
@@ -536,10 +536,10 @@ const LiverPanel: React.FC<{ r: LiverResult }> = ({ r }) => (
 
 const BoneAgePanel: React.FC<{ r: BoneAgeResult }> = ({ r }) => (
   <Space orientation="vertical" size={16} style={{ width: "100%" }}>
-    <SectionTitle icon={<Bone size={15} color="#2563eb" />} text={t("w3quant.boneAge.title")} />
+    <SectionTitle icon={<Bone size={15} color="var(--color-primary-600)" />} text={t("w3quant.boneAge.title")} />
     <Row gutter={[12, 12]}>
       <Col xs={12} sm={8} md={6}>
-        <MetricCard title={t("w3quant.boneAge.boneAge")} value={r.boneAgeYears} unit="岁" tone="#2563eb" />
+        <MetricCard title={t("w3quant.boneAge.boneAge")} value={r.boneAgeYears} unit="岁" tone="var(--color-primary-600)" />
       </Col>
       <Col xs={12} sm={8} md={6}>
         <MetricCard title={t("w3quant.boneAge.chrono")} value={r.chronologicAgeYears} unit="岁" />
@@ -571,10 +571,10 @@ const NodulePanel: React.FC<{ r: NoduleResult }> = ({ r }) => {
   return (
     <Space orientation="vertical" size={16} style={{ width: "100%" }}>
       <div>
-        <SectionTitle icon={<Scan size={15} color="#2563eb" />} text={t("w3quant.nodule.title")} />
+        <SectionTitle icon={<Scan size={15} color="var(--color-primary-600)" />} text={t("w3quant.nodule.title")} />
         <Row gutter={[12, 12]}>
           <Col xs={12} sm={8}>
-            <MetricCard title={t("w3quant.nodule.count")} value={r.noduleCount} tone="#2563eb" />
+            <MetricCard title={t("w3quant.nodule.count")} value={r.noduleCount} tone="var(--color-primary-600)" />
           </Col>
           <Col xs={12} sm={8}>
             <MetricCard
@@ -661,7 +661,7 @@ const NodulePanel: React.FC<{ r: NoduleResult }> = ({ r }) => {
 const BreastPanel: React.FC<{ r: BreastResult }> = ({ r }) => (
   <Space orientation="vertical" size={16} style={{ width: "100%" }}>
     <div>
-      <SectionTitle icon={<Activity size={15} color="#2563eb" />} text={t("w3quant.breast.title")} />
+      <SectionTitle icon={<Activity size={15} color="var(--color-primary-600)" />} text={t("w3quant.breast.title")} />
       <Row gutter={[12, 12]}>
         <Col xs={12} sm={8} md={6}>
           <MetricCard
@@ -671,7 +671,7 @@ const BreastPanel: React.FC<{ r: BreastResult }> = ({ r }) => (
           />
         </Col>
         <Col xs={12} sm={8} md={6}>
-          <MetricCard title={t("w3quant.breast.fibroglandular")} value={r.fibroglandularPct} unit="%" tone="#2563eb" />
+          <MetricCard title={t("w3quant.breast.fibroglandular")} value={r.fibroglandularPct} unit="%" tone="var(--color-primary-600)" />
         </Col>
         <Col xs={12} sm={8} md={6}>
           <MetricCard title={t("w3quant.breast.leftPct")} value={r.leftVolumetricPct} unit="%" />
@@ -725,7 +725,7 @@ const BreastPanel: React.FC<{ r: BreastResult }> = ({ r }) => (
 
 const CtrPanel: React.FC<{ r: CtrResult }> = ({ r }) => (
   <Space orientation="vertical" size={16} style={{ width: "100%" }}>
-    <SectionTitle icon={<HeartPulse size={15} color="#2563eb" />} text={t("w3quant.ctr.title")} />
+    <SectionTitle icon={<HeartPulse size={15} color="var(--color-primary-600)" />} text={t("w3quant.ctr.title")} />
     <Row gutter={[12, 12]}>
       <Col xs={12} sm={8}>
         <MetricCard
@@ -742,7 +742,7 @@ const CtrPanel: React.FC<{ r: CtrResult }> = ({ r }) => (
         <MetricCard title={t("w3quant.ctr.thoracicWidth")} value={r.thoracicWidthMm} unit="mm" />
       </Col>
     </Row>
-    <HeatBar value={r.ctr * 100} max={70} color={r.cardiomegaly ? "#f5222d" : "#2563eb"} height={18} />
+    <HeatBar value={r.ctr * 100} max={70} color={r.cardiomegaly ? "#f5222d" : "var(--color-primary-600)"} height={18} />
     <div style={{ fontSize: 12, color: "#8c8c8c" }}>
       {pick("参考阈值: 心胸比 > 0.50 提示心脏增大", "Threshold: CTR > 0.50 suggests cardiomegaly")}
     </div>
@@ -752,7 +752,7 @@ const CtrPanel: React.FC<{ r: CtrResult }> = ({ r }) => (
 const SpineQctPanel: React.FC<{ r: SpineQctResult }> = ({ r }) => (
   <Space orientation="vertical" size={16} style={{ width: "100%" }}>
     <div>
-      <SectionTitle icon={<Bone size={15} color="#2563eb" />} text={t("w3quant.spine.title")} />
+      <SectionTitle icon={<Bone size={15} color="var(--color-primary-600)" />} text={t("w3quant.spine.title")} />
       <Row gutter={[12, 12]}>
         <Col xs={12} sm={8}>
           <MetricCard
@@ -806,7 +806,7 @@ const SpineQctPanel: React.FC<{ r: SpineQctResult }> = ({ r }) => (
 
 const BodyPanel: React.FC<{ r: BodyCompositionResult }> = ({ r }) => (
   <Space orientation="vertical" size={16} style={{ width: "100%" }}>
-    <SectionTitle icon={<Cpu size={15} color="#2563eb" />} text={t("w3quant.body.title")} />
+    <SectionTitle icon={<Cpu size={15} color="var(--color-primary-600)" />} text={t("w3quant.body.title")} />
     <Row gutter={[12, 12]}>
       <Col xs={12} sm={8} md={6}>
         <MetricCard
@@ -1008,7 +1008,7 @@ const AiQuantCenterPage: React.FC = () => {
         <Card size="small">
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
             <Space size={8}>
-              <Sparkles size={20} color="#2563eb" />
+              <Sparkles size={20} color="var(--color-primary-600)" />
               <span style={{ fontSize: 18, fontWeight: 700 }}>{t("w3quant.title")}</span>
               <Tag color="purple" data-testid="quant-badge">
                 {t("w3quant.badge")}

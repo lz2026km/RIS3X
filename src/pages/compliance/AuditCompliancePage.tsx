@@ -102,7 +102,7 @@ export const AuditCompliancePage: React.FC = () => {
   const columns = [
     { title: t('auditComp.colId'), dataIndex: 'id', width: 110 },
     { title: t('auditComp.colUser'), key: 'user', width: 130, render: (_: unknown, r: AuditEventDto) =>
-      <Space size={4}><UserCheck size={11} color="#2563eb" />{r.username ?? r.userId}</Space> },
+      <Space size={4}><UserCheck size={11} color="var(--color-primary-600)" />{r.username ?? r.userId}</Space> },
     { title: t('auditComp.colAction'), dataIndex: 'action', width: 120, render: (a: string) =>
       <Tag color={ACTION_COLOR[a] ?? 'default'}>{a}</Tag> },
     { title: t('auditComp.colResource'), key: 'resource', render: (_: unknown, r: AuditEventDto) =>
@@ -119,7 +119,7 @@ export const AuditCompliancePage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <Shield size={20} color="#2563eb" />
+        <Shield size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('auditComp.title')}</span>
         <Tag color="red" icon={<AlertTriangle size={10} />}>HIPAA</Tag>
         <Tag color="orange">三甲等级</Tag>

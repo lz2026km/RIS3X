@@ -20,11 +20,11 @@ import {
   Brain, Bot, Scan, Gauge, MessageSquare, Wrench
 } from 'lucide-react'
 
-const PRIMARY = '#3b82f6'
-const PRIMARY_DARK = '#2563eb'
+const PRIMARY = 'var(--color-primary-500)'
+const PRIMARY_DARK = 'var(--color-primary-600)'
 const SUCCESS = '#10b981'
-const WARNING = '#f59e0b'
-const DANGER = '#ef4444'
+const WARNING = 'var(--color-warning-500)'
+const DANGER = 'var(--color-error-500)'
 const GRAY = '#94a3b8'
 const DARK_BG = '#0f172a'
 const DARK_CARD = '#1e293b'
@@ -140,7 +140,7 @@ const STATS = getStats()
 // AI评分颜色
 const getScoreColor = (score: number) => {
   if (score >= 90) return SUCCESS
-  if (score >= 80) return '#22c55e'
+  if (score >= 80) return 'var(--color-success-500)'
   if (score >= 70) return WARNING
   if (score >= 60) return '#f97316'
   return DANGER
@@ -512,7 +512,7 @@ export default function AIQCPage() {
       value: liveStats.todayComplete,
       unit: t('aiQcPage.cases'),
       icon: <CheckCircle size={22} />,
-      bg: '#1e40af',
+      bg: 'var(--color-primary-800)',
       color: PRIMARY,
       trend: '+12%',
       trendUp: true,
@@ -634,7 +634,7 @@ export default function AIQCPage() {
     }}>
       {/* [v1.0.4 R4] 升级入口横幅 */}
       <div style={{
-        background: 'linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%)',
+        background: 'linear-gradient(135deg, #7c3aed 0%, var(--color-primary-500) 100%)',
         borderRadius: 10, padding: 12, marginBottom: 16,
         display: 'flex', alignItems: 'center', gap: 12,
       }}>
@@ -749,14 +749,14 @@ export default function AIQCPage() {
             borderRadius: 8,
             border: `1px solid ${WARNING}66`,
             background: `${WARNING}14`,
-            color: '#fbbf24',
+            color: 'var(--color-warning-400)',
             fontSize: 12,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
           }}>
             <span>{apiError}{t('aiQcPage.continueDemo')}</span>
-            <button onClick={() => { setApiError(''); void loadApiQc() }} style={{ background: 'transparent', border: 'none', color: '#fbbf24', cursor: 'pointer', fontSize: 12 }}>{t('aiQcPage.retry')}</button>
+            <button onClick={() => { setApiError(''); void loadApiQc() }} style={{ background: 'transparent', border: 'none', color: 'var(--color-warning-400)', cursor: 'pointer', fontSize: 12 }}>{t('aiQcPage.retry')}</button>
           </div>
         )}
       </div>
@@ -1238,7 +1238,7 @@ export default function AIQCPage() {
           </div>
         )}
         {assessError && (
-          <div style={{ padding: '10px 20px', borderBottom: `1px solid ${DARK_BORDER}`, color: '#fbbf24', fontSize: 12 }}>
+          <div style={{ padding: '10px 20px', borderBottom: `1px solid ${DARK_BORDER}`, color: 'var(--color-warning-400)', fontSize: 12 }}>
             {assessError}
           </div>
         )}
@@ -1324,7 +1324,7 @@ export default function AIQCPage() {
                         {dim.data.issues.map((iss, i) => (
                           <div key={i} style={{
                             fontSize: 12,
-                            color: iss.includes('未见') || iss.includes('正常') || iss.includes('正确') ? SUCCESS : '#fbbf24',
+                            color: iss.includes('未见') || iss.includes('正常') || iss.includes('正确') ? SUCCESS : 'var(--color-warning-400)',
                             display: 'flex',
                             alignItems: 'flex-start',
                             gap: 5,

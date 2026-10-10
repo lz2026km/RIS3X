@@ -259,7 +259,7 @@ const PacsAdminPage: React.FC = () => {
   }
 
   const serverColumns = [
-    { title: t('pacsAdmin.name'), dataIndex: 'name', key: 'name', render: (v: string, r: PacsServer) => <Space><Server size={14} color="#2563eb" /><b>{v}</b><Tag>{r.aeTitle}</Tag></Space> },
+    { title: t('pacsAdmin.name'), dataIndex: 'name', key: 'name', render: (v: string, r: PacsServer) => <Space><Server size={14} color="var(--color-primary-600)" /><b>{v}</b><Tag>{r.aeTitle}</Tag></Space> },
     { title: t('pacsAdmin.host'), dataIndex: 'hostname', key: 'hostname', render: (v: string) => <Typography.Text style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</Typography.Text> },
     { title: t('pacsAdmin.port'), dataIndex: 'port', key: 'port', width: 80 },
     { title: t('pacsAdmin.aeTitle'), dataIndex: 'aeTitle', key: 'ae', width: 130, render: (v: string) => <Tag color="blue">{v}</Tag> },
@@ -294,7 +294,7 @@ const PacsAdminPage: React.FC = () => {
 
   // [G005 Wave1A P0-1] 节点 / 工作列表 / 归档 / 日志 / 配置 / 路由 列定义
   const nodeColumns = [
-    { title: t('pacsAdmin.name'), dataIndex: 'name', key: 'name', render: (v: string, r: PacsNode) => <Space><Server size={14} color="#2563eb" /><b>{v}</b><Tag>{r.aeTitle}</Tag></Space> },
+    { title: t('pacsAdmin.name'), dataIndex: 'name', key: 'name', render: (v: string, r: PacsNode) => <Space><Server size={14} color="var(--color-primary-600)" /><b>{v}</b><Tag>{r.aeTitle}</Tag></Space> },
     { title: t('pacsAdmin.host'), dataIndex: 'hostname', key: 'hostname', render: (v: string) => <Typography.Text style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</Typography.Text> },
     { title: t('pacsAdmin.port'), dataIndex: 'port', key: 'port', width: 70 },
     { title: t('pacsAdmin.modality'), dataIndex: 'modality', key: 'modality', width: 70, render: (v: string) => <Tag color="purple">{v}</Tag> },
@@ -374,7 +374,7 @@ const PacsAdminPage: React.FC = () => {
         style={{ marginBottom: 16 }}
       />
       <Space style={{ marginBottom: 16 }} wrap>
-        <Server size={20} color="#2563eb" />
+        <Server size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('pacsAdmin.title')}</span>
         <Tag color="cyan">v3.0.6.11-86</Tag>
         <Tag color="green">{t('pacsAdmin.tagDicom')}</Tag>
@@ -539,7 +539,7 @@ const PacsAdminPage: React.FC = () => {
         ) : detailServer ? (
           <Descriptions column={1} size="small" bordered>
             <Descriptions.Item label={t('pacsAdmin.name')}>
-              <Space><Server size={14} color="#2563eb" /><b>{detailServer.name}</b><Tag>{detailServer.aeTitle}</Tag></Space>
+              <Space><Server size={14} color="var(--color-primary-600)" /><b>{detailServer.name}</b><Tag>{detailServer.aeTitle}</Tag></Space>
             </Descriptions.Item>
             <Descriptions.Item label={t('pacsAdmin.host')}>
               <Typography.Text style={{ fontFamily: 'monospace' }}>{detailServer.hostname}:{detailServer.port}</Typography.Text>

@@ -22,9 +22,9 @@ import { t } from '../i18n/appI18n';
 // 状态配置
 // ============================================================
 const STATUS_CONFIG = {
-  pending:   { color: '#f59e0b', bg: '#f59e0b22' },
+  pending:   { color: 'var(--color-warning-500)', bg: '#f59e0b22' },
   confirmed: { color: '#10b981', bg: '#22c55e22' },
-  invalid:   { color: '#ef4444', bg: '#ef444422' },
+  invalid:   { color: 'var(--color-error-500)', bg: '#ef444422' },
 };
 
 const blockchainStatusLabel = (s: string): string => ({
@@ -162,7 +162,7 @@ export default function BlockchainProofPage() {
             <span style={{
               fontSize: 11, padding: '2px 8px', borderRadius: 10,
               background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-              color: source === 'api' ? '#16a34a' : '#92400e',
+              color: source === 'api' ? 'var(--color-success-600)' : '#92400e',
               border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
               fontWeight: 500,
             }}>
@@ -171,7 +171,7 @@ export default function BlockchainProofPage() {
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('blockchain.subtitle')}
-            {apiError && <span style={{ color: '#dc2626', marginLeft: 8 }}>{apiError}</span>}
+            {apiError && <span style={{ color: 'var(--color-error-600)', marginLeft: 8 }}>{apiError}</span>}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -188,8 +188,8 @@ export default function BlockchainProofPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
         <KpiCard icon={Database} label={t('blockchain.statTotal')} value={records.length} color="#7c3aed" />
         <KpiCard icon={CheckCircle2} label={t('blockchain.statConfirmed')} value={records.filter(r => r.status === 'confirmed').length} color="#10b981" />
-        <KpiCard icon={Clock} label={t('blockchain.statPending')} value={records.filter(r => r.status === 'pending').length} color="#f59e0b" />
-        <KpiCard icon={Shield} label={t('blockchain.statLatestBlock')} value={records[0]?.blockNumber.toLocaleString() || '182360'} color="#3b82f6" />
+        <KpiCard icon={Clock} label={t('blockchain.statPending')} value={records.filter(r => r.status === 'pending').length} color="var(--color-warning-500)" />
+        <KpiCard icon={Shield} label={t('blockchain.statLatestBlock')} value={records[0]?.blockNumber.toLocaleString() || '182360'} color="var(--color-primary-500)" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '460px 1fr', gap: 12 }}>
@@ -272,14 +272,14 @@ export default function BlockchainProofPage() {
 
             {/* 哈希详情 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Hash size={13} /> {t('blockchain.hashAndSignature')}
               </div>
               <HashRow label={t('blockchain.reportHash')} value={selected.reportHash} />
               <HashRow label={t('blockchain.txHash')} value={selected.txHash} />
               <HashRow label={t('blockchain.blockHash')} value={selected.blockHash} />
               <HashRow label={t('blockchain.merkleRoot')} value={selected.merkleRoot} />
-              <div style={{ marginTop: 8, padding: 6, background: 'var(--color-info-bg)', borderRadius: 4, fontSize: 12, color: '#1e40af' }}>
+              <div style={{ marginTop: 8, padding: 6, background: 'var(--color-info-bg)', borderRadius: 4, fontSize: 12, color: 'var(--color-primary-800)' }}>
                 <strong>{t('blockchain.signers')}</strong> {selected.signers.join('、')}
               </div>
             </div>
@@ -338,16 +338,16 @@ export default function BlockchainProofPage() {
 
             {/* 区块可视化 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <GitBranch size={13} /> {t('blockchain.blockStructure')}
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 6, fontSize: 12 }}>
                 {[
                   { label: t('blockchain.blockHeader'), desc: '# ' + selected.blockNumber, color: '#7c3aed' },
-                  { label: t('blockchain.prevHash'), desc: 'prev_block', color: '#3b82f6' },
+                  { label: t('blockchain.prevHash'), desc: 'prev_block', color: 'var(--color-primary-500)' },
                   { label: t('blockchain.merkleRoot'), desc: 'tx_root', color: '#10b981' },
-                  { label: t('blockchain.timestamp'), desc: 'ts', color: '#f59e0b' },
-                  { label: t('blockchain.difficultyNonce'), desc: '0x0001', color: '#dc2626' },
+                  { label: t('blockchain.timestamp'), desc: 'ts', color: 'var(--color-warning-500)' },
+                  { label: t('blockchain.difficultyNonce'), desc: '0x0001', color: 'var(--color-error-600)' },
                 ].map((c, i) => (
                   <div key={i} style={{
                     padding: 6, background: '#8b5cf622', border: `1px solid ${c.color}`, borderRadius: 4, textAlign: 'center',
@@ -377,7 +377,7 @@ const HashRow: React.FC<{ label: string; value: string }> = ({ label, value }) =
       <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{label}</span>
       <button
         onClick={() => navigator.clipboard?.writeText(value)}
-        style={{ padding: 1, border: 'none', background: 'transparent', color: '#3b82f6', cursor: 'pointer' }}
+        style={{ padding: 1, border: 'none', background: 'transparent', color: 'var(--color-primary-500)', cursor: 'pointer' }}
         title={t('blockchain.copy')}
       >
         <Copy size={10} />
@@ -401,10 +401,10 @@ const selectStyle: React.CSSProperties = {
 // ============================================================
 const KpiCard: React.FC<{ icon: any; label: string; value: number | string; color: string }> = ({ icon: Icon, label, value, color }) => {
   const c = ({
-    '#dc2626': 'error', '#ef4444': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
-    '#f59e0b': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
-    '#16a34a': 'success', '#22c55e': 'success', '#52c41a': 'success', '#10b981': 'success',
-    '#2563eb': 'primary', '#1890ff': 'primary', '#1d4ed8': 'primary',
+    'var(--color-error-600)': 'error', 'var(--color-error-500)': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
+    'var(--color-warning-500)': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
+    'var(--color-success-600)': 'success', 'var(--color-success-500)': 'success', '#52c41a': 'success', '#10b981': 'success',
+    'var(--color-primary-600)': 'primary', '#1890ff': 'primary', 'var(--color-primary-700)': 'primary',
   } as Record<string, string>)[color] ?? color;
   return <StatCard title={label} value={value} icon={<Icon size={18} />} color={c} />;
 };

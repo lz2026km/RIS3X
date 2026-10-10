@@ -18,10 +18,10 @@ export const ExportProgressTracker: React.FC<ExportProgressTrackerProps> = ({ pr
 
   const statusColor = (): string => {
     switch (progress.status) {
-      case 'running': return '#3b82f6';
-      case 'completed': return '#16a34a';
-      case 'failed': case 'cancelled': return '#dc2626';
-      case 'paused': return '#f59e0b';
+      case 'running': return 'var(--color-primary-500)';
+      case 'completed': return 'var(--color-success-600)';
+      case 'failed': case 'cancelled': return 'var(--color-error-600)';
+      case 'paused': return 'var(--color-warning-500)';
       default: return '#94a3b8';
     }
   };
@@ -62,7 +62,7 @@ export const ExportProgressTracker: React.FC<ExportProgressTrackerProps> = ({ pr
           <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4, overflow: 'hidden', marginBottom: 8 }}>
             <div style={{
               width: `${pct}%`, height: '100%',
-              background: `linear-gradient(90deg, #3b82f6, ${statusColor()})`,
+              background: `linear-gradient(90deg, var(--color-primary-500), ${statusColor()})`,
               transition: 'width 0.3s ease',
               borderRadius: 4,
             }} />
@@ -74,7 +74,7 @@ export const ExportProgressTracker: React.FC<ExportProgressTrackerProps> = ({ pr
               <div>已处理</div>
             </div>
             <div>
-              <div style={{ fontWeight: 600, color: '#dc2626' }}>{progress.failed}</div>
+              <div style={{ fontWeight: 600, color: 'var(--color-error-600)' }}>{progress.failed}</div>
               <div>失败</div>
             </div>
             <div>
@@ -94,7 +94,7 @@ export const ExportProgressTracker: React.FC<ExportProgressTrackerProps> = ({ pr
           )}
 
           {progress.errorMessage && (
-            <div style={{ marginTop: 6, padding: 6, background: '#fef2f2', borderRadius: 4, fontSize: 12, color: '#dc2626' }}>
+            <div style={{ marginTop: 6, padding: 6, background: '#fef2f2', borderRadius: 4, fontSize: 12, color: 'var(--color-error-600)' }}>
               {progress.errorMessage}
             </div>
           )}
@@ -107,7 +107,7 @@ export const ExportProgressTracker: React.FC<ExportProgressTrackerProps> = ({ pr
               <div style={{ maxHeight: 80, overflowY: 'auto', fontSize: 12, color: '#94a3b8' }}>
                 {progress.history.slice(-10).map((ev: { level: string; message: string }, i: number) => (
                   <div key={i} style={{ padding: '1px 0' }}>
-                    <span style={{ color: ev.level === 'error' ? '#dc2626' : ev.level === 'warn' ? '#d97706' : '#64748b' }}>
+                    <span style={{ color: ev.level === 'error' ? 'var(--color-error-600)' : ev.level === 'warn' ? 'var(--color-warning-600)' : '#64748b' }}>
                       [{ev.level.toUpperCase()}]
                     </span>{' '}
                     {ev.message}

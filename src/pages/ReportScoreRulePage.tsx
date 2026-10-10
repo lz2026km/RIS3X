@@ -65,7 +65,7 @@ export default function ReportScoreRulePage() {
             description: `${d.label} (满分 ${d.max})`,
             evaluationCriteria: [],
             scoringRules: [{ score: d.max, condition: `${d.label} 达标` }],
-            color: ['#3b82f6', '#7c3aed', '#10b981', '#f59e0b', '#0891b2', '#dc2626', '#8b5cf6', '#06b6d4'][i % 8] ?? '#3b82f6',
+            color: ['var(--color-primary-500)', '#7c3aed', '#10b981', 'var(--color-warning-500)', 'var(--color-info-600)', 'var(--color-error-600)', '#8b5cf6', 'var(--color-info-500)'][i % 8] ?? 'var(--color-primary-500)',
             icon: '',
           }));
           setDimensions(mapped);
@@ -142,11 +142,11 @@ export default function ReportScoreRulePage() {
 
       {/* KPI 概览 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 16 }}>
-        <KpiCard icon={FileText} label="累计评分" value={kpi.totalEvaluated} color="#3b82f6" />
+        <KpiCard icon={FileText} label="累计评分" value={kpi.totalEvaluated} color="var(--color-primary-500)" />
         <KpiCard icon={TrendingUp} label="平均分" value={kpi.avgScore} color="#10b981" />
         <KpiCard icon={CheckCircle2} label="甲级率" value={`${kpi.gradeRate.甲}%`} color="#047857" />
         <KpiCard icon={Sparkles} label="AI 采纳率" value={`${kpi.aiAcceptanceRate}%`} color="#7c3aed" />
-        <KpiCard icon={AlertCircle} label="需重训" value={kpi.retrainingNeeded} color="#f59e0b" />
+        <KpiCard icon={AlertCircle} label="需重训" value={kpi.retrainingNeeded} color="var(--color-warning-500)" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 12 }}>
@@ -158,10 +158,10 @@ export default function ReportScoreRulePage() {
           }}>
             <div style={{
               padding: '8px 12px', borderBottom: '1px solid var(--border-color)',
-              fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6,
+              fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6,
             }}>
               <Layers size={13} /> 评分维度 ({dimensions.length})
-              <span style={{ marginLeft: 'auto', fontSize: 12, color: totalWeight === 1 ? '#10b981' : '#dc2626' }}>
+              <span style={{ marginLeft: 'auto', fontSize: 12, color: totalWeight === 1 ? '#10b981' : 'var(--color-error-600)' }}>
                 权重合计：{(totalWeight * 100).toFixed(0)}%
               </span>
             </div>
@@ -193,7 +193,7 @@ export default function ReportScoreRulePage() {
               </div>
             ))}
             <button
-              onClick={() => setDimensions(prev => [...prev, { id: `dim-${Date.now()}`, name: `新维度${prev.length + 1}`, description: '请编辑', weight: 0.1, icon: '', color: '#3b82f6', evaluationCriteria: [], scoringRules: [] } as ScoreDimension])}
+              onClick={() => setDimensions(prev => [...prev, { id: `dim-${Date.now()}`, name: `新维度${prev.length + 1}`, description: '请编辑', weight: 0.1, icon: '', color: 'var(--color-primary-500)', evaluationCriteria: [], scoringRules: [] } as ScoreDimension])}
               style={{
                 width: '100%', padding: 10, border: 'none', background: 'var(--bg-card)',
                 color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer', display: 'flex',
@@ -210,7 +210,7 @@ export default function ReportScoreRulePage() {
           }}>
             <div style={{
               padding: '8px 12px', borderBottom: '1px solid var(--border-color)',
-              fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6,
+              fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6,
             }}>
               <Award size={13} /> 评分等级映射
             </div>
@@ -278,7 +278,7 @@ export default function ReportScoreRulePage() {
 
             {/* 评估标准 */}
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
                 <ListChecks size={13} /> 评估标准 ({currentDim.evaluationCriteria.length} 项)
               </div>
               {currentDim.evaluationCriteria.map((c, i) => (
@@ -295,7 +295,7 @@ export default function ReportScoreRulePage() {
 
             {/* 评分规则 */}
             <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Calculator size={13} /> 评分规则
               </div>
               {currentDim.scoringRules.map((rule, i) => (
@@ -308,7 +308,7 @@ export default function ReportScoreRulePage() {
                 }}>
                   <span style={{
                     fontSize: 16, fontWeight: 700, minWidth: 50,
-                    color: rule.score >= 90 ? '#047857' : rule.score >= 75 ? '#1e40af' : rule.score >= 60 ? '#92400e' : '#b91c1c',
+                    color: rule.score >= 90 ? '#047857' : rule.score >= 75 ? 'var(--color-primary-800)' : rule.score >= 60 ? '#92400e' : '#b91c1c',
                   }}>{rule.score} 分</span>
                   <span style={{ color: 'var(--text-secondary)' }}>{rule.condition}</span>
                 </div>
@@ -328,10 +328,10 @@ export default function ReportScoreRulePage() {
 // ============================================================
 const KpiCard: React.FC<{ icon: any; label: string; value: number | string; color: string }> = ({ icon: Icon, label, value, color }) => {
   const c = ({
-    '#dc2626': 'error', '#ef4444': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
-    '#f59e0b': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
-    '#16a34a': 'success', '#22c55e': 'success', '#52c41a': 'success', '#10b981': 'success',
-    '#2563eb': 'primary', '#1890ff': 'primary', '#1d4ed8': 'primary',
+    'var(--color-error-600)': 'error', 'var(--color-error-500)': 'error', '#ff4d4f': 'error', '#cf1322': 'error',
+    'var(--color-warning-500)': 'warning', '#faad14': 'warning', '#fa8c16': 'warning', '#ed8936': 'warning',
+    'var(--color-success-600)': 'success', 'var(--color-success-500)': 'success', '#52c41a': 'success', '#10b981': 'success',
+    'var(--color-primary-600)': 'primary', '#1890ff': 'primary', 'var(--color-primary-700)': 'primary',
   } as Record<string, string>)[color] ?? color;
   return <StatCard title={label} value={value} icon={<Icon size={16} />} color={c} />;
 };

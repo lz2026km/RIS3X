@@ -23,11 +23,11 @@ import { t } from '../i18n/appI18n';
 // 样式常量 - WIN10风格
 // ============================================================
 const C = {
-  primary: '#1e40af',        // 深蓝主色
-  primaryLight: '#3b82f6',   // 浅蓝
+  primary: 'var(--color-primary-800)',        // 深蓝主色
+  primaryLight: 'var(--color-primary-500)',   // 浅蓝
   primaryLighter: 'var(--color-info-bg)', // 淡蓝背景
-  accent: '#0891b2',         // 青色辅色
-  accentLight: '#06b6d4',    // 浅青
+  accent: 'var(--color-info-600)',         // 青色辅色
+  accentLight: 'var(--color-info-500)',    // 浅青
   white: '#ffffff',          // 白色卡片
   bg: 'var(--bg-deep)',             // 浅灰背景
   border: 'var(--border-color)',         // 边框色
@@ -35,9 +35,9 @@ const C = {
   textMid: 'var(--text-secondary)',        // 中色文字
   textLight: 'var(--text-muted)',      // 浅色文字
   success: '#059669',        // 成功绿
-  warning: '#d97706',        // 警告橙
-  danger: '#dc2626',         // 危险红
-  info: '#2563eb',           // 信息蓝
+  warning: 'var(--color-warning-600)',        // 警告橙
+  danger: 'var(--color-error-600)',         // 危险红
+  info: 'var(--color-primary-600)',           // 信息蓝
 }
 
 // ============================================================
@@ -919,7 +919,7 @@ export default function PrintManagementPage() {
   const deviceDistData = devicePrintStats.map(d => ({
     name: d.device,
     value: d.printCount,
-    color: ['#1e40af', '#0891b2', '#8b5cf6', '#d97706', '#dc2626'][devicePrintStats.indexOf(d) % 5]
+    color: ['var(--color-primary-800)', 'var(--color-info-600)', '#8b5cf6', 'var(--color-warning-600)', 'var(--color-error-600)'][devicePrintStats.indexOf(d) % 5]
   }))
 
   // DICOM打印队列表格筛选
@@ -996,7 +996,7 @@ export default function PrintManagementPage() {
 <html lang="zh-CN"><head><meta charset="utf-8"><title>${t('w9b.printMgmt.taskSheetTitle', { taskId })}</title>
 <style>
   body { font-family: "Microsoft YaHei", sans-serif; margin: 40px; color: #1e293b; }
-  h1 { color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 8px; }
+  h1 { color: var(--color-primary-800); border-bottom: 2px solid var(--color-primary-800); padding-bottom: 8px; }
   table { border-collapse: collapse; margin-top: 16px; }
   td, th { border: 1px solid #cbd5e1; padding: 8px 16px; text-align: left; }
   th { background: #eff6ff; }
@@ -2434,14 +2434,14 @@ export default function PrintManagementPage() {
               <YAxis tick={{ fontSize: 12 }} stroke={C.textLight} />
               <Tooltip contentStyle={{ background: 'var(--bg-card)', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
               <Bar dataKey="ct" name="CT" fill="#7c3aed" stackId="a" />
-              <Bar dataKey="mr" name="MR" fill="#2563eb" stackId="a" />
+              <Bar dataKey="mr" name="MR" fill="var(--color-primary-600)" stackId="a" />
               <Bar dataKey="dr" name="DR" fill="#059669" stackId="a" />
-              <Bar dataKey="other" name={t("printMgmt.chart.other")} fill="#d97706" stackId="a" />
+              <Bar dataKey="other" name={t("printMgmt.chart.other")} fill="var(--color-warning-600)" stackId="a" />
             </ReBarChart>
           </ChartContainer>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 8 }}>
-          {[{ labelKey: 'printMgmt.chart.ct', color: '#7c3aed' }, { labelKey: 'printMgmt.chart.mr', color: '#2563eb' }, { labelKey: 'printMgmt.chart.dr', color: '#059669' }, { labelKey: 'printMgmt.chart.other', color: '#d97706' }].map(item => (
+          {[{ labelKey: 'printMgmt.chart.ct', color: '#7c3aed' }, { labelKey: 'printMgmt.chart.mr', color: 'var(--color-primary-600)' }, { labelKey: 'printMgmt.chart.dr', color: '#059669' }, { labelKey: 'printMgmt.chart.other', color: 'var(--color-warning-600)' }].map(item => (
             <div key={item.labelKey} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.textMid }}>
               <span style={{ width: 8, height: 8, borderRadius: 2, background: item.color }} />{t(item.labelKey)}
             </div>
@@ -3256,8 +3256,8 @@ export default function PrintManagementPage() {
     if (!showToast) return null
     const toastColors = {
       success: { bg: '#059669', text: '#ffffff' },
-      error: { bg: '#dc2626', text: '#ffffff' },
-      info: { bg: '#2563eb', text: '#ffffff' }
+      error: { bg: 'var(--color-error-600)', text: '#ffffff' },
+      info: { bg: 'var(--color-primary-600)', text: '#ffffff' }
     }
     const colors = toastColors[toastType]
     return (
@@ -3548,7 +3548,7 @@ export default function PrintManagementPage() {
               }}>
                 {dataSource === 'api' ? t("printMgmt.realData") : t("printMgmt.demoData")}
               </span>
-              <span style={{ fontSize: 12, color: dataError ? '#dc2626' : '#4b5563' }}>
+              <span style={{ fontSize: 12, color: dataError ? 'var(--color-error-600)' : '#4b5563' }}>
                 {dataError
                   ? dataError
                   : t("printMgmt.dataSourceNote2")}

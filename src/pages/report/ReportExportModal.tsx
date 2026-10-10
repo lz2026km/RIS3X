@@ -2,7 +2,7 @@
 import { CheckCircle } from 'lucide-react'
 
 const WHITE = 'var(--bg-card)'
-const PRIMARY = '#1e40af'
+const PRIMARY = 'var(--color-primary-800)'
 const GRAY = '#64748b'
 const ACCENT = '#3182ce'
 const SUCCESS = '#059669'

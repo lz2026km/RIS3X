@@ -11,14 +11,14 @@ import {
 type Tab = 'WAITLIST' | 'REMINDER' | 'NOSHOW'
 
 const borderGray = 'var(--border-color)'
-const primaryBlue = '#1e40af'
+const primaryBlue = 'var(--color-primary-800)'
 const textGray = '#64748b'
 
 const priorityLabel = (p: string): string =>
   p === 'critical' ? t('w5Appt.priorityCritical') : p === 'urgent' ? t('w5Appt.priorityUrgent') : t('w5Appt.priorityNormal')
 
 const priorityColor = (p: string): string =>
-  p === 'critical' ? '#dc2626' : p === 'urgent' ? '#f59e0b' : textGray
+  p === 'critical' ? 'var(--color-error-600)' : p === 'urgent' ? 'var(--color-warning-500)' : textGray
 
 export default function AppointmentOpsPanels() {
   const [tab, setTab] = useState<Tab>('WAITLIST')
@@ -186,7 +186,7 @@ export default function AppointmentOpsPanels() {
         {tab === 'NOSHOW' && (
           <>
             <div style={{ marginBottom: 10 }}>
-              <button onClick={() => void scan()} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: '#dc2626', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button onClick={() => void scan()} style={{ padding: '5px 12px', borderRadius: 6, border: 'none', background: 'var(--color-error-600)', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <ScanLine size={13} /> {t('w5Appt.opsScan')}
               </button>
             </div>
@@ -198,7 +198,7 @@ export default function AppointmentOpsPanels() {
                     {td(<span style={{ fontFamily: 'monospace', color: primaryBlue }}>{n.appointmentId}</span>, 'apt')}
                     {td(n.patientName ?? '-', 'name')}
                     {td(new Date(n.markedAt).toLocaleString('zh-CN'), 'at')}
-                    {td(<span style={{ color: '#dc2626', fontWeight: 700 }}>{t('w5Appt.statusNoShow')}</span>, 'st')}
+                    {td(<span style={{ color: 'var(--color-error-600)', fontWeight: 700 }}>{t('w5Appt.statusNoShow')}</span>, 'st')}
                     {td(
                       <button onClick={() => void restore(n.appointmentId)} style={{ padding: '3px 10px', borderRadius: 6, border: `1px solid ${borderGray}`, background: 'var(--bg-card)', color: textGray, fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
                         <RotateCcw size={11} /> {t('w5Appt.opsRestore')}

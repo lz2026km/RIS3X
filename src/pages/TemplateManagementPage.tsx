@@ -16,12 +16,12 @@ import { useNavigate } from 'react-router-dom'
 import { ClipboardList, ListOrdered, FileEdit, Tag, Plus, X, Search, Eye, Edit2, Save, Check, Copy, FileText, Activity, Scan, Image as ImageIcon, Stethoscope, Filter, GitBranch, FolderTree, Wand2, TrendingUp, BarChart2, Users, Share2, Shield, History, RotateCcw, Star, Globe, Send, ShieldCheck, XCircle, Clock3 } from 'lucide-react'
 
 const C = {
-  primary: '#1e40af', primaryLight: '#3b82f6', primaryLighter: 'var(--color-info-bg)',
-  accent: '#0891b2', accentLight: '#06b6d4', white: '#ffffff',
+  primary: 'var(--color-primary-800)', primaryLight: 'var(--color-primary-500)', primaryLighter: 'var(--color-info-bg)',
+  accent: 'var(--color-info-600)', accentLight: 'var(--color-info-500)', white: '#ffffff',
   bg: 'var(--bg-deep)', bgLight: 'var(--content-bg)', border: 'var(--border-color)', borderLight: 'var(--border-color)',
   textDark: 'var(--text-primary)', textMid: 'var(--text-secondary)', textLight: 'var(--text-muted)',
-  success: '#059669', successLight: 'var(--color-success-bg)', warning: '#d97706', warningLight: 'var(--color-warning-bg)',
-  danger: '#dc2626', dangerLight: 'var(--color-error-bg)', info: '#2563eb', infoLight: 'var(--color-info-bg)',
+  success: '#059669', successLight: 'var(--color-success-bg)', warning: 'var(--color-warning-600)', warningLight: 'var(--color-warning-bg)',
+  danger: 'var(--color-error-600)', dangerLight: 'var(--color-error-bg)', info: 'var(--color-primary-600)', infoLight: 'var(--color-info-bg)',
 }
 
 interface TemplateRecord {
@@ -117,9 +117,9 @@ const usageTrend = [120, 135, 142, 138, 150, 155, 160, 175, 180, 185, 190, 200]
 // [v3.0.6.11-98 Wave2A P1] 模板审批状态展示 (草稿/待审批/已批准/已驳回, 兼容旧 启用/停用)
 const STATUS_META: Record<string, { labelKey: string; color: string; bg: string }> = {
   draft: { labelKey: 'templateMgmt.statusDraft', color: '#94a3b8', bg: '#94a3b81f' },
-  pending: { labelKey: 'templateMgmt.statusPending', color: '#d97706', bg: '#f59e0b20' },
+  pending: { labelKey: 'templateMgmt.statusPending', color: 'var(--color-warning-600)', bg: '#f59e0b20' },
   approved: { labelKey: 'templateMgmt.statusApproved', color: '#059669', bg: '#22c55e20' },
-  rejected: { labelKey: 'templateMgmt.statusRejected', color: '#dc2626', bg: '#ef444420' },
+  rejected: { labelKey: 'templateMgmt.statusRejected', color: 'var(--color-error-600)', bg: '#ef444420' },
   active: { labelKey: 'templateMgmt.statusActive', color: '#059669', bg: '#22c55e20' },
   inactive: { labelKey: 'templateMgmt.statusInactive', color: '#94a3b8', bg: '#94a3b81f' },
 }
@@ -496,7 +496,7 @@ export default function TemplateManagementPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <History size={20} color={C.primary} />
           <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t9('templateMgmt.versionMgmt')}</span>
-          <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>{t9('templateMgmt.demoDataVersion')}</span>
+          <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t9('templateMgmt.demoDataVersion')}</span>
           <select value={selectedTemplateId} onChange={e => setSelectedTemplateId(e.target.value)} style={{ marginLeft: 'auto', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, color: C.textDark, background: 'var(--bg-card)', cursor: 'pointer' }}>
             {templates.map(t => <option key={t.id} value={t.id}>{t.name} ({t.version})</option>)}
           </select>
@@ -692,7 +692,7 @@ export default function TemplateManagementPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <Share2 size={20} color={C.accent} />
           <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t9('templateMgmt.shareCollab')}</span>
-          <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>{t9('templateMgmt.demoDataShare')}</span>
+          <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t9('templateMgmt.demoDataShare')}</span>
           <select value={selectedTemplateId} onChange={e => setSelectedTemplateId(e.target.value)} style={{ marginLeft: 'auto', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, color: C.textDark, background: 'var(--bg-card)', cursor: 'pointer' }}>
             <option value="全部">{t9('templateMgmt.allTemplates')}</option>
             {templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
@@ -799,10 +799,10 @@ export default function TemplateManagementPage() {
         <button onClick={() => navigate('/template-designer')} style={{ marginLeft: 8, padding: '8px 14px', background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, boxShadow: '0 2px 4px rgba(124, 58, 237, 0.3)' }}>
           <Wand2 size={16} /><span>{t9('templateMgmt.visualDesigner')}</span>
         </button>
-        <button onClick={() => navigate('/template-inheritance')} style={{ marginLeft: 8, padding: '8px 14px', background: 'var(--bg-card)', color: '#1e40af', border: '1px solid #3b82f6', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button onClick={() => navigate('/template-inheritance')} style={{ marginLeft: 8, padding: '8px 14px', background: 'var(--bg-card)', color: 'var(--color-primary-800)', border: '1px solid var(--color-primary-500)', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
           <GitBranch size={16} /><span>{t9('templateMgmt.inheritClone')}</span>
         </button>
-        <button onClick={() => navigate('/template-category')} style={{ marginLeft: 8, padding: '8px 14px', background: 'var(--bg-card)', color: '#0891b2', border: '1px solid #0891b2', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button onClick={() => navigate('/template-category')} style={{ marginLeft: 8, padding: '8px 14px', background: 'var(--bg-card)', color: 'var(--color-info-600)', border: '1px solid var(--color-info-600)', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
           <FolderTree size={16} /><span>{t9('templateMgmt.categoryTree')}</span>
         </button>
       </div>
@@ -848,7 +848,7 @@ export default function TemplateManagementPage() {
             onClick={() => { setFilterStatus(prev => prev === 'pending' ? 'all' : 'pending'); setCurrentPage(1); }}
             style={{
               display: 'flex', alignItems: 'center', gap: 5, padding: '8px 14px', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-              border: filterStatus === 'pending' ? '1px solid #d97706' : '1px solid #d97706',
+              border: filterStatus === 'pending' ? '1px solid var(--color-warning-600)' : '1px solid var(--color-warning-600)',
               background: filterStatus === 'pending' ? C.warningLight : 'var(--bg-card)',
               color: filterStatus === 'pending' ? C.warning : C.warning,
             }}
@@ -917,12 +917,12 @@ export default function TemplateManagementPage() {
                       <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                         {(tpl.status === 'draft' || tpl.status === 'rejected') && (
                           <button onClick={() => void handleSubmitApproval(tpl)}
-                            style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', background: '#f59e0b20', color: '#d97706', border: 'none', borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                            style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', background: '#f59e0b20', color: 'var(--color-warning-600)', border: 'none', borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
                             <Send size={11} /> {t9('templateMgmt.submitApproval')}
                           </button>
                         )}
                         {tpl.status === 'pending' && !canApprove && (
-                          <span style={{ fontSize: 11, color: '#d97706', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
+                          <span style={{ fontSize: 11, color: 'var(--color-warning-600)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
                             <Clock3 size={11} /> {t9('templateMgmt.pendingReview')}
                           </span>
                         )}
@@ -933,13 +933,13 @@ export default function TemplateManagementPage() {
                               <ShieldCheck size={11} /> {t9('templateMgmt.approve')}
                             </button>
                             <button onClick={() => { setRejectTarget(tpl); setRejectReason(''); }}
-                              style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', background: '#ef444420', color: '#dc2626', border: 'none', borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                              style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', background: '#ef444420', color: 'var(--color-error-600)', border: 'none', borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
                               <XCircle size={11} /> {t9('templateMgmt.reject')}
                             </button>
                           </>
                         )}
                         {tpl.status === 'rejected' && tpl.rejectedReason && (
-                          <span style={{ fontSize: 11, color: '#dc2626' }} title={tpl.rejectedReason}>{t9('templateMgmt.rejectedPrefix')}{String(tpl.rejectedReason).slice(0, 8)}…</span>
+                          <span style={{ fontSize: 11, color: 'var(--color-error-600)' }} title={tpl.rejectedReason}>{t9('templateMgmt.rejectedPrefix')}{String(tpl.rejectedReason).slice(0, 8)}…</span>
                         )}
                       </div>
                     </div>
@@ -1049,7 +1049,7 @@ export default function TemplateManagementPage() {
       )}
 
       {toast && <div style={{ position: 'fixed', top: 24, right: 24, zIndex: 9999, background: '#059669', color: '#fff', padding: '12px 20px', borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.2)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}><Check size={16} />{toast}</div>}
-      {validationError && <div style={{ position: 'fixed', top: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 9999, background: '#dc2626', color: '#fff', padding: '12px 24px', borderRadius: 8, boxShadow: '0 4px 12px rgba(220,38,38,0.3)', fontSize: 14, fontWeight: 500 }}>{validationError}</div>}
+      {validationError && <div style={{ position: 'fixed', top: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 9999, background: 'var(--color-error-600)', color: '#fff', padding: '12px 24px', borderRadius: 8, boxShadow: '0 4px 12px rgba(220,38,38,0.3)', fontSize: 14, fontWeight: 500 }}>{validationError}</div>}
 
       {/* [v3.0.6.11-98 Wave2A P1] 驳回原因弹窗 (审批流) */}
       {rejectTarget && (

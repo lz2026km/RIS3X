@@ -23,7 +23,7 @@ export default function ReportBanners() {
       </div>
 
       <div style={{
-        background: 'linear-gradient(135deg, var(--color-warning-bg) 0%, rgba(244,114,182,0.12) 100%)', border: '1px solid #fbbf24',
+        background: 'linear-gradient(135deg, var(--color-warning-bg) 0%, rgba(244,114,182,0.12) 100%)', border: '1px solid var(--color-warning-400)',
         borderRadius: 10, padding: '10px 16px', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 12,
       }}>
         <div style={{ fontSize: 18 }}></div>
@@ -32,13 +32,13 @@ export default function ReportBanners() {
           <div style={{ fontSize: 12, color: 'var(--color-warning)', marginTop: 2 }}>双审（初+终）+ 修订链 Diff + 多人实时协同</div>
         </div>
         <div style={{ display: 'flex', gap: 6 }}>
-          <button onClick={() => navigate('/report-review')} style={{ padding: '5px 10px', border: '1px solid #f59e0b', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--color-warning)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <button onClick={() => navigate('/report-review')} style={{ padding: '5px 10px', border: '1px solid var(--color-warning-500)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--color-warning)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
             <ClipboardCheck size={11} /> 审核工作台
           </button>
           <button onClick={() => navigate('/report-revisions')} style={{ padding: '5px 10px', border: '1px solid #7c3aed', borderRadius: 4, background: 'var(--bg-card)', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
             <History size={11} /> 修订管理
           </button>
-          <button onClick={() => navigate('/collaboration')} style={{ padding: '5px 10px', border: '1px solid #3b82f6', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--color-info)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <button onClick={() => navigate('/collaboration')} style={{ padding: '5px 10px', border: '1px solid var(--color-primary-500)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--color-info)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
             <Users size={11} /> 多人协同
           </button>
         </div>

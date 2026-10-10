@@ -432,12 +432,12 @@ export default function TenantConfigPage() {
                 <Row gutter={16}>
                   <Col span={8}>
                     <Card size="small">
-                      <Statistic title={t('tenantConfig.statComplianceScore')} value={score} suffix="%" valueStyle={{ color: score >= 80 ? '#16a34a' : score >= 60 ? '#d97706' : '#dc2626' }} />
+                      <Statistic title={t('tenantConfig.statComplianceScore')} value={score} suffix="%" valueStyle={{ color: score >= 80 ? 'var(--color-success-600)' : score >= 60 ? 'var(--color-warning-600)' : 'var(--color-error-600)' }} />
                     </Card>
                   </Col>
                   <Col span={8}>
                     <Card size="small">
-                      <Statistic title={t('tenantConfig.statPassed')} value={`${passedCount}/${checks.length}`} valueStyle={{ color: '#2563eb' }} />
+                      <Statistic title={t('tenantConfig.statPassed')} value={`${passedCount}/${checks.length}`} valueStyle={{ color: 'var(--color-primary-600)' }} />
                     </Card>
                   </Col>
                   <Col span={8}>

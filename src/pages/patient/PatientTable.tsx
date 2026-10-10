@@ -119,8 +119,8 @@ function Pagination({
                 height: 32,
                 borderRadius: 6,
                 border: "1px solid",
-                borderColor: currentPage === pageNum ? "#1e40af" : "#e2e8f0",
-                background: currentPage === pageNum ? "#1e40af" : "var(--bg-card)",
+                borderColor: currentPage === pageNum ? "var(--color-primary-800)" : "#e2e8f0",
+                background: currentPage === pageNum ? "var(--color-primary-800)" : "var(--bg-card)",
                 color: currentPage === pageNum ? "#fff" : "#64748b",
                 cursor: "pointer",
                 fontSize: 12,
@@ -315,13 +315,13 @@ export function PatientTable({
                 justifyContent: "center",
                 fontSize: 12,
                 fontWeight: 700,
-                color: p.gender === "男" ? "#1e40af" : "#be185d",
+                color: p.gender === "男" ? "var(--color-primary-800)" : "#be185d",
                 flexShrink: 0,
               }}
             >
               {p.name.slice(0, 1)}
             </div>
-            <span style={{ fontWeight: 600, color: "#1e40af" }}>{p.name}</span>
+            <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{p.name}</span>
           </div>
         );
       },
@@ -340,7 +340,7 @@ export function PatientTable({
             fontSize: 12,
             fontWeight: 600,
             background: value === "男" ? "#dbeafe" : "#fce7f3",
-            color: value === "男" ? "#1e40af" : "#be185d",
+            color: value === "男" ? "var(--color-primary-800)" : "#be185d",
           }}
         >
           {String(value)}
@@ -412,7 +412,7 @@ export function PatientTable({
       width: 90,
       align: "right",
       render: (value) => (
-        <span style={{ fontWeight: 700, color: "#1e40af" }}>
+        <span style={{ fontWeight: 700, color: "var(--color-primary-800)" }}>
           {(Number(value) || 0).toLocaleString()}
         </span>
       ),
@@ -444,7 +444,7 @@ export function PatientTable({
             style={{
               padding: "6px 10px",
               background: "#eff6ff",
-              color: "#2563eb",
+              color: "var(--color-primary-600)",
               border: "none",
               borderRadius: 4,
               fontSize: 12,
@@ -467,7 +467,7 @@ export function PatientTable({
             style={{
               padding: "6px 10px",
               background: "#f0fdf4",
-              color: "#16a34a",
+              color: "var(--color-success-600)",
               border: "none",
               borderRadius: 4,
               fontSize: 12,
@@ -489,7 +489,7 @@ export function PatientTable({
             style={{
               padding: "6px 10px",
               background: "#fef3c7",
-              color: "#d97706",
+              color: "var(--color-warning-600)",
               border: "none",
               borderRadius: 4,
               fontSize: 12,
@@ -542,7 +542,7 @@ export function PatientTable({
                 style={{
                   padding: "6px 10px",
                   background: "#fef2f2",
-                  color: "#dc2626",
+                  color: "var(--color-error-600)",
                   border: "none",
                   borderRadius: 4,
                   fontSize: 12,
@@ -579,7 +579,7 @@ export function PatientTable({
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <GitFork size={18} color="#d97706" />
+            <GitFork size={18} color="var(--color-warning-600)" />
             <span style={{ fontSize: 12, fontWeight: 600, color: "#92400e" }}>
               {t("patientTable.duplicates.detected", { count: visibleDuplicates.length })}
             </span>
@@ -633,7 +633,7 @@ export function PatientTable({
           style={{
             marginBottom: 12,
             padding: "10px 16px",
-            background: "linear-gradient(135deg, #1e40af, #2563eb)",
+            background: "linear-gradient(135deg, var(--color-primary-800), var(--color-primary-600))",
             borderRadius: 10,
             display: "flex",
             alignItems: "center",
@@ -804,7 +804,7 @@ export function PatientTable({
                   width: 56,
                   height: 56,
                   borderRadius: "50%",
-                  background: "linear-gradient(135deg, #1e40af, #3b82f6)",
+                  background: "linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -816,7 +816,7 @@ export function PatientTable({
               </div>
               <div>
                 <div
-                  style={{ fontSize: 16, fontWeight: 700, color: "#1e40af" }}
+                  style={{ fontSize: 16, fontWeight: 700, color: "var(--color-primary-800)" }}
                 >
                   {selectedPatient.name}
                 </div>
@@ -931,7 +931,7 @@ export function PatientTable({
                   gap: 8,
                 }}
               >
-                <AlertTriangle size={16} color="#dc2626" />
+                <AlertTriangle size={16} color="var(--color-error-600)" />
                 <span
                   style={{ fontSize: 12, color: "#991b1b", fontWeight: 600 }}
                 >
@@ -947,7 +947,7 @@ export function PatientTable({
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#1e40af",
+                color: "var(--color-primary-800)",
                 marginBottom: 8,
               }}
             >

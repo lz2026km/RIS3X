@@ -379,10 +379,10 @@ export const SPECIAL_ASSESSMENTS: SpecialAssessmentItem[] = [
       { value: '0', label: '0 类 - 评估不完整', description: '需要进一步影像评估', color: '#94a3b8', action: '召回补充检查' },
       { value: '1', label: '1 类 - 阴性', description: '双乳对称，无肿块、无结构扭曲、无可疑钙化', color: '#10b981', action: '常规筛查' },
       { value: '2', label: '2 类 - 良性', description: '明确良性发现', color: '#10b981', action: '常规筛查' },
-      { value: '3', label: '3 类 - 可能良性', description: '恶性可能性 ≤ 2%', color: '#f59e0b', action: '6 个月短期随访' },
+      { value: '3', label: '3 类 - 可能良性', description: '恶性可能性 ≤ 2%', color: 'var(--color-warning-500)', action: '6 个月短期随访' },
       { value: '4A', label: '4A 类 - 低度可疑', description: '恶性可能性 2-10%', color: '#f97316', action: '组织活检' },
       { value: '4B', label: '4B 类 - 中度可疑', description: '恶性可能性 10-50%', color: '#ea580c', action: '组织活检' },
-      { value: '4C', label: '4C 类 - 高度可疑', description: '恶性可能性 50-95%', color: '#dc2626', action: '组织活检' },
+      { value: '4C', label: '4C 类 - 高度可疑', description: '恶性可能性 50-95%', color: 'var(--color-error-600)', action: '组织活检' },
       { value: '5', label: '5 类 - 高度提示恶性', description: '恶性可能性 ≥ 95%', color: '#b91c1c', action: '组织活检 + 治疗' },
       { value: '6', label: '6 类 - 已证实恶性', description: '活检已证实的恶性肿瘤', color: '#7f1d1d', action: '临床治疗' },
     ],
@@ -404,10 +404,10 @@ export const SPECIAL_ASSESSMENTS: SpecialAssessmentItem[] = [
     grades: [
       { value: '1', label: '1 类 - 阴性', description: '无结节；完全良性结节', color: '#10b981', action: '继续年度筛查' },
       { value: '2', label: '2 类 - 良性', description: '结节有典型良性钙化/脂肪', color: '#10b981', action: '继续年度筛查' },
-      { value: '3', label: '3 类 - 可能良性', description: '实性结节 <6mm；部分实性 <6mm；GGN ≥6mm 且新发', color: '#f59e0b', action: '6 个月低剂量 CT 复查' },
+      { value: '3', label: '3 类 - 可能良性', description: '实性结节 <6mm；部分实性 <6mm；GGN ≥6mm 且新发', color: 'var(--color-warning-500)', action: '6 个月低剂量 CT 复查' },
       { value: '4A', label: '4A 类 - 可疑', description: '实性 6-8mm；部分实性 6-8mm；GGN ≥6mm', color: '#f97316', action: '3 个月 CT 复查' },
       { value: '4B', label: '4B 类 - 高度可疑', description: '实性 8-15mm；部分实性 8-15mm', color: '#ea580c', action: '3 个月 CT 复查 / PET-CT' },
-      { value: '4X', label: '4X 类 - 高危', description: '具有额外特征或影像发现使可疑性增加', color: '#dc2626', action: '组织活检 / 切除' },
+      { value: '4X', label: '4X 类 - 高危', description: '具有额外特征或影像发现使可疑性增加', color: 'var(--color-error-600)', action: '组织活检 / 切除' },
     ],
     evaluationItems: [
       { key: 'nodule_type', label: '结节类型', type: 'select', options: ['实性', '部分实性', '纯磨玻璃 (GGN)'] },
@@ -425,8 +425,8 @@ export const SPECIAL_ASSESSMENTS: SpecialAssessmentItem[] = [
     grades: [
       { value: '1', label: '1 类 - 极低风险', description: '正常外周带', color: '#10b981', action: '常规筛查' },
       { value: '2', label: '2 类 - 低风险', description: '低信号线状/楔形', color: '#10b981', action: '常规筛查' },
-      { value: '3', label: '3 类 - 中等风险', description: '信号不均匀或界限不清', color: '#f59e0b', action: '短期 MRI 随访' },
-      { value: '4', label: '4 类 - 高风险', description: 'DWI 局灶高信号', color: '#dc2626', action: '穿刺活检' },
+      { value: '3', label: '3 类 - 中等风险', description: '信号不均匀或界限不清', color: 'var(--color-warning-500)', action: '短期 MRI 随访' },
+      { value: '4', label: '4 类 - 高风险', description: 'DWI 局灶高信号', color: 'var(--color-error-600)', action: '穿刺活检' },
       { value: '5', label: '5 类 - 极高风险', description: '病灶信号同 4 但更大', color: '#b91c1c', action: '穿刺活检' },
     ],
     evaluationItems: [
@@ -445,9 +445,9 @@ export const SPECIAL_ASSESSMENTS: SpecialAssessmentItem[] = [
       { value: '0', label: '0 类 - 不完整', description: '图像质量不足以评估', color: '#94a3b8', action: '重新检查' },
       { value: '1', label: '1 类 - 正常', description: '无狭窄 ≥ 25%', color: '#10b981', action: '常规随访' },
       { value: '2', label: '2 类 - 轻度斑块', description: '狭窄 1-24%', color: '#10b981', action: '预防性治疗' },
-      { value: '3', label: '3 类 - 中度狭窄', description: '狭窄 25-49%', color: '#f59e0b', action: '优化药物治疗' },
-      { value: '4A', label: '4A 类 - 重度狭窄', description: '狭窄 50-69% 或左主干 ≤ 50%', color: '#dc2626', action: '功能性检查 + 考虑血运重建' },
-      { value: '4B', label: '4B 类 - 重度狭窄', description: '狭窄 70-99%', color: '#dc2626', action: '血运重建评估' },
+      { value: '3', label: '3 类 - 中度狭窄', description: '狭窄 25-49%', color: 'var(--color-warning-500)', action: '优化药物治疗' },
+      { value: '4A', label: '4A 类 - 重度狭窄', description: '狭窄 50-69% 或左主干 ≤ 50%', color: 'var(--color-error-600)', action: '功能性检查 + 考虑血运重建' },
+      { value: '4B', label: '4B 类 - 重度狭窄', description: '狭窄 70-99%', color: 'var(--color-error-600)', action: '血运重建评估' },
       { value: '5', label: '5 类 - 完全闭塞', description: '100% 闭塞', color: '#7f1d1d', action: '紧急血运重建' },
     ],
     evaluationItems: [
@@ -466,10 +466,10 @@ export const SPECIAL_ASSESSMENTS: SpecialAssessmentItem[] = [
     grades: [
       { value: '1', label: '1 类 - 正常', description: '正常甲状腺实质', color: '#10b981', action: '常规随访' },
       { value: '2', label: '2 类 - 良性', description: '纯囊性或海绵样结节', color: '#10b981', action: '常规随访' },
-      { value: '3', label: '3 类 - 低度可疑', description: '等回声/高回声实性结节', color: '#f59e0b', action: '3 年随访' },
+      { value: '3', label: '3 类 - 低度可疑', description: '等回声/高回声实性结节', color: 'var(--color-warning-500)', action: '3 年随访' },
       { value: '4A', label: '4A 类 - 中度可疑', description: '低回声实性结节', color: '#f97316', action: '1 年随访' },
       { value: '4B', label: '4B 类 - 中高度可疑', description: '极低回声结节', color: '#ea580c', action: '6 个月随访' },
-      { value: '4C', label: '4C 类 - 高度可疑', description: '可疑超声特征', color: '#dc2626', action: '活检' },
+      { value: '4C', label: '4C 类 - 高度可疑', description: '可疑超声特征', color: 'var(--color-error-600)', action: '活检' },
       { value: '5', label: '5 类 - 高度提示恶性', description: '典型恶性征象', color: '#b91c1c', action: '活检' },
     ],
     evaluationItems: [
@@ -488,8 +488,8 @@ export const SPECIAL_ASSESSMENTS: SpecialAssessmentItem[] = [
     grades: [
       { value: 'CR', label: 'CR 完全缓解', description: '所有靶病灶消失', color: '#10b981', action: '维持治疗' },
       { value: 'PR', label: 'PR 部分缓解', description: '靶病灶长径之和缩小 ≥ 30%', color: '#84cc16', action: '继续治疗' },
-      { value: 'SD', label: 'SD 疾病稳定', description: '未达 PR/PD 标准', color: '#f59e0b', action: '继续观察' },
-      { value: 'PD', label: 'PD 疾病进展', description: '靶病灶长径之和增加 ≥ 20% 或出现新病灶', color: '#dc2626', action: '调整治疗方案' },
+      { value: 'SD', label: 'SD 疾病稳定', description: '未达 PR/PD 标准', color: 'var(--color-warning-500)', action: '继续观察' },
+      { value: 'PD', label: 'PD 疾病进展', description: '靶病灶长径之和增加 ≥ 20% 或出现新病灶', color: 'var(--color-error-600)', action: '调整治疗方案' },
     ],
     evaluationItems: [
       { key: 'target_lesion_count', label: '靶病灶数量', type: 'number' },
@@ -505,8 +505,8 @@ export const SPECIAL_ASSESSMENTS: SpecialAssessmentItem[] = [
     modality: 'DR', bodyPart: '全身', category: '骨龄',
     grades: [
       { value: 'normal', label: '正常', description: '骨龄与实际年龄相符（差值 <1 岁）', color: '#10b981', action: '常规记录' },
-      { value: 'advanced', label: '提前', description: '骨龄 > 实际年龄 1 岁以上', color: '#f59e0b', action: '临床评估' },
-      { value: 'delayed', label: '延迟', description: '骨龄 < 实际年龄 1 岁以上', color: '#f59e0b', action: '临床评估' },
+      { value: 'advanced', label: '提前', description: '骨龄 > 实际年龄 1 岁以上', color: 'var(--color-warning-500)', action: '临床评估' },
+      { value: 'delayed', label: '延迟', description: '骨龄 < 实际年龄 1 岁以上', color: 'var(--color-warning-500)', action: '临床评估' },
     ],
     evaluationItems: [
       { key: 'chronological_age', label: '实际年龄 (岁)', type: 'number' },
@@ -522,8 +522,8 @@ export const SPECIAL_ASSESSMENTS: SpecialAssessmentItem[] = [
     grades: [
       { value: 'excellent', label: '优秀', description: '图像质量优，冠脉全程清晰', color: '#10b981', action: '诊断可靠' },
       { value: 'good', label: '良好', description: '图像质量良，主要节段可评估', color: '#84cc16', action: '诊断基本可靠' },
-      { value: 'adequate', label: '可评估', description: '部分节段可评估，少数受限', color: '#f59e0b', action: '结合其他检查' },
-      { value: 'limited', label: '受限', description: '图像质量差，多节段无法评估', color: '#dc2626', action: '建议其他检查' },
+      { value: 'adequate', label: '可评估', description: '部分节段可评估，少数受限', color: 'var(--color-warning-500)', action: '结合其他检查' },
+      { value: 'limited', label: '受限', description: '图像质量差，多节段无法评估', color: 'var(--color-error-600)', action: '建议其他检查' },
     ],
     evaluationItems: [
       { key: 'hr', label: '心率 (bpm)', type: 'number' },

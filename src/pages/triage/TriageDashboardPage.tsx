@@ -326,7 +326,7 @@ const TriageDashboardPage: React.FC = () => {
     <PageContainer padding={24} data-testid="triage-dashboard-page">
       <Card style={{ marginBottom: 16 }}>
         <Space style={{ marginBottom: 16 }}>
-          <Siren size={24} color="#ef4444" />
+          <Siren size={24} color="var(--color-error-500)" />
           <Title level={4} style={{ margin: 0 }}>{t('triage.title')}</Title>
           <Tag color="red">P0</Tag>
         </Space>

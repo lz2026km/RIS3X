@@ -3,12 +3,12 @@ import React from 'react'
 import { REPORT_STATUS_META } from '../../components/report'
 import { toEnState } from '../../components/report/statusMeta'
 
-export const PRIMARY = '#1e40af'
+export const PRIMARY = 'var(--color-primary-800)'
 export const PRIMARY_LIGHT = '#2c5282'
 export const ACCENT = '#3182ce'
 export const SUCCESS = '#059669'
-export const WARNING = '#d97706'
-export const DANGER = '#dc2626'
+export const WARNING = 'var(--color-warning-600)'
+export const DANGER = 'var(--color-error-600)'
 export const PURPLE = '#7c3aed'
 export const GRAY = 'var(--text-secondary, #475569)'
 export const BG = 'var(--bg-primary)'
@@ -16,7 +16,7 @@ export const WHITE = 'var(--bg-card, #ffffff)'
 
 export const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string; border: string }> = {
   待审核: { label: '待审核', bg: '#ede9fe', color: '#6d28d9', border: '#c4b5fd' },
-  已审核: { label: '已审核', bg: '#dbeafe', color: '#2563eb', border: '#93c5fd' },
+  已审核: { label: '已审核', bg: '#dbeafe', color: 'var(--color-primary-600)', border: '#93c5fd' },
   已发布: { label: '已发布', bg: '#d1fae5', color: '#047857', border: '#6ee7b7' },
   已修改: { label: '已修改', bg: '#fef3c7', color: '#b45309', border: '#fcd34d' },
   已退回: { label: '已退回', bg: '#fee2e2', color: '#b91c1c', border: '#fca5a5' },
@@ -84,7 +84,7 @@ export function highlightAnomalies(text: string | undefined): React.ReactNode {
   let match
   while ((match = regex.exec(text)) !== null) {
     if (match.index > lastIdx) parts.push(text.slice(lastIdx, match.index))
-    parts.push(<span key={match.index} style={{ background: '#fee2e2', color: '#dc2626', fontWeight: 700, borderRadius: 2, padding: '0 2px' }}>{match[0]}</span>)
+    parts.push(<span key={match.index} style={{ background: '#fee2e2', color: 'var(--color-error-600)', fontWeight: 700, borderRadius: 2, padding: '0 2px' }}>{match[0]}</span>)
     lastIdx = regex.lastIndex
   }
   if (lastIdx < text.length) parts.push(text.slice(lastIdx))

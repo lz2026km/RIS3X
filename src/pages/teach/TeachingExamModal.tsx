@@ -30,13 +30,13 @@ interface ExamRecord {
 }
 
 const COLORS = {
-  primary: '#1e40af',
-  info: '#2563eb',
+  primary: 'var(--color-primary-800)',
+  info: 'var(--color-primary-600)',
   success: '#059669',
   successBg: 'var(--color-success-bg)',
-  danger: '#dc2626',
+  danger: 'var(--color-error-600)',
   dangerBg: 'var(--color-error-bg)',
-  warning: '#d97706',
+  warning: 'var(--color-warning-600)',
   text: '#1e293b',
   textMuted: '#64748b',
   border: '#e2e8f0',

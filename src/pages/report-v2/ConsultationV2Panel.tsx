@@ -234,7 +234,7 @@ const ConsultationV2Panel: React.FC = () => {
   return (
     <div>
       <Card
-        title={<Space><Users size={16} color="#2563eb" /><span>{t('consultationV2.panelTitle')}</span><Tag color="blue">{t('consultationV2.multiPartyTag')}</Tag></Space>}
+        title={<Space><Users size={16} color="var(--color-primary-600)" /><span>{t('consultationV2.panelTitle')}</span><Tag color="blue">{t('consultationV2.multiPartyTag')}</Tag></Space>}
         extra={<Button type="primary" icon={<PlusCircle size={14} />} onClick={() => setCreateOpen(true)}>{t('consultationV2.createRoom')}</Button>}
       >
         {error && !loading && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
@@ -299,7 +299,7 @@ const ConsultationV2Panel: React.FC = () => {
                         renderItem={m => (
                           <List.Item>
                             <Space>
-                              {m.role === 'chair' && <Crown size={13} color="#f59e0b" />}
+                              {m.role === 'chair' && <Crown size={13} color="var(--color-warning-500)" />}
                               <Text strong={m.id === myMemberId}>{m.name}</Text>
                               <Text type="secondary">{m.title}</Text>
                               {memberVoteOf(active, m.id) && (
@@ -352,9 +352,9 @@ const ConsultationV2Panel: React.FC = () => {
                   {summary && (
                     <Row gutter={16}>
                       <Col span={4}><Statistic title={t('consultationV2.statVoted')} value={summary.votedCount} suffix={`/ ${summary.totalMembers}`} /></Col>
-                      <Col span={4}><Statistic title={t('consultationV2.statApprove')} value={summary.approveCount} valueStyle={{ color: '#16a34a' }} /></Col>
-                      <Col span={4}><Statistic title={t('consultationV2.statReject')} value={summary.rejectCount} valueStyle={{ color: '#ef4444' }} /></Col>
-                      <Col span={4}><Statistic title={t('consultationV2.statModify')} value={summary.modifyCount} valueStyle={{ color: '#f59e0b' }} /></Col>
+                      <Col span={4}><Statistic title={t('consultationV2.statApprove')} value={summary.approveCount} valueStyle={{ color: 'var(--color-success-600)' }} /></Col>
+                      <Col span={4}><Statistic title={t('consultationV2.statReject')} value={summary.rejectCount} valueStyle={{ color: 'var(--color-error-500)' }} /></Col>
+                      <Col span={4}><Statistic title={t('consultationV2.statModify')} value={summary.modifyCount} valueStyle={{ color: 'var(--color-warning-500)' }} /></Col>
                       <Col span={4}><Statistic title={t('consultationV2.approveRate')} value={summary.approveRate} suffix="%" /></Col>
                       <Col span={4}>
                         <Text type="secondary">{t('consultationV2.pendingVote', { members: summary.pendingMembers.join('、') || t('consultationV2.noPending') })}</Text>

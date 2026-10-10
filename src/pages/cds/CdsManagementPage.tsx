@@ -19,10 +19,10 @@ const TAB_CONFIG: { key: RuleTab; labelKey: string; icon: typeof Shield }[] = [
 const INITIAL_FORM = { name: "", description: "", version: "1.0" };
 
 const TYPE_COLORS: Record<CdsRuleSummary["type"], string> = {
-  appropriateness: "#3b82f6",
-  pathway: "#22c55e",
-  contrast: "#f59e0b",
-  drug: "#ef4444",
+  appropriateness: "var(--color-primary-500)",
+  pathway: "var(--color-success-500)",
+  contrast: "var(--color-warning-500)",
+  drug: "var(--color-error-500)",
 };
 
 const TYPE_LABELS: Record<CdsRuleSummary["type"], string> = {
@@ -191,9 +191,9 @@ export default function CdsManagementPage() {
       render: (active: boolean) => (
         <span style={{ fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}>
           {active
-            ? <ToggleRight size={12} style={{ color: "var(--color-success-500, #22c55e)" }} />
-            : <ToggleLeft size={12} style={{ color: "var(--color-error-500, #ef4444)" }} />}
-          <span style={{ color: active ? "var(--color-success-500, #22c55e)" : "var(--color-error-500, #ef4444)" }}>
+            ? <ToggleRight size={12} style={{ color: "var(--color-success-500, var(--color-success-500))" }} />
+            : <ToggleLeft size={12} style={{ color: "var(--color-error-500, var(--color-error-500))" }} />}
+          <span style={{ color: active ? "var(--color-success-500, var(--color-success-500))" : "var(--color-error-500, var(--color-error-500))" }}>
             {active ? t("cdsMgmt.enabled") : t("cdsMgmt.disabled")}
           </span>
         </span>
@@ -225,7 +225,7 @@ export default function CdsManagementPage() {
     >
       <div
         style={{
-          background: "linear-gradient(135deg,#1e40af,#1e3a8a)",
+          background: "linear-gradient(135deg,var(--color-primary-800),#1e3a8a)",
           padding: "16px 24px",
           display: "flex",
           justifyContent: "space-between",
@@ -352,7 +352,7 @@ export default function CdsManagementPage() {
                   display: "flex",
                   alignItems: "center",
                   gap: 6,
-                  background: activeTab === tab.key ? "#1e40af" : "var(--bg-secondary, #21262d)",
+                  background: activeTab === tab.key ? "var(--color-primary-800)" : "var(--bg-secondary, #21262d)",
                   color: activeTab === tab.key ? "#fff" : "var(--text-muted, #8b949e)",
                 }}
               >
@@ -409,7 +409,7 @@ export default function CdsManagementPage() {
                 alignItems: "center",
                 gap: 6,
                 background: showInactive ? "#f59e0b20" : "var(--bg-secondary, #21262d)",
-                color: showInactive ? "#f59e0b" : "var(--text-muted, #8b949e)",
+                color: showInactive ? "var(--color-warning-500)" : "var(--text-muted, #8b949e)",
               }}
             >
               {showInactive ? (
@@ -476,7 +476,7 @@ export default function CdsManagementPage() {
                     borderRadius: 4,
                     border: "1px solid var(--border-default, #30363d)",
                     background: "transparent",
-                    color: rule.isActive ? "var(--color-error-500, #ef4444)" : "var(--color-success-500, #22c55e)",
+                    color: rule.isActive ? "var(--color-error-500, var(--color-error-500))" : "var(--color-success-500, var(--color-success-500))",
                     cursor: "pointer",
                     fontSize: 12,
                     display: "flex",
@@ -537,7 +537,7 @@ export default function CdsManagementPage() {
                   gap: 8,
                 }}
               >
-                <Shield size={18} style={{ color: "#3b82f6" }} /> {t("cdsMgmt.newRulePrefix")}{" "}
+                <Shield size={18} style={{ color: "var(--color-primary-500)" }} /> {t("cdsMgmt.newRulePrefix")}{" "}
                 {t(TAB_CONFIG.find((tab) => tab.key === activeTab)?.labelKey ?? "")}
               </div>
               <button
@@ -672,7 +672,7 @@ export default function CdsManagementPage() {
                   padding: "8px 16px",
                   borderRadius: 6,
                   border: "none",
-                  background: "#1e40af",
+                  background: "var(--color-primary-800)",
                   color: "#fff",
                   cursor: "pointer",
                   fontSize: 12,
@@ -731,7 +731,7 @@ export default function CdsManagementPage() {
                   gap: 8,
                 }}
               >
-                <Edit3 size={18} style={{ color: "#3b82f6" }} /> {t("cdsMgmt.editRuleTitle")} · {editRule.id}
+                <Edit3 size={18} style={{ color: "var(--color-primary-500)" }} /> {t("cdsMgmt.editRuleTitle")} · {editRule.id}
               </div>
               <button
                 onClick={() => setEditRule(null)}
@@ -791,7 +791,7 @@ export default function CdsManagementPage() {
                 disabled={editSaving}
                 style={{
                   padding: "8px 16px", borderRadius: 6, border: "none",
-                  background: "#1e40af", color: "#fff", cursor: editSaving ? "wait" : "pointer",
+                  background: "var(--color-primary-800)", color: "#fff", cursor: editSaving ? "wait" : "pointer",
                   fontSize: 12, display: "flex", alignItems: "center", gap: 6,
                 }}
               >
@@ -809,7 +809,7 @@ export default function CdsManagementPage() {
             top: 24,
             left: "50%",
             transform: "translateX(-50%)",
-            background: toast.type === "success" ? "var(--color-success-600, #16a34a)" : "var(--color-error-600, #dc2626)",
+            background: toast.type === "success" ? "var(--color-success-600, var(--color-success-600))" : "var(--color-error-600, var(--color-error-600))",
             color: "#fff",
             padding: "10px 20px",
             borderRadius: 8,

@@ -189,7 +189,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
         <Bell size={20} color="#f5222d" />
-        <FileText size={20} color="#2563eb" />
+        <FileText size={20} color="var(--color-primary-600)" />
         <BookOpen size={20} color="#52c41a" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('notificationTemplateDict.title')}</span>
         <Tag color="cyan">PR3 (v3.0.6.8-47)</Tag>
@@ -234,7 +234,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
                   <List.Item.Meta
                     avatar={
                       <Badge dot={!n.isRead}>
-                        <Avatar style={{ background: n.severity === 'critical' ? '#f5222d' : n.severity === 'warning' ? '#faad14' : '#2563eb' }}>
+                        <Avatar style={{ background: n.severity === 'critical' ? '#f5222d' : n.severity === 'warning' ? '#faad14' : 'var(--color-primary-600)' }}>
                           {n.type?.slice(0, 1).toUpperCase()}
                         </Avatar>
                       </Badge>

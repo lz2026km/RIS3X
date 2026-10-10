@@ -14,35 +14,35 @@ import { t } from '../i18n/appI18n'
 import { StatusTag } from '../components/common/StatusTag'
 import { DataTable } from '../components/common'
 
-const PRIMARY = '#1e40af'
-const ACCENT = '#3b82f6'
+const PRIMARY = 'var(--color-primary-800)'
+const ACCENT = 'var(--color-primary-500)'
 const SUCCESS = '#059669'
-const WARNING = '#d97706'
-const DANGER = '#dc2626'
+const WARNING = 'var(--color-warning-600)'
+const DANGER = 'var(--color-error-600)'
 const GRAY = 'var(--text-secondary, #475569)'
 const LIGHT_BG = 'var(--bg-card)'
 const BORDER = 'var(--border-color)'
 const WHITE = 'var(--bg-card, #ffffff)'
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
-  '待回复': { bg: '#f59e0b22', color: '#f59e0b', label: '待回复' },
+  '待回复': { bg: '#f59e0b22', color: 'var(--color-warning-500)', label: '待回复' },
   '已回复': { bg: '#22c55e22', color: '#059669', label: '已回复' },
   '已拒绝': { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: '已拒绝' },
-  '进行中': { bg: '#3b82f622', color: '#3b82f6', label: '进行中' },
+  '进行中': { bg: '#3b82f622', color: 'var(--color-primary-500)', label: '进行中' },
   '已完成': { bg: '#22c55e22', color: '#059669', label: '已完成' },
 }
 
 const TYPE_CONFIG: Record<string, { bg: string; color: string }> = {
   'MDT': { bg: '#8b5cf622', color: '#6d28d9' },
   '疑难病例': { bg: '#f59e0b22', color: '#b45309' },
-  '远程会诊': { bg: '#3b82f622', color: '#3b82f6' },
+  '远程会诊': { bg: '#3b82f622', color: 'var(--color-primary-500)' },
   '二次意见': { bg: '#22c55e22', color: '#047857' },
 }
 
 const RECORDING_STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
   '准备中': { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: '准备中' },
-  '录制中': { bg: '#ef444422', color: '#ef4444', label: '录制中' },
-  '已暂停': { bg: '#f59e0b22', color: '#f59e0b', label: '已暂停' },
+  '录制中': { bg: '#ef444422', color: 'var(--color-error-500)', label: '录制中' },
+  '已暂停': { bg: '#f59e0b22', color: 'var(--color-warning-500)', label: '已暂停' },
   '已完成': { bg: '#22c55e22', color: '#059669', label: '已完成' },
 }
 
@@ -625,8 +625,8 @@ export default function ConsultationPage() {
           <Star
             key={star}
             size={18}
-            fill={star <= score ? '#f59e0b' : 'none'}
-            color={star <= score ? '#f59e0b' : '#d1d5db'}
+            fill={star <= score ? 'var(--color-warning-500)' : 'none'}
+            color={star <= score ? 'var(--color-warning-500)' : '#d1d5db'}
             style={{ cursor: onChange ? 'pointer' : 'default' }}
             onClick={() => onChange?.(star)}
           />
@@ -1300,7 +1300,7 @@ export default function ConsultationPage() {
                         height: 56,
                         borderRadius: '50%',
                         background: 'var(--color-error-bg)',
-                        border: '3px solid #dc2626',
+                        border: '3px solid var(--color-error-600)',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -1308,7 +1308,7 @@ export default function ConsultationPage() {
                         boxShadow: '0 0 0 4px rgba(220, 38, 38, 0.2)',
                       }}
                     >
-                      <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#dc2626' }} />
+                      <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--color-error-600)' }} />
                     </button>
                   )}
 
@@ -1320,7 +1320,7 @@ export default function ConsultationPage() {
                         height: 56,
                         borderRadius: '50%',
                         background: 'var(--color-error-bg)',
-                        border: '3px solid #dc2626',
+                        border: '3px solid var(--color-error-600)',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -1329,7 +1329,7 @@ export default function ConsultationPage() {
                         animation: 'pulse 1.5s infinite',
                       }}
                     >
-                      <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#dc2626' }} />
+                      <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--color-error-600)' }} />
                     </button>
                   )}
 
@@ -1342,14 +1342,14 @@ export default function ConsultationPage() {
                         height: 48,
                         borderRadius: '50%',
                         background: recordingStatus === '已暂停' ? '#dbeafe' : '#fef3c7',
-                        border: `2px solid ${recordingStatus === '已暂停' ? '#2563eb' : '#d97706'}`,
+                        border: `2px solid ${recordingStatus === '已暂停' ? 'var(--color-primary-600)' : 'var(--color-warning-600)'}`,
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                       }}
                     >
-                      {recordingStatus === '已暂停' ? <Play size={20} color="#2563eb" /> : <Pause size={20} color="#d97706" />}
+                      {recordingStatus === '已暂停' ? <Play size={20} color="var(--color-primary-600)" /> : <Pause size={20} color="var(--color-warning-600)" />}
                     </button>
                   )}
 
@@ -1446,7 +1446,7 @@ export default function ConsultationPage() {
               }}>
                 <div style={{
                   aspectRatio: '16/9',
-                  background: 'linear-gradient(135deg, #1e40af 0%, #16213e 100%)',
+                  background: 'linear-gradient(135deg, var(--color-primary-800) 0%, #16213e 100%)',
                   borderRadius: 6,
                   display: 'flex',
                   alignItems: 'center',
@@ -1596,7 +1596,7 @@ export default function ConsultationPage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Film size={16} color={ACCENT} />{t('consultation.archiveList')}
-              <span style={{ fontSize: 11, fontWeight: 600, color: '#d97706', background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: 10, padding: '2px 8px' }}>{t('consultation.demoData')}</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-warning-600)', background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: 10, padding: '2px 8px' }}>{t('consultation.demoData')}</span>
             </h3>
 
             <div style={{ overflowX: 'auto' }}>
@@ -1622,7 +1622,7 @@ export default function ConsultationPage() {
                         fontSize: 12,
                         fontWeight: 600,
                         background: v === '可用' ? '#d1fae5' : v === '处理中' ? '#fef3c7' : '#fee2e2',
-                        color: v === '可用' ? '#059669' : v === '处理中' ? '#d97706' : '#dc2626',
+                        color: v === '可用' ? '#059669' : v === '处理中' ? 'var(--color-warning-600)' : 'var(--color-error-600)',
                       }}>
                         {v}
                       </span>
@@ -1871,7 +1871,7 @@ export default function ConsultationPage() {
                         }}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}
                       >
-                        <Star size={22} fill={s <= item.score ? '#f59e0b' : 'none'} color={s <= item.score ? '#f59e0b' : '#d1d5db'} />
+                        <Star size={22} fill={s <= item.score ? 'var(--color-warning-500)' : 'none'} color={s <= item.score ? 'var(--color-warning-500)' : '#d1d5db'} />
                       </button>
                     ))}
                   </div>
@@ -1934,7 +1934,7 @@ export default function ConsultationPage() {
             }}>
               <div style={{
                 aspectRatio: '16/9',
-                background: 'linear-gradient(135deg, #1e40af 0%, #16213e 100%)',
+                background: 'linear-gradient(135deg, var(--color-primary-800) 0%, #16213e 100%)',
                 borderRadius: 6,
                 display: 'flex',
                 alignItems: 'center',
@@ -2138,7 +2138,7 @@ export default function ConsultationPage() {
           zIndex: 2000,
           padding: '12px 20px',
           borderRadius: 10,
-          background: toast.type === 'success' ? '#059669' : toast.type === 'progress' ? '#2563eb' : '#64748b',
+          background: toast.type === 'success' ? '#059669' : toast.type === 'progress' ? 'var(--color-primary-600)' : '#64748b',
           color: 'white',
           fontSize: 12,
           fontWeight: 600,

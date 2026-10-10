@@ -15,8 +15,8 @@ import { CAN_SUPPLEMENT, CAN_RECTIFY, CAN_REDISTRIBUTE, CAN_ESCALATE, isReportWr
 import { normalizeReportStatus, toEnState } from '../../components/report/statusMeta';
 import { t } from '../../i18n/appI18n';
 
-const PRIMARY = '#1e40af'
-const DANGER = '#dc2626'
+const PRIMARY = 'var(--color-primary-800)'
+const DANGER = 'var(--color-error-600)'
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; border: string }> = {
   待审核: { bg: 'rgba(124,58,237,0.12)', color: '#7c3aed', border: '#c4b5fd' },
@@ -50,7 +50,7 @@ function highlightAnomalies(text: string | undefined): ReactNode {
 function QualityBadge({ score }: { score?: number }) {
   const [showTooltip, setShowTooltip] = useState(false)
   if (score === undefined || score === null) return <span style={{ color: '#cbd5e1', fontSize: 12 }}>-</span>
-  const color = score >= 80 ? '#059669' : score >= 60 ? '#d97706' : '#dc2626'
+  const color = score >= 80 ? '#059669' : score >= 60 ? 'var(--color-warning-600)' : 'var(--color-error-600)'
   const background = score >= 80 ? 'var(--color-success-bg)' : score >= 60 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)'
   const label = score >= 80 ? t('rptTable.quality.excellent') : score >= 60 ? t('rptTable.quality.good') : t('rptTable.quality.improve')
   return (

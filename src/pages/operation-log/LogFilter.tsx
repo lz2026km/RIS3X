@@ -33,12 +33,12 @@ const filterBtnStyle = (active: boolean) => ({
 
 const inputStyle = {
   padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0',
-  background: WHITE, color: '#1e40af', fontSize: 12, width: '100%' as const,
+  background: WHITE, color: 'var(--color-primary-800)', fontSize: 12, width: '100%' as const,
 }
 
 const selectStyle = {
   padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0',
-  background: WHITE, color: '#1e40af', fontSize: 12, cursor: 'pointer' as const,
+  background: WHITE, color: 'var(--color-primary-800)', fontSize: 12, cursor: 'pointer' as const,
 }
 
 export default function LogFilter({

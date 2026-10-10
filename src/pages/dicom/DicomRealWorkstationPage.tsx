@@ -1078,7 +1078,7 @@ const s: Record<string, React.CSSProperties> = {
     pointerEvents: "none",
     textShadow: "0 1px 2px #000",
   },
-  hudTitle: { fontSize: 12, fontWeight: 700, color: "#fbbf24" },
+  hudTitle: { fontSize: 12, fontWeight: 700, color: "var(--color-warning-400)" },
   hudLine: { fontSize: 11, color: "#e2e8f0" },
   hudMuted: { fontSize: 10, color: "#94a3b8" },
   hudRight: {

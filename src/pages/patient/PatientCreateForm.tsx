@@ -97,7 +97,7 @@ function RegistrationWizard({
     width: "100%",
     padding: "10px 12px",
     borderRadius: 8,
-    border: `1px solid ${errors[field] ? "#dc2626" : "var(--border-color)"}`,
+    border: `1px solid ${errors[field] ? "var(--color-error-600)" : "var(--border-color)"}`,
     fontSize: 12, boxSizing: "border-box" as const,
   });
 
@@ -137,7 +137,7 @@ function RegistrationWizard({
           style={{
             padding: "20px 24px",
             borderBottom: "1px solid var(--border-color)",
-            background: "linear-gradient(135deg, #1e40af, #3b82f6)",
+            background: "linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500))",
           }}
         >
           <div
@@ -203,7 +203,7 @@ function RegistrationWizard({
                     fontSize: 12,
                     fontWeight: 700,
                     background: step >= s ? "#fff" : "rgba(255,255,255,0.3)",
-                    color: step >= s ? "#1e40af" : "rgba(255,255,255,0.6)",
+                    color: step >= s ? "var(--color-primary-800)" : "rgba(255,255,255,0.6)",
                   }}
                 >
                   {s}
@@ -249,7 +249,7 @@ function RegistrationWizard({
                     display: "block",
                   }}
                 >
-                  {t('patientForm.name')} <span style={{ color: "#dc2626" }}>*</span>
+                  {t('patientForm.name')} <span style={{ color: "var(--color-error-600)" }}>*</span>
                 </label>
                 <input
                   value={formData.name}
@@ -260,7 +260,7 @@ function RegistrationWizard({
                   style={inputStyle("name")}
                 />
                 {errors.name && (
-                  <div style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 4 }}>
                     {errors.name}
                   </div>
                 )}
@@ -301,7 +301,7 @@ function RegistrationWizard({
                         checked={formData.gender === g}
                         aria-label={`性别-${g}`}
                         onChange={() => setFormData({ ...formData, gender: g })}
-                        style={{ cursor: "pointer", accentColor: "#1e40af" }}
+                        style={{ cursor: "pointer", accentColor: "var(--color-primary-800)" }}
                       />
                       {g}
                     </label>
@@ -340,7 +340,7 @@ function RegistrationWizard({
                     display: "block",
                   }}
                 >
-                  {t('patientForm.idCard')} <span style={{ color: "#dc2626" }}>*</span>
+                  {t('patientForm.idCard')} <span style={{ color: "var(--color-error-600)" }}>*</span>
                 </label>
                 <input
                   value={formData.idCard}
@@ -352,7 +352,7 @@ function RegistrationWizard({
                   style={inputStyle("idCard")}
                 />
                 {errors.idCard && (
-                  <div style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 4 }}>
                     {errors.idCard}
                   </div>
                 )}
@@ -367,7 +367,7 @@ function RegistrationWizard({
                     display: "block",
                   }}
                 >
-                  {t('patientForm.phone')} <span style={{ color: "#dc2626" }}>*</span>
+                  {t('patientForm.phone')} <span style={{ color: "var(--color-error-600)" }}>*</span>
                 </label>
                 <input
                   value={formData.phone}
@@ -379,7 +379,7 @@ function RegistrationWizard({
                   style={inputStyle("phone")}
                 />
                 {errors.phone && (
-                  <div style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 4 }}>
                     {errors.phone}
                   </div>
                 )}
@@ -458,7 +458,7 @@ function RegistrationWizard({
                   }}
                 >
                   {t('patientForm.allergyHistory')}{" "}
-                  <span style={{ color: "#dc2626" }} aria-label={t('patientForm.required')}>
+                  <span style={{ color: "var(--color-error-600)" }} aria-label={t('patientForm.required')}>
                     *
                   </span>
                 </label>
@@ -480,7 +480,7 @@ function RegistrationWizard({
                 {errors.allergyHistory && (
                   <div
                     role="alert"
-                    style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}
+                    style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 4 }}
                   >
                     {errors.allergyHistory}
                   </div>
@@ -588,7 +588,7 @@ function RegistrationWizard({
               </div>
               {/* [G005 W6] 结构化登记字段 */}
               <div style={{ gridColumn: "1 / -1", marginTop: 4 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", marginBottom: 8 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 8 }}>
                   {t('patientForm.structuredAllergy')}
                 </div>
               </div>
@@ -736,7 +736,7 @@ function RegistrationWizard({
                         ],
                       })
                     }
-                    style={{ fontSize: 12, color: "#1e40af", background: "none", border: "none", cursor: "pointer" }}
+                    style={{ fontSize: 12, color: "var(--color-primary-800)", background: "none", border: "none", cursor: "pointer" }}
                   >
                     + {t('patientForm.addAllergy')}
                   </button>
@@ -785,7 +785,7 @@ function RegistrationWizard({
                           structuredAllergyCodes: (formData.structuredAllergyCodes ?? []).filter((_, i) => i !== idx),
                         })
                       }
-                      style={{ fontSize: 12, color: "#dc2626", background: "none", border: "none", cursor: "pointer" }}
+                      style={{ fontSize: 12, color: "var(--color-error-600)", background: "none", border: "none", cursor: "pointer" }}
                       aria-label={t('patientForm.removeAllergy')}
                     >
                       ×
@@ -814,7 +814,7 @@ function RegistrationWizard({
                     display: "block",
                   }}
                 >
-                  {t('patientForm.emergencyContact')} <span style={{ color: "#dc2626" }}>*</span>
+                  {t('patientForm.emergencyContact')} <span style={{ color: "var(--color-error-600)" }}>*</span>
                 </label>
                 <input
                   value={formData.emergencyContact}
@@ -828,7 +828,7 @@ function RegistrationWizard({
                   style={inputStyle("emergencyContact")}
                 />
                 {errors.emergencyContact && (
-                  <div style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 4 }}>
                     {errors.emergencyContact}
                   </div>
                 )}
@@ -843,7 +843,7 @@ function RegistrationWizard({
                     display: "block",
                   }}
                 >
-                  {t('patientForm.contactPhone')} <span style={{ color: "#dc2626" }}>*</span>
+                  {t('patientForm.contactPhone')} <span style={{ color: "var(--color-error-600)" }}>*</span>
                 </label>
                 <input
                   value={formData.emergencyPhone}
@@ -855,7 +855,7 @@ function RegistrationWizard({
                   style={inputStyle("emergencyPhone")}
                 />
                 {errors.emergencyPhone && (
-                  <div style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 4 }}>
                     {errors.emergencyPhone}
                   </div>
                 )}
@@ -872,7 +872,7 @@ function RegistrationWizard({
                   gap: 8,
                 }}
               >
-                <CheckCircle size={16} color="#16a34a" />
+                <CheckCircle size={16} color="var(--color-success-600)" />
                 <span style={{ fontSize: 12, color: "#166534" }}>
                   {t('patientForm.confirmHint')}
                 </span>
@@ -934,7 +934,7 @@ function RegistrationWizard({
                   padding: "10px 24px",
                   borderRadius: 8,
                   border: "none",
-                  background: "#1e40af",
+                  background: "var(--color-primary-800)",
                   color: "#fff",
                   fontSize: 12,
                   fontWeight: 600,
@@ -1026,7 +1026,7 @@ export function PatientCreateForm({
           <ArrowLeft size={16} color="#64748b" />
         </button>
         <div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: "#1e40af" }}>
+          <div style={{ fontSize: 16, fontWeight: 700, color: "var(--color-primary-800)" }}>
             {selectedPatientForEdit ? t('patientForm.editRecord') : t('patientForm.newRecord')}
           </div>
           <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
@@ -1050,7 +1050,7 @@ export function PatientCreateForm({
               width: "100%",
               padding: "10px 12px",
               borderRadius: 8,
-              border: `1px solid ${formErrors.name ? "#dc2626" : "var(--border-color)"}`,
+              border: `1px solid ${formErrors.name ? "var(--color-error-600)" : "var(--border-color)"}`,
               fontSize: 12, boxSizing: "border-box",
             }}
           />
@@ -1080,7 +1080,7 @@ export function PatientCreateForm({
                   checked={formData.gender === g}
                   aria-label={`性别-${g}`}
                   onChange={() => onFormDataChange({ ...formData, gender: g })}
-                  style={{ cursor: "pointer", accentColor: "#1e40af" }}
+                  style={{ cursor: "pointer", accentColor: "var(--color-primary-800)" }}
                 />
                 {g}
               </label>
@@ -1128,7 +1128,7 @@ export function PatientCreateForm({
               width: "100%",
               padding: "10px 12px",
               borderRadius: 8,
-              border: `1px solid ${formErrors.idCard ? "#dc2626" : "var(--border-color)"}`,
+              border: `1px solid ${formErrors.idCard ? "var(--color-error-600)" : "var(--border-color)"}`,
               fontSize: 12, boxSizing: "border-box",
             }}
           />
@@ -1146,7 +1146,7 @@ export function PatientCreateForm({
               width: "100%",
               padding: "10px 12px",
               borderRadius: 8,
-              border: `1px solid ${formErrors.phone ? "#dc2626" : "var(--border-color)"}`,
+              border: `1px solid ${formErrors.phone ? "var(--color-error-600)" : "var(--border-color)"}`,
               fontSize: 12, boxSizing: "border-box",
             }}
           />
@@ -1231,7 +1231,7 @@ export function PatientCreateForm({
               display: "block",
             }}
           >
-            {t('patientForm.contactName')} <span style={{ color: "#dc2626" }}>*</span>
+            {t('patientForm.contactName')} <span style={{ color: "var(--color-error-600)" }}>*</span>
           </label>
           <input
             type="text"
@@ -1247,12 +1247,12 @@ export function PatientCreateForm({
               width: "100%",
               padding: "10px 12px",
               borderRadius: 8,
-              border: `1px solid ${formErrors.emergencyContact ? "#dc2626" : "var(--border-color)"}`,
+              border: `1px solid ${formErrors.emergencyContact ? "var(--color-error-600)" : "var(--border-color)"}`,
               fontSize: 12, boxSizing: "border-box",
             }}
           />
           {formErrors.emergencyContact && (
-            <div style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 4 }}>
               {formErrors.emergencyContact}
             </div>
           )}
@@ -1267,7 +1267,7 @@ export function PatientCreateForm({
               display: "block",
             }}
           >
-            {t('patientForm.contactPhone')} <span style={{ color: "#dc2626" }}>*</span>
+            {t('patientForm.contactPhone')} <span style={{ color: "var(--color-error-600)" }}>*</span>
           </label>
           <input
             type="tel"
@@ -1281,12 +1281,12 @@ export function PatientCreateForm({
               width: "100%",
               padding: "10px 12px",
               borderRadius: 8,
-              border: `1px solid ${formErrors.emergencyPhone ? "#dc2626" : "var(--border-color)"}`,
+              border: `1px solid ${formErrors.emergencyPhone ? "var(--color-error-600)" : "var(--border-color)"}`,
               fontSize: 12, boxSizing: "border-box",
             }}
           />
           {formErrors.emergencyPhone && (
-            <div style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "var(--color-error-600)", marginTop: 4 }}>
               {formErrors.emergencyPhone}
             </div>
           )}

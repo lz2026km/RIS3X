@@ -31,8 +31,8 @@ export interface AppEmptyProps {
 const VARIANT_ICONS: Record<NonNullable<AppEmptyProps['variant']>, ReactNode> = {
   'no-data': <InboxOutlined style={{ fontSize: 64, color: '#94a3b8' }} />,
   'no-results': <FileSearchOutlined style={{ fontSize: 64, color: '#94a3b8' }} />,
-  'no-permission': <WarningOutlined style={{ fontSize: 64, color: '#f59e0b' }} />,
-  'error': <WarningOutlined style={{ fontSize: 64, color: '#dc2626' }} />,
+  'no-permission': <WarningOutlined style={{ fontSize: 64, color: 'var(--color-warning-500)' }} />,
+  'error': <WarningOutlined style={{ fontSize: 64, color: 'var(--color-error-600)' }} />,
 };
 
 const VARIANT_DEFAULTS: Record<NonNullable<AppEmptyProps['variant']>, string> = {

@@ -26,7 +26,7 @@ const s: Record<string, React.CSSProperties> = {
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
     marginBottom: 20,
   },
-  title: { fontSize: 18, fontWeight: 700, color: '#1e40af' },
+  title: { fontSize: 18, fontWeight: 700, color: 'var(--color-primary-800)' },
   subtitle: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 },
   toolbar: {
     display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap',
@@ -48,13 +48,13 @@ const s: Record<string, React.CSSProperties> = {
   },
   btnPrimary: {
     display: 'flex', alignItems: 'center', gap: 6,
-    background: '#1e40af', color: '#fff', border: 'none', borderRadius: 8,
+    background: 'var(--color-primary-800)', color: '#fff', border: 'none', borderRadius: 8,
     padding: '10px 18px', fontSize: 12, cursor: 'pointer', minHeight: 44,
     boxShadow: '0 2px 6px rgba(30,58,95,0.25)',
   },
   btnDanger: {
     display: 'flex', alignItems: 'center', gap: 4,
-    background: 'var(--color-error-bg)', color: '#dc2626', border: 'none', borderRadius: 8,
+    background: 'var(--color-error-bg)', color: 'var(--color-error-600)', border: 'none', borderRadius: 8,
     padding: '8px 12px', fontSize: 12, cursor: 'pointer', minHeight: 44,
   },
   btnIcon: {
@@ -77,7 +77,7 @@ const s: Record<string, React.CSSProperties> = {
     display: 'inline-block', padding: '3px 10px', borderRadius: 12, fontSize: 12,
     fontWeight: 600,
   },
-  badgeActive: { background: 'var(--color-success-bg)', color: '#16a34a' },
+  badgeActive: { background: 'var(--color-success-bg)', color: 'var(--color-success-600)' },
   badgeInactive: { background: 'var(--content-bg)', color: 'var(--text-secondary)' },
   actions: { display: 'flex', gap: 6 },
   pagination: {
@@ -93,7 +93,7 @@ const s: Record<string, React.CSSProperties> = {
     background: 'var(--bg-card)', cursor: 'pointer', fontSize: 12, color: 'var(--text-secondary)',
   },
   pageBtnActive: {
-    background: '#1e40af', color: '#fff', border: '1px solid #1e40af',
+    background: 'var(--color-primary-800)', color: '#fff', border: '1px solid var(--color-primary-800)',
   },
   pageBtnDisabled: { opacity: 0.5, cursor: 'not-allowed' },
   overlay: {
@@ -109,7 +109,7 @@ const s: Record<string, React.CSSProperties> = {
   modalHeader: {
     padding: '16px 20px', borderBottom: '1px solid var(--border-color)',
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    background: '#1e40af',
+    background: 'var(--color-primary-800)',
   },
   modalTitle: { fontSize: 14, fontWeight: 700, color: '#fff' },
   modalClose: {
@@ -130,7 +130,7 @@ const s: Record<string, React.CSSProperties> = {
   formGroup: { display: 'flex', flexDirection: 'column', gap: 5 },
   formGroupFull: { gridColumn: '1 / -1' },
   label: { fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' },
-  required: { color: '#dc2626', marginLeft: 2 },
+  required: { color: 'var(--color-error-600)', marginLeft: 2 },
   input: {
     border: '1px solid var(--border-color)', borderRadius: 8, padding: '10px 12px',
     fontSize: 14, color: 'var(--text-secondary)', minHeight: 44,
@@ -147,11 +147,11 @@ const s: Record<string, React.CSSProperties> = {
   },
   btnSubmit: {
     padding: '10px 20px', borderRadius: 8, border: 'none',
-    background: '#1e40af', fontSize: 14, color: '#fff', cursor: 'pointer', minHeight: 44,
+    background: 'var(--color-primary-800)', fontSize: 14, color: '#fff', cursor: 'pointer', minHeight: 44,
   },
   btnDeleteConfirm: {
     padding: '10px 20px', borderRadius: 8, border: 'none',
-    background: '#dc2626', fontSize: 14, color: '#fff', cursor: 'pointer', minHeight: 44,
+    background: 'var(--color-error-600)', fontSize: 14, color: '#fff', cursor: 'pointer', minHeight: 44,
   },
   emptyState: {
     textAlign: 'center', padding: '60px 20px', color: 'var(--text-secondary)',
@@ -182,7 +182,7 @@ const s: Record<string, React.CSSProperties> = {
     display: 'flex', alignItems: 'center', gap: 6,
     fontSize: 12, color: 'var(--text-secondary)',
   },
-  statNum: { fontWeight: 800, color: '#1e40af', fontSize: 16 },
+  statNum: { fontWeight: 800, color: 'var(--color-primary-800)', fontSize: 16 },
   categoryTag: {
     display: 'inline-block', padding: '3px 10px', borderRadius: 8,
     fontSize: 12, fontWeight: 700,
@@ -200,14 +200,14 @@ const s: Record<string, React.CSSProperties> = {
     padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 600,
     cursor: 'pointer', border: 'none', transition: 'all 0.15s',
   },
-  tabActive: { background: '#1e40af', color: '#fff' },
+  tabActive: { background: 'var(--color-primary-800)', color: '#fff' },
   tabInactive: { background: 'transparent', color: 'var(--text-secondary)' },
   chartCard: {
     background: 'var(--bg-card)', borderRadius: 10, padding: 16, marginBottom: 16,
     boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
   },
   chartTitle: {
-    fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 12,
+    fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12,
     display: 'flex', alignItems: 'center', gap: 8,
   },
 }
@@ -270,9 +270,9 @@ interface UsageStat {
 
 // ---------- 放射科字典分类颜色 ----------
 const categoryColors: Record<string, { backgroundColor: string; color: string }> = {
-  'CT检查项目':   { backgroundColor: 'var(--color-info-bg)', color: '#1d4ed8' },
+  'CT检查项目':   { backgroundColor: 'var(--color-info-bg)', color: 'var(--color-primary-700)' },
   'MRI序列':      { backgroundColor: '#ec489922', color: '#be185d' },
-  'X线检查':      { backgroundColor: 'var(--color-success-bg)', color: '#16a34a' },
+  'X线检查':      { backgroundColor: 'var(--color-success-bg)', color: 'var(--color-success-600)' },
   '设备类型':     { backgroundColor: 'var(--color-warning-bg)', color: '#92400e' },
   '诊断术语':     { backgroundColor: '#8b5cf622', color: '#4338ca' },
   '检查部位':     { backgroundColor: '#8b5cf622', color: '#a21caf' },
@@ -283,12 +283,12 @@ const categoryColors: Record<string, { backgroundColor: string; color: string }>
 }
 
 const modalityColors: Record<string, { bg: string; color: string }> = {
-  'CT':    { bg: '#3b82f622', color: '#2563eb' },
+  'CT':    { bg: '#3b82f622', color: 'var(--color-primary-600)' },
   'MR':    { bg: '#8b5cf622', color: '#7c3aed' },
   'DR':    { bg: '#22c55e22', color: '#059669' },
-  'DSA':   { bg: '#f59e0b22', color: '#d97706' },
+  'DSA':   { bg: '#f59e0b22', color: 'var(--color-warning-600)' },
   '乳腺':  { bg: '#ec489922', color: '#db2777' },
-  '胃肠':  { bg: '#06b6d422', color: '#0891b2' },
+  '胃肠':  { bg: '#06b6d422', color: 'var(--color-info-600)' },
 }
 
 export const initialDictionaries: DictionaryItem[] = [
@@ -559,7 +559,7 @@ export default function DictionaryPage() {
       title: t('dictionary.name'), dataIndex: 'name', key: 'name',
       render: (v: string, d) => (
         <>
-          <div style={{ fontWeight: 600, color: '#1e40af' }}>{v ?? ''}</div>
+          <div style={{ fontWeight: 600, color: 'var(--color-primary-800)' }}>{v ?? ''}</div>
           <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'monospace' }}>{d.id}</div>
         </>
       ),
@@ -756,7 +756,7 @@ export default function DictionaryPage() {
       </div>
 
       {dictLoading && (
-        <div style={{ background: 'var(--color-info-bg)', border: '1px solid #bfdbfe', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 12, color: '#1e40af' }}>
+        <div style={{ background: 'var(--color-info-bg)', border: '1px solid #bfdbfe', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 12, color: 'var(--color-primary-800)' }}>
           {t('dictionary.loading')}
         </div>
       )}
@@ -786,8 +786,8 @@ export default function DictionaryPage() {
 
       <div style={s.pagination}>
         <div style={s.pageInfo}>
-          {t('dictionary.totalPrefix')} <strong style={{ color: '#1e40af' }}>{filtered.length}</strong> {t('dictionary.recordsSuffix')}，
-          {t('dictionary.pagePrefix')} <strong style={{ color: '#1e40af' }}>{page}</strong> / <strong style={{ color: '#1e40af' }}>{totalPages}</strong> {t('dictionary.pageSuffix')}
+          {t('dictionary.totalPrefix')} <strong style={{ color: 'var(--color-primary-800)' }}>{filtered.length}</strong> {t('dictionary.recordsSuffix')}，
+          {t('dictionary.pagePrefix')} <strong style={{ color: 'var(--color-primary-800)' }}>{page}</strong> / <strong style={{ color: 'var(--color-primary-800)' }}>{totalPages}</strong> {t('dictionary.pageSuffix')}
         </div>
         <div style={s.pageBtns}>
           <button style={{ ...s.pageBtn, ...(page === 1 ? s.pageBtnDisabled : {}) }} onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
@@ -840,14 +840,14 @@ export default function DictionaryPage() {
     const mappingColumns: TableColumnsType<MappingEntry> = [
       { title: t('dictionary.sourceCode'), dataIndex: 'sourceCode', key: 'sourceCode', render: (v: string) => <code style={{ fontFamily: 'monospace', fontSize: 12, background: 'var(--content-bg)', padding: '2px 6px', borderRadius: 4 }}>{v}</code> },
       { title: t('dictionary.sourceSystem'), dataIndex: 'sourceSystem', key: 'sourceSystem', render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v}</span> },
-      { title: t('dictionary.targetCode'), dataIndex: 'targetCode', key: 'targetCode', render: (v: string) => <code style={{ fontFamily: 'monospace', fontSize: 12, background: 'var(--color-info-bg)', padding: '2px 6px', borderRadius: 4, color: '#2563eb' }}>{v}</code> },
+      { title: t('dictionary.targetCode'), dataIndex: 'targetCode', key: 'targetCode', render: (v: string) => <code style={{ fontFamily: 'monospace', fontSize: 12, background: 'var(--color-info-bg)', padding: '2px 6px', borderRadius: 4, color: 'var(--color-primary-600)' }}>{v}</code> },
       { title: t('dictionary.targetSystem'), dataIndex: 'targetSystem', key: 'targetSystem' },
       {
         title: t('dictionary.accuracy'), dataIndex: 'accuracy', key: 'accuracy',
         render: (v: number) => (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <div style={{ width: 60, height: 6, background: '#e2e8f0', borderRadius: 3 }}>
-              <div style={{ width: `${v * 100}%`, height: 6, background: v > 0.9 ? '#16a34a' : v > 0.8 ? '#f59e0b' : '#dc2626', borderRadius: 3 }} />
+              <div style={{ width: `${v * 100}%`, height: 6, background: v > 0.9 ? 'var(--color-success-600)' : v > 0.8 ? 'var(--color-warning-500)' : 'var(--color-error-600)', borderRadius: 3 }} />
             </div>
             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{Math.round(v * 100)}%</span>
           </div>
@@ -859,7 +859,7 @@ export default function DictionaryPage() {
           <span style={{
             ...s.badge,
             background: v === 'verified' ? '#dcfce7' : v === 'unverified' ? '#fef3c7' : '#fee2e2',
-            color: v === 'verified' ? '#16a34a' : v === 'unverified' ? '#d97706' : '#dc2626',
+            color: v === 'verified' ? 'var(--color-success-600)' : v === 'unverified' ? 'var(--color-warning-600)' : 'var(--color-error-600)',
           }}>
             {v === 'verified' ? t('dictionary.verified') : v === 'unverified' ? t('dictionary.unverified') : t('dictionary.conflict')}
           </span>
@@ -871,7 +871,7 @@ export default function DictionaryPage() {
     return (
       <div>
         <div style={s.chartCard}>
-          <div style={s.chartTitle}><Code size={16} /> SNOMED/LOINC/RadLex {t('dictionary.termMapping')} <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>{t('dictionary.demoDataMapping')}</span></div>
+          <div style={s.chartTitle}><Code size={16} /> SNOMED/LOINC/RadLex {t('dictionary.termMapping')} <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t('dictionary.demoDataMapping')}</span></div>
           <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
             <div style={s.searchBox}>
               <Search size={15} color="var(--text-secondary)" />
@@ -880,15 +880,15 @@ export default function DictionaryPage() {
             <button style={s.btnPrimary} onClick={handleImportMappings}><Upload size={13} /> {t('dictionary.importMappingsCsv')}</button>
           </div>
           {showImportMapping && (
-            <div style={{ background: 'var(--color-success-bg)', border: '1px solid #16a34a', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <CheckCircle2 size={15} color="#16a34a" />
+            <div style={{ background: 'var(--color-success-bg)', border: '1px solid var(--color-success-600)', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <CheckCircle2 size={15} color="var(--color-success-600)" />
               <span style={{ fontSize: 12, color: '#166534' }}>{t('dictionary.imported3Mappings')}</span>
             </div>
           )}
           {unmapped.length > 0 && (
-            <div style={{ background: 'var(--color-warning-bg)', border: '1px solid #f59e0b', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <AlertTriangle size={15} color="#d97706" />
-              <span style={{ fontSize: 12, color: '#92400e' }}>{t('dictionary.unmappedFound', { count: unmapped.length })} <button style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setMappingSearch('UNMAPPED')}>{t('dictionary.viewReport')}</button></span>
+            <div style={{ background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning-500)', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <AlertTriangle size={15} color="var(--color-warning-600)" />
+              <span style={{ fontSize: 12, color: '#92400e' }}>{t('dictionary.unmappedFound', { count: unmapped.length })} <button style={{ background: 'none', border: 'none', color: 'var(--color-primary-600)', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setMappingSearch('UNMAPPED')}>{t('dictionary.viewReport')}</button></span>
             </div>
           )}
           <DataTable<MappingEntry>
@@ -907,7 +907,7 @@ export default function DictionaryPage() {
       <div style={{ display: 'flex', gap: 16 }}>
         <div style={{ flex: 1 }}>
           <div style={s.chartCard}>
-            <div style={s.chartTitle}><Server size={16} /> FHIR Terminology Service <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>{t('dictionary.demoDataTerm')}</span></div>
+            <div style={s.chartTitle}><Server size={16} /> FHIR Terminology Service <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t('dictionary.demoDataTerm')}</span></div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
               <div style={s.searchBox}>
                 <Search size={15} color="var(--text-secondary)" />
@@ -921,14 +921,14 @@ export default function DictionaryPage() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
               {mockFhirSystems.map(fs => (
                 <div key={fs.system} style={{ background: 'var(--content-bg)', borderRadius: 8, padding: '12px 14px', border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>{fs.name}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)' }}>{fs.name}</div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{fs.system}</div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('dictionary.version')} {fs.version}</div>
                 </div>
               ))}
             </div>
             <div style={{ background: 'var(--content-bg)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>{t('dictionary.conceptTree')}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8 }}>{t('dictionary.conceptTree')}</div>
               {mockConcepts.map(concept => (
                 <div key={concept.code} style={{ paddingLeft: 0 }}>
                   <div
@@ -938,7 +938,7 @@ export default function DictionaryPage() {
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedConcept(concept) } }}
                     style={{ padding: '6px 10px', cursor: 'pointer', borderRadius: 4, background: selectedConcept?.code === concept.code ? '#dbeafe' : 'transparent', display: 'flex', alignItems: 'center', gap: 6 }}
                   >
-                    <Layers size={14} color="#2563eb" />
+                    <Layers size={14} color="var(--color-primary-600)" />
                     <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{concept.display}</span>
                     <code style={{ fontSize: 12, color: 'var(--text-secondary)' }}>({concept.code})</code>
                   </div>
@@ -977,7 +977,7 @@ export default function DictionaryPage() {
               <div style={s.chartTitle}><Globe size={16} /> {t('dictionary.conceptDetail')}</div>
               <div style={{ marginBottom: 12 }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{t('dictionary.code')}</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>{selectedConcept.code}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)' }}>{selectedConcept.code}</div>
               </div>
               <div style={{ marginBottom: 12 }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{t('dictionary.displayName')}</div>
@@ -985,7 +985,7 @@ export default function DictionaryPage() {
               </div>
               <div style={{ marginBottom: 12 }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{t('dictionary.system')}</div>
-                <div style={{ fontSize: 12, color: '#2563eb', wordBreak: 'break-all' }}>{selectedConcept.system}</div>
+                <div style={{ fontSize: 12, color: 'var(--color-primary-600)', wordBreak: 'break-all' }}>{selectedConcept.system}</div>
               </div>
               <button
                 style={s.btnPrimary}
@@ -1032,14 +1032,14 @@ export default function DictionaryPage() {
     const dictOptions = [...new Set(versions.map(v => v.dictionaryId))]
 
     const versionColumns: TableColumnsType<VersionEntry> = [
-      { title: t('dictionary.versionNumber'), dataIndex: 'version', key: 'version', render: (v: string) => <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#1e40af' }}>{v}</span> },
+      { title: t('dictionary.versionNumber'), dataIndex: 'version', key: 'version', render: (v: string) => <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--color-primary-800)' }}>{v}</span> },
       {
         title: t('dictionary.status'), dataIndex: 'status', key: 'status',
         render: (v: VersionEntry['status']) => (
           <span style={{
             ...s.badge,
             background: v === 'published' ? '#dcfce7' : v === 'review' ? '#fef3c7' : '#f1f5f9',
-            color: v === 'published' ? '#16a34a' : v === 'review' ? '#d97706' : '#94a3b8',
+            color: v === 'published' ? 'var(--color-success-600)' : v === 'review' ? 'var(--color-warning-600)' : '#94a3b8',
           }}>
             {v === 'published' ? t('dictionary.published') : v === 'review' ? t('dictionary.reviewing') : t('dictionary.draft')}
           </span>
@@ -1075,7 +1075,7 @@ export default function DictionaryPage() {
               </button>
             )}
             {v.status === 'review' && (
-              <button style={{ ...s.btnPrimary, background: '#16a34a', padding: '6px 10px', minHeight: 32 }}
+              <button style={{ ...s.btnPrimary, background: 'var(--color-success-600)', padding: '6px 10px', minHeight: 32 }}
                 onClick={async () => {
                   try {
                     const payload: TermUpdatePayload = { status: 'published' };
@@ -1095,7 +1095,7 @@ export default function DictionaryPage() {
             )}
             {v.status === 'published' && (
               <button
-                style={{ ...s.btnIcon, color: '#d97706' }}
+                style={{ ...s.btnIcon, color: 'var(--color-warning-600)' }}
                 onClick={async () => {
                   try {
                     const payload: TermUpdatePayload = { ...v.snapshot, notes: `已回滚到 ${v.version} @ ${new Date().toISOString()}` };
@@ -1122,7 +1122,7 @@ export default function DictionaryPage() {
     return (
       <div>
         <div style={s.chartCard}>
-          <div style={s.chartTitle}><History size={16} /> {t('dictionary.versionManagement')} <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>{t('dictionary.demoDataVersion')}</span></div>
+          <div style={s.chartTitle}><History size={16} /> {t('dictionary.versionManagement')} <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t('dictionary.demoDataVersion')}</span></div>
           <div style={{ display: 'flex', gap: 12, marginBottom: 16, alignItems: 'center' }}>
             <select style={{ ...s.select, minWidth: 200 }} value={selectedDict} onChange={e => setSelectedDict(e.target.value)}>
               {dictOptions.map(d => <option key={d} value={d}>{d} - {dictionaries.find(di => di.id === d)?.name || d}</option>)}
@@ -1136,9 +1136,9 @@ export default function DictionaryPage() {
           />
           {diffView && (
             <div style={{ marginTop: 12, background: 'var(--content-bg)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>{t('dictionary.diffViewTitle')}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8 }}>{t('dictionary.diffViewTitle')}</div>
               <div style={{ fontSize: 12, color: '#059669', background: 'var(--color-success-bg)', padding: '6px 10px', borderRadius: 4, marginBottom: 4 }}>{t('dictionary.diffAdded')}</div>
-              <div style={{ fontSize: 12, color: '#dc2626', background: 'var(--color-error-bg)', padding: '6px 10px', borderRadius: 4 }}>{t('dictionary.diffRemoved')}</div>
+              <div style={{ fontSize: 12, color: 'var(--color-error-600)', background: 'var(--color-error-bg)', padding: '6px 10px', borderRadius: 4 }}>{t('dictionary.diffRemoved')}</div>
             </div>
           )}
         </div>
@@ -1233,8 +1233,8 @@ export default function DictionaryPage() {
                   </div>
                   {importFile && (
                     <div style={{ background: 'var(--color-info-bg)', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <FileSpreadsheet size={15} color="#2563eb" />
-                      <span style={{ fontSize: 12, color: '#1e40af' }}>{importFile.name}</span>
+                      <FileSpreadsheet size={15} color="var(--color-primary-600)" />
+                      <span style={{ fontSize: 12, color: 'var(--color-primary-800)' }}>{importFile.name}</span>
                       <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>({(importFile.size / 1024).toFixed(1)} KB)</span>
                     </div>
                   )}
@@ -1272,13 +1272,13 @@ export default function DictionaryPage() {
                 <div>
                   <div style={{ background: importResult.errors > 0 ? '#fef3c7' : '#dcfce7', borderRadius: 8, padding: '12px 14px', marginBottom: 12 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                      {importResult.errors > 0 ? <AlertTriangle size={15} color="#d97706" /> : <CheckCircle2 size={15} color="#16a34a" />}
+                      {importResult.errors > 0 ? <AlertTriangle size={15} color="var(--color-warning-600)" /> : <CheckCircle2 size={15} color="var(--color-success-600)" />}
                       <span style={{ fontSize: 12, fontWeight: 600, color: importResult.errors > 0 ? '#92400e' : '#166534' }}>
                         {t('dictionary.importDone', { success: importResult.success, errors: importResult.errors })}
                       </span>
                     </div>
                     {importResult.warnings.map((w, i) => (
-                      <div key={i} style={{ fontSize: 12, color: '#d97706', marginLeft: 24 }}>• {w}</div>
+                      <div key={i} style={{ fontSize: 12, color: 'var(--color-warning-600)', marginLeft: 24 }}>• {w}</div>
                     ))}
                   </div>
                   <button style={s.btnPrimary} onClick={() => { setImportStep('upload'); setImportResult(null); setImportFile(null) }}><RefreshCw size={13} /> {t('dictionary.continueImport')}</button>
@@ -1315,11 +1315,11 @@ export default function DictionaryPage() {
         <div style={{ display: 'flex', gap: 16 }}>
           <div style={{ flex: 1 }}>
             <div style={s.chartCard}>
-              <div style={s.chartTitle}><TrendingUp size={16} /> {t('dictionary.usageTrend')} <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>{t('dictionary.demoDataUsage')}</span></div>
+              <div style={s.chartTitle}><TrendingUp size={16} /> {t('dictionary.usageTrend')} <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t('dictionary.demoDataUsage')}</span></div>
               <div style={{ height: 200, display: 'flex', alignItems: 'flex-end', gap: 8, padding: '0 10px' }}>
                 {(mockUsageStats[0]?.trend ?? []).map((v, i) => (
                   <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                    <div style={{ width: '100%', height: `${(v / 370) * 180}px`, background: '#3b82f6', borderRadius: '4px 4px 0 0', minHeight: 4, opacity: 0.7 + i * 0.05 }} />
+                    <div style={{ width: '100%', height: `${(v / 370) * 180}px`, background: 'var(--color-primary-500)', borderRadius: '4px 4px 0 0', minHeight: 4, opacity: 0.7 + i * 0.05 }} />
                     <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{[t('dictionary.month1'), t('dictionary.month2'), t('dictionary.month3'), t('dictionary.month4'), t('dictionary.month5'), t('dictionary.month6')][i]}</span>
                   </div>
                 ))}
@@ -1331,9 +1331,9 @@ export default function DictionaryPage() {
               <div style={s.chartTitle}><BarChart2 size={16} /> {t('dictionary.topTerms')}</div>
               {mostUsed.slice(0, 5).map((u, i) => (
                 <div key={u.termName} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid var(--border-light)' }}>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: i < 3 ? '#d97706' : '#94a3b8', minWidth: 20 }}>#{i + 1}</span>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: i < 3 ? 'var(--color-warning-600)' : '#94a3b8', minWidth: 20 }}>#{i + 1}</span>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: '#1e40af' }}>{u.termName}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)' }}>{u.termName}</div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{u.department}</div>
                   </div>
                   <span style={{ fontSize: 12, fontWeight: 700, color: '#059669' }}>{u.usageCount}</span>
@@ -1349,10 +1349,10 @@ export default function DictionaryPage() {
                 const total = deptStats.reduce((s, u) => s + u.usageCount, 0)
                 return (
                   <div key={dept} style={{ padding: '8px 0', borderBottom: '1px solid var(--border-light)' }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: '#1e40af', marginBottom: 4 }}>{dept}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)', marginBottom: 4 }}>{dept}</div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('dictionary.deptUsageCount', { total, count: deptStats.length })}</div>
                     <div style={{ width: '100%', height: 4, background: '#e2e8f0', borderRadius: 2, marginTop: 4 }}>
-                      <div style={{ width: `${(total / 3450) * 100}%`, height: 4, background: '#3b82f6', borderRadius: 2 }} />
+                      <div style={{ width: `${(total / 3450) * 100}%`, height: 4, background: 'var(--color-primary-500)', borderRadius: 2 }} />
                     </div>
                   </div>
                 )
@@ -1363,7 +1363,7 @@ export default function DictionaryPage() {
               <div style={s.chartTitle}><AlertTriangle size={16} /> {t('dictionary.cleanupSuggestions')}</div>
               {leastUsed.map(u => (
                 <div key={u.termName} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid var(--border-light)' }}>
-                  <PieChart size={14} color="#f59e0b" />
+                  <PieChart size={14} color="var(--color-warning-500)" />
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{u.termName}</div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('dictionary.usedOnlyTimes', { count: u.usageCount })}</div>
@@ -1409,14 +1409,14 @@ export default function DictionaryPage() {
           <div style={s.statCard}>
             <BookOpen size={15} color="var(--text-secondary)" />
             <div>
-              <div style={{ fontSize: 14, fontWeight: 800, color: '#1e40af' }}>{stats.total}</div>
+              <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--color-primary-800)' }}>{stats.total}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('dictionary.entries')}</div>
             </div>
           </div>
           <div style={s.statCard}>
-            <Activity size={15} color="#16a34a" />
+            <Activity size={15} color="var(--color-success-600)" />
             <div>
-              <div style={{ fontSize: 14, fontWeight: 800, color: '#16a34a' }}>{stats.active}</div>
+              <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--color-success-600)' }}>{stats.active}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('dictionary.statusActive')}</div>
             </div>
           </div>
@@ -1476,7 +1476,7 @@ export default function DictionaryPage() {
                 <div style={s.modalBody}>
                   {formErrors.length > 0 && (
                     <div style={{ background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 8, padding: '10px 14px', marginBottom: 14 }}>
-                      {formErrors.map((err, i) => <div key={i} style={{ fontSize: 12, color: '#dc2626' }}>• {err}</div>)}
+                      {formErrors.map((err, i) => <div key={i} style={{ fontSize: 12, color: 'var(--color-error-600)' }}>• {err}</div>)}
                     </div>
                   )}
                   <div style={s.formGrid}>
@@ -1516,11 +1516,11 @@ export default function DictionaryPage() {
                             <label key={m} onClick={() => handleModalityToggle(m)} style={{
                               display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 8, cursor: 'pointer',
                               fontSize: 12, fontWeight: 600, userSelect: 'none',
-                              border: `1px solid ${isSelected ? (modalityColors[m]?.color || '#1e40af') : '#e2e8f0'}`,
+                              border: `1px solid ${isSelected ? (modalityColors[m]?.color || 'var(--color-primary-800)') : '#e2e8f0'}`,
                               background: isSelected ? (modalityColors[m]?.bg || '#eff6ff') : '#fff',
-                              color: isSelected ? (modalityColors[m]?.color || '#1e40af') : '#94a3b8',
+                              color: isSelected ? (modalityColors[m]?.color || 'var(--color-primary-800)') : '#94a3b8',
                             }}>
-                              <div style={{ width: 14, height: 14, borderRadius: 4, border: `2px solid ${isSelected ? (modalityColors[m]?.color || '#1e40af') : '#cbd5e1'}`, background: isSelected ? (modalityColors[m]?.color || '#1e40af') : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                              <div style={{ width: 14, height: 14, borderRadius: 4, border: `2px solid ${isSelected ? (modalityColors[m]?.color || 'var(--color-primary-800)') : '#cbd5e1'}`, background: isSelected ? (modalityColors[m]?.color || 'var(--color-primary-800)') : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                 {isSelected && <span style={{ color: '#fff', fontSize: 12 }}></span>}
                               </div>
                               {m}
@@ -1531,7 +1531,7 @@ export default function DictionaryPage() {
                     </div>
                     <div style={{ ...s.formGroup, ...s.formGroupFull }}>
                       <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: 'var(--text-secondary)' }} onClick={() => handleField('isActive', !editingDictionary.isActive)}>
-                        <div style={{ width: 16, height: 16, borderRadius: 4, border: `2px solid ${editingDictionary.isActive ? '#16a34a' : '#cbd5e1'}`, background: editingDictionary.isActive ? '#16a34a' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ width: 16, height: 16, borderRadius: 4, border: `2px solid ${editingDictionary.isActive ? 'var(--color-success-600)' : '#cbd5e1'}`, background: editingDictionary.isActive ? 'var(--color-success-600)' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           {editingDictionary.isActive && <span style={{ color: '#fff', fontSize: 12 }}></span>}
                         </div>
                         {t('dictionary.activeLabel')}

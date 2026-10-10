@@ -36,14 +36,14 @@ export default function DeviceDoseCard({ device: d, onShowHistory }: Props) {
               justifyContent: "center",
             }}
           >
-            <Monitor size={18} color="#3b82f6" />
+            <Monitor size={18} color="var(--color-primary-500)" />
           </div>
           <div>
             <div
               style={{
                 fontSize: 14,
                 fontWeight: 700,
-                color: "#1e40af",
+                color: "var(--color-primary-800)",
               }}
             >
               {d.device}
@@ -61,7 +61,7 @@ export default function DeviceDoseCard({ device: d, onShowHistory }: Props) {
                     width: 6,
                     height: 6,
                     borderRadius: "50%",
-                    background: d.status === "warning" ? "#d97706" : "#16a34a",
+                    background: d.status === "warning" ? "var(--color-warning-600)" : "var(--color-success-600)",
                   }}
                 />
                 {d.status === "warning" ? "警告" : "正常"}
@@ -74,7 +74,7 @@ export default function DeviceDoseCard({ device: d, onShowHistory }: Props) {
             style={{
               padding: "4px 10px",
               background: "#fef2f2",
-              color: "#dc2626",
+              color: "var(--color-error-600)",
               borderRadius: 6,
               fontSize: 12,
               fontWeight: 700,
@@ -129,7 +129,7 @@ export default function DeviceDoseCard({ device: d, onShowHistory }: Props) {
           }}
         >
           <span style={{ fontSize: 12, color: "#64748b" }}>CTDI范围</span>
-          <span style={{ fontSize: 12, color: "#1e40af", fontWeight: 600 }}>
+          <span style={{ fontSize: 12, color: "var(--color-primary-800)", fontWeight: 600 }}>
             {d.avgCTDI} - {d.maxCTDI} mGy
           </span>
         </div>
@@ -145,7 +145,7 @@ export default function DeviceDoseCard({ device: d, onShowHistory }: Props) {
             style={{
               height: "100%",
               width: `${(d.maxCTDI / 60) * 100}%`,
-              background: d.maxCTDI > 50 ? "#dc2626" : "#3b82f6",
+              background: d.maxCTDI > 50 ? "var(--color-error-600)" : "var(--color-primary-500)",
               borderRadius: 2,
             }}
           />
@@ -153,7 +153,7 @@ export default function DeviceDoseCard({ device: d, onShowHistory }: Props) {
       </div>
 
       <div style={{ display: "flex", gap: 8 }}>
-        <button onClick={onShowHistory} style={cardBtn("#eff6ff", "#2563eb")}>
+        <button onClick={onShowHistory} style={cardBtn("#eff6ff", "var(--color-primary-600)")}>
           <Clock size={13} /> 历史
         </button>
         <button
@@ -187,7 +187,7 @@ const Metric = ({
     }}
   >
     <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>{label}</div>
-    <div style={{ fontSize: 20, fontWeight: 800, color: "#1e40af" }}>{value}</div>
+    <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-primary-800)" }}>{value}</div>
     <div style={{ fontSize: 12, color: "#94a3b8" }}>{unit}</div>
   </div>
 );
@@ -201,7 +201,7 @@ const MicroStat = ({ label, value }: { label: string; value: string | number }) 
       borderRadius: 6,
     }}
   >
-    <div style={{ fontSize: 14, fontWeight: 700, color: "#1e40af" }}>{value}</div>
+    <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-primary-800)" }}>{value}</div>
     <div style={{ fontSize: 12, color: "#64748b" }}>{label}</div>
   </div>
 );

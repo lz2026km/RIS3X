@@ -20,7 +20,7 @@ const ReportV2Page: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
-        <ShieldAlert size={20} color="#2563eb" />
+        <ShieldAlert size={20} color="var(--color-primary-600)" />
         <Text style={{ fontSize: 18, fontWeight: 600 }}>{t('reportV2.title')}</Text>
         <Tag color="blue">{t('reportV2.wave')}</Tag>
         <Tag>{t('reportV2.subtitle')}</Tag>
@@ -33,7 +33,7 @@ const ReportV2Page: React.FC = () => {
             key: 'second-read',
             label: (
               <Space size={6}>
-                <ShieldAlert size={14} color="#2563eb" />
+                <ShieldAlert size={14} color="var(--color-primary-600)" />
                 <span>{t('reportV2.tabSecondRead')}</span>
               </Space>
             ),
@@ -53,7 +53,7 @@ const ReportV2Page: React.FC = () => {
             key: 'peer-review',
             label: (
               <Space size={6}>
-                <Star size={14} color="#f59e0b" />
+                <Star size={14} color="var(--color-warning-500)" />
                 <span>{t('reportV2.tabPeerReview')}</span>
               </Space>
             ),

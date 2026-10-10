@@ -112,7 +112,7 @@ export default function AiLesionAutoInjector({
               <FileText size={13} className="text-blue-500 mt-0.5 shrink-0" />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <b style={{ fontSize: 12, color: '#1e40af' }}>{f.label}</b>
+                  <b style={{ fontSize: 12, color: 'var(--color-primary-800)' }}>{f.label}</b>
                   <Tag color={CONFIDENCE_COLOR(f.confidence)} style={{ margin: 0 }}>{t('w9e.aiInjector.confidence', { value: f.confidence })}</Tag>
                   {f.modelLabel && <Tag style={{ margin: 0 }}>{f.modelLabel}</Tag>}
                 </div>

@@ -265,7 +265,7 @@ const ClinicalConfigCenter: React.FC = () => {
     <PageContainer background="slate" maxWidth="full" padding={16} testId="clinical-config-center">
       <PageHeader
         title={t("clinicalConfig.title")}
-        icon={<Sliders size={24} color="#2563eb" />}
+        icon={<Sliders size={24} color="var(--color-primary-600)" />}
         variant="inline"
         actions={
           <Space>

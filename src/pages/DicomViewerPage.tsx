@@ -748,7 +748,7 @@ export default function DicomViewerPage() {
             {t('dicomViewer.basedOnCurrent')} {exam.patientName} · {exam.modality} · {exam.bodyPart}
           </div>
           {similarLoading ? (
-            <div style={{ textAlign: 'center', padding: 32 }}><div style={{ display: 'inline-block', width: 28, height: 28, border: '3px solid #334155', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />                <div style={{ marginTop: 12, color: '#64748b', fontSize: 12 }}>{t('dicomViewer.searchingSimilar')}</div></div>
+            <div style={{ textAlign: 'center', padding: 32 }}><div style={{ display: 'inline-block', width: 28, height: 28, border: '3px solid #334155', borderTopColor: 'var(--color-primary-500)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />                <div style={{ marginTop: 12, color: '#64748b', fontSize: 12 }}>{t('dicomViewer.searchingSimilar')}</div></div>
           ) : similarResults.length === 0 ? (
             <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8', fontSize: 12 }}>{t('dicomViewer.noSimilarRetry')}</div>
           ) : (
@@ -760,7 +760,7 @@ export default function DicomViewerPage() {
                       {r.modality} · {r.bodyPart}
                       <span style={{ marginLeft: 8, fontSize: 12, color: '#94a3b8' }}>{r.gender} {r.age}{t('dicomViewer.yearsOld')} · {r.studyDate}</span>
                     </span>
-                    <span style={{ fontSize: 12, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: r.similarity >= 70 ? '#dcfce7' : r.similarity >= 40 ? '#fef3c7' : '#f1f5f9', color: r.similarity >= 70 ? '#16a34a' : r.similarity >= 40 ? '#d97706' : '#64748b' }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: r.similarity >= 70 ? '#dcfce7' : r.similarity >= 40 ? '#fef3c7' : '#f1f5f9', color: r.similarity >= 70 ? 'var(--color-success-600)' : r.similarity >= 40 ? 'var(--color-warning-600)' : '#64748b' }}>
                       {t('dicomViewer.similarity')} {r.similarity}%
                     </span>
                   </div>
@@ -768,7 +768,7 @@ export default function DicomViewerPage() {
                   {r.impression && <div style={{ fontSize: 12, color: '#059669', lineHeight: 1.5 }}>{t('dicomViewer.impression')} {r.impression}</div>}
                   {r.keywords?.length > 0 && (
                     <div style={{ marginTop: 6, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                      {r.keywords.slice(0, 5).map((k) => <span key={k} style={{ fontSize: 11, padding: '1px 6px', borderRadius: 8, background: '#dbeafe', color: '#1e40af' }}>{k}</span>)}
+                      {r.keywords.slice(0, 5).map((k) => <span key={k} style={{ fontSize: 11, padding: '1px 6px', borderRadius: 8, background: '#dbeafe', color: 'var(--color-primary-800)' }}>{k}</span>)}
                     </div>
                   )}
                 </div>
@@ -779,7 +779,7 @@ export default function DicomViewerPage() {
 
         {/* Toast 提示 */}
         {toastVisible && (
-          <div style={{ position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)', background: '#22c55e', color: '#fff', padding: '10px 20px', borderRadius: 8, fontSize: 12, fontWeight: 600, boxShadow: '0 4px 16px rgba(34,197,94,0.4)', zIndex: 9999, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)', background: 'var(--color-success-500)', color: '#fff', padding: '10px 20px', borderRadius: 8, fontSize: 12, fontWeight: 600, boxShadow: '0 4px 16px rgba(34,197,94,0.4)', zIndex: 9999, display: 'flex', alignItems: 'center', gap: 8 }}>
             <CheckCircle size={16} />{toastMsg}
           </div>
         )}
@@ -791,9 +791,9 @@ export default function DicomViewerPage() {
           </span>
           <span>{t('dicomViewer.accessionNo')} {exam.accessionNumber}</span>
           <span>{t('dicomViewer.device')} {exam.deviceName?.split('（')[0]}</span>
-          <span style={{ color: '#3b82f6' }}>{t('dicomViewer.window')} {ww}/{wl}</span>
-          <span style={{ color: '#22c55e' }}>{t('dicomViewer.zoomLabel')} {zoom}%</span>
-          <span style={{ color: '#f59e0b' }}>{t('dicomViewer.rotationLabel')} {rotation}°</span>
+          <span style={{ color: 'var(--color-primary-500)' }}>{t('dicomViewer.window')} {ww}/{wl}</span>
+          <span style={{ color: 'var(--color-success-500)' }}>{t('dicomViewer.zoomLabel')} {zoom}%</span>
+          <span style={{ color: 'var(--color-warning-500)' }}>{t('dicomViewer.rotationLabel')} {rotation}°</span>
           <span style={{ color: '#a855f7' }}>{activeSeries.seriesDescription}</span>
           <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4 }}>
             <Activity size={12} />DICOM Viewer v0.4.0 | {exam.modality}-{exam.bodyPart}

@@ -62,7 +62,7 @@ interface AiDiagnosisAggregated {
 }
 
 const MODULE_META: { key: keyof AiDiagnosisAggregated; title: string; color: string }[] = [
-  { key: 'lungCad', title: 'aiCad.lungNoduleDetect', color: '#2563eb' },
+  { key: 'lungCad', title: 'aiCad.lungNoduleDetect', color: 'var(--color-primary-600)' },
   { key: 'breastCad', title: 'aiCad.breastCad', color: '#eb2f96' },
   { key: 'fractureCad', title: 'aiCad.fractureDetect', color: '#faad14' },
   { key: 'cardiacAi', title: 'aiCad.cardiacAi', color: '#722ed1' },
@@ -70,7 +70,7 @@ const MODULE_META: { key: keyof AiDiagnosisAggregated; title: string; color: str
 
 // [W2-A] 各模型准确率查询: 复用 POST /ai-diagnosis/accuracy, 按 modality 过滤
 const MODEL_ACCURACY_QUERY: { key: string; title: string; modality: string; color: string }[] = [
-  { key: 'lung', title: 'aiCad.lungNodule', modality: 'CT', color: '#2563eb' },
+  { key: 'lung', title: 'aiCad.lungNodule', modality: 'CT', color: 'var(--color-primary-600)' },
   { key: 'breast', title: 'aiCad.breast', modality: 'MG', color: '#eb2f96' },
   { key: 'fracture', title: 'aiCad.fracture', modality: 'DR', color: '#faad14' },
   { key: 'cardiac', title: 'aiCad.cardiac', modality: 'MR', color: '#722ed1' },
@@ -125,7 +125,7 @@ const AccuracyPanel: React.FC = () => {
   return (
     <div style={{ padding: 16 }}>
       <Space style={{ marginBottom: 12 }}>
-        <Gauge size={16} color="#2563eb" />
+        <Gauge size={16} color="var(--color-primary-600)" />
         <span style={{ fontWeight: 600 }}>{t('aiCad.accuracyTitle')}</span>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>
           {t('aiCad.refresh')}
@@ -187,7 +187,7 @@ const AccuracyPanel: React.FC = () => {
                 <YAxis domain={[50, 100]} {...chartDefaults.axis} />
                 <Tooltip {...chartDefaults.tooltip} formatter={(v: number | string) => [`${v}%`]} />
                 <Legend iconSize={10} />
-                <Line type="monotone" dataKey="accuracy" name={t('aiCad.accuracy')} stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="accuracy" name={t('aiCad.accuracy')} stroke="var(--color-primary-600)" strokeWidth={2} dot={{ r: 3 }} />
                 <Line type="monotone" dataKey="sensitivity" name={t('aiCad.sensitivity')} stroke="#52c41a" strokeWidth={2} dot={{ r: 3 }} />
                 <Line type="monotone" dataKey="specificity" name={t('aiCad.specificity')} stroke="#faad14" strokeWidth={2} dot={{ r: 3 }} />
               </LineChart>
@@ -226,7 +226,7 @@ const AiCadPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <Cpu size={20} color="#2563eb" />
+        <Cpu size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('aiCad.title')}</span>
         <Tag color="cyan">{t('aiCad.cadAggregation')}</Tag>
         <Button
@@ -275,7 +275,7 @@ const AiCadPage: React.FC = () => {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={8}>
           <Card size="small" title={t('aiCad.overallAccuracy')}>
-            <Progress percent={stats?.accuracy?.overall ?? 0} strokeColor="#2563eb" />
+            <Progress percent={stats?.accuracy?.overall ?? 0} strokeColor="var(--color-primary-600)" />
           </Card>
         </Col>
         <Col span={8}>
@@ -381,7 +381,7 @@ const CadDetectPanel: React.FC = () => {
 
   return (
     <div style={{ padding: 16 }}>
-      <Card size="small" title={<Space><ScanSearch size={16} color="#2563eb" />{t('aiCad.detectTitle')}</Space>}>
+      <Card size="small" title={<Space><ScanSearch size={16} color="var(--color-primary-600)" />{t('aiCad.detectTitle')}</Space>}>
         <Space wrap style={{ marginBottom: 12 }}>
           <Input
             placeholder={t('aiCad.instancePlaceholder')}

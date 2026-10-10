@@ -71,7 +71,7 @@ export default function BreastDoseTracking() {
         style={{
           padding: "8px 12px",
           background: "#fef3c7",
-          color: "#d97706",
+          color: "var(--color-warning-600)",
           borderRadius: 8,
           fontSize: 12,
           display: "flex",
@@ -89,19 +89,19 @@ export default function BreastDoseTracking() {
           gap: 12,
         }}
       >
-        <KpiBox label="本月检查量" value={totalExams} suffix="人次" color="#1e40af" />
-        <KpiBox label="平均AGD" value={avgAGD.toFixed(1)} suffix="mGy" color="#16a34a" />
+        <KpiBox label="本月检查量" value={totalExams} suffix="人次" color="var(--color-primary-800)" />
+        <KpiBox label="平均AGD" value={avgAGD.toFixed(1)} suffix="mGy" color="var(--color-success-600)" />
         <KpiBox
           label="召回重拍"
           value={recalledExams}
           suffix={`例 (${((recalledExams / totalExams) * 100).toFixed(1)}%)`}
-          color="#d97706"
+          color="var(--color-warning-600)"
         />
         <KpiBox
           label="超标次数"
           value={exceedCount}
           suffix="次 (AGD>6mGy)"
-          color={exceedCount > 0 ? "#dc2626" : "#16a34a"}
+          color={exceedCount > 0 ? "var(--color-error-600)" : "var(--color-success-600)"}
         />
       </div>
 
@@ -122,7 +122,7 @@ export default function BreastDoseTracking() {
           }}
         >
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>
               乳腺摄影AGD剂量追踪
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
@@ -130,8 +130,8 @@ export default function BreastDoseTracking() {
             </div>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
-            <Legend color="#1e40af" label="AGD值" />
-            <Legend color="#dc2626" label="参考线(6mGy)" />
+            <Legend color="var(--color-primary-800)" label="AGD值" />
+            <Legend color="var(--color-error-600)" label="参考线(6mGy)" />
           </div>
         </div>
         <ChartContainer height={200} state={records.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
@@ -161,7 +161,7 @@ export default function BreastDoseTracking() {
                         borderRadius: 6,
                       }}
                     >
-                      <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>
                         {record?.patientName}
                       </div>
                       <div style={{ fontSize: 12, color: "#64748b" }}>
@@ -170,7 +170,7 @@ export default function BreastDoseTracking() {
                       <div
                         style={{
                           fontSize: 12,
-                          color: (record?.agd ?? 0) > 6 ? "#dc2626" : "#16a34a",
+                          color: (record?.agd ?? 0) > 6 ? "var(--color-error-600)" : "var(--color-success-600)",
                         }}
                       >
                         {(record?.agd ?? 0) > 6 ? "超标" : "正常"}
@@ -181,12 +181,12 @@ export default function BreastDoseTracking() {
                 return null;
               }) as ComponentProps<typeof Tooltip>['content']}
             />
-            <ReferenceLine y={6} stroke="#dc2626" strokeDasharray="3 3" />
+            <ReferenceLine y={6} stroke="var(--color-error-600)" strokeDasharray="3 3" />
             <Bar dataKey="agd" radius={[4, 4, 0, 0]} name="AGD">
               {records.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={entry.agd > 6 ? "#dc2626" : "#1e40af"}
+                  fill={entry.agd > 6 ? "var(--color-error-600)" : "var(--color-primary-800)"}
                 />
               ))}
             </Bar>
@@ -206,7 +206,7 @@ export default function BreastDoseTracking() {
           style={{
             fontSize: 12,
             fontWeight: 700,
-            color: "#1e40af",
+            color: "var(--color-primary-800)",
             marginBottom: 16,
           }}
         >
@@ -220,13 +220,13 @@ export default function BreastDoseTracking() {
             showExport={false}
             showDensity={false}
             columns={[
-              { title: "患者姓名", dataIndex: "patientName", key: "patientName", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "#1e40af" }}>{v}</span> },
+              { title: "患者姓名", dataIndex: "patientName", key: "patientName", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{v}</span> },
               { title: "年龄", dataIndex: "age", key: "age", align: "center", render: (v: number) => <span style={{ color: "#334155" }}>{v}</span> },
               { title: "检查日期", dataIndex: "examDate", key: "examDate", align: "center", render: (v: string) => <span style={{ color: "#64748b" }}>{v}</span> },
               {
                 title: "AGD(mGy)", dataIndex: "agd", key: "agd", align: "center",
                 render: (v: number, record: BreastDoseRecord) => (
-                  <span style={{ fontWeight: 700, color: record.agd > 6 ? "#dc2626" : "#16a34a" }}>{v}</span>
+                  <span style={{ fontWeight: 700, color: record.agd > 6 ? "var(--color-error-600)" : "var(--color-success-600)" }}>{v}</span>
                 ),
               },
               { title: "参考值", dataIndex: "referenceValue", key: "referenceValue", align: "center", render: (v: number) => <span style={{ color: "#64748b" }}>{v}</span> },
@@ -254,11 +254,11 @@ export default function BreastDoseTracking() {
                 title: "召回状态", dataIndex: "recallStatus", key: "recallStatus", align: "center",
                 render: (v: BreastDoseRecord["recallStatus"]) =>
                   v === "none" ? (
-                    <span style={{ fontSize: 12, color: "#16a34a" }}>无需召回</span>
+                    <span style={{ fontSize: 12, color: "var(--color-success-600)" }}>无需召回</span>
                   ) : v === "recalled" ? (
-                    <span style={{ padding: "2px 8px", background: "#fffbeb", color: "#d97706", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>待重拍</span>
+                    <span style={{ padding: "2px 8px", background: "#fffbeb", color: "var(--color-warning-600)", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>待重拍</span>
                   ) : (
-                    <span style={{ padding: "2px 8px", background: "#f0fdf4", color: "#16a34a", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>已完成</span>
+                    <span style={{ padding: "2px 8px", background: "#f0fdf4", color: "var(--color-success-600)", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>已完成</span>
                   ),
               },
               { title: "设备", dataIndex: "device", key: "device", align: "center", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },

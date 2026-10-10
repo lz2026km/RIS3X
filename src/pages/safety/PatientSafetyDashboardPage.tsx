@@ -34,9 +34,9 @@ const STATUS_LABELS: Record<string, string> = {
   reported: t('psd.status.reported'), investigating: t('psd.status.investigating'), resolved: t('psd.status.resolved'), closed: t('psd.status.closed'),
 }
 const RISK_LEVEL_META: Record<string, { color: string; label: string }> = {
-  'very-high': { color: '#dc2626', label: t('psd.risk.veryHigh') },
-  high: { color: '#f59e0b', label: t('psd.risk.high') },
-  medium: { color: '#3b82f6', label: t('psd.risk.medium') },
+  'very-high': { color: 'var(--color-error-600)', label: t('psd.risk.veryHigh') },
+  high: { color: 'var(--color-warning-500)', label: t('psd.risk.high') },
+  medium: { color: 'var(--color-primary-500)', label: t('psd.risk.medium') },
   low: { color: '#10b981', label: t('psd.risk.low') },
   'very-low': { color: '#94a3b8', label: t('psd.risk.veryLow') },
 }
@@ -97,7 +97,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
-        <Shield size={20} color="#2563eb" />
+        <Shield size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('psd.title')}</span>
         <Tag color="cyan">v3.0.6.11-75</Tag>
         <Tag color="red" icon={<AlertTriangle size={10} />}>{t('psd.realtime')}</Tag>
@@ -112,10 +112,10 @@ const PatientSafetyDashboardPage: React.FC = () => {
       )}
 
       <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
-        <StatCard title={t('psd.kpiScore')} value={loading ? 0 : safetyScore} suffix="/100" icon={<Shield size={14} />} loading={loading} color={safetyScore >= 90 ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)'} />
-        <StatCard title={t('psd.kpiOpen')} value={openCount} loading={loading} color="var(--color-warning-500, #f59e0b)" />
-        <StatCard title={t('psd.kpiClosed')} value={closedCount} loading={loading} color="var(--color-success-500, #22c55e)" />
-        <StatCard title={t('psd.kpiHighRisk')} value={highRiskCount} loading={loading} color="var(--color-error-500, #ef4444)" />
+        <StatCard title={t('psd.kpiScore')} value={loading ? 0 : safetyScore} suffix="/100" icon={<Shield size={14} />} loading={loading} color={safetyScore >= 90 ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-warning-500, var(--color-warning-500))'} />
+        <StatCard title={t('psd.kpiOpen')} value={openCount} loading={loading} color="var(--color-warning-500, var(--color-warning-500))" />
+        <StatCard title={t('psd.kpiClosed')} value={closedCount} loading={loading} color="var(--color-success-500, var(--color-success-500))" />
+        <StatCard title={t('psd.kpiHighRisk')} value={highRiskCount} loading={loading} color="var(--color-error-500, var(--color-error-500))" />
       </StatCardGrid>
 
       <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
@@ -132,7 +132,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
                         <Col span={12} key={s.key}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <span style={{ fontSize: 12, width: 70 }}>{s.label}</span>
-                            <Progress percent={events.length ? Math.round((s.count / events.length) * 100) : 0} size="small" style={{ flex: 1, margin: 0 }} strokeColor={s.key === 'severe' || s.key === 'catastrophic' ? 'var(--color-error-500, #ef4444)' : 'var(--color-primary-600, #2563eb)'} />
+                            <Progress percent={events.length ? Math.round((s.count / events.length) * 100) : 0} size="small" style={{ flex: 1, margin: 0 }} strokeColor={s.key === 'severe' || s.key === 'catastrophic' ? 'var(--color-error-500, var(--color-error-500))' : 'var(--color-primary-600, var(--color-primary-600))'} />
                             <span style={{ fontSize: 12, color: '#64748b', width: 30 }}>{s.count}</span>
                           </div>
                         </Col>
@@ -165,7 +165,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
                       {trendWindow.map((t) => (
                         <div key={t.period} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
                           <span style={{ fontSize: 12, fontWeight: 600 }}>{t.total}</span>
-                          <div style={{ width: 32, height: Math.max(4, t.total * 14), background: t.total > 5 ? 'var(--color-error-500, #ef4444)' : 'var(--color-primary-500, #3b82f6)', borderRadius: '4px 4px 0 0' }} />
+                          <div style={{ width: 32, height: Math.max(4, t.total * 14), background: t.total > 5 ? 'var(--color-error-500, var(--color-error-500))' : 'var(--color-primary-500, var(--color-primary-500))', borderRadius: '4px 4px 0 0' }} />
                           <span style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>{t.period}</span>
                         </div>
                       ))}

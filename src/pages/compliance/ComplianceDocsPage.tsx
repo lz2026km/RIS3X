@@ -210,7 +210,7 @@ export const ComplianceDocsPage: React.FC = () => {
       title: t('complianceDocs.colTitle'), dataIndex: 'title', key: 'title', ellipsis: true,
       render: (v: string, r: ComplianceDocDto) => (
         <Space size={6}>
-          <FileText size={14} color="#2563eb" />
+          <FileText size={14} color="var(--color-primary-600)" />
           <a onClick={() => void handleView(r)}>{v}</a>
           <Tag color="blue" style={{ fontSize: 11 }}>{r.type}</Tag>
         </Space>
@@ -259,7 +259,7 @@ export const ComplianceDocsPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} align="center">
-        <ScrollText size={20} color="#2563eb" />
+        <ScrollText size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('complianceDocs.title')}</span>
         <Tag color="green">{t('complianceDocs.statusFlow')}</Tag>
       </Space>

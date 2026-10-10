@@ -8,7 +8,7 @@ import { t } from '../../i18n/appI18n';
 type Tool = 'ruler' | 'rect' | 'circle' | 'text';
 interface Annotation { id: string; tool: Tool; x: number; y: number; w: number; h: number; text?: string; color: string; label?: string; value?: string; }
 
-const COLORS = ['#ff4d4f', '#2563eb', '#52c41a', '#faad14', '#722ed1', '#13c2c2'];
+const COLORS = ['#ff4d4f', 'var(--color-primary-600)', '#52c41a', '#faad14', '#722ed1', '#13c2c2'];
 
 export const PanoramicAnnotatorPage: React.FC = () => {
   const [search] = useSearchParams();
@@ -113,7 +113,7 @@ export const PanoramicAnnotatorPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: 'var(--bg-card)',}}>
       <Space style={{ marginBottom: 16 }}>
-        <Ruler size={20} color="#2563eb" />
+        <Ruler size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('w9d.panoramic.title')}</span>
         <Tag color="cyan">v3.0.6.8-55</Tag>
         <Tag color="blue">{studyId || t('w9d.panoramic.noStudy')}</Tag>

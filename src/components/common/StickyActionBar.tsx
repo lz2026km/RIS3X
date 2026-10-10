@@ -48,14 +48,14 @@ const themeStyles: Record<
     text: "#1e293b",
   },
   primary: {
-    background: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)",
-    border: "1px solid #2563eb",
+    background: "linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-primary-500) 100%)",
+    border: "1px solid var(--color-primary-600)",
     shadow: "0 2px 12px rgba(30,64,175,0.25)",
     text: "#ffffff",
   },
   warning: {
-    background: "linear-gradient(135deg, #dc2626 0%, #f59e0b 100%)",
-    border: "1px solid #dc2626",
+    background: "linear-gradient(135deg, var(--color-error-600) 0%, var(--color-warning-500) 100%)",
+    border: "1px solid var(--color-error-600)",
     shadow: "0 2px 12px rgba(220,38,38,0.25)",
     text: "#ffffff",
   },
@@ -144,14 +144,14 @@ export function StickyActionBar({
                 a.type === "primary"
                   ? theme === "primary" || theme === "warning"
                     ? "#ffffff"
-                    : "#2563eb"
+                    : "var(--color-primary-600)"
                   : a.danger
-                    ? "#dc2626"
+                    ? "var(--color-error-600)"
                     : buttonStyle.background,
               color:
                 a.type === "primary"
                   ? theme === "primary" || theme === "warning"
-                    ? "#1e40af"
+                    ? "var(--color-primary-800)"
                     : "#fff"
                   : a.danger
                     ? "#fff"

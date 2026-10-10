@@ -59,15 +59,15 @@ export default function RuleConfigPanel() {
 
   const severityIcon = (severity: string) => {
     switch (severity) {
-      case "critical": return <AlertCircle size={14} color="#dc2626" />
-      case "warning": return <AlertTriangle size={14} color="#f59e0b" />
-      default: return <Info size={14} color="#3b82f6" />
+      case "critical": return <AlertCircle size={14} color="var(--color-error-600)" />
+      case "warning": return <AlertTriangle size={14} color="var(--color-warning-500)" />
+      default: return <Info size={14} color="var(--color-primary-500)" />
     }
   }
 
   return (
     <PageContainer background="slate" maxWidth="wide">
-      <PageHeader icon={<Sliders size={20} color="#3b82f6" />} title={t("ruleConfigTitle")} subtitle={t("ruleConfigSubtitle")} />
+      <PageHeader icon={<Sliders size={20} color="var(--color-primary-500)" />} title={t("ruleConfigTitle")} subtitle={t("ruleConfigSubtitle")} />
       <div style={{ padding: 24 }}>
         <div style={{ display: "flex", gap: 20 }}>
           <div style={{ flex: 1, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
@@ -97,7 +97,7 @@ export default function RuleConfigPanel() {
                 <input value={evalParams.clinicalInfo ?? ""} onChange={e => setEvalParams(p => ({ ...p, clinicalInfo: e.target.value }))} style={{ width: "100%", padding: "6px 10px", border: "1px solid #cbd5e1", borderRadius: 4, fontSize: 12 }} />
               </div>
             </div>
-            <button onClick={handleEvaluate} disabled={loading} style={{ marginTop: 12, padding: "8px 20px", background: "#1e40af", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
+            <button onClick={handleEvaluate} disabled={loading} style={{ marginTop: 12, padding: "8px 20px", background: "var(--color-primary-800)", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
               {loading ? t("evaluating") : t("evaluate")}
             </button>
 

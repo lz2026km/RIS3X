@@ -207,7 +207,7 @@ export const SignAmendPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <Shield size={20} color="#2563eb" />
+        <Shield size={20} color="var(--color-primary-600)" />
         <Edit3 size={20} color="#52c41a" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('signAmend.title')}</span>
         <Tag color="cyan">PR5 (v3.0.6.8-49)</Tag>

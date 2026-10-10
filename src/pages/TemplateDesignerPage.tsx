@@ -53,7 +53,7 @@ const FIELD_TYPE_META: FieldTypeMeta[] = [
     type: "text",
     label: t("templateDesigner.field.text"),
     icon: Type,
-    color: "#3b82f6",
+    color: "var(--color-primary-500)",
     description: t("templateDesigner.field.textDesc"),
     category: "basic",
   },
@@ -61,7 +61,7 @@ const FIELD_TYPE_META: FieldTypeMeta[] = [
     type: "number",
     label: t("templateDesigner.field.number"),
     icon: Hash,
-    color: "#0891b2",
+    color: "var(--color-info-600)",
     description: t("templateDesigner.field.numberDesc"),
     category: "basic",
   },
@@ -85,7 +85,7 @@ const FIELD_TYPE_META: FieldTypeMeta[] = [
     type: "enum",
     label: t("templateDesigner.field.enum"),
     icon: ListChecks,
-    color: "#f59e0b",
+    color: "var(--color-warning-500)",
     description: t("templateDesigner.field.enumDesc"),
     category: "select",
   },
@@ -109,7 +109,7 @@ const FIELD_TYPE_META: FieldTypeMeta[] = [
     type: "length",
     label: t("templateDesigner.field.length"),
     icon: Calculator,
-    color: "#dc2626",
+    color: "var(--color-error-600)",
     description: t("templateDesigner.field.lengthDesc"),
     category: "measure",
   },
@@ -117,7 +117,7 @@ const FIELD_TYPE_META: FieldTypeMeta[] = [
     type: "area",
     label: t("templateDesigner.field.area"),
     icon: Calculator,
-    color: "#dc2626",
+    color: "var(--color-error-600)",
     description: t("templateDesigner.field.areaDesc"),
     category: "measure",
   },
@@ -125,7 +125,7 @@ const FIELD_TYPE_META: FieldTypeMeta[] = [
     type: "volume",
     label: t("templateDesigner.field.volume"),
     icon: Calculator,
-    color: "#dc2626",
+    color: "var(--color-error-600)",
     description: t("templateDesigner.field.volumeDesc"),
     category: "measure",
   },
@@ -183,10 +183,10 @@ const FIELD_LIBRARY_GROUPS: Array<{
 ];
 
 const PRESET_SECTIONS = [
-  { id: "sec-findings", name: t("templateDesigner.section.findings"), order: 1, color: "#1e40af" },
+  { id: "sec-findings", name: t("templateDesigner.section.findings"), order: 1, color: "var(--color-primary-800)" },
   { id: "sec-impression", name: t("templateDesigner.section.impression"), order: 2, color: "#7c3aed" },
-  { id: "sec-rec", name: t("templateDesigner.section.recommendation"), order: 3, color: "#0891b2" },
-  { id: "sec-comp", name: t("templateDesigner.section.comparison"), order: 4, color: "#f59e0b" },
+  { id: "sec-rec", name: t("templateDesigner.section.recommendation"), order: 3, color: "var(--color-info-600)" },
+  { id: "sec-comp", name: t("templateDesigner.section.comparison"), order: 4, color: "var(--color-warning-500)" },
   { id: "sec-tech", name: t("templateDesigner.section.technique"), order: 5, color: "var(--text-secondary)" },
 ];
 
@@ -213,13 +213,13 @@ const STRUCTURED_FIELD_PRESETS: Array<{
   desc: string;
   color: string;
 }> = [
-  { fieldKey: "RECIST", label: t("templateDesigner.structured.recist"), desc: t("templateDesigner.structured.recistDesc"), color: "#dc2626" },
-  { fieldKey: "lungRads", label: "Lung-RADS", desc: t("templateDesigner.structured.lungRadsDesc"), color: "#0891b2" },
+  { fieldKey: "RECIST", label: t("templateDesigner.structured.recist"), desc: t("templateDesigner.structured.recistDesc"), color: "var(--color-error-600)" },
+  { fieldKey: "lungRads", label: "Lung-RADS", desc: t("templateDesigner.structured.lungRadsDesc"), color: "var(--color-info-600)" },
   { fieldKey: "biRads", label: "BI-RADS", desc: t("templateDesigner.structured.biRadsDesc"), color: "#7c3aed" },
-  { fieldKey: "piRads", label: "PI-RADS", desc: t("templateDesigner.structured.piRadsDesc"), color: "#f59e0b" },
+  { fieldKey: "piRads", label: "PI-RADS", desc: t("templateDesigner.structured.piRadsDesc"), color: "var(--color-warning-500)" },
   { fieldKey: "liRads", label: "LI-RADS", desc: t("templateDesigner.structured.liRadsDesc"), color: "#10b981" },
   { fieldKey: "tiRads", label: "TI-RADS", desc: t("templateDesigner.structured.tiRadsDesc"), color: "#f97316" },
-  { fieldKey: "cadRads", label: "CAD-RADS", desc: t("templateDesigner.structured.cadRadsDesc"), color: "#dc2626" },
+  { fieldKey: "cadRads", label: "CAD-RADS", desc: t("templateDesigner.structured.cadRadsDesc"), color: "var(--color-error-600)" },
   { fieldKey: "lesionSize", label: t("templateDesigner.structured.lesionSize"), desc: t("templateDesigner.structured.lesionSizeDesc"), color: "#6366f1" },
   { fieldKey: "lymphNodes", label: t("templateDesigner.structured.lymphNodes"), desc: t("templateDesigner.structured.lymphNodesDesc"), color: "#0ea5e9" },
   { fieldKey: "effusion", label: t("templateDesigner.structured.effusion"), desc: t("templateDesigner.structured.effusionDesc"), color: "#0ea5e9" },
@@ -227,10 +227,10 @@ const STRUCTURED_FIELD_PRESETS: Array<{
 
 // 可视化模式段落预设 (所见/印象/结论 等)
 const VISUAL_SECTION_PRESETS = [
-  { name: t("templateDesigner.section.findings"), color: "#1e40af" },
+  { name: t("templateDesigner.section.findings"), color: "var(--color-primary-800)" },
   { name: t("templateDesigner.section.impression"), color: "#7c3aed" },
-  { name: t("templateDesigner.section.recommendation"), color: "#0891b2" },
-  { name: t("templateDesigner.section.conclusion"), color: "#f59e0b" },
+  { name: t("templateDesigner.section.recommendation"), color: "var(--color-info-600)" },
+  { name: t("templateDesigner.section.conclusion"), color: "var(--color-warning-500)" },
   { name: t("templateDesigner.section.comparison"), color: "#475569" },
 ];
 
@@ -338,7 +338,7 @@ export default function TemplateDesignerPage() {
       return result;
     }
     return [
-      { id: "sec-0", name: t("templateDesigner.section.findings"), order: 0, color: "#1e40af", fields: [] },
+      { id: "sec-0", name: t("templateDesigner.section.findings"), order: 0, color: "var(--color-primary-800)", fields: [] },
       { id: "sec-1", name: t("templateDesigner.section.impression"), order: 1, color: "#7c3aed", fields: [] },
     ];
   });
@@ -744,7 +744,7 @@ export default function TemplateDesignerPage() {
               <span>{totalFields} {t("templateDesigner.fieldsUnit")}</span>
               <span>·</span>
               <span
-                style={{ color: requiredFields > 0 ? "#dc2626" : "#64748b" }}
+                style={{ color: requiredFields > 0 ? "var(--color-error-600)" : "#64748b" }}
               >
                 {requiredFields} {t("templateDesigner.requiredUnit")}
               </span>
@@ -1045,7 +1045,7 @@ export default function TemplateDesignerPage() {
                 borderBottom: "1px solid var(--border-color)",
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#1e40af",
+                color: "var(--color-primary-800)",
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
@@ -1220,10 +1220,10 @@ e.currentTarget.style.borderColor = `${meta.color}30`;
                         }}
                         style={{
                           padding: "2px 6px",
-                          border: "1px solid #dc2626",
+                          border: "1px solid var(--color-error-600)",
                           borderRadius: 3,
                           background: "var(--bg-card)",
-                          color: "#dc2626",
+                          color: "var(--color-error-600)",
                           fontSize: 12,
                           cursor: "pointer",
                         }}
@@ -1314,7 +1314,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                                 }}
                               >
                                 {field.required && (
-                                  <span style={{ color: "#dc2626" }}>*</span>
+                                  <span style={{ color: "var(--color-error-600)" }}>*</span>
                                 )}
                                 <span
                                   style={{
@@ -1338,7 +1338,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                                       fontSize: 12,
                                       padding: "0 4px",
                                       background: "var(--color-info-bg)",
-                                      color: "#1e40af",
+                                      color: "var(--color-primary-800)",
                                       borderRadius: 3,
                                     }}
                                   >
@@ -1364,7 +1364,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                                       fontSize: 12,
                                       padding: "0 4px",
                                       background: "var(--color-success-bg)",
-                                      color: "#16a34a",
+                                      color: "var(--color-success-600)",
                                       borderRadius: 3,
                                     }}
                                   >
@@ -1391,7 +1391,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                                 padding: 2,
                                 border: "none",
                                 background: "transparent",
-                                color: "#dc2626",
+                                color: "var(--color-error-600)",
                                 cursor: "pointer",
                               }}
                             >
@@ -1484,7 +1484,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                     border: "none",
                     background:
                       activeRightTab === tab.key ? "#fff" : "transparent",
-                    color: activeRightTab === tab.key ? "#1e40af" : "#64748b",
+                    color: activeRightTab === tab.key ? "var(--color-primary-800)" : "#64748b",
                     boxShadow:
                       activeRightTab === tab.key
                         ? "0 1px 3px rgba(0,0,0,0.1)"
@@ -1552,12 +1552,12 @@ e.currentTarget.style.background = "var(--bg-card)";
                       marginBottom: 12,
                     }}
                   >
-                    <GitMerge size={13} color="#f59e0b" />
+                    <GitMerge size={13} color="var(--color-warning-500)" />
                     <span
                       style={{
                         fontSize: 12,
                         fontWeight: 700,
-                        color: "#1e40af",
+                        color: "var(--color-primary-800)",
                       }}
                     >
                       {t("templateDesigner.conditionalLogic")}
@@ -1570,7 +1570,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                         alignItems: "center",
                         gap: 3,
                         padding: "3px 8px",
-                        background: "#f59e0b",
+                        background: "var(--color-warning-500)",
                         color: "#fff",
                         border: "none",
                         borderRadius: 4,
@@ -1640,7 +1640,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                               padding: 2,
                               border: "none",
                               background: "transparent",
-                              color: "#dc2626",
+                              color: "var(--color-error-600)",
                               cursor: "pointer",
                             }}
                           >
@@ -1815,12 +1815,12 @@ e.currentTarget.style.background = "var(--bg-card)";
                       marginBottom: 12,
                     }}
                   >
-                    <Activity size={13} color="#0891b2" />
+                    <Activity size={13} color="var(--color-info-600)" />
                     <span
                       style={{
                         fontSize: 12,
                         fontWeight: 700,
-                        color: "#1e40af",
+                        color: "var(--color-primary-800)",
                       }}
                     >
                       {t("templateDesigner.srMappingTitle")}
@@ -1829,7 +1829,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                   <div
                     style={{
                       background: "#06b6d422",
-                      border: "1px solid #0891b2",
+                      border: "1px solid var(--color-info-600)",
                       borderRadius: 6,
                       padding: "8px 10px",
                       marginBottom: 12,
@@ -1912,7 +1912,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                             );
                             return mapping ? (
                               <span
-                                style={{ fontSize: 12, color: "#0891b2" }}
+                                style={{ fontSize: 12, color: "var(--color-info-600)" }}
                               >
                                 {mapping.srTemplateId}
                               </span>
@@ -1967,8 +1967,8 @@ e.currentTarget.style.background = "var(--bg-card)";
                                       : "var(--color-warning-bg)",
                                   color:
                                     mapping.complianceStatus === "compliant"
-                                      ? "#16a34a"
-                                      : "#d97706",
+                                      ? "var(--color-success-600)"
+                                      : "var(--color-warning-600)",
                                 }}
                               >
                                 {mapping.complianceStatus === "compliant"
@@ -1999,7 +1999,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                                   padding: 2,
                                   border: "none",
                                   background: "transparent",
-                                  color: "#dc2626",
+                                  color: "var(--color-error-600)",
                                   cursor: "pointer",
                                 }}
                               >
@@ -2081,7 +2081,7 @@ e.currentTarget.style.background = "var(--bg-card)";
                   padding: "6px 12px",
                   border: "none",
                   borderRadius: 4,
-                  background: "#3b82f6",
+                  background: "var(--color-primary-500)",
                   color: "#fff",
                   fontSize: 12,
                   fontWeight: 600,
@@ -2102,10 +2102,10 @@ e.currentTarget.style.background = "var(--bg-card)";
                 disabled={!selectedField}
                 style={{
                   padding: "6px 12px",
-                  border: "1px solid #dc2626",
+                  border: "1px solid var(--color-error-600)",
                   borderRadius: 4,
                   background: "var(--bg-card)",
-                  color: "#dc2626",
+                  color: "var(--color-error-600)",
                   fontSize: 12,
                   fontWeight: 600,
                   cursor: selectedField ? "pointer" : "not-allowed",
@@ -2162,7 +2162,7 @@ const FieldPropertyPanel: React.FC<{
       style={{
         fontSize: 12,
         fontWeight: 700,
-        color: "#1e40af",
+        color: "var(--color-primary-800)",
         marginBottom: 8,
         display: "flex",
         alignItems: "center",
@@ -2360,7 +2360,7 @@ const SectionPropertyPanel: React.FC<{
       style={{
         fontSize: 12,
         fontWeight: 700,
-        color: "#1e40af",
+        color: "var(--color-primary-800)",
         marginBottom: 8,
         display: "flex",
         alignItems: "center",
@@ -2380,11 +2380,11 @@ const SectionPropertyPanel: React.FC<{
     <PropRow label={t("templateDesigner.prop.themeColor")}>
       <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
         {[
-          "#1e40af",
+          "var(--color-primary-800)",
           "#7c3aed",
-          "#0891b2",
-          "#f59e0b",
-          "#dc2626",
+          "var(--color-info-600)",
+          "var(--color-warning-500)",
+          "var(--color-error-600)",
           "#10b981",
           "#475569",
         ].map((c) => (
@@ -2458,11 +2458,11 @@ const PreviewCanvas: React.FC<{
       style={{
         textAlign: "center",
         marginBottom: 20,
-        borderBottom: "2px solid #1e40af",
+        borderBottom: "2px solid var(--color-primary-800)",
         paddingBottom: 12,
       }}
     >
-      <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "#1e40af" }}>{meta.name}</h2>
+      <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "var(--color-primary-800)" }}>{meta.name}</h2>
       <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
         {meta.modality} · {meta.bodyPart} · {meta.version} · {meta.author}
       </div>
@@ -2497,7 +2497,7 @@ const PreviewCanvas: React.FC<{
             }}
           >
             <span style={{ color: "var(--text-primary)", fontWeight: 600 }}>
-              {field.required && <span style={{ color: "#dc2626" }}>*</span>}
+              {field.required && <span style={{ color: "var(--color-error-600)" }}>*</span>}
               {field.fieldLabel}
               {field.unit && (
                 <span style={{ color: "var(--text-secondary)" }}> ({field.unit})</span>
@@ -2564,7 +2564,7 @@ const VisualDesignerBody: React.FC<{
             borderBottom: "1px solid var(--border-color)",
             fontSize: 12,
             fontWeight: 700,
-            color: "#0891b2",
+            color: "var(--color-info-600)",
             display: "flex",
             alignItems: "center",
             gap: 6,
@@ -2599,7 +2599,7 @@ const VisualDesignerBody: React.FC<{
                 textAlign: "left",
               }}
             >
-              <code style={{ color: "#0891b2", fontSize: 12 }}>{"{{" + v.key + "}}"}</code>
+              <code style={{ color: "var(--color-info-600)", fontSize: 12 }}>{"{{" + v.key + "}}"}</code>
               <span style={{ marginLeft: "auto", color: "var(--text-secondary)" }}>
                 {v.label}
               </span>
@@ -2688,7 +2688,7 @@ const VisualDesignerBody: React.FC<{
             flexWrap: "wrap",
           }}
         >
-          <AppText size="xs" weight={700} as="span" style={{ color: "#1e40af" }}>
+          <AppText size="xs" weight={700} as="span" style={{ color: "var(--color-primary-800)" }}>
             {t("templateDesigner.blockCanvas")} ({blocks.length})
           </AppText>
           <AppText size="xs" color="secondary" as="span">
@@ -2732,7 +2732,7 @@ const VisualDesignerBody: React.FC<{
                       padding: "0 5px",
                       borderRadius: 3,
                       background: "#3b82f610",
-                      color: "#3b82f6",
+                      color: "var(--color-primary-500)",
                       fontWeight: 600,
                     }}
                   >
@@ -2746,7 +2746,7 @@ const VisualDesignerBody: React.FC<{
                       padding: "0 5px",
                       borderRadius: 3,
                       background: "#0891b210",
-                      color: "#0891b2",
+                      color: "var(--color-info-600)",
                       fontWeight: 600,
                     }}
                   >
@@ -2774,7 +2774,7 @@ const VisualDesignerBody: React.FC<{
                       padding: "0 5px",
                       borderRadius: 3,
                       background: "#f59e0b15",
-                      color: "#d97706",
+                      color: "var(--color-warning-600)",
                       fontWeight: 600,
                     }}
                   >
@@ -2810,7 +2810,7 @@ const VisualDesignerBody: React.FC<{
                       onRemoveBlock(idx);
                     }}
                     title={t("templateDesigner.deleteBlock")}
-                    style={{ ...blockBtnStyle, color: "#dc2626" }}
+                    style={{ ...blockBtnStyle, color: "var(--color-error-600)" }}
                   >
                     <Trash2 size={11} />
                   </button>
@@ -2841,7 +2841,7 @@ const VisualDesignerBody: React.FC<{
                     padding: "6px 8px",
                     borderRadius: 4,
                     background: block.type === "field" ? "#7c3aed0d" : "#0891b20d",
-                    color: block.type === "field" ? "#7c3aed" : "#0891b2",
+                    color: block.type === "field" ? "#7c3aed" : "var(--color-info-600)",
                     fontSize: 12,
                     fontFamily: "monospace",
                   }}

@@ -8,7 +8,7 @@ const AiDiagnosisCard: React.FC<{ diagnosis: AiDiagnosis }> = ({
 }) => (
   <Card
     size="small"
-    style={{ marginBottom: 8, borderLeft: "4px solid #2563eb" }}
+    style={{ marginBottom: 8, borderLeft: "4px solid var(--color-primary-600)" }}
     title={
       <Space>
         <Brain size={16} />
@@ -82,16 +82,16 @@ const AiDiagnosisCard: React.FC<{ diagnosis: AiDiagnosis }> = ({
             style={{ flex: 1, margin: 0 }}
             strokeColor={
               c.critical
-                ? "#ef4444"
+                ? "var(--color-error-500)"
                 : c.confidence > 0.8
-                  ? "#22c55e"
-                  : "#f59e0b"
+                  ? "var(--color-success-500)"
+                  : "var(--color-warning-500)"
             }
           />
           <span style={{ minWidth: 40 }}>{c.grade}</span>
           {c.critical && (
             <Tooltip title="危急">
-              <AlertTriangle size={14} color="#ef4444" />
+              <AlertTriangle size={14} color="var(--color-error-500)" />
             </Tooltip>
           )}
         </div>

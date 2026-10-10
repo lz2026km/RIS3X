@@ -20,8 +20,8 @@ export default function ReportAdvancedFilter({
     <div style={{ marginBottom: showAdvancedFilter ? 14 : 0, transition: 'all 0.2s' }}>
       <button onClick={() => setShowAdvancedFilter(!showAdvancedFilter)}
         style={{
-          padding: '6px 14px', borderRadius: 8, border: `1px solid ${showAdvancedFilter ? '#1e40af' : '#e2e8f0'}`,
-          background: showAdvancedFilter ? '#eff6ff' : WHITE, color: showAdvancedFilter ? '#1e40af' : GRAY,
+          padding: '6px 14px', borderRadius: 8, border: `1px solid ${showAdvancedFilter ? 'var(--color-primary-800)' : '#e2e8f0'}`,
+          background: showAdvancedFilter ? '#eff6ff' : WHITE, color: showAdvancedFilter ? 'var(--color-primary-800)' : GRAY,
           fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, marginBottom: showAdvancedFilter ? 10 : 0,
         }}>
         <Filter size={13} /> 高级筛选 {showAdvancedFilter ? '▲' : '▼'}

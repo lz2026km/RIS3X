@@ -307,7 +307,7 @@ export const DentalCadPage: React.FC = () => {
     return (
       <PageContainer padding={24}>
         <Space style={{ marginBottom: 16 }}>
-          <Pen size={20} color="#2563eb" />
+          <Pen size={20} color="var(--color-primary-600)" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>
             {t('dentalCad.title')}
           </span>
@@ -680,7 +680,7 @@ export const DentalCadPage: React.FC = () => {
                 <Progress
                   percent={65}
                   size="small"
-                  strokeColor="#2563eb"
+                  strokeColor="var(--color-primary-600)"
                   style={{ marginTop: 4 }}
                 />
                 <Tag color="green">{t('dentalCad.previewDone')}</Tag>
@@ -727,7 +727,7 @@ export const DentalCadPage: React.FC = () => {
                       padding: "4px 0",
                       borderRadius: 4,
                       fontSize: 10,
-                      background: i <= idx ? "#2563eb" : "#e8e8e8",
+                      background: i <= idx ? "var(--color-primary-600)" : "#e8e8e8",
                       color: i <= idx ? "#fff" : "#999",
                     }}
                   >

@@ -251,7 +251,7 @@ export const ReportTemplateManagerPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
-        <Layout size={20} color="#2563eb" />
+        <Layout size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('reportTpl.title')}</span>
         <Tag color="cyan">v3.0.6.11-75 W3-2</Tag>
         <Tag color="blue">{t('reportTpl.snippets')}</Tag>

@@ -121,7 +121,7 @@ export default function CostDrgPage() {
                   <XAxis type="number" {...chartDefaults.axis} />
                   <YAxis type="category" dataKey="name" width={80} {...chartDefaults.axis} />
                   <RTooltip {...chartDefaults.tooltip} formatter={(v) => fmtMoney(Number(v))} />
-                  <Bar dataKey="value" name={t('w11Device.cost.cost')} fill="#2563eb" />
+                  <Bar dataKey="value" name={t('w11Device.cost.cost')} fill="var(--color-primary-600)" />
                 </BarChart>
               </ChartContainer>
             ) : <Text type="secondary">{t('w11Device.noData')}</Text>}
@@ -143,7 +143,7 @@ export default function CostDrgPage() {
           { title: t('w11Device.cost.unitPrice'), dataIndex: 'unitPrice', key: 'unitPrice', width: 90, render: fmtMoney },
           { title: t('w11Device.cost.unitCost'), dataIndex: 'unitCost', key: 'unitCost', width: 90, render: fmtMoney },
           { title: t('w11Device.cost.revenue'), dataIndex: 'totalRevenue', key: 'totalRevenue', width: 120, render: fmtMoney },
-          { title: t('w11Device.cost.margin'), dataIndex: 'margin', key: 'margin', width: 120, render: (v: number) => <span style={{ color: v >= 0 ? '#16a34a' : '#dc2626' }}>{fmtMoney(v)}</span> },
+          { title: t('w11Device.cost.margin'), dataIndex: 'margin', key: 'margin', width: 120, render: (v: number) => <span style={{ color: v >= 0 ? 'var(--color-success-600)' : 'var(--color-error-600)' }}>{fmtMoney(v)}</span> },
           { title: t('w11Device.cost.marginPct'), dataIndex: 'marginPct', key: 'marginPct', width: 90, render: (v: number) => `${v}%` },
         ]}
       />
@@ -178,7 +178,7 @@ export default function CostDrgPage() {
             { title: t('w11Device.drg.cases'), dataIndex: 'cases', key: 'cases', width: 80 },
             { title: t('w11Device.drg.totalWeight'), dataIndex: 'totalWeight', key: 'tw', width: 110, render: (v: number) => v.toLocaleString() },
             { title: t('w11Device.drg.payment'), dataIndex: 'payment', key: 'payment', width: 130, render: fmtMoney },
-            { title: t('w11Device.cost.margin'), dataIndex: 'margin', key: 'margin', width: 130, render: (v: number) => <span style={{ color: v >= 0 ? '#16a34a' : '#dc2626' }}>{fmtMoney(v)}</span> },
+            { title: t('w11Device.cost.margin'), dataIndex: 'margin', key: 'margin', width: 130, render: (v: number) => <span style={{ color: v >= 0 ? 'var(--color-success-600)' : 'var(--color-error-600)' }}>{fmtMoney(v)}</span> },
             { title: t('w11Device.cost.marginPct'), dataIndex: 'marginPct', key: 'marginPct', width: 100, render: (v: number) => `${v}%` },
           ]}
         />
@@ -226,7 +226,7 @@ export default function CostDrgPage() {
 
   return (
     <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
-      <Card style={{ background: 'linear-gradient(135deg,#7c3aed 0%,#2563eb 100%)', color: '#fff', border: 'none', marginBottom: 16 }}>
+      <Card style={{ background: 'linear-gradient(135deg,#7c3aed 0%,var(--color-primary-600) 100%)', color: '#fff', border: 'none', marginBottom: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Space size={16}>
             <BarChart3 size={34} color="#fff" />

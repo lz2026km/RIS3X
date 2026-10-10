@@ -146,7 +146,7 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
     <div style={{ display: 'flex', height: '100%', background: 'var(--bg-card)' }}>
       <aside style={{ width: 280, background: 'var(--bg-card)', borderRight: '1px solid var(--border-color)', padding: 12 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <span style={{ fontWeight: 700, color: '#1e40af' }}>规则列表 ({rules.length})</span>
+          <span style={{ fontWeight: 700, color: 'var(--color-primary-800)' }}>规则列表 ({rules.length})</span>
           <button onClick={handleAdd} disabled={readonly} style={addBtnStyle}>
             <Plus size={12} /> 新建
           </button>
@@ -160,7 +160,7 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
               onClick={() => setSelectedId(rule.id)}
               style={{
                 background: selectedId === rule.id ? '#dbeafe' : 'var(--bg-card)',
-                border: `1px solid ${selectedId === rule.id ? '#3b82f6' : '#e2e8f0'}`,
+                border: `1px solid ${selectedId === rule.id ? 'var(--color-primary-500)' : '#e2e8f0'}`,
                 padding: 8,
                 borderRadius: 6,
                 marginBottom: 6,
@@ -169,12 +169,12 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <GripVertical size={12} color="#94a3b8" />
-                <span style={{ fontWeight: 600, color: '#1e40af', fontSize: 12, flex: 1 }}>{rule.name}</span>
+                <span style={{ fontWeight: 600, color: 'var(--color-primary-800)', fontSize: 12, flex: 1 }}>{rule.name}</span>
                 <span style={{ fontSize: 12, color: rule.active ? '#059669' : '#94a3b8' }}>
                   {rule.active ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
                 </span>
                 <button onClick={(e) => { e.stopPropagation(); handleDelete(rule.id); }} disabled={readonly} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                  <Trash2 size={12} color="#dc2626" />
+                  <Trash2 size={12} color="var(--color-error-600)" />
                 </button>
               </div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
@@ -257,7 +257,7 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
                     style={inputStyle}
                   />
                   <button onClick={() => handleRemoveCondition(idx)} disabled={readonly} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                    <Trash2 size={14} color="#dc2626" />
+                    <Trash2 size={14} color="var(--color-error-600)" />
                   </button>
                 </div>
               ))}
@@ -302,8 +302,8 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
               />
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12, color: '#1e40af', fontSize: 12 }}>
-              <ArrowRight size={12} color="#1e40af" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12, color: 'var(--color-primary-800)', fontSize: 12 }}>
+              <ArrowRight size={12} color="var(--color-primary-800)" />
               动作: {selected.event.type}
               {selected.target?.doctorId && <span> → 医生 {selected.target.doctorId}</span>}
               {selected.target?.siteId && <span> → 院区 {selected.target.siteId}</span>}
@@ -325,14 +325,14 @@ function flatten(group: RuleConditionGroup): RuleCondition[] {
 }
 
 const labelStyle: React.CSSProperties = { display: 'block', fontSize: 12, color: '#475569', fontWeight: 600, marginBottom: 4 };
-const inputStyle: React.CSSProperties = { width: '100%', padding: '6px 10px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, color: '#1e40af', background: 'var(--bg-card)' };
+const inputStyle: React.CSSProperties = { width: '100%', padding: '6px 10px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, color: 'var(--color-primary-800)', background: 'var(--bg-card)' };
 const sectionStyle: React.CSSProperties = { marginTop: 16, padding: 12, background: 'var(--bg-card)', borderRadius: 8 };
-const sectionTitleStyle: React.CSSProperties = { fontWeight: 700, color: '#1e40af', fontSize: 12 };
-const addBtnStyle: React.CSSProperties = { background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: '#1e40af', padding: '4px 10px', borderRadius: 6, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 };
+const sectionTitleStyle: React.CSSProperties = { fontWeight: 700, color: 'var(--color-primary-800)', fontSize: 12 };
+const addBtnStyle: React.CSSProperties = { background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'var(--color-primary-800)', padding: '4px 10px', borderRadius: 6, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 };
 
 const tabBtnStyle = (active: boolean): React.CSSProperties => ({
-  background: active ? '#1e40af' : 'var(--bg-card)',
-  color: active ? '#fff' : '#1e40af',
+  background: active ? 'var(--color-primary-800)' : 'var(--bg-card)',
+  color: active ? '#fff' : 'var(--color-primary-800)',
   border: '1px solid #cbd5e1',
   padding: '4px 10px',
   borderRadius: 6,

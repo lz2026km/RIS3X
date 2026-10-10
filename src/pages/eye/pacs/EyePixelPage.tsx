@@ -388,7 +388,7 @@ const EyePixelPage: React.FC = () => {
           display: "flex", alignItems: "center", gap: 8, marginBottom: 12, fontSize: 12,
           padding: "6px 12px", borderRadius: 8,
           background: source === "api" ? "var(--color-success-bg)" : "var(--color-warning-bg)",
-          color: source === "api" ? "#059669" : "#d97706",
+          color: source === "api" ? "#059669" : "var(--color-warning-600)",
           border: `1px solid ${source === "api" ? "#bbf7d0" : "#fde68a"}`,
         }}
       >
@@ -436,7 +436,7 @@ const EyePixelPage: React.FC = () => {
             <Col xs={24} lg={14}>
               <Card
                 size="small"
-                title={<Space><BarChart2 size={15} color="#2563eb" />{t('eyePixel.histogram')} <Tag color="blue">256 bins</Tag></Space>}
+                title={<Space><BarChart2 size={15} color="var(--color-primary-600)" />{t('eyePixel.histogram')} <Tag color="blue">256 bins</Tag></Space>}
                 extra={<Button size="small" type="primary" data-testid="eye-pixel-histogram-btn" loading={histLoading} onClick={() => void handleHistogram()}>{t('eyePixel.loadHistogram')}</Button>}
                 style={{ marginBottom: 12 }}
               >
@@ -453,13 +453,13 @@ const EyePixelPage: React.FC = () => {
                           {...chartDefaults.tooltip}
                           formatter={(value: any, _name: any, item: any) => [`${value}`, t('w9d.eyePixel.grayLevel', { v: item?.payload?.intensity })]}
                         />
-                        <ReferenceLine x={histogram.mean} stroke="#ef4444" strokeDasharray="4 4" />
-                        <Bar dataKey="count" fill="#3b82f6" isAnimationActive={false} />
+                        <ReferenceLine x={histogram.mean} stroke="var(--color-error-500)" strokeDasharray="4 4" />
+                        <Bar dataKey="count" fill="var(--color-primary-500)" isAnimationActive={false} />
                       </BarChart>
                     </ChartContainer>
                     <div style={{ marginTop: 8 }}>
                       <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 6 }}>
-                        <span style={{ color: "#ef4444" }}>{t('eyePixel.meanLine')} {histogram.mean}</span>
+                        <span style={{ color: "var(--color-error-500)" }}>{t('eyePixel.meanLine')} {histogram.mean}</span>
                         {histogram.source && <Tag style={{ marginLeft: 8 }} color="orange">{t('eyePixel.localFallback')}</Tag>}
                       </div>
                       <Row gutter={[8, 8]}>
@@ -549,7 +549,7 @@ const EyePixelPage: React.FC = () => {
                         type="circle"
                         size={64}
                         percent={Number(sharpness.sharpness?.overall ?? 0)}
-                        strokeColor={sharpness.passed ? "#10b981" : "#f59e0b"}
+                        strokeColor={sharpness.passed ? "#10b981" : "var(--color-warning-500)"}
                         format={(p) => <span style={{ fontSize: 12, fontWeight: 700 }}>{p}</span>}
                       />
                       <div>
@@ -578,7 +578,7 @@ const EyePixelPage: React.FC = () => {
             <Col xs={24} lg={8}>
               <Card
                 size="small"
-                title={<Space><ShieldAlert size={15} color="#dc2626" />{t('eyePixel.artifactDetection')}</Space>}
+                title={<Space><ShieldAlert size={15} color="var(--color-error-600)" />{t('eyePixel.artifactDetection')}</Space>}
                 extra={<Button size="small" data-testid="eye-pixel-artifact-btn" loading={artifactLoading} onClick={() => void handleArtifact()}>{t('eyePixel.detect')}</Button>}
                 style={{ marginBottom: 12 }}
               >
@@ -591,7 +591,7 @@ const EyePixelPage: React.FC = () => {
                         type="circle"
                         size={64}
                         percent={Number(artifacts.qualityScore ?? 0)}
-                        strokeColor={artifacts.passed ? "#10b981" : "#f59e0b"}
+                        strokeColor={artifacts.passed ? "#10b981" : "var(--color-warning-500)"}
                         format={(p) => <span style={{ fontSize: 12, fontWeight: 700 }}>{p}</span>}
                       />
                       <div>
@@ -603,7 +603,7 @@ const EyePixelPage: React.FC = () => {
                     <Divider style={{ margin: "4px 0" }} />
                     {Array.isArray(artifacts.artifacts) && artifacts.artifacts.map((a: any, i: number) => (
                       <div key={`art-${i}`} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, padding: "4px 0" }}>
-                        <Droplets size={13} color="#dc2626" />
+                        <Droplets size={13} color="var(--color-error-600)" />
                         <span>{artifactLabel(a.type)}</span>
                         <span style={{ color: "var(--text-secondary)" }}>{t('eyePixel.severity')} {(Number(a.severity) * 100).toFixed(1)}%</span>
                         {a.location && <Tag>{t('eyePixel.location')} x:{a.location.x} y:{a.location.y}</Tag>}
@@ -621,7 +621,7 @@ const EyePixelPage: React.FC = () => {
             <Col xs={24} lg={8}>
               <Card
                 size="small"
-                title={<Space><Layers size={15} color="#0891b2" />{t('eyePixel.mpr')}</Space>}
+                title={<Space><Layers size={15} color="var(--color-info-600)" />{t('eyePixel.mpr')}</Space>}
                 extra={<Button size="small" data-testid="eye-pixel-mpr-btn" loading={mprLoading} onClick={() => void handleMpr()}>{t('eyePixel.reconstruct')}</Button>}
                 style={{ marginBottom: 12 }}
               >
@@ -651,7 +651,7 @@ const EyePixelPage: React.FC = () => {
                           alignItems: "center", justifyContent: "center", height: 170, color: "var(--text-secondary)", fontSize: 12,
                         }}
                       >
-                        <Grid3X3 size={30} color="#0891b2" style={{ marginBottom: 8 }} />
+                        <Grid3X3 size={30} color="var(--color-info-600)" style={{ marginBottom: 8 }} />
                         <div>MPR {mpr.axis} {t('eyePixel.reconstructPreview')}</div>
                         <div style={{ marginTop: 4, opacity: 0.8 }}>
                           {mpr.sliceCount} {t('eyePixel.slices')} · {mpr.resolution} · {mpr.format}

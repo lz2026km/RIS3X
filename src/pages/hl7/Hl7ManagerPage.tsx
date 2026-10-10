@@ -33,7 +33,7 @@ import { DataTable, PageContainer } from "../../components/common"
 //   M4. 错误 TOP 消息列表
 // 数据源: hl7Api.getArchive + getMllpStatus 真实接口, 失败回退派生
 // ============================================================
-const PIE_COLORS = ['#3b82f6', '#8b5cf6', '#f59e0b', '#14b8a6', '#ec4899', '#22c55e']
+const PIE_COLORS = ['var(--color-primary-500)', '#8b5cf6', 'var(--color-warning-500)', '#14b8a6', '#ec4899', 'var(--color-success-500)']
 
 function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loading: boolean }) {
   const [mllp, setMllp] = useState<{ running: boolean; port: number; tlsEnabled: boolean; totalMessages: number; uptimeMs: number } | null>(null)
@@ -164,7 +164,7 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
         <Col span={4}>
           <Card size="small" title={<Space><Activity size={14} />{t('hl7Page.mllpChannel')}</Space>}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 30, fontWeight: 800, color: mllp?.running ? '#16a34a' : '#dc2626' }}>
+              <div style={{ fontSize: 30, fontWeight: 800, color: mllp?.running ? 'var(--color-success-600)' : 'var(--color-error-600)' }}>
                 {mllp?.running ? t('hl7Page.running') : t('hl7Page.stopped')}
               </div>
               <div style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>
@@ -179,9 +179,9 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
         <Col span={5}>
           <Card size="small" title={<Space><TrendingUp size={14} />{t('hl7Page.successRate24h')}</Space>}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 30, fontWeight: 800, color: successRate >= 95 ? '#16a34a' : '#d97706' }}>{successRate}%</div>
+              <div style={{ fontSize: 30, fontWeight: 800, color: successRate >= 95 ? 'var(--color-success-600)' : 'var(--color-warning-600)' }}>{successRate}%</div>
               <div style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>
-                {t('hl7Page.success')} <b style={{ color: '#16a34a' }}>{health24h.success}</b> · {t('hl7Page.failed')} <b style={{ color: '#dc2626' }}>{health24h.failed}</b> · {t('hl7Page.pending')} <b style={{ color: '#d97706' }}>{health24h.pending}</b>
+                {t('hl7Page.success')} <b style={{ color: 'var(--color-success-600)' }}>{health24h.success}</b> · {t('hl7Page.failed')} <b style={{ color: 'var(--color-error-600)' }}>{health24h.failed}</b> · {t('hl7Page.pending')} <b style={{ color: 'var(--color-warning-600)' }}>{health24h.pending}</b>
               </div>
             </div>
           </Card>
@@ -189,9 +189,9 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
         <Col span={5}>
           <Card size="small" title={<Space><Send size={14} />{t('hl7Page.flow24h')}</Space>}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 30, fontWeight: 800, color: '#2563eb' }}>{health24h.total}</div>
+              <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--color-primary-600)' }}>{health24h.total}</div>
               <div style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>
-                {t('hl7Page.outbound')} <b style={{ color: '#2563eb' }}>{health24h.outbound}</b> · {t('hl7Page.inbound')} <b style={{ color: '#d97706' }}>{health24h.inbound}</b>
+                {t('hl7Page.outbound')} <b style={{ color: 'var(--color-primary-600)' }}>{health24h.outbound}</b> · {t('hl7Page.inbound')} <b style={{ color: 'var(--color-warning-600)' }}>{health24h.inbound}</b>
               </div>
             </div>
           </Card>
@@ -199,9 +199,9 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
         <Col span={5}>
           <Card size="small" title={<Space><AlertTriangle size={14} />{t('hl7Page.errorMessages')}</Space>}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 30, fontWeight: 800, color: errorTotal > 0 ? '#dc2626' : '#16a34a' }}>{errorTotal}</div>
+              <div style={{ fontSize: 30, fontWeight: 800, color: errorTotal > 0 ? 'var(--color-error-600)' : 'var(--color-success-600)' }}>{errorTotal}</div>
               <div style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>
-                {t('hl7Page.retryTotal')} <b style={{ color: '#d97706' }}>{errorTop.reduce((s, e) => s + e.retrySum, 0)}</b> {t('hl7Page.times')} · {t('hl7Page.typesUnit')} {errorTop.length} {t('hl7Page.classUnit')}
+                {t('hl7Page.retryTotal')} <b style={{ color: 'var(--color-warning-600)' }}>{errorTop.reduce((s, e) => s + e.retrySum, 0)}</b> {t('hl7Page.times')} · {t('hl7Page.typesUnit')} {errorTop.length} {t('hl7Page.classUnit')}
               </div>
             </div>
           </Card>
@@ -248,8 +248,8 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
                 <YAxis {...chartDefaults.axis} />
                 <Tooltip {...chartDefaults.tooltip} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar dataKey="count" name={t('hl7Page.volume')} fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="failed" name={t('hl7Page.failShort')} fill="#dc2626" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="count" name={t('hl7Page.volume')} fill="var(--color-primary-500)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="failed" name={t('hl7Page.failShort')} fill="var(--color-error-600)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ChartContainer>
           </Card>
@@ -270,7 +270,7 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
             },
             {
               title: t('hl7Page.colFailCount'), dataIndex: 'count', key: 'count', width: 90,
-              render: (v: number) => <b style={{ color: '#dc2626' }}>{v}</b>,
+              render: (v: number) => <b style={{ color: 'var(--color-error-600)' }}>{v}</b>,
             },
             { title: t('hl7Page.colRetryTotal'), dataIndex: 'retrySum', key: 'retrySum', width: 90 },
             {
@@ -280,7 +280,7 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
                 return (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <div style={{ flex: 1, height: 8, background: 'var(--bg-primary, #f8fafc)', borderRadius: 999, overflow: 'hidden' }}>
-                      <div style={{ width: `${pct}%`, height: '100%', background: pct > 40 ? '#dc2626' : '#d97706', borderRadius: 999 }} />
+                      <div style={{ width: `${pct}%`, height: '100%', background: pct > 40 ? 'var(--color-error-600)' : 'var(--color-warning-600)', borderRadius: 999 }} />
                     </div>
                     <span style={{ fontSize: 12, width: 34, textAlign: 'right' }}>{pct}%</span>
                   </div>
@@ -561,7 +561,7 @@ export const Hl7ManagerPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <Archive size={20} color="#2563eb" />
+        <Archive size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('hl7Page.archiveHeader')}</span>
         <Tag color="blue">v2.x</Tag>
         <Tag color="green">ORU / ORM / DFT</Tag>

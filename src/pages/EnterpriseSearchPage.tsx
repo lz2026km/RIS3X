@@ -116,7 +116,7 @@ export default function EnterpriseSearchPage() {
     <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
       <div style={{ marginBottom: 16 }}>
         <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
-          <Search style={{ marginRight: 8, color: '#1e40af' }} />
+          <Search style={{ marginRight: 8, color: 'var(--color-primary-800)' }} />
           {'\u4F01\u4E1A\u7EA7\u5168\u5C40\u641C\u7D22'}
         </h1>
         <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '6px 0 0' }}>
@@ -198,7 +198,7 @@ export default function EnterpriseSearchPage() {
 
       {searched && !loading && (
         <>
-          <div style={{ padding: '8px 12px', background: 'var(--color-info-bg)', borderRadius: 6, marginBottom: 4, fontSize: 12, color: '#1e40af' }}>
+          <div style={{ padding: '8px 12px', background: 'var(--color-info-bg)', borderRadius: 6, marginBottom: 4, fontSize: 12, color: 'var(--color-primary-800)' }}>
             找到 <strong>{total}</strong> 条结果{legacyCount > 0 ? ` (${apiResults.length})` : ''} · {tookMs}ms
           </div>
 
@@ -225,12 +225,12 @@ export default function EnterpriseSearchPage() {
                 <div key={group}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                     {group === 'patient'
-                      ? <User size={14} color="#1e40af" />
+                      ? <User size={14} color="var(--color-primary-800)" />
                       : group === 'exam'
-                        ? <Microscope size={14} color="#1d4ed8" />
+                        ? <Microscope size={14} color="var(--color-primary-700)" />
                         : group === 'report'
                           ? <FileText size={14} color="#7c3aed" />
-                          : <FileSearch size={14} color="#0891b2" />}
+                          : <FileSearch size={14} color="var(--color-info-600)" />}
                     <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>
                       {TYPE_META[group]?.label ?? group}
                     </span>
@@ -266,7 +266,7 @@ export default function EnterpriseSearchPage() {
               {legacyCount > 0 && (
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-                    <FileSearch size={14} color="#0891b2" />
+                    <FileSearch size={14} color="var(--color-info-600)" />
                     <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{'data-report-index'}</span>
                     <Tag color="cyan">{apiResults.length}</Tag>
                   </div>

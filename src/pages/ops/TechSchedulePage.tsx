@@ -26,9 +26,9 @@ const C = {
   text: 'var(--text-primary, #f0f6fc)',
   textMid: 'var(--text-muted, #8b949e)',
   textLight: '#6e7681',
-  blue: '#3b82f6',
+  blue: 'var(--color-primary-500)',
   green: '#4ade80',
-  orange: '#fbbf24',
+  orange: 'var(--color-warning-400)',
   red: '#f87171',
   purple: '#a78bfa',
   teal: '#2dd4bf',
@@ -295,7 +295,7 @@ export default function TechSchedulePage() {
   return (
     <div data-testid="tech-schedule-page" style={{ background: C.bg, color: C.text, fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       {/* ================= 头部 ================= */}
-      <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <CalendarDays size={24} />
           <span style={{ fontSize: 20, fontWeight: 600 }}>{t('techSchedule.title')}</span>
@@ -303,7 +303,7 @@ export default function TechSchedulePage() {
             fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 10,
             background: dataSource === 'api' ? 'rgba(34,197,94,0.2)' : 'rgba(245,158,11,0.25)',
             color: dataSource === 'api' ? C.green : C.orange,
-            border: `1px solid ${dataSource === 'api' ? '#22c55e' : '#f59e0b'}`,
+            border: `1px solid ${dataSource === 'api' ? 'var(--color-success-500)' : 'var(--color-warning-500)'}`,
           }}>
             {dataSource === 'api' ? t('techSchedule.apiLive') : t('techSchedule.demoData')}
           </span>

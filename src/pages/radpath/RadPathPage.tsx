@@ -32,7 +32,7 @@ import { t } from "../../i18n/appI18n";
 
 const consistencyColor: Record<string, string> = {
   concordant: "#10b981",
-  discordant: "#ef4444",
+  discordant: "var(--color-error-500)",
   pending: "#94a3b8",
 };
 const consistencyLabel = (c: string): string => ({

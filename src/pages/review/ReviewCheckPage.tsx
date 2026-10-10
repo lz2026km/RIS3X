@@ -134,7 +134,7 @@ export const ReviewCheckPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <ClipboardCheck size={20} color="#2563eb" />
+        <ClipboardCheck size={20} color="var(--color-primary-600)" />
         <FileCheck size={20} color="#52c41a" />
         <Shield size={20} color="#722ed1" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('reviewCheck.title')}</span>
@@ -312,7 +312,7 @@ export const ReviewCheckPage: React.FC = () => {
 function AlertTitle({ text }: { text: string }) {
   return (
     <div style={{ marginBottom: 12, padding: '8px 12px', background: '#e6f4ff', borderRadius: 6, fontSize: 12 }}>
-      <PenTool size={12} style={{ marginRight: 6, color: '#2563eb' }} />
+      <PenTool size={12} style={{ marginRight: 6, color: 'var(--color-primary-600)' }} />
       {text}
     </div>
   );

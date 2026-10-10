@@ -137,7 +137,7 @@ const FractureCadPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <Activity size={20} color="#2563eb" />
+        <Activity size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t("w9d.fracture.title")}</span>
         <Button
           size="small"

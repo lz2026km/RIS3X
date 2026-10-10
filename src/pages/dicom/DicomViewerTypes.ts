@@ -120,8 +120,8 @@ export type ExamItem = {
   conclusion?: string
 }
 
-export const PRIMARY = '#1e40af'
-export const PRIMARY_LIGHT = '#2563eb'
+export const PRIMARY = 'var(--color-primary-800)'
+export const PRIMARY_LIGHT = 'var(--color-primary-600)'
 export const CARD_BG = 'var(--bg-card)'
 export const PANEL_BG = '#f0f4f8'
 

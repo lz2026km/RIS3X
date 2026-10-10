@@ -180,7 +180,7 @@ const VolumeViewerPage: React.FC = () => {
   return (
     <PageContainer padding={16}>
       <Space style={{ marginBottom: 12 }}>
-        <Box size={20} color="#2563eb" />
+        <Box size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('w9d.volumeViewer.title')}</span>
         <Tag color="cyan">MIP / MPR / VR</Tag>
         {volumeDims && <Tag color="geekblue">{volumeDims.x}×{volumeDims.y}×{volumeDims.z}</Tag>}

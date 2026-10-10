@@ -54,21 +54,21 @@ export default function DeviceDAPComparisonChart() {
             boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
           }}
         >
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", marginBottom: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 8 }}>
             {data.device}
           </div>
           <div style={{ fontSize: 12, color: "#64748b" }}>
             <div>
-              今日: <span style={{ fontWeight: 600, color: "#1e40af" }}>{data.DAP} {data.unit}</span>
+              今日: <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{data.DAP} {data.unit}</span>
             </div>
             <div>
-              平均: <span style={{ fontWeight: 600, color: "#1e40af" }}>{data.avgDAP} {data.unit}</span>
+              平均: <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{data.avgDAP} {data.unit}</span>
             </div>
             <div>
-              法规阈值: <span style={{ fontWeight: 600, color: "#d97706" }}>{data.threshold} {data.unit}</span>
+              法规阈值: <span style={{ fontWeight: 600, color: "var(--color-warning-600)" }}>{data.threshold} {data.unit}</span>
             </div>
             <div>
-              占阈值: <span style={{ fontWeight: 600, color: data.pctOfThreshold > 100 ? "#dc2626" : "#16a34a" }}>{data.pctOfThreshold}%</span>
+              占阈值: <span style={{ fontWeight: 600, color: data.pctOfThreshold > 100 ? "var(--color-error-600)" : "var(--color-success-600)" }}>{data.pctOfThreshold}%</span>
             </div>
           </div>
         </div>
@@ -95,7 +95,7 @@ export default function DeviceDAPComparisonChart() {
         }}
       >
         <div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>
             设备剂量占法规阈值对比
           </div>
           <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
@@ -111,7 +111,7 @@ export default function DeviceDAPComparisonChart() {
           演示数据 · 未接入接口
         </span>
         <div style={{ display: "flex", gap: 12 }}>
-          <Legend color="#3b82f6" label="今日占阈值%" />
+          <Legend color="var(--color-primary-500)" label="今日占阈值%" />
           <Legend color="#94a3b8" label="平均占阈值%" />
         </div>
       </div>
@@ -123,15 +123,15 @@ export default function DeviceDAPComparisonChart() {
           <Tooltip content={<CustomTooltip />} />
           <ReferenceLine
             y={100}
-            stroke="#dc2626"
+            stroke="var(--color-error-600)"
             strokeDasharray="3 3"
-            label={{ value: "法规阈值(100%)", position: "right", fontSize: 12, fill: "#dc2626" }}
+            label={{ value: "法规阈值(100%)", position: "right", fontSize: 12, fill: "var(--color-error-600)" }}
           />
-          <Bar dataKey="pctOfThreshold" fill="#3b82f6" radius={[4, 4, 0, 0]} name="今日占阈值%">
+          <Bar dataKey="pctOfThreshold" fill="var(--color-primary-500)" radius={[4, 4, 0, 0]} name="今日占阈值%">
             {DEVICE_DAP_DATA.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={entry.pctOfThreshold > 100 ? "#dc2626" : "#3b82f6"}
+                fill={entry.pctOfThreshold > 100 ? "var(--color-error-600)" : "var(--color-primary-500)"}
               />
             ))}
           </Bar>
@@ -149,7 +149,7 @@ export default function DeviceDAPComparisonChart() {
           gap: 8,
         }}
       >
-        <ShieldAlert size={14} color="#d97706" />
+        <ShieldAlert size={14} color="var(--color-warning-600)" />
         <span style={{ fontSize: 12, color: "#64748b" }}>
           法规阈值: CT DLP {"<"} 1000mGy·cm | DR DAP {"<"} 300mGy·m² | DSA DAP{" "}
           {"<"} 3000mGy·m² | MG AGD {"<"} 6mGy

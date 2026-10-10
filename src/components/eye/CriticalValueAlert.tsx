@@ -15,11 +15,11 @@ const CriticalValueAlert: React.FC<{ items: CriticalValue[] }> = ({
       size="small"
       title={
         <Space>
-          <AlertTriangle size={16} color="#ef4444" />
+          <AlertTriangle size={16} color="var(--color-error-500)" />
           <span>危急值 ({openItems.length})</span>
         </Space>
       }
-      style={{ borderLeft: "4px solid #ef4444", marginBottom: 8 }}
+      style={{ borderLeft: "4px solid var(--color-error-500)", marginBottom: 8 }}
     >
       <Timeline
         items={items.slice(0, 5).map((cv) => ({

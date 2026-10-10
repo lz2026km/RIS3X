@@ -7,7 +7,7 @@ const { Text, Title } = Typography
 
 function getScoreColor(score: string): string {
   const s = parseFloat(score)
-  if (isNaN(s)) return '#2563eb'
+  if (isNaN(s)) return 'var(--color-primary-600)'
   if (s >= 4) return '#ff4d4f'
   if (s >= 3) return '#faad14'
   return '#52c41a'

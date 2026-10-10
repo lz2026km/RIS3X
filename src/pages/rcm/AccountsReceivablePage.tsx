@@ -23,10 +23,10 @@ interface ReceivableItem {
 }
 
 const PAYER_COLORS: Record<string, string> = {
-  '医保(城镇职工)': '#3b82f6',
+  '医保(城镇职工)': 'var(--color-primary-500)',
   '医保(城乡居民)': '#8b5cf6',
   '商业保险': '#059669',
-  '自费': '#d97706',
+  '自费': 'var(--color-warning-600)',
   '公费/其他': '#6b7280',
 }
 
@@ -47,10 +47,10 @@ const MOCK_RECEIVABLES: ReceivableItem[] = [
 ]
 
 const AGING_BUCKETS: { key: AgingBucket; label: string; color: string }[] = [
-  { key: '0-30', label: 'ar.aging.0_30', color: '#22c55e' },
-  { key: '31-60', label: 'ar.aging.31_60', color: '#f59e0b' },
+  { key: '0-30', label: 'ar.aging.0_30', color: 'var(--color-success-500)' },
+  { key: '31-60', label: 'ar.aging.31_60', color: 'var(--color-warning-500)' },
   { key: '61-90', label: 'ar.aging.61_90', color: '#fb923c' },
-  { key: '90+', label: 'ar.aging.90plus', color: '#ef4444' },
+  { key: '90+', label: 'ar.aging.90plus', color: 'var(--color-error-500)' },
 ]
 
 const DAY_MS = 86400000
@@ -153,19 +153,19 @@ export default function AccountsReceivablePage() {
       render: (v: string) => <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${PAYER_COLORS[v] || '#6b7280'}20`, color: PAYER_COLORS[v] || '#6b7280' }}>{v}</span>,
     },
     { title: t('ar.colTotal'), dataIndex: 'totalAmount', key: 'totalAmount', align: 'right' as const, render: (v: number) => `¥${v.toLocaleString()}` },
-    { title: t('ar.colPaid'), dataIndex: 'paidAmount', key: 'paidAmount', align: 'right' as const, render: (v: number) => <span style={{ color: '#22c55e' }}>¥{v.toLocaleString()}</span> },
-    { title: t('ar.colBalance'), dataIndex: 'balance', key: 'balance', align: 'right' as const, render: (v: number) => <strong style={{ color: v > 0 ? '#f59e0b' : '#22c55e' }}>¥{v.toLocaleString()}</strong> },
+    { title: t('ar.colPaid'), dataIndex: 'paidAmount', key: 'paidAmount', align: 'right' as const, render: (v: number) => <span style={{ color: 'var(--color-success-500)' }}>¥{v.toLocaleString()}</span> },
+    { title: t('ar.colBalance'), dataIndex: 'balance', key: 'balance', align: 'right' as const, render: (v: number) => <strong style={{ color: v > 0 ? 'var(--color-warning-500)' : 'var(--color-success-500)' }}>¥{v.toLocaleString()}</strong> },
     {
       title: t('ar.colAging'), dataIndex: 'aging', key: 'aging', align: 'center' as const,
       render: (v: string) => {
-        const color = v === '0-30' ? '#22c55e' : v === '31-60' ? '#f59e0b' : v === '61-90' ? '#fb923c' : '#ef4444'
+        const color = v === '0-30' ? 'var(--color-success-500)' : v === '31-60' ? 'var(--color-warning-500)' : v === '61-90' ? '#fb923c' : 'var(--color-error-500)'
         return <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${color}20`, color }}>{v}</span>
       },
     },
     {
       title: t('ar.colStatus'), dataIndex: 'status', key: 'status',
       render: (v: ReceivableItem['status']) => (
-        <span style={{ fontSize: 12, color: v === 'current' ? '#22c55e' : v === 'overdue' ? '#ef4444' : '#6e7681', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <span style={{ fontSize: 12, color: v === 'current' ? 'var(--color-success-500)' : v === 'overdue' ? 'var(--color-error-500)' : '#6e7681', display: 'flex', alignItems: 'center', gap: 4 }}>
           {v === 'current' ? <Clock size={12} /> : v === 'overdue' ? <AlertTriangle size={12} /> : <CheckCircle size={12} />}
           {v === 'current' ? t('ar.status.current') : v === 'overdue' ? t('ar.status.overdue') : t('ar.status.writeoff')}
         </span>
@@ -195,7 +195,7 @@ export default function AccountsReceivablePage() {
 
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
-      <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><Wallet size={24} /><span style={{ fontSize: 20, fontWeight: 700 }}>{t('ar.title')}</span></div>
         <button onClick={handleExportCsv} disabled={items.length === 0} title={items.length === 0 ? t('ar.exportDisabled') : t('ar.exportHint')} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: items.length === 0 ? 'not-allowed' : 'pointer', opacity: items.length === 0 ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}><Download size={14} />{t('ar.exportReport')}</button>
       </div>
@@ -209,17 +209,17 @@ export default function AccountsReceivablePage() {
           </span>
         )}
         {!error && usingFallback && <span style={{ fontSize: 12, color: '#d29922' }}>{t('ar.fallbackSource')}</span>}
-        {!error && !usingFallback && !loading && <span style={{ fontSize: 12, color: '#22c55e' }}>{t('ar.realSource')}</span>}
+        {!error && !usingFallback && !loading && <span style={{ fontSize: 12, color: 'var(--color-success-500)' }}>{t('ar.realSource')}</span>}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16, padding: '20px 24px' }}>
         <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
           <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 6 }}>{t('ar.totalReceivable')}</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-primary-500, #3b82f6)' }}>¥{summary.total.toLocaleString()}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-primary-500, var(--color-primary-500))' }}>¥{summary.total.toLocaleString()}</div>
         </div>
         <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
           <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 6 }}>{t('ar.overdueAmount')}</div>
-          <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-error-500, #ef4444)' }}>¥{summary.overdue.toLocaleString()}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--color-error-500, var(--color-error-500))' }}>¥{summary.overdue.toLocaleString()}</div>
         </div>
         {summary.byAging.map(b => (
           <div key={b.key} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>

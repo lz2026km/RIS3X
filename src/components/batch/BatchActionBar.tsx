@@ -26,7 +26,7 @@ interface BatchActionBarProps {
   onTaskProgress?: (state: TaskState) => void;
 }
 
-const PRIMARY = '#1e40af';
+const PRIMARY = 'var(--color-primary-800)';
 
 export default function BatchActionBar({ selectedCount, onAction, actions, onClear, task, taskSseUrl, onTaskCancel, onTaskRetry, onTaskProgress }: BatchActionBarProps) {
   const [confirmKey, setConfirmKey] = useState<string | null>(null);
@@ -87,9 +87,9 @@ export default function BatchActionBar({ selectedCount, onAction, actions, onCle
             padding: confirmKey === action.key ? '8px 16px' : '8px 14px',
             borderRadius: 8,
             border: '1px solid',
-            borderColor: confirmKey === action.key ? '#dc2626' : '#e2e8f0',
+            borderColor: confirmKey === action.key ? 'var(--color-error-600)' : '#e2e8f0',
             background: confirmKey === action.key ? '#fef2f2' : 'var(--bg-card)',
-            color: confirmKey === action.key ? '#dc2626' : '#334155',
+            color: confirmKey === action.key ? 'var(--color-error-600)' : '#334155',
             fontSize: 12,
             fontWeight: 600,
             cursor: 'pointer',

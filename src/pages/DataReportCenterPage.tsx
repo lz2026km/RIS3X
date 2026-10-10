@@ -72,8 +72,8 @@ const { Title, Text } = Typography
 const { RangePicker } = DatePicker
 
 const REPORT_CHART_COLORS = [
-  '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
-  '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1',
+  'var(--color-primary-500)', '#10b981', 'var(--color-warning-500)', 'var(--color-error-500)', '#8b5cf6',
+  '#ec4899', 'var(--color-info-500)', '#84cc16', '#f97316', '#6366f1',
 ]
 
 type ReportChartType = 'line' | 'bar' | 'pie' | 'area' | 'radar' | 'stacked-bar' | 'composed' | 'funnel' | 'heatmap' | 'radialBar'
@@ -1417,7 +1417,7 @@ export default function DataReportCenterPage() {
     >
       <Header
         style={{
-          background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)',
+          background: 'linear-gradient(135deg, var(--color-primary-800) 0%, #1e3a8a 100%)',
           padding: '0 24px',
           display: 'flex',
           alignItems: 'center',
@@ -1569,7 +1569,7 @@ export default function DataReportCenterPage() {
                               style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}
                             >
                               {favorites.has(child.key as string) ? (
-                                <Star size={12} fill="#f59e0b" color="#f59e0b" />
+                                <Star size={12} fill="var(--color-warning-500)" color="var(--color-warning-500)" />
                               ) : (
                                 <StarOff size={12} color="var(--text-secondary)" />
                               )}
@@ -1603,7 +1603,7 @@ export default function DataReportCenterPage() {
                         style={{ cursor: 'pointer', display: 'flex' }}
                       >
                         {favorites.has(currentReport.id) ? (
-                          <Star size={16} fill="#f59e0b" color="#f59e0b" />
+                          <Star size={16} fill="var(--color-warning-500)" color="var(--color-warning-500)" />
                         ) : (
                           <StarOff size={16} color="var(--text-secondary)" />
                         )}
@@ -1652,7 +1652,7 @@ export default function DataReportCenterPage() {
                     }
                     title={
                       <Space size={6}>
-                        <Lightbulb size={14} color="#f59e0b" />
+                        <Lightbulb size={14} color="var(--color-warning-500)" />
                         <span style={{ fontSize: 12, fontWeight: 600 }}>{t('dataReportCenter.aiInsight')}</span>
                       </Space>
                     }

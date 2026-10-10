@@ -316,7 +316,7 @@ export default function QcAnalyticsPage() {
 
   const deptColumns: ColumnsType<DepartmentRankItem> = [
     { title: t('qcAnalytics.thRank'), key: 'rank', width: 60, render: (_, __, i) => {
-      const color = i === 0 ? '#10b981' : i === 1 ? '#3b82f6' : i === 2 ? '#f59e0b' : '#94a3b8'
+      const color = i === 0 ? '#10b981' : i === 1 ? 'var(--color-primary-500)' : i === 2 ? 'var(--color-warning-500)' : '#94a3b8'
       return <span style={{ color, fontWeight: 700 }}>{i + 1}</span>
     } },
     { title: t('qcAnalytics.thDept'), dataIndex: 'department', key: 'department', render: (v: string, r) => (
@@ -329,8 +329,8 @@ export default function QcAnalyticsPage() {
     { title: t('qcAnalytics.thDefects'), dataIndex: 'defects', key: 'defects', width: 90, align: 'right' as const },
     { title: t('qcAnalytics.thDefectRate'), dataIndex: 'defectRate', key: 'defectRate', width: 110, align: 'right' as const, render: (v: number) => (
       <Space size={8}>
-        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: v >= 130 ? '#dc2626' : v >= 100 ? '#d97706' : '#059669' }}>{v}%</span>
-        <Progress percent={Math.min(100, Math.round(v))} showInfo={false} size="small" strokeColor={v >= 130 ? '#dc2626' : v >= 100 ? '#d97706' : '#10b981'} style={{ width: 60, margin: 0 }} />
+        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: v >= 130 ? 'var(--color-error-600)' : v >= 100 ? 'var(--color-warning-600)' : '#059669' }}>{v}%</span>
+        <Progress percent={Math.min(100, Math.round(v))} showInfo={false} size="small" strokeColor={v >= 130 ? 'var(--color-error-600)' : v >= 100 ? 'var(--color-warning-600)' : '#10b981'} style={{ width: 60, margin: 0 }} />
       </Space>
     ) },
     { title: t('qcAnalytics.thTimelyRate'), dataIndex: 'timelyRate', key: 'timelyRate', width: 90, align: 'right' as const, render: (v: number) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{v}%</span> },
@@ -347,12 +347,12 @@ export default function QcAnalyticsPage() {
     const d = dashboard
     const last = trendData[trendData.length - 1]
     return [
-      { label: t('qcAnalytics.kpiTotalReports'), value: d?.totalReports ?? 0, icon: <Activity size={20} />, color: '#3b82f6', sub: t('qcAnalytics.kpiQcCoverage', { count: d?.qcReports ?? 0 }) },
+      { label: t('qcAnalytics.kpiTotalReports'), value: d?.totalReports ?? 0, icon: <Activity size={20} />, color: 'var(--color-primary-500)', sub: t('qcAnalytics.kpiQcCoverage', { count: d?.qcReports ?? 0 }) },
       { label: t('qcAnalytics.kpiQcRate'), value: d?.qcRate ?? 0, suffix: '%', icon: <ShieldCheck size={20} />, color: '#8b5cf6', sub: t('qcAnalytics.kpiQcCoverageDesc') },
-      { label: t('qcAnalytics.kpiDefectRate'), value: d?.defectRate ?? 0, suffix: '%', icon: <AlertTriangle size={20} />, color: '#ef4444', sub: last && last.improvement !== null ? t('qcAnalytics.kpiImprove', { pct: Math.abs(last.improvement) }) + (last.improvement >= 0 ? ` (${t('qcAnalytics.improved')})` : ` (${t('qcAnalytics.worsened')})`) : t('qcAnalytics.kpiDefectSub') },
+      { label: t('qcAnalytics.kpiDefectRate'), value: d?.defectRate ?? 0, suffix: '%', icon: <AlertTriangle size={20} />, color: 'var(--color-error-500)', sub: last && last.improvement !== null ? t('qcAnalytics.kpiImprove', { pct: Math.abs(last.improvement) }) + (last.improvement >= 0 ? ` (${t('qcAnalytics.improved')})` : ` (${t('qcAnalytics.worsened')})`) : t('qcAnalytics.kpiDefectSub') },
       { label: t('qcAnalytics.kpiTimelyRate'), value: d?.timelyRate ?? 0, suffix: '%', icon: <Clock size={20} />, color: '#10b981', sub: t('qcAnalytics.kpiTimelySub', { count: d?.avgResponseMinutes ?? 0 }) },
-      { label: t('qcAnalytics.kpiAvgResponse'), value: d?.avgResponseMinutes ?? 0, suffix: t('qcAnalytics.minSuffix'), icon: <TrendingUp size={20} />, color: '#f59e0b', sub: t('qcAnalytics.kpiAvgScoreSub', { score: d?.avgScore ?? 0 }) },
-      { label: t('qcAnalytics.kpiClosureRate'), value: d?.closureRate ?? 0, suffix: '%', icon: <CheckCircle2 size={20} />, color: '#06b6d4', sub: t('qcAnalytics.kpiClosedSub', { closed: d?.loopClosed ?? 0, total: (d?.loopOpen ?? 0) + (d?.loopClosed ?? 0) }) },
+      { label: t('qcAnalytics.kpiAvgResponse'), value: d?.avgResponseMinutes ?? 0, suffix: t('qcAnalytics.minSuffix'), icon: <TrendingUp size={20} />, color: 'var(--color-warning-500)', sub: t('qcAnalytics.kpiAvgScoreSub', { score: d?.avgScore ?? 0 }) },
+      { label: t('qcAnalytics.kpiClosureRate'), value: d?.closureRate ?? 0, suffix: '%', icon: <CheckCircle2 size={20} />, color: 'var(--color-info-500)', sub: t('qcAnalytics.kpiClosedSub', { closed: d?.loopClosed ?? 0, total: (d?.loopOpen ?? 0) + (d?.loopClosed ?? 0) }) },
     ]
   }, [dashboard, trendData])
 
@@ -365,7 +365,7 @@ export default function QcAnalyticsPage() {
   return (
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader
-        icon={<ShieldCheck size={20} color="#3b82f6" />}
+        icon={<ShieldCheck size={20} color="var(--color-primary-500)" />}
         title={t('qcAnalytics.title')}
         subtitle={t('qcAnalytics.subtitle')}
         actions={
@@ -389,7 +389,7 @@ export default function QcAnalyticsPage() {
         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16, marginTop: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <Space size={8}>
-              <TrendingUp size={16} color="#3b82f6" />
+              <TrendingUp size={16} color="var(--color-primary-500)" />
               <b>{t('qcAnalytics.trendTitle')}</b>
               <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('qcAnalytics.trendSub')}</span>
             </Space>
@@ -403,7 +403,7 @@ export default function QcAnalyticsPage() {
               <YAxis yAxisId="right" orientation="right" domain={[0, 100]} hide />
               <RTooltip content={<TrendTooltip />} />
               <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Line yAxisId="rate" type="monotone" dataKey="defectRate" name={t('qcAnalytics.defectRate')} stroke="#ef4444" strokeWidth={2.5} dot={{ r: 3 }} />
+              <Line yAxisId="rate" type="monotone" dataKey="defectRate" name={t('qcAnalytics.defectRate')} stroke="var(--color-error-500)" strokeWidth={2.5} dot={{ r: 3 }} />
               <Line yAxisId="rate" type="monotone" dataKey="timelyRate" name={t('qcAnalytics.timelyRate')} stroke="#10b981" strokeWidth={2} dot={{ r: 3 }} />
               <Line yAxisId="rate" type="monotone" dataKey="qcRate" name={t('qcAnalytics.qcRate')} stroke="#8b5cf6" strokeWidth={2} strokeDasharray="6 3" dot={{ r: 3 }} />
               <ReferenceLine yAxisId="rate" y={100} stroke="#e2e8f0" strokeDasharray="4 4" />
@@ -415,7 +415,7 @@ export default function QcAnalyticsPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 16 }}>
           <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16 }}>
             <Space size={8} style={{ marginBottom: 12 }}>
-              <Bug size={16} color="#ef4444" />
+              <Bug size={16} color="var(--color-error-500)" />
               <b>{t('qcAnalytics.paretoTitle')}</b>
               <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('qcAnalytics.paretoSub')}</span>
             </Space>
@@ -428,16 +428,16 @@ export default function QcAnalyticsPage() {
                 <RTooltip content={<TrendTooltip />} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Bar yAxisId="bar" dataKey="count" name={t('qcAnalytics.defectCount')} radius={[4, 4, 0, 0]}>
-                  {paretoData.map((p) => <Cell key={p.code} fill={p.isMain ? '#ef4444' : '#93c5fd'} />)}
+                  {paretoData.map((p) => <Cell key={p.code} fill={p.isMain ? 'var(--color-error-500)' : '#93c5fd'} />)}
                 </Bar>
-                <Line yAxisId="line" type="monotone" dataKey="cumulativePercent" name={t('qcAnalytics.cumulativePct')} stroke="#f59e0b" strokeWidth={2} dot={{ r: 3 }} />
+                <Line yAxisId="line" type="monotone" dataKey="cumulativePercent" name={t('qcAnalytics.cumulativePct')} stroke="var(--color-warning-500)" strokeWidth={2} dot={{ r: 3 }} />
               </ComposedChart>
             </ChartContainer>
           </div>
 
           <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16 }}>
             <Space size={8} style={{ marginBottom: 12 }}>
-              <Target size={16} color="#3b82f6" />
+              <Target size={16} color="var(--color-primary-500)" />
               <b>{t('qcAnalytics.deptRankTitle')}</b>
               <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('qcAnalytics.deptRankSub')}</span>
             </Space>
@@ -613,7 +613,7 @@ export default function QcAnalyticsPage() {
                 <div><b>{t('qcAnalytics.fldReport')}</b> {detail.reportId} · <b>{t('qcAnalytics.fldDept')}</b> {detail.department}</div>
                 <div><b>{t('qcAnalytics.fldOwner')}</b> {detail.assigneeName} · <b>{t('qcAnalytics.fldCreated')}</b> {fmtDate(detail.createdAt)}{detail.closedAt ? t('qcAnalytics.closedAt', { date: fmtDate(detail.closedAt) }) : ''}</div>
                 {detail.fixNote && <div><b>{t('qcAnalytics.fldFixNote2')}</b> {detail.fixNote}</div>}
-                {detail.recheckNote && <div style={{ color: detail.recheckResult === 'fail' ? '#dc2626' : '#059669' }}><b>{t('qcAnalytics.fldRecheckNote')}</b> {detail.recheckNote}{t('qcAnalytics.rounds', { count: detail.recheckRounds })}</div>}
+                {detail.recheckNote && <div style={{ color: detail.recheckResult === 'fail' ? 'var(--color-error-600)' : '#059669' }}><b>{t('qcAnalytics.fldRecheckNote')}</b> {detail.recheckNote}{t('qcAnalytics.rounds', { count: detail.recheckRounds })}</div>}
               </div>
             </div>
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 14 }}>

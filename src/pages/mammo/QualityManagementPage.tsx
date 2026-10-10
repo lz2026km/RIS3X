@@ -27,7 +27,7 @@ const s: Record<string, React.CSSProperties> = {
   sectionTitle: { fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
   grid3: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 },
   btn: { padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
-  btnPrimary: { padding: '8px 14px', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
+  btnPrimary: { padding: '8px 14px', borderRadius: 8, border: 'none', background: 'var(--color-primary-600)', color: '#fff', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: 12 },
   th: { textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600, whiteSpace: 'nowrap' },
   td: { padding: '10px 8px', borderBottom: '1px solid var(--border-light)', color: 'var(--text-primary)' },
@@ -38,8 +38,8 @@ const s: Record<string, React.CSSProperties> = {
 
 const StatusBadge = ({ status }: { status: string }) => {
   const colors: Record<string, { bg: string; text: string }> = {
-    '合格': { bg: '#22c55e22', text: '#16a34a' },
-    '不合格': { bg: '#ef444422', text: '#dc2626' },
+    '合格': { bg: '#22c55e22', text: 'var(--color-success-600)' },
+    '不合格': { bg: '#ef444422', text: 'var(--color-error-600)' },
     '待复评': { bg: '#f59e0b22', text: '#ca8a04' },
   }
   const c = colors[status] || { bg: 'var(--bg-deep)', text: '#64748b' }
@@ -131,9 +131,9 @@ const QualityManagementPage = () => {
   }
 
   const evalStatusStyle: Record<string, { bg: string; text: string }> = {
-    '通过': { bg: '#22c55e22', text: '#16a34a' },
+    '通过': { bg: '#22c55e22', text: 'var(--color-success-600)' },
     '告警': { bg: '#f59e0b22', text: '#ca8a04' },
-    '不合格': { bg: '#ef444422', text: '#dc2626' },
+    '不合格': { bg: '#ef444422', text: 'var(--color-error-600)' },
   }
 
   useEffect(() => { fetchAll() }, [fetchAll])
@@ -153,11 +153,11 @@ const QualityManagementPage = () => {
   }
 
   const statsData = useMemo(() => [
-    { label: t('mammoQc.statOverallScore'), value: overview?.overallScore?.toFixed(1) ?? '-', unit: '分', icon: Shield, color: '#2563eb', bg: '#3b82f622' },
-    { label: t('mammoQc.statAcrCompliance'), value: overview?.acrComplianceRate?.toFixed(1) ?? '-', unit: '%', icon: CheckCircle, color: '#16a34a', bg: '#22c55e22' },
+    { label: t('mammoQc.statOverallScore'), value: overview?.overallScore?.toFixed(1) ?? '-', unit: '分', icon: Shield, color: 'var(--color-primary-600)', bg: '#3b82f622' },
+    { label: t('mammoQc.statAcrCompliance'), value: overview?.acrComplianceRate?.toFixed(1) ?? '-', unit: '%', icon: CheckCircle, color: 'var(--color-success-600)', bg: '#22c55e22' },
     { label: t('mammoQc.statRecallRate'), value: overview?.recallRate?.toFixed(1) ?? '-', unit: '%', sub: t('mammoQc.statRecallTarget'), icon: Target, color: '#ca8a04', bg: '#f59e0b22' },
     { label: t('mammoQc.statAvgDose'), value: overview?.avgDoseMgy?.toFixed(1) ?? '-', unit: 'mGy', icon: Activity, color: '#ea580c', bg: '#f9731622' },
-    { label: t('mammoQc.statImageFailRate'), value: overview?.imageFailRate?.toFixed(1) ?? '-', unit: '%', icon: XCircle, color: '#dc2626', bg: '#ef444422' },
+    { label: t('mammoQc.statImageFailRate'), value: overview?.imageFailRate?.toFixed(1) ?? '-', unit: '%', icon: XCircle, color: 'var(--color-error-600)', bg: '#ef444422' },
     { label: t('mammoQc.statTechConsistency'), value: overview?.technologistConsistency?.toFixed(1) ?? '-', unit: '%', icon: Users, color: '#7c3aed', bg: '#8b5cf622' },
   ], [overview])
 
@@ -173,7 +173,7 @@ const QualityManagementPage = () => {
     { title: t('mammoQc.colDate'), dataIndex: 'date', key: 'date' },
     { title: t('mammoQc.colPatient'), dataIndex: 'patient', key: 'patient' },
     { title: t('mammoQc.colDevice'), dataIndex: 'modality', key: 'modality' },
-    { title: t('mammoQc.colScore'), dataIndex: 'score', key: 'score', align: 'right', render: (v: number) => <span style={{ fontWeight: 700, color: v >= 80 ? '#16a34a' : v >= 60 ? '#ca8a04' : '#dc2626' }}>{v}</span> },
+    { title: t('mammoQc.colScore'), dataIndex: 'score', key: 'score', align: 'right', render: (v: number) => <span style={{ fontWeight: 700, color: v >= 80 ? 'var(--color-success-600)' : v >= 60 ? '#ca8a04' : 'var(--color-error-600)' }}>{v}</span> },
     { title: t('mammoQc.colStatus'), dataIndex: 'status', key: 'status', render: (v: string) => <StatusBadge status={v} /> },
     { title: t('mammoQc.colTechnologist'), dataIndex: 'technologist', key: 'technologist' },
     { title: t('mammoQc.colIssue'), dataIndex: 'issue', key: 'issue', render: (v: string) => v || '-' },
@@ -198,8 +198,8 @@ const QualityManagementPage = () => {
 
   const ruleColumns = useMemo<TableColumnsType<BreastQcRule>>(() => [
     { title: t('mammoQc.colRule'), key: 'rule', render: (_v, r) => <span style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{r.id} {r.name}</span> },
-    { title: t('mammoQc.colCategory'), dataIndex: 'category', key: 'category', render: (v: string) => <span style={{ padding: '2px 8px', borderRadius: 10, background: v === '剂量' ? '#fef3c7' : v === '投照质量' ? '#dbeafe' : '#dcfce7', color: v === '剂量' ? '#b45309' : v === '投照质量' ? '#1d4ed8' : '#15803d', fontSize: 11, fontWeight: 600 }}>{v}</span> },
-    { title: t('mammoQc.colLevel'), dataIndex: 'level', key: 'level', render: (v: string) => v === 'required' ? <span style={{ color: '#dc2626', fontWeight: 600 }}>{t('mammoQc.required')}</span> : <span style={{ color: '#64748b' }}>{t('mammoQc.suggested')}</span> },
+    { title: t('mammoQc.colCategory'), dataIndex: 'category', key: 'category', render: (v: string) => <span style={{ padding: '2px 8px', borderRadius: 10, background: v === '剂量' ? '#fef3c7' : v === '投照质量' ? '#dbeafe' : '#dcfce7', color: v === '剂量' ? '#b45309' : v === '投照质量' ? 'var(--color-primary-700)' : '#15803d', fontSize: 11, fontWeight: 600 }}>{v}</span> },
+    { title: t('mammoQc.colLevel'), dataIndex: 'level', key: 'level', render: (v: string) => v === 'required' ? <span style={{ color: 'var(--color-error-600)', fontWeight: 600 }}>{t('mammoQc.required')}</span> : <span style={{ color: '#64748b' }}>{t('mammoQc.suggested')}</span> },
     { title: t('mammoQc.colRequirement'), dataIndex: 'description', key: 'description' },
   ], [])
 
@@ -211,7 +211,7 @@ const QualityManagementPage = () => {
           <p style={s.subtitle}>{t('mammoQc.subtitle')}</p>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <span style={{ fontSize: 12, padding: '5px 10px', borderRadius: 6, background: source === 'demo' ? '#fffbeb' : '#ecfdf5', border: `1px solid ${source === 'demo' ? '#f59e0b' : '#10b981'}`, color: source === 'demo' ? '#b45309' : '#047857' }}>
+          <span style={{ fontSize: 12, padding: '5px 10px', borderRadius: 6, background: source === 'demo' ? '#fffbeb' : '#ecfdf5', border: `1px solid ${source === 'demo' ? 'var(--color-warning-500)' : '#10b981'}`, color: source === 'demo' ? '#b45309' : '#047857' }}>
             {source === 'demo' ? t('mammoQc.sourceDemo') : t('mammoQc.sourceReal')}
           </span>
           <button style={s.btn} onClick={fetchAll}><RefreshCw size={14} /> {t('mammoQc.sync')}</button>
@@ -241,15 +241,15 @@ const QualityManagementPage = () => {
       </div>
 
       <Card bordered={false} style={{ ...s.section }} styles={{ body: { padding: 0 } }}>
-        <div style={s.sectionTitle}><BarChart3 size={16} color='#2563eb' />{t('mammoQc.acrCheck')}</div>
+        <div style={s.sectionTitle}><BarChart3 size={16} color='var(--color-primary-600)' />{t('mammoQc.acrCheck')}</div>
         <div style={s.grid3}>
           {acrChecks.map((item, i) => (
             <div key={i} style={{ padding: 14, background: 'var(--bg-card)', borderRadius: 10 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                 <span style={{ fontWeight: 600, fontSize: 12 }}>{item.name}</span>
-                <span style={{ fontWeight: 700, fontSize: 16, color: item.score >= 90 ? '#16a34a' : item.score >= 80 ? '#ca8a04' : '#dc2626' }}>{item.score}</span>
+                <span style={{ fontWeight: 700, fontSize: 16, color: item.score >= 90 ? 'var(--color-success-600)' : item.score >= 80 ? '#ca8a04' : 'var(--color-error-600)' }}>{item.score}</span>
               </div>
-              <div style={s.progressBar}><div style={{ width: `${item.score}%`, height: '100%', background: item.score >= 90 ? '#16a34a' : item.score >= 80 ? '#ca8a04' : '#dc2626', borderRadius: 4 }} /></div>
+              <div style={s.progressBar}><div style={{ width: `${item.score}%`, height: '100%', background: item.score >= 90 ? 'var(--color-success-600)' : item.score >= 80 ? '#ca8a04' : 'var(--color-error-600)', borderRadius: 4 }} /></div>
               <ul style={{ margin: '8px 0 0', paddingLeft: 14, fontSize: 12, color: 'var(--text-secondary)' }}>
                 {item.items.map((it, j) => <li key={j} style={{ marginBottom: 2 }}>{it}</li>)}
               </ul>
@@ -352,7 +352,7 @@ const QualityManagementPage = () => {
 
       {/* [G005 Wave1A W9] 测试计划 / 标准 / 统计 (后端 GET /mammo-qc/tests|standards|stats) */}
       <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
-        <div style={s.sectionTitle}><PieChart size={16} color='#0891b2' />{t('mammoQc.testPlanTitle')}</div>
+        <div style={s.sectionTitle}><PieChart size={16} color='var(--color-info-600)' />{t('mammoQc.testPlanTitle')}</div>
         <Tabs
           size="small"
           items={[
@@ -390,10 +390,10 @@ const QualityManagementPage = () => {
               children: (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
                   {[
-                    { label: t('mammoQc.statTotalRecords'), value: qcStats?.totalRecords ?? 0, unit: '条', color: '#2563eb' },
-                    { label: t('mammoQc.statPassRate'), value: qcStats?.passRate ?? 0, unit: '%', color: '#16a34a' },
+                    { label: t('mammoQc.statTotalRecords'), value: qcStats?.totalRecords ?? 0, unit: '条', color: 'var(--color-primary-600)' },
+                    { label: t('mammoQc.statPassRate'), value: qcStats?.passRate ?? 0, unit: '%', color: 'var(--color-success-600)' },
                     { label: t('mammoQc.statReviewRate'), value: qcStats?.reviewRate ?? 0, unit: '%', color: '#ca8a04' },
-                    { label: t('mammoQc.statFailRate'), value: qcStats?.failRate ?? 0, unit: '%', color: '#dc2626' },
+                    { label: t('mammoQc.statFailRate'), value: qcStats?.failRate ?? 0, unit: '%', color: 'var(--color-error-600)' },
                   ].map((item, i) => (
                     <div key={i} style={{ padding: 14, background: 'var(--bg-card)', borderRadius: 10 }}>
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{item.label}</div>
@@ -407,7 +407,7 @@ const QualityManagementPage = () => {
                       columns={[
                         { title: t('mammoQc.colTechnologist'), dataIndex: 'technologist', key: 'technologist' },
                         { title: t('mammoQc.colRecordCount'), dataIndex: 'count', key: 'count', align: 'right' },
-                        { title: t('mammoQc.colAvgScore'), dataIndex: 'avgScore', key: 'avgScore', align: 'right', render: (v: number) => <span style={{ fontWeight: 700, color: v >= 80 ? '#16a34a' : '#ca8a04' }}>{v}</span> },
+                        { title: t('mammoQc.colAvgScore'), dataIndex: 'avgScore', key: 'avgScore', align: 'right', render: (v: number) => <span style={{ fontWeight: 700, color: v >= 80 ? 'var(--color-success-600)' : '#ca8a04' }}>{v}</span> },
                       ]}
                       dataSource={qcStats?.byTechnologist ?? []}
                       emptyText={t('mammoQc.noStats')}

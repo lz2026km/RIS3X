@@ -10,7 +10,7 @@ const DEFAULTS: WatermarkOptions = {
   opacity: 0.1,
   rotation: -30,
   fontSize: 80,
-  color: '#dc2626',
+  color: 'var(--color-error-600)',
   position: 'center',
 };
 

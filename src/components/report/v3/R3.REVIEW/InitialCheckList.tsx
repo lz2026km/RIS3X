@@ -10,17 +10,17 @@ import { Inbox } from 'lucide-react'
 import { t } from '../../../../i18n/appI18n';
 
 const STAGE_META: Record<ReviewStage, { color: string; label: string; bg: string }> = {
-  initial: { color: '#f59e0b', label: 'reportReview.stage.initial', bg: 'var(--color-warning-bg)' },
+  initial: { color: 'var(--color-warning-500)', label: 'reportReview.stage.initial', bg: 'var(--color-warning-bg)' },
   final: { color: '#7c2d12', label: 'reportReview.stage.final', bg: 'var(--color-warning-bg)' },
   cosign: { color: '#7c3aed', label: 'reportReview.stage.cosign', bg: 'var(--color-info-bg)' },
   sign: { color: '#be185d', label: 'reportReview.stage.sign', bg: 'var(--color-pending-bg)' },
 };
 
 const STATUS_META: Record<ReviewTask['status'], { color: string; label: string; bg: string }> = {
-  pending: { color: '#f59e0b', label: 'reportReview.status.pending', bg: 'var(--color-warning-bg)' },
-  'in-progress': { color: '#0891b2', label: 'reportReview.status.inProgress', bg: 'var(--color-info-bg)' },
+  pending: { color: 'var(--color-warning-500)', label: 'reportReview.status.pending', bg: 'var(--color-warning-bg)' },
+  'in-progress': { color: 'var(--color-info-600)', label: 'reportReview.status.inProgress', bg: 'var(--color-info-bg)' },
   completed: { color: '#10b981', label: 'reportReview.status.completed', bg: 'var(--color-success-bg)' },
-  rejected: { color: '#dc2626', label: 'reportReview.status.rejected', bg: 'var(--color-error-bg)' },
+  rejected: { color: 'var(--color-error-600)', label: 'reportReview.status.rejected', bg: 'var(--color-error-bg)' },
   overdue: { color: '#7f1d1d', label: 'reportReview.status.overdueMarked', bg: 'var(--color-error-bg)' },
   escalated: { color: '#7c3aed', label: 'reportReview.status.escalated', bg: 'var(--color-info-bg)' },
   'cosign-required': { color: '#7c3aed', label: 'reportReview.status.cosignRequired', bg: 'var(--color-info-bg)' },
@@ -48,8 +48,8 @@ function deadlineInfo(
   isOverdue: boolean,
   hoursToDeadline: number,
 ): { label: string; color: string } {
-  if (isOverdue) return { label: t('w9e.initialCheckList.overdue', { hours: Math.abs(hoursToDeadline) }), color: '#dc2626' };
-  if (hoursToDeadline < 2) return { label: t('w9e.initialCheckList.withinHours', { hours: hoursToDeadline }), color: '#f59e0b' };
+  if (isOverdue) return { label: t('w9e.initialCheckList.overdue', { hours: Math.abs(hoursToDeadline) }), color: 'var(--color-error-600)' };
+  if (hoursToDeadline < 2) return { label: t('w9e.initialCheckList.withinHours', { hours: hoursToDeadline }), color: 'var(--color-warning-500)' };
   return { label: t('w9e.initialCheckList.afterHours', { hours: hoursToDeadline }), color: '#64748b' };
 }
 
@@ -106,7 +106,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
     <div data-testid="initial-check-list" role="region" aria-label={t('reportReview.initial.title')}>
       <div
         style={{
-          background: 'linear-gradient(135deg, #1e40af 0%, #7c3aed 100%)',
+          background: 'linear-gradient(135deg, var(--color-primary-800) 0%, #7c3aed 100%)',
           color: '#fff',
           padding: '12px 16px',
           borderRadius: 8,
@@ -252,9 +252,9 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
                   task.id === selectedId ? 'var(--color-info-bg)' : task.isOverdue ? 'var(--color-error-bg)' : 'transparent',
                 borderLeft:
                   task.id === selectedId
-                    ? '3px solid #3b82f6'
+                    ? '3px solid var(--color-primary-500)'
                     : task.isOverdue
-                      ? '3px solid #dc2626'
+                      ? '3px solid var(--color-error-600)'
                       : '3px solid transparent',
                 marginBottom: 4,
                 transition: 'all 0.15s',
@@ -281,7 +281,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
                     }}
                   >
                     {task.criticalFinding ? (
-                      <AlertTriangle size={18} color="#dc2626" />
+                      <AlertTriangle size={18} color="var(--color-error-600)" />
                     ) : (
                       <FileText size={18} color={stageConf.color} />
                     )}
@@ -314,7 +314,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
                       <strong
                         style={{
                           color:
-                            task.qualityScore >= 90 ? '#10b981' : task.qualityScore >= 75 ? '#f59e0b' : '#dc2626',
+                            task.qualityScore >= 90 ? '#10b981' : task.qualityScore >= 75 ? 'var(--color-warning-500)' : 'var(--color-error-600)',
                         }}
                       >
                         {task.qualityScore}

@@ -22,10 +22,10 @@ import { t } from '../i18n/appI18n';
 // 样式常量 - 蓝色主题
 // ============================================================
 const COLORS = {
-  primary: '#1e40af',
-  primaryLight: '#2563eb',
+  primary: 'var(--color-primary-800)',
+  primaryLight: 'var(--color-primary-600)',
   primaryDark: '#172554',
-  primaryBlue: '#3b82f6',
+  primaryBlue: 'var(--color-primary-500)',
   primaryBlueLight: '#60a5fa',
   primaryBlueBg: 'var(--color-pending-bg)',
   white: 'var(--bg-card)',
@@ -37,11 +37,11 @@ const COLORS = {
   border: 'var(--border-color)',
   success: '#059669',
   successBg: 'var(--color-success-bg)',
-  warning: '#d97706',
+  warning: 'var(--color-warning-600)',
   warningBg: 'var(--color-warning-bg)',
-  danger: '#dc2626',
+  danger: 'var(--color-error-600)',
   dangerBg: 'var(--color-error-bg)',
-  info: '#2563eb',
+  info: 'var(--color-primary-600)',
   infoBg: 'var(--color-info-bg)',
   purple: '#7c3aed',
   purpleBg: 'rgba(124, 58, 237, 0.12)',
@@ -789,14 +789,14 @@ const MODALITY_LIST = ['全部', 'CT', 'MR', 'DR', 'XR', '超声', 'CTA', 'MRA',
 export const DISEASE_TYPE_KEYS = ['all', 'tumor', 'inflammation', 'trauma', 'vascularDisease', 'congenital'] as const
 const BODY_PART_COLORS: Record<string, string> = {
   '头部': '#8b5cf6',
-  '颈部': '#06b6d4',
-  '胸部': '#f59e0b',
+  '颈部': 'var(--color-info-500)',
+  '胸部': 'var(--color-warning-500)',
   '腹部': '#10b981',
   '骨盆': '#ec4899',
-  '脊柱': '#3b82f6',
+  '脊柱': 'var(--color-primary-500)',
   '四肢': '#84cc16',
   '神经系统': '#a855f7',
-  '血管': '#ef4444',
+  '血管': 'var(--color-error-500)',
 }
 const BODY_PART_BG: Record<string, string> = {
   '头部': 'rgba(168, 85, 247, 0.12)',
@@ -810,10 +810,10 @@ const BODY_PART_BG: Record<string, string> = {
   '血管': 'var(--color-error-bg)',
 }
 const DISEASE_COLORS: Record<string, string> = {
-  '肿瘤': '#dc2626',
-  '炎症': '#d97706',
-  '外伤': '#2563eb',
-  '血管病变': '#dc2626',
+  '肿瘤': 'var(--color-error-600)',
+  '炎症': 'var(--color-warning-600)',
+  '外伤': 'var(--color-primary-600)',
+  '血管病变': 'var(--color-error-600)',
   '先天畸形': '#7c3aed',
 }
 const DISEASE_BG: Record<string, string> = {
@@ -824,14 +824,14 @@ const DISEASE_BG: Record<string, string> = {
   '先天畸形': 'rgba(124, 58, 237, 0.12)',
 }
 const MODALITY_COLORS: Record<string, string> = {
-  'CT': '#3b82f6',
+  'CT': 'var(--color-primary-500)',
   'MR': '#8b5cf6',
-  'DR': '#22c55e',
-  'XR': '#22c55e',
-  '超声': '#f59e0b',
-  'CTA': '#ef4444',
+  'DR': 'var(--color-success-500)',
+  'XR': 'var(--color-success-500)',
+  '超声': 'var(--color-warning-500)',
+  'CTA': 'var(--color-error-500)',
   'MRA': '#8b5cf6',
-  'DSA': '#f59e0b',
+  'DSA': 'var(--color-warning-500)',
   'MG': '#ec4899',
 }
 
@@ -1155,14 +1155,14 @@ export default function FindingLibraryPage() {
                 background: 'none',
                 cursor: 'pointer',
                 padding: 4,
-                color: isFav ? '#f59e0b' : COLORS.textLight,
+                color: isFav ? 'var(--color-warning-500)' : COLORS.textLight,
                 display: 'flex',
                 alignItems: 'center',
                 transition: 'color 0.15s',
                 flexShrink: 0,
               }}
             >
-              {isFav ? <Star size={16} fill="#f59e0b" color="#f59e0b" /> : <StarOff size={16} />}
+              {isFav ? <Star size={16} fill="var(--color-warning-500)" color="var(--color-warning-500)" /> : <StarOff size={16} />}
             </button>
           </div>
 
@@ -1232,7 +1232,7 @@ export default function FindingLibraryPage() {
                 padding: '7px 0',
                 borderRadius: 6,
                 border: 'none',
-                background: isCopied ? COLORS.success : `linear-gradient(135deg, ${COLORS.primaryBlue}, #1d4ed8)`,
+                background: isCopied ? COLORS.success : `linear-gradient(135deg, ${COLORS.primaryBlue}, var(--color-primary-700))`,
                 color: COLORS.white,
                 fontSize: 12,
                 fontWeight: 600,
@@ -1330,9 +1330,9 @@ export default function FindingLibraryPage() {
                 style={{
                   padding: '8px 14px',
                   borderRadius: 8,
-                  border: `1px solid ${isFav ? '#f59e0b' : COLORS.border}`,
+                  border: `1px solid ${isFav ? 'var(--color-warning-500)' : COLORS.border}`,
                   background: isFav ? 'var(--color-warning-bg)' : 'var(--bg-card)',
-                  color: isFav ? '#f59e0b' : COLORS.textMuted,
+                  color: isFav ? 'var(--color-warning-500)' : COLORS.textMuted,
                   fontSize: 12,
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -1341,7 +1341,7 @@ export default function FindingLibraryPage() {
                   gap: 4,
                 }}
               >
-                {isFav ? <Star size={14} fill="#f59e0b" color="#f59e0b" /> : <StarOff size={14} />}
+                {isFav ? <Star size={14} fill="var(--color-warning-500)" color="var(--color-warning-500)" /> : <StarOff size={14} />}
                 {isFav ? tv3('favored') : tv3('favorite')}
               </button>
               <button
@@ -1580,7 +1580,7 @@ export default function FindingLibraryPage() {
                 border: 'none',
                 background: isCopied
                   ? COLORS.success
-                  : `linear-gradient(135deg, ${COLORS.primaryBlue}, #1d4ed8)`,
+                  : `linear-gradient(135deg, ${COLORS.primaryBlue}, var(--color-primary-700))`,
                 color: COLORS.white,
                 fontSize: 14,
                 fontWeight: 700,
@@ -1628,7 +1628,7 @@ export default function FindingLibraryPage() {
     return (
       <div style={{ padding: '12px 14px' }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Star size={13} fill="#f59e0b" color="#f59e0b" />
+          <Star size={13} fill="var(--color-warning-500)" color="var(--color-warning-500)" />
           {tv3('findingMyFavorites')} ({favFindings.length})
         </div>
         {favFindings.slice(0, 5).map(f => (
@@ -1694,7 +1694,7 @@ export default function FindingLibraryPage() {
             <div style={{
               width: 32,
               height: 32,
-              background: `linear-gradient(135deg, ${COLORS.primaryBlue}, #1d4ed8)`,
+              background: `linear-gradient(135deg, ${COLORS.primaryBlue}, var(--color-primary-700))`,
               borderRadius: 8,
               display: 'flex',
               alignItems: 'center',
@@ -1759,7 +1759,7 @@ export default function FindingLibraryPage() {
               <div style={{ fontSize: 12, color: COLORS.textMuted }}>{tv3('findingCurrentDisplay')}</div>
             </div>
             <div style={{ padding: '10px 12px', background: 'var(--color-warning-bg)', borderRadius: 8 }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: '#f59e0b' }}>{favorites.size}</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--color-warning-500)' }}>{favorites.size}</div>
               <div style={{ fontSize: 12, color: COLORS.textMuted }}>{tv3('findingMyFavorites')}</div>
             </div>
           </div>
@@ -1812,9 +1812,9 @@ export default function FindingLibraryPage() {
                 width: '100%',
                 padding: '8px 12px',
                 borderRadius: 8,
-                border: `1px solid ${showFavoritesOnly ? '#f59e0b' : COLORS.border}`,
+                border: `1px solid ${showFavoritesOnly ? 'var(--color-warning-500)' : COLORS.border}`,
                 background: showFavoritesOnly ? 'var(--color-warning-bg)' : 'var(--bg-card)',
-                color: showFavoritesOnly ? '#f59e0b' : COLORS.textMuted,
+                color: showFavoritesOnly ? 'var(--color-warning-500)' : COLORS.textMuted,
                 fontSize: 12,
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -1824,7 +1824,7 @@ export default function FindingLibraryPage() {
                 gap: 6,
               }}
             >
-              <Star size={14} fill={showFavoritesOnly ? '#f59e0b' : 'none'} />
+              <Star size={14} fill={showFavoritesOnly ? 'var(--color-warning-500)' : 'none'} />
               {showFavoritesOnly ? tv3('findingShowAll') : tv3('findingFavoritesOnly')}
             </button>
           </div>
@@ -1982,7 +1982,7 @@ export default function FindingLibraryPage() {
             </button>
             <div style={{ fontSize: 12, color: COLORS.textMuted }}>
               {tv3('findingResultCount', { count: filteredFindings.length })}
-              {showFavoritesOnly && <span style={{ color: '#f59e0b' }}> · {tv3('findingFavoritesOnlyLabel')}</span>}
+              {showFavoritesOnly && <span style={{ color: 'var(--color-warning-500)' }}> · {tv3('findingFavoritesOnlyLabel')}</span>}
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

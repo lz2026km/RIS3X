@@ -205,7 +205,7 @@ export default function RadiologyQCDashboardPage() {
   const renderQcTrendCharts = () => (
     <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-        <TrendingUp size={18} color="#1e40af" />
+        <TrendingUp size={18} color="var(--color-primary-800)" />
         <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.trendChartsTitle")}</h3>
         <span style={{
           padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600,
@@ -247,7 +247,7 @@ export default function RadiologyQCDashboardPage() {
               <YAxis yAxisId="right" orientation="right" domain={[0, 100]} {...chartDefaults.axis} />
               <Tooltip contentStyle={trendChartStyle} />
               <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-              <Bar yAxisId="left" dataKey="质量分" fill="#1e40af" radius={[3, 3, 0, 0]} barSize={18} />
+              <Bar yAxisId="left" dataKey="质量分" fill="var(--color-primary-800)" radius={[3, 3, 0, 0]} barSize={18} />
               <Line yAxisId="right" type="monotone" dataKey="闭环率" stroke="#10b981" strokeWidth={2} dot={{ r: 3 }} />
             </ComposedChart>
           </ChartContainer>
@@ -264,7 +264,7 @@ export default function RadiologyQCDashboardPage() {
               <YAxis yAxisId="r" orientation="right" {...chartDefaults.axis} />
               <Tooltip contentStyle={trendChartStyle} />
               <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-              <Line yAxisId="l" type="monotone" dataKey="缺陷率" stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} />
+              <Line yAxisId="l" type="monotone" dataKey="缺陷率" stroke="var(--color-error-600)" strokeWidth={2} dot={{ r: 3 }} />
               <Bar yAxisId="r" dataKey="缺陷率" fill="rgba(220,38,38,0.15)" radius={[3, 3, 0, 0]} barSize={18} hide />
             </ComposedChart>
           </ChartContainer>
@@ -288,8 +288,8 @@ export default function RadiologyQCDashboardPage() {
             <AreaChart data={monthlyStats} margin={chartDefaults.margin}>
               <defs>
                 <linearGradient id="examGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#1e40af" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#1e40af" stopOpacity={0} />
+                  <stop offset="5%" stopColor="var(--color-primary-800)" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="var(--color-primary-800)" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="repGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#10b981" stopOpacity={0.25} />
@@ -301,7 +301,7 @@ export default function RadiologyQCDashboardPage() {
               <YAxis {...chartDefaults.axis} />
               <Tooltip contentStyle={trendChartStyle} />
               <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-              <Area type="monotone" dataKey="examCount" name="检查量" stroke="#1e40af" fill="url(#examGrad)" strokeWidth={2} />
+              <Area type="monotone" dataKey="examCount" name="检查量" stroke="var(--color-primary-800)" fill="url(#examGrad)" strokeWidth={2} />
               <Area type="monotone" dataKey="reportCount" name="报告量" stroke="#10b981" fill="url(#repGrad)" strokeWidth={2} />
             </AreaChart>
           </ChartContainer>
@@ -352,9 +352,9 @@ export default function RadiologyQCDashboardPage() {
                 <PolarGrid stroke="var(--border-color)" />
                 <PolarAngleAxis dataKey="dept" tick={{ fontSize: 10, fill: '#64748b' }} />
                 <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 10, fill: '#94a3b8' }} />
-                <Radar name="质控分" dataKey="质控分" stroke="#1e40af" fill="#1e40af" fillOpacity={0.35} />
+                <Radar name="质控分" dataKey="质控分" stroke="var(--color-primary-800)" fill="var(--color-primary-800)" fillOpacity={0.35} />
                 <Radar name="报告量" dataKey="报告量" stroke="#10b981" fill="#10b981" fillOpacity={0.3} />
-                <Radar name="及时率" dataKey="及时率" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.25} />
+                <Radar name="及时率" dataKey="及时率" stroke="var(--color-warning-500)" fill="var(--color-warning-500)" fillOpacity={0.25} />
                 <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
                 <Tooltip contentStyle={trendChartStyle} />
               </RadarChart>
@@ -368,14 +368,14 @@ export default function RadiologyQCDashboardPage() {
               <div key={r.dept}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
                   <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>{r.dept}</span>
-                  <span style={{ color: r.defectRate > 1.5 ? '#dc2626' : r.defectRate > 1 ? '#d97706' : '#059669', fontWeight: 700 }}>
+                  <span style={{ color: r.defectRate > 1.5 ? 'var(--color-error-600)' : r.defectRate > 1 ? 'var(--color-warning-600)' : '#059669', fontWeight: 700 }}>
                     {r.defectRate}%
                   </span>
                 </div>
                 <div style={{ height: 8, background: 'var(--content-bg)', borderRadius: 4, overflow: 'hidden' }}>
                   <div style={{
                     width: `${Math.min(100, r.defectRate * 20)}%`, height: '100%', borderRadius: 4,
-                    background: r.defectRate > 1.5 ? '#dc2626' : r.defectRate > 1 ? '#f59e0b' : '#10b981',
+                    background: r.defectRate > 1.5 ? 'var(--color-error-600)' : r.defectRate > 1 ? 'var(--color-warning-500)' : '#10b981',
                     transition: 'width 0.4s',
                   }} />
                 </div>
@@ -425,7 +425,7 @@ export default function RadiologyQCDashboardPage() {
   const renderDoctorRankBoards = () => (
     <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-        <Award size={18} color="#f59e0b" />
+        <Award size={18} color="var(--color-warning-500)" />
         <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.doctorRankTitle")}</h3>
         <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "var(--color-warning)" }}>
           {t("qcDashboard.doctorRankSub")}
@@ -451,7 +451,7 @@ export default function RadiologyQCDashboardPage() {
                 width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 12, fontWeight: 700,
-                background: i === 0 ? '#fbbf24' : i === 1 ? '#cbd5e1' : i === 2 ? '#cd7c32' : 'var(--content-bg)',
+                background: i === 0 ? 'var(--color-warning-400)' : i === 1 ? '#cbd5e1' : i === 2 ? '#cd7c32' : 'var(--content-bg)',
                 color: i < 3 ? '#0f172a' : '#64748b',
               }}>
                 {i + 1}
@@ -462,7 +462,7 @@ export default function RadiologyQCDashboardPage() {
               </div>
               <span style={{
                 fontSize: 16, fontWeight: 800,
-                color: r.qcScore >= 92 ? '#059669' : r.qcScore >= 85 ? '#d97706' : '#dc2626',
+                color: r.qcScore >= 92 ? '#059669' : r.qcScore >= 85 ? 'var(--color-warning-600)' : 'var(--color-error-600)',
               }}>
                 {r.qcScore}
               </span>
@@ -480,7 +480,7 @@ export default function RadiologyQCDashboardPage() {
         <div style={{ border: '1px solid var(--border-color)', borderRadius: 8, overflow: 'hidden' }}>
           <div style={{
             padding: '10px 14px', fontWeight: 700, fontSize: 12, color: '#fff',
-            background: 'linear-gradient(90deg, #b91c1c, #ef4444)',
+            background: 'linear-gradient(90deg, #b91c1c, var(--color-error-500))',
             display: 'flex', alignItems: 'center', gap: 6,
           }}>
             <ThumbsDown size={14} /> {t("qcDashboard.bottom5")}
@@ -504,7 +504,7 @@ export default function RadiologyQCDashboardPage() {
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{r.doctorName}</div>
                 <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{r.title} {t("qcDashboard.dashReports")} {r.reportCount} {t("qcDashboard.dashDefectRate")} {r.defectRate}%</div>
               </div>
-              <span style={{ fontSize: 16, fontWeight: 800, color: r.qcScore < 80 ? '#dc2626' : '#d97706' }}>
+              <span style={{ fontSize: 16, fontWeight: 800, color: r.qcScore < 80 ? 'var(--color-error-600)' : 'var(--color-warning-600)' }}>
                 {r.qcScore}
               </span>
               <span style={{
@@ -528,7 +528,7 @@ export default function RadiologyQCDashboardPage() {
   const renderImageDimTrend = () => (
     <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginTop: 16 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-        <Camera size={18} color="#3b82f6" />
+        <Camera size={18} color="var(--color-primary-500)" />
         <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.imageDimTrend")}</h3>
         <span style={{
           padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600,
@@ -547,9 +547,9 @@ export default function RadiologyQCDashboardPage() {
           <YAxis domain={[0, 100]} {...chartDefaults.axis} />
           <Tooltip contentStyle={trendChartStyle} formatter={(v: number) => [`${v} 分`, '']} />
           <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-          <Line type="monotone" dataKey="伪影" stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} />
-          <Line type="monotone" dataKey="曝光" stroke="#f59e0b" strokeWidth={2} dot={{ r: 3 }} />
-          <Line type="monotone" dataKey="体位" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
+          <Line type="monotone" dataKey="伪影" stroke="var(--color-error-600)" strokeWidth={2} dot={{ r: 3 }} />
+          <Line type="monotone" dataKey="曝光" stroke="var(--color-warning-500)" strokeWidth={2} dot={{ r: 3 }} />
+          <Line type="monotone" dataKey="体位" stroke="var(--color-primary-500)" strokeWidth={2} dot={{ r: 3 }} />
           <Line type="monotone" dataKey="总分" stroke="#10b981" strokeWidth={2.5} strokeDasharray="6 3" dot={{ r: 3 }} />
         </LineChart>
       </ChartContainer>
@@ -558,7 +558,7 @@ export default function RadiologyQCDashboardPage() {
           const last = imageDimTrend[imageDimTrend.length - 1] as Record<string, unknown> | undefined
           const first = imageDimTrend[0] as Record<string, unknown> | undefined
           const delta = last && first ? Number(last[dim]) - Number(first[dim]) : 0
-          const colors = ['#dc2626', '#f59e0b', '#3b82f6', '#10b981']
+          const colors = ['var(--color-error-600)', 'var(--color-warning-500)', 'var(--color-primary-500)', '#10b981']
           return (
             <span key={dim} style={{
               padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600,
@@ -612,8 +612,8 @@ export default function RadiologyQCDashboardPage() {
               <Tooltip contentStyle={trendChartStyle} formatter={(v: number) => [`${v}%`, '']} />
               <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
               <Line type="monotone" dataKey="准确率" stroke="#7c3aed" strokeWidth={2} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="召回率" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="误报率" stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="召回率" stroke="var(--color-primary-500)" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="误报率" stroke="var(--color-error-600)" strokeWidth={2} dot={{ r: 3 }} />
             </LineChart>
           </ChartContainer>
           <div style={{ marginTop: 8, display: 'flex', gap: 14, flexWrap: 'wrap' }}>
@@ -628,7 +628,7 @@ export default function RadiologyQCDashboardPage() {
         {/* 设备月扫描 TOP */}
         <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-            <Monitor size={18} color="#3b82f6" />
+            <Monitor size={18} color="var(--color-primary-500)" />
             <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.deviceScanTop6")}</h3>
             <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "var(--color-warning)", marginLeft: 'auto' }}>
               {t("qcDashboard.deviceLocal")}
@@ -642,7 +642,7 @@ export default function RadiologyQCDashboardPage() {
                     <span style={{
                       width: 20, height: 20, borderRadius: 4, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: 11, fontWeight: 700, flexShrink: 0,
-                      background: i === 0 ? '#fbbf24' : i === 1 ? '#cbd5e1' : i === 2 ? '#cd7c32' : 'var(--content-bg)',
+                      background: i === 0 ? 'var(--color-warning-400)' : i === 1 ? '#cbd5e1' : i === 2 ? '#cd7c32' : 'var(--content-bg)',
                       color: i < 3 ? '#0f172a' : '#64748b',
                     }}>{i + 1}</span>
                     {d.model || d.id}
@@ -653,7 +653,7 @@ export default function RadiologyQCDashboardPage() {
                 <div style={{ height: 8, background: 'var(--content-bg)', borderRadius: 4, overflow: 'hidden' }}>
                   <div style={{
                     width: `${(d.monthlyScans / maxScan) * 100}%`, height: '100%', borderRadius: 4,
-                    background: 'linear-gradient(90deg, #1e40af, #3b82f6)', transition: 'width 0.4s',
+                    background: 'linear-gradient(90deg, var(--color-primary-800), var(--color-primary-500))', transition: 'width 0.4s',
                   }} />
                 </div>
               </div>
@@ -673,8 +673,8 @@ export default function RadiologyQCDashboardPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
             {[
               { dim: t("qcDashboard.dimFormat"), desc: t("qcDashboard.dimFormatDesc"), score: 94.2, delta: '+1.8', color: '#10b981' },
-              { dim: t("qcDashboard.dimAccuracy"), desc: t("qcDashboard.dimAccuracyDesc"), score: 91.7, delta: '+2.3', color: '#3b82f6' },
-              { dim: t("qcDashboard.dimTimely"), desc: t("qcDashboard.dimTimelyDesc"), score: 88.9, delta: '+0.6', color: '#f59e0b' },
+              { dim: t("qcDashboard.dimAccuracy"), desc: t("qcDashboard.dimAccuracyDesc"), score: 91.7, delta: '+2.3', color: 'var(--color-primary-500)' },
+              { dim: t("qcDashboard.dimTimely"), desc: t("qcDashboard.dimTimelyDesc"), score: 88.9, delta: '+0.6', color: 'var(--color-warning-500)' },
             ].map(item => (
               <div key={item.dim} style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 14 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
@@ -990,7 +990,7 @@ export default function RadiologyQCDashboardPage() {
   return (
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader
-        icon={<ShieldCheck size={20} color="#1e40af" />}
+        icon={<ShieldCheck size={20} color="var(--color-primary-800)" />}
         title={t("qcDashboard.pageTitle")}
         subtitle={t("qcDashboard.pageSubtitle")}
         actions={
@@ -1064,7 +1064,7 @@ export default function RadiologyQCDashboardPage() {
             label={t("qcDashboard.monthlyExams")}
             value={overviewStats.totalExams.toLocaleString()}
             icon={<Activity size={20} />}
-            color="#1e40af"
+            color="var(--color-primary-800)"
             subValue={`日均 ${Math.round(overviewStats.totalExams / 30).toLocaleString()} 例`}
             onClick={() => openDrill("reportCount")}
             ariaLabel={t("qcDashboard.drillExamsAria")}
@@ -1082,7 +1082,7 @@ export default function RadiologyQCDashboardPage() {
             label={t("qcDashboard.criticalEvents")}
             value={overviewStats.totalCritical.toString()}
             icon={<AlertOctagon size={20} />}
-            color="#dc2626"
+            color="var(--color-error-600)"
             subValue={t("qcDashboard.critNotify10min")}
             onClick={() => openDrill("criticalValueCount")}
             ariaLabel={t("qcDashboard.drillCriticalAria")}
@@ -1091,7 +1091,7 @@ export default function RadiologyQCDashboardPage() {
             label={t("qcDashboard.doubleSignTasks")}
             value={overviewStats.totalCosign.toString()}
             icon={<GitBranch size={20} />}
-            color="#f59e0b"
+            color="var(--color-warning-500)"
             subValue={t("qcDashboard.slaRate94")}
           />
           <StatCard
@@ -1297,7 +1297,7 @@ export default function RadiologyQCDashboardPage() {
           <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
             <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-                <Camera size={18} color="#3b82f6" />
+                <Camera size={18} color="var(--color-primary-500)" />
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.tabImage")}</h3>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
@@ -1331,8 +1331,8 @@ export default function RadiologyQCDashboardPage() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8 }}>
                 {[
                   { label: t("qcDashboard.gradeA"), count: reportQC.a, color: "#10b981" },
-                  { label: t("qcDashboard.gradeB"), count: reportQC.b, color: "#3b82f6" },
-                  { label: t("qcDashboard.gradeC"), count: reportQC.c, color: "#f59e0b" },
+                  { label: t("qcDashboard.gradeB"), count: reportQC.b, color: "var(--color-primary-500)" },
+                  { label: t("qcDashboard.gradeC"), count: reportQC.c, color: "var(--color-warning-500)" },
                   { label: t("qcDashboard.gradeD2"), count: reportQC.d, color: "var(--color-error)" },
                 ].map((g) => (
                   <div key={g.label} style={{ background: g.color + "15", borderRadius: 8, padding: 12, textAlign: "center", border: `1px solid ${g.color}` }}>
@@ -1368,7 +1368,7 @@ export default function RadiologyQCDashboardPage() {
 
             <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-                <Users size={18} color="#f59e0b" />
+                <Users size={18} color="var(--color-warning-500)" />
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.tabPersonnel")}</h3>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
@@ -1381,7 +1381,7 @@ export default function RadiologyQCDashboardPage() {
                   <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{t("qcDashboard.technician")}</div>
                 </div>
                 <div style={{ textAlign: "center", padding: 8 }}>
-                  <div style={{ fontSize: 30, fontWeight: 700, color: "#f59e0b" }}>{personnelQC.nurseCount}</div>
+                  <div style={{ fontSize: 30, fontWeight: 700, color: "var(--color-warning-500)" }}>{personnelQC.nurseCount}</div>
                   <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{t("qcDashboard.nurse")}</div>
                 </div>
               </div>
@@ -1389,14 +1389,14 @@ export default function RadiologyQCDashboardPage() {
 
             <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", gridColumn: "1 / -1" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-                <TrendingUp size={18} color="#1e40af" />
+                <TrendingUp size={18} color="var(--color-primary-800)" />
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{t("qcDashboard.kpiTimeline30")}</h3>
                 <span style={{ padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "var(--color-warning)" }}>{t("qcDashboard.localData")}</span>
               </div>
               <div style={{ height: 200, display: "flex", alignItems: "flex-end", gap: 4, padding: "0 8px" }}>
                 {DAILY_KPI_PRE.slice(-30).map((d, i) => (
                   <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                    <div style={{ width: "100%", height: `${(d.examCount / 1000) * 100}px`, background: "linear-gradient(180deg, #3b82f6, #1e40af)", borderRadius: "2px 2px 0 0", minHeight: 4 }} title={`${d.date}: ${d.examCount} 例`} />
+                    <div style={{ width: "100%", height: `${(d.examCount / 1000) * 100}px`, background: "linear-gradient(180deg, var(--color-primary-500), var(--color-primary-800))", borderRadius: "2px 2px 0 0", minHeight: 4 }} title={`${d.date}: ${d.examCount} 例`} />
                     <span style={{ fontSize: 10, color: "var(--text-secondary)" }}>{d.date.slice(5)}</span>
                   </div>
                 ))}

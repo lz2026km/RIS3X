@@ -32,10 +32,10 @@ const MOCK_DEVICES: Device[] = [
 const UTIL_DATA = MOCK_DEVICES.filter(d => d.status === 'online').map(d => ({ name: d.name.split('(')[0]?.trim() ?? d.name, utilization: d.utilization }))
 
 const STATUS_CONFIG: Record<string, { color: string; label: string; icon: typeof CheckCircle }> = {
-  online: { color: '#22c55e', label: t('w9e.deviceOps.stateOnline'), icon: CheckCircle },
+  online: { color: 'var(--color-success-500)', label: t('w9e.deviceOps.stateOnline'), icon: CheckCircle },
   offline: { color: '#6e7681', label: t('w9e.deviceOps.stateOffline'), icon: XCircle },
-  maintenance: { color: '#f59e0b', label: t('w9e.deviceOps.stateMaintenance'), icon: Settings },
-  fault: { color: '#ef4444', label: t('w9e.deviceOps.stateFault'), icon: AlertTriangle },
+  maintenance: { color: 'var(--color-warning-500)', label: t('w9e.deviceOps.stateMaintenance'), icon: Settings },
+  fault: { color: 'var(--color-error-500)', label: t('w9e.deviceOps.stateFault'), icon: AlertTriangle },
 }
 
 const FAULTS = [
@@ -279,7 +279,7 @@ export default function DeviceOpsPage() {
       title: t('deviceOps.colDeviceName'), dataIndex: 'name', key: 'name',
       render: (v: string) => (
         <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Monitor size={14} color="#3b82f6" />
+          <Monitor size={14} color="var(--color-primary-500)" />
           <span>{v}</span>
         </span>
       ),
@@ -298,7 +298,7 @@ export default function DeviceOpsPage() {
 
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
-      <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><Monitor size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('deviceOps.title')}</span></div>
         <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{t('deviceOps.summary', { count: devices.length, source: dataSource === 'api' ? t('deviceOps.realtime') : t('deviceOps.demo') })}</span>
       </div>
@@ -307,15 +307,15 @@ export default function DeviceOpsPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, fontSize: 12, flexWrap: 'wrap' }}>
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999,
-            background: dataSource === 'api' ? 'rgba(34,197,94,0.13)' : 'rgba(245,158,11,0.13)', color: dataSource === 'api' ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)', fontWeight: 600,
+            background: dataSource === 'api' ? 'rgba(34,197,94,0.13)' : 'rgba(245,158,11,0.13)', color: dataSource === 'api' ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-warning-500, var(--color-warning-500))', fontWeight: 600,
           }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: dataSource === 'api' ? 'var(--color-success-500, #22c55e)' : 'var(--color-warning-500, #f59e0b)' }} />
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: dataSource === 'api' ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-warning-500, var(--color-warning-500))' }} />
             {loading ? t('deviceOps.syncing') : dataSource === 'api' ? t('deviceOps.sourceApi') : t('deviceOps.sourceDemo')}
           </span>
           {apiError && (
-            <span style={{ color: 'var(--color-error-500, #ef4444)' }}>
+            <span style={{ color: 'var(--color-error-500, var(--color-error-500))' }}>
               {apiError}
-              <button onClick={() => void loadDevices()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid var(--color-error-500, #ef4444)', background: 'transparent', color: 'var(--color-error-500, #ef4444)', cursor: 'pointer', fontSize: 12 }}>{t('deviceOps.retry')}</button>
+              <button onClick={() => void loadDevices()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid var(--color-error-500, var(--color-error-500))', background: 'transparent', color: 'var(--color-error-500, var(--color-error-500))', cursor: 'pointer', fontSize: 12 }}>{t('deviceOps.retry')}</button>
             </span>
           )}
         </div>
@@ -323,7 +323,7 @@ export default function DeviceOpsPage() {
         <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
           {['all', ...types].map(ty => (
             <button key={ty} onClick={() => setFilterType(ty)}
-              style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: filterType === ty ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: filterType === ty ? '#fff' : 'var(--text-muted, #8b949e)' }}>
+              style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: filterType === ty ? 'var(--color-primary-800)' : 'var(--bg-secondary, #21262d)', color: filterType === ty ? '#fff' : 'var(--text-muted, #8b949e)' }}>
               {ty === 'all' ? t('deviceOps.all') : ty}
             </button>
           ))}
@@ -337,7 +337,7 @@ export default function DeviceOpsPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 24 }}>
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <BarChart {...({ size: 16, color: "#3b82f6" } as Record<string, unknown>)} />{t('deviceOps.utilizationTitle')}
+              <BarChart {...({ size: 16, color: "var(--color-primary-500)" } as Record<string, unknown>)} />{t('deviceOps.utilizationTitle')}
             </div>
             <ChartContainer height={200} state={utilData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('deviceOps.noUtilization')}>
               <BarChart data={utilData}>
@@ -345,20 +345,20 @@ export default function DeviceOpsPage() {
                 <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
                 <YAxis domain={[0, 100]} tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} unit="%" />
                 <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)' }} />
-                <Bar dataKey="utilization" fill="#3b82f6" radius={[4, 4, 0, 0]} name={t('deviceOps.utilization')} />
+                <Bar dataKey="utilization" fill="var(--color-primary-500)" radius={[4, 4, 0, 0]} name={t('deviceOps.utilization')} />
               </BarChart>
             </ChartContainer>
           </div>
 
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#ef4444', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--color-error-500)', display: 'flex', alignItems: 'center', gap: 8 }}>
               <AlertTriangle size={16} />{t('deviceOps.faultTitle')}
             </div>
             {faults.map((f, i) => (
               <div key={i} style={{ padding: '10px 0', borderBottom: i < faults.length - 1 ? '1px solid var(--bg-secondary, #21262d)' : 'none' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ fontSize: 12, color: 'var(--text-primary, #f0f6fc)' }}>{f.device}</span>
-                  <span style={{ fontSize: 12, padding: '2px 6px', borderRadius: 4, background: f.severity === 'critical' ? '#ef444420' : '#f59e0b20', color: f.severity === 'critical' ? '#ef4444' : '#f59e0b' }}>
+                  <span style={{ fontSize: 12, padding: '2px 6px', borderRadius: 4, background: f.severity === 'critical' ? '#ef444420' : '#f59e0b20', color: f.severity === 'critical' ? 'var(--color-error-500)' : 'var(--color-warning-500)' }}>
                     {f.severity === 'critical' ? t('deviceOps.severityCritical') : t('deviceOps.severityWarning')}
                   </span>
                 </div>
@@ -387,7 +387,7 @@ export default function DeviceOpsPage() {
                     <div><span style={{ color: '#6e7681' }}>{t('deviceOps.firmware')}: </span><span>{d.firmware}</span></div>
                     <div><span style={{ color: '#6e7681' }}>IP: </span><span>{d.ip}</span></div>
                     <div><span style={{ color: '#6e7681' }}>{t('deviceOps.lastMaintenance')}: </span><span>{d.lastMaintenance}</span></div>
-                    <div><span style={{ color: '#6e7681' }}>{t('deviceOps.utilization')}: </span><span style={{ color: d.utilization > 80 ? '#22c55e' : '#f59e0b' }}>{d.utilization}%</span></div>
+                    <div><span style={{ color: '#6e7681' }}>{t('deviceOps.utilization')}: </span><span style={{ color: d.utilization > 80 ? 'var(--color-success-500)' : 'var(--color-warning-500)' }}>{d.utilization}%</span></div>
                     {/* [G005 Wave1B] 状态流转: deviceMgmtApi.updateDevice */}
                     {dataSource === 'api' && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -412,7 +412,7 @@ export default function DeviceOpsPage() {
 
         <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
           <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Clock size={16} color="#8b5cf6" />{t('deviceOps.maintRecords')} {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>{t('deviceOps.maintRealtime')}</span>}
+            <Clock size={16} color="#8b5cf6" />{t('deviceOps.maintRecords')} {dataSource === 'api' && <span style={{ fontSize: 11, color: 'var(--color-success-500)' }}>{t('deviceOps.maintRealtime')}</span>}
           </div>
           <DataTable
             dataSource={maintLog}
@@ -423,7 +423,7 @@ export default function DeviceOpsPage() {
               { title: t('deviceOps.colMaintContent'), dataIndex: 'action', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
               { title: t('deviceOps.colPerformer'), dataIndex: 'performedBy', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
               { title: t('deviceOps.colDate'), dataIndex: 'date', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
-              { title: t('deviceOps.colResult'), dataIndex: 'result', render: (v: string) => <span style={{ color: '#22c55e' }}>{v}</span> },
+              { title: t('deviceOps.colResult'), dataIndex: 'result', render: (v: string) => <span style={{ color: 'var(--color-success-500)' }}>{v}</span> },
             ]}
           />
         </div>
@@ -434,7 +434,7 @@ export default function DeviceOpsPage() {
             <Gauge size={16} color="#22d3ee" />{t('deviceOps.doseTracking')} <span style={{ fontSize: 11, color: '#22d3ee' }}>{t('deviceOps.doseRealtime')}</span>
             <button onClick={() => void loadDoses()} style={{ marginLeft: 'auto', padding: '3px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>{t('deviceOps.refresh')}</button>
           </div>
-          {doseError && <div style={{ fontSize: 12, color: '#ef4444', marginBottom: 8 }}>{doseError}</div>}
+          {doseError && <div style={{ fontSize: 12, color: 'var(--color-error-500)', marginBottom: 8 }}>{doseError}</div>}
           <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 16, marginBottom: 12 }}>
             <div style={{ maxHeight: 260, overflowY: 'auto' }}>
               <DataTable

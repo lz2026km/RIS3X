@@ -133,7 +133,7 @@ export default function TimeoutVerifyModal({ open, examId, onCancel, onVerified 
                 onChange={(e) => setChecks((prev) => ({ ...prev, [item.key]: e.target.checked }))}
               >
                 <span style={{ fontWeight: 600 }}>{t(ITEM_LABEL[item.key])}</span>
-                <span style={{ color: item.required ? '#dc2626' : 'var(--text-muted)', marginLeft: 6, fontSize: 11 }}>
+                <span style={{ color: item.required ? 'var(--color-error-600)' : 'var(--text-muted)', marginLeft: 6, fontSize: 11 }}>
                   {item.required ? t('w6Workflow.timeout.required') : t('w6Workflow.timeout.optional')}
                 </span>
                 <span style={{ color: 'var(--text-secondary)', marginLeft: 8 }}>{itemDetail(item.key)}</span>

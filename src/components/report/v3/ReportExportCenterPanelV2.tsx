@@ -35,8 +35,8 @@ const STATE_META: Record<ExportTaskStateV2, { color: string; label: string }> = 
 }
 
 const FORMAT_ICON: Record<ExportFormatV2, React.ReactNode> = {
-  PDF: <FileArchive size={13} color="#dc2626" />,
-  DOCX: <FileText size={13} color="#2563eb" />,
+  PDF: <FileArchive size={13} color="var(--color-error-600)" />,
+  DOCX: <FileText size={13} color="var(--color-primary-600)" />,
   HTML: <FileCode2 size={13} color="#7c3aed" />,
   CSV: <FileSpreadsheet size={13} color="#059669" />,
   DICOM_SR: <Layers size={13} color="#0e7490" />,

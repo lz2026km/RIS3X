@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.13-2",
-  "description": "G005 Radiology RIS v3.0.6.13-2 - Native Table Migration & Type Scale",
+  "version": "3.0.6.13-3",
+  "description": "G005 Radiology RIS v3.0.6.13-3 - Brand/Semantic Hex Tokenization",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

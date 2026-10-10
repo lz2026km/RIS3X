@@ -471,7 +471,7 @@ export default function TechMobileWorkstation() {
             {filteredExams.map(item => (
               <div key={item.id} role="button" tabIndex={0} style={s.listItem} onClick={() => void openDetail(item)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); void openDetail(item) } }}>
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: STATUS_COLORS[item.status], display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  {item.status === 'completed' ? <CheckCircle size={18} color="#059669" /> : item.status === 'in-progress' ? <Play size={18} color="#d97706" /> : item.status === 'cancelled' ? <XCircle size={18} color="#94a3b8" /> : <Clock size={18} color="#2563eb" />}
+                  {item.status === 'completed' ? <CheckCircle size={18} color="#059669" /> : item.status === 'in-progress' ? <Play size={18} color="var(--color-warning-600)" /> : item.status === 'cancelled' ? <XCircle size={18} color="#94a3b8" /> : <Clock size={18} color="var(--color-primary-600)" />}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -492,20 +492,20 @@ export default function TechMobileWorkstation() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }} onClick={e => e.stopPropagation()}>
                   {item.status === 'scheduled' && (
                     <>
-                      <button onClick={() => void handleCheckIn(item.id)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#2563eb', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: operatingId === item.id ? 0.6 : 1 }}>{operatingId === item.id ? t('techMobile.processing') : t('techMobile.checkIn')}</button>
+                      <button onClick={() => void handleCheckIn(item.id)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: 'var(--color-primary-600)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: operatingId === item.id ? 0.6 : 1 }}>{operatingId === item.id ? t('techMobile.processing') : t('techMobile.checkIn')}</button>
                       <button onClick={() => void handleStartExam(item.id)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#0f766e', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: operatingId === item.id ? 0.6 : 1 }}>{operatingId === item.id ? t('techMobile.processing') : t('techMobile.start')}</button>
                     </>
                   )}
                   {item.status === 'arrived' && (
                     <>
                       <button onClick={() => void handleStartExam(item.id)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#0f766e', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: operatingId === item.id ? 0.6 : 1 }}>{operatingId === item.id ? t('techMobile.processing') : t('techMobile.start')}</button>
-                      <button onClick={() => handleCancelExam(item.id, item.patientName)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: 'var(--bg-primary)', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('techMobile.cancel')}</button>
+                      <button onClick={() => handleCancelExam(item.id, item.patientName)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: 'var(--bg-primary)', color: 'var(--color-error-600)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('techMobile.cancel')}</button>
                     </>
                   )}
                   {item.status === 'in-progress' && (
                     <>
                       <button onClick={() => void handleCompleteExam(item.id)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#059669', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: operatingId === item.id ? 0.6 : 1 }}>{operatingId === item.id ? t('techMobile.processing') : t('techMobile.complete')}</button>
-                      <button onClick={() => handleCancelExam(item.id, item.patientName)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: 'var(--bg-primary)', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('techMobile.cancel')}</button>
+                      <button onClick={() => handleCancelExam(item.id, item.patientName)} disabled={operatingId === item.id} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: 'var(--bg-primary)', color: 'var(--color-error-600)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('techMobile.cancel')}</button>
                     </>
                   )}
                   {item.status === 'completed' && (
@@ -524,7 +524,7 @@ export default function TechMobileWorkstation() {
         <div style={{ padding: 16 }}>
           {devices.map(device => (
             <div key={device.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: 'var(--bg-card)', borderRadius: 10, marginBottom: 8, border: '1px solid var(--border-color)' }}>
-              {device.status === 'online' ? <Wifi size={18} color="#059669" /> : device.status === 'offline' ? <WifiOff size={18} color="#dc2626" /> : <AlertCircle size={18} color="#d97706" />}
+              {device.status === 'online' ? <Wifi size={18} color="#059669" /> : device.status === 'offline' ? <WifiOff size={18} color="var(--color-error-600)" /> : <AlertCircle size={18} color="var(--color-warning-600)" />}
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{device.name}</div>
                 <div style={{ fontSize: 12, color: '#64748b' }}>{device.modality} · {device.status === 'online' ? t('techMobile.online') : device.status === 'offline' ? t('techMobile.offline') : t('techMobile.maintenance')}</div>

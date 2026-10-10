@@ -10,11 +10,11 @@ import type { LexiconEntry, WorkstationStats, SessionRecord } from "../../servic
 import { t } from "../../i18n/appI18n"
 
 const CATEGORY_COLORS: Record<string, string> = {
-  解剖: "#6366f1", 影像: "#0ea5e9", 疾病: "#f43f5e", 药物: "#a855f7", 单位: "#14b8a6", 操作: "#f59e0b",
+  解剖: "#6366f1", 影像: "#0ea5e9", 疾病: "#f43f5e", 药物: "#a855f7", 单位: "#14b8a6", 操作: "var(--color-warning-500)",
 }
 
 const ENGINE_BADGES: Record<string, { label: string; color: string; bg: string }> = {
-  aliyun: { label: t("asrPage.engineAliyun"), color: "#3b82f6", bg: "#dbeafe" },
+  aliyun: { label: t("asrPage.engineAliyun"), color: "var(--color-primary-500)", bg: "#dbeafe" },
   whisper: { label: t("asrPage.engineWhisper"), color: "#7c3aed", bg: "#ede9fe" },
   mock: { label: t("asrPage.engineMock"), color: "#64748b", bg: "#e2e8f0" },
   "mock-lexicon": { label: t("asrPage.engineMockLexicon"), color: "#64748b", bg: "#e2e8f0" },
@@ -172,13 +172,13 @@ export default function AsrPage() {
 
   return (
     <PageContainer background="slate" maxWidth="wide">
-      <PageHeader icon={<Volume2 size={20} color="#3b82f6" />} title={rt("title")} subtitle={rt("subtitle")} />
+      <PageHeader icon={<Volume2 size={20} color="var(--color-primary-500)" />} title={rt("title")} subtitle={rt("subtitle")} />
       {loadError && <ErrorBanner message={loadError} onRetry={() => { void loadLexicon(); void refreshStatsAndSessions(); }} retryLabel={t('w9.states.retry')} />}
       <div style={{ padding: 24 }}>
         <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 24, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", textAlign: "center" }}>
           <div style={{ marginBottom: 16 }}>
             <div style={{ width: 80, height: 80, borderRadius: "50%", background: recording ? "#fee2e2" : "#dbeafe", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", transition: "all 0.3s" }}>
-              {recording ? <Square size={32} color="#dc2626" /> : <Mic size={32} color="#3b82f6" />}
+              {recording ? <Square size={32} color="var(--color-error-600)" /> : <Mic size={32} color="var(--color-primary-500)" />}
             </div>
           </div>
           <div style={{ fontSize: 14, color: "#64748b", marginBottom: 16 }}>
@@ -186,11 +186,11 @@ export default function AsrPage() {
           </div>
           <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
             {!recording ? (
-              <button onClick={startRecording} disabled={loading} style={{ padding: "10px 24px", background: "#3b82f6", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
+              <button onClick={startRecording} disabled={loading} style={{ padding: "10px 24px", background: "var(--color-primary-500)", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
                 <Mic size={16} />{rt("startRecording")}
               </button>
             ) : (
-              <button onClick={stopRecording} style={{ padding: "10px 24px", background: "#dc2626", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
+              <button onClick={stopRecording} style={{ padding: "10px 24px", background: "var(--color-error-600)", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}>
                 <Square size={16} />{rt("stopRecording")}
               </button>
             )}
@@ -199,7 +199,7 @@ export default function AsrPage() {
 
         {loading && (
           <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 24, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", textAlign: "center" }}>
-            <RefreshCw size={24} color="#3b82f6" style={{ animation: "spin 1s linear infinite" }} />
+            <RefreshCw size={24} color="var(--color-primary-500)" style={{ animation: "spin 1s linear infinite" }} />
             <div style={{ marginTop: 8, color: "#64748b", fontSize: 12 }}>{rt("transcribing")}</div>
           </div>
         )}
@@ -208,7 +208,7 @@ export default function AsrPage() {
           <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
               <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: 0, display: "flex", alignItems: "center", gap: 6 }}>
-                <FileText size={16} color="#3b82f6" />{rt("transcriptionResult")}
+                <FileText size={16} color="var(--color-primary-500)" />{rt("transcriptionResult")}
               </h3>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 {engineInfo && (
@@ -223,7 +223,7 @@ export default function AsrPage() {
                     )}
                   </>
                 )}
-                <span style={{ fontSize: 12, color: confidence > 0.9 ? "#10b981" : "#f59e0b", fontWeight: 600, background: confidence > 0.9 ? "#d1fae5" : "#fef3c7", padding: "2px 8px", borderRadius: 4 }}>
+                <span style={{ fontSize: 12, color: confidence > 0.9 ? "#10b981" : "var(--color-warning-500)", fontWeight: 600, background: confidence > 0.9 ? "#d1fae5" : "#fef3c7", padding: "2px 8px", borderRadius: 4 }}>
                   {rt("confidence")}: {(confidence * 100).toFixed(0)}%
                 </span>
               </div>
@@ -255,9 +255,9 @@ export default function AsrPage() {
         {stats && (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, marginTop: 16 }}>
             {[
-              { label: t("asrPage.statSessions"), value: stats.sessions.total, color: "#3b82f6", bg: "#dbeafe" },
+              { label: t("asrPage.statSessions"), value: stats.sessions.total, color: "var(--color-primary-500)", bg: "#dbeafe" },
               { label: t("asrPage.statTodaySessions"), value: stats.sessions.today, color: "#10b981", bg: "#d1fae5" },
-              { label: t("asrPage.statAvgDuration"), value: stats.sessions.avgDurationSec, color: "#f59e0b", bg: "#fef3c7" },
+              { label: t("asrPage.statAvgDuration"), value: stats.sessions.avgDurationSec, color: "var(--color-warning-500)", bg: "#fef3c7" },
               { label: t("asrPage.statLexicon"), value: stats.lexiconSize, color: "#8b5cf6", bg: "#ede9fe" },
               { label: t("asrPage.statCorrections"), value: stats.corrections.total, color: "#f43f5e", bg: "#ffe4e6" },
             ].map((card) => (
@@ -317,7 +317,7 @@ export default function AsrPage() {
               placeholder={t("asrPage.aliasesPlaceholder")}
               style={{ padding: "6px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12, flex: 1, minWidth: 200 }}
             />
-            <button onClick={handleLexiconSubmit} style={{ padding: "6px 14px", background: editingId ? "#f59e0b" : "#3b82f6", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+            <button onClick={handleLexiconSubmit} style={{ padding: "6px 14px", background: editingId ? "var(--color-warning-500)" : "var(--color-primary-500)", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
               {editingId ? <Save size={14} /> : <Plus size={14} />}{editingId ? t("asrPage.saveEdit") : t("asrPage.addEntry")}
             </button>
             {editingId && (
@@ -347,8 +347,8 @@ export default function AsrPage() {
                     <td style={{ padding: "8px 10px", color: "#64748b" }}>{entry.priority}</td>
                     <td style={{ padding: "8px 10px", color: "#64748b", maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{entry.aliases.length > 0 ? entry.aliases.join(" / ") : "-"}</td>
                     <td style={{ padding: "8px 10px", whiteSpace: "nowrap" }}>
-                      <button onClick={() => startEdit(entry)} title={t("asrPage.edit")} style={{ background: "none", border: "none", cursor: "pointer", color: "#3b82f6", marginRight: 8 }}><Pencil size={14} /></button>
-                      <button onClick={() => handleLexiconDelete(entry.id)} title={t("asrPage.delete")} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444" }}><Trash2 size={14} /></button>
+                      <button onClick={() => startEdit(entry)} title={t("asrPage.edit")} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-primary-500)", marginRight: 8 }}><Pencil size={14} /></button>
+                      <button onClick={() => handleLexiconDelete(entry.id)} title={t("asrPage.delete")} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-error-500)" }}><Trash2 size={14} /></button>
                     </td>
                   </tr>
                 ))}
@@ -364,7 +364,7 @@ export default function AsrPage() {
         <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
           <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
-              <History size={16} color="#3b82f6" />{t("asrPage.dictationHistory", { count: sessions.length })}
+              <History size={16} color="var(--color-primary-500)" />{t("asrPage.dictationHistory", { count: sessions.length })}
             </h3>
             <div style={{ maxHeight: 320, overflowY: "auto" }}>
               {sessions.map((s) => (
@@ -376,7 +376,7 @@ export default function AsrPage() {
                     </div>
                     <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{new Date(s.createdAt).toLocaleString()} · {s.duration}s</div>
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: s.status === "completed" ? "#10b981" : s.status === "error" ? "#ef4444" : "#f59e0b", background: s.status === "completed" ? "#d1fae5" : s.status === "error" ? "#ffe4e6" : "#fef3c7", padding: "2px 8px", borderRadius: 4 }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: s.status === "completed" ? "#10b981" : s.status === "error" ? "var(--color-error-500)" : "var(--color-warning-500)", background: s.status === "completed" ? "#d1fae5" : s.status === "error" ? "#ffe4e6" : "#fef3c7", padding: "2px 8px", borderRadius: 4 }}>
                     {{ completed: t("asrPage.statusCompleted"), processing: t("asrPage.statusProcessing"), error: t("asrPage.statusError") }[s.status] ?? s.status}
                   </span>
                   {s.correctionCount > 0 && (

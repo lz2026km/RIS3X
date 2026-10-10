@@ -659,7 +659,7 @@ export default function RqiReportCenterPage() {
   return (
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader
-        icon={<Activity size={20} color="#2563eb" />}
+        icon={<Activity size={20} color="var(--color-primary-600)" />}
         title={t('rqiReport.title')}
         subtitle={t('rqiReport.subtitle')}
         actions={
@@ -849,7 +849,7 @@ export default function RqiReportCenterPage() {
         subtitle={t('rqiReport.createSubtitle')}
         icon={<Plus size={18} />}
         iconBg="#e0edff"
-        iconColor="#2563eb"
+        iconColor="var(--color-primary-600)"
         size="md"
         onOk={() => void handleCreate()}
         confirmText={t('rqiReport.create')}
@@ -979,7 +979,7 @@ export default function RqiReportCenterPage() {
         subtitle={acceptTarget?.periodLabel}
         icon={<CheckCircle2 size={18} />}
         iconBg="#dcfce7"
-        iconColor="#16a34a"
+        iconColor="var(--color-success-600)"
         size="sm"
         onOk={() => void handleAccept()}
         confirmText={t('rqiReport.action.accept')}
@@ -1012,7 +1012,7 @@ export default function RqiReportCenterPage() {
         subtitle={rejectTarget?.periodLabel}
         icon={<XCircle size={18} />}
         iconBg="#fee2e2"
-        iconColor="#dc2626"
+        iconColor="var(--color-error-600)"
         size="sm"
         onOk={() => void handleReject()}
         confirmText={t('rqiReport.action.reject')}

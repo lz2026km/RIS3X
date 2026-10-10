@@ -145,7 +145,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title={t('appointmentCalendar.stat.today')} value={stats.today} prefix={<CalIcon size={14} color="#3b82f6" />} />
+            <Statistic title={t('appointmentCalendar.stat.today')} value={stats.today} prefix={<CalIcon size={14} color="var(--color-primary-500)" />} />
           </Card>
         </Col>
         <Col span={6}>
@@ -155,7 +155,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title={t('appointmentCalendar.stat.completed')} value={stats.completed} styles={{ content: {  color: '#16a34a'  } }} />
+            <Statistic title={t('appointmentCalendar.stat.completed')} value={stats.completed} styles={{ content: {  color: 'var(--color-success-600)'  } }} />
           </Card>
         </Col>
       </Row>
@@ -216,7 +216,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                       <Card
                         key={a.id}
                         size="small"
-                        style={{ borderLeft: `3px solid`, borderLeftColor: s.color === 'blue' ? '#3b82f6' : s.color === 'red' ? '#dc2626' : s.color === 'green' ? '#16a34a' : '#94a3b8' }}
+                        style={{ borderLeft: `3px solid`, borderLeftColor: s.color === 'blue' ? 'var(--color-primary-500)' : s.color === 'red' ? 'var(--color-error-600)' : s.color === 'green' ? 'var(--color-success-600)' : '#94a3b8' }}
                         data-testid={`apt-item-${a.id}`}
                       >
                         <Space size={4} wrap>

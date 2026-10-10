@@ -32,8 +32,8 @@ const ROW_HEIGHT = 640
 const HOUR_HEIGHT = ROW_HEIGHT / (WORK_END_HOUR - WORK_START_HOUR)
 
 const TYPE_META: Record<string, { color: string; bg: string; border: string; label: string }> = {
-  EXAM: { color: '#1d4ed8', bg: '#dbeafe', border: '#3b82f6', label: '检查' },
-  MAINTENANCE: { color: '#b45309', bg: '#fef3c7', border: '#f59e0b', label: '维护' },
+  EXAM: { color: 'var(--color-primary-700)', bg: '#dbeafe', border: 'var(--color-primary-500)', label: '检查' },
+  MAINTENANCE: { color: '#b45309', bg: '#fef3c7', border: 'var(--color-warning-500)', label: '维护' },
   IDLE: { color: '#15803d', bg: '#dcfce7', border: '#86efac', label: '空闲' },
 }
 
@@ -344,7 +344,7 @@ export default function DeviceScheduleGanttPage() {
                         {t('utilization', '利用率')} {utilization}%
                       </div>
                       <div style={{ height: 3, background: 'var(--border-default, rgba(0,0,0,0.12))', borderRadius: 2, marginTop: 4, overflow: 'hidden' }}>
-                        <div style={{ width: `${utilization}%`, height: '100%', background: utilization > 70 ? '#16a34a' : utilization > 40 ? '#f59e0b' : '#e11d48' }} />
+                        <div style={{ width: `${utilization}%`, height: '100%', background: utilization > 70 ? 'var(--color-success-600)' : utilization > 40 ? 'var(--color-warning-500)' : '#e11d48' }} />
                       </div>
                       {dev.conflicts.length > 0 && (
                         <div style={{ color: '#f5222d', fontSize: 11, marginTop: 2 }}>
@@ -414,8 +414,8 @@ export default function DeviceScheduleGanttPage() {
 
       {/* 图例 */}
       <div style={{ display: 'flex', gap: 16, marginTop: 10, fontSize: 12, color: 'var(--text-secondary, #475569)', flexWrap: 'wrap' }}>
-        <span><span style={{ display: 'inline-block', width: 12, height: 12, background: '#dbeafe', border: '1px solid #3b82f6', borderRadius: 3, marginRight: 4, verticalAlign: -1 }} />{t('legendExam', '检查块 (可拖拽)')}</span>
-        <span><span style={{ display: 'inline-block', width: 12, height: 12, background: '#fef3c7', border: '1px solid #f59e0b', borderRadius: 3, marginRight: 4, verticalAlign: -1 }} />{t('legendMaint', '维护块')}</span>
+        <span><span style={{ display: 'inline-block', width: 12, height: 12, background: '#dbeafe', border: '1px solid var(--color-primary-500)', borderRadius: 3, marginRight: 4, verticalAlign: -1 }} />{t('legendExam', '检查块 (可拖拽)')}</span>
+        <span><span style={{ display: 'inline-block', width: 12, height: 12, background: '#fef3c7', border: '1px solid var(--color-warning-500)', borderRadius: 3, marginRight: 4, verticalAlign: -1 }} />{t('legendMaint', '维护块')}</span>
         <span><span style={{ display: 'inline-block', width: 12, height: 12, background: '#dcfce7', border: '1px dashed #86efac', borderRadius: 3, marginRight: 4, verticalAlign: -1 }} />{t('legendIdle', '空闲时段')}</span>
         <span><Clock size={12} style={{ verticalAlign: -1 }} /> {t('workHours', '工作时段 08:00-18:00')}</span>
       </div>

@@ -8,7 +8,7 @@ import WorkflowTemplatePanel from '../components/common/WorkflowTemplatePanel'
 // [W5] 预约向导: 资源/冲突引擎接入
 import { appointmentApi, type RoomDto, type TechnicianDto, type AppointmentConflictDto } from '../services/api'
 
-const primaryBlue = '#1e40af'
+const primaryBlue = 'var(--color-primary-800)'
 const textGray = '#64748b'
 const borderGray = '#cbd5e1'
 const whiteBg = 'var(--bg-card)'
@@ -64,7 +64,7 @@ export default function AppointmentForm(props: AppointmentFormProps) {
   if (!showForm) return null
 
   const fieldError = (key: string) => formErrors[key]
-  const bc = (key: string) => (formErrors[key] ? '#dc2626' : borderGray)
+  const bc = (key: string) => (formErrors[key] ? 'var(--color-error-600)' : borderGray)
   const set = (patch: Record<string, unknown>) => setFormData({ ...formData, ...patch })
 
   const close = () => { setShowForm(false); setFormErrors({}); setValidationError(''); setStep(0); setConflicts([]) }
@@ -153,7 +153,7 @@ export default function AppointmentForm(props: AppointmentFormProps) {
       </div>
 
       <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {validationError && <div style={{ color: '#dc2626', fontSize: 12, padding: '8px 12px', background: 'var(--color-error-bg)', borderRadius: 6, border: '1px solid #fca5a5' }}>{validationError}</div>}
+        {validationError && <div style={{ color: 'var(--color-error-600)', fontSize: 12, padding: '8px 12px', background: 'var(--color-error-bg)', borderRadius: 6, border: '1px solid #fca5a5' }}>{validationError}</div>}
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: textGray }}>
           <StepIcon size={13} /> {t('w5Appt.stepOf', { current: step + 1, total: STEP_KEYS.length })}
@@ -308,7 +308,7 @@ export default function AppointmentForm(props: AppointmentFormProps) {
                 <input value={formData.insurancePreAuthNo || ''} onChange={(e) => set({ insurancePreAuthNo: e.target.value })} style={inputStyle(borderGray)} />
               </FormField>
             </div>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: formData.greenChannel ? '#dc2626' : primaryBlue, fontWeight: 700 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: formData.greenChannel ? 'var(--color-error-600)' : primaryBlue, fontWeight: 700 }}>
               <Checkbox checked={!!formData.greenChannel} onChange={(e) => set({ greenChannel: e.target.checked, priority: e.target.checked ? 'critical' : formData.priority })} /> {t('w5Appt.greenChannel')}
             </label>
             <div style={{ fontSize: 11, color: textGray }}>{t('w5Appt.greenChannelHint')}</div>
@@ -352,7 +352,7 @@ export default function AppointmentForm(props: AppointmentFormProps) {
               ) : (
                 <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
                   {conflicts.map((c, i) => (
-                    <div key={`${c.type}-${i}`} style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, background: c.severity === 'ERROR' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: c.severity === 'ERROR' ? '#dc2626' : '#92400e', border: `1px solid ${c.severity === 'ERROR' ? '#fca5a5' : 'var(--color-warning-border)'}` }}>
+                    <div key={`${c.type}-${i}`} style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, background: c.severity === 'ERROR' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: c.severity === 'ERROR' ? 'var(--color-error-600)' : '#92400e', border: `1px solid ${c.severity === 'ERROR' ? '#fca5a5' : 'var(--color-warning-border)'}` }}>
                       [{t(`w5Appt.conflictType.${c.type}`)}] {c.message}
                     </div>
                   ))}
@@ -372,7 +372,7 @@ export default function AppointmentForm(props: AppointmentFormProps) {
               {t('w5Appt.next')} <ChevronRight size={13} />
             </button>
           ) : (
-            <button onClick={handleSubmit} style={{ padding: '6px 16px', borderRadius: 6, border: 'none', background: '#d97706', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+            <button onClick={handleSubmit} style={{ padding: '6px 16px', borderRadius: 6, border: 'none', background: 'var(--color-warning-600)', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
               {t('w5Appt.submit')}
             </button>
           )}

@@ -10,7 +10,7 @@ import { Brain, FileText, X } from 'lucide-react'
 import type { AiFinding } from '../../pages/dicom/aiFindings'
 import { t } from '../../i18n/appI18n'
 
-const COLOR_BY_CONFIDENCE = (c: number): string => (c >= 0.7 ? '#ef4444' : c >= 0.4 ? '#f59e0b' : '#22c55e')
+const COLOR_BY_CONFIDENCE = (c: number): string => (c >= 0.7 ? 'var(--color-error-500)' : c >= 0.4 ? 'var(--color-warning-500)' : 'var(--color-success-500)')
 
 export interface AiFindingsOverlayProps {
   findings: AiFinding[]
@@ -65,7 +65,7 @@ function AiMarkerPopover({ finding, onClose, onInsertReport }: { finding: AiFind
         </span>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <div><span style={{ color: '#94a3b8' }}>{t('w9d.aiOverlay.model')} </span>{finding.modelLabel}{finding.demo && <span style={{ color: '#fbbf24', marginLeft: 6 }}>{t('w9d.aiOverlay.demoData')}</span>}</div>
+        <div><span style={{ color: '#94a3b8' }}>{t('w9d.aiOverlay.model')} </span>{finding.modelLabel}{finding.demo && <span style={{ color: 'var(--color-warning-400)', marginLeft: 6 }}>{t('w9d.aiOverlay.demoData')}</span>}</div>
         <div><span style={{ color: '#94a3b8' }}>{t('w9d.aiOverlay.lesionType')} </span>{finding.label}</div>
         <div><span style={{ color: '#94a3b8' }}>{t('w9d.aiOverlay.risk')} </span><span style={{ color: COLOR_BY_CONFIDENCE(finding.confidence), fontWeight: 700 }}>{finding.risk}</span></div>
         {finding.detail && <div style={{ lineHeight: 1.6 }}><span style={{ color: '#94a3b8' }}>{t('w9d.aiOverlay.detail')} </span>{finding.detail}</div>}
@@ -93,7 +93,7 @@ function AiMarkerPopover({ finding, onClose, onInsertReport }: { finding: AiFind
               padding: '7px 0',
               borderRadius: 6,
               border: 'none',
-              background: '#1d4ed8',
+              background: 'var(--color-primary-700)',
               color: '#fff',
               fontSize: 12,
               fontWeight: 700,
@@ -244,7 +244,7 @@ export function AiFindingsOverlay({ findings, loading = false, selected, onSelec
                   padding: '5px 10px',
                   borderRadius: 6,
                   border: 'none',
-                  background: '#1d4ed8',
+                  background: 'var(--color-primary-700)',
                   color: '#fff',
                   fontSize: 11,
                   fontWeight: 700,

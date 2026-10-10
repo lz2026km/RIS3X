@@ -99,7 +99,7 @@ export function DashboardCard({
                 height: 28,
                 borderRadius: 8,
                 background: "var(--color-primary-50, #eff6ff)",
-                color: "var(--color-primary-700, #1d4ed8)",
+                color: "var(--color-primary-700, var(--color-primary-700))",
                 flexShrink: 0,
               }}
             >
@@ -141,7 +141,7 @@ export function DashboardCard({
               textAlign: "center",
             }}
           >
-            <span style={{ color: "var(--color-error-500, #ef4444)", opacity: 0.7 }}>
+            <span style={{ color: "var(--color-error-500, var(--color-error-500))", opacity: 0.7 }}>
               <AlertTriangle size={32} strokeWidth={1.5} />
             </span>
             <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
@@ -159,7 +159,7 @@ export function DashboardCard({
                   borderRadius: 6,
                   border: "1px solid var(--border-color)",
                   background: "var(--bg-card)",
-                  color: "var(--color-primary-700, #1d4ed8)",
+                  color: "var(--color-primary-700, var(--color-primary-700))",
                   fontSize: 12,
                   fontWeight: 600,
                   cursor: "pointer",

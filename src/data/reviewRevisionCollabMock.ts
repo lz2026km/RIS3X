@@ -282,25 +282,25 @@ export interface CollabActivity {
 
 // 在线协同用户
 export const COLLAB_USERS: CollabUser[] = [
-  { id: 'D001', name: '张明远', title: '主任医师', color: '#dc2626', avatar: '张', status: 'online', currentPage: '/report-write-v2/rpt-013', cursorPos: { x: 320, y: 240 } },
+  { id: 'D001', name: '张明远', title: '主任医师', color: 'var(--color-error-600)', avatar: '张', status: 'online', currentPage: '/report-write-v2/rpt-013', cursorPos: { x: 320, y: 240 } },
   { id: 'D002', name: '李慧敏', title: '副主任医师', color: '#7c3aed', avatar: '李', status: 'online', currentPage: '/report-write-v2/rpt-013', cursorPos: { x: 480, y: 320 } },
-  { id: 'D005', name: '刘文博', title: '副主任医师', color: '#0891b2', avatar: '刘', status: 'online', currentPage: '/report-write-v2/rpt-018', cursorPos: { x: 180, y: 160 } },
+  { id: 'D005', name: '刘文博', title: '副主任医师', color: 'var(--color-info-600)', avatar: '刘', status: 'online', currentPage: '/report-write-v2/rpt-018', cursorPos: { x: 180, y: 160 } },
   { id: 'D006', name: '赵雪琴', title: '主任医师', color: '#10b981', avatar: '赵', status: 'away', currentPage: '/report-write-v2/rpt-018' },
-  { id: 'D003', name: '王建华', title: '主治医师', color: '#f59e0b', avatar: '王', status: 'offline' },
+  { id: 'D003', name: '王建华', title: '主治医师', color: 'var(--color-warning-500)', avatar: '王', status: 'offline' },
   { id: 'D004', name: '陈晓燕', title: '住院医师', color: '#a855f7', avatar: '陈', status: 'online', currentPage: '/report-write-v2/rpt-009' },
 ];
 
 // 协同评论
 export const COLLAB_COMMENTS: CollabComment[] = [
   {
-    id: 'cmt-001', reportId: 'rpt-013', authorId: 'D001', authorName: '张明远', authorColor: '#dc2626',
+    id: 'cmt-001', reportId: 'rpt-013', authorId: 'D001', authorName: '张明远', authorColor: 'var(--color-error-600)',
     content: '右肺下叶肿块的强化特征建议补充"不均匀强化"的具体描述。',
     fieldRef: 'findings', selectionRef: '增强扫描示不均匀强化',
     position: { x: 120, y: 280 }, resolved: false,
     mentions: ['D002'], createdAt: '2026-06-04 10:30:00',
   },
   {
-    id: 'cmt-002', reportId: 'rpt-013', authorId: 'D001', authorName: '张明远', authorColor: '#dc2626',
+    id: 'cmt-002', reportId: 'rpt-013', authorId: 'D001', authorName: '张明远', authorColor: 'var(--color-error-600)',
     content: '@李慧敏 这里建议增加"与周围血管关系"的描述',
     fieldRef: 'findings',
     position: { x: 220, y: 320 }, resolved: false,
@@ -314,7 +314,7 @@ export const COLLAB_COMMENTS: CollabComment[] = [
     mentions: ['D001'], createdAt: '2026-06-04 10:35:00',
   },
   {
-    id: 'cmt-004', reportId: 'rpt-018', authorId: 'D005', authorName: '刘文博', authorColor: '#0891b2',
+    id: 'cmt-004', reportId: 'rpt-018', authorId: 'D005', authorName: '刘文博', authorColor: 'var(--color-info-600)',
     content: 'BI-RADS 5 类建议明确具体可疑征象的个数。',
     fieldRef: 'impression',
     position: { x: 350, y: 420 }, resolved: false,

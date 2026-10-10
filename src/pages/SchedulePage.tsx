@@ -29,11 +29,11 @@ import TechSchedulePage from './ops/TechSchedulePage'
 // 样式常量 (WIN10风格)
 // ============================================================
 const C = {
-  primary: '#1e40af',       // 深蓝主色
-  primaryLight: '#3b82f6',  // 浅蓝
+  primary: 'var(--color-primary-800)',       // 深蓝主色
+  primaryLight: 'var(--color-primary-500)',  // 浅蓝
   primaryLighter: 'var(--color-info-bg)', // 更浅蓝
-  accent: '#0891b2',        // 青色辅色
-  accentLight: '#06b6d4',
+  accent: 'var(--color-info-600)',        // 青色辅色
+  accentLight: 'var(--color-info-500)',
   white: '#ffffff',
   bg: 'var(--bg-deep)',            // 浅灰背景
   bgLight: 'var(--content-bg)',
@@ -44,11 +44,11 @@ const C = {
   textLight: 'var(--text-muted)',
   success: '#059669',
   successLight: 'var(--color-success-bg)',
-  warning: '#d97706',
+  warning: 'var(--color-warning-600)',
   warningLight: 'var(--color-warning-bg)',
-  danger: '#dc2626',
+  danger: 'var(--color-error-600)',
   dangerLight: 'var(--color-error-bg)',
-  info: '#2563eb',
+  info: 'var(--color-primary-600)',
   infoLight: 'var(--color-info-bg)',
 }
 
@@ -181,9 +181,9 @@ interface CostTrend {
 
 // 班次类型配置
 const SHIFT_CONFIG: Record<ShiftType, { label: string; color: string; bg: string; icon: React.ReactNode; time: string }> = {
-  morning: { label: t('schedulePage.shiftMorning'), color: '#f59e0b', bg: '#f59e0b22', icon: <Sun size={14} />, time: '08:00-12:00' },
-  afternoon: { label: t('schedulePage.shiftAfternoon'), color: '#3b82f6', bg: '#3b82f622', icon: <Sunset size={14} />, time: '14:00-18:00' },
-  night: { label: t('schedulePage.shiftNight'), color: '#3b82f6', bg: '#3b82f622', icon: <Moon size={14} />, time: '18:00-次日08:00' },
+  morning: { label: t('schedulePage.shiftMorning'), color: 'var(--color-warning-500)', bg: '#f59e0b22', icon: <Sun size={14} />, time: '08:00-12:00' },
+  afternoon: { label: t('schedulePage.shiftAfternoon'), color: 'var(--color-primary-500)', bg: '#3b82f622', icon: <Sunset size={14} />, time: '14:00-18:00' },
+  night: { label: t('schedulePage.shiftNight'), color: 'var(--color-primary-500)', bg: '#3b82f622', icon: <Moon size={14} />, time: '18:00-次日08:00' },
   fullday: { label: t('schedulePage.shiftFullDay'), color: '#059669', bg: '#22c55e22', icon: <Clock size={14} />, time: '08:00-18:00' },
   off: { label: t('schedulePage.shiftOff'), color: 'var(--text-secondary)', bg: 'var(--bg-deep)', icon: <Coffee size={14} />, time: t('schedulePage.shiftOffTime') },
 }
@@ -191,11 +191,11 @@ const SHIFT_CONFIG: Record<ShiftType, { label: string; color: string; bg: string
 // 设备类型配置
 const MODALITY_CONFIG: Record<string, { label: string; color: string }> = {
   CT: { label: 'CT', color: '#7c3aed' },
-  MR: { label: 'MR', color: '#2563eb' },
+  MR: { label: 'MR', color: 'var(--color-primary-600)' },
   DR: { label: 'DR', color: '#059669' },
-  DSA: { label: 'DSA', color: '#dc2626' },
-  'MG': { label: 'MG', color: '#d97706' },
-  钼靶: { label: 'MG', color: '#d97706' },
+  DSA: { label: 'DSA', color: 'var(--color-error-600)' },
+  'MG': { label: 'MG', color: 'var(--color-warning-600)' },
+  钼靶: { label: 'MG', color: 'var(--color-warning-600)' },
 }
 
 // 设备类型列表
@@ -495,9 +495,9 @@ const generateScheduleStats = (schedules: ScheduleRecord[]) => {
 
   // 班次分布统计
   const shiftDistribution = [
-    { name: '上午班', value: schedules.filter(s => s.shift === 'morning').length, color: '#f59e0b' },
-    { name: '下午班', value: schedules.filter(s => s.shift === 'afternoon').length, color: '#3b82f6' },
-    { name: '夜班', value: schedules.filter(s => s.shift === 'night').length, color: '#3b82f6' },
+    { name: '上午班', value: schedules.filter(s => s.shift === 'morning').length, color: 'var(--color-warning-500)' },
+    { name: '下午班', value: schedules.filter(s => s.shift === 'afternoon').length, color: 'var(--color-primary-500)' },
+    { name: '夜班', value: schedules.filter(s => s.shift === 'night').length, color: 'var(--color-primary-500)' },
     { name: '全天班', value: schedules.filter(s => s.shift === 'fullday').length, color: '#059669' },
     { name: '休息', value: schedules.filter(s => s.shift === 'off').length, color: 'var(--text-secondary)' },
   ]
@@ -1153,7 +1153,7 @@ export default function SchedulePage() {
             <div>
               <h1 style={{ fontSize: 20, fontWeight: 700, color: C.textDark, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
                 {t('schedulePage.title')}
-                <span style={{ fontSize: 11, fontWeight: 600, color: '#d97706', background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: 10, padding: '2px 8px' }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-warning-600)', background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: 10, padding: '2px 8px' }}>
                   {t('schedulePage.demoBadge')}
                 </span>
               </h1>
@@ -2351,7 +2351,7 @@ export default function SchedulePage() {
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {swapError && <div style={{ color: '#dc2626', fontSize: 12, padding: '8px 12px', background: 'var(--color-error-bg)', borderRadius: 6, border: '1px solid #fca5a5' }}>{swapError}</div>}
+              {swapError && <div style={{ color: 'var(--color-error-600)', fontSize: 12, padding: '8px 12px', background: 'var(--color-error-bg)', borderRadius: 6, border: '1px solid #fca5a5' }}>{swapError}</div>}
               {/* 申请人 */}
               <div>
                 <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>

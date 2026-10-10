@@ -34,7 +34,7 @@ export default function DoseTrackingTable({
             alignItems: "center",
           }}
         >
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>
             {t("doseTrack.table.title")}
           </div>
           <div
@@ -60,19 +60,19 @@ export default function DoseTrackingTable({
             fixedHeader={500}
             onRow={(r) => ({ onClick: () => setSelectedPatient(r), style: { cursor: "pointer" } })}
             columns={[
-              { title: t("doseTrack.table.patientName"), dataIndex: "patientName", key: "patientName", render: (v: string) => <span style={{ fontWeight: 600, color: "#1e40af" }}>{v}</span> },
+              { title: t("doseTrack.table.patientName"), dataIndex: "patientName", key: "patientName", render: (v: string) => <span style={{ fontWeight: 600, color: "var(--color-primary-800)" }}>{v}</span> },
               { title: t("doseTrack.table.gender"), dataIndex: "gender", key: "gender", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
               { title: t("doseTrack.table.age"), dataIndex: "age", key: "age", render: (v: number) => <span style={{ color: "#334155" }}>{v}</span> },
               {
                 title: t("doseTrack.table.modality"), dataIndex: "modality", key: "modality",
-                render: (v: string) => <span style={{ padding: "2px 8px", background: "#eff6ff", color: "#2563eb", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{v}</span>,
+                render: (v: string) => <span style={{ padding: "2px 8px", background: "#eff6ff", color: "var(--color-primary-600)", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{v}</span>,
               },
               { title: t("doseTrack.table.examItem"), dataIndex: "examItem", key: "examItem", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
               { title: t("doseTrack.table.examDate"), dataIndex: "examDate", key: "examDate", render: (v: string) => <span style={{ color: "#64748b" }}>{v}</span> },
               {
                 title: t("doseTrack.table.doseValue"), key: "doseValue",
                 render: (_: unknown, r: PatientDoseRecord) => (
-                  <span style={{ fontWeight: 700, color: r.alertLevel === "critical" ? "#dc2626" : r.alertLevel === "warning" ? "#d97706" : "#1e40af" }}>
+                  <span style={{ fontWeight: 700, color: r.alertLevel === "critical" ? "var(--color-error-600)" : r.alertLevel === "warning" ? "var(--color-warning-600)" : "var(--color-primary-800)" }}>
                     {r.doseValue} <span style={{ fontSize: 12, fontWeight: 400 }}>{r.doseUnit}</span>
                   </span>
                 ),
@@ -89,7 +89,7 @@ export default function DoseTrackingTable({
                 render: (_: unknown, r: PatientDoseRecord) => (
                   <button
                     onClick={(e) => { e.stopPropagation(); setSelectedPatient(r); }}
-                    style={{ padding: "4px 10px", background: "#eff6ff", color: "#2563eb", border: "none", borderRadius: 4, fontSize: 12, cursor: "pointer" }}
+                    style={{ padding: "4px 10px", background: "#eff6ff", color: "var(--color-primary-600)", border: "none", borderRadius: 4, fontSize: 12, cursor: "pointer" }}
                   >
                     {t("doseTrack.table.details")}
                   </button>
@@ -140,7 +140,7 @@ function PatientDetailCard({ patient }: { patient: PatientDoseRecord }) {
             <User size={18} color={badge.color} />
           </div>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#1e40af" }}>{patient.patientName}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-primary-800)" }}>{patient.patientName}</div>
             <div style={{ fontSize: 12, color: "#64748b" }}>{patient.gender} · {patient.age}?· ID: {patient.patientId}</div>
           </div>
         </div>
@@ -151,11 +151,11 @@ function PatientDetailCard({ patient }: { patient: PatientDoseRecord }) {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 12, color: "#64748b" }}>设备:</span>
-            <span style={{ fontSize: 12, fontWeight: 600, color: "#1e40af" }}>{patient.device}</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-primary-800)" }}>{patient.device}</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 12, color: "#64748b" }}>日期:</span>
-            <span style={{ fontSize: 12, fontWeight: 600, color: "#1e40af" }}>{patient.examDate}</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-primary-800)" }}>{patient.examDate}</span>
           </div>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 16 }}>
@@ -166,12 +166,12 @@ function PatientDetailCard({ patient }: { patient: PatientDoseRecord }) {
           </div>
           <div style={{ background: "var(--bg-primary)", borderRadius: 8, padding: 12, textAlign: "center" }}>
             <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>法规阈值</div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: "#1e40af" }}>{patient.threshold}</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: "var(--color-primary-800)" }}>{patient.threshold}</div>
             <div style={{ fontSize: 12, color: "#94a3b8" }}>{patient.doseUnit}</div>
           </div>
           <div style={{ background: "var(--bg-primary)", borderRadius: 8, padding: 12, textAlign: "center" }}>
             <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>占比</div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: doseRatio > 1 ? "#dc2626" : "#16a34a" }}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: doseRatio > 1 ? "var(--color-error-600)" : "var(--color-success-600)" }}>
               {Math.round(doseRatio * 100)}%
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8" }}>阈值比</div>
@@ -180,12 +180,12 @@ function PatientDetailCard({ patient }: { patient: PatientDoseRecord }) {
         <div style={{ marginBottom: 16 }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
             <span style={{ fontSize: 12, color: "#64748b" }}>剂量安全指标</span>
-            <span style={{ fontSize: 12, color: doseRatio > 1 ? "#dc2626" : "#16a34a", fontWeight: 600 }}>
+            <span style={{ fontSize: 12, color: doseRatio > 1 ? "var(--color-error-600)" : "var(--color-success-600)", fontWeight: 600 }}>
               {doseRatio > 1 ? "超出" : "在控"}{Math.round(Math.abs(doseRatio - 1) * 100)}%
             </span>
           </div>
           <div style={{ height: 8, background: "#e2e8f0", borderRadius: 4, overflow: "hidden" }}>
-            <div style={{ height: "100%", width: `${Math.min(doseRatio * 100, 100)}%`, background: doseRatio > 1 ? "#dc2626" : doseRatio > 0.8 ? "#d97706" : "#16a34a", borderRadius: 4 }} />
+            <div style={{ height: "100%", width: `${Math.min(doseRatio * 100, 100)}%`, background: doseRatio > 1 ? "var(--color-error-600)" : doseRatio > 0.8 ? "var(--color-warning-600)" : "var(--color-success-600)", borderRadius: 4 }} />
           </div>
         </div>
       </div>

@@ -37,7 +37,7 @@ export const SCORE_DIMENSIONS: ScoreDimension[] = [
       { score: 40, condition: '50% 字段填写' },
       { score: 20, condition: '< 50% 字段填写' },
     ],
-    color: '#3b82f6',
+    color: 'var(--color-primary-500)',
     icon: '',
   },
   {
@@ -103,7 +103,7 @@ export const SCORE_DIMENSIONS: ScoreDimension[] = [
       { score: 50, condition: '超时 4-24 小时' },
       { score: 20, condition: '超时 > 24 小时' },
     ],
-    color: '#f59e0b',
+    color: 'var(--color-warning-500)',
     icon: '',
   },
   {
@@ -125,7 +125,7 @@ export const SCORE_DIMENSIONS: ScoreDimension[] = [
       { score: 50, condition: '存在不规范缩写' },
       { score: 30, condition: '大量不规范' },
     ],
-    color: '#0891b2',
+    color: 'var(--color-info-600)',
     icon: '',
   },
 ];
@@ -153,7 +153,7 @@ export const SCORE_GRADES: ScoreGradeConfig[] = [
     action: '推荐为优秀报告',
   },
   {
-    grade: '乙', minScore: 75, maxScore: 89, color: '#1e40af', bg: '#dbeafe', border: '#93c5fd',
+    grade: '乙', minScore: 75, maxScore: 89, color: 'var(--color-primary-800)', bg: '#dbeafe', border: '#93c5fd',
     description: '良好：基本规范，少量改进建议',
     action: '常规发布',
   },

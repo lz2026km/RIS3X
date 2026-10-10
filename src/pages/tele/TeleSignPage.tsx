@@ -159,7 +159,7 @@ const TeleSignPage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
-        <FileSignature size={20} color="#2563eb" />
+        <FileSignature size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('teleSign.title')}</span>
         <Button type="primary" size="small" icon={<Plus size={14} />} onClick={() => setCreateOpen(true)}>{t('teleSign.createSession')}</Button>
       </Space>

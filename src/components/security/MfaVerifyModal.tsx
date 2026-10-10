@@ -82,7 +82,7 @@ export default function MfaVerifyModal({ userId, onVerified, onCancel, operation
         <div style={{
           padding: '20px 24px', borderBottom: '1px solid #e2e8f0',
           display: 'flex', alignItems: 'center', gap: 12,
-          background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
+          background: 'linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-primary-500) 100%)',
         }}>
           <ShieldCheck size={22} style={{ color: '#fff' }} />
           <div style={{ flex: 1 }}>
@@ -117,9 +117,9 @@ export default function MfaVerifyModal({ userId, onVerified, onCancel, operation
                 onKeyDown={(e) => handleKeyDown(index, e)}
                 style={{
                   width: 44, height: 52, textAlign: 'center', fontSize: 20,
-                  fontWeight: 700, border: `2px solid ${error ? '#dc2626' : digit ? '#1e40af' : '#e2e8f0'}`,
+                  fontWeight: 700, border: `2px solid ${error ? 'var(--color-error-600)' : digit ? 'var(--color-primary-800)' : '#e2e8f0'}`,
                   borderRadius: 8, background: error ? '#fef2f2' : '#fff',
-                  color: '#1e40af', caretColor: '#1e40af',
+                  color: 'var(--color-primary-800)', caretColor: 'var(--color-primary-800)',
                 }}
               />
             ))}
@@ -128,7 +128,7 @@ export default function MfaVerifyModal({ userId, onVerified, onCancel, operation
           {error && (
             <div style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              gap: 6, color: '#dc2626', fontSize: 12, marginBottom: 16,
+              gap: 6, color: 'var(--color-error-600)', fontSize: 12, marginBottom: 16,
             }}>
               <AlertTriangle size={14} /> {error}
             </div>
@@ -139,7 +139,7 @@ export default function MfaVerifyModal({ userId, onVerified, onCancel, operation
             disabled={verifying}
             style={{
               width: '100%', padding: '12px 20px', borderRadius: 8,
-              border: 'none', background: verifying ? '#94a3b8' : '#1e40af',
+              border: 'none', background: verifying ? '#94a3b8' : 'var(--color-primary-800)',
               color: '#fff', fontSize: 14, fontWeight: 700, cursor: verifying ? 'not-allowed' : 'pointer',
             }}
           >

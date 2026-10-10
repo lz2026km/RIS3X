@@ -48,7 +48,7 @@ export function CostCard({ title, value, subtitle, icon: Icon, trend, trendValue
     alignItems: 'center',
     gap: 4,
     fontSize: 12,
-    color: trend === 'up' ? '#22c55e' : '#ef4444',
+    color: trend === 'up' ? 'var(--color-success-500)' : 'var(--color-error-500)',
   }
 
   return (
@@ -56,7 +56,7 @@ export function CostCard({ title, value, subtitle, icon: Icon, trend, trendValue
       <div style={headerStyle}>
         <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{title}</span>
         <div style={iconContainerStyle}>
-          <Icon size={18} color={color || '#3b82f6'} />
+          <Icon size={18} color={color || 'var(--color-primary-500)'} />
         </div>
       </div>
       <div style={valueStyle}>{value}</div>
@@ -97,7 +97,7 @@ export function SimpleBarChart({ data, height = 200 }: { data: { label: string; 
             <div style={{
               width: '100%',
               height: barHeight,
-              background: item.color || '#3b82f6',
+              background: item.color || 'var(--color-primary-500)',
               borderRadius: '4px 4px 0 0',
               transition: 'height 0.3s ease',
               opacity: 0.85,
@@ -142,7 +142,7 @@ export function SimpleHorizontalBarChart({ data, height = 200 }: { data: { label
               <div style={{
                 width: `${barWidth}%`,
                 height: '100%',
-                background: item.color || '#3b82f6',
+                background: item.color || 'var(--color-primary-500)',
                 borderRadius: 4,
                 transition: 'width 0.3s ease',
               }} />

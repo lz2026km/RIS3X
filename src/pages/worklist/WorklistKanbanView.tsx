@@ -7,25 +7,25 @@ import type { PriorityScore as AIPriorityScore } from '../../types/workflow'
 import { t } from '../../i18n/appI18n'
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
-  'SCHEDULED': { bg: '#3b82f622', color: '#3b82f6', label: t('worklistStatus.scheduled') },
+  'SCHEDULED': { bg: '#3b82f622', color: 'var(--color-primary-500)', label: t('worklistStatus.scheduled') },
   'ARRIVED': { bg: '#8b5cf622', color: '#7c3aed', label: t('worklistStatus.arrived') },
   'IN_PROGRESS': { bg: '#ec489922', color: '#db2777', label: t('worklistStatus.inProgress') },
   'COMPLETED': { bg: '#22c55e22', color: '#059669', label: t('worklistStatus.completed') },
-  'CANCELLED': { bg: '#ef444422', color: '#ef4444', label: t('worklistStatus.cancelled') },
-  '已登记': { bg: '#3b82f622', color: '#3b82f6', label: t('worklistStatus.scheduled') },
+  'CANCELLED': { bg: '#ef444422', color: 'var(--color-error-500)', label: t('worklistStatus.cancelled') },
+  '已登记': { bg: '#3b82f622', color: 'var(--color-primary-500)', label: t('worklistStatus.scheduled') },
   '待检查': { bg: '#8b5cf622', color: '#7c3aed', label: t('worklistStatus.pending') },
   '检查中': { bg: '#ec489922', color: '#db2777', label: t('worklistStatus.inProgress') },
   '待报告': { bg: '#f59e0b22', color: '#ca8a04', label: t('worklistStatus.pendingReport') },
   '已报告': { bg: '#22c55e22', color: '#059669', label: t('worklistStatus.reported') },
   '已发布': { bg: '#22c55e22', color: '#047857', label: t('worklistStatus.published') },
-  '已暂停': { bg: '#f59e0b22', color: '#f59e0b', label: t('worklistStatus.paused') },
-  '质控退回': { bg: '#ef444422', color: '#ef4444', label: t('worklistStatus.qcReturned') },
+  '已暂停': { bg: '#f59e0b22', color: 'var(--color-warning-500)', label: t('worklistStatus.paused') },
+  '质控退回': { bg: '#ef444422', color: 'var(--color-error-500)', label: t('worklistStatus.qcReturned') },
 }
 
 const PRIORITY_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
   '普通': { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: t('worklistPriority.normal') },
-  '紧急': { bg: '#f59e0b22', color: '#f59e0b', label: t('worklistPriority.urgent') },
-  '危重': { bg: '#ef444422', color: '#ef4444', label: t('worklistPriority.critical') },
+  '紧急': { bg: '#f59e0b22', color: 'var(--color-warning-500)', label: t('worklistPriority.urgent') },
+  '危重': { bg: '#ef444422', color: 'var(--color-error-500)', label: t('worklistPriority.critical') },
   '会诊': { bg: '#8b5cf622', color: '#7c3aed', label: t('worklistPriority.consult') },
 }
 
@@ -45,8 +45,8 @@ const getSLAInfo = (createdTime: string): SLAInfo => {
     const created = new Date(createdTime).getTime()
     const now = Date.now()
     const elapsedMinutes = Math.floor((now - created) / 60000)
-    if (elapsedMinutes > 60) return { elapsedMinutes, status: 'critical', color: '#dc2626', label: '>60min' }
-    if (elapsedMinutes > 30) return { elapsedMinutes, status: 'warning', color: '#d97706', label: '30-60min' }
+    if (elapsedMinutes > 60) return { elapsedMinutes, status: 'critical', color: 'var(--color-error-600)', label: '>60min' }
+    if (elapsedMinutes > 30) return { elapsedMinutes, status: 'warning', color: 'var(--color-warning-600)', label: '30-60min' }
     return { elapsedMinutes, status: 'normal', color: '#059669', label: '<30min' }
   } catch {
     return { elapsedMinutes: 0, status: 'normal', color: '#059669', label: '<30min' }
@@ -72,8 +72,8 @@ const calculatePriority = (exam: RadiologyExam): PriorityScore => {
   const typeScore = exam.patientType === '急诊' ? 25 : exam.patientType === '住院' ? 15 : 5
   const partScore = exam.bodyPart === '头颅' || exam.bodyPart === '心脏' || exam.bodyPart === '血管' ? 20 : 10
   const totalScore = ageScore + waitScore + typeScore + partScore
-  if (totalScore >= 70) return { level: '危重', score: totalScore, color: '#ef4444', bg: '#ef444422' }
-  if (totalScore >= 45) return { level: '紧急', score: totalScore, color: '#f59e0b', bg: '#f59e0b22' }
+  if (totalScore >= 70) return { level: '危重', score: totalScore, color: 'var(--color-error-500)', bg: '#ef444422' }
+  if (totalScore >= 45) return { level: '紧急', score: totalScore, color: 'var(--color-warning-500)', bg: '#f59e0b22' }
   if (totalScore >= 25) return { level: '普通', score: totalScore, color: 'var(--text-secondary)', bg: 'var(--bg-deep)' }
   return { level: '低', score: totalScore, color: '#059669', bg: '#22c55e22' }
 }
@@ -137,15 +137,15 @@ const KanbanCard = React.memo(function KanbanCard({
       }}>
         <div style={{
           fontWeight: 600,
-          color: '#1e40af',
+          color: 'var(--color-primary-800)',
           fontSize: 12,
           display: 'flex',
           alignItems: 'center',
           gap: 4,
         }}>
           {exam.patientName}
-          {exam.priority === '危重' && <AlertTriangle size={10} style={{ color: '#dc2626' }} />}
-          {exam.priority === '紧急' && <Zap size={10} style={{ color: '#d97706' }} />}
+          {exam.priority === '危重' && <AlertTriangle size={10} style={{ color: 'var(--color-error-600)' }} />}
+          {exam.priority === '紧急' && <Zap size={10} style={{ color: 'var(--color-warning-600)' }} />}
         </div>
         <Move size={12} style={{ color: '#cbd5e1', flexShrink: 0 }} />
       </div>
@@ -177,7 +177,7 @@ const KanbanCard = React.memo(function KanbanCard({
           const autoPri = calculatePriority(exam)
           const smart = smartScore
           const smartLevel = smart ? smart.level : null
-          const smartColor = smartLevel === 'critical' ? '#dc2626' : smartLevel === 'urgent' ? '#d97706' : smartLevel === 'normal' ? '#475569' : '#059669'
+          const smartColor = smartLevel === 'critical' ? 'var(--color-error-600)' : smartLevel === 'urgent' ? 'var(--color-warning-600)' : smartLevel === 'normal' ? '#475569' : '#059669'
           const smartBg = smartLevel === 'critical' ? 'var(--color-error-bg)' : smartLevel === 'urgent' ? 'var(--color-warning-bg)' : smartLevel === 'normal' ? 'var(--bg-deep)' : 'var(--color-success-bg)'
           const smartLabel = smartLevel === 'critical' ? t('worklistPriority.critical') : smartLevel === 'urgent' ? t('worklistPriority.urgent') : smartLevel === 'normal' ? t('worklistPriority.normal') : t('worklistPriority.low')
           return (
@@ -289,7 +289,7 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
               padding: 12,
               minHeight: 400,
               transition: 'background 0.15s',
-              border: isOver ? '2px dashed #1e40af' : '2px dashed transparent',
+              border: isOver ? '2px dashed var(--color-primary-800)' : '2px dashed transparent',
             }}
           >
             <div style={{

@@ -99,10 +99,10 @@ export const PatientReportPortal: React.FC<Props> = ({ reportId, patientId }) =>
     <div className="space-y-3">
       {/* 概览 */}
       <Row gutter={8}>
-        <Col span={6}><Card size="small"><Statistic title={t('reportDist.portal.stat.total')} value={stats.total} prefix={<Link2 className="w-3 h-3" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('reportDist.portal.stat.total')} value={stats.total} prefix={<Link2 className="w-3 h-3" style={{ color: 'var(--color-primary-500)' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title={t('reportDist.portal.stat.active')} value={stats.active} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('reportDist.portal.stat.viewed')} value={stats.viewed} prefix={<Eye className="w-3 h-3" style={{ color: '#0891b2' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('reportDist.portal.stat.revoked')} value={stats.revoked} prefix={<XCircle className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('reportDist.portal.stat.viewed')} value={stats.viewed} prefix={<Eye className="w-3 h-3" style={{ color: 'var(--color-info-600)' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('reportDist.portal.stat.revoked')} value={stats.revoked} prefix={<XCircle className="w-3 h-3" style={{ color: 'var(--color-error-600)' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
       </Row>
 
       <Card size="small" className="shadow-sm" title={

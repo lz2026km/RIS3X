@@ -206,7 +206,7 @@ export const DentalEmrPage: React.FC = () => {
     <PageContainer padding={24}>
       {loadError && <ErrorBanner message={loadError} onRetry={() => void loadPatient(selectedId)} retryLabel={t('w9.states.retry')} />}
       <Space style={{ marginBottom: 16 }}>
-        <Activity size={20} color="#2563eb" />
+        <Activity size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dentalEmr.title')}</span>
         <Tag color="cyan">v3.0.6.8-94</Tag>
         <Tag color="blue">{t('dentalEmr.benchmark')}</Tag>
@@ -221,7 +221,7 @@ export const DentalEmrPage: React.FC = () => {
             <Col span={6}>
               <Card size="small">
                 <Space>
-                  <Avatar size={40} style={{ backgroundColor: '#2563eb' }}>{overview.name[0]}</Avatar>
+                  <Avatar size={40} style={{ backgroundColor: 'var(--color-primary-600)' }}>{overview.name[0]}</Avatar>
                   <div>
                     <div style={{ fontWeight: 600 }}>{overview.name} <Tag>{overview.gender === 'M' ? t('dentalEmr.male') : t('dentalEmr.female')}</Tag><Tag>{overview.age}{t('dentalEmr.ageSuffix')}</Tag></div>
                     <Space size={2}>

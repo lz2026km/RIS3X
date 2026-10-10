@@ -196,7 +196,7 @@ const SmartRoutePage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
-        <GitBranch size={20} color="#2563eb" />
+        <GitBranch size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('smartRoute.title')}</span>
       </Space>
       {error && <Alert type="warning" showIcon message={t('smartRoute.loadFailed')} description={error} action={<Button size="small" onClick={fetchAll}><RefreshCw size={14} /> {t('smartRoute.retry')}</Button>} style={{ marginBottom: 16 }} />}
@@ -237,18 +237,18 @@ const SmartRoutePage: React.FC = () => {
                         {rec.qualified && <Tag color="green">{t('smartRoute.qualifiedTag')}</Tag>}
                       </Space>
                     }
-                    extra={<span style={{ fontSize: 16, fontWeight: 800, color: rec.qualified ? '#2563eb' : '#94a3b8' }}>{t('smartRoute.scoreSuffix', { score: (rec.composite * 100).toFixed(0) })}</span>}
+                    extra={<span style={{ fontSize: 16, fontWeight: 800, color: rec.qualified ? 'var(--color-primary-600)' : '#94a3b8' }}>{t('smartRoute.scoreSuffix', { score: (rec.composite * 100).toFixed(0) })}</span>}
                     style={{ borderColor: rec.qualified ? '#93c5fd' : '#e2e8f0', height: '100%' }}
                   >
                     <div style={{ marginBottom: 8 }}>
-                      <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('smartRoute.matchScore')} <b style={{ color: '#1e40af' }}>{Math.round(rec.matchScore * 100)}%</b></div>
-                      <Progress percent={Math.round(rec.matchScore * 100)} showInfo={false} size="small" strokeColor={rec.matchScore >= 1 ? '#16a34a' : rec.matchScore >= 0.5 ? '#d97706' : '#94a3b8'} />
+                      <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('smartRoute.matchScore')} <b style={{ color: 'var(--color-primary-800)' }}>{Math.round(rec.matchScore * 100)}%</b></div>
+                      <Progress percent={Math.round(rec.matchScore * 100)} showInfo={false} size="small" strokeColor={rec.matchScore >= 1 ? 'var(--color-success-600)' : rec.matchScore >= 0.5 ? 'var(--color-warning-600)' : '#94a3b8'} />
                     </div>
                     <div style={{ marginBottom: 8 }}>
-                      <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('smartRoute.currentLoad')} <b style={{ color: '#1e40af' }}>{rec.currentLoad}/{rec.maxLoad}</b></div>
-                      <Progress percent={Math.min(100, Math.round((rec.currentLoad / Math.max(1, rec.maxLoad)) * 100))} showInfo={false} size="small" strokeColor={rec.currentLoad < rec.maxLoad ? '#2563eb' : '#dc2626'} />
+                      <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('smartRoute.currentLoad')} <b style={{ color: 'var(--color-primary-800)' }}>{rec.currentLoad}/{rec.maxLoad}</b></div>
+                      <Progress percent={Math.min(100, Math.round((rec.currentLoad / Math.max(1, rec.maxLoad)) * 100))} showInfo={false} size="small" strokeColor={rec.currentLoad < rec.maxLoad ? 'var(--color-primary-600)' : 'var(--color-error-600)'} />
                     </div>
-                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>{t('smartRoute.accuracy')} <b style={{ color: '#16a34a' }}>{t('smartRoute.accuracyScore', { score: Math.round(rec.accuracy * 100) })}</b></div>
+                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>{t('smartRoute.accuracy')} <b style={{ color: 'var(--color-success-600)' }}>{t('smartRoute.accuracyScore', { score: Math.round(rec.accuracy * 100) })}</b></div>
                     <ul style={{ margin: '0 0 12px', paddingLeft: 16, fontSize: 12, color: '#64748b', lineHeight: 1.8 }}>
                       {rec.reasons.map((r, i) => <li key={i}>{r}</li>)}
                     </ul>

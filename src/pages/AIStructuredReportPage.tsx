@@ -843,7 +843,7 @@ const AIStructuredReportPage: React.FC = () => {
       toastTimeoutsRef.current.push(t1);
     };
     if (!validate()) {
-      showToast(t("aiStructured.requiredFields"), "#dc2626");
+      showToast(t("aiStructured.requiredFields"), "var(--color-error-600)");
       return;
     }
     if (savingReport) return;
@@ -893,7 +893,7 @@ const AIStructuredReportPage: React.FC = () => {
       justifyContent: "space-between",
       alignItems: "center",
       padding: "16px 24px",
-      backgroundColor: "#1e40af",
+      backgroundColor: "var(--color-primary-800)",
       color: "white",
       boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
     },
@@ -907,7 +907,7 @@ const AIStructuredReportPage: React.FC = () => {
       alignItems: "center",
       gap: "8px",
       padding: "10px 20px",
-      backgroundColor: isRecording ? "#dc2626" : "rgba(255,255,255,0.2)",
+      backgroundColor: isRecording ? "var(--color-error-600)" : "rgba(255,255,255,0.2)",
       color: "white",
       border: "none",
       borderRadius: "8px",
@@ -949,9 +949,9 @@ const AIStructuredReportPage: React.FC = () => {
       fontWeight: 500,
     },
     specialtyTabActive: {
-      backgroundColor: "#1e40af",
+      backgroundColor: "var(--color-primary-800)",
       color: "white",
-      borderColor: "#1e40af",
+      borderColor: "var(--color-primary-800)",
     },
     templateList: {
       flex: 1,
@@ -992,10 +992,10 @@ const AIStructuredReportPage: React.FC = () => {
     sectionTitle: {
       fontSize: "16px",
       fontWeight: 600,
-      color: "#1e40af",
+      color: "var(--color-primary-800)",
       marginBottom: "16px",
       paddingBottom: "8px",
-      borderBottom: "2px solid #1e40af",
+      borderBottom: "2px solid var(--color-primary-800)",
     },
     sectionSubtitle: {
       fontSize: "14px",
@@ -1065,12 +1065,12 @@ const AIStructuredReportPage: React.FC = () => {
     diagnosisNumber: {
       fontSize: "12px",
       fontWeight: 600,
-      color: "#1e40af",
+      color: "var(--color-primary-800)",
     },
     removeButton: {
       padding: "4px 8px",
       backgroundColor: "var(--color-error-bg)",
-      color: "#dc2626",
+      color: "var(--color-error-600)",
       border: "none",
       borderRadius: "4px",
       fontSize: "12px",
@@ -1079,8 +1079,8 @@ const AIStructuredReportPage: React.FC = () => {
     addButton: {
       padding: "10px 16px",
       backgroundColor: "var(--color-info-bg)",
-      color: "#1e40af",
-      border: "1px dashed #1e40af",
+      color: "var(--color-primary-800)",
+      border: "1px dashed var(--color-primary-800)",
       borderRadius: "6px",
       fontSize: "12px",
       cursor: "pointer",
@@ -1110,7 +1110,7 @@ const AIStructuredReportPage: React.FC = () => {
       border: "none",
     },
     buttonPrimary: {
-      backgroundColor: "#1e40af",
+      backgroundColor: "var(--color-primary-800)",
       color: "white",
     },
     buttonSecondary: {
@@ -1119,8 +1119,8 @@ const AIStructuredReportPage: React.FC = () => {
     },
     buttonOutline: {
       backgroundColor: "transparent",
-      color: "#1e40af",
-      border: "1px solid #1e40af",
+      color: "var(--color-primary-800)",
+      border: "1px solid var(--color-primary-800)",
     },
     previewOverlay: {
       position: "fixed" as const,
@@ -1143,7 +1143,7 @@ const AIStructuredReportPage: React.FC = () => {
     },
     previewHeader: {
       padding: "16px 24px",
-      backgroundColor: "#1e40af",
+      backgroundColor: "var(--color-primary-800)",
       color: "white",
       display: "flex",
       justifyContent: "space-between",
@@ -1183,7 +1183,7 @@ const AIStructuredReportPage: React.FC = () => {
     jsonPreviewButton: {
       marginTop: "12px",
       padding: "12px 16px",
-      backgroundColor: "#1e40af",
+      backgroundColor: "var(--color-primary-800)",
       color: "white",
       border: "none",
       borderRadius: "6px",
@@ -1262,7 +1262,7 @@ const AIStructuredReportPage: React.FC = () => {
                 style={{
                   ...styles.templateItem,
                   borderColor:
-                    selectedTemplate === template.id ? "#1e40af" : "#e2e8f0",
+                    selectedTemplate === template.id ? "var(--color-primary-800)" : "#e2e8f0",
                   backgroundColor:
                     selectedTemplate === template.id ? "#eff6ff" : "#f8fafc",
                 }}
@@ -1273,7 +1273,7 @@ const AIStructuredReportPage: React.FC = () => {
                   style={{
                     ...styles.templateName,
                     color:
-                      selectedTemplate === template.id ? "#1e40af" : "#334155",
+                      selectedTemplate === template.id ? "var(--color-primary-800)" : "#334155",
                   }}
                 >
                   {template.name}
@@ -1288,11 +1288,11 @@ const AIStructuredReportPage: React.FC = () => {
           <div style={styles.formSection}>
             {/* Patient Info */}
             <section style={styles.section}>
-              <PageHeader variant="inline" title={t("aiStructured.patientInfo")} style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid #1e40af" }} />
+              <PageHeader variant="inline" title={t("aiStructured.patientInfo")} style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid var(--color-primary-800)" }} />
               <div style={styles.formGrid}>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>
-                    <span style={{ color: "#dc2626" }}>*</span> {t("aiStructured.patientName")}
+                    <span style={{ color: "var(--color-error-600)" }}>*</span> {t("aiStructured.patientName")}
                   </label>
                   <input
                     type="text"
@@ -1301,7 +1301,7 @@ const AIStructuredReportPage: React.FC = () => {
                     onChange={handleInputChange}
                     style={{
                       ...styles.input,
-                      borderColor: errors.patientName ? "#dc2626" : undefined,
+                      borderColor: errors.patientName ? "var(--color-error-600)" : undefined,
                     }}
                     placeholder={t("aiStructured.placeholderPatientName")}
                     maxLength={50}
@@ -1309,7 +1309,7 @@ const AIStructuredReportPage: React.FC = () => {
                   />
                   {errors.patientName && (
                     <span
-                      style={{ color: "#dc2626", fontSize: 12, marginTop: 2 }}
+                      style={{ color: "var(--color-error-600)", fontSize: 12, marginTop: 2 }}
                     >
                       {errors.patientName}
                     </span>
@@ -1317,7 +1317,7 @@ const AIStructuredReportPage: React.FC = () => {
                 </div>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>
-                    <span style={{ color: "#dc2626" }}>*</span> {t("aiStructured.patientId")}
+                    <span style={{ color: "var(--color-error-600)" }}>*</span> {t("aiStructured.patientId")}
                   </label>
                   <input
                     type="text"
@@ -1326,7 +1326,7 @@ const AIStructuredReportPage: React.FC = () => {
                     onChange={handleInputChange}
                     style={{
                       ...styles.input,
-                      borderColor: errors.patientId ? "#dc2626" : undefined,
+                      borderColor: errors.patientId ? "var(--color-error-600)" : undefined,
                     }}
                     placeholder={t("aiStructured.placeholderPatientId")}
                     maxLength={20}
@@ -1334,7 +1334,7 @@ const AIStructuredReportPage: React.FC = () => {
                   />
                   {errors.patientId && (
                     <span
-                      style={{ color: "#dc2626", fontSize: 12, marginTop: 2 }}
+                      style={{ color: "var(--color-error-600)", fontSize: 12, marginTop: 2 }}
                     >
                       {errors.patientId}
                     </span>
@@ -1342,7 +1342,7 @@ const AIStructuredReportPage: React.FC = () => {
                 </div>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>
-                    <span style={{ color: "#dc2626" }}>*</span> {t("aiStructured.age")}
+                    <span style={{ color: "var(--color-error-600)" }}>*</span> {t("aiStructured.age")}
                   </label>
                   <input
                     type="text"
@@ -1351,7 +1351,7 @@ const AIStructuredReportPage: React.FC = () => {
                     onChange={handleInputChange}
                     style={{
                       ...styles.input,
-                      borderColor: errors.age ? "#dc2626" : undefined,
+                      borderColor: errors.age ? "var(--color-error-600)" : undefined,
                     }}
                     placeholder={t("aiStructured.placeholderAge")}
                     maxLength={3}
@@ -1359,7 +1359,7 @@ const AIStructuredReportPage: React.FC = () => {
                   />
                   {errors.age && (
                     <span
-                      style={{ color: "#dc2626", fontSize: 12, marginTop: 2 }}
+                      style={{ color: "var(--color-error-600)", fontSize: 12, marginTop: 2 }}
                     >
                       {errors.age}
                     </span>
@@ -1393,11 +1393,11 @@ const AIStructuredReportPage: React.FC = () => {
             {/* WS/T 500-2016 三段式报告 */}
             {/* Finding Section */}
             <section style={styles.section}>
-              <PageHeader variant="inline" title={t("aiStructured.findingSection")} style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid #1e40af" }} />
+              <PageHeader variant="inline" title={t("aiStructured.findingSection")} style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid var(--color-primary-800)" }} />
               <div style={styles.formGrid}>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>
-                    <span style={{ color: "#dc2626" }}>*</span> {t("aiStructured.examMethod")}
+                    <span style={{ color: "var(--color-error-600)" }}>*</span> {t("aiStructured.examMethod")}
                   </label>
                   <input
                     type="text"
@@ -1407,7 +1407,7 @@ const AIStructuredReportPage: React.FC = () => {
                     style={{
                       ...styles.input,
                       borderColor: errors["finding.examMethod"]
-                        ? "#dc2626"
+                        ? "var(--color-error-600)"
                         : undefined,
                     }}
                     placeholder={t("aiStructured.placeholderExamMethod")}
@@ -1416,7 +1416,7 @@ const AIStructuredReportPage: React.FC = () => {
                   />
                   {errors["finding.examMethod"] && (
                     <span
-                      style={{ color: "#dc2626", fontSize: 12, marginTop: 2 }}
+                      style={{ color: "var(--color-error-600)", fontSize: 12, marginTop: 2 }}
                     >
                       {errors["finding.examMethod"]}
                     </span>
@@ -1424,7 +1424,7 @@ const AIStructuredReportPage: React.FC = () => {
                 </div>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>
-                    <span style={{ color: "#dc2626" }}>*</span> {t("aiStructured.examPart")}
+                    <span style={{ color: "var(--color-error-600)" }}>*</span> {t("aiStructured.examPart")}
                   </label>
                   <input
                     type="text"
@@ -1434,7 +1434,7 @@ const AIStructuredReportPage: React.FC = () => {
                     style={{
                       ...styles.input,
                       borderColor: errors["finding.examPart"]
-                        ? ("#dc2626" as string)
+                        ? ("var(--color-error-600)" as string)
                         : undefined,
                     }}
                     placeholder={t("aiStructured.placeholderExamPart")}
@@ -1443,7 +1443,7 @@ const AIStructuredReportPage: React.FC = () => {
                   />
                   {errors["finding.examPart"] && (
                     <span
-                      style={{ color: "#dc2626", fontSize: 12, marginTop: 2 }}
+                      style={{ color: "var(--color-error-600)", fontSize: 12, marginTop: 2 }}
                     >
                       {errors["finding.examPart"]}
                     </span>
@@ -1463,7 +1463,7 @@ const AIStructuredReportPage: React.FC = () => {
               </div>
               <div style={{ marginTop: "12px" }}>
                 <label style={styles.label}>
-                  <span style={{ color: "#dc2626" }}>*</span> {t("aiStructured.mainFindings")}
+                  <span style={{ color: "var(--color-error-600)" }}>*</span> {t("aiStructured.mainFindings")}
                 </label>
                 <textarea
                   name="finding.description"
@@ -1473,7 +1473,7 @@ const AIStructuredReportPage: React.FC = () => {
                     ...styles.textarea,
                     minHeight: "100px",
                     borderColor: errors["finding.description"]
-                      ? "#dc2626"
+                      ? "var(--color-error-600)"
                       : undefined,
                   }}
                   placeholder={t("aiStructured.placeholderMainFindings")}
@@ -1481,7 +1481,7 @@ const AIStructuredReportPage: React.FC = () => {
                   required
                 />
                 {errors["finding.description"] && (
-                  <span style={{ color: "#dc2626", fontSize: 12 }}>
+                  <span style={{ color: "var(--color-error-600)", fontSize: 12 }}>
                     {errors["finding.description"]}
                   </span>
                 )}
@@ -1504,7 +1504,7 @@ const AIStructuredReportPage: React.FC = () => {
               <PageHeader
                 variant="inline"
                 title={activeSpecialtyTab === "ct" ? t("aiStructured.specCtFields") : activeSpecialtyTab === "mr" ? t("aiStructured.specMrFields") : activeSpecialtyTab === "dxr" ? t("aiStructured.specDxrFields") : t("aiStructured.specBreastFields")}
-                style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid #1e40af" }}
+                style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid var(--color-primary-800)" }}
               />
 
               {activeSpecialtyTab === "ct" && (
@@ -1732,7 +1732,7 @@ const AIStructuredReportPage: React.FC = () => {
 
             {/* Impression Section */}
             <section style={styles.section}>
-              <PageHeader variant="inline" title={t("aiStructured.impressionSection")} style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid #1e40af" }} />
+              <PageHeader variant="inline" title={t("aiStructured.impressionSection")} style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid var(--color-primary-800)" }} />
 
               <div style={styles.sectionSubtitle}>{t("aiStructured.impressionSubtitle")}</div>
               {formData.impression.diagnoses.map((diag, index) => (
@@ -1796,7 +1796,7 @@ const AIStructuredReportPage: React.FC = () => {
 
             {/* Recommendation Section */}
             <section style={styles.section}>
-              <PageHeader variant="inline" title={t("aiStructured.recommendationSection")} style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid #1e40af" }} />
+              <PageHeader variant="inline" title={t("aiStructured.recommendationSection")} style={{ marginBottom: 16, paddingBottom: 8, borderBottom: "2px solid var(--color-primary-800)" }} />
               <div style={styles.formGrid}>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>{t("aiStructured.furtherExam")}</label>

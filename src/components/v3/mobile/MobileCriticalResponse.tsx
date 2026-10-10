@@ -98,17 +98,17 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
       <Row gutter={8} style={{ marginBottom: 12 }}>
         <Col span={8}>
           <Card>
-            <Statistic title={t('w9e.mobileCritical.pendingStat')} value={stats.pending} styles={{ content: {  fontSize: 18, color: '#dc2626'  } }} prefix={<Bell size={14} />} />
+            <Statistic title={t('w9e.mobileCritical.pendingStat')} value={stats.pending} styles={{ content: {  fontSize: 18, color: 'var(--color-error-600)'  } }} prefix={<Bell size={14} />} />
           </Card>
         </Col>
         <Col span={8}>
           <Card>
-            <Statistic title={t('w9e.mobileCritical.lifeThreatening')} value={stats.lifeThreatening} styles={{ content: {  fontSize: 18, color: '#dc2626'  } }} prefix={<AlertOctagon size={14} />} />
+            <Statistic title={t('w9e.mobileCritical.lifeThreatening')} value={stats.lifeThreatening} styles={{ content: {  fontSize: 18, color: 'var(--color-error-600)'  } }} prefix={<AlertOctagon size={14} />} />
           </Card>
         </Col>
         <Col span={8}>
           <Card>
-            <Statistic title={t('w9e.mobileCritical.acked')} value={stats.acked} styles={{ content: {  fontSize: 18, color: '#16a34a'  } }} prefix={<CheckCircle size={14} />} />
+            <Statistic title={t('w9e.mobileCritical.acked')} value={stats.acked} styles={{ content: {  fontSize: 18, color: 'var(--color-success-600)'  } }} prefix={<CheckCircle size={14} />} />
           </Card>
         </Col>
       </Row>
@@ -118,7 +118,7 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
           data-testid="mob-critical-alert-banner"
           style={{
             background: '#fee2e2',
-            border: '1px solid #dc2626',
+            border: '1px solid var(--color-error-600)',
             borderRadius: 6,
             padding: 8,
             marginBottom: 12,
@@ -128,8 +128,8 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
             animation: 'pulse 1.5s infinite',
           }}
         >
-          <Volume2 size={20} color="#dc2626" />
-          <span style={{ fontSize: 14, color: '#dc2626', fontWeight: 600 }}>
+          <Volume2 size={20} color="var(--color-error-600)" />
+          <span style={{ fontSize: 14, color: 'var(--color-error-600)', fontWeight: 600 }}>
             {t('w9e.mobileCritical.alertBanner', { count: stats.lifeThreatening })}
           </span>
         </div>
@@ -149,7 +149,7 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
               style={{
                 marginBottom: 8,
                 borderLeft: `4px solid`,
-                borderLeftColor: c.color === 'red' ? '#dc2626' : c.color === 'orange' ? '#ca8a04' : '#ca8a04',
+                borderLeftColor: c.color === 'red' ? 'var(--color-error-600)' : c.color === 'orange' ? '#ca8a04' : '#ca8a04',
                 background: c.color === 'red' ? '#fef2f2' : undefined,
               }}
             >
@@ -194,7 +194,7 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
               </div>
             </Card>
             <Card size="small" title={t('w9e.mobileCritical.finding')}>
-              <div style={{ fontSize: 14, color: '#dc2626', fontWeight: 500 }}>{selected.finding}</div>
+              <div style={{ fontSize: 14, color: 'var(--color-error-600)', fontWeight: 500 }}>{selected.finding}</div>
             </Card>
             <Card size="small" title={t('w9e.mobileCritical.recipient')}>
               <div style={{ fontSize: 12 }}>

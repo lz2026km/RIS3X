@@ -103,8 +103,8 @@ export function CriticalValueStatsExtended() {
             xKey="date"
             height={220}
             series={[
-              { key: 'found', name: t('critExt.found'), color: '#dc2626' },
-              { key: 'closed', name: t('critExt.closed'), color: '#16a34a' },
+              { key: 'found', name: t('critExt.found'), color: 'var(--color-error-600)' },
+              { key: 'closed', name: t('critExt.closed'), color: 'var(--color-success-600)' },
             ]}
           />
         </DashboardCard>

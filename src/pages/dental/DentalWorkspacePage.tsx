@@ -14,11 +14,11 @@ import { dentalApi, type DentalStudy } from '../../services/api/dentalApi';
 import { t } from '../../i18n/appI18n';
 
 const QUICK_LINKS = [
-  { key: 'studies', titleKey: 'dental.quick.studies.title', descKey: 'dental.quick.studies.desc', icon: Layers, color: '#2563eb', href: '/dental/studies' },
+  { key: 'studies', titleKey: 'dental.quick.studies.title', descKey: 'dental.quick.studies.desc', icon: Layers, color: 'var(--color-primary-600)', href: '/dental/studies' },
   { key: 'viewer', titleKey: 'dental.quick.viewer.title', descKey: 'dental.quick.viewer.desc', icon: ScanLine, color: '#10b981', href: '/dental/viewer' },
-  { key: 'schedule', titleKey: 'dental.quick.schedule.title', descKey: 'dental.quick.schedule.desc', icon: Calendar, color: '#f59e0b', href: '/dental/schedule' },
+  { key: 'schedule', titleKey: 'dental.quick.schedule.title', descKey: 'dental.quick.schedule.desc', icon: Calendar, color: 'var(--color-warning-500)', href: '/dental/schedule' },
   { key: 'ai', titleKey: 'dental.quick.ai.title', descKey: 'dental.quick.ai.desc', icon: Microscope, color: '#8b5cf6', href: '/dental/ai' },
-  { key: 'treatment', titleKey: 'dental.quick.treatment.title', descKey: 'dental.quick.treatment.desc', icon: Stethoscope, color: '#06b6d4', href: '/dental/treatment' },
+  { key: 'treatment', titleKey: 'dental.quick.treatment.title', descKey: 'dental.quick.treatment.desc', icon: Stethoscope, color: 'var(--color-info-500)', href: '/dental/treatment' },
   { key: 'implant', titleKey: 'dental.quick.implant.title', descKey: 'dental.quick.implant.desc', icon: Activity, color: '#ec4899', href: '/dental/implant-3d' },
 ];
 

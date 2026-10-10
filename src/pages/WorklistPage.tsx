@@ -228,8 +228,8 @@ const getSLAElapsedMinutes = (exam: RadiologyExam): number => {
 const getSLAInfo = (exam: RadiologyExam): SLAInfo => {
   try {
     const elapsedMinutes = getSLAElapsedMinutes(exam)
-    if (elapsedMinutes > 60) return { elapsedMinutes, status: 'critical', color: '#dc2626', label: '>60min' }
-    if (elapsedMinutes > 30) return { elapsedMinutes, status: 'warning', color: '#d97706', label: '30-60min' }
+    if (elapsedMinutes > 60) return { elapsedMinutes, status: 'critical', color: 'var(--color-error-600)', label: '>60min' }
+    if (elapsedMinutes > 30) return { elapsedMinutes, status: 'warning', color: 'var(--color-warning-600)', label: '30-60min' }
     return { elapsedMinutes, status: 'normal', color: '#059669', label: '<30min' }
   } catch {
     return { elapsedMinutes: 0, status: 'normal', color: '#059669', label: '<30min' }
@@ -966,8 +966,8 @@ export default function WorklistPage() {
     const total = Math.max(1, filteredExams.length)
     return [
       { name: '<30min', value: buckets.lt30, pct: Math.round((buckets.lt30 / total) * 100), color: '#059669' },
-      { name: '30-60min', value: buckets.m30to60, pct: Math.round((buckets.m30to60 / total) * 100), color: '#d97706' },
-      { name: '>60min', value: buckets.gt60, pct: Math.round((buckets.gt60 / total) * 100), color: '#dc2626' },
+      { name: '30-60min', value: buckets.m30to60, pct: Math.round((buckets.m30to60 / total) * 100), color: 'var(--color-warning-600)' },
+      { name: '>60min', value: buckets.gt60, pct: Math.round((buckets.gt60 / total) * 100), color: 'var(--color-error-600)' },
     ]
   }, [filteredExams])
   const avgWaitMinutes = useMemo(() => {
@@ -1690,7 +1690,7 @@ export default function WorklistPage() {
             title={allColumnsShown ? t('worklistPage.configureColumns') : t('worklistPage.hiddenColumns', { count: hiddenColumnKeys.length })}
             testId="column-config-btn"
           >
-            {t('worklistPage.columnConfig.title')}{!allColumnsShown && <span style={{ color: '#d97706', marginLeft: 4 }}>({hiddenColumnKeys.length})</span>}
+            {t('worklistPage.columnConfig.title')}{!allColumnsShown && <span style={{ color: 'var(--color-warning-600)', marginLeft: 4 }}>({hiddenColumnKeys.length})</span>}
           </AppButton>
 
           <ActionButton
@@ -1736,18 +1736,18 @@ export default function WorklistPage() {
           background: 'var(--bg-card)', border: '1px solid var(--border-color)',
           borderRadius: 12, padding: '10px 16px', marginBottom: 12, fontSize: 12,
         }} data-testid="prefetch-status-bar">
-          <span style={{ fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <span style={{ fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 4 }}>
             <CloudDownload size={13} /> {t('worklistPage.prefetch.title')}
           </span>
           <div style={{ flex: 1, minWidth: 160, background: 'var(--bg-deep)', borderRadius: 999, height: 8, overflow: 'hidden', position: 'relative' }}>
             <div style={{
               height: '100%', width: `${prefetchStats.total > 0 ? Math.round((prefetchStats.cached / prefetchStats.total) * 100) : 0}%`,
-              background: prefetchStats.pending > 0 ? '#3b82f6' : '#22c55e', transition: 'width 0.4s',
+              background: prefetchStats.pending > 0 ? 'var(--color-primary-500)' : 'var(--color-success-500)', transition: 'width 0.4s',
             }} />
           </div>
           <span style={{ color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
-            {t('worklistPage.prefetch.cached')} <b style={{ color: prefetchStats.pending > 0 ? '#2563eb' : '#059669' }}>{prefetchStats.cached}</b>/{prefetchStats.total}
-            {prefetchStats.pending > 0 && <span style={{ color: '#d97706', marginLeft: 6 }}>{t('worklistPage.prefetch.queuing')} {prefetchStats.pending}</span>}
+            {t('worklistPage.prefetch.cached')} <b style={{ color: prefetchStats.pending > 0 ? 'var(--color-primary-600)' : '#059669' }}>{prefetchStats.cached}</b>/{prefetchStats.total}
+            {prefetchStats.pending > 0 && <span style={{ color: 'var(--color-warning-600)', marginLeft: 6 }}>{t('worklistPage.prefetch.queuing')} {prefetchStats.pending}</span>}
           </span>
           {prefetchStats.pending === 0 && prefetchStats.total > 0 && (
             <span style={{
@@ -1764,7 +1764,7 @@ export default function WorklistPage() {
         <div style={{
           display: 'flex', alignItems: 'center', gap: 6,
           background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 8,
-          padding: '8px 14px', marginBottom: 12, fontSize: 12, color: '#1e40af',
+          padding: '8px 14px', marginBottom: 12, fontSize: 12, color: 'var(--color-primary-800)',
         }} data-testid="prefetch-msg" role="status">
           <CheckCircle size={13} /> {prefetchMsg}
         </div>
@@ -1800,13 +1800,13 @@ export default function WorklistPage() {
          styles={{ body: { padding: 0 } }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: 30, fontWeight: 800, color: '#1e40af', lineHeight: 1 }}>{stats.total}</div>
+              <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--color-primary-800)', lineHeight: 1 }}>{stats.total}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('worklistPage.stats.totalExams')}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
                 {t('worklistPage.stats.waiting')}: {stats.waiting}
               </div>
             </div>
-            <MiniSparkline data={sparkTotal} color="#3b82f6" />
+            <MiniSparkline data={sparkTotal} color="var(--color-primary-500)" />
           </div>
         </Card>
         <Card bordered={false}
@@ -1822,13 +1822,13 @@ export default function WorklistPage() {
          styles={{ body: { padding: 0 } }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: 30, fontWeight: 800, color: '#dc2626', lineHeight: 1 }}>{stats.critical}</div>
+              <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--color-error-600)', lineHeight: 1 }}>{stats.critical}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('worklistPage.stats.criticalUrgent')}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
                 {t('worklistPage.stats.slaOverdue')}: {slaCriticalExams.length}
               </div>
             </div>
-            <MiniSparkline data={sparkCritical} color="#dc2626" />
+            <MiniSparkline data={sparkCritical} color="var(--color-error-600)" />
           </div>
         </Card>
         <Card bordered={false}
@@ -1844,13 +1844,13 @@ export default function WorklistPage() {
          styles={{ body: { padding: 0 } }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: 30, fontWeight: 800, color: '#d97706', lineHeight: 1 }}>{stats.pending}</div>
+              <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--color-warning-600)', lineHeight: 1 }}>{stats.pending}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('worklistPage.stats.pending')}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
                 {t('worklistPage.stats.avgWait')}: {avgWaitMinutes}min
               </div>
             </div>
-            <MiniSparkline data={sparkPending} color="#d97706" />
+            <MiniSparkline data={sparkPending} color="var(--color-warning-600)" />
           </div>
         </Card>
         <Card bordered={false}
@@ -1888,11 +1888,11 @@ export default function WorklistPage() {
           background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Clock size={13} /> {t('worklistPage.sla.title')}
             </div>
             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-              {t('worklistPage.sla.avgWait')} <b style={{ color: avgWaitMinutes > 30 ? '#d97706' : '#059669' }}>{avgWaitMinutes}</b> min
+              {t('worklistPage.sla.avgWait')} <b style={{ color: avgWaitMinutes > 30 ? 'var(--color-warning-600)' : '#059669' }}>{avgWaitMinutes}</b> min
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 18, height: 96 }}>
@@ -1908,7 +1908,7 @@ export default function WorklistPage() {
             ))}
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 11, color: 'var(--text-secondary)' }}>
-            <span>{t('worklistPage.sla.exceedRate')} <b style={{ color: slaExceedRate > 30 ? '#dc2626' : '#059669' }}>{slaExceedRate}%</b></span>
+            <span>{t('worklistPage.sla.exceedRate')} <b style={{ color: slaExceedRate > 30 ? 'var(--color-error-600)' : '#059669' }}>{slaExceedRate}%</b></span>
             <span>{t('worklistPage.sla.threshold')}</span>
           </div>
           {/* 近 7 日超时率迷你趋势 */}
@@ -1916,7 +1916,7 @@ export default function WorklistPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
               <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('worklistPage.sla.last7days')}</span>
               <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
-                {t('worklistPage.sla.peak')} <b style={{ color: '#d97706' }}>{slaTrendPeak.day}</b> {slaTrendPeak.rate}%
+                {t('worklistPage.sla.peak')} <b style={{ color: 'var(--color-warning-600)' }}>{slaTrendPeak.day}</b> {slaTrendPeak.rate}%
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 34 }}>
@@ -1924,7 +1924,7 @@ export default function WorklistPage() {
                 <div key={d.day} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }} title={t('worklistPage.slaTrendTip', { day: d.day, overdue: d.overdue, total: d.total })}>
                   <div style={{
                     width: '72%', height: Math.max(2, Math.round((d.rate / 100) * 28)), borderRadius: 2,
-                    background: d.rate > 50 ? '#dc2626' : d.rate > 25 ? '#d97706' : '#22c55e',
+                    background: d.rate > 50 ? 'var(--color-error-600)' : d.rate > 25 ? 'var(--color-warning-600)' : 'var(--color-success-500)',
                   }} />
                   <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{d.day}</span>
                 </div>
@@ -1937,7 +1937,7 @@ export default function WorklistPage() {
         <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
           background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
         }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
             <CheckCircle2 size={13} /> {t('worklistPage.todayProgress.title')}
           </div>
           <div style={{ fontSize: 24, fontWeight: 800, color: '#059669', lineHeight: 1 }}>
@@ -1945,12 +1945,12 @@ export default function WorklistPage() {
           </div>
           <div style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '6px 0 10px' }}>
             {t('worklistPage.todayProgress.done')} <b style={{ color: '#059669' }}>{todayProgress.done}</b> / {todayProgress.total} {t('worklistPage.stats.items')}
-            {todayProgress.pending > 0 && <span style={{ color: '#d97706' }}> · {t('worklistPage.todayProgress.pending')} {todayProgress.pending}</span>}
+            {todayProgress.pending > 0 && <span style={{ color: 'var(--color-warning-600)' }}> · {t('worklistPage.todayProgress.pending')} {todayProgress.pending}</span>}
           </div>
           <div style={{ height: 8, borderRadius: 999, background: 'var(--bg-deep)', overflow: 'hidden' }}>
             <div style={{
               height: '100%', width: `${todayProgress.percent}%`, borderRadius: 999,
-              background: todayProgress.percent >= 80 ? '#22c55e' : '#3b82f6', transition: 'width 0.5s',
+              background: todayProgress.percent >= 80 ? 'var(--color-success-500)' : 'var(--color-primary-500)', transition: 'width 0.5s',
             }} />
           </div>
         </Card>
@@ -1959,12 +1959,12 @@ export default function WorklistPage() {
         <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
           background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
         }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
             <UserCheck size={13} /> {t('worklistPage.todayBatch.title')}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 10, marginBottom: 12 }}>
             <div style={{ background: 'var(--color-info-bg)', borderRadius: 8, padding: '8px 10px' }}>
-              <div style={{ fontSize: 20, fontWeight: 800, color: '#2563eb', lineHeight: 1.2 }}>{todayBatchCounts.checkedIn}</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-primary-600)', lineHeight: 1.2 }}>{todayBatchCounts.checkedIn}</div>
               <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>{t('worklistPage.todayBatch.checkedIn')}</div>
             </div>
             <div style={{ background: 'var(--color-success-bg)', borderRadius: 8, padding: '8px 10px' }}>
@@ -1995,7 +1995,7 @@ export default function WorklistPage() {
         <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
           background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
         }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Monitor size={13} /> {t('worklistPage.modalitySla.title')}
           </div>
           {modalitySla.length === 0 ? (
@@ -2010,7 +2010,7 @@ export default function WorklistPage() {
                     <div style={{ flex: 1, height: 8, background: 'var(--bg-deep)', borderRadius: 999, overflow: 'hidden' }}>
                       <div style={{
                         width: `${rate}%`, height: '100%', borderRadius: 999,
-                        background: rate > 50 ? '#dc2626' : rate > 25 ? '#d97706' : '#22c55e', transition: 'width 0.4s',
+                        background: rate > 50 ? 'var(--color-error-600)' : rate > 25 ? 'var(--color-warning-600)' : 'var(--color-success-500)', transition: 'width 0.4s',
                       }} />
                     </div>
                     <span style={{ fontSize: 11, color: 'var(--text-secondary)', width: 110, textAlign: 'right', whiteSpace: 'nowrap' }}>
@@ -2026,11 +2026,11 @@ export default function WorklistPage() {
         <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
           background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
         }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
             <ClipboardList size={13} /> {t('worklistPage.hourly.title')} {t('worklistPage.hourRange')}
             {todayHourly.peakCount > 0 && (
               <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>
-                {t('worklistPage.hourly.peak')} <b style={{ color: '#d97706' }}>{todayHourly.peakHour}</b> {t('worklistPage.itemsCount', { count: todayHourly.peakCount })}
+                {t('worklistPage.hourly.peak')} <b style={{ color: 'var(--color-warning-600)' }}>{todayHourly.peakHour}</b> {t('worklistPage.itemsCount', { count: todayHourly.peakCount })}
               </span>
             )}
           </div>
@@ -2040,10 +2040,10 @@ export default function WorklistPage() {
               const hgt = h.count > 0 ? Math.max(6, Math.round((h.count / max) * 96)) : 3
               return (
                 <div key={h.hour} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-                  <span style={{ fontSize: 10, color: h.count > 0 ? '#1e40af' : 'var(--text-secondary)', fontWeight: 600 }}>{h.count}</span>
+                  <span style={{ fontSize: 10, color: h.count > 0 ? 'var(--color-primary-800)' : 'var(--text-secondary)', fontWeight: 600 }}>{h.count}</span>
                   <div style={{
                     width: '78%', height: hgt, borderRadius: '3px 3px 0 0',
-                    background: h.hour === todayHourly.peakHour && h.count > 0 ? '#d97706' : '#3b82f6',
+                    background: h.hour === todayHourly.peakHour && h.count > 0 ? 'var(--color-warning-600)' : 'var(--color-primary-500)',
                     opacity: h.count > 0 ? 0.75 + (h.count / max) * 0.25 : 0.25,
                   }} />
                   <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{h.hour.replace('时', '')}</span>
@@ -2057,7 +2057,7 @@ export default function WorklistPage() {
           background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <History size={13} /> {t('worklistPage.batchActivity.title')}
             </div>
             {batchActivity.length > 0 && (
@@ -2082,7 +2082,7 @@ export default function WorklistPage() {
                   <span style={{
                     padding: '1px 6px', borderRadius: 4, fontSize: 10, fontWeight: 700, whiteSpace: 'nowrap',
                     background: a.source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-                    color: a.source === 'api' ? '#059669' : '#d97706',
+                    color: a.source === 'api' ? '#059669' : 'var(--color-warning-600)',
                   }}>{a.source === 'api' ? 'API' : t('worklistPage.local')}</span>
                   <span style={{ color: 'var(--text-primary)', fontWeight: 600, whiteSpace: 'nowrap' }}>
                     {a.action === 'assign' ? t('worklistPage.batch.assign') : a.action === 'start' ? t('worklistPage.batch.start') : a.action === 'complete' ? t('worklistPage.batch.complete') : a.action === 'cancel' ? t('worklistPage.batch.cancel') : a.action}
@@ -2103,7 +2103,7 @@ export default function WorklistPage() {
         display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, fontSize: 12,
         padding: '6px 12px', borderRadius: 8,
         background: dataSourceIsReal ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-        color: dataSourceIsReal ? '#059669' : '#d97706',
+        color: dataSourceIsReal ? '#059669' : 'var(--color-warning-600)',
         border: `1px solid ${dataSourceIsReal ? '#bbf7d0' : '#fde68a'}`,
       }} data-testid="worklist-data-source-badge">
         <Wifi size={12} />
@@ -2117,7 +2117,7 @@ export default function WorklistPage() {
           background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12,
           padding: '10px 16px', marginBottom: 16, fontSize: 12,
         }} styles={{ body: { padding: 0 } }}>
-          <span style={{ fontWeight: 700, color: '#1e40af' }}>{t('worklistPage.serverStats')}</span>
+          <span style={{ fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('worklistPage.serverStats')}</span>
           <span style={{ color: 'var(--text-secondary)' }}>{t('worklistPage.total')} <b style={{ color: 'var(--text-primary)' }}>{serverStats.total}</b></span>
           {Object.entries(serverStats.byStatus ?? {}).map(([status, count]) => (
             <span key={status} style={{
@@ -2145,7 +2145,7 @@ export default function WorklistPage() {
           <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
             background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
           }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
               <LayoutDashboard size={13} /> {t('worklist.overview.title')}
               {overview?.date && (
                 <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>{overview.date}</span>
@@ -2163,7 +2163,7 @@ export default function WorklistPage() {
                     [t('worklist.overview.avgDuration'), `${overview.avgDurationMin}min`],
                   ].map(([label, value]) => (
                     <div key={label} style={{ background: 'var(--content-bg)', borderRadius: 8, padding: '8px 10px' }}>
-                      <div style={{ fontSize: 18, fontWeight: 800, color: '#1e40af', lineHeight: 1.2 }}>{value}</div>
+                      <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--color-primary-800)', lineHeight: 1.2 }}>{value}</div>
                       <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>{label}</div>
                     </div>
                   ))}
@@ -2175,7 +2175,7 @@ export default function WorklistPage() {
                   }).map(h => (
                     <div key={h.hour} title={t('worklistPage.hourCountTip', { hour: h.hour, count: h.count })} style={{
                       flex: 1, height: `${Math.max(3, Math.min(100, Math.round((h.count / Math.max(1, Math.max(...(overview.byHour ?? []).map(x => x.count), 1))) * 100)))}%`,
-                      background: '#3b82f6', borderRadius: '2px 2px 0 0', opacity: 0.75,
+                      background: 'var(--color-primary-500)', borderRadius: '2px 2px 0 0', opacity: 0.75,
                     }} />
                   ))}
                 </div>
@@ -2203,7 +2203,7 @@ export default function WorklistPage() {
           <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
             background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
           }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Table2 size={13} /> {t('worklist.byModality.title')}
               <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>
                 GET /worklist/by-modality
@@ -2221,7 +2221,7 @@ export default function WorklistPage() {
                       <div style={{ flex: 1, height: 8, background: 'var(--bg-deep)', borderRadius: 999, overflow: 'hidden' }}>
                         <div style={{
                           width: `${Math.round((m.total / maxTotal) * 100)}%`, height: '100%', borderRadius: 999,
-                          background: m.inProgress > 0 ? '#d97706' : '#3b82f6', transition: 'width 0.4s',
+                          background: m.inProgress > 0 ? 'var(--color-warning-600)' : 'var(--color-primary-500)', transition: 'width 0.4s',
                         }} />
                       </div>
                       <span style={{ fontSize: 11, color: 'var(--text-secondary)', width: 150, textAlign: 'right', whiteSpace: 'nowrap' }}>
@@ -2241,7 +2241,7 @@ export default function WorklistPage() {
           <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
             background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
           }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Users size={13} /> {t('worklist.technicianStats.title')}
               <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>
                 GET /worklist/technician-stats
@@ -2258,11 +2258,11 @@ export default function WorklistPage() {
                   }}>{t('worklist.technicianStats.completed', { count: technicianStats.summary?.totalCompleted })}</span>
                   <span style={{
                     padding: '2px 10px', borderRadius: 999, background: 'var(--color-warning-bg)',
-                    color: '#d97706', fontSize: 11,
+                    color: 'var(--color-warning-600)', fontSize: 11,
                   }}>{t('worklist.technicianStats.retake', { count: technicianStats.summary?.totalRetake, rate: technicianStats.summary?.retakeRate })}</span>
                   <span style={{
                     padding: '2px 10px', borderRadius: 999, background: 'var(--color-info-bg)',
-                    color: '#2563eb', fontSize: 11,
+                    color: 'var(--color-primary-600)', fontSize: 11,
                   }}>{t('worklist.technicianStats.avg', { min: technicianStats.summary?.avgDurationMin, count: technicianStats.summary?.technicianCount })}</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
@@ -2274,7 +2274,7 @@ export default function WorklistPage() {
                         <div style={{ flex: 1, height: 7, background: 'var(--bg-deep)', borderRadius: 999, overflow: 'hidden' }}>
                           <div style={{
                             width: `${Math.round((tech.completedCount / maxDone) * 100)}%`, height: '100%', borderRadius: 999,
-                            background: tech.retakeCount > 0 ? '#f59e0b' : '#22c55e', transition: 'width 0.4s',
+                            background: tech.retakeCount > 0 ? 'var(--color-warning-500)' : 'var(--color-success-500)', transition: 'width 0.4s',
                           }} />
                         </div>
                         <span style={{ fontSize: 11, color: 'var(--text-secondary)', width: 130, textAlign: 'right', whiteSpace: 'nowrap' }}>
@@ -2466,7 +2466,7 @@ export default function WorklistPage() {
             background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 480, maxHeight: '80vh', overflow: 'auto'
           }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{t('worklistPage.patientInfo.title')}</h3>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('worklistPage.patientInfo.title')}</h3>
               <ActionButton
                 action="cancel"
                 variant="text"
@@ -2504,7 +2504,7 @@ export default function WorklistPage() {
             background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 400, maxHeight: '80vh', overflow: 'auto'
           }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{t('worklistPage.deviceSelect.title')}</h3>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('worklistPage.deviceSelect.title')}</h3>
               <ActionButton
                 action="cancel"
                 variant="text"
@@ -2524,7 +2524,7 @@ export default function WorklistPage() {
                   padding: 12, border: '1px solid var(--border-color)', borderRadius: 8, cursor: 'pointer',
                   display: 'flex', alignItems: 'center', gap: 8
                 }} onClick={() => void assignDevice(deviceSelectModalExam, device.id)}>
-                  <Monitor size={16} style={{ color: '#1e40af' }} />
+                  <Monitor size={16} style={{ color: 'var(--color-primary-800)' }} />
                   <span style={{ fontSize: 12 }}>{device.name}</span>
                   <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 'auto' }}>{device.status}</span>
                 </div>
@@ -2550,7 +2550,7 @@ export default function WorklistPage() {
             background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 420, maxHeight: '80vh', overflow: 'auto'
           }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{t('worklistPage.doctorSelect.title')}</h3>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('worklistPage.doctorSelect.title')}</h3>
               <ActionButton
                 action="cancel"
                 variant="text"
@@ -2586,7 +2586,7 @@ export default function WorklistPage() {
                       display: 'flex', alignItems: 'center', gap: 8,
                       background: isAssigned ? '#f0f7ff' : '#fff',
                     }} onClick={() => void assignDoctor(doctorSelectModalExam, doctor.id)}>
-                    <Stethoscope size={16} style={{ color: '#1e40af' }} />
+                    <Stethoscope size={16} style={{ color: 'var(--color-primary-800)' }} />
                     <span style={{ fontSize: 12, fontWeight: 600 }}>{doctor.name}</span>
                     <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 'auto' }}>
                       {doctor.title || t('worklistPage.doctorSelect.radioDoctor')}
@@ -2616,7 +2616,7 @@ export default function WorklistPage() {
             background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 600, maxHeight: '80vh', overflow: 'auto'
           }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>
                 {normalizeExamStatus(reportModalExam.status) === 'COMPLETED' ? t('worklistPage.report.writeReport') : t('worklistPage.report.viewReport')}
               </h3>
               <ActionButton
@@ -2653,7 +2653,7 @@ export default function WorklistPage() {
         }}
           onKeyDown={(e) => { if (e.key === 'Escape') setConfirmModalConfig(null); }}>
           <Card bordered={false} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 400 }} styles={{ body: { padding: 0 } }}>
-            <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{confirmModalConfig.title}</h3>
+            <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>{confirmModalConfig.title}</h3>
             <p style={{ margin: '0 0 20px', fontSize: 14, color: 'var(--text-secondary)' }}>{confirmModalConfig.message}</p>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
               <ActionButton action="cancel" size="compact" onClick={() => setConfirmModalConfig(null)}>{t('worklistPage.confirm.cancel')}</ActionButton>
@@ -2691,7 +2691,7 @@ export default function WorklistPage() {
             background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 480
           }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{t('worklistPage.batchResult.title')}</h3>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('worklistPage.batchResult.title')}</h3>
               <ActionButton
                 action="cancel"
                 variant="text"
@@ -2700,7 +2700,7 @@ export default function WorklistPage() {
               />
             </div>
             <div style={{ marginBottom: 16, padding: 16, background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid #bbf7d0' }}>
-              <CheckCircle size={20} style={{ color: '#22c55e', marginBottom: 8 }} />
+              <CheckCircle size={20} style={{ color: 'var(--color-success-500)', marginBottom: 8 }} />
               <div style={{ fontSize: 14, color: '#166534' }}>{t('worklistPage.batchResult.done')}</div>
               <div style={{ fontSize: 12, color: '#15803d', marginTop: 4 }}>{batchResultModalData.results[0]}</div>
               {batchResultModalData.results.length > 1 && (
@@ -2732,7 +2732,7 @@ export default function WorklistPage() {
             background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 600, maxHeight: '80vh', overflow: 'auto'
           }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{t('worklistPage.printPreview.title')}</h3>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>{t('worklistPage.printPreview.title')}</h3>
               <ActionButton
                 action="cancel"
                 variant="text"
@@ -2781,7 +2781,7 @@ export default function WorklistPage() {
             background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 520, maxHeight: '80vh', overflow: 'auto',
           }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <SlidersHorizontal size={16} /> {t('worklistPage.columnConfig.panelTitle')}
               </h3>
               <ActionButton
@@ -2797,7 +2797,7 @@ export default function WorklistPage() {
             </div>
             {/* [W14-UX] 命名保存视图 */}
             <div style={{ borderTop: '1px solid var(--border-subtle, rgba(0,0,0,0.08))', paddingTop: 12, marginBottom: 12 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>{t('w14Ux.views.title')}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 6 }}>{t('w14Ux.views.title')}</div>
               <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
                 <input
                   value={columnViewName}
@@ -2813,8 +2813,8 @@ export default function WorklistPage() {
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {savedColumnViews.map(v => (
                     <span key={v.name} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', fontSize: 12 }}>
-                      <button type="button" onClick={() => applyColumnView(v.name)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#1e40af', fontWeight: 600, fontSize: 12 }}>{v.name}</button>
-                      <button type="button" aria-label={`${t('w14Ux.views.delete')}: ${v.name}`} onClick={() => removeColumnView(v.name)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#dc2626', display: 'flex' }}>
+                      <button type="button" onClick={() => applyColumnView(v.name)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--color-primary-800)', fontWeight: 600, fontSize: 12 }}>{v.name}</button>
+                      <button type="button" aria-label={`${t('w14Ux.views.delete')}: ${v.name}`} onClick={() => removeColumnView(v.name)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--color-error-600)', display: 'flex' }}>
                         <X size={11} />
                       </button>
                     </span>
@@ -2835,9 +2835,9 @@ export default function WorklistPage() {
                       type="checkbox"
                       checked={isOn}
                       onChange={() => toggleColumn(c.key)}
-                      style={{ accentColor: '#1e40af', cursor: 'pointer' }}
+                      style={{ accentColor: 'var(--color-primary-800)', cursor: 'pointer' }}
                     />
-                    <span style={{ color: isOn ? '#1e40af' : 'var(--text-secondary)', fontWeight: isOn ? 600 : 400 }}>{c.label}</span>
+                    <span style={{ color: isOn ? 'var(--color-primary-800)' : 'var(--text-secondary)', fontWeight: isOn ? 600 : 400 }}>{c.label}</span>
                     {c.key === 'actions' && <span style={{ fontSize: 11, color: 'var(--text-secondary)', marginLeft: 'auto' }}>{t('worklistPage.columnConfig.alwaysShow')}</span>}
                   </label>
                 )

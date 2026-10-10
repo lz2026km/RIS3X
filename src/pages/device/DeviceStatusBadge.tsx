@@ -1,20 +1,20 @@
 import { severityColor } from '../../theme/statusTokens'
 
 export const C = {
-  primary: '#1e40af',
+  primary: 'var(--color-primary-800)',
   primaryLight: '#2d5a87',
   primaryLighter: '#e8f0f8',
-  accent: '#3b82f6',
+  accent: 'var(--color-primary-500)',
   white: 'var(--bg-card)',
   bg: 'var(--bg-primary)',
   border: 'var(--border-color)',
-  textDark: '#1e40af',
+  textDark: 'var(--color-primary-800)',
   textMid: 'var(--text-secondary)',
   textLight: 'var(--text-muted)',
   success: '#059669',
-  warning: '#d97706',
-  danger: '#dc2626',
-  info: '#2563eb',
+  warning: 'var(--color-warning-600)',
+  danger: 'var(--color-error-600)',
+  info: 'var(--color-primary-600)',
 }
 
 export const STATUS_COLORS: Record<string, string> = {
@@ -27,11 +27,11 @@ export const STATUS_COLORS: Record<string, string> = {
 
 export const MODALITY_LABELS: Record<string, { label: string; color: string }> = {
   'CT': { label: 'CT', color: '#7c3aed' },
-  'MR': { label: 'MR', color: '#2563eb' },
+  'MR': { label: 'MR', color: 'var(--color-primary-600)' },
   'DR': { label: 'DR', color: '#059669' },
-  'DSA': { label: 'DSA', color: '#dc2626' },
-  'MG': { label: 'MG', color: '#d97706' },
-  'GI': { label: 'GI', color: '#0891b2' },
+  'DSA': { label: 'DSA', color: 'var(--color-error-600)' },
+  'MG': { label: 'MG', color: 'var(--color-warning-600)' },
+  'GI': { label: 'GI', color: 'var(--color-info-600)' },
   '骨密度': { label: '骨密度', color: '#4f46e5' },
 }
 
@@ -39,7 +39,7 @@ export const DEVICE_CATEGORIES = ['全部', 'CT', 'MR', 'DR', 'DSA', 'MG', 'GI',
 
 export const DEVICE_STATUSES = ['全部', '空闲', '使用中', '维护中', '故障', '停用']
 
-export const PIE_COLORS = ['#3b82f6', '#059669', '#d97706', '#dc2626', '#60a5fa', '#0891b2', '#ea580c', '#4f46e5']
+export const PIE_COLORS = ['var(--color-primary-500)', '#059669', 'var(--color-warning-600)', 'var(--color-error-600)', '#60a5fa', 'var(--color-info-600)', '#ea580c', '#4f46e5']
 
 export function StatusBadge({ status }: { status: string }) {
   const color = STATUS_COLORS[status] || '#94a3b8'

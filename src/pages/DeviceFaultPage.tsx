@@ -24,10 +24,10 @@ import { severityColor } from '../theme/statusTokens'
 // 样式常量
 // ============================================================
 const C = {
-  primary: '#1e40af',
-  primaryLight: '#3b82f6',
+  primary: 'var(--color-primary-800)',
+  primaryLight: 'var(--color-primary-500)',
   primaryLighter: 'var(--color-info-bg)',
-  accent: '#2563eb',
+  accent: 'var(--color-primary-600)',
   white: 'var(--bg-card)',
   bg: 'var(--bg-deep)',
   border: 'var(--border-color)',
@@ -36,9 +36,9 @@ const C = {
   textLight: '#94a3b8',
   success: '#059669',
   successLight: 'var(--color-success-bg)',
-  warning: '#d97706',
+  warning: 'var(--color-warning-600)',
   warningLight: 'var(--color-warning-bg)',
-  danger: '#dc2626',
+  danger: 'var(--color-error-600)',
   dangerLight: 'var(--color-error-bg)',
   info: '#0284c7',
   infoLight: 'var(--color-info-bg)',

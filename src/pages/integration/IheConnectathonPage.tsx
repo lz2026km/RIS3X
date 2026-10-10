@@ -340,13 +340,13 @@ export const IheConnectathonPage: React.FC = () => {
               title={t("iheConn.warning")}
               value={session?.warnCount ?? 0}
               color="warning"
-              icon={<AlertCircle className="w-3 h-3" style={{ color: "#f59e0b" }} />}
+              icon={<AlertCircle className="w-3 h-3" style={{ color: "var(--color-warning-500)" }} />}
             />
             <StatCard
               title={t("iheConn.fail")}
               value={session?.failCount ?? 0}
               color="error"
-              icon={<XCircle className="w-3 h-3" style={{ color: "#dc2626" }} />}
+              icon={<XCircle className="w-3 h-3" style={{ color: "var(--color-error-600)" }} />}
             />
             <StatCard
               title={t("iheConn.skip")}
@@ -386,8 +386,8 @@ export const IheConnectathonPage: React.FC = () => {
                 passRate >= 80
                   ? "#10b981"
                   : passRate >= 60
-                    ? "#f59e0b"
-                    : "#dc2626"
+                    ? "var(--color-warning-500)"
+                    : "var(--color-error-600)"
               }
             />
           </Card>
@@ -478,7 +478,7 @@ function messageWarn(msg: string): void {
   const d = document.createElement("div");
   d.textContent = msg;
   d.style.cssText =
-    "position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#dc2626;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15)";
+    "position:fixed;top:24px;left:50%;transform:translateX(-50%);background:var(--color-error-600);color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15)";
   document.body.appendChild(d);
   setTimeout(() => {
     d.style.opacity = "0";

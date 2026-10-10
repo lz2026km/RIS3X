@@ -131,35 +131,35 @@ export const THEME_TOKENS: ThemeTokens = {
   borderStrong: "var(--border-strong, rgba(0,0,0,0.16))",
 
   /* 品牌主色 (医疗蓝) */
-  primary: "var(--color-primary-600, #2563eb)",
-  primaryLight: "var(--color-primary-500, #3b82f6)",
-  primaryDark: "var(--color-primary-800, #1e40af)",
+  primary: "var(--color-primary-600, var(--color-primary-600))",
+  primaryLight: "var(--color-primary-500, var(--color-primary-500))",
+  primaryDark: "var(--color-primary-800, var(--color-primary-800))",
   primaryBg: "var(--color-primary-50, #eff6ff)",
 
   /* 功能色 */
-  success: "var(--color-success, #16a34a)",
-  error: "var(--color-error, #dc2626)",
-  warning: "var(--color-warning, #d97706)",
-  info: "var(--color-info, #2563eb)",
-  critical: "var(--color-critical-500, #ef4444)",
-  pending: "var(--color-pending, #2563eb)",
+  success: "var(--color-success, var(--color-success-600))",
+  error: "var(--color-error, var(--color-error-600))",
+  warning: "var(--color-warning, var(--color-warning-600))",
+  info: "var(--color-info, var(--color-primary-600))",
+  critical: "var(--color-critical-500, var(--color-error-500))",
+  pending: "var(--color-pending, var(--color-primary-600))",
 
   /* 模态设备色 */
-  modalityCt: "var(--color-modality-ct, #3b82f6)",
+  modalityCt: "var(--color-modality-ct, var(--color-primary-500))",
   modalityMr: "var(--color-modality-mr, #8b5cf6)",
-  modalityDr: "var(--color-modality-dr, #22c55e)",
-  modalityUs: "var(--color-modality-us, #06b6d4)",
+  modalityDr: "var(--color-modality-dr, var(--color-success-500))",
+  modalityUs: "var(--color-modality-us, var(--color-info-500))",
   modalityMg: "var(--color-modality-mg, #ec4899)",
-  modalityDsa: "var(--color-modality-dsa, #f59e0b)",
+  modalityDsa: "var(--color-modality-dsa, var(--color-warning-500))",
   modalityPet: "#f97316",
-  modalityNm: "#f59e0b",
+  modalityNm: "var(--color-warning-500)",
   modalityCr: "#14b8a6",
   modalityRf: "#64748b",
 
   /* 危急分层 (RADS) */
-  radsLow: "var(--color-rads-low, #22c55e)",
-  radsMid: "var(--color-rads-mid, #f59e0b)",
-  radsHigh: "var(--color-rads-high, #dc2626)",
+  radsLow: "var(--color-rads-low, var(--color-success-500))",
+  radsMid: "var(--color-rads-mid, var(--color-warning-500))",
+  radsHigh: "var(--color-rads-high, var(--color-error-600))",
 
   /* 间距 (4px 网格) */
   space1: "var(--space-1, 4px)",

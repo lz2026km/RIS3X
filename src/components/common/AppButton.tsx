@@ -82,14 +82,14 @@ function resolveVariantStyle(variant: AppButtonVariant): CSSProperties {
   switch (variant) {
     case "primary":
       return {
-        background: "var(--c-primary, #1e40af)",
-        borderColor: "var(--c-primary, #1e40af)",
+        background: "var(--c-primary, var(--color-primary-800))",
+        borderColor: "var(--c-primary, var(--color-primary-800))",
         color: "#fff",
       };
     case "danger":
       return {
-        background: "var(--c-danger, #ef4444)",
-        borderColor: "var(--c-danger, #ef4444)",
+        background: "var(--c-danger, var(--color-error-500))",
+        borderColor: "var(--c-danger, var(--color-error-500))",
         color: "#fff",
       };
     case "default":
@@ -109,7 +109,7 @@ function resolveVariantStyle(variant: AppButtonVariant): CSSProperties {
       return {
         background: "transparent",
         borderColor: "transparent",
-        color: "var(--c-primary, #1e40af)",
+        color: "var(--c-primary, var(--color-primary-800))",
         padding: "4px 6px",
       };
     case "text":

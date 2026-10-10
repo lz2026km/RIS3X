@@ -89,8 +89,8 @@ export const IHEXDSRegistry: React.FC<Props> = ({ reportId, patientId, onRegiste
   return (
     <div className="space-y-3">
       <Row gutter={8}>
-        <Col span={6}><Card size="small"><Statistic title={t('reportIntegration.xds.stat.registries')} value={registries.length} prefix={<Server className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title={t('reportIntegration.xds.stat.documentEntries')} value={registries.reduce((a, r) => a + r.documentEntries.length, 0)} prefix={<FileText className="w-3 h-3" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('reportIntegration.xds.stat.registries')} value={registries.length} prefix={<Server className="w-3 h-3" style={{ color: 'var(--color-error-600)' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title={t('reportIntegration.xds.stat.documentEntries')} value={registries.reduce((a, r) => a + r.documentEntries.length, 0)} prefix={<FileText className="w-3 h-3" style={{ color: 'var(--color-primary-500)' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title={t('reportIntegration.xds.stat.folders')} value={registries.reduce((a, r) => a + r.folders.length, 0)} prefix={<FolderTree className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title={t('reportIntegration.xds.stat.associations')} value={registries.reduce((a, r) => a + r.associations.length, 0)} prefix={<Link2 className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
       </Row>

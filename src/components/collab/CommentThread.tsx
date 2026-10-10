@@ -360,7 +360,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
     >
       <div style={{ padding: '8px 12px', borderBottom: '1px solid #e2e8f0', background: 'var(--bg-card)' }}>
         <Space>
-          <MessageSquare size={14} color="#3b82f6" />
+          <MessageSquare size={14} color="var(--color-primary-500)" />
           <strong style={{ fontSize: 12 }}>评论协作</strong>
           <Tag color="blue">{filtered.length}</Tag>
         </Space>
@@ -402,7 +402,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
           >
             发布
           </Button>
-          {mentions.length > 0 && <span style={{ fontSize: 12, color: '#3b82f6' }}>@ {mentions.join(', ')}</span>}
+          {mentions.length > 0 && <span style={{ fontSize: 12, color: 'var(--color-primary-500)' }}>@ {mentions.join(', ')}</span>}
         </Space>
       </div>
       <div style={{ maxHeight, overflowY: 'auto' }} data-testid={`${testIdPrefix}-list`}>

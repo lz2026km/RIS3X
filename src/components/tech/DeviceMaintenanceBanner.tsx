@@ -24,10 +24,10 @@ interface MaintenanceItem {
 }
 
 const STATUS_META: Record<string, { label: string; color: string; icon: ReactNode }> = {
-  overdue: { label: '已超期', color: '#dc2626', icon: <XCircle size={14} /> },
-  warning: { label: '即将到期', color: '#d97706', icon: <AlertTriangle size={14} /> },
+  overdue: { label: '已超期', color: 'var(--color-error-600)', icon: <XCircle size={14} /> },
+  warning: { label: '即将到期', color: 'var(--color-warning-600)', icon: <AlertTriangle size={14} /> },
   ok: { label: '状态正常', color: '#059669', icon: <CheckCircle2 size={14} /> },
-  maintenance: { label: '维护中', color: '#2563eb', icon: <Wrench size={14} /> },
+  maintenance: { label: '维护中', color: 'var(--color-primary-600)', icon: <Wrench size={14} /> },
 }
 
 export default function DeviceMaintenanceBanner({ deviceId, deviceName }: DeviceMaintenanceBannerProps) {

@@ -46,10 +46,10 @@ const s = {
   historySearchInput: { flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, fontFamily: 'inherit' },
   historySearchBtn: { padding: '6px 10px', borderRadius: 6, border: 'none', background: PRIMARY, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' },
   historyListItem: { display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', marginBottom: 6, cursor: 'pointer', transition: 'all 0.15s' },
-  historyListItemSelected: { border: '2px solid #3b82f6', background: 'var(--color-info-bg)' },
-  historyListItemChecked: { border: '2px solid #22c55e', background: 'var(--color-success-bg)' },
+  historyListItemSelected: { border: '2px solid var(--color-primary-500)', background: 'var(--color-info-bg)' },
+  historyListItemChecked: { border: '2px solid var(--color-success-500)', background: 'var(--color-success-bg)' },
   historyCheckbox: { width: 16, height: 16, borderRadius: 4, border: '2px solid #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2, cursor: 'pointer' },
-  historyCheckboxChecked: { background: '#22c55e', borderColor: '#22c55e' },
+  historyCheckboxChecked: { background: 'var(--color-success-500)', borderColor: 'var(--color-success-500)' },
   historyListItemContent: { flex: 1, minWidth: 0 },
   historyListItemHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
   historyListItemTitle: { fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const },
@@ -62,7 +62,7 @@ const s = {
   historyActionBtn: { flex: 1, minWidth: 60, padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, transition: 'all 0.15s' } as React.CSSProperties,
   historyActionBtnDisabled: { opacity: 0.5, cursor: 'not-allowed' },
   syncScrollBadge: { display: 'inline-flex', alignItems: 'center', gap: 3, padding: '3px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700 } as React.CSSProperties,
-  syncScrollBadgeOn: { background: 'var(--color-success-bg)', color: '#16a34a' },
+  syncScrollBadgeOn: { background: 'var(--color-success-bg)', color: 'var(--color-success-600)' },
   syncScrollBadgeOff: { background: 'var(--content-bg)', color: 'var(--text-muted)' },
   compareInfoCard: { background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 10, marginBottom: 8 },
   compareInfoCardTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 },
@@ -303,12 +303,12 @@ export default function SidebarPanel(props: Props) {
                 <div style={s.infoItem}><span style={s.infoLabel}>{t('dcm.examTime')}</span><span style={s.infoValue}>{exam.examTime}</span></div>
                 <div style={s.infoItem}><span style={s.infoLabel}>{t('dcm.examDevice')}</span><span style={s.infoValue}>{exam.deviceName?.split('（')[0]}</span></div>
                 <div style={s.infoItem}><span style={s.infoLabel}>{t('dcm.examRoom')}</span><span style={s.infoValue}>{exam.roomName}</span></div>
-                <div style={s.infoItem}><span style={s.infoLabel}>{t('dcm.examStatus')}</span><span style={{ ...s.infoValue, color: exam.status === '已完成' ? '#22c55e' : exam.status === '检查中' ? '#f59e0b' : '#64748b' }}>{exam.status}</span></div>
+                <div style={s.infoItem}><span style={s.infoLabel}>{t('dcm.examStatus')}</span><span style={{ ...s.infoValue, color: exam.status === '已完成' ? 'var(--color-success-500)' : exam.status === '检查中' ? 'var(--color-warning-500)' : '#64748b' }}>{exam.status}</span></div>
               </div>
             </div>
             <div style={s.infoSection}>
               <div style={s.infoSectionTitle}><AlertCircle size={12} />{t('dcm.clinicalInfo')}</div>
-              <div style={{ marginBottom: 8 }}><span style={s.infoLabel}>{t('dcm.clinicalDiagnosis')}</span><div style={{ ...s.infoValueFull, color: '#dc2626' }}>{exam.clinicalDiagnosis}</div></div>
+              <div style={{ marginBottom: 8 }}><span style={s.infoLabel}>{t('dcm.clinicalDiagnosis')}</span><div style={{ ...s.infoValueFull, color: 'var(--color-error-600)' }}>{exam.clinicalDiagnosis}</div></div>
               <div style={{ marginBottom: 8 }}><span style={s.infoLabel}>{t('w9d.sidebar.historyLabel')}</span><div style={s.infoValueFull}>{exam.clinicalHistory}</div></div>
               <div style={{ marginBottom: 8 }}><span style={s.infoLabel}>{t('dcm.examIndications')}</span><div style={s.infoValueFull}>{exam.examIndications}</div></div>
             </div>
@@ -405,7 +405,7 @@ export default function SidebarPanel(props: Props) {
               <Card bordered={false} style={s.reportStatusCard} styles={{ body: { padding: 0 } }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                   <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{exam.examItemName}</span>
-                  <span style={{ ...s.reportStatusBadge, background: reportStatus === '已报告' ? 'var(--color-success-bg)' : reportStatus === '待书写' ? 'var(--color-warning-bg)' : 'var(--border-light)', color: reportStatus === '已报告' ? '#16a34a' : reportStatus === '待书写' ? '#d97706' : '#64748b' }}>
+                  <span style={{ ...s.reportStatusBadge, background: reportStatus === '已报告' ? 'var(--color-success-bg)' : reportStatus === '待书写' ? 'var(--color-warning-bg)' : 'var(--border-light)', color: reportStatus === '已报告' ? 'var(--color-success-600)' : reportStatus === '待书写' ? 'var(--color-warning-600)' : '#64748b' }}>
                     {reportStatus === '已报告' && <CheckCircle size={10} />}{reportStatus === '待书写' && <Clock size={10} />}{reportStatus}
                   </span>
                 </div>
@@ -428,7 +428,7 @@ export default function SidebarPanel(props: Props) {
                 ) : reportStatus === '待书写' ? (
                   <><button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }} onClick={() => goWriteReport()}><PenTool size={14} />{t('dcm.writeReport')}</button>
                   <button style={{ ...s.reportBtn, background: 'var(--bg-card)', color: 'var(--text-secondary)' }} onClick={() => goWriteReport('template')}><FileText size={14} />{t('dcm.useTemplate')}</button>
-                  <button style={{ ...s.reportBtn, background: 'var(--color-warning-bg)', color: '#d97706' }} onClick={() => void sendCritical()}><AlertCircle size={14} />{t('dcm.sendCritical')}</button></>
+                  <button style={{ ...s.reportBtn, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)' }} onClick={() => void sendCritical()}><AlertCircle size={14} />{t('dcm.sendCritical')}</button></>
                 ) : (
                   <button style={{ ...s.reportBtn, background: 'var(--content-bg)', color: 'var(--text-muted)', cursor: 'not-allowed' }} disabled><Clock size={14} />{t('dcm.waitForExam')}</button>
                 )}
@@ -438,13 +438,13 @@ export default function SidebarPanel(props: Props) {
               <div style={s.infoSectionTitle}><Calendar size={12} />{t('dcm.reportTimelinessSection')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('dcm.examCompleteTime')}</span><span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>2026-05-01 10:00</span></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('dcm.waitingTime')}</span><span style={{ fontSize: 12, fontWeight: 600, color: '#d97706' }}>{t('w9d.sidebar.waitingTimeValue')}</span></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('dcm.waitingTime')}</span><span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-warning-600)' }}>{t('w9d.sidebar.waitingTimeValue')}</span></div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('dcm.avgReportTime')}</span><span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{t('w9d.sidebar.avgReportTimeValue')}</span></div>
               </div>
             </div>
             {(exam.priority === '紧急' || exam.priority === '危重') && (
               <div style={{ padding: 10, background: 'var(--color-error-bg)', borderRadius: 8, border: '1px solid var(--color-error-border)', marginTop: 8 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}><AlertCircle size={14} color="#dc2626" /><span style={{ fontSize: 12, fontWeight: 700, color: '#dc2626' }}>{exam.priority === '危重' ? t('w9d.sidebar.priorityCritical') : t('w9d.sidebar.priorityUrgent')}{t('w9d.sidebar.examWord')}</span></div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}><AlertCircle size={14} color="var(--color-error-600)" /><span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-error-600)' }}>{exam.priority === '危重' ? t('w9d.sidebar.priorityCritical') : t('w9d.sidebar.priorityUrgent')}{t('w9d.sidebar.examWord')}</span></div>
                 <div style={{ fontSize: 12, color: 'var(--color-error)', lineHeight: 1.5 }}>{exam.clinicalDiagnosis}</div>
               </div>
             )}
@@ -462,7 +462,7 @@ export default function SidebarPanel(props: Props) {
                 <button style={{ ...s.historyActionBtn, ...(selectedHistoryExams.length === 0 ? s.historyActionBtnDisabled : {}) }} disabled={selectedHistoryExams.length === 0} onClick={enterCompareMode}><GitCompare size={12} />{t('dcm.compare')}</button>
                 <button style={{ ...s.historyActionBtn, ...(selectedHistoryExams.length === 0 ? s.historyActionBtnDisabled : {}) }} disabled={selectedHistoryExams.length === 0} onClick={() => setSelectedHistoryExams([])}><X size={12} />{t('dcm.clear')}</button>
               </div>
-              {selectedHistoryExams.length > 0 && <div style={{ fontSize: 12, color: '#3b82f6', marginBottom: 8, fontWeight: 600 }}>{t('w9d.sidebar.selectedCount', { count: selectedHistoryExams.length })}</div>}
+              {selectedHistoryExams.length > 0 && <div style={{ fontSize: 12, color: 'var(--color-primary-500)', marginBottom: 8, fontWeight: 600 }}>{t('w9d.sidebar.selectedCount', { count: selectedHistoryExams.length })}</div>}
               {filteredHistoryExams.length === 0 ? (
                 <div style={s.historyListEmpty}><div style={s.historyListEmptyIcon}><ScrollText size={32} /></div><div>{t('dcm.noHistory')}</div></div>
               ) : (
@@ -474,7 +474,7 @@ export default function SidebarPanel(props: Props) {
                       <div style={s.historyListItemContent}>
                         <div style={s.historyListItemHeader}><span style={s.historyListItemTitle}>{historyExam.examItemName}</span><span style={s.historyListItemDate}>{historyExam.examDate}</span></div>
                         <div style={s.historyListItemMeta}>{historyExam.modality} | {historyExam.deviceName?.split('（')[0]}</div>
-                        <div style={{ ...s.historyListItemStatus, background: historyExam.status === '已完成' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: historyExam.status === '已完成' ? '#16a34a' : '#d97706' }}>{historyExam.status === '已完成' && <CheckCircle size={9} />}{historyExam.status}</div>
+                        <div style={{ ...s.historyListItemStatus, background: historyExam.status === '已完成' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: historyExam.status === '已完成' ? 'var(--color-success-600)' : 'var(--color-warning-600)' }}>{historyExam.status === '已完成' && <CheckCircle size={9} />}{historyExam.status}</div>
                         {historyExam.conclusion && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4, lineHeight: 1.4 }}>{historyExam.conclusion.length > 60 ? historyExam.conclusion.substring(0, 60) + '...' : historyExam.conclusion}</div>}
                       </div>
                     </div>
@@ -490,7 +490,7 @@ export default function SidebarPanel(props: Props) {
                     <button style={{ ...s.syncScrollBadge, ...(syncScroll ? s.syncScrollBadgeOn : s.syncScrollBadgeOff) }} onClick={() => setSyncScroll(!syncScroll)}>{syncScroll ? <CheckCircle size={10} /> : <X size={10} />}{syncScroll ? t('w9d.sidebar.on') : t('w9d.sidebar.off')}</button></div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}><span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{t('dcm.diffHighlight')}</span>
                     <button style={{ ...s.syncScrollBadge, ...(showDiffHighlight ? s.syncScrollBadgeOn : s.syncScrollBadgeOff) }} onClick={() => setShowDiffHighlight(!showDiffHighlight)}>{showDiffHighlight ? <CheckCircle size={10} /> : <X size={10} />}{showDiffHighlight ? t('w9d.sidebar.on') : t('w9d.sidebar.off')}</button></div>
-                  <button style={{ ...s.reportBtn, background: '#ef4444', color: '#fff' }} onClick={exitCompareMode}><X size={14} />{t('dcm.exitCompareMode')}</button>
+                  <button style={{ ...s.reportBtn, background: 'var(--color-error-500)', color: '#fff' }} onClick={exitCompareMode}><X size={14} />{t('dcm.exitCompareMode')}</button>
                 </div>
                 <Card bordered={false} style={s.compareInfoCard} styles={{ body: { padding: 0 } }}>
                   <div style={s.compareInfoCardTitle}><ArrowLeftRight size={12} />{t('dcm.compareInfo')}</div>
@@ -503,9 +503,9 @@ export default function SidebarPanel(props: Props) {
                     <div style={s.diffSummaryTitle}><AlertTriangle size={12} />{t('dcm.diffSummary')}</div>
                     {getCompareDiffInfo()?.map((diff: any, idx: number) => (
                       <div key={idx} style={s.diffSummaryItem}>
-                        <div style={{ ...s.diffSummaryDot, background: diff.type === 'increase' ? '#ef4444' : diff.type === 'decrease' ? '#3b82f6' : diff.type === 'new' ? '#22c55e' : '#94a3b8' }} />
+                        <div style={{ ...s.diffSummaryDot, background: diff.type === 'increase' ? 'var(--color-error-500)' : diff.type === 'decrease' ? 'var(--color-primary-500)' : diff.type === 'new' ? 'var(--color-success-500)' : '#94a3b8' }} />
                         <span style={{ flex: 1 }}>{diff.label}:</span>
-                        <span style={{ color: diff.type === 'increase' ? '#ef4444' : diff.type === 'decrease' ? '#3b82f6' : diff.type === 'new' ? '#22c55e' : '#94a3b8', fontWeight: 600 }}>{diff.oldVal} → {diff.newVal}</span>
+                        <span style={{ color: diff.type === 'increase' ? 'var(--color-error-500)' : diff.type === 'decrease' ? 'var(--color-primary-500)' : diff.type === 'new' ? 'var(--color-success-500)' : '#94a3b8', fontWeight: 600 }}>{diff.oldVal} → {diff.newVal}</span>
                       </div>
                     ))}
                   </Card>
@@ -551,7 +551,7 @@ export default function SidebarPanel(props: Props) {
                     <div style={s.historyListItemContent}>
                       <div style={s.historyListItemHeader}><span style={s.historyListItemTitle}>{extExam.examItemName}</span><span style={s.historyListItemDate}>{extExam.examDate}</span></div>
                       <div style={s.historyListItemMeta}>{extExam.patientName} · {extExam.gender}/{extExam.age}{t('w9d.common.ageSuffix')} · {extExam.modality} · {extExam.bodyPart}</div>
-                      <div style={{ ...s.historyListItemStatus, background: extExam.status === 'available' ? 'var(--color-success-bg)' : extExam.status === 'pending' ? 'var(--color-warning-bg)' : 'var(--border-light)',                         color: extExam.status === 'available' ? '#16a34a' : extExam.status === 'pending' ? '#d97706' : 'var(--text-muted)' }}>
+                      <div style={{ ...s.historyListItemStatus, background: extExam.status === 'available' ? 'var(--color-success-bg)' : extExam.status === 'pending' ? 'var(--color-warning-bg)' : 'var(--border-light)',                         color: extExam.status === 'available' ? 'var(--color-success-600)' : extExam.status === 'pending' ? 'var(--color-warning-600)' : 'var(--text-muted)' }}>
                         {extExam.status === 'available' && <CheckCircle size={9} />}{extExam.status === 'available' ? t('w9d.sidebar.statusAvailable') : extExam.status === 'pending' ? t('w9d.sidebar.statusPending') : t('w9d.sidebar.statusArchived')}
                       </div>
                     </div>
@@ -578,7 +578,7 @@ export default function SidebarPanel(props: Props) {
                     <Card bordered={false} style={s.reportStatusCard} styles={{ body: { padding: 0 } }}>
                       <div style={{ marginBottom: 6 }}><span style={s.infoLabel}>{t('dcm.reportDoctor')}</span><div style={s.infoValue}>{selectedExternalExam.reportDoctor || t('w9d.sidebar.notFilled')}</div></div>
                       {selectedExternalExam.finding && <div style={{ marginBottom: 6 }}><span style={s.infoLabel}>{t('dcm.finding')}</span><div style={{ ...s.infoValueFull, fontSize: 12, lineHeight: 1.5 }}>{selectedExternalExam.finding}</div></div>}
-                      {selectedExternalExam.conclusion && <div style={{ marginBottom: 6 }}><span style={s.infoLabel}>{t('dcm.conclusion')}</span><div style={{ ...s.infoValueFull, fontSize: 12, fontWeight: 600, color: '#dc2626', lineHeight: 1.5 }}>{selectedExternalExam.conclusion}</div></div>}
+                      {selectedExternalExam.conclusion && <div style={{ marginBottom: 6 }}><span style={s.infoLabel}>{t('dcm.conclusion')}</span><div style={{ ...s.infoValueFull, fontSize: 12, fontWeight: 600, color: 'var(--color-error-600)', lineHeight: 1.5 }}>{selectedExternalExam.conclusion}</div></div>}
                     </Card>
                   </div>
                 )}
@@ -588,13 +588,13 @@ export default function SidebarPanel(props: Props) {
                     <button style={{ ...s.mprTab, flex: 1, ...(externalCompareLayout === 'leftRight' ? s.mprTabActive : {}) }} onClick={() => setExternalCompareLayout('leftRight')}>{t('w9d.sidebar.layoutLeftRight')}</button>
                     <button style={{ ...s.mprTab, flex: 1, ...(externalCompareLayout === 'topBottom' ? s.mprTabActive : {}) }} onClick={() => setExternalCompareLayout('topBottom')}>{t('w9d.sidebar.layoutTopBottom')}</button>
                   </div>
-                  <button style={{ ...s.reportBtn, background: isExternalCompareMode ? '#ef4444' : PRIMARY, color: '#fff' }} onClick={() => setIsExternalCompareMode(!isExternalCompareMode)}><GitCompare size={14} />{isExternalCompareMode ? t('w9d.sidebar.exitCompare') : t('w9d.sidebar.startCompare')}</button>
+                  <button style={{ ...s.reportBtn, background: isExternalCompareMode ? 'var(--color-error-500)' : PRIMARY, color: '#fff' }} onClick={() => setIsExternalCompareMode(!isExternalCompareMode)}><GitCompare size={14} />{isExternalCompareMode ? t('w9d.sidebar.exitCompare') : t('w9d.sidebar.startCompare')}</button>
                 </div>
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}><Upload size={12} />{t('w9d.sidebar.archiveRequest')}</div>
                   <div style={{ padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, marginBottom: 8, border: '1px solid var(--border-color)' }}><div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}>{t('w9d.sidebar.archiveRequestDesc')}</div></div>
                   {archiveRequestStatus && (
-                    <div style={{ padding: '6px 10px', borderRadius: 6, marginBottom: 8, fontSize: 12, fontWeight: 600, background: archiveRequestStatus === 'success' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: archiveRequestStatus === 'success' ? '#16a34a' : '#d97706' }}>
+                    <div style={{ padding: '6px 10px', borderRadius: 6, marginBottom: 8, fontSize: 12, fontWeight: 600, background: archiveRequestStatus === 'success' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: archiveRequestStatus === 'success' ? 'var(--color-success-600)' : 'var(--color-warning-600)' }}>
                       {archiveRequestStatus === 'success' ? <><CheckCircle size={12} /> {t('w9d.sidebar.archiveSubmitted')}</> : <><Clock size={12} /> {t('w9d.sidebar.archiveProcessing')}</>}
                     </div>
                   )}

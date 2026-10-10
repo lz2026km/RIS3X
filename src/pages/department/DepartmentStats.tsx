@@ -15,9 +15,9 @@ export const StatCard = ({ label, value, subLabel, icon: Icon, color, bg }: any)
 );
 
 export const STAT_CARDS = [
-  { label: "科室总人数", value: "15", subLabel: "在线 12 人", icon: Users, color: "#1e40af", bg: "#dbeafe" },
+  { label: "科室总人数", value: "15", subLabel: "在线 12 人", icon: Users, color: "var(--color-primary-800)", bg: "#dbeafe" },
   { label: "本月报告数", value: "4,286", subLabel: "较上月 +12.5%", icon: FileText, color: "#059669", bg: "#d1fae5" },
-  { label: "平均阳性率", value: "32.5%", subLabel: "较上月 +2.1%", icon: AlertCircle, color: "#d97706", bg: "#fef3c7" },
+  { label: "平均阳性率", value: "32.5%", subLabel: "较上月 +2.1%", icon: AlertCircle, color: "var(--color-warning-600)", bg: "#fef3c7" },
   { label: "质控评分", value: "96.8", subLabel: "优秀", icon: Award, color: "#7c3aed", bg: "#ede9fe" },
 ];
 

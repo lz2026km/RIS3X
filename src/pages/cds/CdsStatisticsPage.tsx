@@ -28,7 +28,7 @@ function StatCard({ title, value, unit, icon: Icon, trend, trendValue, color }: 
         {value}{unit && <span style={{ fontSize: 14, fontWeight: 400, color: '#6e7681', marginLeft: 4 }}>{unit}</span>}
       </div>
       {trend && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: trend === 'up' ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: trend === 'up' ? 'var(--color-success-500, var(--color-success-500))' : 'var(--color-error-500, var(--color-error-500))' }}>
           {trend === 'up' ? <ArrowUp size={12} /> : <ArrowDown size={12} />}
           <span>{trendValue}</span>
         </div>
@@ -97,7 +97,7 @@ export default function CdsStatisticsPage() {
 
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
-      <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <BarChart3 size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('cdsStats.title')}</span>
         </div>
@@ -116,11 +116,11 @@ export default function CdsStatisticsPage() {
 
       <div style={{ padding: '20px 24px' }}>
         <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
-          <StatCard title={t('cdsStats.activeRules')} value={overview.activeRules} unit={`/ ${overview.totalRules}`} icon={CheckCircle} trend="up" trendValue={t('cdsStats.trendActive')} color="var(--color-success-500, #22c55e)" />
-          <StatCard title={t('cdsStats.ruleCoverage')} value={overrideRatePct} unit="%" icon={Activity} trend="down" trendValue={t('cdsStats.trendCoverage')} color="var(--color-primary-500, #3b82f6)" />
-          <StatCard title={t('cdsStats.suggestionAcceptance')} value={acceptanceRate} unit="%" icon={TrendingUp} trend="up" trendValue={t('cdsStats.trendAcceptance')} color="var(--color-success-500, #22c55e)" />
-          <StatCard title={t('cdsStats.pathwayCompletion')} value={(overview.pathwayCompletionRate * 100).toFixed(0)} unit="%" icon={TrendingUp} trend="up" trendValue={t('cdsStats.trendPathway')} color="var(--color-warning-500, #f59e0b)" />
-          <StatCard title={t('cdsStats.contrastAlerts')} value={overview.contrastAlertsThisMonth} unit={t('cdsStats.thisMonth')} icon={AlertTriangle} trend="down" trendValue={t('cdsStats.trendContrast')} color="var(--color-error-500, #ef4444)" />
+          <StatCard title={t('cdsStats.activeRules')} value={overview.activeRules} unit={`/ ${overview.totalRules}`} icon={CheckCircle} trend="up" trendValue={t('cdsStats.trendActive')} color="var(--color-success-500, var(--color-success-500))" />
+          <StatCard title={t('cdsStats.ruleCoverage')} value={overrideRatePct} unit="%" icon={Activity} trend="down" trendValue={t('cdsStats.trendCoverage')} color="var(--color-primary-500, var(--color-primary-500))" />
+          <StatCard title={t('cdsStats.suggestionAcceptance')} value={acceptanceRate} unit="%" icon={TrendingUp} trend="up" trendValue={t('cdsStats.trendAcceptance')} color="var(--color-success-500, var(--color-success-500))" />
+          <StatCard title={t('cdsStats.pathwayCompletion')} value={(overview.pathwayCompletionRate * 100).toFixed(0)} unit="%" icon={TrendingUp} trend="up" trendValue={t('cdsStats.trendPathway')} color="var(--color-warning-500, var(--color-warning-500))" />
+          <StatCard title={t('cdsStats.contrastAlerts')} value={overview.contrastAlertsThisMonth} unit={t('cdsStats.thisMonth')} icon={AlertTriangle} trend="down" trendValue={t('cdsStats.trendContrast')} color="var(--color-error-500, var(--color-error-500))" />
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
@@ -129,14 +129,14 @@ export default function CdsStatisticsPage() {
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 160, position: 'relative' }}>
               {chartData.map((d, i) => (
                 <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: barWidth, position: 'relative', height: 160, justifyContent: 'flex-end' }}>
-                  <div style={{ width: barWidth - 2, height: `${(d.suggestions / maxVal) * 120}px`, background: 'linear-gradient(to top, #3b82f6, #60a5fa)', borderRadius: '2px 2px 0 0', opacity: 0.8, transition: 'height 0.3s' }} title={`${d.date}: ${d.suggestions}条建议`} />
-                  <div style={{ width: barWidth - 2, height: `${(d.overrides / maxVal) * 80}px`, background: '#ef4444', borderRadius: '2px 2px 0 0', opacity: 0.7, marginTop: 1 }} title={`${d.date}: ${d.overrides}次覆盖`} />
+                  <div style={{ width: barWidth - 2, height: `${(d.suggestions / maxVal) * 120}px`, background: 'linear-gradient(to top, var(--color-primary-500), #60a5fa)', borderRadius: '2px 2px 0 0', opacity: 0.8, transition: 'height 0.3s' }} title={`${d.date}: ${d.suggestions}条建议`} />
+                  <div style={{ width: barWidth - 2, height: `${(d.overrides / maxVal) * 80}px`, background: 'var(--color-error-500)', borderRadius: '2px 2px 0 0', opacity: 0.7, marginTop: 1 }} title={`${d.date}: ${d.overrides}次覆盖`} />
                 </div>
               ))}
             </div>
             <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: 12, color: '#6e7681' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: '#3b82f6', display: 'inline-block' }}></span>{t('cdsStats.suggestionCount')}</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: '#ef4444', display: 'inline-block' }}></span>{t('cdsStats.overrideCount')}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--color-primary-500)', display: 'inline-block' }}></span>{t('cdsStats.suggestionCount')}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--color-error-500)', display: 'inline-block' }}></span>{t('cdsStats.overrideCount')}</span>
             </div>
           </div>
 
@@ -144,7 +144,7 @@ export default function CdsStatisticsPage() {
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)' }}>{t('cdsStats.topOverriddenRules')}</div>
             {overview.topOverriddenRules?.map((r, i) => (
               <div key={r.ruleId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < 2 ? '1px solid var(--bg-secondary, #21262d)' : 'none' }}>
-                <span style={{ width: 24, height: 24, borderRadius: '50%', background: i === 0 ? '#ef4444' : i === 1 ? '#f59e0b' : '#3b82f6', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 600 }}>{i + 1}</span>
+                <span style={{ width: 24, height: 24, borderRadius: '50%', background: i === 0 ? 'var(--color-error-500)' : i === 1 ? 'var(--color-warning-500)' : 'var(--color-primary-500)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 600 }}>{i + 1}</span>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, color: 'var(--text-primary, #f0f6fc)' }}>{r.ruleName}</div>
                   <div style={{ fontSize: 12, color: '#6e7681' }}>{r.ruleId}</div>
@@ -160,12 +160,12 @@ export default function CdsStatisticsPage() {
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)' }}>{t('cdsStats.topPathways')}</div>
             {overview.topPathways?.map((p, i) => (
               <div key={p.pathwayId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < 1 ? '1px solid var(--bg-secondary, #21262d)' : 'none' }}>
-                <RouteIcon color="var(--color-success-500, #22c55e)" />
+                <RouteIcon color="var(--color-success-500, var(--color-success-500))" />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, color: 'var(--text-primary, #f0f6fc)' }}>{p.pathwayName}</div>
                   <div style={{ fontSize: 12, color: '#6e7681' }}>{p.pathwayId}</div>
                 </div>
-                <span style={{ fontSize: 16, fontWeight: 700, color: '#22c55e' }}>{p.activationCount}</span>
+                <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-success-500)' }}>{p.activationCount}</span>
                 <span style={{ fontSize: 12, color: '#6e7681' }}>{t('cdsStats.activations')}</span>
               </div>
             ))}
@@ -175,10 +175,10 @@ export default function CdsStatisticsPage() {
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)' }}>{t('cdsStats.summaryMetrics')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {[
-                { label: 'cdsStats.totalRules', value: overview.totalRules, color: '#3b82f6' },
-                { label: 'cdsStats.totalOverrides', value: overview.totalOverrides, color: '#ef4444' },
-                { label: 'cdsStats.coverageRate', value: `${overrideRatePct}%`, color: '#f59e0b' },
-                { label: 'cdsStats.pathwayCompletionRate', value: `${(overview.pathwayCompletionRate * 100).toFixed(0)}%`, color: '#22c55e' },
+                { label: 'cdsStats.totalRules', value: overview.totalRules, color: 'var(--color-primary-500)' },
+                { label: 'cdsStats.totalOverrides', value: overview.totalOverrides, color: 'var(--color-error-500)' },
+                { label: 'cdsStats.coverageRate', value: `${overrideRatePct}%`, color: 'var(--color-warning-500)' },
+                { label: 'cdsStats.pathwayCompletionRate', value: `${(overview.pathwayCompletionRate * 100).toFixed(0)}%`, color: 'var(--color-success-500)' },
               ].map(item => (
                 <div key={item.label} style={{ padding: '12px', background: 'var(--bg-primary, #0d1117)', borderRadius: 6, textAlign: 'center' }}>
                   <div style={{ fontSize: 20, fontWeight: 700, color: item.color }}>{item.value}</div>

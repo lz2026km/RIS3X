@@ -213,7 +213,7 @@ export default function DeviceOpsCenterPage() {
       return <Tag color={color}>{t(label)}</Tag>
     } },
     { title: t('w11Device.cal.dueState'), dataIndex: 'dueState', key: 'dueState', width: 110, render: (v: string) => <Tag color={CAL_DUE_COLOR[v] ?? 'default'}>{t(CAL_DUE_LABEL[v] ?? v)}</Tag> },
-    { title: t('w11Device.cal.daysRemaining'), dataIndex: 'daysRemaining', key: 'days', width: 90, render: (v: number) => <span style={{ color: v < 0 ? '#dc2626' : v <= 30 ? '#d97706' : undefined }}>{v}</span> },
+    { title: t('w11Device.cal.daysRemaining'), dataIndex: 'daysRemaining', key: 'days', width: 90, render: (v: number) => <span style={{ color: v < 0 ? 'var(--color-error-600)' : v <= 30 ? 'var(--color-warning-600)' : undefined }}>{v}</span> },
     { title: t('w11Device.cal.certNo'), dataIndex: 'certNo', key: 'certNo', width: 150 },
     { title: t('w11Device.cal.lab'), dataIndex: 'lab', key: 'lab', width: 120 },
   ]
@@ -225,7 +225,7 @@ export default function DeviceOpsCenterPage() {
     { title: t('w11Device.asset.bookValue'), dataIndex: 'bookValue', key: 'bookValue', width: 130, render: fmtMoney },
     { title: t('w11Device.asset.accumulated'), dataIndex: 'accumulatedDepreciation', key: 'accumulated', width: 130, render: fmtMoney },
     { title: t('w11Device.asset.method'), dataIndex: 'method', key: 'method', width: 130, render: (v: string) => <Tag>{t(v === 'declining' ? 'w11Device.asset.declining' : 'w11Device.asset.straightLine')}</Tag> },
-    { title: t('w11Device.asset.warrantyEnd'), dataIndex: 'warrantyEnd', key: 'warrantyEnd', width: 120, render: (v: string, r: Asset) => <span style={{ color: r.warrantyDaysRemaining < 0 ? '#dc2626' : r.warrantyDaysRemaining <= 90 ? '#d97706' : undefined }}>{String(v).slice(0, 10)}</span> },
+    { title: t('w11Device.asset.warrantyEnd'), dataIndex: 'warrantyEnd', key: 'warrantyEnd', width: 120, render: (v: string, r: Asset) => <span style={{ color: r.warrantyDaysRemaining < 0 ? 'var(--color-error-600)' : r.warrantyDaysRemaining <= 90 ? 'var(--color-warning-600)' : undefined }}>{String(v).slice(0, 10)}</span> },
     { title: t('w11Device.asset.status'), dataIndex: 'status', key: 'status', width: 100, render: (v: string) => <Tag color={ASSET_STATUS_COLOR[v] ?? 'default'}>{t(ASSET_STATUS_LABEL[v] ?? v)}</Tag> },
     {
       title: t('w11Device.asset.actions'), key: 'actions', width: 160,
@@ -241,10 +241,10 @@ export default function DeviceOpsCenterPage() {
   const oeeColumns = [
     { title: t('w11Device.oee.device'), dataIndex: 'deviceName', key: 'device', ellipsis: true },
     { title: 'Modality', dataIndex: 'modality', key: 'modality', width: 90 },
-    { title: t('w11Device.oee.availability'), dataIndex: 'availability', key: 'availability', width: 120, render: (v: number) => <Progress percent={v} size="small" strokeColor={v < 70 ? '#dc2626' : '#2563eb'} /> },
-    { title: t('w11Device.oee.performance'), dataIndex: 'performance', key: 'performance', width: 120, render: (v: number) => <Progress percent={v} size="small" strokeColor="#0891b2" /> },
-    { title: t('w11Device.oee.quality'), dataIndex: 'quality', key: 'quality', width: 120, render: (v: number) => <Progress percent={v} size="small" strokeColor="#16a34a" /> },
-    { title: t('w11Device.oee.oee'), dataIndex: 'oee', key: 'oee', width: 90, sorter: (a: OeeDeviceLoss, b: OeeDeviceLoss) => a.oee - b.oee, render: (v: number) => <span style={{ fontWeight: 700, color: v >= 70 ? '#16a34a' : v >= 50 ? '#d97706' : '#dc2626' }}>{v}%</span> },
+    { title: t('w11Device.oee.availability'), dataIndex: 'availability', key: 'availability', width: 120, render: (v: number) => <Progress percent={v} size="small" strokeColor={v < 70 ? 'var(--color-error-600)' : 'var(--color-primary-600)'} /> },
+    { title: t('w11Device.oee.performance'), dataIndex: 'performance', key: 'performance', width: 120, render: (v: number) => <Progress percent={v} size="small" strokeColor="var(--color-info-600)" /> },
+    { title: t('w11Device.oee.quality'), dataIndex: 'quality', key: 'quality', width: 120, render: (v: number) => <Progress percent={v} size="small" strokeColor="var(--color-success-600)" /> },
+    { title: t('w11Device.oee.oee'), dataIndex: 'oee', key: 'oee', width: 90, sorter: (a: OeeDeviceLoss, b: OeeDeviceLoss) => a.oee - b.oee, render: (v: number) => <span style={{ fontWeight: 700, color: v >= 70 ? 'var(--color-success-600)' : v >= 50 ? 'var(--color-warning-600)' : 'var(--color-error-600)' }}>{v}%</span> },
     { title: t('w11Device.oee.loss'), dataIndex: 'downtimeMinutes', key: 'downtime', width: 110, render: (v: number) => `${v} min` },
   ]
 
@@ -259,7 +259,7 @@ export default function DeviceOpsCenterPage() {
     { title: t('w11Device.cost.volume'), dataIndex: 'volume', key: 'volume', width: 100, render: (v: number) => v.toLocaleString() },
     { title: t('w11Device.cost.revenue'), dataIndex: 'revenue', key: 'revenue', width: 130, render: fmtMoney },
     { title: t('w11Device.cost.cost'), dataIndex: 'cost', key: 'cost', width: 130, render: fmtMoney },
-    { title: t('w11Device.cost.margin'), dataIndex: 'margin', key: 'margin', width: 130, render: (v: number) => <span style={{ color: v >= 0 ? '#16a34a' : '#dc2626' }}>{fmtMoney(v)}</span> },
+    { title: t('w11Device.cost.margin'), dataIndex: 'margin', key: 'margin', width: 130, render: (v: number) => <span style={{ color: v >= 0 ? 'var(--color-success-600)' : 'var(--color-error-600)' }}>{fmtMoney(v)}</span> },
     { title: t('w11Device.cost.marginPct'), dataIndex: 'marginPct', key: 'marginPct', width: 100, render: (v: number) => `${v}%` },
     { title: t('w11Device.cost.unitCost'), dataIndex: 'unitCost', key: 'unitCost', width: 110, render: fmtMoney },
   ]
@@ -272,7 +272,7 @@ export default function DeviceOpsCenterPage() {
     { title: t('w11Device.drg.cases'), dataIndex: 'cases', key: 'cases', width: 80 },
     { title: t('w11Device.drg.totalWeight'), dataIndex: 'totalWeight', key: 'tw', width: 100, render: (v: number) => v.toLocaleString() },
     { title: t('w11Device.drg.payment'), dataIndex: 'payment', key: 'payment', width: 130, render: fmtMoney },
-    { title: t('w11Device.cost.margin'), dataIndex: 'margin', key: 'margin', width: 130, render: (v: number) => <span style={{ color: v >= 0 ? '#16a34a' : '#dc2626' }}>{fmtMoney(v)}</span> },
+    { title: t('w11Device.cost.margin'), dataIndex: 'margin', key: 'margin', width: 130, render: (v: number) => <span style={{ color: v >= 0 ? 'var(--color-success-600)' : 'var(--color-error-600)' }}>{fmtMoney(v)}</span> },
     { title: t('w11Device.cost.marginPct'), dataIndex: 'marginPct', key: 'marginPct', width: 100, render: (v: number) => `${v}%` },
   ]
 
@@ -362,10 +362,10 @@ export default function DeviceOpsCenterPage() {
                   <YAxis domain={[0, 100]} {...chartDefaults.axis} />
                   <RTooltip {...chartDefaults.tooltip} />
                   <Legend />
-                  <Line type="monotone" dataKey="oee" name="OEE" stroke="#2563eb" strokeWidth={2} />
-                  <Line type="monotone" dataKey="availability" name={t('w11Device.oee.availability')} stroke="#16a34a" dot={false} />
-                  <Line type="monotone" dataKey="performance" name={t('w11Device.oee.performance')} stroke="#0891b2" dot={false} />
-                  <Line type="monotone" dataKey="quality" name={t('w11Device.oee.quality')} stroke="#d97706" dot={false} />
+                  <Line type="monotone" dataKey="oee" name="OEE" stroke="var(--color-primary-600)" strokeWidth={2} />
+                  <Line type="monotone" dataKey="availability" name={t('w11Device.oee.availability')} stroke="var(--color-success-600)" dot={false} />
+                  <Line type="monotone" dataKey="performance" name={t('w11Device.oee.performance')} stroke="var(--color-info-600)" dot={false} />
+                  <Line type="monotone" dataKey="quality" name={t('w11Device.oee.quality')} stroke="var(--color-warning-600)" dot={false} />
                 </LineChart>
               </ChartContainer>
             ) : <Text type="secondary">{t('w11Device.noData')}</Text>}
@@ -382,8 +382,8 @@ export default function DeviceOpsCenterPage() {
                   <RTooltip {...chartDefaults.tooltip} />
                   <Legend />
                   <Bar dataKey="planned" stackId="a" name={t('w11Device.oee.planned')} fill="#93c5fd" />
-                  <Bar dataKey="unplanned" stackId="a" name={t('w11Device.oee.unplanned')} fill="#ef4444" />
-                  <Bar dataKey="changeover" stackId="a" name={t('w11Device.oee.changeover')} fill="#f59e0b" />
+                  <Bar dataKey="unplanned" stackId="a" name={t('w11Device.oee.unplanned')} fill="var(--color-error-500)" />
+                  <Bar dataKey="changeover" stackId="a" name={t('w11Device.oee.changeover')} fill="var(--color-warning-500)" />
                   <Bar dataKey="idle" stackId="a" name={t('w11Device.oee.idle')} fill="#a3a3a3" />
                   <Bar dataKey="smallStop" stackId="a" name={t('w11Device.oee.smallStop')} fill="#8b5cf6" />
                 </BarChart>
@@ -415,7 +415,7 @@ export default function DeviceOpsCenterPage() {
 
   return (
     <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
-      <Card style={{ background: 'linear-gradient(135deg,#0f766e 0%,#2563eb 100%)', color: '#fff', border: 'none', marginBottom: 16 }}>
+      <Card style={{ background: 'linear-gradient(135deg,#0f766e 0%,var(--color-primary-600) 100%)', color: '#fff', border: 'none', marginBottom: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Space size={16}>
             <Wrench size={34} color="#fff" />
@@ -484,7 +484,7 @@ export default function DeviceOpsCenterPage() {
           <>
             <Row gutter={16} style={{ marginBottom: 12 }}>
               <Col span={8}><Statistic title={t('w11Device.asset.cost')} value={schedule.cost} prefix="¥" /></Col>
-              <Col span={8}><Statistic title={t('w11Device.asset.currentBookValue')} value={schedule.currentBookValue} prefix="¥" styles={{ content: { color: '#16a34a' } }} /></Col>
+              <Col span={8}><Statistic title={t('w11Device.asset.currentBookValue')} value={schedule.currentBookValue} prefix="¥" styles={{ content: { color: 'var(--color-success-600)' } }} /></Col>
               <Col span={8}><Statistic title={t('w11Device.asset.residual')} value={schedule.residualValue} prefix="¥" /></Col>
             </Row>
             <Text type="secondary">{t('w11Device.asset.method')}: {t(schedule.method === 'declining' ? 'w11Device.asset.declining' : 'w11Device.asset.straightLine')} · {schedule.usefulLifeMonths} 月 · 首月 {fmtMoney(schedule.firstMonthDepreciation)}</Text>

@@ -189,7 +189,7 @@ export default function ClinicalFeedbackPage() {
         style={{ marginBottom: 16 }}
       />
       <Space style={{ marginBottom: 16 }}>
-        <MessageSquare size={20} color="#2563eb" />
+        <MessageSquare size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('feedback.title', '临床反馈闭环')}</span>
         <Tag color="geekblue">v3.0.6.11-104</Tag>
       </Space>

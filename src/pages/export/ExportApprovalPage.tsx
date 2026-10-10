@@ -17,9 +17,9 @@ import { DataTable } from '../../components/common/DataTable'
 type StatusFilter = 'all' | 'PENDING' | 'APPROVED' | 'REJECTED'
 
 const STATUS_META: Record<string, { label: string; color: string; bg: string }> = {
-  PENDING: { label: '待审批', color: '#f59e0b', bg: '#f59e0b20' },
-  APPROVED: { label: '已批准', color: '#22c55e', bg: '#22c55e20' },
-  REJECTED: { label: '已拒绝', color: '#ef4444', bg: '#ef444420' },
+  PENDING: { label: '待审批', color: 'var(--color-warning-500)', bg: '#f59e0b20' },
+  APPROVED: { label: '已批准', color: 'var(--color-success-500)', bg: '#22c55e20' },
+  REJECTED: { label: '已拒绝', color: 'var(--color-error-500)', bg: '#ef444420' },
 }
 
 const RESOURCE_OPTIONS = [
@@ -130,7 +130,7 @@ export default function ExportApprovalPage() {
       content: t('w9.exportApproval.approveContent'),
       okText: t('w9.exportApproval.approve'),
       cancelText: '取消',
-      okButtonProps: { style: { background: '#22c55e', borderColor: '#22c55e' } },
+      okButtonProps: { style: { background: 'var(--color-success-500)', borderColor: 'var(--color-success-500)' } },
       onOk: async () => {
         setActionId(id)
         try {
@@ -246,11 +246,11 @@ export default function ExportApprovalPage() {
           {item.status === 'PENDING' && canApprove && (
             <>
               <button onClick={() => handleApprove(item.id)} disabled={actionId === item.id}
-                style={{ padding: '5px 12px', borderRadius: 5, border: 'none', background: '#22c55e', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, opacity: actionId === item.id ? 0.6 : 1 }}>
+                style={{ padding: '5px 12px', borderRadius: 5, border: 'none', background: 'var(--color-success-500)', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, opacity: actionId === item.id ? 0.6 : 1 }}>
                 {actionId === item.id ? <Loader2 size={12} /> : <Check size={12} />}{t('w9.exportApproval.approve')}
               </button>
               <button onClick={() => handleReject(item.id)}
-                style={{ padding: '5px 12px', borderRadius: 5, border: '1px solid #ef4444', background: 'transparent', color: '#fca5a5', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
+                style={{ padding: '5px 12px', borderRadius: 5, border: '1px solid var(--color-error-500)', background: 'transparent', color: '#fca5a5', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
                 <X size={12} />{t('w9.exportApproval.reject')}
               </button>
             </>
@@ -266,7 +266,7 @@ export default function ExportApprovalPage() {
 
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
-      <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <FileDown size={24} />
           <span style={{ fontSize: 20, fontWeight: 600 }}>{t('w9.exportApproval.title')}</span>
@@ -278,7 +278,7 @@ export default function ExportApprovalPage() {
           <ActionButton action="refresh" size="compact" loading={loading} onClick={() => void load()} icon={<RefreshCw size={14} />} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.3)', color: '#fff' }}>
             {t('w9.exportApproval.refresh')}
           </ActionButton>
-          <ActionButton action="create" size="compact" onClick={() => setCreateOpen(true)} icon={<Plus size={14} />} style={{ background: '#22c55e', border: 'none', color: '#fff' }}>
+          <ActionButton action="create" size="compact" onClick={() => setCreateOpen(true)} icon={<Plus size={14} />} style={{ background: 'var(--color-success-500)', border: 'none', color: '#fff' }}>
             {t('w9.exportApproval.create')}
           </ActionButton>
         </div>
@@ -295,7 +295,7 @@ export default function ExportApprovalPage() {
         <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
           {filterTabs.map(tab => (
             <button key={tab.key} onClick={() => setFilter(tab.key)}
-              style={{ padding: '7px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: filter === tab.key ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: filter === tab.key ? '#fff' : 'var(--text-muted, #8b949e)', display: 'flex', alignItems: 'center', gap: 6 }}>
+              style={{ padding: '7px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: filter === tab.key ? 'var(--color-primary-800)' : 'var(--bg-secondary, #21262d)', color: filter === tab.key ? '#fff' : 'var(--text-muted, #8b949e)', display: 'flex', alignItems: 'center', gap: 6 }}>
               {tab.key === 'PENDING' && <Clock size={13} />}
               {tab.key === 'APPROVED' && <Check size={13} />}
               {tab.key === 'REJECTED' && <X size={13} />}
@@ -306,9 +306,9 @@ export default function ExportApprovalPage() {
         </div>
 
         {error && (
-          <div style={{ padding: 12, borderRadius: 6, background: '#ef444420', border: '1px solid #ef4444', color: '#fca5a5', marginBottom: 16, fontSize: 12 }}>
+          <div style={{ padding: 12, borderRadius: 6, background: '#ef444420', border: '1px solid var(--color-error-500)', color: '#fca5a5', marginBottom: 16, fontSize: 12 }}>
             {t('w9.exportApproval.loading')}:{error}
-            <button onClick={() => void load()} style={{ marginLeft: 12, padding: '2px 10px', borderRadius: 4, border: 'none', background: '#ef4444', color: '#fff', cursor: 'pointer', fontSize: 12 }}>{t('w9.exportApproval.refresh')}</button>
+            <button onClick={() => void load()} style={{ marginLeft: 12, padding: '2px 10px', borderRadius: 4, border: 'none', background: 'var(--color-error-500)', color: '#fff', cursor: 'pointer', fontSize: 12 }}>{t('w9.exportApproval.refresh')}</button>
           </div>
         )}
 
@@ -322,8 +322,8 @@ export default function ExportApprovalPage() {
           scroll={{ x: 'max-content' }}
         />
         <div style={{ marginTop: 12, fontSize: 12, color: '#6e7681', display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><ShieldCheck size={13} color="#22c55e" />{t('w9.exportApproval.approverHint')}</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><FileText size={13} color="#3b82f6" />{t('w9.exportApproval.autoHint')}</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><ShieldCheck size={13} color="var(--color-success-500)" />{t('w9.exportApproval.approverHint')}</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><FileText size={13} color="var(--color-primary-500)" />{t('w9.exportApproval.autoHint')}</span>
         </div>
       </div>
 
@@ -371,7 +371,7 @@ export default function ExportApprovalPage() {
         onOk={() => void confirmReject()}
         onCancel={() => { setRejectOpen(false); setRejectId(null); setRejectReason('') }}
         width={440}
-        okButtonProps={{ style: { background: '#ef4444', borderColor: '#ef4444' } }}
+        okButtonProps={{ style: { background: 'var(--color-error-500)', borderColor: 'var(--color-error-500)' } }}
         styles={modalStyle}
       >
         <div style={{ marginTop: 8 }}>

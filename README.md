@@ -1,4 +1,4 @@
-# G005 放射科 RIS 系统 v3.0.6.13-2
+# G005 放射科 RIS 系统 v3.0.6.13-3
 
 > **企业级放射信息系统 · 对标前 10 大 PACS/RIS 厂商** · 17 模块 / 9,000+ R3 点完整实施
 
@@ -14,7 +14,7 @@
 
 G005 是面向**三级甲等综合医院**的企业级放射信息系统(RIS)，对标全球前 10 大 PACS/RIS 厂商（GE、Siemens、Philips、Fujifilm、Carestream、Agfa、Canon、Hologic、Intelerad、Mach7），涵盖从 AI 辅助到患者门户的完整放射科工作流。
 
-**版本迭代**: v3.0.0 → v3.0.6.13-2（**原生表格迁移**：110 张 HTML `<table>` → `DataTable`；**字号令牌化**：2,775 处脱离刻度 → 36；守卫预算收紧；**后端 357 suites/3770 tests + 前端 tsc 0 / 47 文件 831 测试 0 失败**）
+**版本迭代**: v3.0.0 → v3.0.6.13-3（**品牌/语义色令牌化**：6,020 处硬编码 hex → CSS 令牌，hex 13,390 → 8,395；守卫预算收紧；**后端 357 suites/3770 tests + 前端 tsc 0 / 47 文件 831 测试 0 失败**）
 
 ### v3.0.6.8-40 眼科深化 (7 PR 并行, 对标 Topcon Synergy 8.0)
 
@@ -264,7 +264,8 @@ g005-radiology-ris/
 | v3.0.5.1          | 修复 MSW 路径 + 最终发布                                                     |   ✅ 完成   |
 | v3.0.6.1          | 4 PACS 厂商 MVP (GE/Siemens/Philips/Canon)                                   |   ✅ 完成   |
 | v3.0.6.8-xx       | 17 模块 9,000+ 升级点 + 眼科深化                                             |   ✅ 完成   |
-| **v3.0.6.13-2**  | **原生表格迁移 + 字号令牌化**：110 张原生 HTML `<table>` → `DataTable`(保留打印/热力图/日历)；2,775 处脱离设计刻度的内联 `fontSize` → 标准刻度(10/11/12/14/16/18/20/24/30/36/48)；`guard:ui` 新增 nativeTable/offScaleFont 预算 | ✅ **当前** |
+| **v3.0.6.13-3**  | **品牌/语义色令牌化**：6,020 处单一定义的品牌/语义 hex（`#1e40af/#3b82f6/#dc2626/#f59e0b/#16a34a/#0891b2` 等 13 色）→ `var(--color-*)`（588 文件）；hex 预算 13,390 → **8,395**；跳过 canvas/图表绘制行与反转灰度梯度 | ✅ **当前** |
+| v3.0.6.13-2      | **原生表格迁移 + 字号令牌化**：110 张原生 HTML `<table>` → `DataTable`；2,775 处脱离设计刻度的内联 `fontSize` → 标准刻度；`guard:ui` 新增 nativeTable/offScaleFont 预算 | ✅ 完成 |
 | v3.0.6.13-1      | **暗色主题正确性 + 语义色统一**：28 页浅色字面量→令牌 + 31 个 GitHub-暗色锁定页 → 主题令牌(1279 处) + 33 页本地严重度/状态映射 → `statusTokens` 单一来源 + 可点击 `div/span` 键盘可达 | ✅ 完成 |
 | v3.0.6.13-0      | **全站表格统一**：318 张裸 antd `<Table>` → `DataTable`(密度/空态/加载/分页/列宽/固定列统一) + 去 `minHeight:100vh`(幽灵滚动) + 移除 394 处 `outline:none`(恢复焦点) + emoji/字形图标清理 + 死图标层移除 + `PageSection` 节奏原语 + `guard:ui` 防回退 | ✅ 完成 |
 | v3.0.6.12-9      | **全站 KPI 统计块统一**：`StatCard` 扩 `prefix/precision/formatter/sparkline` + `StatCardGrid` 自适应等高网格(根治比例失衡) + `dashboard/KpiCard` 收敛 + ~130 页迁移 + 本地 KpiCard 去重 + 页面外壳令牌化 | ✅ 完成 |

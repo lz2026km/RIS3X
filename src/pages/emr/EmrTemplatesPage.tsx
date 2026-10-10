@@ -173,7 +173,7 @@ export const EmrTemplatesPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }} wrap>
-        <FileText size={20} color="#2563eb" />
+        <FileText size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('w9.emrTpl.title')}</span>
         <Tag color="cyan">v3.0.6.11-103</Tag>
         <Tag color={dataSource === 'api' ? 'green' : 'orange'}>

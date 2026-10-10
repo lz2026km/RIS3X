@@ -178,7 +178,7 @@ const ThirdPartyAiPage: React.FC = () => {
       key: "name",
       render: (v: string) => (
         <Space>
-          <Plug size={14} color="#2563eb" />
+          <Plug size={14} color="var(--color-primary-600)" />
           {v}
         </Space>
       ),
@@ -254,7 +254,7 @@ const ThirdPartyAiPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <Plug size={20} color="#2563eb" />
+        <Plug size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t("thirdAi.title")}</span>
         <Button
           size="small"

@@ -10,9 +10,9 @@ import { rqi2024Api, type RqiIndicator, type RqiIndicatorStatus } from "../../se
 //   数据源: rqi2024Api.getIndicators() (复用 W2B 封装); 失败静默降级 (不渲染), 不影响原页面功能。
 
 export const RQI_STATUS_COLOR: Record<RqiIndicatorStatus, string> = {
-  pass: "#16a34a",
-  warn: "#d97706",
-  fail: "#dc2626",
+  pass: "var(--color-success-600)",
+  warn: "var(--color-warning-600)",
+  fail: "var(--color-error-600)",
 };
 
 function statusColor(status: RqiIndicatorStatus | string): string {

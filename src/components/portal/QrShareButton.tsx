@@ -43,7 +43,7 @@ export default function QrShareButton({
             onClick={() => navigator.clipboard.writeText(shortUrl)}
             style={{
               padding: '4px 12px', border: '1px solid #0ea5e9', borderRadius: 4,
-              background: 'var(--color-info-bg)', fontSize: 12, color: '#1e40af', cursor: 'pointer',
+              background: 'var(--color-info-bg)', fontSize: 12, color: 'var(--color-primary-800)', cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto',
             }}
           >

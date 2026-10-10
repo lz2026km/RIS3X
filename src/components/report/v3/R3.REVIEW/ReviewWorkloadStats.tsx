@@ -33,7 +33,7 @@ import ChartContainer from '../../../charts/ChartContainer';
 import { t } from '../../../../i18n/appI18n';
 
 const STAGE_COLORS: Record<ReviewStage, string> = {
-  initial: '#f59e0b',
+  initial: 'var(--color-warning-500)',
   final: '#7c2d12',
   cosign: '#7c3aed',
   sign: '#be185d',
@@ -158,7 +158,7 @@ export const ReviewWorkloadStats: React.FC = () => {
       dataIndex: 'averageMinutes',
       key: 'averageMinutes',
       render: (v: number) => (
-        <span style={{ color: v > 90 ? '#dc2626' : v > 75 ? '#f59e0b' : '#10b981' }}>
+        <span style={{ color: v > 90 ? 'var(--color-error-600)' : v > 75 ? 'var(--color-warning-500)' : '#10b981' }}>
           {v}{t('reportReview.workload.minutes')}
         </span>
       ),
@@ -172,7 +172,7 @@ export const ReviewWorkloadStats: React.FC = () => {
         <Progress
           percent={v}
           size="small"
-          strokeColor={v >= 90 ? '#10b981' : v >= 80 ? '#f59e0b' : '#dc2626'}
+          strokeColor={v >= 90 ? '#10b981' : v >= 80 ? 'var(--color-warning-500)' : 'var(--color-error-600)'}
         />
       ),
     },
@@ -190,7 +190,7 @@ export const ReviewWorkloadStats: React.FC = () => {
     <div data-testid="review-workload-stats" role="region" aria-label={t('reportReview.workload.title')}>
       <div
         style={{
-          background: 'linear-gradient(135deg, #0891b2 0%, #3b82f6 100%)',
+          background: 'linear-gradient(135deg, var(--color-info-600) 0%, var(--color-primary-500) 100%)',
           color: '#fff',
           padding: '12px 16px',
           borderRadius: 8,
@@ -290,7 +290,7 @@ export const ReviewWorkloadStats: React.FC = () => {
                   {byModalityData.map((_, i) => (
                     <Cell
                       key={i}
-                      fill={['#3b82f6', '#10b981', '#f59e0b', '#7c3aed', '#dc2626', '#0891b2'][i % 6]}
+                      fill={['var(--color-primary-500)', '#10b981', 'var(--color-warning-500)', '#7c3aed', 'var(--color-error-600)', 'var(--color-info-600)'][i % 6]}
                     />
                   ))}
                 </Pie>
@@ -313,7 +313,7 @@ export const ReviewWorkloadStats: React.FC = () => {
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Bar dataKey="load" fill="#3b82f6" name={t('reportReview.workload.current')} />
+                <Bar dataKey="load" fill="var(--color-primary-500)" name={t('reportReview.workload.current')} />
                 <Bar dataKey="max" fill="#e2e8f0" name={t('reportReview.workload.max')} />
               </BarChart>
             </ChartContainer>
@@ -343,7 +343,7 @@ export const ReviewWorkloadStats: React.FC = () => {
                 key={s.reviewerId}
                 type="monotone"
                 dataKey={s.reviewerName}
-                stroke={['#3b82f6', '#10b981', '#f59e0b', '#7c3aed', '#dc2626'][i]}
+                stroke={['var(--color-primary-500)', '#10b981', 'var(--color-warning-500)', '#7c3aed', 'var(--color-error-600)'][i]}
                 strokeWidth={2}
               />
             ))}

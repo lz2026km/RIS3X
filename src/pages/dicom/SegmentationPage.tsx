@@ -30,7 +30,7 @@ import { t } from '../../i18n/appI18n'
 const ALGORITHMS: Array<{ value: SegmentationV2Algorithm; labelKey: string; color: string; descKey: string }> = [
   { value: 'region_grow', labelKey: 'segmentationV2.algo.region_grow', color: '#ff4d4f', descKey: 'segmentationV2.algoDesc.region_grow' },
   { value: 'threshold', labelKey: 'segmentationV2.algo.threshold', color: '#fa8c16', descKey: 'segmentationV2.algoDesc.threshold' },
-  { value: 'edge_canny', labelKey: 'segmentationV2.algo.edge_canny', color: '#2563eb', descKey: 'segmentationV2.algoDesc.edge_canny' },
+  { value: 'edge_canny', labelKey: 'segmentationV2.algo.edge_canny', color: 'var(--color-primary-600)', descKey: 'segmentationV2.algoDesc.edge_canny' },
   { value: 'kmeans', labelKey: 'segmentationV2.algo.kmeans', color: '#722ed1', descKey: 'segmentationV2.algoDesc.kmeans' },
   { value: 'active_contour', labelKey: 'segmentationV2.algo.active_contour', color: '#52c41a', descKey: 'segmentationV2.algoDesc.active_contour' },
 ]
@@ -40,7 +40,7 @@ const ORGAN_LABEL_KEYS: Record<string, string> = {
   '结节': 'w9dOrgan.nodule', '骨骼': 'w9dOrgan.bone', '肝脏': 'w9dOrgan.liver',
   '肺': 'w9dOrgan.lung', '血管': 'w9dOrgan.vessel', '软组织': 'w9dOrgan.softTissue', '其他': 'w9dOrgan.other',
 }
-const RELABEL_COLORS = ['#ff4d4f', '#fa8c16', '#52c41a', '#2563eb', '#722ed1', '#eb2f96', '#13c2c2', '#f5222d']
+const RELABEL_COLORS = ['#ff4d4f', '#fa8c16', '#52c41a', 'var(--color-primary-600)', '#722ed1', '#eb2f96', '#13c2c2', '#f5222d']
 const PLANES: Array<{ value: 'axial' | 'sagittal' | 'coronal'; label: string }> = [
   { value: 'axial', label: 'axial' },
   { value: 'sagittal', label: 'sagittal' },
@@ -535,7 +535,7 @@ const SegmentationPage: React.FC = () => {
   return (
     <PageContainer padding={16}>
       <Space style={{ marginBottom: 12 }} wrap>
-        <Scan size={20} color="#2563eb" />
+        <Scan size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('segmentationV2.title')}</span>
         <Tag color="cyan">{t('segmentationV2.tagAlgos')}</Tag>
         <Tag color="geekblue">{t('segmentationV2.tagOtsu')}</Tag>

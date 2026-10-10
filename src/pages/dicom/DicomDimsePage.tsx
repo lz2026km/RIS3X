@@ -24,10 +24,10 @@ import { t } from '../../i18n/appI18n'
 import { severityToAntd, toneToAntd } from '../../theme/statusTokens'
 
 const STAT_COLOR_MAP: Record<string, string> = {
-  '#cf1322': 'error', '#dc2626': 'error', '#f5222d': 'error', '#ff4d4f': 'error',
-  '#fa8c16': 'warning', '#faad14': 'warning', '#d97706': 'warning', '#ff7a45': 'warning',
-  '#52c41a': 'success', '#16a34a': 'success', '#059669': 'success',
-  '#1890ff': 'primary', '#2563eb': 'primary', '#1d4ed8': 'primary',
+  '#cf1322': 'error', 'var(--color-error-600)': 'error', '#f5222d': 'error', '#ff4d4f': 'error',
+  '#fa8c16': 'warning', '#faad14': 'warning', 'var(--color-warning-600)': 'warning', '#ff7a45': 'warning',
+  '#52c41a': 'success', 'var(--color-success-600)': 'success', '#059669': 'success',
+  '#1890ff': 'primary', 'var(--color-primary-600)': 'primary', 'var(--color-primary-700)': 'primary',
   '#13c2c2': 'info',
 }
 const mapColor = (c?: string): string | undefined => (c ? STAT_COLOR_MAP[c.toLowerCase()] ?? c : c)
@@ -719,10 +719,10 @@ export const DicomDimsePage: React.FC = () => {
         <>
           <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>
             {[
-              { title: t('dicomDimse.statTotal'), value: transferStats?.total ?? 0, color: '#1e40af' },
-              { title: t('dicomDimse.statActive'), value: transferStats?.activeCount ?? 0, color: '#0891b2' },
-              { title: t('dicomDimse.statSending'), value: transferStats?.sending ?? 0, color: '#2563eb' },
-              { title: t('dicomDimse.statFailed'), value: transferStats?.failed ?? 0, color: '#dc2626' },
+              { title: t('dicomDimse.statTotal'), value: transferStats?.total ?? 0, color: 'var(--color-primary-800)' },
+              { title: t('dicomDimse.statActive'), value: transferStats?.activeCount ?? 0, color: 'var(--color-info-600)' },
+              { title: t('dicomDimse.statSending'), value: transferStats?.sending ?? 0, color: 'var(--color-primary-600)' },
+              { title: t('dicomDimse.statFailed'), value: transferStats?.failed ?? 0, color: 'var(--color-error-600)' },
               { title: t('dicomDimse.statCompleted'), value: transferStats?.completed ?? 0, color: '#059669' },
               { title: t('dicomDimse.statSuccessRate'), value: transferStats?.successRate != null ? `${transferStats.successRate}%` : '-', color: '#7c3aed' },
             ].map(s => (
@@ -754,7 +754,7 @@ export const DicomDimsePage: React.FC = () => {
                   <Progress percent={r.progress} size="small" status={r.status === 'failed' ? 'exception' : r.status === 'completed' ? 'success' : r.status === 'paused' ? 'normal' : 'active'} format={(p) => `${r.completedInstances}/${r.totalInstances} (${p ?? 0}%)`} />
                 ) },
                 { title: t('dicomDimse.colUpdatedAt'), dataIndex: 'updatedAt', key: 'updatedAt', width: 170, render: (v: string) => new Date(v).toLocaleString() },
-                { title: t('dicomDimse.colError'), dataIndex: 'error', key: 'error', ellipsis: true, render: (v?: string) => v ? <span style={{ color: '#dc2626', fontSize: 12 }}>{v}</span> : '-' },
+                { title: t('dicomDimse.colError'), dataIndex: 'error', key: 'error', ellipsis: true, render: (v?: string) => v ? <span style={{ color: 'var(--color-error-600)', fontSize: 12 }}>{v}</span> : '-' },
                 { title: t('dicomDimse.colAction'), key: 'action', width: 230, render: (_: unknown, r: TransferRecord) => (
                   <Space size={4} wrap>
                     {['failed', 'paused', 'canceled'].includes(r.status) && (
@@ -782,7 +782,7 @@ export const DicomDimsePage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <Radio size={20} color="#2563eb" />
+        <Radio size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dicomDimse.pageTitle')}</span>
         <Tag color="blue">v3.0</Tag>
         {/* [v3.0.6.11-88 Round10] C-STORE 本地文件上传为演示行为 (后端 /dicom-dimse/store 为 JSON 协议) */}
@@ -863,14 +863,14 @@ export const DicomDimsePage: React.FC = () => {
                   <Progress percent={item.progress} size="small"
                     status={item.status === 'fail' ? 'exception' : item.status === 'success' ? 'success' : item.status === 'uploading' ? 'active' : 'normal'} />
                   {item.status === 'fail' && item.error && (
-                    <div style={{ fontSize: 11, color: '#dc2626', marginTop: 4 }}>{item.error}</div>
+                    <div style={{ fontSize: 11, color: 'var(--color-error-600)', marginTop: 4 }}>{item.error}</div>
                   )}
                 </div>
               )
             })}
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#475569', marginTop: 4 }}>
               <span>{t('dicomDimse.totalProgress', { done: storeItems.filter(i => i.status === 'success').length, total: storeItems.length })}</span>
-              <span style={{ fontWeight: 700, color: '#1e40af' }}>{storeOverallPercent}%</span>
+              <span style={{ fontWeight: 700, color: 'var(--color-primary-800)' }}>{storeOverallPercent}%</span>
             </div>
           </div>
         )}

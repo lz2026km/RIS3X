@@ -12,10 +12,10 @@ import { t } from '../../i18n/appI18n'
 
 const CATEGORIES = ['身份识别', '手术安全', '用药安全', '危急值管理', '患者安全', '感染控制', '辐射安全', '服务品质']
 const STATUS_CONFIG = {
-  'on-track': { label: '正常推进', color: '#22c55e' },
-  'at-risk': { label: '存在风险', color: '#f59e0b' },
-  behind: { label: '落后计划', color: '#ef4444' },
-  achieved: { label: '已完成', color: '#3b82f6' },
+  'on-track': { label: '正常推进', color: 'var(--color-success-500)' },
+  'at-risk': { label: '存在风险', color: 'var(--color-warning-500)' },
+  behind: { label: '落后计划', color: 'var(--color-error-500)' },
+  achieved: { label: '已完成', color: 'var(--color-primary-500)' },
 }
 
 export default function PatientSafetyGoalsPage() {
@@ -88,7 +88,7 @@ export default function PatientSafetyGoalsPage() {
 
   return (
     <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
-      <div style={{ background: 'linear-gradient(135deg,#2563eb,#1d4ed8)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: 'linear-gradient(135deg,var(--color-primary-600),var(--color-primary-700))', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <Target size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('safetyGoals.title')}</span>
         </div>
@@ -100,10 +100,10 @@ export default function PatientSafetyGoalsPage() {
       <div style={{ padding: '20px 24px' }}>
         <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
           {[
-            { title: t('safetyGoals.totalGoals'), value: goals.length, icon: Target, color: 'var(--color-primary-500, #3b82f6)' },
-            { title: t('safetyGoals.onTrack'), value: goals.filter(g => g.status === 'on-track').length, icon: CheckCircle, color: 'var(--color-success-500, #22c55e)' },
-            { title: t('safetyGoals.atRisk'), value: goals.filter(g => g.status === 'at-risk').length, icon: AlertTriangle, color: 'var(--color-warning-500, #f59e0b)' },
-            { title: t('safetyGoals.achieved'), value: goals.filter(g => g.status === 'achieved').length, icon: CheckCircle, color: 'var(--color-primary-500, #3b82f6)' },
+            { title: t('safetyGoals.totalGoals'), value: goals.length, icon: Target, color: 'var(--color-primary-500, var(--color-primary-500))' },
+            { title: t('safetyGoals.onTrack'), value: goals.filter(g => g.status === 'on-track').length, icon: CheckCircle, color: 'var(--color-success-500, var(--color-success-500))' },
+            { title: t('safetyGoals.atRisk'), value: goals.filter(g => g.status === 'at-risk').length, icon: AlertTriangle, color: 'var(--color-warning-500, var(--color-warning-500))' },
+            { title: t('safetyGoals.achieved'), value: goals.filter(g => g.status === 'achieved').length, icon: CheckCircle, color: 'var(--color-primary-500, var(--color-primary-500))' },
           ].map((k, i) => (
             <div key={i} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 140 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
@@ -118,10 +118,10 @@ export default function PatientSafetyGoalsPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <TrendingUp size={16} color="#3b82f6" />{t('safetyGoals.progressOverview')}
+              <TrendingUp size={16} color="var(--color-primary-500)" />{t('safetyGoals.progressOverview')}
             </div>
             <div style={{ textAlign: 'center', marginBottom: 16 }}>
-              <div style={{ fontSize: 24, fontWeight: 700, color: overallProgress >= 80 ? '#22c55e' : overallProgress >= 60 ? '#f59e0b' : '#ef4444' }}>{overallProgress}%</div>
+              <div style={{ fontSize: 24, fontWeight: 700, color: overallProgress >= 80 ? 'var(--color-success-500)' : overallProgress >= 60 ? 'var(--color-warning-500)' : 'var(--color-error-500)' }}>{overallProgress}%</div>
               <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('safetyGoals.overallRate')}</div>
             </div>
             <ChartContainer height={180} state={progressData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('safetyGoals.noProgressData')}>
@@ -130,13 +130,13 @@ export default function PatientSafetyGoalsPage() {
                 <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
                 <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
                 <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, fontSize: 12 }} />
-                <Bar dataKey="progress" fill="#3b82f6" radius={[0, 4, 4, 0]} name={t('safetyGoals.completionRate')} />
+                <Bar dataKey="progress" fill="var(--color-primary-500)" radius={[0, 4, 4, 0]} name={t('safetyGoals.completionRate')} />
               </BarChart>
             </ChartContainer>
           </div>
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <BarChart3 size={16} color="#22c55e" />{t('safetyGoals.categoryStatus')}
+              <BarChart3 size={16} color="var(--color-success-500)" />{t('safetyGoals.categoryStatus')}
             </div>
             <ChartContainer height={240} state={categoryCompData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('safetyGoals.noCategoryData')}>
               <BarChart data={categoryCompData}>
@@ -145,17 +145,17 @@ export default function PatientSafetyGoalsPage() {
                 <YAxis tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
                 <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, fontSize: 12 }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Bar dataKey="passed" fill="#22c55e" radius={[4, 4, 0, 0]} name={t('safetyGoals.passed')} stackId="a" />
-                <Bar dataKey="failed" fill="#ef4444" radius={[4, 4, 0, 0]} name={t('safetyGoals.failed')} stackId="a" />
+                <Bar dataKey="passed" fill="var(--color-success-500)" radius={[4, 4, 0, 0]} name={t('safetyGoals.passed')} stackId="a" />
+                <Bar dataKey="failed" fill="var(--color-error-500)" radius={[4, 4, 0, 0]} name={t('safetyGoals.failed')} stackId="a" />
               </BarChart>
             </ChartContainer>
           </div>
         </div>
 
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-          <button onClick={() => setCategoryFilter('all')} style={{ padding: '4px 12px', borderRadius: 4, border: `1px solid ${categoryFilter === 'all' ? '#2563eb' : 'var(--border-default, #30363d)'}`, background: categoryFilter === 'all' ? '#2563eb20' : 'transparent', color: categoryFilter === 'all' ? '#2563eb' : 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>{t('safetyGoals.all')}</button>
+          <button onClick={() => setCategoryFilter('all')} style={{ padding: '4px 12px', borderRadius: 4, border: `1px solid ${categoryFilter === 'all' ? 'var(--color-primary-600)' : 'var(--border-default, #30363d)'}`, background: categoryFilter === 'all' ? '#2563eb20' : 'transparent', color: categoryFilter === 'all' ? 'var(--color-primary-600)' : 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>{t('safetyGoals.all')}</button>
           {CATEGORIES.map(c => (
-            <button key={c} onClick={() => setCategoryFilter(c)} style={{ padding: '4px 12px', borderRadius: 4, border: `1px solid ${categoryFilter === c ? '#2563eb' : 'var(--border-default, #30363d)'}`, background: categoryFilter === c ? '#2563eb20' : 'transparent', color: categoryFilter === c ? '#2563eb' : 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>{c}</button>
+            <button key={c} onClick={() => setCategoryFilter(c)} style={{ padding: '4px 12px', borderRadius: 4, border: `1px solid ${categoryFilter === c ? 'var(--color-primary-600)' : 'var(--border-default, #30363d)'}`, background: categoryFilter === c ? '#2563eb20' : 'transparent', color: categoryFilter === c ? 'var(--color-primary-600)' : 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>{c}</button>
           ))}
         </div>
 
@@ -185,7 +185,7 @@ export default function PatientSafetyGoalsPage() {
               { title: t('safetyGoals.colCategory'), dataIndex: 'category', key: 'category', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
               { title: t('safetyGoals.colBaseline'), key: 'baseline', render: (_v, g) => <span>{g.baseline}{g.unit}</span> },
               { title: t('safetyGoals.colCurrent'), key: 'current', render: (_v, g) => <span style={{ fontWeight: 600 }}>{g.current}{g.unit}</span> },
-              { title: t('safetyGoals.colTarget'), key: 'target', render: (_v, g) => <span style={{ color: '#22c55e' }}>{g.target}{g.unit}</span> },
+              { title: t('safetyGoals.colTarget'), key: 'target', render: (_v, g) => <span style={{ color: 'var(--color-success-500)' }}>{g.target}{g.unit}</span> },
               {
                 title: t('safetyGoals.colStatus'),
                 key: 'status',
@@ -205,7 +205,7 @@ export default function PatientSafetyGoalsPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowCreateModal(false)}>
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 12, width: 480, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid var(--border-default, #30363d)' }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}><Target size={16} color="#3b82f6" /> {t('safetyGoals.newGoalTitle')}</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}><Target size={16} color="var(--color-primary-500)" /> {t('safetyGoals.newGoalTitle')}</div>
               <button onClick={() => setShowCreateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted, #8b949e)', fontSize: 18, padding: 4 }}>×</button>
             </div>
             <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -255,7 +255,7 @@ export default function PatientSafetyGoalsPage() {
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
                 <button onClick={() => setShowCreateModal(false)} style={{ padding: '8px 20px', background: 'var(--bg-secondary, #21262d)', border: '1px solid var(--border-default, #30363d)', borderRadius: 6, color: 'var(--text-muted, #8b949e)', fontSize: 12, cursor: 'pointer' }}>{t('safetyGoals.cancel')}</button>
-                <button onClick={() => void handleCreateGoal()} disabled={!newGoal.title?.trim() || !newGoal.deadline} style={{ padding: '8px 20px', background: newGoal.title?.trim() && newGoal.deadline ? '#2563eb' : 'var(--bg-secondary, #21262d)', border: 'none', borderRadius: 6, color: '#fff', fontSize: 12, fontWeight: 600, cursor: newGoal.title?.trim() && newGoal.deadline ? 'pointer' : 'not-allowed' }}>{t('safetyGoals.createGoal')}</button>
+                <button onClick={() => void handleCreateGoal()} disabled={!newGoal.title?.trim() || !newGoal.deadline} style={{ padding: '8px 20px', background: newGoal.title?.trim() && newGoal.deadline ? 'var(--color-primary-600)' : 'var(--bg-secondary, #21262d)', border: 'none', borderRadius: 6, color: '#fff', fontSize: 12, fontWeight: 600, cursor: newGoal.title?.trim() && newGoal.deadline ? 'pointer' : 'not-allowed' }}>{t('safetyGoals.createGoal')}</button>
               </div>
             </div>
           </div>

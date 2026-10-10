@@ -13,11 +13,11 @@ import { Inbox } from 'lucide-react'
 
 const actionIcon: Record<string, React.ReactNode> = {
   created: <FileText size={14} />,
-  amended: <FileText size={14} color="#f59e0b" />,
-  reviewed: <CheckCircle size={14} color="#22c55e" />,
-  published: <CheckCircle size={14} color="#2563eb" />,
+  amended: <FileText size={14} color="var(--color-warning-500)" />,
+  reviewed: <CheckCircle size={14} color="var(--color-success-500)" />,
+  published: <CheckCircle size={14} color="var(--color-primary-600)" />,
   printed: <Printer size={14} color="#64748b" />,
-  critical_value: <AlertTriangle size={14} color="#ef4444" />,
+  critical_value: <AlertTriangle size={14} color="var(--color-error-500)" />,
   reverted: <RotateCcw size={14} color="#f97316" />,
 };
 const actionColor: Record<string, string> = {

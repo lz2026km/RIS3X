@@ -76,12 +76,12 @@ export const DeviceManagement: React.FC<DeviceManagementProps> = ({ devices, onC
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title={t('w9e.deviceManagement.statOnline')} value={stats.online} styles={{ content: {  color: '#16a34a'  } }} />
+            <Statistic title={t('w9e.deviceManagement.statOnline')} value={stats.online} styles={{ content: {  color: 'var(--color-success-600)'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title={t('w9e.deviceManagement.statBusy')} value={stats.busy} styles={{ content: {  color: '#dc2626'  } }} />
+            <Statistic title={t('w9e.deviceManagement.statBusy')} value={stats.busy} styles={{ content: {  color: 'var(--color-error-600)'  } }} />
           </Card>
         </Col>
         <Col span={6}>

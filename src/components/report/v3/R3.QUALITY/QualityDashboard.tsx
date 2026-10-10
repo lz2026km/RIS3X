@@ -27,9 +27,9 @@ import { t } from '../../../../i18n/appI18n';
 
 const GRADE_COLOR: Record<QualityGrade, string> = {
   '甲': '#10b981',
-  '乙': '#3b82f6',
-  '丙': '#f59e0b',
-  '丁': '#dc2626',
+  '乙': 'var(--color-primary-500)',
+  '丙': 'var(--color-warning-500)',
+  '丁': 'var(--color-error-600)',
 };
 
 export const QualityDashboard: React.FC = () => {
@@ -72,16 +72,16 @@ export const QualityDashboard: React.FC = () => {
   }
 
   const radialData = [
-    { name: t('qualityDashboard.pendingEvaluation'), value: dashboard.realtime.pendingEvaluation, fill: '#f59e0b' },
+    { name: t('qualityDashboard.pendingEvaluation'), value: dashboard.realtime.pendingEvaluation, fill: 'var(--color-warning-500)' },
     { name: t('qualityDashboard.completed'), value: dashboard.realtime.completedToday, fill: '#10b981' },
-    { name: t('qualityDashboard.inProgress'), value: dashboard.realtime.inProgressEvaluation, fill: '#3b82f6' },
+    { name: t('qualityDashboard.inProgress'), value: dashboard.realtime.inProgressEvaluation, fill: 'var(--color-primary-500)' },
   ];
 
   return (
     <div data-testid="quality-dashboard" role="region" aria-label={t('qualityDashboard.ariaLabel')}>
       <div
         style={{
-          background: 'linear-gradient(135deg, #0891b2 0%, #3b82f6 100%)',
+          background: 'linear-gradient(135deg, var(--color-info-600) 0%, var(--color-primary-500) 100%)',
           color: '#fff',
           padding: '14px 18px',
           borderRadius: 8,
@@ -156,7 +156,7 @@ export const QualityDashboard: React.FC = () => {
               icon={<Bell size={14} />}
               message={alert.message}
               description={new Date(alert.timestamp).toLocaleString()}
-              style={{ marginBottom: 4, borderLeft: alert.severity === 'critical' ? '4px solid #dc2626' : undefined }}
+              style={{ marginBottom: 4, borderLeft: alert.severity === 'critical' ? '4px solid var(--color-error-600)' : undefined }}
               action={
                 <Tag color={alert.severity === 'critical' ? 'red' : 'orange'}>
                   {alert.type}
@@ -176,9 +176,9 @@ export const QualityDashboard: React.FC = () => {
                 <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} domain={[0, 100]} />
                 <RTooltip />
-                <Bar dataKey="score" fill="#3b82f6" name={t('qualityDashboard.series.avgScore')}>
+                <Bar dataKey="score" fill="var(--color-primary-500)" name={t('qualityDashboard.series.avgScore')}>
                   {dashboard.byModality.map((m, i) => (
-                    <Cell key={i} fill={m.avgScore >= 90 ? '#10b981' : m.avgScore >= 75 ? '#3b82f6' : m.avgScore >= 60 ? '#f59e0b' : '#dc2626'} />
+                    <Cell key={i} fill={m.avgScore >= 90 ? '#10b981' : m.avgScore >= 75 ? 'var(--color-primary-500)' : m.avgScore >= 60 ? 'var(--color-warning-500)' : 'var(--color-error-600)'} />
                   ))}
                 </Bar>
               </BarChart>
@@ -195,7 +195,7 @@ export const QualityDashboard: React.FC = () => {
                 <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} domain={[0, 100]} />
                 <RTooltip />
                 <Legend verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: 12 }} />
-                <Line yAxisId="left" type="monotone" dataKey="count" stroke="#3b82f6" strokeWidth={2} name={t('qualityDashboard.series.count')} dot={false} />
+                <Line yAxisId="left" type="monotone" dataKey="count" stroke="var(--color-primary-500)" strokeWidth={2} name={t('qualityDashboard.series.count')} dot={false} />
                 <Line yAxisId="right" type="monotone" dataKey="score" stroke="#10b981" strokeWidth={2} name={t('qualityDashboard.series.score')} dot={false} />
               </LineChart>
             </ChartContainer>
@@ -225,7 +225,7 @@ export const QualityDashboard: React.FC = () => {
                     <Tag color={GRADE_COLOR[s.grade]}>{s.grade}{t('qualityDashboard.gradeSuffix')}</Tag>
                     <strong>{s.patientName}</strong>
                     <span style={{ fontSize: 12, color: '#64748b' }}>{s.reportId}</span>
-                    <span style={{ color: '#3b82f6', fontWeight: 600 }}>{s.score} {t('qualityDashboard.pointsUnit')}</span>
+                    <span style={{ color: 'var(--color-primary-500)', fontWeight: 600 }}>{s.score} {t('qualityDashboard.pointsUnit')}</span>
                     <span style={{ fontSize: 12, color: '#94a3b8' }}>
                       {s.doctorName} · {new Date(s.evaluatedAt).toLocaleTimeString()}
                     </span>
@@ -246,7 +246,7 @@ export const QualityDashboard: React.FC = () => {
                     <strong>{d.doctorName}</strong>
                     <span>
                       {t('qualityDashboard.avgScoreLabel')}{' '}
-                      <strong style={{ color: d.avgScore >= 90 ? '#10b981' : '#f59e0b' }}>{d.avgScore}</strong>
+                      <strong style={{ color: d.avgScore >= 90 ? '#10b981' : 'var(--color-warning-500)' }}>{d.avgScore}</strong>
                     </span>
                     <Tag>{d.count} {t('qualityDashboard.copiesUnit')}</Tag>
                     <Tag color={d.passRate >= 0.9 ? 'green' : 'orange'}>

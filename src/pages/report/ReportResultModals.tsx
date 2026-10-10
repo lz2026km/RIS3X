@@ -150,7 +150,7 @@ export function BulkActionModal({ show, action, count, loading, onClose, onConfi
         )}
         {isReview && (
           <div style={{ background: '#eff6ff', borderRadius: 8, padding: '12px 16px', marginBottom: 16, border: '1px solid #bfdbfe' }}>
-            <div style={{ fontSize: 12, color: '#1d4ed8', fontWeight: 600, marginBottom: 4 }}>{t('reportResult.confirmReview')}</div>
+            <div style={{ fontSize: 12, color: 'var(--color-primary-700)', fontWeight: 600, marginBottom: 4 }}>{t('reportResult.confirmReview')}</div>
             <div style={{ fontSize: 12, color: '#1e3a8a' }}>{t('reportResult.confirmReviewDesc')}</div>
           </div>
         )}

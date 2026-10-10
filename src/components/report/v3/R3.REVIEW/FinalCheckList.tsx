@@ -78,17 +78,17 @@ const CATEGORY_META: Record<FinalCheckCategory, { color: string; label: string }
 const STATUS_META: Record<FinalCheckStatus, { color: string; bg: string; label: string }> = {
   pending: { color: '#94a3b8', bg: 'var(--content-bg)', label: 'reportReview.final.status.pending' },
   passed: { color: '#10b981', bg: 'var(--color-success-bg)', label: 'reportReview.final.status.passed' },
-  failed: { color: '#dc2626', bg: 'var(--color-error-bg)', label: 'reportReview.final.status.failed' },
-  warning: { color: '#f59e0b', bg: 'var(--color-warning-bg)', label: 'reportReview.final.status.warning' },
+  failed: { color: 'var(--color-error-600)', bg: 'var(--color-error-bg)', label: 'reportReview.final.status.failed' },
+  warning: { color: 'var(--color-warning-500)', bg: 'var(--color-warning-bg)', label: 'reportReview.final.status.warning' },
   skipped: { color: '#64748b', bg: 'var(--content-bg)', label: 'reportReview.final.status.skipped' },
   'not-applicable': { color: '#94a3b8', bg: 'var(--content-bg)', label: 'reportReview.final.status.notApplicable' },
 };
 
 const SEVERITY_META: Record<string, { color: string; label: string; rank: number }> = {
-  blocker: { color: '#dc2626', label: 'reportReview.severity.blocker', rank: 0 },
-  critical: { color: '#dc2626', label: 'reportReview.severity.critical', rank: 1 },
-  major: { color: '#f59e0b', label: 'reportReview.severity.major', rank: 2 },
-  minor: { color: '#3b82f6', label: 'reportReview.severity.minor', rank: 3 },
+  blocker: { color: 'var(--color-error-600)', label: 'reportReview.severity.blocker', rank: 0 },
+  critical: { color: 'var(--color-error-600)', label: 'reportReview.severity.critical', rank: 1 },
+  major: { color: 'var(--color-warning-500)', label: 'reportReview.severity.major', rank: 2 },
+  minor: { color: 'var(--color-primary-500)', label: 'reportReview.severity.minor', rank: 3 },
   info: { color: '#64748b', label: 'reportReview.severity.info', rank: 4 },
 };
 
@@ -465,7 +465,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                   title={t('reportReview.final.consistencyScore')}
                   value={Math.round(consistency.overallScore * 100)}
                   suffix="/100"
-                  styles={{ content: {  color: consistency.overallScore >= 0.9 ? '#10b981' : consistency.overallScore >= 0.7 ? '#f59e0b' : '#dc2626'  } }}
+                  styles={{ content: {  color: consistency.overallScore >= 0.9 ? '#10b981' : consistency.overallScore >= 0.7 ? 'var(--color-warning-500)' : 'var(--color-error-600)'  } }}
                   prefix={<Activity size={14} />}
                 />
               </Col>
@@ -474,7 +474,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                   title={t('reportReview.final.aiConfidence')}
                   value={Math.round(consistency.aiConfidence * 100)}
                   suffix="%"
-                  styles={{ content: {  color: '#3b82f6', fontSize: 16  } }}
+                  styles={{ content: {  color: 'var(--color-primary-500)', fontSize: 16  } }}
                   prefix={<Zap size={14} />}
                 />
               </Col>
@@ -502,7 +502,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                       <Space>
                         <Tag color={c.severity === 'critical' ? 'red' : c.severity === 'major' ? 'orange' : 'blue'}>{c.severity}</Tag>
                         <span style={{ fontSize: 12 }}>{c.field}:</span>
-                        <span style={{ fontSize: 12, color: '#dc2626' }}>{t('reportReview.final.reported')} "{c.reported}"</span>
+                        <span style={{ fontSize: 12, color: 'var(--color-error-600)' }}>{t('reportReview.final.reported')} "{c.reported}"</span>
                         <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>→</span>
                         <span style={{ fontSize: 12, color: '#10b981' }}>{t('reportReview.final.expected')} "{c.expected}"</span>
                         {c.autoDetected && <Tag color="cyan" style={{ fontSize: 12 }}>{t('reportReview.final.autoDetected')}</Tag>}
@@ -553,9 +553,9 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
           }>
             <Row gutter={12} style={{ marginBottom: 12 }}>
               <Col span={6}><Statistic title={t('reportReview.final.totalScore')} value={scoring.totalScore} suffix="/100" styles={{ content: {  color: '#7c3aed'  } }} /></Col>
-              <Col span={6}><Statistic title={t('reportReview.final.status.passed')} value={scoring.passed ? t('reportReview.common.yes') : t('reportReview.common.no')} styles={{ content: {  color: scoring.passed ? '#10b981' : '#dc2626'  } }} /></Col>
-              <Col span={6}><Statistic title={t('reportReview.severity.blocker')} value={scoring.blocked ? t('reportReview.common.yes') : t('reportReview.common.no')} styles={{ content: {  color: scoring.blocked ? '#dc2626' : '#10b981'  } }} /></Col>
-              <Col span={6}><Statistic title={t('reportReview.final.deltaFromInitial')} value={scoring.deltaFromInitial ?? 0} styles={{ content: {  fontSize: 16, color: (scoring.deltaFromInitial ?? 0) >= 0 ? '#10b981' : '#dc2626'  } }} /></Col>
+              <Col span={6}><Statistic title={t('reportReview.final.status.passed')} value={scoring.passed ? t('reportReview.common.yes') : t('reportReview.common.no')} styles={{ content: {  color: scoring.passed ? '#10b981' : 'var(--color-error-600)'  } }} /></Col>
+              <Col span={6}><Statistic title={t('reportReview.severity.blocker')} value={scoring.blocked ? t('reportReview.common.yes') : t('reportReview.common.no')} styles={{ content: {  color: scoring.blocked ? 'var(--color-error-600)' : '#10b981'  } }} /></Col>
+              <Col span={6}><Statistic title={t('reportReview.final.deltaFromInitial')} value={scoring.deltaFromInitial ?? 0} styles={{ content: {  fontSize: 16, color: (scoring.deltaFromInitial ?? 0) >= 0 ? '#10b981' : 'var(--color-error-600)'  } }} /></Col>
             </Row>
             {scoring.dimensionScores.map((d) => (
               <div key={d.code} style={{ padding: '6px 0', borderBottom: '1px solid var(--border-light)' }}>
@@ -630,7 +630,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
               ]}
             >
               <List.Item.Meta
-                avatar={<Avatar style={{ background: n.pinned ? '#f59e0b' : '#3b82f6' }}>{n.authorName[0]}</Avatar>}
+                avatar={<Avatar style={{ background: n.pinned ? 'var(--color-warning-500)' : 'var(--color-primary-500)' }}>{n.authorName[0]}</Avatar>}
                 title={
                   <Space wrap>
                     <strong>{n.authorName}</strong>
@@ -661,7 +661,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
     <div data-testid="final-checklist-workload" role="region" aria-label={t('reportReview.final.workload')}>
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={6}><Statistic title={t('reportReview.final.groupTotalFinal')} value={workload.reduce((a, w) => a + w.totalFinalChecks, 0)} prefix={<ClipboardCheck size={14} />} /></Col>
-        <Col span={6}><Statistic title={t('reportReview.final.groupRejected')} value={workload.reduce((a, w) => a + w.rejectedCount, 0)} prefix={<RotateCcw size={14} />} styles={{ content: {  color: '#dc2626'  } }} /></Col>
+        <Col span={6}><Statistic title={t('reportReview.final.groupRejected')} value={workload.reduce((a, w) => a + w.rejectedCount, 0)} prefix={<RotateCcw size={14} />} styles={{ content: {  color: 'var(--color-error-600)'  } }} /></Col>
         <Col span={6}><Statistic title={t('reportReview.final.avgScore')} value={workload.length === 0 ? 0 : Math.round(workload.reduce((a, w) => a + w.averageScore, 0) / workload.length)} prefix={<Award size={14} />} /></Col>
         <Col span={6}><Statistic title={t('reportReview.final.avgDuration')} value={workload.length === 0 ? 0 : Math.round(workload.reduce((a, w) => a + w.averageDurationMin, 0) / workload.length)} suffix="min" prefix={<Timer size={14} />} /></Col>
       </Row>
@@ -670,7 +670,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
         renderItem={(w) => (
           <List.Item key={w.reviewerId} style={{ padding: 10, background: 'var(--bg-card)', borderRadius: 6, marginBottom: 6, border: '1px solid var(--border-color)' }}>
             <List.Item.Meta
-              avatar={<Avatar style={{ background: w.reviewerTitle === 'chief' ? '#7c3aed' : '#3b82f6' }}>{w.reviewerName[0]}</Avatar>}
+              avatar={<Avatar style={{ background: w.reviewerTitle === 'chief' ? '#7c3aed' : 'var(--color-primary-500)' }}>{w.reviewerName[0]}</Avatar>}
               title={
                 <Space wrap>
                   <strong>{w.reviewerName}</strong>
@@ -683,10 +683,10 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                 <Row gutter={8} style={{ marginTop: 6 }}>
                   <Col span={4}><Statistic title={t('reportReview.final.totalCount')} value={w.totalFinalChecks} styles={{ content: {  fontSize: 14  } }} /></Col>
                   <Col span={4}><Statistic title={t('reportReview.final.passedFirstTime')} value={w.passedFirstTime} styles={{ content: {  fontSize: 14, color: '#10b981'  } }} /></Col>
-                  <Col span={4}><Statistic title={t('reportReview.final.rejectedCount')} value={w.rejectedCount} styles={{ content: {  fontSize: 14, color: '#dc2626'  } }} /></Col>
-                  <Col span={4}><Statistic title={t('reportReview.final.avgScoreShort')} value={w.averageScore} styles={{ content: {  fontSize: 14, color: '#3b82f6'  } }} /></Col>
+                  <Col span={4}><Statistic title={t('reportReview.final.rejectedCount')} value={w.rejectedCount} styles={{ content: {  fontSize: 14, color: 'var(--color-error-600)'  } }} /></Col>
+                  <Col span={4}><Statistic title={t('reportReview.final.avgScoreShort')} value={w.averageScore} styles={{ content: {  fontSize: 14, color: 'var(--color-primary-500)'  } }} /></Col>
                   <Col span={4}><Statistic title={t('reportReview.sla.onTimeRate')} value={`${w.onTimeRate}%`} styles={{ content: {  fontSize: 14, color: '#10b981'  } }} /></Col>
-                  <Col span={4}><Statistic title={t('reportReview.final.blockerRate')} value={`${w.blockerRate}%`} styles={{ content: {  fontSize: 14, color: w.blockerRate > 5 ? '#dc2626' : '#10b981'  } }} /></Col>
+                  <Col span={4}><Statistic title={t('reportReview.final.blockerRate')} value={`${w.blockerRate}%`} styles={{ content: {  fontSize: 14, color: w.blockerRate > 5 ? 'var(--color-error-600)' : '#10b981'  } }} /></Col>
                 </Row>
               }
             />
@@ -899,7 +899,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
             >
               <Space orientation="vertical" size={4} style={{ width: '100%' }}>
                 <Space wrap>
-                  <Bell size={14} color={e.severity === 'life-threatening' ? '#dc2626' : '#f59e0b'} />
+                  <Bell size={14} color={e.severity === 'life-threatening' ? 'var(--color-error-600)' : 'var(--color-warning-500)'} />
                   <Tag color={e.severity === 'life-threatening' ? 'red' : e.severity === 'critical' ? 'volcano' : 'orange'}>{e.severity === 'life-threatening' ? t('reportReview.final.lifeThreatening') : e.severity === 'critical' ? t('reportReview.severity.critical') : t('reportReview.final.urgent')}</Tag>
                   <Tag color={e.status === 'completed' ? 'green' : e.status === 'in-review' ? 'blue' : 'default'}>{e.status === 'completed' ? t('reportReview.status.completed') : e.status === 'in-review' ? t('reportReview.status.inProgress') : t('reportReview.final.pending')}</Tag>
                   <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{fmtTime(e.triggeredAt)} · SLA {e.slaMinutes}min</span>
@@ -963,7 +963,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
           <Card size="small" title={t('reportReview.final.workflowStages')}>
             <Timeline>
               {config.stages.sort((a, b) => a.order - b.order).map((s) => (
-                <Timeline.Item key={s.id} color={s.required ? 'red' : 'blue'} dot={<div style={{ background: s.required ? '#dc2626' : '#3b82f6', color: '#fff', borderRadius: 12, width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{s.order}</div>}>
+                <Timeline.Item key={s.id} color={s.required ? 'red' : 'blue'} dot={<div style={{ background: s.required ? 'var(--color-error-600)' : 'var(--color-primary-500)', color: '#fff', borderRadius: 12, width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{s.order}</div>}>
                   <Space>
                     <strong>{s.name}</strong>
                     <Tag>{s.code}</Tag>
@@ -1061,14 +1061,14 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                   style={{
                     cursor: 'pointer', padding: '10px 12px', borderRadius: 6, marginBottom: 4,
                     background: task.id === selectedId ? 'var(--color-pending-bg)' : task.isOverdue ? 'var(--color-error-bg)' : 'transparent',
-                    borderLeft: task.id === selectedId ? '3px solid #7c3aed' : task.isOverdue ? '3px solid #dc2626' : '3px solid transparent',
+                    borderLeft: task.id === selectedId ? '3px solid #7c3aed' : task.isOverdue ? '3px solid var(--color-error-600)' : '3px solid transparent',
                   }}
                   data-testid={`final-check-item-${task.id}`}
                 >
                   <List.Item.Meta
                     avatar={
                       <div style={{ width: 36, height: 36, borderRadius: 6, background: task.criticalFinding ? 'var(--color-error-bg)' : 'var(--color-info-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {task.criticalFinding ? <AlertTriangle size={18} color="#dc2626" /> : <ShieldCheck size={18} color="#7c3aed" />}
+                        {task.criticalFinding ? <AlertTriangle size={18} color="var(--color-error-600)" /> : <ShieldCheck size={18} color="#7c3aed" />}
                       </div>
                     }
                     title={
@@ -1084,7 +1084,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                     description={
                       <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                         <User size={10} /> {task.authorTitle} {task.authorName} · {t('reportReview.final.initialScore')} <strong>{task.initialReviewScore ?? '-'}</strong>
-                        <div style={{ fontSize: 12, color: task.isOverdue ? '#dc2626' : 'var(--text-muted)' }}>
+                        <div style={{ fontSize: 12, color: task.isOverdue ? 'var(--color-error-600)' : 'var(--text-muted)' }}>
                           <Clock size={10} /> {task.isOverdue ? t('w9e.finalCheckList.overdue', { hours: Math.abs(task.hoursToDeadline) }) : `${task.hoursToDeadline}h`} · {t('reportReview.final.submitted')} {timeAgo(task.submittedAt)}
                         </div>
                       </div>
@@ -1143,11 +1143,11 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
               {summary && (
                 <Row gutter={12} style={{ marginBottom: 12 }}>
                   <Col span={4}><Statistic title={t('reportReview.final.status.passed')} value={summary.passed} styles={{ content: {  fontSize: 14, color: '#10b981'  } }} prefix={<CheckCircle2 size={12} />} /></Col>
-                  <Col span={4}><Statistic title={t('reportReview.final.status.failed')} value={summary.failed} styles={{ content: {  fontSize: 14, color: '#dc2626'  } }} prefix={<XCircle size={12} />} /></Col>
-                  <Col span={4}><Statistic title={t('reportReview.final.status.warning')} value={summary.warning} styles={{ content: {  fontSize: 14, color: '#f59e0b'  } }} prefix={<AlertTriangle size={12} />} /></Col>
-                  <Col span={4}><Statistic title={t('reportReview.final.score')} value={summary.percentage} suffix="%" styles={{ content: {  fontSize: 14, color: '#3b82f6'  } }} prefix={<Award size={12} />} /></Col>
+                  <Col span={4}><Statistic title={t('reportReview.final.status.failed')} value={summary.failed} styles={{ content: {  fontSize: 14, color: 'var(--color-error-600)'  } }} prefix={<XCircle size={12} />} /></Col>
+                  <Col span={4}><Statistic title={t('reportReview.final.status.warning')} value={summary.warning} styles={{ content: {  fontSize: 14, color: 'var(--color-warning-500)'  } }} prefix={<AlertTriangle size={12} />} /></Col>
+                  <Col span={4}><Statistic title={t('reportReview.final.score')} value={summary.percentage} suffix="%" styles={{ content: {  fontSize: 14, color: 'var(--color-primary-500)'  } }} prefix={<Award size={12} />} /></Col>
                   <Col span={4}><Statistic title={t('reportReview.final.grade')} value={summary.grade} styles={{ content: {  fontSize: 14, color: '#7c3aed'  } }} prefix={<ShieldCheck size={12} />} /></Col>
-                  <Col span={4}><Statistic title={t('reportReview.severity.blocker')} value={summary.blockers} styles={{ content: {  fontSize: 14, color: summary.blockers > 0 ? '#dc2626' : '#10b981'  } }} prefix={<CircleSlash size={12} />} /></Col>
+                  <Col span={4}><Statistic title={t('reportReview.severity.blocker')} value={summary.blockers} styles={{ content: {  fontSize: 14, color: summary.blockers > 0 ? 'var(--color-error-600)' : '#10b981'  } }} prefix={<CircleSlash size={12} />} /></Col>
                 </Row>
               )}
               <Tabs

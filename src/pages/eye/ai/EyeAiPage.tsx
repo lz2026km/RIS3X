@@ -258,20 +258,20 @@ const EyeAiPage: React.FC = () => {
         <StatCard
           title={t('eyeAi.diagnosedStudies')}
           value={totalDiag}
-          icon={<Activity size={18} color="#2563eb" />}
+          icon={<Activity size={18} color="var(--color-primary-600)" />}
         />
         <StatCard
           title={t('eyeAi.positiveFindings')}
           value={
             aiDiagnoses.filter((d) => d.severity !== "none").length
           }
-          icon={<AlertTriangle size={18} color="#ef4444" />}
+          icon={<AlertTriangle size={18} color="var(--color-error-500)" />}
         />
         <StatCard
           title={t('eyeAi.acceptanceRate')}
           value={acceptanceRate}
           suffix="%"
-          icon={<CheckCircle size={18} color="#22c55e" />}
+          icon={<CheckCircle size={18} color="var(--color-success-500)" />}
         />
       </StatCardGrid>
 
@@ -285,7 +285,7 @@ const EyeAiPage: React.FC = () => {
                 <Badge
                   count={pendingDiag.length}
                   title={t('w9d.eyeAi.pendingTitle', { count: pendingDiag.length })}
-                  style={{ backgroundColor: "#f59e0b" }}
+                  style={{ backgroundColor: "var(--color-warning-500)" }}
                 />
                 <Tag color="purple">{t('eyeAi.totalCount', { count: totalDiag })}</Tag>
               </Space>
@@ -533,7 +533,7 @@ const EyeAiPage: React.FC = () => {
                                 type="monotone"
                                 dataKey="auc_dr"
                                 name={t('eyeAi.drGrade')}
-                                stroke="#2563eb"
+                                stroke="var(--color-primary-600)"
                                 strokeWidth={2}
                                 dot={false}
                               />
@@ -549,7 +549,7 @@ const EyeAiPage: React.FC = () => {
                                 type="monotone"
                                 dataKey="auc_amd"
                                 name="AMD"
-                                stroke="#f59e0b"
+                                stroke="var(--color-warning-500)"
                                 strokeWidth={2}
                                 dot={false}
                               />

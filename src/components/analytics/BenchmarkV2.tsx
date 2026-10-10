@@ -56,7 +56,7 @@ function DualBarChart({ items }: { items: CompareItem[] }) {
           <div key={idx} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
             <div style={{ display: 'flex', gap: 2, alignItems: 'flex-end', height: barMaxH }}>
               <div style={{ width: 14, height: hPrev, background: '#94a3b8', borderRadius: '3px 3px 0 0', transition: 'height 0.3s' }} title={`去年: ${item.previous}`} />
-              <div style={{ width: 14, height: hCurr, background: '#3b82f6', borderRadius: '3px 3px 0 0', transition: 'height 0.3s' }} title={`今年: ${item.current}`} />
+              <div style={{ width: 14, height: hCurr, background: 'var(--color-primary-500)', borderRadius: '3px 3px 0 0', transition: 'height 0.3s' }} title={`今年: ${item.current}`} />
             </div>
             <span style={{ fontSize: 10, color: '#64748b', writingMode: 'vertical-lr', textOrientation: 'mixed', height: 36 }}>{item.label}</span>
           </div>
@@ -86,10 +86,10 @@ function TrendLine({ items }: { items: CompareItem[] }) {
       <line x1={pad.left} y1={pad.top} x2={pad.left} y2={pad.top + ih} stroke="#e2e8f0" />
       <line x1={pad.left} y1={pad.top + ih} x2={pad.left + iw} y2={pad.top + ih} stroke="#e2e8f0" />
       <path d={prevPath} fill="none" stroke="#94a3b8" strokeWidth={2} strokeDasharray="4 2" />
-      <path d={currPath} fill="none" stroke="#3b82f6" strokeWidth={2} />
+      <path d={currPath} fill="none" stroke="var(--color-primary-500)" strokeWidth={2} />
       {items.map((item, i) => (
         <g key={i}>
-          <circle cx={pad.left + i * xStep} cy={pad.top + ih - ((item.current - minV) / range) * ih} r={3} fill="#3b82f6" />
+          <circle cx={pad.left + i * xStep} cy={pad.top + ih - ((item.current - minV) / range) * ih} r={3} fill="var(--color-primary-500)" />
           <text x={pad.left + i * xStep} y={pad.top + ih + 14} fontSize={8} textAnchor="middle" fill="#94a3b8">
             {item.label}
           </text>
@@ -123,13 +123,13 @@ function RadarChart({ items }: { items: CompareItem[] }) {
       {numAxes > 0 && (
         <>
           <polygon points={items.map((item, i) => { const p = getPoint(item.previous, i); return `${p.x},${p.y}` }).join(' ')} fill="#94a3b8" fillOpacity={0.12} stroke="#94a3b8" strokeWidth={1.5} strokeDasharray="4 2" />
-          <polygon points={items.map((item, i) => { const p = getPoint(item.current, i); return `${p.x},${p.y}` }).join(' ')} fill="#3b82f6" fillOpacity={0.15} stroke="#3b82f6" strokeWidth={2} />
+          <polygon points={items.map((item, i) => { const p = getPoint(item.current, i); return `${p.x},${p.y}` }).join(' ')} fill="var(--color-primary-500)" fillOpacity={0.15} stroke="var(--color-primary-500)" strokeWidth={2} />
           {items.map((item, i) => {
             const p = getPoint(item.current, i)
             return (
               <g key={i}>
                 <line x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="#e2e8f0" strokeWidth={1} />
-                <circle cx={p.x} cy={p.y} r={3} fill="#3b82f6" />
+                <circle cx={p.x} cy={p.y} r={3} fill="var(--color-primary-500)" />
                 <text x={p.x + 6} y={p.y + 4} fontSize={8} fill="#475569">{item.label}</text>
               </g>
             )
@@ -207,13 +207,13 @@ export default function BenchmarkV2({
       {data && (
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={6}>
-            <Statistic title="当前值" value={data.current} suffix={metricCode === 'exam_count' ? '例' : '%'} styles={{ content: {  color: '#3b82f6'  } }} />
+            <Statistic title="当前值" value={data.current} suffix={metricCode === 'exam_count' ? '例' : '%'} styles={{ content: {  color: 'var(--color-primary-500)'  } }} />
           </Col>
           <Col span={6}>
             <Statistic title="前期值" value={data.previous} suffix={metricCode === 'exam_count' ? '例' : '%'} styles={{ content: {  color: '#94a3b8'  } }} />
           </Col>
           <Col span={6}>
-            <Statistic title="差值" value={data.delta} prefix={data.delta >= 0 ? '+' : ''} styles={{ content: {  color: data.delta >= 0 ? '#10b981' : '#ef4444'  } }} />
+            <Statistic title="差值" value={data.delta} prefix={data.delta >= 0 ? '+' : ''} styles={{ content: {  color: data.delta >= 0 ? '#10b981' : 'var(--color-error-500)'  } }} />
           </Col>
           <Col span={6}>
             <Statistic
@@ -221,7 +221,7 @@ export default function BenchmarkV2({
               value={data.deltaPercent}
               suffix="%"
               prefix={data.deltaPercent >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-              styles={{ content: {  color: data.deltaPercent >= 0 ? '#10b981' : '#ef4444'  } }}
+              styles={{ content: {  color: data.deltaPercent >= 0 ? '#10b981' : 'var(--color-error-500)'  } }}
             />
           </Col>
         </Row>

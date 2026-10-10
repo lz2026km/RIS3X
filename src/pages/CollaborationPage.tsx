@@ -24,7 +24,7 @@ import { t } from '../i18n/appI18n';
 
 // 评论者颜色 (按名称稳定派生)
 function colorOf(name: string): string {
-  const palette = ['#dc2626', '#7c3aed', '#0891b2', '#10b981', '#f59e0b', '#a855f7', '#3b82f6', '#be185d'];
+  const palette = ['var(--color-error-600)', '#7c3aed', 'var(--color-info-600)', '#10b981', 'var(--color-warning-500)', '#a855f7', 'var(--color-primary-500)', '#be185d'];
   let h = 0;
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
   return palette[h % palette.length] ?? '#7c3aed';
@@ -35,7 +35,7 @@ function colorOf(name: string): string {
 // ============================================================
 const STATUS_CONFIG: Record<CollabUser['status'], { label: string; color: string; bg: string }> = {
   online:  { label: 'collab.status.online', color: '#10b981', bg: '#22c55e22' },
-  away:    { label: 'collab.status.away', color: '#f59e0b', bg: '#f59e0b22' },
+  away:    { label: 'collab.status.away', color: 'var(--color-warning-500)', bg: '#f59e0b22' },
   offline: { label: 'collab.status.offline', color: 'var(--text-secondary)', bg: 'var(--bg-deep)' },
 };
 
@@ -44,11 +44,11 @@ const STATUS_CONFIG: Record<CollabUser['status'], { label: string; color: string
 // ============================================================
 const ACTIVITY_CONFIG: Record<CollabActivity['action'], { icon: any; color: string; label: string }> = {
   join:    { icon: UserCheck, color: '#10b981', label: 'collab.action.join' },
-  leave:   { icon: UserX,    color: '#dc2626', label: 'collab.action.leave' },
-  edit:    { icon: Edit2,    color: '#3b82f6', label: 'collab.action.edit' },
+  leave:   { icon: UserX,    color: 'var(--color-error-600)', label: 'collab.action.leave' },
+  edit:    { icon: Edit2,    color: 'var(--color-primary-500)', label: 'collab.action.edit' },
   comment: { icon: MessageSquare, color: '#7c3aed', label: 'collab.action.comment' },
-  select:  { icon: MousePointer,   color: '#0891b2', label: 'collab.action.select' },
-  mention: { icon: AtSign,    color: '#f59e0b', label: 'collab.action.mention' },
+  select:  { icon: MousePointer,   color: 'var(--color-info-600)', label: 'collab.action.select' },
+  mention: { icon: AtSign,    color: 'var(--color-warning-500)', label: 'collab.action.mention' },
   save:    { icon: Save,      color: '#10b981', label: 'collab.action.save' },
 };
 
@@ -274,7 +274,7 @@ export default function CollaborationPage() {
   };
 
   if (loading) return <div role="status" data-testid="collab-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('collab.loading')}</div>;
-  if (error && source === 'demo') return <div role="alert" data-testid="collab-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
+  if (error && source === 'demo') return <div role="alert" data-testid="collab-error" style={{ padding: 40, textAlign: 'center', color: 'var(--color-error-600)' }}>{error}</div>;
   if (users.length === 0) {
     return (
       <div data-testid="collab-empty" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
@@ -288,7 +288,7 @@ export default function CollaborationPage() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, background: 'var(--bg-card)' }}>
       {/* 顶部状态栏 */}
       <div style={{
-        background: 'linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%)',
+        background: 'linear-gradient(135deg, #7c3aed 0%, var(--color-primary-500) 100%)',
         color: '#fff', padding: '12px 20px', flexShrink: 0,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -307,7 +307,7 @@ export default function CollaborationPage() {
               <span style={{
                 fontSize: 11, padding: '1px 8px', borderRadius: 10, marginLeft: 8,
                 background: source === 'api' ? 'rgba(34,197,94,0.35)' : 'rgba(245,158,11,0.35)',
-                color: '#fff', border: `1px solid ${source === 'api' ? '#22c55e' : '#f59e0b'}`,
+                color: '#fff', border: `1px solid ${source === 'api' ? 'var(--color-success-500)' : 'var(--color-warning-500)'}`,
               }}>
                 {source === 'api' ? t('collab.dataSourceApi') : t('collab.dataSourceDemo')}
               </span>
@@ -374,7 +374,7 @@ export default function CollaborationPage() {
             position: 'relative', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', rowGap: 8, columnGap: 8, marginBottom: 12 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <FileText size={14} /> {t('collab.reportBody')} <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>{t('collab.demoTag')}</span>
               </div>
               <div style={{ display: 'flex', gap: 4, flexShrink: 0, flexWrap: 'wrap' }}>
@@ -385,7 +385,7 @@ export default function CollaborationPage() {
                     style={{
                       padding: '3px 8px', border: '1px solid var(--border-color)', borderRadius: 3,
                       background: activeField === f ? 'var(--color-info-bg)' : 'var(--bg-card)',
-                      color: activeField === f ? '#1e40af' : '#475569',
+                      color: activeField === f ? 'var(--color-primary-800)' : '#475569',
                       fontSize: 12, fontWeight: 600, cursor: 'pointer',
                       whiteSpace: 'nowrap', flexShrink: 0,
                     }}
@@ -449,7 +449,7 @@ export default function CollaborationPage() {
               <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Edit2 size={11} /> {t('collab.userEditing', { name: '李慧敏' })}
               </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#f59e0b' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--color-warning-500)' }}>
                 <MousePointer size={11} /> {t('collab.cursorCount', { count: 2 })}
               </span>
             </div>
@@ -469,7 +469,7 @@ export default function CollaborationPage() {
               <MessageSquare size={13} /> {t('collab.comments')}
               <span style={{
                 fontSize: 12, padding: '0 5px', borderRadius: 3,
-                background: reportComments.length > 0 ? '#dc2626' : '#94a3b8',
+                background: reportComments.length > 0 ? 'var(--color-error-600)' : '#94a3b8',
                 color: '#fff', fontWeight: 700,
               }}>{reportComments.length}</span>
             </div>
@@ -570,7 +570,7 @@ export default function CollaborationPage() {
                       <Reply size={10} /> {t('collab.reply')}
                     </button>
                     {comment.mentions.length > 0 && (
-                      <span style={{ marginLeft: 'auto', fontSize: 12, color: '#f59e0b' }}>
+                      <span style={{ marginLeft: 'auto', fontSize: 12, color: 'var(--color-warning-500)' }}>
                         {t('collab.mentionCount', { count: comment.mentions.length })}
                       </span>
                     )}
@@ -662,7 +662,7 @@ export default function CollaborationPage() {
         }}>
           <div style={{
             padding: '8px 12px', borderBottom: '1px solid var(--border-color)',
-            fontSize: 12, fontWeight: 700, color: '#0891b2', display: 'flex', alignItems: 'center', gap: 6,
+            fontSize: 12, fontWeight: 700, color: 'var(--color-info-600)', display: 'flex', alignItems: 'center', gap: 6,
           }}>
             <Activity size={13} /> {t('collab.realtimeActivity')}
           </div>

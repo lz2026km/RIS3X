@@ -89,7 +89,7 @@ function HangingProtocolPanelInner({ onApply, modality, bodyPart }: HangingProto
             fontSize: 10,
             padding: '2px 6px',
             borderRadius: 4,
-            background: '#1e40af',
+            background: 'var(--color-primary-800)',
             color: '#4ade80',
             display: 'flex',
             alignItems: 'center',
@@ -156,17 +156,17 @@ function HangingProtocolPanelInner({ onApply, modality, bodyPart }: HangingProto
                     display: 'flex',
                     alignItems: 'center',
                     gap: 8,
-                    background: active?.id === p.id ? '#1e40af' : 'transparent',
+                    background: active?.id === p.id ? 'var(--color-primary-800)' : 'transparent',
                     marginBottom: 2,
                   }}
                   onMouseEnter={e => { if (active?.id !== p.id) e.currentTarget.style.background = '#27272a' }}
                   onMouseLeave={e => { if (active?.id !== p.id) e.currentTarget.style.background = 'transparent' }}
                 >
-                  {p.builtin && <Star size={10} color="#f59e0b" />}
+                  {p.builtin && <Star size={10} color="var(--color-warning-500)" />}
                   {!p.builtin && (
                     <button
                       onClick={(e) => { e.stopPropagation(); removeProtocol(p.id) }}
-                      style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#ef4444', padding: 0, display: 'flex' }}
+                      style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--color-error-500)', padding: 0, display: 'flex' }}
                     >
                       <Trash2 size={10} />
                     </button>
@@ -178,7 +178,7 @@ function HangingProtocolPanelInner({ onApply, modality, bodyPart }: HangingProto
                     </div>
                   </div>
                   {active?.id === p.id && (
-                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#3b82f6', flexShrink: 0 }} />
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--color-primary-500)', flexShrink: 0 }} />
                   )}
                 </div>
               ))}
@@ -209,7 +209,7 @@ function HangingProtocolPanelInner({ onApply, modality, bodyPart }: HangingProto
                 <div style={{ display: 'flex', gap: 6 }}>
                   <button
                     onClick={handleCreate}
-                    style={{ flex: 1, padding: '4px 8px', borderRadius: 4, border: 'none', background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+                    style={{ flex: 1, padding: '4px 8px', borderRadius: 4, border: 'none', background: 'var(--color-primary-500)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
                   >
                     {t('w9d.hanging.create')}
                   </button>

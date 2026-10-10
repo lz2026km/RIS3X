@@ -52,17 +52,17 @@ export function CostOverview({ live }: { live?: LiveOverviewData | null }) {
   const costCompositionData = live
     ? []
     : [
-        { label: t('w8.costOverview.equipmentCost'), value: summaryData.totalEquipmentCost, color: '#3b82f6' },
-        { label: t('w8.costOverview.consumableCost'), value: summaryData.totalConsumableCost, color: '#22c55e' },
-        { label: t('w8.costOverview.laborCost'), value: summaryData.totalLaborCost, color: '#f59e0b' },
+        { label: t('w8.costOverview.equipmentCost'), value: summaryData.totalEquipmentCost, color: 'var(--color-primary-500)' },
+        { label: t('w8.costOverview.consumableCost'), value: summaryData.totalConsumableCost, color: 'var(--color-success-500)' },
+        { label: t('w8.costOverview.laborCost'), value: summaryData.totalLaborCost, color: 'var(--color-warning-500)' },
       ]
 
   const costTrendData = live
-    ? live.monthly.map(m => ({ label: m.month.length >= 7 ? m.month.slice(5) : m.month, value: m.cost, color: '#3b82f6' }))
-    : BENEFIT_DATA.map(b => ({ label: b.month.slice(5), value: b.cost, color: '#3b82f6' }))
+    ? live.monthly.map(m => ({ label: m.month.length >= 7 ? m.month.slice(5) : m.month, value: m.cost, color: 'var(--color-primary-500)' }))
+    : BENEFIT_DATA.map(b => ({ label: b.month.slice(5), value: b.cost, color: 'var(--color-primary-500)' }))
   const benefitTrendData = live
-    ? live.monthly.map(m => ({ label: m.month.length >= 7 ? m.month.slice(5) : m.month, value: m.revenue - m.cost, color: '#22c55e' }))
-    : BENEFIT_DATA.map(b => ({ label: b.month.slice(5), value: b.profit, color: '#22c55e' }))
+    ? live.monthly.map(m => ({ label: m.month.length >= 7 ? m.month.slice(5) : m.month, value: m.revenue - m.cost, color: 'var(--color-success-500)' }))
+    : BENEFIT_DATA.map(b => ({ label: b.month.slice(5), value: b.profit, color: 'var(--color-success-500)' }))
 
   const sectionTitleStyle: React.CSSProperties = {
     fontSize: 14,
@@ -77,16 +77,16 @@ export function CostOverview({ live }: { live?: LiveOverviewData | null }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-        <CostCard title={t('w8.costOverview.totalCost')} value={formatCurrency(summaryData.totalCost)} subtitle={live ? t('w8.costOverview.liveTag') : t('w8.costOverview.costComposition')} icon={DollarSign} trend={live ? undefined : 'up'} trendValue={live ? undefined : '+5.2%'} color="#ef4444" />
-        <CostCard title={t('w8.costOverview.monthlyAvgCost')} value={formatCurrency(summaryData.monthlyAvgCost)} subtitle={t('w8.costOverview.monthlySubtitle')} icon={Calendar} color="#f59e0b" />
-        <CostCard title={t('w8.costOverview.totalRevenue')} value={formatCurrency(summaryData.latestRevenue)} subtitle={live ? t('w8.costOverview.liveTag') : t('w8.costOverview.revenueSubtitle')} icon={TrendingUp} trend={live ? undefined : 'up'} trendValue={live ? undefined : '+12.5%'} color="#22c55e" />
-        <CostCard title={t('w8.costOverview.costPerExam')} value={formatCurrency(summaryData.costPerExam, true)} subtitle={t('w8.costOverview.examsSubtitle', { count: summaryData.totalExams.toLocaleString() })} icon={Users} color="#3b82f6" />
+        <CostCard title={t('w8.costOverview.totalCost')} value={formatCurrency(summaryData.totalCost)} subtitle={live ? t('w8.costOverview.liveTag') : t('w8.costOverview.costComposition')} icon={DollarSign} trend={live ? undefined : 'up'} trendValue={live ? undefined : '+5.2%'} color="var(--color-error-500)" />
+        <CostCard title={t('w8.costOverview.monthlyAvgCost')} value={formatCurrency(summaryData.monthlyAvgCost)} subtitle={t('w8.costOverview.monthlySubtitle')} icon={Calendar} color="var(--color-warning-500)" />
+        <CostCard title={t('w8.costOverview.totalRevenue')} value={formatCurrency(summaryData.latestRevenue)} subtitle={live ? t('w8.costOverview.liveTag') : t('w8.costOverview.revenueSubtitle')} icon={TrendingUp} trend={live ? undefined : 'up'} trendValue={live ? undefined : '+12.5%'} color="var(--color-success-500)" />
+        <CostCard title={t('w8.costOverview.costPerExam')} value={formatCurrency(summaryData.costPerExam, true)} subtitle={t('w8.costOverview.examsSubtitle', { count: summaryData.totalExams.toLocaleString() })} icon={Users} color="var(--color-primary-500)" />
       </div>
 
       <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20 }}>
         <div style={sectionTitleStyle}>
           <PieChartIcon size={16} color="var(--text-muted, #8b949e)" />
-          {t('w8.costOverview.costCompositionTitle')} {live && <span style={{ fontSize: 11, color: '#f59e0b' }}>{t('w8.costOverview.demoNote')}</span>}
+          {t('w8.costOverview.costCompositionTitle')} {live && <span style={{ fontSize: 11, color: 'var(--color-warning-500)' }}>{t('w8.costOverview.demoNote')}</span>}
         </div>
         {live ? (
           <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', padding: 12, background: 'var(--bg-secondary, #21262d)', borderRadius: 6 }}>
@@ -114,17 +114,17 @@ export function CostOverview({ live }: { live?: LiveOverviewData | null }) {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20 }}>
-          <div style={sectionTitleStyle}><Activity size={16} color="#3b82f6" />{t('w8.costOverview.costTrendTitle')} {live && <span style={{ fontSize: 11, color: '#22c55e' }}>({t('w8.costOverview.realtime')})</span>}</div>
+          <div style={sectionTitleStyle}><Activity size={16} color="var(--color-primary-500)" />{t('w8.costOverview.costTrendTitle')} {live && <span style={{ fontSize: 11, color: 'var(--color-success-500)' }}>({t('w8.costOverview.realtime')})</span>}</div>
           <SimpleBarChart data={costTrendData} height={180} />
         </div>
         <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20 }}>
-          <div style={sectionTitleStyle}><TrendingUp size={16} color="#22c55e" />{t('w8.costOverview.profitTrendTitle')} {live && <span style={{ fontSize: 11, color: '#22c55e' }}>({t('w8.costOverview.realtime')})</span>}</div>
+          <div style={sectionTitleStyle}><TrendingUp size={16} color="var(--color-success-500)" />{t('w8.costOverview.profitTrendTitle')} {live && <span style={{ fontSize: 11, color: 'var(--color-success-500)' }}>({t('w8.costOverview.realtime')})</span>}</div>
           <SimpleBarChart data={benefitTrendData} height={180} />
         </div>
       </div>
 
       <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20 }}>
-        <div style={sectionTitleStyle}><Monitor size={16} color="#3b82f6" />{t('w8.costOverview.equipmentRankingTitle')} {live && <span style={{ fontSize: 11, color: '#f59e0b' }}>{t('w8.costOverview.demoData')}</span>}</div>
+        <div style={sectionTitleStyle}><Monitor size={16} color="var(--color-primary-500)" />{t('w8.costOverview.equipmentRankingTitle')} {live && <span style={{ fontSize: 11, color: 'var(--color-warning-500)' }}>{t('w8.costOverview.demoData')}</span>}</div>
         <div style={{
           display: 'grid', gridTemplateColumns: '40px 1fr 80px 100px 100px 100px 100px', gap: 8,
           padding: '8px 16px', background: 'var(--bg-secondary, #21262d)', borderBottom: '1px solid var(--border-default, #30363d)',

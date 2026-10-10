@@ -32,9 +32,9 @@ const EVENT_ICONS: Record<DeliveryEvent['type'], React.ComponentType<{ className
 };
 
 const EVENT_COLORS: Record<DeliveryEvent['type'], string> = {
-  created: '#94a3b8', queued: '#3b82f6', sending: '#7c3aed', sent: '#0891b2',
-  delivered: '#10b981', read: '#059669', failed: '#dc2626',
-  retry: '#f59e0b', cancelled: '#6b7280', expired: '#f97316',
+  created: '#94a3b8', queued: 'var(--color-primary-500)', sending: '#7c3aed', sent: 'var(--color-info-600)',
+  delivered: '#10b981', read: '#059669', failed: 'var(--color-error-600)',
+  retry: 'var(--color-warning-500)', cancelled: '#6b7280', expired: '#f97316',
 };
 
 export const DeliveryReceiptComponent: React.FC<Props> = ({ reportId, taskId }) => {
@@ -84,7 +84,7 @@ export const DeliveryReceiptComponent: React.FC<Props> = ({ reportId, taskId }) 
 <html lang="zh-CN"><head><meta charset="utf-8"><title>送达回执 ${selected.taskId}</title>
 <style>
   body { font-family: "Microsoft YaHei", sans-serif; margin: 40px; color: #1e293b; }
-  h1 { color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 8px; }
+  h1 { color: var(--color-primary-800); border-bottom: 2px solid var(--color-primary-800); padding-bottom: 8px; }
   table { border-collapse: collapse; margin-top: 16px; width: 100%; }
   td, th { border: 1px solid #cbd5e1; padding: 8px 12px; text-align: left; font-size: 13px; }
   th { background: #eff6ff; width: 160px; }
@@ -125,10 +125,10 @@ export const DeliveryReceiptComponent: React.FC<Props> = ({ reportId, taskId }) 
     <div className="space-y-3">
       {/* 概览 */}
       <Row gutter={8}>
-        <Col span={5}><Card size="small"><Statistic title={t('reportDist.receipt.stat.total')} value={stats.total} prefix={<FileText className="w-3 h-3" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title={t('reportDist.receipt.stat.total')} value={stats.total} prefix={<FileText className="w-3 h-3" style={{ color: 'var(--color-primary-500)' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
         <Col span={5}><Card size="small"><Statistic title={t('reportDist.status.delivered')} value={stats.delivered} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
         <Col span={5}><Card size="small"><Statistic title={t('reportDist.status.read')} value={stats.read} prefix={<Eye className="w-3 h-3" style={{ color: '#059669' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title={t('reportDist.status.failed')} value={stats.failed} prefix={<XCircle className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title={t('reportDist.status.failed')} value={stats.failed} prefix={<XCircle className="w-3 h-3" style={{ color: 'var(--color-error-600)' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title={t('reportDist.receipt.stat.deliveryRate')} value={stats.successRate} suffix="%" styles={{ content: {  fontSize: 18, color: '#10b981'  } }} /></Card></Col>
       </Row>
 

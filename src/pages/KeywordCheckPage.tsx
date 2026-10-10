@@ -30,9 +30,9 @@ import { t } from '../i18n/appI18n';
 // 严重度配置
 // ============================================================
 const SEVERITY_CONFIG: Record<string, { label: string; color: string; bg: string; icon: any }> = {
-  error:   { label: t('kwc.sev.error'), color: '#ef4444', bg: '#ef444422', icon: XCircle },
-  warning: { label: t('kwc.sev.warning'), color: '#f59e0b', bg: '#f59e0b22', icon: AlertTriangle },
-  info:    { label: t('kwc.sev.info'), color: '#3b82f6', bg: '#3b82f622', icon: Info },
+  error:   { label: t('kwc.sev.error'), color: 'var(--color-error-500)', bg: '#ef444422', icon: XCircle },
+  warning: { label: t('kwc.sev.warning'), color: 'var(--color-warning-500)', bg: '#f59e0b22', icon: AlertTriangle },
+  info:    { label: t('kwc.sev.info'), color: 'var(--color-primary-500)', bg: '#3b82f622', icon: Info },
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -169,7 +169,7 @@ export default function KeywordCheckPage() {
       render: (_: unknown, r) => (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}>
           <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{r.patientName}</span>
-          <span style={{ fontSize: 12, padding: '1px 4px', background: 'var(--color-info-bg)', color: '#1e40af', borderRadius: 2 }}>{r.modality}</span>
+          <span style={{ fontSize: 12, padding: '1px 4px', background: 'var(--color-info-bg)', color: 'var(--color-primary-800)', borderRadius: 2 }}>{r.modality}</span>
         </div>
       ),
     },
@@ -212,12 +212,12 @@ export default function KeywordCheckPage() {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Search size={20} color="#3b82f6" /> {t('kwc.title')}
+            <Search size={20} color="var(--color-primary-500)" /> {t('kwc.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R4</span>
             <span style={{
               fontSize: 11, padding: '2px 8px', borderRadius: 10,
               background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-              color: source === 'api' ? '#16a34a' : '#92400e',
+              color: source === 'api' ? 'var(--color-success-600)' : '#92400e',
               border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
               fontWeight: 500,
             }}>
@@ -226,7 +226,7 @@ export default function KeywordCheckPage() {
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('kwc.subtitle', { count: ruleStats.anatomy + ruleStats.logic + ruleStats.negation + ruleStats.punctuation + ruleStats.format + ruleStats.lesion })}
-            {apiError && <span style={{ color: '#dc2626', marginLeft: 8 }}>{apiError}</span>}
+            {apiError && <span style={{ color: 'var(--color-error-600)', marginLeft: 8 }}>{apiError}</span>}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -235,7 +235,7 @@ export default function KeywordCheckPage() {
             disabled={scanning}
             style={{
               padding: '8px 16px', border: 'none', borderRadius: 6,
-              background: scanning ? '#94a3b8' : '#3b82f6',
+              background: scanning ? '#94a3b8' : 'var(--color-primary-500)',
               color: '#fff', fontSize: 12, fontWeight: 600,
               cursor: scanning ? 'not-allowed' : 'pointer',
               display: 'flex', alignItems: 'center', gap: 6,
@@ -258,11 +258,11 @@ export default function KeywordCheckPage() {
 
       {/* 规则库统计 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8, marginBottom: 16 }}>
-        <RuleStatCard icon={Activity} label={t('kwc.cat.anatomy')} count={ruleStats.anatomy} color="#3b82f6" />
-        <RuleStatCard icon={ShieldAlert} label={t('kwc.cat.logic')} count={ruleStats.logic} color="#dc2626" />
-        <RuleStatCard icon={XCircle} label={t('kwc.negation')} count={ruleStats.negation} color="#f59e0b" />
+        <RuleStatCard icon={Activity} label={t('kwc.cat.anatomy')} count={ruleStats.anatomy} color="var(--color-primary-500)" />
+        <RuleStatCard icon={ShieldAlert} label={t('kwc.cat.logic')} count={ruleStats.logic} color="var(--color-error-600)" />
+        <RuleStatCard icon={XCircle} label={t('kwc.negation')} count={ruleStats.negation} color="var(--color-warning-500)" />
         <RuleStatCard icon={Tag} label={t('kwc.rulePunctuation')} count={ruleStats.punctuation} color="#7c3aed" />
-        <RuleStatCard icon={Settings} label={t('kwc.standardFormat')} count={ruleStats.format} color="#0891b2" />
+        <RuleStatCard icon={Settings} label={t('kwc.standardFormat')} count={ruleStats.format} color="var(--color-info-600)" />
         <RuleStatCard icon={Database} label={t('kwc.lesionKeywords')} count={ruleStats.lesion} color="#10b981" />
       </div>
 
@@ -274,7 +274,7 @@ export default function KeywordCheckPage() {
           overflow: 'hidden', alignSelf: 'flex-start',
         }}>
           <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
               <FileText size={12} /> {t('kwc.selectReport')} ({reports.length})
             </div>
           </div>
@@ -311,11 +311,11 @@ export default function KeywordCheckPage() {
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                     <div style={{
                       fontSize: 24, fontWeight: 700,
-                      color: scanResult.score >= 90 ? '#10b981' : scanResult.score >= 75 ? '#3b82f6' : scanResult.score >= 60 ? '#f59e0b' : '#dc2626',
+                      color: scanResult.score >= 90 ? '#10b981' : scanResult.score >= 75 ? 'var(--color-primary-500)' : scanResult.score >= 60 ? 'var(--color-warning-500)' : 'var(--color-error-600)',
                     }}>{scanResult.score}</div>
                     <div>
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('kwc.totalScore')}</div>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: scanResult.passed ? '#10b981' : '#dc2626' }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: scanResult.passed ? '#10b981' : 'var(--color-error-600)' }}>
                         {scanResult.passed ? t('kwc.passed') : t('kwc.failed')}
                       </div>
                     </div>
@@ -329,7 +329,7 @@ export default function KeywordCheckPage() {
                   <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4, overflow: 'hidden' }}>
                     <div style={{
                       width: `${scanProgress}%`, height: '100%',
-                      background: 'linear-gradient(90deg, #3b82f6, #7c3aed)',
+                      background: 'linear-gradient(90deg, var(--color-primary-500), #7c3aed)',
                       transition: 'width 0.1s linear',
                     }} />
                   </div>
@@ -345,9 +345,9 @@ export default function KeywordCheckPage() {
           {scanResult && !scanning && (
             <>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
-                <ScoreCard icon={XCircle} label={t('kwc.sev.error')} count={scanResult.errorCount} color="#dc2626" />
-                <ScoreCard icon={AlertTriangle} label={t('kwc.sev.warning')} count={scanResult.warningCount} color="#f59e0b" />
-                <ScoreCard icon={Info} label={t('kwc.sev.info')} count={scanResult.infoCount} color="#3b82f6" />
+                <ScoreCard icon={XCircle} label={t('kwc.sev.error')} count={scanResult.errorCount} color="var(--color-error-600)" />
+                <ScoreCard icon={AlertTriangle} label={t('kwc.sev.warning')} count={scanResult.warningCount} color="var(--color-warning-500)" />
+                <ScoreCard icon={Info} label={t('kwc.sev.info')} count={scanResult.infoCount} color="var(--color-primary-500)" />
                 <ScoreCard icon={CheckCircle2} label={t('kwc.totalIssues')} count={scanResult.totalIssues} color="#7c3aed" />
               </div>
 
@@ -408,7 +408,7 @@ export default function KeywordCheckPage() {
                 }}>
                   {selectedIssue ? (
                     <>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>{t('kwc.issueDetail')}</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8 }}>{t('kwc.issueDetail')}</div>
                       <DetailRow label={t('kwc.severity')} value={SEVERITY_CONFIG[selectedIssue.severity]!.label} color={SEVERITY_CONFIG[selectedIssue.severity]!.color} />
                       <DetailRow label={t('kwc.categoryLabel')} value={CATEGORY_LABELS[selectedIssue.category]!} />
                       <DetailRow label={t('kwc.ruleId')} value={selectedIssue.ruleId} />

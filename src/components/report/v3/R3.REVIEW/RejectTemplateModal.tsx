@@ -91,7 +91,7 @@ export const RejectTemplateModal: React.FC<RejectTemplateModalProps> = ({
     <Modal
       title={
         <Space>
-          <XCircle size={16} color="#dc2626" />
+          <XCircle size={16} color="var(--color-error-600)" />
           <span>{t('w9e.rejectTemplate.title')}</span>
           <Tag color="purple">R3.REVIEW.038</Tag>
         </Space>

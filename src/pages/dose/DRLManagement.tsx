@@ -205,7 +205,7 @@ export default function DRLManagement() {
       title: t('drl.colDoseThreshold'), key: "dose",
       render: (_: unknown, r: DrlCheckResult) => (
         <span style={{ fontSize: 12 }}>
-          CTDIvol <b style={{ color: "#1e40af" }}>{r.ctdivol}</b>/{r.ctdivolDrl} · DLP <b style={{ color: "#1e40af" }}>{r.dlp}</b>/{r.dlpDrl}
+          CTDIvol <b style={{ color: "var(--color-primary-800)" }}>{r.ctdivol}</b>/{r.ctdivolDrl} · DLP <b style={{ color: "var(--color-primary-800)" }}>{r.dlp}</b>/{r.dlpDrl}
         </span>
       ),
     },
@@ -292,7 +292,7 @@ export default function DRLManagement() {
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       {loadError && !rowsLoading && <ErrorBanner message={loadError} onRetry={() => { void loadDrls(); void loadAlerts(); }} retryLabel={t('w9.states.retry')} />}
       {dataSource === "demo" && !rowsLoading && (
-        <div style={{ padding: "8px 12px", background: "#fef3c7", color: "#d97706", borderRadius: 8, fontSize: 12, display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ padding: "8px 12px", background: "#fef3c7", color: "var(--color-warning-600)", borderRadius: 8, fontSize: 12, display: "flex", alignItems: "center", gap: 8 }}>
           <AlertTriangle size={14} /> {t('w8Dose.demoBadge')} · {t('w8Dose.sourceDemo')}
         </div>
       )}
@@ -300,28 +300,28 @@ export default function DRLManagement() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
         <div style={kpiBox}>
           <div style={{ fontSize: 12, color: "#64748b" }}>{t('drl.kpiThresholds')}</div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "#1e40af", marginTop: 4 }}>{rows.length}</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: "var(--color-primary-800)", marginTop: 4 }}>{rows.length}</div>
         </div>
         <div style={kpiBox}>
           <div style={{ fontSize: 12, color: "#64748b" }}>{t('drl.kpiOverLimitAlerts')}</div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: alerts.length > 0 ? "#dc2626" : "#16a34a", marginTop: 4 }}>{alerts.length}</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: alerts.length > 0 ? "var(--color-error-600)" : "var(--color-success-600)", marginTop: 4 }}>{alerts.length}</div>
           <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{t('drl.records')}</div>
         </div>
         <div style={kpiBox}>
           <div style={{ fontSize: 12, color: "#64748b" }}>{t('drl.kpiCriticalAlerts')}</div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "#dc2626", marginTop: 4 }}>{alerts.filter((a) => a.level === "critical" && !a.acknowledged).length}</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: "var(--color-error-600)", marginTop: 4 }}>{alerts.filter((a) => a.level === "critical" && !a.acknowledged).length}</div>
           <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{t('drl.notClosed')}</div>
         </div>
         <div style={kpiBox}>
           <div style={{ fontSize: 12, color: "#64748b" }}>{t('drl.kpiChildThreshold')}</div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "#d97706", marginTop: 4 }}>{rows.filter((r) => r.ageGroup === "child").length}</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: "var(--color-warning-600)", marginTop: 4 }}>{rows.filter((r) => r.ageGroup === "child").length}</div>
         </div>
       </div>
 
       <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", display: "flex", alignItems: "center", gap: 8 }}>
-            <Zap size={16} color="#2563eb" />
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", display: "flex", alignItems: "center", gap: 8 }}>
+            <Zap size={16} color="var(--color-primary-600)" />
             {t('drl.thresholdConfigTitle')}
           </div>
           <Button size="small" icon={<RefreshCw size={13} />} onClick={() => { void loadDrls(); void loadAlerts(); }}>{t('drl.refresh')}</Button>
@@ -337,8 +337,8 @@ export default function DRLManagement() {
       </div>
 
       <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-          <AlertTriangle size={16} color="#dc2626" />
+        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+          <AlertTriangle size={16} color="var(--color-error-600)" />
           {t('drl.loopCheckTitle')}
         </div>
         {checkDrafts.map((d) => (
@@ -371,8 +371,8 @@ export default function DRLManagement() {
       </div>
 
       <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-          <ShieldAlert size={16} color="#16a34a" />
+        <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+          <ShieldAlert size={16} color="var(--color-success-600)" />
           {t('drl.alertHistoryTitle')}
         </div>
         <DataTable scroll={{ x: 'max-content' }}
@@ -399,7 +399,7 @@ const kpiBox: React.CSSProperties = {
 const modalityTag: React.CSSProperties = {
   padding: "2px 8px",
   background: "#eff6ff",
-  color: "#2563eb",
+  color: "var(--color-primary-600)",
   borderRadius: 4,
   fontSize: 12,
   fontWeight: 600,

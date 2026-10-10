@@ -240,7 +240,7 @@ export default function TemplateInheritancePage() {
                   padding: '6px 8px',
                   paddingLeft: 8 + depth * 20,
                   background: isSelected ? 'var(--color-info-bg)' : 'transparent',
-                  borderLeft: isSelected ? '3px solid #3b82f6' : '3px solid transparent',
+                  borderLeft: isSelected ? '3px solid var(--color-primary-500)' : '3px solid transparent',
                   cursor: 'pointer',
                   display: 'flex', alignItems: 'center', gap: 6,
                   fontSize: 12, color: 'var(--text-primary)',
@@ -264,7 +264,7 @@ export default function TemplateInheritancePage() {
                 {node.type === 'parent' ? (
                   <Layers size={12} color="#7c3aed" />
                 ) : node.type === 'child' ? (
-                  <GitFork size={12} color="#0891b2" />
+                  <GitFork size={12} color="var(--color-info-600)" />
                 ) : (
                   <GitBranch size={12} color="var(--text-secondary)" />
                 )}
@@ -302,7 +302,7 @@ export default function TemplateInheritancePage() {
             <span style={{
               fontSize: 11, padding: '2px 8px', borderRadius: 10,
               background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-              color: source === 'api' ? '#16a34a' : '#92400e',
+              color: source === 'api' ? 'var(--color-success-600)' : '#92400e',
               border: `1px solid ${source === 'api' ? '#bbf7d0' : '#fde68a'}`,
               fontWeight: 500,
             }}>
@@ -311,15 +311,15 @@ export default function TemplateInheritancePage() {
           </h1>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('tinh.subtitle')}
-            {apiError && <span style={{ color: '#dc2626', marginLeft: 8 }}>{apiError}</span>}
+            {apiError && <span style={{ color: 'var(--color-error-600)', marginLeft: 8 }}>{apiError}</span>}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button
             onClick={() => navigate('/template-designer')}
             style={{
-              padding: '6px 12px', border: '1px solid #3b82f6', borderRadius: 6,
-              background: 'var(--bg-card)', color: '#1e40af', fontSize: 12, fontWeight: 600,
+              padding: '6px 12px', border: '1px solid var(--color-primary-500)', borderRadius: 6,
+              background: 'var(--bg-card)', color: 'var(--color-primary-800)', fontSize: 12, fontWeight: 600,
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
             }}
           >
@@ -340,11 +340,11 @@ export default function TemplateInheritancePage() {
 
       {/* 统计卡片 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10, marginBottom: 16 }}>
-        <StatCard icon={Layers} label={t('tinh.statTotal')} value={stats.total} color="#3b82f6" />
+        <StatCard icon={Layers} label={t('tinh.statTotal')} value={stats.total} color="var(--color-primary-500)" />
         <StatCard icon={Activity} label={t('tinh.statActive')} value={stats.active} color="#10b981" />
-        <StatCard icon={FileCode} label={t('tinh.statDrafts')} value={stats.drafts} color="#f59e0b" />
+        <StatCard icon={FileCode} label={t('tinh.statDrafts')} value={stats.drafts} color="var(--color-warning-500)" />
         <StatCard icon={GitFork} label={t('tinh.statTotalUsage')} value={stats.totalUsage} color="#7c3aed" />
-        <StatCard icon={Users} label={t('tinh.statParents')} value={rootNodes.length} color="#0891b2" />
+        <StatCard icon={Users} label={t('tinh.statParents')} value={rootNodes.length} color="var(--color-info-600)" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: 12 }}>
@@ -357,7 +357,7 @@ export default function TemplateInheritancePage() {
             padding: '8px 12px', borderBottom: '1px solid var(--border-color)',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <GitBranch size={12} /> {t('tinh.treeTitle')}
             </div>
             <div style={{ display: 'flex', gap: 4 }}>
@@ -366,7 +366,7 @@ export default function TemplateInheritancePage() {
                 style={{
                   padding: '2px 8px', border: '1px solid var(--border-color)', borderRadius: 3,
                   background: viewMode === 'tree' ? 'var(--color-info-bg)' : 'var(--bg-card)',
-                  color: viewMode === 'tree' ? '#1e40af' : '#64748b',
+                  color: viewMode === 'tree' ? 'var(--color-primary-800)' : '#64748b',
                   fontSize: 12, cursor: 'pointer', fontWeight: 600,
                 }}
               >{t('tinh.viewTree')}</button>
@@ -375,7 +375,7 @@ export default function TemplateInheritancePage() {
                 style={{
                   padding: '2px 8px', border: '1px solid var(--border-color)', borderRadius: 3,
                   background: viewMode === 'list' ? 'var(--color-info-bg)' : 'var(--bg-card)',
-                  color: viewMode === 'list' ? '#1e40af' : '#64748b',
+                  color: viewMode === 'list' ? 'var(--color-primary-800)' : '#64748b',
                   fontSize: 12, cursor: 'pointer', fontWeight: 600,
                 }}
               >{t('tinh.viewList')}</button>
@@ -436,7 +436,7 @@ export default function TemplateInheritancePage() {
                   <div>
                     <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                       {selectedNode.type === 'parent' && <Layers size={18} color="#7c3aed" />}
-                      {selectedNode.type === 'child' && <GitFork size={18} color="#0891b2" />}
+                      {selectedNode.type === 'child' && <GitFork size={18} color="var(--color-info-600)" />}
                       {selectedNode.type === 'sibling' && <GitBranch size={18} color="var(--text-secondary)" />}
                       {selectedNode.name}
                     </div>
@@ -465,7 +465,7 @@ export default function TemplateInheritancePage() {
                     onClick={() => void cloneNode(selectedNode.id)}
                     style={{
                       padding: '5px 10px', border: 'none', borderRadius: 4,
-                      background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600,
+                      background: 'var(--color-primary-500)', color: '#fff', fontSize: 12, fontWeight: 600,
                       cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
@@ -506,7 +506,7 @@ export default function TemplateInheritancePage() {
 
               {/* 关系图 */}
               <div style={{ padding: 16 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <GitMerge size={12} /> {t('tinh.relationGraph')}
                 </div>
 
@@ -541,14 +541,14 @@ export default function TemplateInheritancePage() {
                   <div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase' }}>{t('tinh.current')}</div>
                     <div style={{
-                      padding: 10, background: 'var(--color-info-bg)', border: '2px solid #3b82f6',
+                      padding: 10, background: 'var(--color-info-bg)', border: '2px solid var(--color-primary-500)',
                       borderRadius: 6, fontSize: 12,
                     }}>
-                      <div style={{ fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <div style={{ fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 4 }}>
                         {selectedNode.type === 'parent' ? <Layers size={11} /> : <GitFork size={11} />}
                         {selectedNode.name}
                       </div>
-                      <div style={{ fontSize: 12, color: '#1e40af', marginTop: 2 }}>{selectedNode.version} · ×{selectedNode.usageCount}</div>
+                      <div style={{ fontSize: 12, color: 'var(--color-primary-800)', marginTop: 2 }}>{selectedNode.version} · ×{selectedNode.usageCount}</div>
                     </div>
                   </div>
 
@@ -572,7 +572,7 @@ export default function TemplateInheritancePage() {
                             <div style={{ fontWeight: 600, color: '#0e7490', display: 'flex', alignItems: 'center', gap: 4 }}>
                               <GitFork size={10} /> {c.name}
                             </div>
-                            <div style={{ fontSize: 12, color: '#0891b2', marginTop: 1 }}>{c.version} · ×{c.usageCount}</div>
+                            <div style={{ fontSize: 12, color: 'var(--color-info-600)', marginTop: 1 }}>{c.version} · ×{c.usageCount}</div>
                           </div>
                         ))}
                       </div>
@@ -615,28 +615,28 @@ export default function TemplateInheritancePage() {
 
                 {/* 使用统计 */}
                 <div style={{ marginTop: 16, padding: 12, background: 'var(--color-info-bg)', borderRadius: 6, border: '1px solid #bfdbfe' }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <TrendingUp size={12} /> {t('tinh.usageStats')}
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
                     <div>
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('tinh.monthUsage')}</div>
-                      <div style={{ fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{Math.floor(selectedNode.usageCount * 0.3)}</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>{Math.floor(selectedNode.usageCount * 0.3)}</div>
                     </div>
                     <div>
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('tinh.totalUsage')}</div>
-                      <div style={{ fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{selectedNode.usageCount}</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>{selectedNode.usageCount}</div>
                     </div>
                     <div>
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('tinh.creator')}</div>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: '#1e40af' }}>{selectedNode.createdBy}</div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)' }}>{selectedNode.createdBy}</div>
                     </div>
                   </div>
                 </div>
 
                 {/* 版本历史（模拟） */}
                 <div style={{ marginTop: 16 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <History size={12} /> {t('tinh.versionHistory')}
                   </div>
                   <div style={{ background: 'var(--bg-card)', borderRadius: 6, border: '1px solid var(--border-color)', padding: 8 }}>
@@ -650,12 +650,12 @@ export default function TemplateInheritancePage() {
                         display: 'flex', alignItems: 'center', gap: 8,
                       }}>
                         <Tag size={11} color="#7c3aed" />
-                        <strong style={{ color: '#1e40af' }}>{h.v}</strong>
+                        <strong style={{ color: 'var(--color-primary-800)' }}>{h.v}</strong>
                         <span style={{ color: 'var(--text-secondary)' }}>·</span>
                         <span style={{ color: 'var(--text-secondary)' }}>{h.author}</span>
                         <span style={{ color: 'var(--text-secondary)' }}>·</span>
                         <span style={{ color: 'var(--text-secondary)' }}>{h.time}</span>
-                        <span style={{ marginLeft: 'auto', fontSize: 12, padding: '1px 4px', background: i === 0 ? 'var(--color-info-bg)' : 'var(--bg-card)', color: i === 0 ? '#1e40af' : '#64748b', borderRadius: 2 }}>{h.action}</span>
+                        <span style={{ marginLeft: 'auto', fontSize: 12, padding: '1px 4px', background: i === 0 ? 'var(--color-info-bg)' : 'var(--bg-card)', color: i === 0 ? 'var(--color-primary-800)' : '#64748b', borderRadius: 2 }}>{h.action}</span>
                       </div>
                     ))}
                   </div>
@@ -676,7 +676,7 @@ export default function TemplateInheritancePage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 520, maxWidth: '90vw', maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Eye size={16} color="#0891b2" /> {t('tinh.previewTitle')}
+                <Eye size={16} color="var(--color-info-600)" /> {t('tinh.previewTitle')}
               </div>
               <button onClick={() => setPreviewNode(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
             </div>
@@ -708,7 +708,7 @@ export default function TemplateInheritancePage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 520, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <BarChart3 size={16} color="#0891b2" /> {t('tinh.usageStats')} · {selectedNode.name}
+                <BarChart3 size={16} color="var(--color-info-600)" /> {t('tinh.usageStats')} · {selectedNode.name}
               </div>
               <button onClick={() => setShowStatsModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
             </div>
@@ -719,10 +719,10 @@ export default function TemplateInheritancePage() {
               </div>
               <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('tinh.directChildren')}</div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#0891b2' }}>{selectedChildren.length}</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-info-600)' }}>{selectedChildren.length}</div>
               </div>
             </div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>{t('tinh.familyUsageSummary')}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8 }}>{t('tinh.familyUsageSummary')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
               {[selectedNode, ...selectedChildren, ...selectedSiblings].map(n => (
                 <div key={n.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>

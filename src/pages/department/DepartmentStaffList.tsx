@@ -2,19 +2,19 @@ import { Edit3 } from "lucide-react";
 import { t } from "../../i18n/appI18n";
 
 const C = {
-  primary: "#1e40af", primaryLight: "#3b82f6", primaryLighter: "#dbeafe",
-  accent: "#0891b2", white: "#ffffff", bg: "#e8e8e8", border: "#d1d5db",
+  primary: "var(--color-primary-800)", primaryLight: "var(--color-primary-500)", primaryLighter: "#dbeafe",
+  accent: "var(--color-info-600)", white: "#ffffff", bg: "#e8e8e8", border: "#d1d5db",
   borderLight: "#e5e7eb", textDark: "#1f2937", textMid: "#4b5563", textLight: "#9ca3af",
-  success: "#059669", successBg: "#d1fae5", warning: "#d97706", warningBg: "#fef3c7",
-  danger: "#dc2626", dangerBg: "#fee2e2", info: "#2563eb", infoBg: "#dbeafe",
+  success: "#059669", successBg: "#d1fae5", warning: "var(--color-warning-600)", warningBg: "#fef3c7",
+  danger: "var(--color-error-600)", dangerBg: "#fee2e2", info: "var(--color-primary-600)", infoBg: "#dbeafe",
   purple: "#7c3aed", purpleBg: "#ede9fe",
 };
 
 const ROLES = {
-  director: { label: t("deptStaff.role.director"), color: "#dc2626", icon: null, permission: ["report_write", "report_review", "report_print", "device_operate", "data_export", "system_config", "user_manage"] },
-  vice_director: { label: t("deptStaff.role.vice_director"), color: "#d97706", icon: null, permission: ["report_write", "report_review", "report_print", "device_operate", "data_export", "system_config"] },
+  director: { label: t("deptStaff.role.director"), color: "var(--color-error-600)", icon: null, permission: ["report_write", "report_review", "report_print", "device_operate", "data_export", "system_config", "user_manage"] },
+  vice_director: { label: t("deptStaff.role.vice_director"), color: "var(--color-warning-600)", icon: null, permission: ["report_write", "report_review", "report_print", "device_operate", "data_export", "system_config"] },
   physician: { label: t("deptStaff.role.physician"), color: "#059669", icon: null, permission: ["report_write", "report_review", "report_print"] },
-  technician: { label: t("deptStaff.role.technician"), color: "#3b82f6", icon: null, permission: ["device_operate", "report_print"] },
+  technician: { label: t("deptStaff.role.technician"), color: "var(--color-primary-500)", icon: null, permission: ["device_operate", "report_print"] },
   nurse: { label: t("deptStaff.role.nurse"), color: "#7c3aed", icon: null, permission: ["report_print"] },
   intern: { label: t("deptStaff.role.intern"), color: "#6b7280", icon: null, permission: [] },
 };

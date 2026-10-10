@@ -87,7 +87,7 @@ export function SmartSortPanel({
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <Brain size={18} color={enabled ? "#7c3aed" : "#94a3b8"} />
-          <span style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: "var(--color-primary-800)" }}>
             智能排序
           </span>
         </div>
@@ -220,9 +220,9 @@ export function SmartSortPanel({
                     fontWeight: 700,
                     color:
                       exp.score >= 70
-                        ? "#dc2626"
+                        ? "var(--color-error-600)"
                         : exp.score >= 45
-                          ? "#d97706"
+                          ? "var(--color-warning-600)"
                           : "#059669",
                   }}
                 >
@@ -246,7 +246,7 @@ export function SmartSortPanel({
             style={{
               fontSize: 12,
               fontWeight: 700,
-              color: "#1e40af",
+              color: "var(--color-primary-800)",
               marginBottom: 12,
               display: "flex",
               alignItems: "center",
@@ -256,7 +256,7 @@ export function SmartSortPanel({
             <Settings size={14} />
             加权因子配置
             {totalWeight !== 1 && (
-              <span style={{ color: "#dc2626", fontWeight: 600, fontSize: 11 }}>
+              <span style={{ color: "var(--color-error-600)", fontWeight: 600, fontSize: 11 }}>
                 (权重之和={totalWeight.toFixed(2)}，应为1.00)
               </span>
             )}

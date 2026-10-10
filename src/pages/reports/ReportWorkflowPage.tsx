@@ -181,7 +181,7 @@ export const ReportWorkflowPage: React.FC = () => {
   return (
     <PageContainer padding={24}>
       <Space style={{ marginBottom: 16 }}>
-        <GitBranch size={20} color="#2563eb" />
+        <GitBranch size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('reportWf.title')}</span>
         <Tag color="cyan">PR1 (v3.0.6.8-45)</Tag>
         <Tag color="purple">{t('reportWf.benchmark')}</Tag>
@@ -298,7 +298,7 @@ export const ReportWorkflowPage: React.FC = () => {
                   <Card
                     title={
                       <Space>
-                        <FileText size={16} color="#2563eb" />
+                        <FileText size={16} color="var(--color-primary-600)" />
                         {t('reportWf.reportDetail')}
                         <Tag color={STATE_COLORS[selectedReport.status]}>
                           {STATE_LABELS[selectedReport.status] ||

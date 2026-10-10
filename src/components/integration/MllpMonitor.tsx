@@ -92,12 +92,12 @@ export const MllpMonitor: React.FC = () => {
   return (
     <div className="space-y-3">
       <Row gutter={8}>
-        <Col span={4}><Card size="small"><Statistic title={t('mllp.stat.status')} value={stats.running ? t('mllp.running') : t('mllp.stoppedState')} prefix={stats.running ? <Wifi className="w-3 h-3" style={{ color: '#10b981' }} /> : <WifiOff className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title={t('mllp.stat.status')} value={stats.running ? t('mllp.running') : t('mllp.stoppedState')} prefix={stats.running ? <Wifi className="w-3 h-3" style={{ color: '#10b981' }} /> : <WifiOff className="w-3 h-3" style={{ color: 'var(--color-error-600)' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title={t('mllp.stat.port')} value={stats.port} prefix={<Server className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('mllp.stat.connections')} value={stats.connections.length} prefix={<Activity className="w-3 h-3" style={{ color: '#0891b2' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('mllp.stat.messages')} value={stats.totalMessages} prefix={<FileText className="w-3 h-3" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title={t('mllp.stat.connections')} value={stats.connections.length} prefix={<Activity className="w-3 h-3" style={{ color: 'var(--color-info-600)' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title={t('mllp.stat.messages')} value={stats.totalMessages} prefix={<FileText className="w-3 h-3" style={{ color: 'var(--color-primary-500)' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title={t('mllp.stat.ack')} value={stats.totalAckSent} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('mllp.stat.errors')} value={stats.totalError} prefix={<AlertCircle className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title={t('mllp.stat.errors')} value={stats.totalError} prefix={<AlertCircle className="w-3 h-3" style={{ color: 'var(--color-error-600)' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
       </Row>
 
       <Card size="small" className="shadow-sm" title={

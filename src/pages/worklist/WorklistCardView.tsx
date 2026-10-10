@@ -9,25 +9,25 @@ import { displayExamStatus } from '../../utils/statusMaps'
 import { t } from '../../i18n/appI18n'
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
-  'SCHEDULED': { bg: '#3b82f622', color: '#3b82f6', label: t('worklistStatus.scheduled') },
+  'SCHEDULED': { bg: '#3b82f622', color: 'var(--color-primary-500)', label: t('worklistStatus.scheduled') },
   'ARRIVED': { bg: '#8b5cf622', color: '#7c3aed', label: t('worklistStatus.arrived') },
   'IN_PROGRESS': { bg: '#ec489922', color: '#db2777', label: t('worklistStatus.inProgress') },
   'COMPLETED': { bg: '#22c55e22', color: '#059669', label: t('worklistStatus.completed') },
-  'CANCELLED': { bg: '#ef444422', color: '#ef4444', label: t('worklistStatus.cancelled') },
-  '已登记': { bg: '#3b82f622', color: '#3b82f6', label: t('worklistStatus.scheduled') },
+  'CANCELLED': { bg: '#ef444422', color: 'var(--color-error-500)', label: t('worklistStatus.cancelled') },
+  '已登记': { bg: '#3b82f622', color: 'var(--color-primary-500)', label: t('worklistStatus.scheduled') },
   '待检查': { bg: '#8b5cf622', color: '#7c3aed', label: t('worklistStatus.pending') },
   '检查中': { bg: '#ec489922', color: '#db2777', label: t('worklistStatus.inProgress') },
   '待报告': { bg: '#f59e0b22', color: '#ca8a04', label: t('worklistStatus.pendingReport') },
   '已报告': { bg: '#22c55e22', color: '#059669', label: t('worklistStatus.reported') },
   '已发布': { bg: '#22c55e22', color: '#047857', label: t('worklistStatus.published') },
-  '已暂停': { bg: '#f59e0b22', color: '#f59e0b', label: t('worklistStatus.paused') },
-  '质控退回': { bg: '#ef444422', color: '#ef4444', label: t('worklistStatus.qcReturned') },
+  '已暂停': { bg: '#f59e0b22', color: 'var(--color-warning-500)', label: t('worklistStatus.paused') },
+  '质控退回': { bg: '#ef444422', color: 'var(--color-error-500)', label: t('worklistStatus.qcReturned') },
 }
 
 const PRIORITY_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
   '普通': { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: t('worklistPriority.normal') },
-  '紧急': { bg: '#f59e0b22', color: '#f59e0b', label: t('worklistPriority.urgent') },
-  '危重': { bg: '#ef444422', color: '#ef4444', label: t('worklistPriority.critical') },
+  '紧急': { bg: '#f59e0b22', color: 'var(--color-warning-500)', label: t('worklistPriority.urgent') },
+  '危重': { bg: '#ef444422', color: 'var(--color-error-500)', label: t('worklistPriority.critical') },
   '会诊': { bg: '#8b5cf622', color: '#7c3aed', label: t('worklistPriority.consult') },
 }
 
@@ -46,8 +46,8 @@ const getSLAInfo = (createdTime: string): SLAInfo => {
     const created = new Date(createdTime).getTime()
     const now = Date.now()
     const elapsedMinutes = Math.floor((now - created) / 60000)
-    if (elapsedMinutes > 60) return { elapsedMinutes, status: 'critical', color: '#dc2626', label: '>60min' }
-    if (elapsedMinutes > 30) return { elapsedMinutes, status: 'warning', color: '#d97706', label: '30-60min' }
+    if (elapsedMinutes > 60) return { elapsedMinutes, status: 'critical', color: 'var(--color-error-600)', label: '>60min' }
+    if (elapsedMinutes > 30) return { elapsedMinutes, status: 'warning', color: 'var(--color-warning-600)', label: '30-60min' }
     return { elapsedMinutes, status: 'normal', color: '#059669', label: '<30min' }
   } catch {
     return { elapsedMinutes: 0, status: 'normal', color: '#059669', label: '<30min' }
@@ -73,8 +73,8 @@ const calculatePriority = (exam: RadiologyExam): PriorityScore => {
   const typeScore = exam.patientType === '急诊' ? 25 : exam.patientType === '住院' ? 15 : 5
   const partScore = exam.bodyPart === '头颅' || exam.bodyPart === '心脏' || exam.bodyPart === '血管' ? 20 : 10
   const totalScore = ageScore + waitScore + typeScore + partScore
-  if (totalScore >= 70) return { level: '危重', score: totalScore, color: '#ef4444', bg: '#ef444422' }
-  if (totalScore >= 45) return { level: '紧急', score: totalScore, color: '#f59e0b', bg: '#f59e0b22' }
+  if (totalScore >= 70) return { level: '危重', score: totalScore, color: 'var(--color-error-500)', bg: '#ef444422' }
+  if (totalScore >= 45) return { level: '紧急', score: totalScore, color: 'var(--color-warning-500)', bg: '#f59e0b22' }
   if (totalScore >= 25) return { level: '普通', score: totalScore, color: 'var(--text-secondary)', bg: 'var(--bg-deep)' }
   return { level: '低', score: totalScore, color: '#059669', bg: '#22c55e22' }
 }
@@ -119,7 +119,7 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
             style={{
               background: 'var(--bg-card)',
               borderRadius: 12,
-              border: isSelected ? '2px solid #1e40af' : '1px solid #e2e8f0',
+              border: isSelected ? '2px solid var(--color-primary-800)' : '1px solid #e2e8f0',
               overflow: 'hidden',
               cursor: 'pointer',
               transition: 'all 0.2s',
@@ -155,7 +155,7 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
                   onClick={(e) => toggleSelect(exam.id, e)}
                   style={{
                     cursor: 'pointer',
-                    color: isSelected ? '#1e40af' : '#cbd5e1',
+                    color: isSelected ? 'var(--color-primary-800)' : '#cbd5e1',
                     display: 'flex',
                     alignItems: 'center',
                   }}
@@ -163,14 +163,14 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
                   {isSelected ? <CheckSquare size={18} /> : <Square size={18} />}
                 </div>
                 <div>
-                  <div style={{ fontWeight: 700, color: '#1e40af', fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ fontWeight: 700, color: 'var(--color-primary-800)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
                     {exam.patientName}
-                    {exam.priority === '危重' && <AlertTriangle size={14} style={{ color: '#dc2626' }} />}
+                    {exam.priority === '危重' && <AlertTriangle size={14} style={{ color: 'var(--color-error-600)' }} />}
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
                     {exam.gender} · {exam.age}{t('worklistCard.ageUnit')} · <span style={{
                       background: exam.patientType === '急诊' ? 'var(--color-error-bg)' : exam.patientType === '住院' ? 'var(--color-info-bg)' : 'var(--bg-deep)',
-                      color: exam.patientType === '急诊' ? '#dc2626' : exam.patientType === '住院' ? '#2563eb' : '#64748b',
+                      color: exam.patientType === '急诊' ? 'var(--color-error-600)' : exam.patientType === '住院' ? 'var(--color-primary-600)' : '#64748b',
                       padding: '1px 6px',
                       borderRadius: 4,
                       fontWeight: 600,
@@ -294,8 +294,8 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
             style={{
               padding: '8px 24px',
               background: 'var(--bg-card)',
-              color: '#1e40af',
-              border: '1px solid #1e40af',
+              color: 'var(--color-primary-800)',
+              border: '1px solid var(--color-primary-800)',
               borderRadius: 8,
               cursor: 'pointer',
               fontSize: 12,

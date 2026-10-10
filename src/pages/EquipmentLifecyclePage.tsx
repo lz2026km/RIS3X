@@ -64,10 +64,10 @@ const s = {
   statLabel: { fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 },
   statValue: { fontSize: 30, fontWeight: 700, color: 'var(--color-primary-800)' },
   statSub: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 },
-  statGreen: { color: '#16a34a' },
-  statOrange: { color: '#d97706' },
-  statRed: { color: '#dc2626' },
-  statBlue: { color: '#2563eb' },
+  statGreen: { color: 'var(--color-success-600)' },
+  statOrange: { color: 'var(--color-warning-600)' },
+  statRed: { color: 'var(--color-error-600)' },
+  statBlue: { color: 'var(--color-primary-600)' },
   // 操作区
   toolbar: { display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' as const, alignItems: 'center' },
   searchBox: { display: 'flex', alignItems: 'center', gap: 8, background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '8px 14px', flex: '0 0 280px' },
@@ -75,9 +75,9 @@ const s = {
   select: { background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '8px 12px', fontSize: 14,},
   btn: { padding: '10px 18px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.2s', minHeight: 44 },
   btnPrimary: { background: 'var(--color-primary-700)', color: '#fff' },
-  btnSuccess: { background: '#16a34a', color: '#fff' },
-  btnWarning: { background: '#d97706', color: '#fff' },
-  btnDanger: { background: '#dc2626', color: '#fff' },
+  btnSuccess: { background: 'var(--color-success-600)', color: '#fff' },
+  btnWarning: { background: 'var(--color-warning-600)', color: '#fff' },
+  btnDanger: { background: 'var(--color-error-600)', color: '#fff' },
   btnGhost: { background: 'var(--bg-card)', color: 'var(--text-secondary)' },
   // 表格
   table: { width: '100%', borderCollapse: 'collapse', background: 'var(--bg-card)', borderRadius: 10, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' },
@@ -85,11 +85,11 @@ const s = {
   td: { padding: '12px 16px', fontSize: 14, color: 'var(--text-primary)', borderBottom: '1px solid var(--border-light)' },
   // 状态标签
   badge: { padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600 },
-  badgeGreen: { background: 'var(--color-success-bg)', color: '#16a34a' },
-  badgeBlue: { background: 'var(--color-info-bg)', color: '#2563eb' },
-  badgeOrange: { background: 'var(--color-warning-bg)', color: '#d97706' },
+  badgeGreen: { background: 'var(--color-success-bg)', color: 'var(--color-success-600)' },
+  badgeBlue: { background: 'var(--color-info-bg)', color: 'var(--color-primary-600)' },
+  badgeOrange: { background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)' },
   badgeGray: { background: 'var(--bg-card)', color: 'var(--text-secondary)' },
-  badgeRed: { background: 'var(--color-error-bg)', color: '#dc2626' },
+  badgeRed: { background: 'var(--color-error-bg)', color: 'var(--color-error-600)' },
   // 详情弹窗
   modal: { position: 'fixed' as const, inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' },
   modalContent: { background: 'var(--bg-card)', borderRadius: 12, padding: 28, width: 700, maxHeight: '85vh', overflowY: 'auto' as const, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' },
@@ -108,7 +108,7 @@ const s = {
   alertGrid: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 },
   alertCard: { padding: '14px 16px', borderRadius: 8, border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   alertName: { fontSize: 14, fontWeight: 600, color: 'var(--color-primary-800)' },
-  alertDate: { fontSize: 12, color: '#dc2626', fontWeight: 600, marginTop: 4 },
+  alertDate: { fontSize: 12, color: 'var(--color-error-600)', fontWeight: 600, marginTop: 4 },
   // 标签页
   tabs: { display: 'flex', gap: 0, marginBottom: 20, borderBottom: '2px solid var(--border-color)' },
   tab: { padding: '10px 24px', cursor: 'pointer', fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', borderBottom: '3px solid transparent', transition: 'all 0.2s' },
@@ -631,7 +631,7 @@ export default function EquipmentLifecyclePage() {
     return Object.entries(map).map(([status, count]) => ({
       status,
       count,
-      color: status === '在用' ? '#16a34a' : status === '维保中' ? '#d97706' : status === '空闲' ? '#2563eb' : '#94a3b8',
+      color: status === '在用' ? 'var(--color-success-600)' : status === '维保中' ? 'var(--color-warning-600)' : status === '空闲' ? 'var(--color-primary-600)' : '#94a3b8',
     }))
   }, [lifecycleRows])
 
@@ -645,7 +645,7 @@ export default function EquipmentLifecyclePage() {
     {
       title: t('equipLifecycle.thNextMaint'), dataIndex: 'nextMaint', key: 'nextMaint',
       render: (v: string, d: any) => v === '-' ? '-' : (
-        <span style={{ color: soonExpire.includes(d) ? '#dc2626' : '#334155', fontWeight: soonExpire.includes(d) ? 600 : 400 }}>
+        <span style={{ color: soonExpire.includes(d) ? 'var(--color-error-600)' : '#334155', fontWeight: soonExpire.includes(d) ? 600 : 400 }}>
           {v}
         </span>
       ),
@@ -655,7 +655,7 @@ export default function EquipmentLifecyclePage() {
       render: (v: number) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 80 }}>
-            <ProgressBar value={v} color={v >= 80 ? '#16a34a' : v >= 50 ? '#d97706' : '#94a3b8'} />
+            <ProgressBar value={v} color={v >= 80 ? 'var(--color-success-600)' : v >= 50 ? 'var(--color-warning-600)' : '#94a3b8'} />
           </div>
           <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v}%</span>
         </div>
@@ -682,7 +682,7 @@ export default function EquipmentLifecyclePage() {
     {
       title: t('equipLifecycle.thDaysLeft'), dataIndex: 'days', key: 'days',
       render: (v: number) => (
-        <span style={{ color: v <= 7 ? '#dc2626' : v <= 30 ? '#d97706' : '#334155', fontWeight: v <= 7 ? 700 : 400 }}>
+        <span style={{ color: v <= 7 ? 'var(--color-error-600)' : v <= 30 ? 'var(--color-warning-600)' : '#334155', fontWeight: v <= 7 ? 700 : 400 }}>
           {v <= 7 ? t('equipLifecycle.daysAfterWarn', { n: v }) : t('equipLifecycle.daysAfter', { n: v })}
         </span>
       ),
@@ -698,7 +698,7 @@ export default function EquipmentLifecyclePage() {
             onClick={() => void markPlanCompleted(m.id)}><CheckCircle size={14} />{t('equipLifecycle.confirm')}</button>
           <button style={{ ...s.btn, ...s.btnGhost, fontSize: 12, padding: '6px 12px' }}
             onClick={() => setMaintEditForm({ id: m.id, deviceName: m.name, type: m.type, maintenanceDate: m.date, assignee: m.vendor, estimatedCost: m.cost })}><Edit3 size={14} />{t('equipLifecycle.edit')}</button>
-          <button style={{ ...s.btn, ...s.btnGhost, fontSize: 12, padding: '6px 12px', color: '#dc2626' }}
+          <button style={{ ...s.btn, ...s.btnGhost, fontSize: 12, padding: '6px 12px', color: 'var(--color-error-600)' }}
             onClick={() => void deleteMaintPlan(m.id)}><Trash2 size={14} />{t('equipLifecycle.delete')}</button>
         </div>
       ),
@@ -729,7 +729,7 @@ export default function EquipmentLifecyclePage() {
   ]
 
   const costColumns: TableColumnsType<any> = [
-    { title: t('equipLifecycle.thModality'), dataIndex: 'name', key: 'name', render: (v: string) => <b style={{ color: '#1e40af' }}>{v}</b> },
+    { title: t('equipLifecycle.thModality'), dataIndex: 'name', key: 'name', render: (v: string) => <b style={{ color: 'var(--color-primary-800)' }}>{v}</b> },
     { title: t('equipLifecycle.thPurchaseTotal'), dataIndex: 'purchase', key: 'purchase', render: (v: number) => `¥${v.toLocaleString()}` },
     { title: t('equipLifecycle.thMaintTotal'), dataIndex: 'maint', key: 'maint', render: (v: number) => `¥${v.toLocaleString()}` },
     { title: t('equipLifecycle.thDeprec'), dataIndex: 'depreciation', key: 'depreciation', render: (v: number) => `¥${v.toLocaleString()}` },
@@ -737,7 +737,7 @@ export default function EquipmentLifecyclePage() {
       title: t('equipLifecycle.thMaintRatio'), key: 'ratio',
       render: (_v: unknown, m: any) => {
         const ratio = m.purchase > 0 ? Math.round((m.maint / m.purchase) * 100) : 0
-        return <span style={{ color: ratio > 12 ? '#dc2626' : '#059669', fontWeight: 700 }}>{ratio}%</span>
+        return <span style={{ color: ratio > 12 ? 'var(--color-error-600)' : '#059669', fontWeight: 700 }}>{ratio}%</span>
       },
     },
     {
@@ -747,7 +747,7 @@ export default function EquipmentLifecyclePage() {
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <div style={{ flex: 1, height: 6, background: '#e2e8f0', borderRadius: 3, overflow: 'hidden' }}>
-              <div style={{ width: `${pct}%`, height: '100%', background: '#1e40af', borderRadius: 3 }} />
+              <div style={{ width: `${pct}%`, height: '100%', background: 'var(--color-primary-800)', borderRadius: 3 }} />
             </div>
             <span style={{ fontSize: 11, color: 'var(--text-secondary)', width: 40, textAlign: 'right' }}>{pct}%</span>
           </div>
@@ -829,7 +829,7 @@ export default function EquipmentLifecyclePage() {
           {soonExpire.length > 0 && (
             <Card bordered={false} style={s.maintAlert} styles={{ body: { padding: 0 } }}>
               <div style={s.alertTitle}>
-                <AlertTriangle size={18} color="#d97706" />
+                <AlertTriangle size={18} color="var(--color-warning-600)" />
                 {t('equipLifecycle.maintAlertTitle', { n: soonExpire.length })}
               </div>
               <div style={s.alertGrid}>
@@ -896,7 +896,7 @@ export default function EquipmentLifecyclePage() {
           </div>
           <Card bordered={false} style={{ ...s.maintAlert, marginTop: 0 }} styles={{ body: { padding: 0 } }}>
             <div style={s.alertTitle}>
-              <Clock size={18} color="#2563eb" />
+              <Clock size={18} color="var(--color-primary-600)" />
               {t('equipLifecycle.maintCalendarTitle')}
             </div>
             <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>
@@ -938,7 +938,7 @@ export default function EquipmentLifecyclePage() {
                 { label: t('equipLifecycle.costTotalMaint'), value: `¥${recordRows.filter(r => Number(r.cost) > 0).reduce((s, r) => s + Number(r.cost), 0).toLocaleString()}`, color: 'var(--color-primary-800)' },
                 { label: t('equipLifecycle.costTotalSpare'), value: `¥${mockDevices.reduce((s, d) => s + d.spareCost, 0).toLocaleString()}`, color: 'var(--color-primary-800)' },
                 { label: t('equipLifecycle.costTotalValue'), value: `¥${totalValue.toLocaleString()}`, color: 'var(--color-primary-800)' },
-                { label: t('equipLifecycle.costMaintRatio'), value: `${totalValue > 0 ? Math.round(recordRows.reduce((s, r) => s + Number(r.cost), 0) / totalValue * 100) : 0}%`, color: '#d97706' },
+                { label: t('equipLifecycle.costMaintRatio'), value: `${totalValue > 0 ? Math.round(recordRows.reduce((s, r) => s + Number(r.cost), 0) / totalValue * 100) : 0}%`, color: 'var(--color-warning-600)' },
               ].map(item => (
                 <div key={item.label} style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, textAlign: 'center' as const }}>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{item.label}</div>
@@ -979,9 +979,9 @@ export default function EquipmentLifecyclePage() {
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
                     <Tooltip />
                     <Legend wrapperStyle={{ fontSize: 11 }} />
-                    <Line type="monotone" dataKey="OEE" stroke="#1e40af" strokeWidth={2.2} dot={false} />
+                    <Line type="monotone" dataKey="OEE" stroke="var(--color-primary-800)" strokeWidth={2.2} dot={false} />
                     <Line type="monotone" dataKey="可用性" name={t('equipLifecycle.oeeAvailability')} stroke="#059669" strokeWidth={1.6} dot={false} />
-                    <Line type="monotone" dataKey="性能" name={t('equipLifecycle.oeePerformance')} stroke="#d97706" strokeWidth={1.6} dot={false} />
+                    <Line type="monotone" dataKey="性能" name={t('equipLifecycle.oeePerformance')} stroke="var(--color-warning-600)" strokeWidth={1.6} dot={false} />
                     <Line type="monotone" dataKey="质量" name={t('equipLifecycle.oeeQuality')} stroke="#7c3aed" strokeWidth={1.6} dot={false} />
                   </LineChart>
                 </ChartContainer>
@@ -989,14 +989,14 @@ export default function EquipmentLifecyclePage() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginTop: 12 }}>
                   {oeeRank.slice(0, 6).map((d: any, i: number) => (
                     <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: i < 3 ? '#d97706' : '#94a3b8', minWidth: 22 }}>#{i + 1}</span>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: i < 3 ? 'var(--color-warning-600)' : '#94a3b8', minWidth: 22 }}>#{i + 1}</span>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.name}</div>
                         <div style={{ height: 5, background: '#e2e8f0', borderRadius: 3, overflow: 'hidden', marginTop: 3 }}>
-                          <div style={{ width: `${Math.min(100, d.oee)}%`, height: '100%', background: d.oee >= 85 ? '#16a34a' : d.oee >= 65 ? '#f59e0b' : '#dc2626', borderRadius: 3 }} />
+                          <div style={{ width: `${Math.min(100, d.oee)}%`, height: '100%', background: d.oee >= 85 ? 'var(--color-success-600)' : d.oee >= 65 ? 'var(--color-warning-500)' : 'var(--color-error-600)', borderRadius: 3 }} />
                         </div>
                       </div>
-                      <span style={{ fontSize: 14, fontWeight: 800, color: d.oee >= 85 ? '#16a34a' : d.oee >= 65 ? '#d97706' : '#dc2626' }}>{Math.round(d.oee)}%</span>
+                      <span style={{ fontSize: 14, fontWeight: 800, color: d.oee >= 85 ? 'var(--color-success-600)' : d.oee >= 65 ? 'var(--color-warning-600)' : 'var(--color-error-600)' }}>{Math.round(d.oee)}%</span>
                     </div>
                   ))}
                 </div>
@@ -1013,9 +1013,9 @@ export default function EquipmentLifecyclePage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {lifecycleTimeline.slice(0, 8).map((d: any) => {
                 const phases = [
-                  { label: t('equipLifecycle.phasePurchase'), date: d.purchaseDate, done: true, color: '#1e40af' },
+                  { label: t('equipLifecycle.phasePurchase'), date: d.purchaseDate, done: true, color: 'var(--color-primary-800)' },
                   { label: t('equipLifecycle.phaseActive'), date: d.purchaseDate, done: !d.isRetired, color: '#059669' },
-                  { label: t('equipLifecycle.phaseMaint'), date: d.nextMaint, done: d.isMaint || true, color: '#d97706', highlight: d.isMaint },
+                  { label: t('equipLifecycle.phaseMaint'), date: d.nextMaint, done: d.isMaint || true, color: 'var(--color-warning-600)', highlight: d.isMaint },
                   { label: t('equipLifecycle.phaseRetired'), date: d.retireAt ?? '—', done: d.isRetired, color: '#94a3b8' },
                 ]
                 return (
@@ -1067,9 +1067,9 @@ export default function EquipmentLifecyclePage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
               {[
-                { key: 'overdue', label: t('equipLifecycle.warnOverdue'), color: '#dc2626', bg: 'var(--color-error-bg)', items: maintWarnings.overdue },
-                { key: 'soon7', label: t('equipLifecycle.warn7d'), color: '#d97706', bg: 'var(--color-warning-bg)', items: maintWarnings.soon7 },
-                { key: 'soon30', label: t('equipLifecycle.warn30d'), color: '#2563eb', bg: 'var(--color-info-bg)', items: maintWarnings.soon30 },
+                { key: 'overdue', label: t('equipLifecycle.warnOverdue'), color: 'var(--color-error-600)', bg: 'var(--color-error-bg)', items: maintWarnings.overdue },
+                { key: 'soon7', label: t('equipLifecycle.warn7d'), color: 'var(--color-warning-600)', bg: 'var(--color-warning-bg)', items: maintWarnings.soon7 },
+                { key: 'soon30', label: t('equipLifecycle.warn30d'), color: 'var(--color-primary-600)', bg: 'var(--color-info-bg)', items: maintWarnings.soon30 },
               ].map(g => (
                 <div key={g.key} style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
@@ -1102,8 +1102,8 @@ export default function EquipmentLifecyclePage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
               {[
-                { label: t('equipLifecycle.costPurchase'), value: costAnalysis.totals.purchase, color: '#1e40af', unit: '¥' },
-                { label: t('equipLifecycle.costMaint'), value: costAnalysis.totals.maint, color: '#d97706', unit: '¥' },
+                { label: t('equipLifecycle.costPurchase'), value: costAnalysis.totals.purchase, color: 'var(--color-primary-800)', unit: '¥' },
+                { label: t('equipLifecycle.costMaint'), value: costAnalysis.totals.maint, color: 'var(--color-warning-600)', unit: '¥' },
                 { label: t('equipLifecycle.costDeprec'), value: costAnalysis.totals.depreciation, color: '#7c3aed', unit: '¥' },
               ].map(c => (
                 <div key={c.label} style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', textAlign: 'center' }}>
@@ -1157,7 +1157,7 @@ export default function EquipmentLifecyclePage() {
                     <div key={a.year} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{ width: 42, fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)' }}>{a.year}</span>
                       <div style={{ flex: 1, height: 8, background: '#e2e8f0', borderRadius: 999, overflow: 'hidden' }}>
-                        <div style={{ width: `${a.pct}%`, height: '100%', background: Number(a.year) >= 2022 ? '#059669' : Number(a.year) >= 2020 ? '#d97706' : '#dc2626', borderRadius: 999 }} />
+                        <div style={{ width: `${a.pct}%`, height: '100%', background: Number(a.year) >= 2022 ? '#059669' : Number(a.year) >= 2020 ? 'var(--color-warning-600)' : 'var(--color-error-600)', borderRadius: 999 }} />
                       </div>
                       <b style={{ fontSize: 12, color: 'var(--text-primary)', width: 22, textAlign: 'right' }}>{a.count}</b>
                     </div>
@@ -1183,7 +1183,7 @@ export default function EquipmentLifecyclePage() {
                     <YAxis tick={{ fontSize: 10 }} />
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
                     <Tooltip formatter={(v: any) => [`¥${Number(v).toLocaleString()}`, t('equipLifecycle.maintCost')]} />
-                    <Line type="monotone" dataKey="cost" stroke="#d97706" strokeWidth={2} dot={{ r: 3 }} />
+                    <Line type="monotone" dataKey="cost" stroke="var(--color-warning-600)" strokeWidth={2} dot={{ r: 3 }} />
                   </LineChart>
                 </ChartContainer>
               )}
@@ -1262,7 +1262,7 @@ export default function EquipmentLifecyclePage() {
                   <div style={s.detailLabel}>{item.label}</div>
                   <div style={s.detailValue}>{item.value}</div>
                   {item.label === t('equipLifecycle.detailUsageRate') && (
-                    <ProgressBar value={selectedDevice.deptRate} color={selectedDevice.deptRate >= 80 ? '#16a34a' : selectedDevice.deptRate >= 50 ? '#d97706' : '#94a3b8'} />
+                    <ProgressBar value={selectedDevice.deptRate} color={selectedDevice.deptRate >= 80 ? 'var(--color-success-600)' : selectedDevice.deptRate >= 50 ? 'var(--color-warning-600)' : '#94a3b8'} />
                   )}
                 </div>
               ))}
@@ -1277,7 +1277,7 @@ export default function EquipmentLifecyclePage() {
               ].map(item => (
                 <div key={item.label} style={{ ...s.detailItem, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={s.detailLabel}>{item.label}</div>
-                  <div style={{ ...s.detailValue, color: item.highlight ? '#dc2626' : 'var(--color-primary-800)' }}>{item.value}</div>
+                  <div style={{ ...s.detailValue, color: item.highlight ? 'var(--color-error-600)' : 'var(--color-primary-800)' }}>{item.value}</div>
                 </div>
               ))}
             </div>
@@ -1330,14 +1330,14 @@ export default function EquipmentLifecyclePage() {
         <div style={s.modal} onClick={() => setShowScrap(false)}>
           <div style={{ ...s.modalContent, width: 480 }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-              <AlertTriangle size={28} color="#dc2626" />
+              <AlertTriangle size={28} color="var(--color-error-600)" />
               <div style={s.modalTitle}>{t('equipLifecycle.confirmRetireTitle')}</div>
             </div>
             <div style={{ fontSize: 14, color: 'var(--text-primary)', marginBottom: 20 }}>
               {t('equipLifecycle.confirmRetireMsg')}<br />
               <strong>{deviceToScrap.name}</strong>（{deviceToScrap.id}）
             </div>
-            <div style={{ padding: 14, background: 'var(--color-error-bg)', borderRadius: 8, fontSize: 14, color: '#dc2626', marginBottom: 12 }}>
+            <div style={{ padding: 14, background: 'var(--color-error-bg)', borderRadius: 8, fontSize: 14, color: 'var(--color-error-600)', marginBottom: 12 }}>
               {t('equipLifecycle.retireNote')}
             </div>
             <div style={s.detailItem}>

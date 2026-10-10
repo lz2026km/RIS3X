@@ -107,7 +107,7 @@ const Hl7SiuPage: React.FC = () => {
 
   return (
     <div style={{ padding: 24 }}>
-    <PageHeader icon={<CalendarClock size={20} color="#2563eb" />} title={t('hl7Siu.title')} />
+    <PageHeader icon={<CalendarClock size={20} color="var(--color-primary-600)" />} title={t('hl7Siu.title')} />
       <Tabs items={[
         { key: 'generate', label: <span><Code size={14} /> {t('hl7Siu.tab.generate')}</span>, children: (
           <Card>

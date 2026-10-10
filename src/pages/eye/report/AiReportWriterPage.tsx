@@ -533,7 +533,7 @@ export const AiReportWriterPage: React.FC = () => {
           <Card
             title={
               <Space>
-                <Sparkles size={16} color="#2563eb" />
+                <Sparkles size={16} color="var(--color-primary-600)" />
                 {t('aiReportWriter.aiGeneratedReport')}
                 {extraction && <Tag color="green">{t('aiReportWriter.nlpExtracted')}</Tag>}
               </Space>

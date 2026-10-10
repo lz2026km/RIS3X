@@ -82,7 +82,7 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
           style={{
             fontSize: 12,
             fontWeight: 700,
-            color: "#1e40af",
+            color: "var(--color-primary-800)",
             marginBottom: 16,
           }}
         >
@@ -99,20 +99,20 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
             <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
             <ReferenceLine
               y={annualLimit}
-              stroke="#dc2626"
+              stroke="var(--color-error-600)"
               strokeDasharray="5 5"
               label={{
                 value: `年度阈值(${annualLimit})`,
                 position: "right",
                 fontSize: 12,
-                fill: "#dc2626",
+                fill: "var(--color-error-600)",
               }}
             />
             <Area
               type="monotone"
               dataKey="cumulativeDLP"
-              stroke="#1e40af"
-              fill="#3b82f6"
+              stroke="var(--color-primary-800)"
+              fill="var(--color-primary-500)"
               fillOpacity={0.15}
               strokeWidth={2}
               name="累计DLP"
@@ -120,8 +120,8 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
             <Area
               type="monotone"
               dataKey="threshold"
-              stroke="#d97706"
-              fill="#f59e0b"
+              stroke="var(--color-warning-600)"
+              fill="var(--color-warning-500)"
               fillOpacity={0.05}
               strokeWidth={1.5}
               strokeDasharray="3 3"
@@ -138,19 +138,19 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
         }}
       >
         <div style={statBox}>
-          <div style={{ fontSize: 20, fontWeight: 800, color: "#1e40af" }}>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-primary-800)" }}>
             {lastPoint.cumulativeDLP}
           </div>
           <div style={{ fontSize: 12, color: "#64748b" }}>当前累计DLP</div>
         </div>
         <div style={statBox}>
-          <div style={{ fontSize: 20, fontWeight: 800, color: "#16a34a" }}>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-success-600)" }}>
             {lastPoint.examCount}
           </div>
           <div style={{ fontSize: 12, color: "#64748b" }}>累计检查次数</div>
         </div>
         <div style={statBox}>
-          <div style={{ fontSize: 20, fontWeight: 800, color: "#d97706" }}>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-warning-600)" }}>
             {Math.round(lastPoint.cumulativeDLP / examCountSafe)}
           </div>
           <div style={{ fontSize: 12, color: "#64748b" }}>次均剂量</div>
@@ -160,7 +160,7 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
             style={{
               fontSize: 20,
               fontWeight: 800,
-              color: nearLimit ? "#dc2626" : "#16a34a",
+              color: nearLimit ? "var(--color-error-600)" : "var(--color-success-600)",
             }}
           >
             {nearLimit ? "接近阈值" : "安全"}
@@ -178,7 +178,7 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
           alignItems: "center",
           gap: 8,
           fontSize: 12,
-          color: lastPoint.cumulativeDLP > 4000 ? "#d97706" : "#16a34a",
+          color: lastPoint.cumulativeDLP > 4000 ? "var(--color-warning-600)" : "var(--color-success-600)",
         }}
       >
         {nearLimit ? (

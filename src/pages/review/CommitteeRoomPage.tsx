@@ -254,7 +254,7 @@ const CommitteeRoomPage: React.FC = () => {
       ellipsis: true,
       render: (_: unknown, r: CommitteeDto) => (
         <Space size={4}>
-          <FileText size={13} color="#1e40af" />
+          <FileText size={13} color="var(--color-primary-800)" />
           <span style={{ fontWeight: 600 }}>{r.title}</span>
         </Space>
       ),
@@ -267,7 +267,7 @@ const CommitteeRoomPage: React.FC = () => {
         <Avatar.Group size="small" max={{ count: 4 }}>
           {r.members.map((m) => (
             <Tooltip key={m.memberId} title={m.name}>
-              <Avatar style={{ background: "#1e40af" }}>{m.name.slice(0, 1)}</Avatar>
+              <Avatar style={{ background: "var(--color-primary-800)" }}>{m.name.slice(0, 1)}</Avatar>
             </Tooltip>
           ))}
         </Avatar.Group>
@@ -408,27 +408,27 @@ const CommitteeRoomPage: React.FC = () => {
               {summary && (
                 <Row gutter={12} style={{ marginBottom: 12 }}>
                   <Col span={4}><Statistic title={t("committeeRoom.statMembers")} value={summary.totalMembers} prefix={<Users size={13} />} /></Col>
-                  <Col span={5}><Statistic title={t("committeeRoom.statVoted")} value={summary.votedCount} prefix={<Vote size={13} />} valueStyle={{ color: summary.votedCount === summary.totalMembers ? "#10b981" : "#f59e0b" }} /></Col>
+                  <Col span={5}><Statistic title={t("committeeRoom.statVoted")} value={summary.votedCount} prefix={<Vote size={13} />} valueStyle={{ color: summary.votedCount === summary.totalMembers ? "#10b981" : "var(--color-warning-500)" }} /></Col>
                   <Col span={5}><Statistic title={t("committeeRoom.statAgree")} value={summary.agreeCount} prefix={<CheckCircle2 size={13} />} valueStyle={{ color: "#10b981" }} /></Col>
-                  <Col span={5}><Statistic title={t("committeeRoom.statDisagree")} value={summary.disagreeCount} prefix={<XCircle size={13} />} valueStyle={{ color: "#dc2626" }} /></Col>
+                  <Col span={5}><Statistic title={t("committeeRoom.statDisagree")} value={summary.disagreeCount} prefix={<XCircle size={13} />} valueStyle={{ color: "var(--color-error-600)" }} /></Col>
                   <Col span={5}>
                     <Statistic
                       title={t("committeeRoom.statAgreeRate")}
                       value={summary.agreeRate}
                       suffix="%"
                       prefix={<ShieldCheck size={13} />}
-                      valueStyle={{ color: summary.agreeRate >= 67 ? "#10b981" : "#f59e0b" }}
+                      valueStyle={{ color: summary.agreeRate >= 67 ? "#10b981" : "var(--color-warning-500)" }}
                     />
                   </Col>
                   <Col span={24} style={{ marginTop: 8 }}>
                     <Progress
                       percent={summary.agreeRate}
                       success={{ percent: summary.agreeRate }}
-                      strokeColor={summary.agreeRate >= 67 ? "#10b981" : "#f59e0b"}
+                      strokeColor={summary.agreeRate >= 67 ? "#10b981" : "var(--color-warning-500)"}
                       size="small"
                     />
                     {summary.pendingMembers.length > 0 && (
-                      <div style={{ fontSize: 12, color: "#f59e0b", marginTop: 4 }}>
+                      <div style={{ fontSize: 12, color: "var(--color-warning-500)", marginTop: 4 }}>
                         {t("committeeRoom.pendingVotes")} {summary.pendingMembers.join("、")}
                       </div>
                     )}
@@ -447,14 +447,14 @@ const CommitteeRoomPage: React.FC = () => {
                       key={m.memberId}
                       data-testid={`committee-member-${m.memberId}`}
                       style={{
-                        border: `1px solid ${voted ? (m.agree ? "#10b981" : "#dc2626") : "var(--border-color)"}`,
+                        border: `1px solid ${voted ? (m.agree ? "#10b981" : "var(--color-error-600)") : "var(--border-color)"}`,
                         borderRadius: 8,
                         padding: 10,
                         background: voted ? (m.agree ? "var(--color-success-bg)" : "var(--color-error-bg)") : "var(--bg-card)",
                       }}
                     >
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <Avatar size="small" style={{ background: "#1e40af" }}>{m.name.slice(0, 1)}</Avatar>
+                        <Avatar size="small" style={{ background: "var(--color-primary-800)" }}>{m.name.slice(0, 1)}</Avatar>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: 12, fontWeight: 700 }}>{m.name}</div>
                           <div style={{ fontSize: 11, color: "#64748b" }}>
@@ -466,7 +466,7 @@ const CommitteeRoomPage: React.FC = () => {
                             ? <Tag color="green" icon={<CheckCircle2 size={10} />}>{t("committeeRoom.agree")}</Tag>
                             : <Tag color="red" icon={<XCircle size={10} />}>{t("committeeRoom.disagree")}</Tag>
                         ) : (
-                          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#f59e0b", animation: "cmtBreath 1.2s infinite" }} title={t("committeeRoom.pendingVote")} />
+                          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--color-warning-500)", animation: "cmtBreath 1.2s infinite" }} title={t("committeeRoom.pendingVote")} />
                         )}
                       </div>
                       <div style={{ fontSize: 12, color: "#475569", marginTop: 8, lineHeight: 1.6, minHeight: 36 }}>
@@ -591,7 +591,7 @@ const CommitteeRoomPage: React.FC = () => {
               <div style={{ fontSize: 12, marginBottom: 4 }}>{t("committeeRoom.voteStance")}</div>
               <Radio.Group value={voteAgree} onChange={(e) => setVoteAgree(e.target.value)} data-testid="committee-vote-agree">
                 <Radio.Button value={true} style={{ color: "#10b981" }}>{t("committeeRoom.agreeOption")}</Radio.Button>
-                <Radio.Button value={false} style={{ color: "#dc2626" }}>{t("committeeRoom.disagreeOption")}</Radio.Button>
+                <Radio.Button value={false} style={{ color: "var(--color-error-600)" }}>{t("committeeRoom.disagreeOption")}</Radio.Button>
               </Radio.Group>
             </div>
             <div style={{ marginBottom: 12 }}>

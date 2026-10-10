@@ -216,10 +216,10 @@ export const MultiChannelSender: React.FC<Props> = ({ reportId, patientId, onSen
     <div className="space-y-3">
       {/* 队列状态 */}
       <Row gutter={8}>
-        <Col span={4}><Card size="small"><Statistic title={t('reportDist.queue.pending')} value={queue.pending} prefix={<Clock className="w-3 h-3" style={{ color: '#f59e0b' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('reportDist.queue.sending')} value={queue.sending} prefix={<Loader2 className="w-3 h-3 animate-spin" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title={t('reportDist.queue.pending')} value={queue.pending} prefix={<Clock className="w-3 h-3" style={{ color: 'var(--color-warning-500)' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title={t('reportDist.queue.sending')} value={queue.sending} prefix={<Loader2 className="w-3 h-3 animate-spin" style={{ color: 'var(--color-primary-500)' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title={t('reportDist.queue.delivered')} value={queue.delivered} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title={t('reportDist.queue.failed')} value={queue.failed} prefix={<XCircle className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title={t('reportDist.queue.failed')} value={queue.failed} prefix={<XCircle className="w-3 h-3" style={{ color: 'var(--color-error-600)' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title={t('reportDist.queue.today')} value={queue.totalToday} prefix={<Activity className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title={t('reportDist.queue.successRate')} value={queue.successRate * 100} suffix="%" precision={1} styles={{ content: {  fontSize: 18, color: '#10b981'  } }} /></Card></Col>
       </Row>

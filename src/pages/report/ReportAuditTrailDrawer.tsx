@@ -27,14 +27,14 @@ export interface ReportAuditTrailDrawerProps {
 }
 
 const STATE_COLORS: Record<string, string> = {
-  WITHDRAWN: '#dc2626',
-  REJECTED: '#dc2626',
+  WITHDRAWN: 'var(--color-error-600)',
+  REJECTED: 'var(--color-error-600)',
   PUBLISHED: '#059669',
   SIGNED: '#059669',
-  REVIEWED: '#2563eb',
+  REVIEWED: 'var(--color-primary-600)',
   SUBMITTED: '#7c3aed',
-  AMENDED: '#d97706',
-  AMENDING: '#d97706',
+  AMENDED: 'var(--color-warning-600)',
+  AMENDING: 'var(--color-warning-600)',
 }
 
 function formatTime(ts?: string): string {
@@ -122,7 +122,7 @@ export default function ReportAuditTrailDrawer({ report, onClose }: ReportAuditT
     >
       {/* [G005 W8-Report] 数据签名与证书 */}
       <div style={{ marginBottom: 16, padding: 12, borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 12, fontWeight: 700, color: '#0891b2' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 12, fontWeight: 700, color: 'var(--color-info-600)' }}>
           <ShieldCheck size={14} /> {t('w8Report.sig.panelTitle')}
         </div>
         {signature ? (

@@ -5,8 +5,8 @@ import { Layers, Play, Pause, SkipBack, SkipForward, ZoomIn, ZoomOut, Maximize, 
 import { dbtApi, type DbtStudyDto, type DbtSliceDto, type DbtCompareResultDto, type DbtReconstructResultDto, type DbtBiradsScoreResultDto, type DbtBiradsScoreDto, type DbtBiradsCalcificationDto, type DbtBiradsMassDto } from '../../services/api/dbtApi'
 import { t } from '../../i18n/appI18n'
 
-const BLUE = '#3b82f6'
-const GREEN = '#22c55e'
+const BLUE = 'var(--color-primary-500)'
+const GREEN = 'var(--color-success-500)'
 const CARD_BG = '#0f172a'
 const PANEL_BG = '#1e293b'
 const SIZE = 512
@@ -797,7 +797,7 @@ const DbtPage: React.FC = () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
                 <div style={{ padding: 10, background: '#f0fdf4', borderRadius: 8 }}>
                   <div style={{ fontSize: 12, color: '#64748b' }}>{t('dbtPage.category')}</div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: biradsResult.category === '5' ? '#dc2626' : biradsResult.category.startsWith('4') ? '#ea580c' : biradsResult.category === '3' ? '#ca8a04' : '#16a34a' }}>{biradsResult.categoryLabel}</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: biradsResult.category === '5' ? 'var(--color-error-600)' : biradsResult.category.startsWith('4') ? '#ea580c' : biradsResult.category === '3' ? '#ca8a04' : 'var(--color-success-600)' }}>{biradsResult.categoryLabel}</div>
                 </div>
                 <div style={{ padding: 10, background: '#fffbeb', borderRadius: 8 }}>
                   <div style={{ fontSize: 12, color: '#64748b' }}>{t('dbtPage.malignancyRisk')}</div>

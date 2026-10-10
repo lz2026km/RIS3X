@@ -6,7 +6,7 @@ const bannerStyle: React.CSSProperties = {
   justifyContent: 'center',
   gap: 12,
   padding: '8px 16px',
-  background: 'linear-gradient(90deg, #1e40af, #2563eb)',
+  background: 'linear-gradient(90deg, var(--color-primary-800), var(--color-primary-600))',
   color: '#fff',
   fontSize: 12,
   fontWeight: 500,

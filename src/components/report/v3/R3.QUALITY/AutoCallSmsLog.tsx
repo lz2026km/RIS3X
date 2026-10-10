@@ -85,7 +85,7 @@ export const AutoCallSmsLog: React.FC<AutoCallSmsLogProps> = ({ alertId, refresh
               const ok = e.status === 'connected' || e.status === 'sent';
               return {
                 color: ok ? 'green' : 'red',
-                dot: isPhone ? <Phone size={12} color={ok ? '#10b981' : '#dc2626'} /> : <MessageSquare size={12} color={ok ? '#3b82f6' : '#dc2626'} />,
+                dot: isPhone ? <Phone size={12} color={ok ? '#10b981' : 'var(--color-error-600)'} /> : <MessageSquare size={12} color={ok ? 'var(--color-primary-500)' : 'var(--color-error-600)'} />,
                 children: (
                   <div key={e.id} style={{ fontSize: 12, lineHeight: 1.7 }}>
                     <span style={{ fontWeight: 600, color: '#334155' }}>
@@ -112,7 +112,7 @@ export const AutoCallSmsLog: React.FC<AutoCallSmsLogProps> = ({ alertId, refresh
                       </div>
                     )}
                     <span style={{ marginLeft: 6, verticalAlign: -2 }}>
-                      {ok ? <CheckCircle2 size={11} color="#10b981" /> : <XCircle size={11} color="#dc2626" />}
+                      {ok ? <CheckCircle2 size={11} color="#10b981" /> : <XCircle size={11} color="var(--color-error-600)" />}
                     </span>
                   </div>
                 ),

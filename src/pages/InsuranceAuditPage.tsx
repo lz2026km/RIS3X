@@ -2306,11 +2306,11 @@ const fundMonthlyData = [
 
 // 科室使用分布（二八定律）
 const deptUsageData = [
-  { name: "心内科", value: 20, amount: 98.4, color: "#ef4444" },
+  { name: "心内科", value: 20, amount: 98.4, color: "var(--color-error-500)" },
   { name: "神经内科", value: 18, amount: 88.5, color: "#f97316" },
   { name: "呼吸内科", value: 15, amount: 73.8, color: "#eab308" },
-  { name: "消化内科", value: 12, amount: 59.0, color: "#22c55e" },
-  { name: "肿瘤科", value: 10, amount: 49.2, color: "#3b82f6" },
+  { name: "消化内科", value: 12, amount: 59.0, color: "var(--color-success-500)" },
+  { name: "肿瘤科", value: 10, amount: 49.2, color: "var(--color-primary-500)" },
   { name: "血管外科", value: 8, amount: 39.4, color: "#8b5cf6" },
   { name: "其他科室", value: 17, amount: 83.6, color: "var(--text-secondary)" },
 ];
@@ -4076,7 +4076,7 @@ export default function InsuranceAuditPage() {
                 <Area
                   type="monotone"
                   dataKey="amount"
-                  stroke="#16a34a"
+                  stroke="var(--color-success-600)"
                   fill="#dcfce7"
                   strokeWidth={2}
                   name={t("insuranceAudit.chartActualUsage")}
@@ -4203,7 +4203,7 @@ export default function InsuranceAuditPage() {
                 />
                 <Bar
                   dataKey="amount"
-                  fill="#3b82f6"
+                  fill="var(--color-primary-500)"
                   name={t("insuranceAudit.chartActualUsage")}
                   radius={[4, 4, 0, 0]}
                 />

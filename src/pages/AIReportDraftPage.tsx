@@ -390,7 +390,7 @@ export default function AIReportDraftPage() {
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
       {/* 顶部 */}
       <div style={{
-        background: 'linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%)',
+        background: 'linear-gradient(135deg, #7c3aed 0%, var(--color-primary-500) 100%)',
         borderRadius: 12, padding: 20, marginBottom: 16, color: '#fff',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -427,14 +427,14 @@ export default function AIReportDraftPage() {
           <div style={{
             background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
           }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
               <FileText size={13} /> {t('aiDraft.selectPatientExam')}
               {dataLoading && <span style={{ marginLeft: 'auto', fontSize: 11, color: '#94a3b8' }}>{t('aiDraft.loading')}</span>}
               {!dataLoading && patientSource === 'api' && (
                 <span style={{ marginLeft: 'auto', fontSize: 11, padding: '1px 6px', borderRadius: 8, background: 'rgba(16,185,129,0.15)', color: '#059669', fontWeight: 600 }}>{t('aiDraft.realData')}</span>
               )}
               {!dataLoading && patientSource === 'demo' && (
-                <span style={{ marginLeft: 'auto', fontSize: 11, padding: '1px 6px', borderRadius: 8, background: 'rgba(245,158,11,0.15)', color: '#d97706', fontWeight: 600 }}>{t('aiDraft.demoData')}</span>
+                <span style={{ marginLeft: 'auto', fontSize: 11, padding: '1px 6px', borderRadius: 8, background: 'rgba(245,158,11,0.15)', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t('aiDraft.demoData')}</span>
               )}
             </div>
             <select
@@ -463,7 +463,7 @@ export default function AIReportDraftPage() {
           <div style={{
             background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
           }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Stethoscope size={13} /> {t('aiDraft.clinicalHistory')}
             </div>
             <textarea
@@ -483,7 +483,7 @@ export default function AIReportDraftPage() {
           <div style={{
             background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
           }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Cpu size={13} /> {t('aiDraft.llmAndRag')}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -515,7 +515,7 @@ export default function AIReportDraftPage() {
                 />
               </div>
               {advancedFallback && (
-                <div style={{ fontSize: 11, color: '#d97706', background: 'rgba(245,158,11,0.1)', padding: '4px 8px', borderRadius: 4 }}>
+                <div style={{ fontSize: 11, color: 'var(--color-warning-600)', background: 'rgba(245,158,11,0.1)', padding: '4px 8px', borderRadius: 4 }}>
                   {t('aiDraft.modelNotConfigured')}
                 </div>
               )}
@@ -526,7 +526,7 @@ export default function AIReportDraftPage() {
           <div style={{
             background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
           }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Layers size={13} /> {t('aiDraft.scenarioTemplate')} ({AI_DRAFT_TEMPLATES.length})
             </div>
             <div style={{ maxHeight: 280, overflowY: 'auto' }}>
@@ -537,7 +537,7 @@ export default function AIReportDraftPage() {
                   style={{
                     padding: 8, marginBottom: 4,
                     background: selectedTemplateId === tpl.id ? 'var(--color-info-bg)' : 'var(--bg-card)',
-                    border: `1px solid ${selectedTemplateId === tpl.id ? '#3b82f6' : '#e2e8f0'}`,
+                    border: `1px solid ${selectedTemplateId === tpl.id ? 'var(--color-primary-500)' : '#e2e8f0'}`,
                     borderRadius: 4, cursor: 'pointer',
                   }}
                 >
@@ -560,7 +560,7 @@ export default function AIReportDraftPage() {
             disabled={generating}
             style={{
               padding: 14, border: 'none', borderRadius: 8,
-              background: generating ? '#94a3b8' : 'linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%)',
+              background: generating ? '#94a3b8' : 'linear-gradient(135deg, #7c3aed 0%, var(--color-primary-500) 100%)',
               color: '#fff', fontSize: 14, fontWeight: 700,
               cursor: generating ? 'not-allowed' : 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
@@ -590,7 +590,7 @@ export default function AIReportDraftPage() {
               <div style={{ height: 6, background: '#e2e8f0', borderRadius: 3, overflow: 'hidden' }}>
                 <div style={{
                   width: `${genProgress}%`, height: '100%',
-                  background: 'linear-gradient(90deg, #7c3aed, #3b82f6)',
+                  background: 'linear-gradient(90deg, #7c3aed, var(--color-primary-500))',
                   transition: 'width 0.3s',
                 }} />
               </div>
@@ -629,7 +629,7 @@ export default function AIReportDraftPage() {
                         <span> · <Database size={10} style={{ display: 'inline', verticalAlign: -1 }} /> RAG {t('aiDraft.ragReports', { count: ragSources.length })}</span>
                       )}
                       {' · '}
-                      <span style={{ fontWeight: 700, color: draftSource === 'api' ? '#059669' : '#d97706' }}>
+                      <span style={{ fontWeight: 700, color: draftSource === 'api' ? '#059669' : 'var(--color-warning-600)' }}>
                         {draftSource === 'api' ? (advancedConfidence !== null ? t('aiDraft.realAiGenerateWithProvider', { provider: PROVIDER_LABEL[aiProvider] }) : t('aiDraft.realAiGenerate')) : t('aiDraft.offlineFallback')}
                       </span>
                     </div>
@@ -658,7 +658,7 @@ export default function AIReportDraftPage() {
                     {ragSources.length > 0 && (
                       <span style={{
                         fontSize: 12, padding: '1px 5px', borderRadius: 3,
-                        background: 'rgba(6,182,212,0.12)', color: '#0891b2', fontWeight: 600,
+                        background: 'rgba(6,182,212,0.12)', color: 'var(--color-info-600)', fontWeight: 600,
                         display: 'flex', alignItems: 'center', gap: 3,
                       }}>
                         <Database size={10} /> {t('aiDraft.ragReports', { count: ragSources.length })}
@@ -691,7 +691,7 @@ export default function AIReportDraftPage() {
                 background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 4 }}>
                     <FileText size={13} /> {t('aiDraft.findings')}
                   </div>
                   <span style={{ fontSize: 12, color: '#10b981', display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -713,7 +713,7 @@ export default function AIReportDraftPage() {
               <div style={{
                 background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
               }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
                   <Lightbulb size={13} /> {t('aiDraft.diagnosis')}
                 </div>
                 <textarea
@@ -731,7 +731,7 @@ export default function AIReportDraftPage() {
               <div style={{
                 background: 'var(--bg-card)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)',
               }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
                   <Beaker size={13} /> {t('aiDraft.impressionAdvice')}
                 </div>
                 <textarea
@@ -771,7 +771,7 @@ export default function AIReportDraftPage() {
                   onClick={applyToReport}
                   style={{
                     padding: '8px 16px', border: 'none', borderRadius: 6,
-                    background: 'linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%)',
+                    background: 'linear-gradient(135deg, #7c3aed 0%, var(--color-primary-500) 100%)',
                     color: '#fff', fontSize: 12, fontWeight: 600,
                     cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     boxShadow: '0 2px 4px rgba(124, 58, 237, 0.3)',

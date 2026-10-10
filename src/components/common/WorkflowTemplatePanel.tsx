@@ -32,7 +32,7 @@ export default function WorkflowTemplatePanel({ modality, compact, style }: Work
   return (
     <div style={{ ...panel, ...style }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-        <ListChecks size={16} color="#1e40af" />
+        <ListChecks size={16} color="var(--color-primary-800)" />
         <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{t('w3d.workflow.title')}</span>
         <span style={{ marginLeft: 'auto', fontSize: 12, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}>
           <Timer size={12} />{t('w3d.workflow.estimated', { min: current.estimatedTotalMin })}
@@ -53,7 +53,7 @@ export default function WorkflowTemplatePanel({ modality, compact, style }: Work
         {current.phases.map((phase) => (
           <div key={phase.name} style={{ background: 'var(--bg-primary)', borderRadius: 8, padding: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-              <span style={{ fontSize: 12, fontWeight: 600, color: '#1e40af' }}>{phase.name}</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)' }}>{phase.name}</span>
               <span style={{ fontSize: 11, color: '#94a3b8' }}>{phase.responsible} · {phase.durationMin}min</span>
             </div>
             <ul style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -62,7 +62,7 @@ export default function WorkflowTemplatePanel({ modality, compact, style }: Work
             {phase.checkpoints && phase.checkpoints.length > 0 && (
               <div style={{ marginTop: 6, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                 {phase.checkpoints.map((c, i) => (
-                  <span key={i} style={{ fontSize: 11, padding: '1px 6px', borderRadius: 8, background: 'rgba(30,64,175,0.1)', color: '#1e40af' }}>{t('w3d.workflow.checkpoints')}: {c}</span>
+                  <span key={i} style={{ fontSize: 11, padding: '1px 6px', borderRadius: 8, background: 'rgba(30,64,175,0.1)', color: 'var(--color-primary-800)' }}>{t('w3d.workflow.checkpoints')}: {c}</span>
                 ))}
               </div>
             )}
@@ -73,11 +73,11 @@ export default function WorkflowTemplatePanel({ modality, compact, style }: Work
       {!compact && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 12 }}>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#16a34a', marginBottom: 4 }}>{t('w3d.workflow.qualityChecks')}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-success-600)', marginBottom: 4 }}>{t('w3d.workflow.qualityChecks')}</div>
             <ul style={{ margin: 0, paddingLeft: 18 }}>{current.qualityChecks.map((q, i) => <li key={i} style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{q}</li>)}</ul>
           </div>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#dc2626', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-error-600)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
               <AlertTriangle size={12} />{t('w3d.workflow.commonErrors')}
             </div>
             <ul style={{ margin: 0, paddingLeft: 18 }}>{current.commonErrors.map((q, i) => <li key={i} style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{q}</li>)}</ul>

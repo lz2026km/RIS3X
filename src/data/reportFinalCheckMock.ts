@@ -242,10 +242,10 @@ export const FINAL_SCORING_RUBRICS: FinalScoringRubric[] = [
     ],
     gradeBands: [
       { grade: 'A', minScore: 90, maxScore: 100, color: '#10b981', label: '优秀' },
-      { grade: 'B', minScore: 80, maxScore: 89, color: '#3b82f6', label: '良好' },
-      { grade: 'C', minScore: 70, maxScore: 79, color: '#f59e0b', label: '合格' },
+      { grade: 'B', minScore: 80, maxScore: 89, color: 'var(--color-primary-500)', label: '良好' },
+      { grade: 'C', minScore: 70, maxScore: 79, color: 'var(--color-warning-500)', label: '合格' },
       { grade: 'D', minScore: 60, maxScore: 69, color: '#fb923c', label: '临界' },
-      { grade: 'F', minScore: 0, maxScore: 59, color: '#dc2626', label: '不合格' },
+      { grade: 'F', minScore: 0, maxScore: 59, color: 'var(--color-error-600)', label: '不合格' },
     ],
     passingScore: 60,
     blockingScore: 40,
