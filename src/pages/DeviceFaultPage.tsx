@@ -1,5 +1,5 @@
 // @deprecated [v3.0.6.11-103 Wave 10] 重复页面精简合并: 本页已嵌入 DevicePage "设备故障" Tab (src/pages/DevicePage.tsx), 文件保留, 旧路由 /device-fault 已 redirect → /devices。功能未删除, 请勿单独继续扩展本页。
-import { Card } from 'antd'
+import { Card, Typography } from 'antd'
 // G005 放射科RIS系统 - 设备故障登记页面（故障报修→维修→验收闭环管理）
 import { useState, useEffect } from 'react'
 import {
@@ -19,6 +19,8 @@ import { DataTable } from '../components/common'
 import { ChartContainer } from '../components/charts'
 import { t } from '../i18n/appI18n'
 import { severityColor } from '../theme/statusTokens'
+
+const { Title } = Typography
 
 // ============================================================
 // 样式常量
@@ -418,7 +420,7 @@ export default function DeviceFaultPage() {
     <div style={{ background: C.bg, padding: '20px 24px' }}>
       {/* 页面标题 */}
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 700, color: C.textDark, margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
           <AlertTriangle size={24} color={C.primary} />
           {t('deviceFault.title')}
           {/* [v3.0.6.11-96 Wave 3A P1] 数据源徽标: 接口回退时提示演示数据 */}
@@ -437,7 +439,7 @@ export default function DeviceFaultPage() {
               {t('deviceFault.liveBadge')}
             </span>
           )}
-        </h1>
+        </Title>
         <p style={{ fontSize: 12, color: C.textMid, margin: '4px 0 0 34px' }}>
           {t('deviceFault.subtitle')}
         </p>

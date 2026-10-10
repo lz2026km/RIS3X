@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Search, Activity, CheckCircle2, XCircle, Clock, TrendingUp, PieChart, FileText, Microscope, AlertTriangle } from 'lucide-react';
 import { radpathApi, type RadPathRecord, type RadPathStats } from '../../services/api/radpathApi';
 import { StatCard } from '../../components/common';
+import { Typography } from 'antd';
 import { t } from '../../i18n/appI18n';
 
 const consistencyColor: Record<string, string> = {
@@ -53,7 +54,7 @@ export default function RadPathTrackerPage() {
     <div style={{ padding: 20, maxWidth: 1400, margin: '0 auto' }}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
         <Activity size={20} color="#8b5cf6" />
-        <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>{t('radpath.title')}</h1>
+        <Typography.Title level={4} style={{ margin: 0 }}>{t('radpath.title')}</Typography.Title>
       </div>
 
       {/* KPI */}

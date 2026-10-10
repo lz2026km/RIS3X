@@ -5,11 +5,13 @@
  * 注: cardiacAiApi 无独立 vessel 字段 → 从 stenosis 结果派生血管数据 (标注)
  */
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Alert, Button, Card, Empty, Select, Spin, Tag } from 'antd'
+import { Alert, Button, Card, Empty, Select, Spin, Tag, Typography } from 'antd'
 import { Activity, AlertTriangle, Heart, HeartPulse, RefreshCw, Stethoscope } from 'lucide-react'
 import { cardiacAiApi, type CardiacAiResult, type CardiacStenosis } from '../../services/api/cardiacAiApi'
 import { t } from '../../i18n/appI18n'
 import { severityColor } from '../../theme/statusTokens'
+
+const { Title } = Typography
 
 // 演示回退数据 (仅当真实接口不可用时)
 const DEMO_RESULTS: CardiacAiResult[] = [
@@ -159,7 +161,7 @@ const VesselAnalysisPage: React.FC = () => {
     <div style={{ padding: 24, maxWidth: 1500, margin: '0 auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Heart size={22} color="var(--color-error-600)" /> {t('vesselAnalysis.title')}
             <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, fontWeight: 700,
               background: dataSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-info-bg)',
@@ -167,7 +169,7 @@ const VesselAnalysisPage: React.FC = () => {
               border: `1px solid ${dataSource === 'real' ? 'var(--color-success-border)' : 'var(--color-pending-border)'}` }}>
               {dataSource === 'real' ? t('vesselAnalysis.realData') : t('vesselAnalysis.demoData')}
             </span>
-          </h1>
+          </Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('vesselAnalysis.subtitle')}
           </p>

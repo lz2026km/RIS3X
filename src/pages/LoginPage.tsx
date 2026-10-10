@@ -20,6 +20,9 @@ import {
   Loader2,
   type LucideIcon,
 } from 'lucide-react';
+import { Typography } from 'antd';
+
+const { Title } = Typography;
 
 const HOSPITAL_NAME =
   (typeof window !== 'undefined' &&
@@ -229,9 +232,9 @@ export default function LoginPage() {
           <div className="login-brand-icon">
             <Radio size={40} color="currentColor" />
           </div>
-          <h1 style={{ margin: '24px 0 8px', fontSize: 30, fontWeight: 800, letterSpacing: '1px', color: '#fff' }}>
+          <Title level={4} style={{ margin: '24px 0 8px', letterSpacing: '1px' }}>
             {t('login.systemName')}
-          </h1>
+          </Title>
           <p style={{ margin: 0, fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,0.92)' }}>
             {t('login.tagline')}
           </p>
@@ -288,7 +291,7 @@ export default function LoginPage() {
               <Radio size={22} color="currentColor" />
             </div>
             <div>
-              <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: 'var(--text-primary)' }}>{t('login.welcome')}</h1>
+              <Title level={5} style={{ margin: 0 }}>{t('login.welcome')}</Title>
               <p style={{ margin: '2px 0 0', fontSize: 12, color: 'var(--text-secondary)' }}>
                 {t('login.systemName')} · {HOSPITAL_NAME}
               </p>

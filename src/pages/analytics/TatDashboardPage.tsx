@@ -13,6 +13,7 @@ import {
   Empty,
   message,
   Input,
+  Typography,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import {
@@ -31,6 +32,8 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { Inbox } from 'lucide-react'
 import { t } from "../../i18n/appI18n";
 import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
+
+const { Title } = Typography
 
 interface ModalityTatRow {
   modality: string;
@@ -400,11 +403,9 @@ export default function TatDashboardPage() {
           }}
         >
           <div>
-            <h1
+            <Title
+              level={4}
               style={{
-                fontSize: 20,
-                fontWeight: 700,
-                color: "var(--color-primary-800)",
                 margin: "0 0 6px",
                 display: "flex",
                 alignItems: "center",
@@ -413,7 +414,7 @@ export default function TatDashboardPage() {
             >
               <Clock size={24} />
               {t('tatDashboard.title')}
-            </h1>
+            </Title>
             <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>
               Turnaround Time Analytics Dashboard · OLAP 实时统计
             </p>

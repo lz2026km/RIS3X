@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Plus, Wifi, WifiOff, RefreshCw, ArrowRight, Activity, ShieldCheck, Image as ImageIcon, AlertTriangle, Clock } from 'lucide-react'
-import { Pagination } from 'antd'
+import { Pagination, Typography } from 'antd'
 import { DataTable } from '../../components/common'
 import { regionalApi } from '../../services/api/regionalApi'
 import { usePagination } from '../../hooks/usePagination'
 import { t } from '../../i18n/appI18n'
+
+const { Title } = Typography
 
 interface AllianceMember {
   id: string
@@ -260,7 +262,7 @@ const MedicalAlliancePage: React.FC = () => {
 
   return (
     <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-      <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>{t('medicalAlliance.title')}</h1>
+      <Title level={4} style={{ marginBottom: 8 }}>{t('medicalAlliance.title')}</Title>
       <p style={{ color: 'var(--text-secondary, #475569)', marginBottom: 24 }}>{t('medicalAlliance.subtitle')}
         {/* [v3.0.6.11-88 Round10] /regional/alliance-referrals 后端未实现, MSW 演示数据 */}
         <span style={{ marginLeft: 12, fontSize: 12, padding: '2px 8px', background: '#fef3c7', color: 'var(--color-warning-600)', borderRadius: 10 }}>{t('medicalAlliance.mswDemoTag')}</span>
@@ -278,7 +280,7 @@ const MedicalAlliancePage: React.FC = () => {
       {activeTab === 'members' && (
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <h2 style={{ fontSize: 16, fontWeight: 600 }}>{t('medicalAlliance.membersTitle', { count: allianceMembers.length })}</h2>
+            <Title level={5} style={{ margin: 0 }}>{t('medicalAlliance.membersTitle', { count: allianceMembers.length })}</Title>
           </div>
           <div style={{ overflowX: "auto" }}>
             <DataTable
@@ -324,7 +326,7 @@ const MedicalAlliancePage: React.FC = () => {
       {activeTab === 'referrals' && (
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <h2 style={{ fontSize: 16, fontWeight: 600 }}>{t('medicalAlliance.referralsTitle', { count: allianceReferrals.length })}</h2>
+            <Title level={5} style={{ margin: 0 }}>{t('medicalAlliance.referralsTitle', { count: allianceReferrals.length })}</Title>
                 <button onClick={handleCreateReferral} style={{ padding: '8px 16px', background: 'var(--color-primary-500)', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Plus size={14} />{t('medicalAlliance.newReferral')}</button>
           </div>
           <div style={{ overflowX: "auto" }}>
@@ -376,7 +378,7 @@ const MedicalAlliancePage: React.FC = () => {
 
       {activeTab === 'dashboard' && (
         <div>
-          <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16 }}>{t('medicalAlliance.dashboardTitle')}</h2>
+          <Title level={5} style={{ marginBottom: 16 }}>{t('medicalAlliance.dashboardTitle')}</Title>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
             {[
               { label: t('medicalAlliance.memberOrgs'), value: allianceMembers.filter(m => m.status === 'active').length, color: 'var(--color-primary-500)' },

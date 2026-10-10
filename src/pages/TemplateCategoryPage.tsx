@@ -7,7 +7,9 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { message } from 'antd';
+import { message, Typography } from 'antd';
+
+const { Title } = Typography
 import { templatesApi, type TemplateCategoryDto, type TemplateDto } from '../services/api/templatesApi';
 import { LoadingBanner, ErrorBanner, AppEmpty } from '../components/feedback';
 import { t } from '../i18n/appI18n';
@@ -437,13 +439,13 @@ export default function TemplateCategoryPage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <FolderTree size={20} color="var(--color-info-600)" /> {t('tplCategory.title')}
             <StatusTag status="success" style={{ fontWeight: 700 }}>R2</StatusTag>
             {categorySource === 'api'
               ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: 'var(--color-success-600)', border: '1px solid #bbf7d0' }}>{t('tplCategory.realtimeTag')}</span>
               : <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>{t('tplCategory.staticTag')}</span>}
-          </h1>
+          </Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('tplCategory.subtitle')} {categorySource === 'api' ? t('tplCategory.realCategories', { count: realCategories.length }) : t('tplCategory.staticData')}
           </p>

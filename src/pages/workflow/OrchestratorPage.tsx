@@ -24,6 +24,7 @@ import {
   Space,
   Switch,
   InputNumber,
+  Typography,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useTranslation } from "react-i18next";
@@ -32,6 +33,8 @@ import { statusColor } from '../../theme/statusTokens';
 import { orchestratorApi, type OrchestratorFlow, type FlowExecution, type FlowStepDefinition, type SlaConfigDto, type SlaStats } from '../../services/api/orchestratorApi';
 import { usePagination } from '../../hooks/usePagination';
 import { DataTable, StatCard, StatCardGrid } from "../../components/common";
+
+const { Title } = Typography
 
 type StepTypeColor = { key: string; color: string };
 
@@ -966,11 +969,10 @@ export default function OrchestratorPage() {
       }}
     >
       <div style={{ marginBottom: 12 }}>
-        <h2
+        <Title
+          level={4}
           style={{
             margin: 0,
-            fontSize: 18,
-            fontWeight: 600,
             display: "flex",
             alignItems: "center",
             gap: 8,
@@ -987,7 +989,7 @@ export default function OrchestratorPage() {
           >
             {t("subtitle")}
           </span>
-        </h2>
+        </Title>
       </div>
       <Tabs
         activeKey={activeTab}

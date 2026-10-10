@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { oeeApi } from '../services/api/oeeApi'
 import { DataTable } from '../components/common'
+import { Typography } from 'antd'
 import { biApi } from '../services/api/biApi'
 import { statsApi } from '../services/api/statsApi'
 import { deviceMgmtApi } from '../services/api/deviceMgmtApi'
@@ -16,6 +17,8 @@ import { DAILY_KPI_PRE } from '../data/_generators'
 import { seededUnit } from '../utils/seededRandom'
 import { t } from '../i18n/appI18n'
 import { severityColor } from '../theme/statusTokens'
+
+const { Title } = Typography
 
 // ============================================================
 // 样式常量
@@ -1061,11 +1064,9 @@ export default function EquipmentEfficiencyPage() {
       {/* 页面标题 */}
       <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
         <div>
-          <h1
+          <Title
+            level={4}
             style={{
-              fontSize: 20,
-              fontWeight: 700,
-              color: C.textDark,
               marginBottom: 8,
               display: 'flex',
               alignItems: 'center',
@@ -1074,7 +1075,7 @@ export default function EquipmentEfficiencyPage() {
           >
             <Activity size={28} color={C.primary} />
             {t('equipEfficiency.title')}
-          </h1>
+          </Title>
           <p style={{ color: C.textLight, fontSize: 14 }}>
             {t('equipEfficiency.subtitle')}
           </p>

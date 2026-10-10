@@ -24,12 +24,15 @@ import {
   Alert,
   Progress,
   Popconfirm,
+  Typography,
 } from "antd";
 import { GitBranch, Plus, Edit3, History, RefreshCw, User, GraduationCap, Route, Trash2 } from 'lucide-react'
 import { DataTable, StatCard, StatCardGrid } from "../../components/common"
 import React, { useState, useEffect, useCallback } from 'react'
 import { workflowApi } from '../../services/api/workflowApi'
 import { t } from '../../i18n/appI18n'
+
+const { Title } = Typography
 import { uniqueId } from '../../utils/uniqueId'
 
 const stageMeta: Record<string, { label: string; color: string }> = {
@@ -217,7 +220,7 @@ const SmartRoutingPage: React.FC = () => {
     <div style={{ padding: 24 }}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
         <Route size={20} color="var(--color-primary-600)" />
-        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{t('smartRouting.title')}</h1>
+        <Title level={4} style={{ margin: 0 }}>{t('smartRouting.title')}</Title>
         <Tag color="blue">{t('smartRouting.tagQualificationAware')}</Tag>
         <Tag color="purple">{t('smartRouting.tagPipeline')}</Tag>
       </div>

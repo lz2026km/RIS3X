@@ -16,12 +16,14 @@ import {
   type CriticalValueRule,
 } from "../data/criticalValueAssessmentMock";
 import { criticalExtApi } from "../services/api/criticalExtApi";
-import { Select } from "antd";
+import { Select, Typography } from "antd";
 import { AppModal } from "../components/common/AppModal";
 import { ActionButton } from "../components/common/ActionButton";
 import { StatCard } from "../components/common";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { t } from "../i18n/appI18n";
+
+const { Title } = Typography
 
 // ============================================================
 // 类别配置
@@ -262,10 +264,9 @@ export default function CriticalValueRulePage() {
         }}
       >
         <div>
-          <h1
+          <Title
+            level={4}
             style={{
-              fontSize: 20,
-              color: "var(--text-primary)",
               margin: 0,
               display: "flex",
               alignItems: "center",
@@ -297,7 +298,7 @@ export default function CriticalValueRulePage() {
             >
               {source === 'api' ? t("cvRule.sourceApi") : t("cvRule.sourceDemo")}
             </span>
-          </h1>
+          </Title>
           <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: "4px 0 0" }}>
             {t("cvRule.subtitle", { count: ruleList.length })}
             {loading && t("cvRule.loadingSuffix")}

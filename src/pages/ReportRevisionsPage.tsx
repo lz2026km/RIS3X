@@ -6,7 +6,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { message, Modal, Input, Tag } from 'antd';
+import { message, Modal, Input, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { getCurrentUser } from '../utils/auth';
 import { notificationsApi } from '../services/api/notificationsApi';
@@ -398,7 +398,7 @@ export default function ReportRevisionsPage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <History size={20} color="var(--color-warning-500)" /> {t('reportRev.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3</span>
             <span style={{
@@ -410,7 +410,7 @@ export default function ReportRevisionsPage() {
             }}>
               {loading ? t('reportRev.syncing') : source === 'api' ? t('reportRev.sourceApi') : t('reportRev.sourceDemo')}
             </span>
-          </h1>
+          </Typography.Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('reportRev.subtitle')}
             {error && <span style={{ color: 'var(--color-error-600)', marginLeft: 8 }}>{error}</span>}

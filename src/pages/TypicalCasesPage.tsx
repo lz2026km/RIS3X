@@ -1,4 +1,4 @@
-import { Card, Popconfirm, message } from 'antd'
+import { Card, Popconfirm, message, Typography } from 'antd'
 // NOTE: 未解决 - 替换此文件中所有硬编码中文文本为 i18n t() 调用 (约 2,207 字符)
 // ============================================================
 // G005 放射科RIS系统 - 典型病例库 v1.0.0
@@ -18,6 +18,8 @@ import {
 import { TYPICAL_CASES_SEED as mockTypicalCases, type TypicalCase } from '../services/mockBackend/typicalCasesSeed'
 import { typicalCaseApi } from '../services/api/typicalCaseApi'
 import { TeachingExamModal } from './teach/TeachingExamModal'
+
+const { Title } = Typography
 
 // [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-06)] 影像教学收藏 (localStorage 持久化)
 const FAVORITES_KEY = 'g005_teaching_favorites'
@@ -890,7 +892,7 @@ export default function TypicalCasesPage() {
       {/* 顶部统计 */}
       <div style={{ background: COLORS.primary, padding: '20px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: COLORS.white }}>{t('typicalCasesTitle')}</h1>
+          <Title level={4} style={{ margin: 0 }}>{t('typicalCasesTitle')}</Title>
           <p style={{ margin: '4px 0 0', fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{t('hospitalSubtitle')}</p>
         </div>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>

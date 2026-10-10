@@ -29,12 +29,14 @@ let mojibake = 0;
 let clickableNoRole = 0;
 let nativeTable = 0;
 let offScaleFont = 0;
+let rawHeading = 0;
 const FONT_SCALE = new Set(["10", "11", "12", "14", "16", "18", "20", "24", "30", "36", "48"]);
 
 for (const f of pages) {
   const c = readFileSync(f, "utf8");
   antdTable += (c.match(/<Table\b/g) || []).length;
   nativeTable += (c.match(/<table\b/g) || []).length;
+  rawHeading += (c.match(/<h[12][\s>]/g) || []).length;
   outlineNone += (c.match(/outline:\s*['"]none['"]/g) || []).length;
   viewportHeight += (c.match(/minHeight:\s*['"]100vh['"]/g) || []).length;
   hexTotal += (c.match(/#[0-9a-fA-F]{6}\b/g) || []).length;
@@ -65,11 +67,13 @@ const BUDGET = {
   clickableNoRole: 151, // 只减不增 (行级统计; 剩余多为遮罩/包装)
   nativeTable: 26, // 只减不增 (剩余为打印/热力图/日历模板)
   offScaleFont: 42, // 只减不增 (仅允许设计刻度 10/11/12/14/16/18/20/24/30/36/48)
+  rawHeading: 13, // 只减不增 (剩余为打印 HTML 模板串)
 };
 
 const checks = [
   ["antdTable", antdTable, "裸 antd <Table> (请改用 components/common 的 <DataTable>)"],
   ["nativeTable", nativeTable, "原生 HTML <table> (数据表请用 <DataTable>; 打印/热力图除外)"],
+  ["rawHeading", rawHeading, "裸 <h1>/<h2> (请用 Typography.Title 统一字体体系; 打印模板除外)"],
   ["outlineNone", outlineNone, "outline:'none' 焦点抑制 (改用 :focus-visible / --shadow-focus)"],
   ["viewportHeight", viewportHeight, "minHeight:'100vh' (内容区已滚动, 会造成幽灵滚动条)"],
   ["hexTotal", hexTotal, "硬编码 #rrggbb (优先使用 design-system.css 令牌)"],

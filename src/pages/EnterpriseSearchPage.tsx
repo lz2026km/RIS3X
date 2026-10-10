@@ -1,12 +1,14 @@
 import { datareportApi, type EnterpriseSearchResult } from '../services/api/datareportApi';
 import { searchClient } from '../services/search';
 import type { SearchResultItem } from '../services/search/types';
-import { Input, Button, Tag, Spin, Alert, Empty, Tabs, message } from 'antd';
+import { Input, Button, Tag, Spin, Alert, Empty, Tabs, message, Typography } from 'antd';
 import { Search, FileText, User, Microscope, FileSearch } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { SearchX } from 'lucide-react'
 import { ActionButton, ExportButton } from '../components/common'
 import { t } from '../i18n/appI18n'
+
+const { Title } = Typography
 
 const TYPE_META: Record<string, { label: string; color: string }> = {
   patient: { label: '患者', color: 'blue' },
@@ -115,10 +117,10 @@ export default function EnterpriseSearchPage() {
   return (
     <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
       <div style={{ marginBottom: 16 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+        <Title level={4} style={{ margin: 0 }}>
           <Search style={{ marginRight: 8, color: 'var(--color-primary-800)' }} />
           {'\u4F01\u4E1A\u7EA7\u5168\u5C40\u641C\u7D22'}
-        </h1>
+        </Title>
         <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '6px 0 0' }}>
           {'\u8DE8\u60A3\u8005\u3001\u68C0\u67E5\u3001\u62A5\u544A\u3001\u5F71\u50CF\u7EDF\u4E00\u68C0\u7D22'}
         </p>

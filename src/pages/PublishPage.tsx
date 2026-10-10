@@ -6,10 +6,13 @@
 import { useState, useEffect } from 'react'
 import type { HTMLAttributes } from 'react'
 import type { ColumnsType } from 'antd/es/table'
+import { Typography } from 'antd'
 import { useReportStore } from '../store'
 import { reportApi } from '../services/api'
 import type { ReportDto } from '../services/api'
 import { DataTable } from '../components/common/DataTable'
+
+const { Title } = Typography
 
 const MIN_QUALITY_SCORE = 60
 
@@ -140,9 +143,9 @@ export default function PublishPage() {
   return (
     <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto', background: 'var(--bg-card)' }}>
       <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0 }}>
+        <Title level={4} style={{ margin: 0 }}>
           报告发布管理
-        </h1>
+        </Title>
         <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
           已签发报告需录入质量分(≥ {MIN_QUALITY_SCORE})后逐条确认发布,防止误操作批量上发布队列。
         </p>
@@ -181,7 +184,7 @@ export default function PublishPage() {
           }}
         >
           <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 24, width: 420, maxWidth: '90%' }}>
-            <h2 style={{ margin: 0, fontSize: 16, color: 'var(--text-primary)' }}>确认发布报告</h2>
+            <Title level={5} style={{ margin: 0 }}>确认发布报告</Title>
             <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6, marginTop: 12 }}>
               报告号 <strong>{confirming.report.reportId}</strong> · 患者 <strong>{confirming.report.patientName}</strong>
               <br />

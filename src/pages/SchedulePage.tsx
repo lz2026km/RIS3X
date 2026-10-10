@@ -12,6 +12,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   PieChart as RePieChart, Pie, Cell, Legend
 } from 'recharts'
+import { Typography } from 'antd'
 import { initialUsers } from '../data/initialData'
 import { deviceApi, userApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
@@ -1151,12 +1152,12 @@ export default function SchedulePage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <CalendarClock size={28} style={{ color: C.primary }} />
             <div>
-              <h1 style={{ fontSize: 20, fontWeight: 700, color: C.textDark, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
                 {t('schedulePage.title')}
                 <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-warning-600)', background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: 10, padding: '2px 8px' }}>
                   {t('schedulePage.demoBadge')}
                 </span>
-              </h1>
+              </Typography.Title>
               <p style={{ fontSize: 12, color: C.textMid, margin: '4px 0 0 0' }}>
                 {t('schedulePage.subtitle')}
               </p>

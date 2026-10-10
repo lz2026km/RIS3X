@@ -3,7 +3,7 @@
 // [G005 v3.0.6.11-90 Wave 4A (PACS P0-3)] 批量导入导出 (JSON/文本, templatesApi 真实数据)
 // [v3.0.6.11-98 Wave2A P1] 模板审批流 (草稿/待审批/已批准/已驳回) + 我的模板筛选 (个人模板库)
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
-import { Select } from 'antd'
+import { Select, Typography } from 'antd'
 import { ActionButton } from '../components/common/ActionButton'
 import { DataTable } from '../components/common'
 import { templatesApi, type TemplateApprovalStatus } from '../services/api/templatesApi'
@@ -14,6 +14,8 @@ import EmrTemplatesPage from './emr/EmrTemplatesPage'
 import { t as t9 } from '../i18n/appI18n'
 import { useNavigate } from 'react-router-dom'
 import { ClipboardList, ListOrdered, FileEdit, Tag, Plus, X, Search, Eye, Edit2, Save, Check, Copy, FileText, Activity, Scan, Image as ImageIcon, Stethoscope, Filter, GitBranch, FolderTree, Wand2, TrendingUp, BarChart2, Users, Share2, Shield, History, RotateCcw, Star, Globe, Send, ShieldCheck, XCircle, Clock3 } from 'lucide-react'
+
+const { Title } = Typography
 
 const C = {
   primary: 'var(--color-primary-800)', primaryLight: 'var(--color-primary-500)', primaryLighter: 'var(--color-info-bg)',
@@ -785,7 +787,7 @@ export default function TemplateManagementPage() {
       <div style={styles.header}>
         <div style={styles.headerLeft}>
           <ClipboardList size={28} style={{ color: C.primary }} />
-          <h1 style={styles.title}>{t9('templateMgmt.title')}</h1>
+          <Title level={4} style={styles.title}>{t9('templateMgmt.title')}</Title>
         </div>
         <ActionButton action="create" onClick={handleAdd}>{t9('templateMgmt.addTemplate')}</ActionButton>
         {/* [G005 v3.0.6.11-90 Wave 4A (PACS P0-3)] 批量导入导出 */}
@@ -987,7 +989,7 @@ export default function TemplateManagementPage() {
         <div style={styles.modalOverlay} onClick={() => setShowModal(false)}>
           <div style={styles.modal} onClick={e => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <div style={styles.modalTitle}><FileEdit size={22} style={{ color: C.primary }} /><h2>{modalMode === 'add' ? t9('templateMgmt.modalAdd') : t9('templateMgmt.modalEdit')}</h2></div>
+              <div style={styles.modalTitle}><FileEdit size={22} style={{ color: C.primary }} /><Title level={5} style={{ margin: 0 }}>{modalMode === 'add' ? t9('templateMgmt.modalAdd') : t9('templateMgmt.modalEdit')}</Title></div>
               <button style={styles.modalClose} onClick={() => setShowModal(false)}><X size={20} /></button>
             </div>
             <div style={styles.modalBody}>
@@ -1029,7 +1031,7 @@ export default function TemplateManagementPage() {
         <div style={styles.modalOverlay} onClick={() => setShowPreview(false)}>
           <div style={styles.previewModal} onClick={e => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <div style={styles.modalTitle}><Eye size={22} style={{ color: C.primary }} /><h2>{t9('templateMgmt.preview')}</h2></div>
+              <div style={styles.modalTitle}><Eye size={22} style={{ color: C.primary }} /><Title level={5} style={{ margin: 0 }}>{t9('templateMgmt.preview')}</Title></div>
               <button style={styles.modalClose} onClick={() => setShowPreview(false)}><X size={20} /></button>
             </div>
             <div style={styles.previewMeta}>
@@ -1056,7 +1058,7 @@ export default function TemplateManagementPage() {
         <div style={styles.modalOverlay} onClick={() => { if (!actionBusy) { setRejectTarget(null); setRejectReason('') } }}>
           <div style={{ width: 460, background: 'var(--bg-card)', borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.15)', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <div style={styles.modalTitle}><XCircle size={20} style={{ color: C.danger }} /><h2 style={{ fontSize: 16 }}>{t9('templateMgmt.rejectTitle')}</h2></div>
+              <div style={styles.modalTitle}><XCircle size={20} style={{ color: C.danger }} /><Title level={5} style={{ margin: 0 }}>{t9('templateMgmt.rejectTitle')}</Title></div>
               <button style={styles.modalClose} onClick={() => { if (!actionBusy) { setRejectTarget(null); setRejectReason('') } }}><X size={20} /></button>
             </div>
             <div style={{ padding: '20px 24px' }}>
@@ -1092,7 +1094,7 @@ const styles: Record<string, React.CSSProperties> = {
   container: { padding: '24px', backgroundColor: C.bg, fontFamily: '"Microsoft YaHei", "Segoe UI", sans-serif' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', backgroundColor: 'var(--bg-card)', padding: '16px 24px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' },
   headerLeft: { display: 'flex', alignItems: 'center', gap: '12px' },
-  title: { fontSize: '20px', fontWeight: 700, color: C.textDark, margin: 0 },
+  title: { margin: 0 },
   addBtn: { display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 18px', backgroundColor: C.primary, color: C.white, border: 'none', borderRadius: '6px', fontSize: '14px', fontWeight: 500, cursor: 'pointer', transition: 'background-color 0.2s' },
   toolbar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', gap: '16px', backgroundColor: 'var(--bg-card)', padding: '16px 20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' },
   searchBox: { display: 'flex', alignItems: 'center', gap: '10px', flex: 1, maxWidth: '400px', padding: '8px 14px', backgroundColor: C.bgLight, borderRadius: '6px', border: `1px solid ${C.borderLight}` },

@@ -4,7 +4,7 @@
 // ============================================================
 
 import React, { useState, useEffect } from 'react';
-import { message, Modal, Rate, Input } from 'antd';
+import { message, Modal, Rate, Input, Typography } from 'antd';
 import {
   Smartphone, Download, Share2, Eye,
   ChevronRight, FileText, Link2, MessageSquarePlus,
@@ -211,7 +211,7 @@ export default function PatientReportPortalPage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Smartphone size={20} color="#0ea5e9" /> {t('patientPortal.pageTitle')}
             <StatusTag status="success" style={{ fontWeight: 700 }}>R6</StatusTag>
             {accessSource === 'api' ? (
@@ -223,7 +223,7 @@ export default function PatientReportPortalPage() {
                 {t('patientPortal.staticData')}
               </StatusTag>
             )}
-          </h1>
+          </Typography.Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('patientPortal.pageSubtitle')}
           </p>

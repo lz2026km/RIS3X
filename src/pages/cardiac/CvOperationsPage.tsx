@@ -2,6 +2,9 @@
 // 数据源标注: KPI 卡片 → /stats/daily; 协议/工作量/库存 → 本地演示数据 (后端无 /cardiac/operations 端点)
 import { useEffect, useState } from 'react'
 import type { TableColumnsType } from 'antd'
+import { Typography } from 'antd'
+
+const { Title } = Typography
 import { Activity, Clock, Users, DollarSign, FlaskConical, TrendingUp, Package } from 'lucide-react'
 import { statsApi } from '../../services/api/statsApi'
 import { t } from '../../i18n/appI18n'
@@ -153,12 +156,12 @@ export default function CvOperationsPage() {
 
   return (
     <div style={{ padding: 24 }}>
-      <h1 style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '0 0 16px' }}>
+      <Title level={4} style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '0 0 16px' }}>
         <Activity size={24} /> {t('cvOps.title')}
         <span style={{ fontSize: 12, fontWeight: 400, background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: source === 'api' ? 'var(--color-success)' : 'var(--color-warning)', padding: '2px 8px', borderRadius: 10 }}>
           {source === 'api' ? t('cvOps.dataSourceApi') : t('cvOps.demoDataUnavailable')}
         </span>
-      </h1>
+      </Title>
 
       {error && <div style={{ marginBottom: 12, padding: '8px 12px', background: 'var(--color-error-bg)', color: 'var(--color-error)', borderRadius: 6, fontSize: 12 }}>{error}</div>}
 

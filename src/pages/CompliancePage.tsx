@@ -1,4 +1,6 @@
-import { Card } from 'antd'
+import { Card, Typography } from 'antd'
+
+const { Title } = Typography
 import { useState, useEffect } from 'react'
 import { Shield, FileText, CheckCircle, XCircle, AlertTriangle, Download } from 'lucide-react'
 import { complianceApi } from '../services/api/complianceApi'
@@ -88,7 +90,7 @@ export default function CompliancePage() {
             <Shield size={22} color="#fff" />
           </div>
           <div>
-            <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: COLORS.textDark }}>合规管理</h2>
+            <Title level={4} style={{ margin: 0 }}>合规管理</Title>
             <span style={{ color: COLORS.textLight, fontSize: 12 }}>合规检查与文档管理</span>
           </div>
         </div>

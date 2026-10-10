@@ -18,6 +18,9 @@ import { SeverityTag } from '../../components/common/SeverityTag';
 import { DataTable } from '../../components/common';
 import type { TableColumnsType } from 'antd';
 import { uniqueId } from '../../utils/uniqueId';
+import { Typography } from 'antd';
+
+const { Title } = Typography
 
 const BIRADS_COLORS: Record<string, string> = { 0: '#94a3b8', 1: 'var(--color-success-600)', 2: 'var(--color-success-600)', 3: '#ca8a04', '4A': '#ea580c', '4B': 'var(--color-error-600)', 4: 'var(--color-error-600)', 5: 'var(--color-error-600)', 6: '#7c3aed' };
 const DENSITY_LABELS: Record<string, string> = { a: 'breastSpecialty.densityFatty', b: 'breastSpecialty.densityScattered', c: 'breastSpecialty.densityHeterogeneous', d: 'breastSpecialty.densityExtreme' };
@@ -488,7 +491,7 @@ const BreastSpecialtyPage = () => {
     <div style={{ padding: 0 }}>
       <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Heart size={24} color="#be185d" /> {t('breastSpecialty.title')} <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: dataSource === 'real' ? 'var(--color-success-600)' : '#be185d', border: `1px solid ${dataSource === 'real' ? '#bbf7d0' : '#fbcfe8'}` }}>{dataSource === 'real' ? t('breastSpecialty.sourceRealtime') : t('breastSpecialty.sourceDemoFallback')}</span></h1>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Heart size={24} color="#be185d" /> {t('breastSpecialty.title')} <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: dataSource === 'real' ? 'var(--color-success-600)' : '#be185d', border: `1px solid ${dataSource === 'real' ? '#bbf7d0' : '#fbcfe8'}` }}>{dataSource === 'real' ? t('breastSpecialty.sourceRealtime') : t('breastSpecialty.sourceDemoFallback')}</span></Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('breastSpecialty.subtitle')}</p>
         </div>
         <button onClick={() => setShowNewModal(true)} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 500 }}>{t('breastSpecialty.newScreening')}</button>

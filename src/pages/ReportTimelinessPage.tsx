@@ -4,7 +4,7 @@
 // ============================================================
 
 import { useState, useEffect, useCallback } from 'react';
-import { message } from 'antd';
+import { message, Typography } from 'antd';
 import {
   Clock, AlertTriangle, CheckCircle2, TrendingUp,
   ChevronUp, ChevronDown, Activity, Bell, User, Timer,
@@ -139,10 +139,10 @@ export default function ReportTimelinessPage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Clock size={20} color="var(--color-primary-800)" /> {t('timeliness.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
-          </h1>
+          </Typography.Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('timeliness.subtitle')}
           </p>

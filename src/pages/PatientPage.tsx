@@ -1,4 +1,4 @@
-import { Card } from 'antd'
+import { Card, Typography } from 'antd'
 // v3.0.4 重构：拆分为子组件
 // ============================================================
 // G005 放射科RIS系统 - 患者管理 v1.0.0
@@ -2046,11 +2046,9 @@ export default function PatientPage() {
         }}
       >
         <div>
-          <h1
+          <Typography.Title
+            level={4}
             style={{
-              fontSize: 20,
-              fontWeight: 700,
-              color: "var(--color-primary-800)",
               margin: "0 0 4px",
               display: "flex",
               alignItems: "center",
@@ -2059,7 +2057,7 @@ export default function PatientPage() {
           >
             <Stethoscope size={22} color="var(--color-primary-800)" />
             {t('patientPage.patientManagement')}
-          </h1>
+          </Typography.Title>
           <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: 0 }}>
             {t('patientPage.patientSubtitle')}
           </p>

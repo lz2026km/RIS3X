@@ -22,7 +22,7 @@ import { LoadingBanner, ErrorBanner, AppEmpty } from '../components/feedback';
 import { t } from '../i18n/appI18n';
 import ReportReEvaluateSection from './ReportReEvaluateSection';
 import { StatCard } from '../components/common';
-import { message } from 'antd';
+import { message, Typography } from 'antd';
 
 // ============================================================
 // 主组件
@@ -105,10 +105,10 @@ export default function ReportScoreRulePage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Sliders size={20} color="#7c3aed" /> 多维评分规则配置
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R4</span>
-          </h1>
+          </Typography.Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             5 大评分维度 · 权重配置 · 评分规则 · 等级映射 · KPI 统计
           </p>

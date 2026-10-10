@@ -2,7 +2,7 @@
 import { loadCardiacAiAnalyses } from "./cardiacAiAdapter";
 import { cardiacSpecialtyApi } from "@/services/api/cardiacSpecialtyApi";
 import { CardiacAnalysis } from '@/services/api/cardiacSpecialtyApi'
-import { Spin, Alert, Button, Select, Empty } from "antd";
+import { Spin, Alert, Button, Select, Empty, Typography } from "antd";
 import { DataTable } from "../../components/common";
 import {
   Heart,
@@ -20,6 +20,8 @@ import {
 import { Inbox } from 'lucide-react'
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { t } from "../../i18n/appI18n";
+
+const { Title } = Typography
 
 const CADRADS_COLORS: Record<string, string> = {
   0: "var(--color-success-600)",
@@ -232,11 +234,9 @@ const CardiacSpecialtyPage = () => {
         }}
       >
         <div>
-          <h1
+          <Title
+            level={4}
             style={{
-              fontSize: 20,
-              fontWeight: 700,
-              color: "var(--color-primary-800)",
               margin: 0,
               display: "flex",
               alignItems: "center",
@@ -246,7 +246,7 @@ const CardiacSpecialtyPage = () => {
             <Heart size={24} color="var(--color-primary-800)" /> {t('cardiacSpec.title')} <span style={{           fontSize: 11,
           padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-info-bg)',
           color: dataSource === 'real' ? 'var(--color-success-600)' : 'var(--color-primary-800)', border: `1px solid ${dataSource === 'real' ? 'var(--color-success-border)' : 'var(--color-pending-border)'}`  }}>{dataSource === 'real' ? t('cardiacSpec.dataRealtime') : t('cardiacSpec.dataDemo')}</span>
-          </h1>
+          </Title>
           <p style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
             {t('cardiacSpec.subtitle')}
           </p>

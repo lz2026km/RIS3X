@@ -2,11 +2,13 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Trash2, Save, CheckCircle, RotateCcw, BellRing, Loader2, AlertTriangle, Eye, Plus, Bell, UserX, Ban, LayoutTemplate, Pencil, Play, X, Calendar, FileText } from 'lucide-react';
 import { followupApi, FOLLOWUP_RESULT_OPTIONS, type FollowUpPlan, type FollowUpStats, type FollowUpReminderQueue, type FollowUpResult } from '../services/api/followupApi';
 import { DataTable } from '../components/common/DataTable';
-import { Select } from 'antd';
+import { Select, Typography } from 'antd';
 import { followupTemplatesApi, type FollowUpTemplate } from '../services/api/followupTemplatesApi';
 import { reportApi } from '../services/api/reportApi';
 import { worklistApi } from '../services/api/worklistApi';
 import { t } from '../i18n/appI18n';
+
+const { Title } = Typography;
 
 interface FollowUpPatient {
   id: string;
@@ -765,9 +767,6 @@ export default function FollowUpPage() {
   };
 
   const titleStyle: React.CSSProperties = {
-    fontSize: '20px',
-    fontWeight: '700',
-    color: '#1a1a1a',
     marginBottom: '8px'
   };
 
@@ -929,8 +928,6 @@ export default function FollowUpPage() {
   };
 
   const modalTitleStyle: React.CSSProperties = {
-    fontSize: '18px',
-    fontWeight: '600',
     marginBottom: '20px'
   };
 
@@ -1044,7 +1041,7 @@ export default function FollowUpPage() {
     <div style={pageStyle}>
       <div style={headerStyle}>
         <div>
-          <h1 style={titleStyle}>{t('followUp.title')}</h1>
+          <Title level={4} style={titleStyle}>{t('followUp.title')}</Title>
           <p style={subtitleStyle}>{t('followUp.subtitle')}</p>
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -1622,7 +1619,7 @@ export default function FollowUpPage() {
       {showModal && selectedPatient && (
         <div style={modalOverlayStyle} onClick={() => setShowModal(false)}>
           <div style={modalStyle} onClick={e => e.stopPropagation()}>
-            <h2 style={modalTitleStyle}>{t('followUp.detailTitle')}</h2>
+            <Title level={5} style={modalTitleStyle}>{t('followUp.detailTitle')}</Title>
 
             <div style={formGroupStyle}>
               <label style={labelStyle}>{t('followUp.patientName')}</label>
@@ -1730,7 +1727,7 @@ export default function FollowUpPage() {
       {showCreateModal && (
         <div style={modalOverlayStyle} onClick={() => setShowCreateModal(false)}>
           <div style={modalStyle} onClick={e => e.stopPropagation()}>
-            <h2 style={modalTitleStyle}>{t('followUp.createTitle')}</h2>
+            <Title level={5} style={modalTitleStyle}>{t('followUp.createTitle')}</Title>
 
             <div style={formGroupStyle}>
               <label style={labelStyle}>{t('followUp.patientId')} *</label>
@@ -1832,7 +1829,7 @@ export default function FollowUpPage() {
       {showTemplateModal && (
         <div style={modalOverlayStyle} onClick={() => setShowTemplateModal(false)}>
           <div style={{ ...modalStyle, width: '720px' }} onClick={e => e.stopPropagation()}>
-            <h2 style={modalTitleStyle}>{t('followUp.templateLibrary')}</h2>
+            <Title level={5} style={modalTitleStyle}>{t('followUp.templateLibrary')}</Title>
             <p style={{ ...subtitleStyle, marginTop: '-12px', marginBottom: '16px' }}>
               {t('followUp.templateLibraryDesc')}
             </p>
@@ -1983,7 +1980,7 @@ export default function FollowUpPage() {
       {tplApply && (
         <div style={modalOverlayStyle} onClick={() => setTplApply(null)}>
           <div style={{ ...modalStyle, width: '440px' }} onClick={e => e.stopPropagation()}>
-            <h2 style={modalTitleStyle}>{t('followUp.applyTemplateTitle', { name: tplApply.name })}</h2>
+            <Title level={5} style={modalTitleStyle}>{t('followUp.applyTemplateTitle', { name: tplApply.name })}</Title>
             <p style={{ ...subtitleStyle, marginTop: '-12px', marginBottom: '16px' }}>
               {t('followUp.applyTemplateDesc', { intervals: (tplApply.intervals ?? []).join('/'), count: tplApply.intervals?.length ?? 0 })}
             </p>
@@ -2038,7 +2035,7 @@ export default function FollowUpPage() {
       {showFromExamModal && (
         <div style={modalOverlayStyle} onClick={() => setShowFromExamModal(false)}>
           <div style={{ ...modalStyle, width: '460px' }} onClick={e => e.stopPropagation()}>
-            <h2 style={modalTitleStyle}>{t('followUp.examLinkTitle')}</h2>
+            <Title level={5} style={modalTitleStyle}>{t('followUp.examLinkTitle')}</Title>
             <p style={{ ...subtitleStyle, marginTop: '-12px', marginBottom: '16px' }}>
               {t('followUp.examLinkDesc')}
             </p>
@@ -2086,7 +2083,7 @@ export default function FollowUpPage() {
       {showEditModal && editPlan && (
         <div style={modalOverlayStyle} onClick={() => setShowEditModal(false)}>
           <div style={modalStyle} onClick={e => e.stopPropagation()}>
-            <h2 style={modalTitleStyle}>{t('followUp.editTitle', { id: editPlan.patientId })}</h2>
+            <Title level={5} style={modalTitleStyle}>{t('followUp.editTitle', { id: editPlan.patientId })}</Title>
 
             <div style={formGroupStyle}>
               <label style={labelStyle}>{t('followUp.patientName')} *</label>
@@ -2159,7 +2156,7 @@ export default function FollowUpPage() {
       {showFromReportModal && (
         <div style={modalOverlayStyle} onClick={() => setShowFromReportModal(false)}>
           <div style={{ ...modalStyle, width: '460px' }} onClick={e => e.stopPropagation()}>
-            <h2 style={modalTitleStyle}>{t('followup.fromReport.title')}</h2>
+            <Title level={5} style={modalTitleStyle}>{t('followup.fromReport.title')}</Title>
             <p style={{ ...subtitleStyle, marginTop: '-12px', marginBottom: '16px' }}>
               {t('followup.fromReport.desc')}
             </p>
@@ -2203,7 +2200,7 @@ export default function FollowUpPage() {
       {resultModal && (
         <div style={modalOverlayStyle} onClick={() => setResultModal(null)}>
           <div style={{ ...modalStyle, width: '460px' }} onClick={e => e.stopPropagation()}>
-            <h2 style={modalTitleStyle}>{t('w3d.followup.resultTitle')}</h2>
+            <Title level={5} style={modalTitleStyle}>{t('w3d.followup.resultTitle')}</Title>
             <p style={{ ...subtitleStyle, marginTop: '-12px', marginBottom: '16px' }}>
               {resultModal.name} · {t('w3d.followup.result')}
             </p>

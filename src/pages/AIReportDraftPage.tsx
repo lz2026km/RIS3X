@@ -7,7 +7,9 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { message } from 'antd';
+import { message, Typography } from 'antd';
+
+const { Title } = Typography
 import {
   Sparkles, Wand2, Brain, FileText,
   Save, RefreshCw, Loader2, CheckCircle2,
@@ -402,13 +404,13 @@ export default function AIReportDraftPage() {
             <Brain size={28} />
           </div>
           <div style={{ flex: 1 }}>
-            <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
               {t('aiDraft.title')}
               <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R4</span>
               <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: 'rgba(255,255,255,0.25)', color: '#fff', fontWeight: 600 }}>
                 {patientSource === 'api' ? t('aiDraft.realDataHint') : t('aiDraft.demoDataHint')}
               </span>
-            </h1>
+            </Title>
             <p style={{ fontSize: 12, margin: '4px 0 0', opacity: 0.9 }}>
               {t('aiDraft.subtitle')}
             </p>

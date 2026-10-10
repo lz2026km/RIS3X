@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { getFinanceService, type PatientBill, type PaymentRecord, type InsuranceClaim } from '../../services/finance/FinanceService'
 import { financeApi, type InvoiceDto, type ChargeItemDto } from '../../services/api/financeApi'
-import { Card } from 'antd'
+import { Card, Typography } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { LoadingBanner, ErrorBanner } from '../../components/feedback'
 import { DataTable } from '../../components/common/DataTable'
 import { t } from '../../i18n/appI18n'
+
+const { Title } = Typography
 
 // [W1-B] 开票 Modal (POST /finance/invoices)
 const modalOverlay: React.CSSProperties = { position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }
@@ -216,7 +218,7 @@ export default function PatientFinancePage() {
   return (
     <div style={s.container}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={s.title}>{t('patientFinance.title')}</h2>
+        <Title level={4} style={{ margin: 0, marginBottom: 16 }}>{t('patientFinance.title')}</Title>
         <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowInvoiceModal(true)}>{t('patientFinance.createInvoice')}</button>
       </div>
 

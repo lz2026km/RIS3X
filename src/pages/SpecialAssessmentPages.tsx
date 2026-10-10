@@ -11,6 +11,7 @@ import {
   ListChecks,
   Award, History,
 } from 'lucide-react';
+import { Typography } from 'antd';
 import {
   SPECIAL_ASSESSMENTS,
 } from '../data/criticalValueAssessmentMock';
@@ -95,12 +96,12 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
           </button>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 12, opacity: 0.85, marginBottom: 2 }}>{assessment.modality} · {assessment.bodyPart}</div>
-            <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
               {assessment.systemName} 评估
               <span style={{ fontSize: 12, padding: '2px 6px', background: 'rgba(255,255,255,0.2)', borderRadius: 3, fontWeight: 700 }}>
                 {assessment.category}
               </span>
-            </h1>
+            </Typography.Title>
             <p style={{ fontSize: 12, margin: '4px 0 0', opacity: 0.9 }}>{assessment.description}</p>
           </div>
           <div style={{ textAlign: 'right' }}>

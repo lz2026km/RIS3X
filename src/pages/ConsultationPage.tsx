@@ -13,6 +13,9 @@ import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { t } from '../i18n/appI18n'
 import { StatusTag } from '../components/common/StatusTag'
 import { DataTable } from '../components/common'
+import { Typography } from 'antd'
+
+const { Title } = Typography
 
 const PRIMARY = 'var(--color-primary-800)'
 const ACCENT = 'var(--color-primary-500)'
@@ -689,13 +692,13 @@ export default function ConsultationPage() {
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* Header */}
       <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 700, color: PRIMARY, margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <Title level={4} style={{ margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 32, height: 32, background: PRIMARY, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Radio size={18} color='#fff' />
           </div>
           {t('consultation.title')}
           <span style={{ fontSize: 12, fontWeight: 400, color: GRAY, marginLeft: 8 }}>{t('consultation.title')}</span>
-        </h1>
+        </Title>
         <p style={{ fontSize: 12, color: GRAY, margin: 0 }}>{t('consultation.subtitle')}</p>
       </div>
 
@@ -943,7 +946,7 @@ export default function ConsultationPage() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                          <h2 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>{selected.patientName}</h2>
+                          <Title level={5} style={{ margin: 0 }}>{selected.patientName}</Title>
                           <StatusTag size="md" style={{ fontWeight: 700 }} tone={{ bg: STATUS_CONFIG[selected.status]?.bg ?? 'var(--bg-card)', border: 'transparent', color: STATUS_CONFIG[selected.status]?.color ?? GRAY, dot: STATUS_CONFIG[selected.status]?.color ?? GRAY }}>
                             {STATUS_CONFIG[selected.status]?.label}
                           </StatusTag>

@@ -784,7 +784,7 @@ export const SecurityComplianceCenterPage: React.FC = () => {
     <div data-testid="security-compliance-center-page" style={{ padding: 20, maxWidth: 1500, margin: '0 auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
         <ShieldCheck size={22} color="var(--color-info-600)" />
-        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>{t('w13Sec.title')}</h1>
+        <Typography.Title level={4} style={{ margin: 0 }}>{t('w13Sec.title')}</Typography.Title>
         <Tag color="cyan">{t('w13Sec.badge')}</Tag>
       </div>
       <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 0, marginBottom: 16 }}>{t('w13Sec.subtitle')}</p>

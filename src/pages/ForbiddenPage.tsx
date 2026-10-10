@@ -3,6 +3,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { ShieldX, ScanLine, ArrowLeft, Home } from 'lucide-react';
 import { t } from '../i18n/appI18n';
 import { ActionButton } from '../components/common/ActionButton';
+import { Typography } from 'antd';
+
+const { Title } = Typography
 
 export default function ForbiddenPage() {
   const navigate = useNavigate();
@@ -27,9 +30,9 @@ export default function ForbiddenPage() {
             {t('w8.forbidden.code')}
           </div>
         </div>
-        <h1 style={{ margin: '0 0 8px', fontSize: 20, fontWeight: 700, color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+        <Title level={4} style={{ margin: '0 0 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
           <ShieldX size={20} color="#f87171" />{t('w8.forbidden.title')}
-        </h1>
+        </Title>
         <p style={{ marginTop: 8, marginBottom: 6, fontSize: 12, color: '#94a3b8', lineHeight: 1.7 }}>
           {user
             ? t('w8.forbidden.hintLogged', { name: user.name, role: user.role })

@@ -25,7 +25,10 @@ import { criticalApi, type CriticalStatsDto } from '../services/api/criticalApi'
 import { criticalStatsApi, type NotificationCompletionStats } from '../services/api/criticalStatsApi';
 import CriticalValueStatsExtended from './critical/CriticalValueStatsExtended';
 import { LoadingBanner, ErrorBanner, AppEmpty } from '../components/feedback';
+import { Typography } from 'antd';
 import { t } from '../i18n/appI18n';
+
+const { Title } = Typography
 
 // ============================================================
 // 状态配置
@@ -116,10 +119,10 @@ export default function CriticalValueStatsPage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <BarChart3 size={20} color="#7c2d12" /> 危急值统计大屏
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R5</span>
-          </h1>
+          </Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             10 分钟通报率 · 按病种/设备/医生分桶 · 闭环可视化
           </p>

@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom"
 import {
   ShieldAlert, CheckCircle, CheckSquare, Activity, ListOrdered, AlarmClock, BarChart3,
 } from "lucide-react"
-import { message } from "antd"
+import { message, Typography } from "antd"
 import { t } from "../../i18n/appI18n"
 // [v3.0.6.11-105 Wave 2C] 国标指标联动: RQI-RCV-04 危急值 10min 通报完成率
 import { RqiIndicatorLink } from "../../components/qc/RqiIndicatorLink"
@@ -31,6 +31,8 @@ import CriticalValueCenterPage from "../CriticalValueCenterPage"
 import CriticalValue5StepPage from "./CriticalValue5StepPage"
 import CriticalAlertPage from "./CriticalAlertPage"
 import CriticalValueStatsPage from "../CriticalValueStatsPage"
+
+const { Title } = Typography
 
 const TABS = [
   { key: "workbench", label: t("critical.tabWorkbench"), icon: <ShieldAlert size={15} /> },
@@ -408,7 +410,7 @@ export default function CriticalValuePage() {
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
           <ShieldAlert size={22} style={{ color: 'var(--color-error-600)' }} />
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0 }}>{t("criticalValuePage.title")}</h1>
+          <Title level={4} style={{ margin: 0 }}>{t("criticalValuePage.title")}</Title>
           <span style={{ fontSize: 12, color: '#fff', background: 'linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-primary-500) 100%)', padding: '3px 10px', borderRadius: 10, fontWeight: 600 }}>{t("criticalValuePage.versionBadge")}</span>
         </div>
         <p style={{ fontSize: 12, color: '#64748b', margin: 0, paddingLeft: 32 }}>{t("criticalValuePage.subtitle")}</p>

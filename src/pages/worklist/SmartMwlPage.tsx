@@ -24,12 +24,15 @@ import {
   Alert,
   Progress,
   Tooltip,
+  Typography,
 } from "antd";
 import { Search, ArrowUpDown, Settings, RefreshCw, Clock, AlertTriangle, FileText, BarChart3, Eye, Info } from 'lucide-react'
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { DataTable, StatCard, StatCardGrid } from "../../components/common"
 import { t } from '../../i18n/appI18n'
+
+const { Title } = Typography
 
 const levelMeta: Record<string, { labelKey: string; color: string }> = {
   critical: { labelKey: 'smartMwl.levelCritical', color: 'red' },
@@ -268,7 +271,7 @@ const SmartMwlPage: React.FC = () => {
     <div style={{ padding: 24 }}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
         <BarChart3 size={20} color="var(--color-primary-600)" />
-        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{t('smartMwl.title')}</h1>
+        <Title level={4} style={{ margin: 0 }}>{t('smartMwl.title')}</Title>
         <Tag color="blue">{t('smartMwl.tagMultiFactor')}</Tag>
         <Tag color="purple">{t('smartMwl.tagConfigurable')}</Tag>
         <Tag color="green">{t('smartMwl.tagAiFactor')}</Tag>

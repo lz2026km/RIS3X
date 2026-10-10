@@ -33,7 +33,7 @@ import { ConfirmDialog } from "../components/ConfirmDialog";
 import { LoadingBanner, ErrorBanner } from "../components/feedback";
 import { DataTable } from "../components/common/DataTable";
 import type { ColumnsType } from "antd/es/table";
-import { Drawer, Tag } from "antd";
+import { Drawer, Tag, Typography } from "antd";
 import { reportQualityApi } from "../services/api";
 import { qualityScoringCenterApi } from "../services/api/qualityScoringCenterApi";
 import { t } from "../i18n/appI18n";
@@ -389,10 +389,9 @@ export default function ReportDefectLibraryPage() {
         }}
       >
         <div>
-          <h1
+          <Typography.Title
+            level={4}
             style={{
-              fontSize: 20,
-              color: "var(--text-primary)",
               margin: 0,
               display: "flex",
               alignItems: "center",
@@ -412,7 +411,7 @@ export default function ReportDefectLibraryPage() {
             >
               R4
             </span>
-          </h1>
+          </Typography.Title>
           <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: "4px 0 0" }}>
             {t('reportDefect.summary', { count: defectList.length, evaluated: apiKpi.totalEvaluated })}
           </p>

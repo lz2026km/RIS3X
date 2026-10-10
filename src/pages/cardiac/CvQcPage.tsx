@@ -2,9 +2,12 @@
 import { useEffect, useState } from 'react'
 
 import { Shield, CheckCircle2, AlertTriangle, XCircle, BarChart3, ClipboardCheck } from 'lucide-react'
+import { Typography } from 'antd'
 import { DataTable } from '../../components/common'
 import { qcextApi } from '../../services/api/qcextApi'
 import { t } from '../../i18n/appI18n'
+
+const { Title } = Typography
 
 type QcMetric = {
   labelKey: string
@@ -162,12 +165,12 @@ export default function CvQcPage() {
 
   return (
     <div style={{ padding: 24 }}>
-      <h1 style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '0 0 16px' }}>
+      <Title level={4} style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '0 0 16px' }}>
         <Shield size={24} /> {t('cvQc.title')}
         <span style={{ fontSize: 12, fontWeight: 400, background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: source === 'api' ? 'var(--color-success)' : 'var(--color-warning)', padding: '2px 8px', borderRadius: 10 }}>
           {source === 'api' ? t('cvQc.dataSourceApi') : t('cvQc.demoData')}
         </span>
-      </h1>
+      </Title>
 
       {error && <div style={{ marginBottom: 12, padding: '8px 12px', background: 'var(--color-error-bg)', color: 'var(--color-error)', borderRadius: 6, fontSize: 12 }}>{error}</div>}
 

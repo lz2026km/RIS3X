@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import dayjs, { type Dayjs } from 'dayjs'
-import { Card, Row, Col, DatePicker, Spin, Space } from 'antd'
+import { Card, Row, Col, DatePicker, Spin, Space, Typography } from 'antd'
 import { Cpu, TrendingUp, Download } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
 import { aiDiagnosisApi } from '../../services/api/aiDiagnosisApi'
@@ -8,6 +8,8 @@ import { seededInt, seededUnit } from '../../utils/seededRandom'
 import { DataTable } from '../../components/common/DataTable'
 import { ActionButton } from '../../components/common/ActionButton'
 import { StatCard, StatCardGrid } from '../../components/common'
+
+const { Title } = Typography
 
 const { RangePicker } = DatePicker
 
@@ -157,10 +159,10 @@ export default function BenchmarkAiDiagnosisPage() {
             <Cpu size={22} color="#fff" />
           </div>
           <div>
-            <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
               {t('benchmarkAi.title')}
               <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f5f3ff', color: '#9333ea', border: '1px solid #e9d5ff', fontWeight: 600 }}>{t('benchmarkAi.demoData')}</span>
-            </h2>
+            </Title>
             <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('benchmarkAi.subtitle')} <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: '#fef3c7', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t('benchmarkAi.demoNote')}</span></span>
           </div>
         </Space>

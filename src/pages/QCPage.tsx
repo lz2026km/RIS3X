@@ -1,5 +1,5 @@
 import { t } from '../i18n/appI18n'
-import { Switch } from 'antd'
+import { Switch, Typography } from 'antd'
 // NOTE: 未解决 - 此文件超过 2000 行（2933行），需要拆分为子组件
 // v3.0.4 重构目标：
 // 1. 提取页面头部 (title + breadcrumb + actions)
@@ -53,6 +53,8 @@ import DepartmentQualityPage from './quality/DepartmentQualityPage'
 import RqiIndicatorPage from './qc/RqiIndicatorPage'
 // [G005 W9-QC] 统一质控评分台 Tab: 内嵌量表+40指标+PDCA+抽查双盲+互评+设备质控 (深链 /qc?tab=scoringCenter)
 import QualityScoringCenterPage from './qc/QualityScoringCenterPage'
+
+const { Title } = Typography
 
 const PRIMARY = 'var(--color-primary-800)'
 
@@ -3155,7 +3157,7 @@ export default function QCPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowRatingModal(false)}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 28, width: 480, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: PRIMARY }}>{t('dc.qualityScore')}</h2>
+              <Title level={5} style={{ margin: 0 }}>{t('dc.qualityScore')}</Title>
               <button onClick={() => setShowRatingModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
@@ -3231,7 +3233,7 @@ export default function QCPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setDetailModal(d => ({ ...d, show: false }))}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 28, width: 480, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: PRIMARY }}>{detailModal.title}</h2>
+              <Title level={5} style={{ margin: 0 }}>{detailModal.title}</Title>
               <button onClick={() => setDetailModal(d => ({ ...d, show: false }))} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
             </div>
             <div style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.6 }}>{detailModal.content}</div>
@@ -3247,7 +3249,7 @@ export default function QCPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setFormModal(f => ({ ...f, show: false }))}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 28, width: 480, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: PRIMARY }}>{formModal.title}</h2>
+              <Title level={5} style={{ margin: 0 }}>{formModal.title}</Title>
               <button onClick={() => setFormModal(f => ({ ...f, show: false }))} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
             </div>
             <div style={{ fontSize: 12, color: GRAY, textAlign: 'center', padding: '20px 0' }}>{t("qcPage.formContentDemo")}</div>
@@ -3264,7 +3266,7 @@ export default function QCPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setPeerReviewDetail(null)}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 28, width: 480, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: PRIMARY }}>{t("qcPage.blindReviewDetail")} {peerReviewDetail.id}</h2>
+              <Title level={5} style={{ margin: 0 }}>{t("qcPage.blindReviewDetail")} {peerReviewDetail.id}</Title>
               <button onClick={() => setPeerReviewDetail(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

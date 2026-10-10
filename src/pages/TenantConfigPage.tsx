@@ -22,12 +22,15 @@ import {
   message,
   Popconfirm,
   List,
+  Typography,
 } from "antd";
 import { useState, useEffect, useCallback } from 'react'
 import { DataTable, PageContainer, StatCard, StatCardGrid } from "../components/common"
 import { RefreshCw, ShieldCheck, Settings, Users, LayoutDashboard, Zap, Plus, Power, PlayCircle, ClipboardList } from 'lucide-react'
 import { usePagination } from '../hooks/usePagination'
 import { t } from '../i18n/appI18n'
+
+const { Title } = Typography
 
 // [G005 v3.0.6.11-91 W1-B P1 第12轮] 合规报告: 后端 /compliance/report (overallScore/categories/items)
 // 与 MSW 兜底 (summary/details) 两种 shape 归一化
@@ -238,7 +241,7 @@ export default function TenantConfigPage() {
     <PageContainer padding={24}>
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         <Row justify="space-between" align="middle">
-          <h2 style={{ margin: 0 }}><ShieldCheck /> {t('tenantConfig.pageTitle')}</h2>
+          <Title level={4} style={{ margin: 0 }}><ShieldCheck /> {t('tenantConfig.pageTitle')}</Title>
           <Space>
             <Button icon={<ClipboardList />} loading={complianceLoading} onClick={() => void loadCompliance()}>{t('tenantConfig.complianceReport')}</Button>
             <Button icon={<RefreshCw />} onClick={() => void fetchAll()} loading={loading}>{t('tenantConfig.refresh')}</Button>

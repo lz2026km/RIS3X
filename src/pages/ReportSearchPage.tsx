@@ -6,7 +6,7 @@
 import { FEATURED_TERMS, REPORT_PHRASES } from '../data/knowledgeStatsMock';
 import { reportApi } from '../services/api/reportApi';
 import type { ReportDto } from '../types/dto';
-import { Spin, Alert, Empty, message } from 'antd';
+import { Spin, Alert, Empty, message, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
   Search,
@@ -379,10 +379,10 @@ export default function ReportSearchPage() {
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
       {/* 顶部 */}
       <div style={{ marginBottom: 16 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Search size={20} color="var(--color-primary-800)" /> {t('reportSearch.title')}
           <StatusTag status="success" style={{ fontWeight: 700 }}>R7</StatusTag>
-        </h1>
+        </Typography.Title>
         <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
           {t('reportSearch.subtitle')}
         </p>

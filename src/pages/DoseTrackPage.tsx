@@ -56,6 +56,9 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip,
 } from "recharts";
 import { ChartContainer, chartDefaults } from "../components/charts";
+import { Typography } from "antd";
+
+const { Title } = Typography
 
 type View =
   | "overview"
@@ -383,11 +386,9 @@ function PageHeader({
       }}
     >
       <div>
-        <h1
+        <Title
+          level={4}
           style={{
-            fontSize: 20,
-            fontWeight: 700,
-            color: "var(--color-primary-800)",
             margin: "0 0 4px",
             display: "flex",
             alignItems: "center",
@@ -396,7 +397,7 @@ function PageHeader({
         >
           <Gauge size={18} color="var(--color-primary-800)" />
           {t("doseTrack.title")}
-        </h1>
+        </Title>
         <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: 0 }}>
           {t("doseTrack.subtitle")}
         </p>

@@ -181,7 +181,7 @@ export const CertificateCenterPage: React.FC = () => {
     <div data-testid="certificate-center-page" style={{ padding: 20, maxWidth: 1400, margin: '0 auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
         <ShieldCheck size={22} color="var(--color-info-600)" />
-        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>{t('w8Report.certCenterTitle')}</h1>
+        <Typography.Title level={4} style={{ margin: 0 }}>{t('w8Report.certCenterTitle')}</Typography.Title>
         <Tag color="cyan">{t('w8Report.certCenterBadge')}</Tag>
         <div style={{ flex: 1 }} />
         {activeKeyId && <Tag icon={<KeyRound size={12} />} color="blue">{activeKeyId}</Tag>}

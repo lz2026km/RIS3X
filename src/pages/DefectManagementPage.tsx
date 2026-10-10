@@ -16,7 +16,7 @@ import {
   CheckCircle,
   BarChart3,
 } from 'lucide-react'
-import { Tag, message, Spin, Modal, Form, Input, Select } from 'antd'
+import { Tag, message, Spin, Modal, Form, Input, Select, Typography } from 'antd'
 import type { TableColumnsType } from 'antd'
 import { DataTable } from '../components/common/DataTable'
 import { ActionButton } from '../components/common/ActionButton'
@@ -24,6 +24,8 @@ import { qcextApi, type QcDefectDto } from '../services/api/qcextApi'
 import { DEFECT_LIBRARY } from '../data/qualityScoreMock'
 import { t } from '../i18n/appI18n'
 import { severityToAntd, toneToAntd } from '../theme/statusTokens'
+
+const { Title } = Typography
 
 type StatusFilter = 'all' | 'open' | 'in_progress' | 'resolved'
 type SeverityFilter = 'all' | 'high' | 'medium' | 'low'
@@ -255,7 +257,7 @@ const DefectManagementPage: React.FC = () => {
     <div className="p-6 space-y-4" data-testid="defect-management-page">
       <div className="flex items-center gap-2">
         <AlertOctagon className="text-red-600" size={28} />
-        <h1 className="text-2xl font-bold">{t('defectMgmt.title')}</h1>
+        <Title level={4} className="text-2xl font-bold" style={{ margin: 0 }}>{t('defectMgmt.title')}</Title>
         <Tag color="orange">{t('defectMgmt.primarySource')}</Tag>
         <Tag color="green">{t('defectMgmt.reportSource')}</Tag>
         <ActionButton
@@ -349,7 +351,7 @@ const DefectManagementPage: React.FC = () => {
       <div className="rounded-lg border bg-card p-4">
         <div className="flex items-center gap-2 mb-3">
           <BarChart3 size={18} className="text-blue-600" />
-          <h2 className="font-semibold">{t('defectMgmt.categoryDistribution')}</h2>
+          <Title level={5} className="font-semibold" style={{ margin: 0 }}>{t('defectMgmt.categoryDistribution')}</Title>
         </div>
         <div className="grid grid-cols-3 gap-3">
           {Object.entries(stats.byCategory).map(([cat, count]) => (

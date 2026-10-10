@@ -6,12 +6,14 @@
 import { useState, useEffect } from 'react'
 import type { ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { message } from 'antd'
+import { message, Typography } from 'antd'
 import { aiPlatformApi } from '../services/api/aiPlatformApi'
 import { DataTable } from '../components/common'
 import { qcImageAiApi } from '../services/api/qcImageAiApi'
 import type { QcAiAssessResult, QcAiAssessRecord } from '../services/api/qcImageAiApi'
 import { t } from '../i18n/appI18n'
+
+const { Title } = Typography
 import {
   ShieldCheck, AlertTriangle, CheckCircle, Search, Filter,
   TrendingUp, Clock, X,
@@ -676,9 +678,9 @@ export default function AIQCPage() {
               <Brain size={22} color="#fff" />
             </div>
             <div>
-              <h1 style={{ fontSize: 20, fontWeight: 700, color: WHITE, margin: 0 }}>
+              <Title level={4} style={{ margin: 0 }}>
                 {t('aiQcPage.heading')}
-              </h1>
+              </Title>
               <p style={{ fontSize: 12, color: GRAY, margin: 0 }}>
                 {t('aiQcPage.subtitle')} {apiLoading ? t('aiQcPage.syncing') : ''}
               </p>

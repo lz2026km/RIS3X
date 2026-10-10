@@ -5,7 +5,7 @@
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { Shield, CheckCircle, XCircle, Download, RefreshCw, Target, BarChart3, Activity, Users, FileText, ClipboardList, BookOpen, PieChart, AlertTriangle, Scale } from 'lucide-react'
 import { mammoQcApi, type MammoQcOverview, type MammoQcRecord, type MammoQcTest, type MammoQcStandard, type MammoQcStats, type BreastQcRule, type BreastQcImageInput, type BreastQcEvaluateResult } from '../../services/api/mammoQcApi'
-import { Card, Tabs, message } from 'antd'
+import { Card, Tabs, Typography, message } from 'antd'
 import type { TableColumnsType } from 'antd'
 import { DataTable } from '../../components/common/DataTable'
 import { t } from '../../i18n/appI18n'
@@ -207,7 +207,7 @@ const QualityManagementPage = () => {
     <div style={s.root}>
       <div style={s.header}>
         <div>
-          <h1 style={s.title}>{t('mammoQc.title')}</h1>
+          <Typography.Title level={4} style={{ margin: 0 }}>{t('mammoQc.title')}</Typography.Title>
           <p style={s.subtitle}>{t('mammoQc.subtitle')}</p>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>

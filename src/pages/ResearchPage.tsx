@@ -4,7 +4,7 @@
 // 新增：DICOM脱敏引擎 / 队列构建器 / IRB工作流 / 数据导出管线 / 数据质量看板
 // ============================================================
 import React, { useState, useRef, useEffect } from 'react'
-import { Select } from 'antd'
+import { Select, Typography } from 'antd'
 import { Checkbox } from 'antd'
 import {
   FlaskConical, Plus, X, Search, Edit2, Trash2, Download, Tag, Folder, FileText, Calendar, User, Clock,
@@ -1139,7 +1139,7 @@ export default function ResearchPage() {
       <div style={{ marginBottom: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
           <div style={{ width: 40, height: 40, background: COLORS.primary, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><FlaskConical size={20} color="var(--text-inverse)" /></div>
-          <div><h1 style={{ fontSize: 20, fontWeight: 700, color: COLORS.textPrimary, margin: 0 }}>{t('researchPage.pageTitle')}</h1><p style={{ fontSize: 12, color: COLORS.textSecondary, margin: 0 }}>{t('researchPage.pageSubtitle')}</p></div>
+          <div><Typography.Title level={4} style={{ margin: 0 }}>{t('researchPage.pageTitle')}</Typography.Title><p style={{ fontSize: 12, color: COLORS.textSecondary, margin: 0 }}>{t('researchPage.pageSubtitle')}</p></div>
         </div>
       </div>
       <div style={{ display: 'flex', gap: 4, background: COLORS.bgWhite, padding: '4px 4px 0', borderRadius: '12px 12px 0 0', border: '1px solid ' + COLORS.border, borderBottom: 'none', flexWrap: 'wrap' }}>

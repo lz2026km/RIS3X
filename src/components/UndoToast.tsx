@@ -25,6 +25,13 @@ interface UndoContextType {
 
 const UndoContext = createContext<UndoContextType | null>(null)
 
+/** 无 Provider 时的安全回退: 撤销提示静默降级, 避免整页崩溃 (ErrorBoundary 兜底) */
+const UNDO_FALLBACK: UndoContextType = {
+  showUndo: () => "",
+  dismiss: () => {},
+  executeUndo: () => {},
+}
+
 /**
  * UndoToastProvider - 提供全局撤销提示能力
  * 用于删除、撤回、作废等操作后的短时撤销窗口
@@ -140,7 +147,7 @@ export function UndoToastProvider({ children }: { children: React.ReactNode }) {
 
 export const useUndoToast = () => {
   const ctx = useContext(UndoContext)
-  if (!ctx) throw new Error('useUndoToast must be used within UndoToastProvider')
+  if (!ctx) return UNDO_FALLBACK
   return ctx
 }
 

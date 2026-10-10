@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react'
 import { Users, Calendar, Clock, Activity, TrendingUp, RefreshCw, Download, Plus, Bed, UserCheck, FileText } from 'lucide-react'
 import { statsApi } from '../../services/api/statsApi'
 import { DataTable } from '../../components/common'
-import { Card } from 'antd'
+import { Card, Typography } from 'antd'
 import { t } from '../../i18n/appI18n'
 
 const statsData: Array<{ key: string; labelKey: string; value: string; unit?: string; unitKey?: string; icon: any; color: string; bg: string }> = [
@@ -147,7 +147,7 @@ const DepartmentOperationsPage = () => {
     <div style={s.root}>
       <div style={s.header}>
         <div>
-          <h1 style={s.title}>{t('deptOps.title')}</h1>
+          <Typography.Title level={4} style={{ margin: 0 }}>{t('deptOps.title')}</Typography.Title>
           <p style={s.subtitle}>
             {t('deptOps.subtitle')}
             <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600, background: source === 'api' ? '#dcfce7' : '#fef3c7', color: source === 'api' ? 'var(--color-success-600)' : 'var(--color-warning-600)' }}>

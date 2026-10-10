@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Printer, Download } from 'lucide-react'
-import { Spin, Alert, message, Tabs, Tag, Rate, Select, Input, Empty, Descriptions, Statistic, Drawer, Card } from 'antd'
+import { Spin, Alert, message, Tabs, Tag, Rate, Select, Input, Empty, Descriptions, Statistic, Drawer, Card, Typography } from 'antd'
 import type { TableColumnsType } from 'antd'
+
+const { Title } = Typography
 import {
   patientPortalApi,
   type PortalPatientDto,
@@ -65,7 +67,7 @@ const styles = {
   container: { maxWidth: 1000, margin: '0 auto', padding: 24, fontFamily: '-apple-system, sans-serif' },
   card: { background: 'var(--bg-card)', borderRadius: 12, padding: 24, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  title: { fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0 },
+  title: { margin: 0 },
   subTitle: { fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', margin: 0, marginBottom: 16 },
   grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 },
   label: { fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4 },
@@ -691,7 +693,7 @@ export default function SelfServicePortal() {
     return (
       <div style={styles.container}>
         <Card bordered={false} style={{ ...styles.card, maxWidth: 400, margin: '80px auto', textAlign: 'center' }} styles={{ body: { padding: 0 } }}>
-          <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>{t('selfService.login.title')}</h2>
+          <Title level={5} style={{ marginBottom: 8 }}>{t('selfService.login.title')}</Title>
           <p style={{ fontSize: 12, color: '#64748b', marginBottom: 24 }}>{t('selfService.login.hint')}</p>
           <input
             placeholder={t('selfService.login.placeholder')}
@@ -1493,7 +1495,7 @@ export default function SelfServicePortal() {
       {/* 患者身份卡 */}
       <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
         <div style={styles.header}>
-          <h2 style={styles.title}>{t('selfService.login.title')}</h2>
+          <Title level={5} style={styles.title}>{t('selfService.login.title')}</Title>
           <button style={{ ...styles.btn, background: '#64748b' }} onClick={handleLogout}>{t('selfService.patientCard.logout')}</button>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>

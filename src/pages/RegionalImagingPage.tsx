@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Save, Send } from "lucide-react";
-import { message } from "antd";
+import { message, Typography } from "antd";
 import { DataTable } from "../components/common/DataTable";
 import { StatusTag } from "../components/common/StatusTag";
 import {
@@ -1474,7 +1474,7 @@ const RegionalImagingPage: React.FC = () => {
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <h2 style={styles.pageTitle}>{t('regionalImaging.pageTitle')}</h2>
+        <Typography.Title level={4} style={{ margin: "0 0 8px 0" }}>{t('regionalImaging.pageTitle')}</Typography.Title>
         <p style={styles.subtitle}>
           东华区第一医院 · 国家医学中心直属医院 · 青浦区分院 · 跨机构查询 · IHE
           XDS-I

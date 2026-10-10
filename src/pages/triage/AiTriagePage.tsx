@@ -16,11 +16,14 @@ import {
   Empty,
   Tooltip,
   Segmented,
+  Typography,
 } from "antd";
 import { Bot, AlertTriangle, CheckCircle, Clock, RefreshCw, FileText, Zap, UserCheck, Search } from 'lucide-react'
 import { DataTable, StatCard, StatCardGrid } from "../../components/common"
 import React, { useState, useEffect, useCallback } from 'react'
 import { t } from '../../i18n/appI18n'
+
+const { Title } = Typography
 
 const levelColor: Record<string, string> = { CRITICAL: 'red', URGENT: 'orange', SEMI_URGENT: 'gold', ROUTINE: 'green' }
 const levelLabelKey: Record<string, string> = { CRITICAL: 'aiTriage.levelCritical', URGENT: 'aiTriage.levelUrgent', SEMI_URGENT: 'aiTriage.levelSemiUrgent', ROUTINE: 'aiTriage.levelRoutine' }
@@ -162,7 +165,7 @@ const AiTriagePage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <Bot size={20} color="#722ed1" /><h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{t('aiTriage.title')}</h1><Tag color="purple">{t('aiTriage.tag')}</Tag>
+        <Bot size={20} color="#722ed1" /><Title level={4} style={{ margin: 0 }}>{t('aiTriage.title')}</Title><Tag color="purple">{t('aiTriage.tag')}</Tag>
       </div>
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void fetchPending()}><RefreshCw size={14} /> {t('aiTriage.retry')}</Button>} />}
       <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>

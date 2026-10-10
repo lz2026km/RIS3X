@@ -1,10 +1,12 @@
 import { cardiacSpecialtyApi } from "../../services/api/cardiacSpecialtyApi";
 import { CardiacAnalysis } from '../../services/api/cardiacSpecialtyApi'
 import { loadCardiacAiAnalyses } from "./cardiacAiAdapter";
-import { message, Spin, Alert, Button } from "antd";
+import { message, Spin, Alert, Button, Typography } from "antd";
 import { Search, Download, Database, Eye, RefreshCw } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { DataTable } from "../../components/common";
+
+const { Title } = Typography;
 
 type CvModality = "CCTA" | "CMR" | "Echo" | "Cath" | "Vascular";
 type CvAnatomy =
@@ -174,11 +176,11 @@ export default function CvDatabasePage() {
           marginBottom: 20,
         }}
       >
-        <h1
+        <Title level={4}
           style={{ display: "flex", alignItems: "center", gap: 8, margin: 0 }}
         >
           <Database size={24} /> CV 影像数据库 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? '#f0fdf4' : '#eff6ff', color: dataSource === 'real' ? 'var(--color-success-600)' : 'var(--color-primary-800)', border: `1px solid ${dataSource === 'real' ? '#bbf7d0' : '#bfdbfe'}`, fontWeight: 400 }}>{dataSource === 'real' ? 'AI 接口实时' : '演示数据(回退)'}</span>
-        </h1>
+        </Title>
         <div style={{ display: "flex", gap: 8 }}>
           <Button
             size="small"
@@ -404,9 +406,9 @@ export default function CvDatabasePage() {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 style={{ margin: "0 0 16px" }}>
+            <Title level={5} style={{ margin: "0 0 16px" }}>
               {selectedCase.id} — {selectedCase.patientName}
-            </h2>
+            </Title>
             <dl
               style={{
                 display: "grid",

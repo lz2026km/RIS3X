@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { Brain, Activity, AlertTriangle, Search, ChevronRight, TrendingUp, Zap, BarChart3, FileText, Eye, Loader2, Download, X, Database } from 'lucide-react';
 import { neuroSpecialtyApi, type NeuroStudy, type NeuroStats } from '../services/api/neuroSpecialtyApi';
 import { DataTable } from '../components/common';
-import { Card, Tag } from 'antd';
+import { Card, Tag, Typography } from 'antd';
 import { t } from '../i18n/appI18n';
 
 // ─── Constants ───
@@ -153,7 +153,7 @@ const NeuroSpecialtyPage = () => {
     <div style={s.root}>
       <div style={s.header}>
         <div>
-          <h1 style={s.title}><Brain size={24} color="var(--color-error-600)" /> {t('neuro.title')}</h1>
+          <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Brain size={24} color="var(--color-error-600)" /> {t('neuro.title')}</Typography.Title>
           <p style={s.subtitle}>{t('neuro.subtitle')}</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
             <span style={{ padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: 'var(--color-info-bg)', color: 'var(--color-primary-800)' }}>

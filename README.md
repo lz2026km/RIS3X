@@ -1,4 +1,4 @@
-# G005 放射科 RIS 系统 v3.0.6.13-3
+# G005 放射科 RIS 系统 v3.0.6.13-4
 
 > **企业级放射信息系统 · 对标前 10 大 PACS/RIS 厂商** · 17 模块 / 9,000+ R3 点完整实施
 
@@ -14,7 +14,7 @@
 
 G005 是面向**三级甲等综合医院**的企业级放射信息系统(RIS)，对标全球前 10 大 PACS/RIS 厂商（GE、Siemens、Philips、Fujifilm、Carestream、Agfa、Canon、Hologic、Intelerad、Mach7），涵盖从 AI 辅助到患者门户的完整放射科工作流。
 
-**版本迭代**: v3.0.0 → v3.0.6.13-3（**品牌/语义色令牌化**：6,020 处硬编码 hex → CSS 令牌，hex 13,390 → 8,395；守卫预算收紧；**后端 357 suites/3770 tests + 前端 tsc 0 / 47 文件 831 测试 0 失败**）
+**版本迭代**: v3.0.0 → v3.0.6.13-4（**标题体系统一**：115 处裸 `<h1>/<h2>` → `Typography.Title`；**修复排班页崩溃**（UndoToast 越界降级）；守卫新增 rawHeading 预算；**后端 357 suites/3770 tests + 前端 tsc 0 / 47 文件 831 测试 0 失败**）
 
 ### v3.0.6.8-40 眼科深化 (7 PR 并行, 对标 Topcon Synergy 8.0)
 
@@ -264,7 +264,8 @@ g005-radiology-ris/
 | v3.0.5.1          | 修复 MSW 路径 + 最终发布                                                     |   ✅ 完成   |
 | v3.0.6.1          | 4 PACS 厂商 MVP (GE/Siemens/Philips/Canon)                                   |   ✅ 完成   |
 | v3.0.6.8-xx       | 17 模块 9,000+ 升级点 + 眼科深化                                             |   ✅ 完成   |
-| **v3.0.6.13-3**  | **品牌/语义色令牌化**：6,020 处单一定义的品牌/语义 hex（`#1e40af/#3b82f6/#dc2626/#f59e0b/#16a34a/#0891b2` 等 13 色）→ `var(--color-*)`（588 文件）；hex 预算 13,390 → **8,395**；跳过 canvas/图表绘制行与反转灰度梯度 | ✅ **当前** |
+| **v3.0.6.13-4**  | **标题体系统一 + 崩溃修复**：115 处裸 `<h1>/<h2>` → `Typography.Title`（92 文件，13 处打印模板豁免）；修复 `/schedule`、`/ops/tech-schedule` 的 `useUndoToast` 越界整页崩溃（无 Provider 时优雅降级）；`guard:ui` 新增 `rawHeading` 预算 | ✅ **当前** |
+| v3.0.6.13-3      | **品牌/语义色令牌化**：6,020 处单一定义的品牌/语义 hex → `var(--color-*)`（588 文件）；hex 预算 13,390 → 8,395 | ✅ 完成 |
 | v3.0.6.13-2      | **原生表格迁移 + 字号令牌化**：110 张原生 HTML `<table>` → `DataTable`；2,775 处脱离设计刻度的内联 `fontSize` → 标准刻度；`guard:ui` 新增 nativeTable/offScaleFont 预算 | ✅ 完成 |
 | v3.0.6.13-1      | **暗色主题正确性 + 语义色统一**：28 页浅色字面量→令牌 + 31 个 GitHub-暗色锁定页 → 主题令牌(1279 处) + 33 页本地严重度/状态映射 → `statusTokens` 单一来源 + 可点击 `div/span` 键盘可达 | ✅ 完成 |
 | v3.0.6.13-0      | **全站表格统一**：318 张裸 antd `<Table>` → `DataTable`(密度/空态/加载/分页/列宽/固定列统一) + 去 `minHeight:100vh`(幽灵滚动) + 移除 394 处 `outline:none`(恢复焦点) + emoji/字形图标清理 + 死图标层移除 + `PageSection` 节奏原语 + `guard:ui` 防回退 | ✅ 完成 |

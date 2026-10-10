@@ -1,4 +1,4 @@
-import { Card, Select } from 'antd'
+import { Card, Select, Typography } from 'antd'
 import type { TableColumnsType } from 'antd'
 import { useState, useMemo, useEffect } from 'react'
 import type { ReactNode } from 'react'
@@ -8,6 +8,8 @@ import { ActionButton } from '../components/common/ActionButton'
 import { aiPlatformApi } from '../services/api/aiPlatformApi'
 import type { AiPlatformMedicalDevice } from '../services/api/aiPlatformApi'
 import { t } from '../i18n/appI18n'
+
+const { Title } = Typography
 
 // [v3.0.6.11-75] W1-2: 设备列表接入真实 GET /ai-platform/medical-devices (后端 prisma Device 表)
 const DEVICE_STATE_LABELS: Record<string, string> = {
@@ -283,7 +285,7 @@ export default function AIMedicalDevicePage() {
               <Cpu size={24} color="#fff" />
             </div>
             <div>
-              <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#fff' }}>{t('aiMedicalDevice.title')}</h1>
+              <Title level={4} style={{ margin: 0 }}>{t('aiMedicalDevice.title')}</Title>
               <p style={{ margin: '4px 0 0', fontSize: 12, color: 'rgba(255,255,255,0.8)' }}>
                 {activeTab === 'devices'
                   ? <>{t('aiMedicalDevice.devicesSummaryPrefix')} {devices.length} {t('aiMedicalDevice.unitsUnit')} | {t('aiMedicalDevice.idleLabel')} {devices.filter(d => d.state === 'IDLE').length} | {t('aiMedicalDevice.inUseLabel')} {devices.filter(d => d.state === 'IN_USE').length} | {t('aiMedicalDevice.maintenanceFaultLabel')} {devices.filter(d => ['MAINTENANCE', 'BROKEN', 'OFFLINE'].includes(d.state)).length}</>

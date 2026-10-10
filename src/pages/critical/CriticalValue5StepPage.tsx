@@ -20,11 +20,14 @@ import {
   message,
   Spin,
   Empty,
+  Typography,
 } from "antd";
 import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 import { ShieldAlert, Phone, CheckCircle, FileCheck, Archive, AlertTriangle, RefreshCw, Inbox } from 'lucide-react'
 import { criticalApi } from '../../services/api/criticalApi'
 import { t } from '../../i18n/appI18n'
+
+const { Title } = Typography
 
 const { TextArea } = Input
 
@@ -194,7 +197,7 @@ export default function CriticalValue5StepPage() {
     <PageContainer padding={24}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
         <ShieldAlert size={22} style={{ color: 'var(--color-error-600)' }} />
-        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{t('cv5.title')}</h1>
+        <Title level={4} style={{ margin: 0 }}>{t('cv5.title')}</Title>
         <Tag color="red">{t('cv5.loopTag')}</Tag>
       </div>
 

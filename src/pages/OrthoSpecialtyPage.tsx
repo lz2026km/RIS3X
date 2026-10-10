@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { Bone, Activity, AlertTriangle, Search, TrendingUp, Stethoscope, BarChart3, FileText, Scale, Plus } from 'lucide-react';
 import { t } from '../i18n/appI18n';
 import { DataTable } from '../components/common';
+import { Typography } from 'antd';
 import { LoadingBanner, ErrorBanner, AppEmpty } from '../components/feedback';
 import { orthoSpecialtyApi, type OrthoStudy } from '../services/api/orthoSpecialtyApi';
 
@@ -78,7 +79,7 @@ const OrthoSpecialtyPage = () => {
 
       <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Bone size={24} color="#9333ea" /> {t('ortho.title')} <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#8b5cf622', color: '#9333ea', border: '1px solid #e9d5ff' }}>{t('ortho.demoData')}</span></h1>
+          <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Bone size={24} color="#9333ea" /> {t('ortho.title')} <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#8b5cf622', color: '#9333ea', border: '1px solid #e9d5ff' }}>{t('ortho.demoData')}</span></Typography.Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('ortho.subtitle')} <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontWeight: 600 }}>{t('ortho.demoNoBackend')}</span></p>
         </div>
         <button onClick={() => setShowCreateModal(true)} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#9333ea', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 500 }}><Bone size={14} /> {t('ortho.newAnalysis')}</button>

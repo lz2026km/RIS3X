@@ -17,6 +17,7 @@ import {
   Popconfirm,
   Alert,
   Tabs,
+  Typography,
 } from "antd";
 import {
   Users,
@@ -322,7 +323,7 @@ const CoSignPage: React.FC = () => {
         }}
       >
         <Users size={20} color="#722ed1" />
-        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{t('coSign.title')}</h1>
+        <Typography.Title level={4} style={{ margin: 0 }}>{t('coSign.title')}</Typography.Title>
         <Tag color="purple">{t('coSign.subtitle')}</Tag>
       </div>
       <StatCardGrid minWidth={200} gap={16} style={{ marginBottom: 16 }}>

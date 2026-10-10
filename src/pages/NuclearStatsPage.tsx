@@ -13,6 +13,7 @@ import {
   type NuclearSummary,
 } from '../services/api/nuclearStatsApi'
 import { t } from '../i18n/appI18n'
+import { Typography } from 'antd'
 import { DataTable } from '../components/common/DataTable'
 import { ChartContainer } from '../components/charts'
 import {
@@ -518,9 +519,9 @@ export default function NuclearStatsPage() {
               <Radio size={28} color={C.accent} />
             </div>
             <div>
-              <h1 style={{ fontSize: 20, fontWeight: 700, color: C.primary, margin: '0 0 4px' }}>{t('nuclearStats.title')}
+              <Typography.Title level={4} style={{ margin: '0 0 4px' }}>{t('nuclearStats.title')}
                 {usingFallback && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: 'var(--color-warning-600)', fontWeight: 600, marginLeft: 8, verticalAlign: 'middle' }}>{t('nuclearStats.demoTag')}</span>}
-              </h1>
+              </Typography.Title>
               <p style={{ fontSize: 12, color: C.textMuted, margin: 0 }}>{t('nuclearStats.subtitle')}</p>
             </div>
           </div>

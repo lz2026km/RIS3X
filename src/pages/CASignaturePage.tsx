@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { message, Modal, Input, Select } from 'antd';
+import { message, Modal, Input, Select, Typography } from 'antd';
 import type { TableColumnsType } from 'antd';
 import {
   ShieldCheck, Stamp, CheckCircle2, AlertTriangle, XCircle,
@@ -20,6 +20,8 @@ import { StatusTag } from '../components/common/StatusTag';
 import { ActionButton } from '../components/common/ActionButton';
 import { StatCard } from '../components/common';
 import { t } from '../i18n/appI18n';
+
+const { Title } = Typography
 
 type CertificateStatus = 'valid' | 'expiring' | 'expired' | 'revoked';
 type SignatureAlgorithm = 'RSA-SHA256' | 'SM2-SM3';
@@ -310,10 +312,10 @@ export default function CASignaturePage() {
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Stamp size={20} color="#7c3aed" /> {t('caSignature.title')}
             <StatusTag status="success" style={{ fontWeight: 700 }}>R6</StatusTag>
-          </h1>
+          </Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('caSignature.subtitle')}
           </p>

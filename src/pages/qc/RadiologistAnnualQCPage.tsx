@@ -4,6 +4,7 @@
  */
 import { useMemo, useState, useEffect } from 'react';
 import { Users, Award, TrendingUp, TrendingDown, ChevronRight } from "lucide-react";
+import { Typography } from "antd";
 import { PageContainer } from "../../components/common/PageContainer";
 import { PageHeader } from "../../components/common/PageHeader";
 import { StickyActionBar } from "../../components/common/StickyActionBar";
@@ -238,7 +239,7 @@ export default function RadiologistAnnualQCPage() {
                   {selected.name[0]}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <h2 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{selected.name}</h2>
+                  <Typography.Title level={5} style={{ margin: 0 }}>{selected.name}</Typography.Title>
                   <AppText size="sm" color="secondary" style={{ marginTop: 4, display: "block" }}>
                     {selected.id} · {selected.title} · {selected.subspecialty} · {t('annualQc.yearsOfService', { years: selected.yearsOfExperience })}
                   </AppText>

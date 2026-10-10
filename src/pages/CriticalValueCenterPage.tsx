@@ -12,7 +12,7 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { AlertOctagon, Bell, BarChart3, Settings, Activity, TrendingUp, ShieldAlert, Save, Plus, Edit3, Trash2, RefreshCw, ScanSearch, CheckCircle2, Eye } from 'lucide-react'
-import { message, Switch, Modal, Input, Select, Popconfirm } from 'antd'
+import { message, Switch, Modal, Input, Select, Popconfirm, Typography } from 'antd'
 import { CRITICAL_RULES } from '../data/criticalValueMock'
 import { DataTable } from '../components/common'
 import { criticalApi, type CriticalStatsDto } from '../services/api/criticalApi'
@@ -21,6 +21,8 @@ import { invalidateApiCache } from '../services/api/client'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { ChartContainer, chartDefaults } from '../components/charts'
 import { t } from '../i18n/appI18n'
+
+const { Title } = Typography
 
 // [W2-A] 列表双形状归一化: MSW 裸数组 / 后端 { items, total }
 function asList<T>(data: unknown): T[] {
@@ -344,7 +346,7 @@ const CriticalValueCenterPage: React.FC = () => {
     <div className="p-6 space-y-4" data-testid="critical-value-center-page">
       <div className="flex items-center gap-2">
         <ShieldAlert className="text-red-600" size={28} />
-        <h1 className="text-2xl font-bold">{t('criticalCenter.title')}</h1>
+        <Title level={4} className="text-2xl font-bold" style={{ margin: 0 }}>{t('criticalCenter.title')}</Title>
       </div>
       <p className="text-gray-600">{t('criticalCenter.subtitle')}</p>
 
@@ -398,9 +400,9 @@ const CriticalValueCenterPage: React.FC = () => {
       {/* [W2-A] 危急值中心列表: listCenter + 自动检测 autoDetect + 闭环 closeLoop */}
       <div className="rounded-lg border bg-card p-4" data-testid="critical-center-list">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold flex items-center gap-2">
+          <Title level={5} className="font-semibold flex items-center gap-2" style={{ margin: 0 }}>
             <AlertOctagon size={16} className="text-red-600" /> {t('criticalCenter.centerListTitle')} ({center.length})
-          </h2>
+          </Title>
           <div className="flex gap-2">
             <button
               onClick={() => setDetectModalOpen(true)}
@@ -589,7 +591,7 @@ const CriticalValueCenterPage: React.FC = () => {
       {timeline.length > 0 && (
         <div className="rounded-lg border bg-card p-4">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="font-semibold">{t('criticalCenter.trendTitle')} ({timeline.length} {t('criticalCenter.daysUnit')})</h2>
+            <Title level={5} className="font-semibold" style={{ margin: 0 }}>{t('criticalCenter.trendTitle')} ({timeline.length} {t('criticalCenter.daysUnit')})</Title>
             <button onClick={() => void loadStats()} className="inline-flex items-center gap-1 rounded border border-slate-300 bg-card px-2 py-1 text-xs text-slate-600 hover:bg-slate-50">
               <RefreshCw size={12} /> {t('criticalCenter.refresh')}
             </button>
@@ -636,7 +638,7 @@ const CriticalValueCenterPage: React.FC = () => {
       {/* [W2-A] 规则库完整 CRUD: listRules / createRule / updateRule / deleteRule */}
       <div className="rounded-lg border bg-card p-4" data-testid="critical-rule-crud">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold">{t('criticalCenter.ruleLibraryTitle')} ({rulesCount} {t('criticalCenter.itemsUnit')})</h2>
+          <Title level={5} className="font-semibold" style={{ margin: 0 }}>{t('criticalCenter.ruleLibraryTitle')} ({rulesCount} {t('criticalCenter.itemsUnit')})</Title>
           <div className="flex gap-2">
             <button
               onClick={() => { setRuleModal({ open: true, editing: null }); setRuleForm({ name: '', condition: '', action: '', severity: 'HIGH', enabled: true }) }}
@@ -736,7 +738,7 @@ const CriticalValueCenterPage: React.FC = () => {
       {/* [W5] 通知通道开关配置: 落库 critical_channel_<CHANNEL>, 后端据此判定投递结果 */}
       <div className="rounded-lg border bg-card p-4" data-testid="critical-channel-config">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold">{t('criticalCenter.channelConfigTitle')}</h2>
+          <Title level={5} className="font-semibold" style={{ margin: 0 }}>{t('criticalCenter.channelConfigTitle')}</Title>
           <button
             onClick={() => void handleSaveChannels()}
             disabled={savingChannels}

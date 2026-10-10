@@ -9,6 +9,7 @@ import {
   Col,
   Modal,
   Descriptions,
+  Typography,
 } from "antd";
 import {
   Activity,
@@ -172,7 +173,7 @@ const RadPathPage: React.FC = () => {
         }}
       >
         <Activity size={20} color="#8b5cf6" />
-        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{t('radPath.title')}</h1>
+        <Typography.Title level={4} style={{ margin: 0 }}>{t('radPath.title')}</Typography.Title>
         <Tag color="purple">{t('radPath.radPathTag')}</Tag>
       </div>
       {loadError && !loading && <ErrorBanner message={loadError} />}

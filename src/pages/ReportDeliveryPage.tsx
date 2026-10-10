@@ -5,7 +5,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Tabs, Badge, message, Popconfirm, Modal, Tag } from 'antd';
+import { Tabs, Badge, message, Popconfirm, Modal, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { Layers, FileText, Receipt, Smartphone } from 'lucide-react';
 import { Send, MessageSquare, Mail, Database, Printer, Cloud, Film, CheckCircle2, RefreshCw, Loader2, Bell, Eye, Filter, Undo2, RotateCcw } from 'lucide-react';
@@ -25,6 +25,8 @@ import { DataTable } from '../components/common/DataTable';
 import { StatusTag } from '../components/common/StatusTag';
 import { StatCard } from '../components/common';
 import { t } from '../i18n/appI18n';
+
+const { Title } = Typography;
 
 // [G005 W2-B] reportApi 无 delivery 端点 → 由 reportApi.list 派生推送记录 + 页面标注
 const DELIVERY_CHANNELS: DeliveryChannel[] = ['wechat', 'sms', 'email', 'inApp', 'dicom', 'paper', 'cloud', 'film'];
@@ -399,7 +401,7 @@ export default function ReportDeliveryPage() {
       {/* 顶部 v3 升级标识 */}
       <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Send size={20} color="#07c160" /> {t('reportDelivery.title')}
             <StatusTag status="success" style={{ fontWeight: 700 }}>R6</StatusTag>
             <StatusTag status="info" style={{ fontWeight: 700 }}>R3.DIST v3.0.5.1</StatusTag>
@@ -412,7 +414,7 @@ export default function ReportDeliveryPage() {
                 {t('reportDelivery.staticData')}
               </span>
             )}
-          </h1>
+          </Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('reportDelivery.subtitle')}
           </p>
@@ -488,10 +490,10 @@ export default function ReportDeliveryPage() {
         <>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Send size={20} color="#07c160" /> {t('reportDelivery.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
-          </h1>
+          </Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('reportDelivery.classicSubtitle')}
           </p>

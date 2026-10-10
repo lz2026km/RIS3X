@@ -1,7 +1,10 @@
 
 import { X, CheckCircle, AlertTriangle, RefreshCw, Printer } from 'lucide-react'
+import { Typography } from 'antd'
 import { PRIMARY, GRAY, DANGER, SUCCESS, WHITE, BG } from './reportUtils'
 import { t } from '../../i18n/appI18n'
+
+const { Title } = Typography
 
 export interface ReviewResultModalProps {
   show: boolean
@@ -20,7 +23,7 @@ export function ReviewResultModal({ show, reportId, result, suggestion, onClose 
       <div style={{ background: WHITE, borderRadius: 16, padding: 28, width: 420, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}
         onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: PRIMARY }}>{t('reportResult.reviewResult')}</h2>
+          <Title level={5} style={{ margin: 0 }}>{t('reportResult.reviewResult')}</Title>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
@@ -58,7 +61,7 @@ export function BatchResultModal({ show, title, message, type, onClose }: BatchR
       <div style={{ background: WHITE, borderRadius: 16, padding: 28, width: 400, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}
         onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: PRIMARY }}>{title}</h2>
+          <Title level={5} style={{ margin: 0 }}>{title}</Title>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
@@ -89,7 +92,7 @@ export function PrintModal({ show, title, message, onClose, onPrint }: PrintModa
       <div style={{ background: WHITE, borderRadius: 16, padding: 28, width: 400, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}
         onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: PRIMARY }}>{title}</h2>
+          <Title level={5} style={{ margin: 0 }}>{title}</Title>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
         </div>
         <div style={{ fontSize: 12, color: '#334155', lineHeight: 1.5, marginBottom: 16 }}>{message}</div>
@@ -128,9 +131,9 @@ export function BulkActionModal({ show, action, count, loading, onClose, onConfi
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           {isDelete ? <AlertTriangle size={28} color={DANGER} /> : <CheckCircle size={28} color={SUCCESS} />}
           <div>
-            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: isDelete ? DANGER : PRIMARY }}>
+            <Title level={5} style={{ margin: 0 }}>
               {TITLE}
-            </h2>
+            </Title>
             <div style={{ fontSize: 12, color: GRAY, marginTop: 2 }}>
               {VERB} {t('reportResult.bulkCount', { count })}
             </div>

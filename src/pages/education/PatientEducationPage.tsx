@@ -1,11 +1,13 @@
 import { patientPortalApi, type CreateEducationInput } from '../../services/api'
 import { getEducationService, type EducationMaterial, type PatientEducationRecord, type CommunicationTemplate } from '../../services/education/EducationService'
-import { Spin, Alert, Empty, message, Modal, Input, Select, InputNumber, Card } from 'antd'
+import { Spin, Alert, Empty, message, Modal, Input, Select, InputNumber, Card, Typography } from 'antd'
 import { Inbox, Plus } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 // [v3.0.6.11-104 Wave 3D] 结构化患者宣教资料库 (PATIENT_EDUCATION_MATERIALS)
 import { PATIENT_EDUCATION_MATERIALS } from '../../data/patientEducationMaterials'
 import { t } from '../../i18n/appI18n'
+
+const { Title } = Typography
 
 // ===== Styles =====
 const s = {
@@ -200,7 +202,7 @@ export default function PatientEducationPage() {
 
   return (
     <div style={s.container}>
-      <h2 style={s.title}>{t('patientEdu.title')}</h2>
+      <Title level={4} style={{ margin: 0, marginBottom: 16 }}>{t('patientEdu.title')}</Title>
       {loadError && <Alert type="warning" showIcon message={loadError} style={{ marginBottom: 16 }} />}
 
       {/* Tabs */}

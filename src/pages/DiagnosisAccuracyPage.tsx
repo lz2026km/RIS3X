@@ -14,6 +14,9 @@ import { DIAGNOSIS_ACCURACY_DATA } from '../data/knowledgeStatsMock';
 import { DataTable } from '../components/common/DataTable';
 import { ActionButton } from '../components/common/ActionButton';
 import { t } from '../i18n/appI18n';
+import { Typography } from 'antd';
+
+const { Title } = Typography
 
 // ============================================================
 // 主组件
@@ -84,10 +87,10 @@ export default function DiagnosisAccuracyPage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Target size={20} color="#10b981" /> 诊断符合率
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
-          </h1>
+          </Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             病理 / 临床 / 影像随访 三种金标准 · 灵敏度 / 特异度 / PPV / NPV
           </p>

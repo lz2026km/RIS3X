@@ -16,6 +16,9 @@ import { biApi } from '../services/api/biApi';
 import { t } from '../i18n/appI18n';
 import { DataTable } from '../components/common/DataTable';
 import { ActionButton } from '../components/common/ActionButton';
+import { Typography } from 'antd';
+
+const { Title } = Typography
 
 // ============================================================
 // 主组件
@@ -206,13 +209,13 @@ export default function DoctorWorkloadPage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Users size={20} color="#7c3aed" /> {t('dw2.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
             <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, fontWeight: 600, background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: source === 'api' ? 'var(--color-success-600)' : 'var(--color-warning-600)' }}>
               {source === 'api' ? t('dw2.sourceApi') : t('dw2.sourceDemo')}
             </span>
-          </h1>
+          </Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('dw2.subtitle')}
             {error && <span style={{ color: 'var(--color-error-600)', marginLeft: 8 }}>{error}</span>}

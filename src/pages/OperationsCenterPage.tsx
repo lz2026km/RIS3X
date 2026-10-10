@@ -4,6 +4,7 @@
 // ============================================================
 import { useState, useEffect, useCallback } from 'react'
 import type { TableColumnsType } from 'antd'
+import { Typography } from 'antd'
 import {
   Activity, AlertTriangle, ArrowUp, ArrowDown, Bell,
   Clock, TrendingUp,
@@ -1704,7 +1705,7 @@ export default function OperationsCenterPage() {
         <div style={s.headerTitle}>
           <Scan size={32} color="var(--color-primary-500)" />
           <div>
-            <h1 style={s.headerText}>{t('opsCenter.headerTitle')}</h1>
+            <Typography.Title level={4} style={{ margin: 0, letterSpacing: 2 }}>{t('opsCenter.headerTitle')}</Typography.Title>
             <p style={s.headerSub}>{t('opsCenter.headerSub')}</p>
           </div>
         </div>

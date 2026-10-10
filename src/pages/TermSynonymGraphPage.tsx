@@ -17,6 +17,9 @@ import {
 import { termApi } from '../services/api/termApi';
 import { t } from '../i18n/appI18n';
 import { ActionButton } from '../components/common/ActionButton';
+import { Typography } from 'antd';
+
+const { Title } = Typography
 
 const MSW_CATEGORY_MAP: Record<string, TermCategory> = {
   finding: 'imaging_sign',
@@ -129,7 +132,7 @@ export default function TermSynonymGraphPage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Network size={20} color="#7c3aed" /> {t('termSyn.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
             <span style={{
@@ -141,7 +144,7 @@ export default function TermSynonymGraphPage() {
             }}>
               {loading ? t('termSyn.syncing') : source === 'api' ? t('termSyn.sourceApi') : t('termSyn.sourceDemo')}
             </span>
-          </h1>
+          </Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('termSyn.summary', { count: totalCount })}
             {apiError && <span style={{ color: 'var(--color-error-600)', marginLeft: 8 }}>{apiError}</span>}

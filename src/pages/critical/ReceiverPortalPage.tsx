@@ -15,6 +15,7 @@ import {
   Spin,
   Alert,
   Empty,
+  Typography,
 } from "antd";
 import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 import { ShieldAlert, Bell, CheckCircle, FileCheck, RefreshCw, Inbox } from 'lucide-react'
@@ -23,6 +24,8 @@ import { criticalApi } from '../../services/api/criticalApi'
 import { invalidateApiCache } from '../../services/api/client'
 import { usePagination } from '../../hooks/usePagination'
 import { t } from '../../i18n/appI18n'
+
+const { Title } = Typography
 
 const { TextArea } = Input
 
@@ -227,7 +230,7 @@ export default function ReceiverPortalPage() {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <ShieldAlert size={22} style={{ color: 'var(--color-error-600)' }} />
-          <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{t('receiverPortal.title')}</h1>
+          <Title level={4} style={{ margin: 0 }}>{t('receiverPortal.title')}</Title>
           <Tag color="red">{t('receiverPortal.clinicalReceiptTag')}</Tag>
         </div>
         <Button icon={<RefreshCw size={14} />} onClick={() => void refresh()} loading={loading}>{t('receiverPortal.refresh')}</Button>

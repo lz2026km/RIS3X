@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { message } from 'antd';
+import { message, Typography } from 'antd';
 import { ArrowLeft, CheckCircle2, XCircle, AlertTriangle, FileText, Microscope } from 'lucide-react';
 import { radpathApi, type RadPathRecord } from '../../services/api/radpathApi';
 
@@ -63,7 +63,7 @@ export default function RadPathDetailPage() {
           <ArrowLeft size={16} />
         </button>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Rad-Path 对照详情</h1>
+          <Typography.Title level={4} style={{ margin: 0 }}>Rad-Path 对照详情</Typography.Title>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             {record.report.patient.name} · {record.report.exam ? `${record.report.exam.modality}/${record.report.exam.bodyPart}` : ''} · 报告 {record.reportId.slice(0, 8)}
           </p>

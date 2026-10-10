@@ -3,7 +3,7 @@
 // 放射科早癌筛查 - 肺癌LDCT/乳腺癌/消化道癌筛查管理
 // ============================================================
 import { useState, useMemo, useEffect, useCallback } from 'react'
-import { Spin, message as antdMessage, Select } from 'antd'
+import { Spin, message as antdMessage, Select, Typography } from 'antd'
 import {
   AlertTriangle, Target, Heart, MapPin, TrendingUp,
   Plus, Search, Filter, Download, RefreshCw,
@@ -20,6 +20,8 @@ import { DataTable } from '../components/common/DataTable'
 import { StatusTag } from '../components/common/StatusTag'
 import { SeverityTag } from '../components/common/SeverityTag'
 import { severityColor, severityTone } from '../theme/statusTokens'
+
+const { Title } = Typography
 
 // ---------- 统计数据 ----------
 const statsData = [
@@ -708,7 +710,7 @@ const CancerScreenPage = () => {
       {/* Header */}
       <div style={s.header}>
         <div>
-          <h1 style={s.title}>{t('cancerScreen.title')}</h1>
+          <Title level={4} style={{ margin: 0 }}>{t('cancerScreen.title')}</Title>
           <p style={s.subtitle}>{t('cancerScreen.subtitle')}</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>

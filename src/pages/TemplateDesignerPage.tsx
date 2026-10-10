@@ -27,6 +27,9 @@ import {
   type TemplateStructure,
 } from "../services/api/templatesApi";
 import { t } from "../i18n/appI18n";
+import { Typography } from "antd";
+
+const { Title } = Typography
 
 // ============================================================
 // 字段类型配置
@@ -2462,7 +2465,7 @@ const PreviewCanvas: React.FC<{
         paddingBottom: 12,
       }}
     >
-      <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "var(--color-primary-800)" }}>{meta.name}</h2>
+      <Title level={5} style={{ margin: 0 }}>{meta.name}</Title>
       <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
         {meta.modality} · {meta.bodyPart} · {meta.version} · {meta.author}
       </div>

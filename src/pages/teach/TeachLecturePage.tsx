@@ -4,6 +4,9 @@ import { Play, Trash2, FileVideo, Search, Loader2, Square } from 'lucide-react'
 import Screencast, { type ScreencastHandle, type RecorderState } from '../../components/teach/Screencast'
 import { teachApi } from '../../services/api'
 import { API_BASE } from '../../services/api/client'
+import { Typography } from 'antd'
+
+const { Title } = Typography
 
 type Lecture = {
   id: string
@@ -182,7 +185,7 @@ export default function TeachLecturePage() {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">{t('lecture')}</h1>
+        <Title level={4} className="text-2xl font-bold" style={{ margin: 0 }}>{t('lecture')}</Title>
         {!recording && (
           <button onClick={handleStartRecording} className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
             <FileVideo size={18} />

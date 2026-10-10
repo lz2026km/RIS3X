@@ -5,7 +5,7 @@
 // ============================================================
 
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import { message, Modal, Form, Input, Select } from 'antd';
+import { message, Modal, Form, Input, Select, Typography } from 'antd';
 import {
   BookOpen, Search, Copy, Star, Plus, Edit2, Trash2,
   Hash, CheckCircle2, AlertOctagon, Lightbulb, MessageSquare,
@@ -332,7 +332,7 @@ export default function ReportPhraseBankPage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <MessageSquare size={20} color="var(--color-primary-500)" /> {t('rpb.title')}
             <StatusTag status="success" style={{ fontWeight: 700 }}>R7</StatusTag>
             <span style={{
@@ -344,7 +344,7 @@ export default function ReportPhraseBankPage() {
             }}>
               {loading ? t('rpb.syncing') : source === 'api' ? t('rpb.sourceApi') : t('rpb.sourceDemo')}
             </span>
-          </h1>
+          </Typography.Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('rpb.subtitle', { count: phrases.length })}
             {apiError && <span style={{ color: 'var(--color-error-600)', marginLeft: 8 }}>{apiError}</span>}

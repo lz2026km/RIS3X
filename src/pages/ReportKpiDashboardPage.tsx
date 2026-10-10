@@ -9,7 +9,7 @@ import {
   BarChart3, FileText, Clock, Target, Sparkles, CheckCircle2,
   Zap, Award, Server, Leaf, Cloud, Cpu, Activity, TrendingUp, Gauge, Download, RefreshCw,
 } from 'lucide-react';
-import { Button } from 'antd';
+import { Button, Typography } from 'antd';
 import { kpiEngine } from '../services/analytics/KpiEngine';
 import type { KpiSnapshot } from '../types/analytics';
 import { biApi } from '../services/api/biApi';
@@ -163,14 +163,14 @@ export default function ReportKpiDashboardPage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <BarChart3 size={20} color="var(--color-primary-800)" /> {t('reportKpi.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
             {/* [G005 Wave2B P2] KpiEngine 本地合成指标 → 演示数据徽标 */}
             <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fffbeb', color: 'var(--color-warning-600)', border: '1px solid #fcd34d', fontWeight: 600 }}>{t('reportKpi.demoBadge')}</span>
             {/* [G005 W7] 真实 KPI 源 (/bi/kpi) 优先, 否则标注本地引擎 */}
             <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: biKpi ? '#ecfdf5' : '#f1f5f9', color: biKpi ? '#059669' : '#475569', border: `1px solid ${biKpi ? '#6ee7b7' : '#cbd5e1'}`, fontWeight: 600 }}>{biKpi ? t('w7demo.kpiBiSource') : t('w7demo.kpiEngineSource')}</span>
-          </h1>
+          </Typography.Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('reportKpi.subtitle')}
           </p>

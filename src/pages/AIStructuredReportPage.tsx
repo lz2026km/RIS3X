@@ -5,6 +5,9 @@ import { t } from "../i18n/appI18n";
 // [G005 Wave2A P1] 真实保存: aiPlatformApi.createStructuredReport (POST /ai-platform/structured-reports, 后端 GenerateStructuredReportSchema)
 import { aiPlatformApi } from "../services/api/aiPlatformApi";
 import { uniqueId } from "../utils/uniqueId";
+import { Typography } from "antd";
+
+const { Title } = Typography
 
 // ============================================================================
 // Types
@@ -1201,10 +1204,10 @@ const AIStructuredReportPage: React.FC = () => {
     <div style={styles.container}>
       {/* Header */}
       <header style={styles.header}>
-        <h1 style={styles.title}>
+        <Title level={4} style={{ margin: 0 }}>
           {t("aiStructured.title")}
           <span style={{ marginLeft: 10, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fff3cd', color: '#b45309', fontWeight: 600, verticalAlign: 'middle' }}>{t("aiStructured.demoBadge")}</span>
-        </h1>
+        </Title>
         <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
           <span style={{ fontSize: "12px", opacity: 0.9 }}>
             {t("aiStructured.currentUser")}

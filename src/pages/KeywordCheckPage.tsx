@@ -24,6 +24,9 @@ import { reportApi } from '../services/api/reportApi';
 import { DataTable } from '../components/common/DataTable';
 import { ActionButton, ExportButton } from '../components/common';
 import type { ColumnsType } from 'antd/es/table';
+import { Typography } from 'antd';
+
+const { Title } = Typography
 import { t } from '../i18n/appI18n';
 
 // ============================================================
@@ -211,7 +214,7 @@ export default function KeywordCheckPage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Search size={20} color="var(--color-primary-500)" /> {t('kwc.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R4</span>
             <span style={{
@@ -223,7 +226,7 @@ export default function KeywordCheckPage() {
             }}>
               {loading ? t('kwc.syncing') : source === 'api' ? t('kwc.sourceApi') : t('kwc.sourceDemo')}
             </span>
-          </h1>
+          </Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('kwc.subtitle', { count: ruleStats.anatomy + ruleStats.logic + ruleStats.negation + ruleStats.punctuation + ruleStats.format + ruleStats.lesion })}
             {apiError && <span style={{ color: 'var(--color-error-600)', marginLeft: 8 }}>{apiError}</span>}

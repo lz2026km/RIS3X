@@ -20,7 +20,7 @@ import { HLCDAExporter } from '@components/report/v3/R3.INTEGRATION/HLCDAExporte
 import { IHEXDSRegistry } from '@components/report/v3/R3.INTEGRATION/IHEXDSRegistry';
 // [v3.0.6.11-103 Wave 2A] 导出中心 V2 (report-export-center-v2 后端 10 端点全量 UI)
 import ReportExportCenterPanelV2 from '@components/report/v3/ReportExportCenterPanelV2';
-import { Tabs, Badge, message, Empty, Spin } from 'antd';
+import { Tabs, Badge, message, Empty, Spin, Typography } from 'antd';
 import {
   Download,
   FileText,
@@ -46,6 +46,8 @@ import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { StatCard } from '../components/common';
 import { t } from '../i18n/appI18n';
+
+const { Title } = Typography;
 
 // ============================================================
 // 格式图标（未使用，但保留以备扩展）
@@ -230,11 +232,11 @@ export default function ReportExportPage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Download size={20} color="var(--color-error-600)" /> {t('rex.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#7c3aed', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3.INTEGRATION v3.0.5.1</span>
-          </h1>
+          </Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('rex.subtitle')}
           </p>

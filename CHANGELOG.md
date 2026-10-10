@@ -1,3 +1,16 @@
+## v3.0.6.13-4 (2026-10-10) — 标题体系统一 + 排班页崩溃修复
+
+> **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；E2E `/schedule`、`/ops/tech-schedule` 修复通过；`guard:ui` 全绿
+
+### UI-C2 标题体系统一
+- **115 处裸 `<h1>/<h2>` → `Typography.Title`**（92 文件；页面题 `level=4`，弹窗/卡片题 `level=5`）；移除内联 `fontSize/fontWeight/color`，交由主题字体体系管理；13 处打印 HTML 模板串豁免（入预算冻结）
+
+### 崩溃修复（E2E 发现）
+- `/schedule`、`/ops/tech-schedule` 因 `useUndoToast` 在 Provider 之外抛错被 ErrorBoundary 整页捕获；改为**无 Provider 时优雅降级**（撤销提示静默禁用，不再崩溃）
+
+### 守则
+- `guard:ui` 新增 `rawHeading` 预算（13，只减不增）
+
 ## v3.0.6.13-3 (2026-10-10) — 品牌/语义色令牌化（hex 13,390 → 8,395）
 
 > **目标**: 继续 UI 审查整改（颜色令牌化 / 主题一致性）

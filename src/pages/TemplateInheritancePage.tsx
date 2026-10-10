@@ -5,7 +5,9 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { message } from 'antd';
+import { message, Typography } from 'antd';
+
+const { Title } = Typography
 import {
   GitBranch, GitFork, Copy, History, ChevronRight, ChevronDown,
   GitMerge, Plus, Tag, Eye, X,
@@ -296,7 +298,7 @@ export default function TemplateInheritancePage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <GitBranch size={20} color="#7c3aed" /> {t('tinh.title')}
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R2</span>
             <span style={{
@@ -308,7 +310,7 @@ export default function TemplateInheritancePage() {
             }}>
               {loading ? t('tinh.syncing') : source === 'api' ? t('tinh.sourceApi') : t('tinh.sourceDemo')}
             </span>
-          </h1>
+          </Title>
           <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0' }}>
             {t('tinh.subtitle')}
             {apiError && <span style={{ color: 'var(--color-error-600)', marginLeft: 8 }}>{apiError}</span>}
