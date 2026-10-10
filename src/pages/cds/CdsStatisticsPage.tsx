@@ -19,12 +19,12 @@ function StatCard({ title, value, unit, icon: Icon, trend, trendValue, color }: 
   title: string; value: string | number; unit?: string; icon: typeof Activity; trend?: 'up' | 'down'; trendValue?: string; color: string
 }) {
   return (
-    <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 200 }}>
+    <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 200 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-        <span style={{ fontSize: 12, color: '#8b949e' }}>{title}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{title}</span>
         <Icon size={20} style={{ color }} />
       </div>
-      <div style={{ fontSize: 28, fontWeight: 700, color: '#f0f6fc', marginBottom: 4 }}>
+      <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--text-primary, #f0f6fc)', marginBottom: 4 }}>
         {value}{unit && <span style={{ fontSize: 14, fontWeight: 400, color: '#6e7681', marginLeft: 4 }}>{unit}</span>}
       </div>
       {trend && (
@@ -81,7 +81,7 @@ export default function CdsStatisticsPage() {
 
   if (loading) {
     return (
-      <div style={{ background: '#0d1117', color: '#8b949e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>
+      <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-muted, #8b949e)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>
         {t('cdsStats.loading')}
       </div>
     )
@@ -89,14 +89,14 @@ export default function CdsStatisticsPage() {
 
   if (!overview) {
     return (
-      <div style={{ background: '#0d1117', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ background: 'var(--bg-primary, #0d1117)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <StateView error={loadError ?? t('cdsStats.loadFailed')} onRetry={() => setReloadTick(n => n + 1)} />
       </div>
     )
   }
 
   return (
-    <div style={{ background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+    <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <BarChart3 size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('cdsStats.title')}</span>
@@ -124,8 +124,8 @@ export default function CdsStatisticsPage() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc' }}>{t('cdsStats.suggestionCoverageTrend')}</div>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)' }}>{t('cdsStats.suggestionCoverageTrend')}</div>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 160, position: 'relative' }}>
               {chartData.map((d, i) => (
                 <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: barWidth, position: 'relative', height: 160, justifyContent: 'flex-end' }}>
@@ -140,29 +140,29 @@ export default function CdsStatisticsPage() {
             </div>
           </div>
 
-          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc' }}>{t('cdsStats.topOverriddenRules')}</div>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)' }}>{t('cdsStats.topOverriddenRules')}</div>
             {overview.topOverriddenRules?.map((r, i) => (
-              <div key={r.ruleId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < 2 ? '1px solid #21262d' : 'none' }}>
+              <div key={r.ruleId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < 2 ? '1px solid var(--bg-secondary, #21262d)' : 'none' }}>
                 <span style={{ width: 24, height: 24, borderRadius: '50%', background: i === 0 ? '#ef4444' : i === 1 ? '#f59e0b' : '#3b82f6', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 600 }}>{i + 1}</span>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, color: '#f0f6fc' }}>{r.ruleName}</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-primary, #f0f6fc)' }}>{r.ruleName}</div>
                   <div style={{ fontSize: 12, color: '#6e7681' }}>{r.ruleId}</div>
                 </div>
-                <span style={{ fontSize: 16, fontWeight: 700, color: '#f0f6fc' }}>{r.count}</span>
+                <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary, #f0f6fc)' }}>{r.count}</span>
               </div>
             ))}
           </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc' }}>{t('cdsStats.topPathways')}</div>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)' }}>{t('cdsStats.topPathways')}</div>
             {overview.topPathways?.map((p, i) => (
-              <div key={p.pathwayId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < 1 ? '1px solid #21262d' : 'none' }}>
+              <div key={p.pathwayId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < 1 ? '1px solid var(--bg-secondary, #21262d)' : 'none' }}>
                 <RouteIcon color="var(--color-success-500, #22c55e)" />
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, color: '#f0f6fc' }}>{p.pathwayName}</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-primary, #f0f6fc)' }}>{p.pathwayName}</div>
                   <div style={{ fontSize: 12, color: '#6e7681' }}>{p.pathwayId}</div>
                 </div>
                 <span style={{ fontSize: 16, fontWeight: 700, color: '#22c55e' }}>{p.activationCount}</span>
@@ -171,8 +171,8 @@ export default function CdsStatisticsPage() {
             ))}
           </div>
 
-          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc' }}>{t('cdsStats.summaryMetrics')}</div>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)' }}>{t('cdsStats.summaryMetrics')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {[
                 { label: 'cdsStats.totalRules', value: overview.totalRules, color: '#3b82f6' },
@@ -180,7 +180,7 @@ export default function CdsStatisticsPage() {
                 { label: 'cdsStats.coverageRate', value: `${overrideRatePct}%`, color: '#f59e0b' },
                 { label: 'cdsStats.pathwayCompletionRate', value: `${(overview.pathwayCompletionRate * 100).toFixed(0)}%`, color: '#22c55e' },
               ].map(item => (
-                <div key={item.label} style={{ padding: '12px', background: '#0d1117', borderRadius: 6, textAlign: 'center' }}>
+                <div key={item.label} style={{ padding: '12px', background: 'var(--bg-primary, #0d1117)', borderRadius: 6, textAlign: 'center' }}>
                   <div style={{ fontSize: 22, fontWeight: 700, color: item.color }}>{item.value}</div>
                   <div style={{ fontSize: 12, color: '#6e7681', marginTop: 4 }}>{t(item.label)}</div>
                 </div>
@@ -188,8 +188,8 @@ export default function CdsStatisticsPage() {
             </div>
           </div>
 
-          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16, marginTop: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc' }}>{t('w1tables.cds.title')}</div>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16, marginTop: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)' }}>{t('w1tables.cds.title')}</div>
             <DataTable dataSource={chartData} rowKey="date" columns={detailColumns} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('w1tables.noData')} />
           </div>
         </div>

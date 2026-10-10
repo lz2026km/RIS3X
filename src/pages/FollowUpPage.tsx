@@ -840,7 +840,7 @@ export default function FollowUpPage() {
   const tabStyle = (isActive: boolean): React.CSSProperties => ({
     padding: '12px 24px',
     borderBottom: isActive ? '2px solid #1890ff' : '2px solid transparent',
-    color: isActive ? '#1890ff' : '#666',
+    color: isActive ? '#1890ff' : 'var(--text-secondary, #475569)',
     cursor: 'pointer',
     fontSize: '14px',
     background: 'none',
@@ -1061,8 +1061,8 @@ export default function FollowUpPage() {
           <span style={{
             fontSize: 11, padding: '2px 10px', borderRadius: 10, fontWeight: 600,
             background: triggerMode === 'auto' ? 'rgba(22,119,255,0.15)' : 'rgba(148,163,184,0.15)',
-            color: triggerMode === 'auto' ? '#1677ff' : '#64748b',
-            border: `1px solid ${triggerMode === 'auto' ? '#93c5fd' : '#e2e8f0'}`,
+            color: triggerMode === 'auto' ? '#1677ff' : 'var(--text-secondary, #475569)',
+            border: `1px solid ${triggerMode === 'auto' ? '#93c5fd' : 'var(--border-default, rgba(0,0,0,0.12))'}`,
           }} data-testid="followup-trigger-mode">
             {t('followUp.triggerMode')}: {triggerMode === 'auto' ? t('followUp.autoCreate') : triggerMode === 'hint' ? t('followUp.hintOnly') : '—'}
           </span>
@@ -1192,7 +1192,7 @@ export default function FollowUpPage() {
                       <span style={{ color: 'var(--text-secondary)' }}>{c.category}</span>
                       <span style={{ color: colors[i % colors.length], fontWeight: 700 }}>{c.count}</span>
                     </div>
-                    <div style={{ height: 7, background: '#f5f5f5', borderRadius: 4, overflow: 'hidden' }}>
+                    <div style={{ height: 7, background: 'var(--bg-primary, #f8fafc)', borderRadius: 4, overflow: 'hidden' }}>
                       <div style={{
                         width: `${(c.count / maxCat) * 100}%`, height: '100%', borderRadius: 4,
                         background: colors[i % colors.length], transition: 'width 0.3s',
@@ -1298,7 +1298,10 @@ export default function FollowUpPage() {
                     {g.list.slice(0, 6).map(p => (
                       <div
                         key={p.id}
+                        role="button"
+                        tabIndex={0}
                         onClick={() => { setSelectedPatient(mapPlan(p)); setShowModal(true); }}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedPatient(mapPlan(p)); setShowModal(true); } }}
                         style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, cursor: 'pointer', padding: '4px 0', borderBottom: '1px solid var(--border-color)' }}
                       >
                         <span style={{ width: 6, height: 6, borderRadius: '50%', background: g.color, flexShrink: 0 }} />
@@ -1469,12 +1472,16 @@ export default function FollowUpPage() {
                           {plans.slice(0, 3).map(p => (
                             <span
                               key={p.id}
+                              role="button"
+                              tabIndex={0}
+                              aria-label={p.patientName}
                               title={`${p.patientName} · ${p.status} · ${p.notes || ''}`}
                               onClick={() => { setSelectedPatient(p); setShowModal(true) }}
+                              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedPatient(p); setShowModal(true) } }}
                               style={{
                                 fontSize: 10, padding: '1px 4px', borderRadius: 3, cursor: 'pointer',
                                 background: `${statusDotColor[p.status] || '#94a3b8'}22`,
-                                color: statusDotColor[p.status] || '#64748b',
+                                color: statusDotColor[p.status] || 'var(--text-secondary, #475569)',
                                 whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                               }}
                             >
@@ -1519,7 +1526,10 @@ export default function FollowUpPage() {
             return (
               <div key={g.patientId} style={{ ...tableStyle, overflow: 'hidden' }}>
                 <div
+                  role="button"
+                  tabIndex={0}
                   onClick={() => togglePatient(g.patientId)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePatient(g.patientId) } }}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer',
                     background: expanded ? '#e6f4ff' : 'var(--bg-card)',
@@ -1553,7 +1563,7 @@ export default function FollowUpPage() {
                         <span key={s} style={{
                           padding: '2px 10px', borderRadius: 999, fontSize: 11, fontWeight: 600,
                           background: `${statusDotColor[s] || '#94a3b8'}1f`,
-                          color: statusDotColor[s] || '#64748b',
+                          color: statusDotColor[s] || 'var(--text-secondary, #475569)',
                         }}>
                           {s} {c}
                         </span>
@@ -1934,7 +1944,7 @@ export default function FollowUpPage() {
                         <span style={{
                           fontSize: '11px', padding: '1px 8px', borderRadius: 10,
                           background: tpl.active ? 'rgba(16,185,129,0.15)' : 'rgba(148,163,184,0.2)',
-                          color: tpl.active ? '#059669' : '#64748b', fontWeight: 600
+                          color: tpl.active ? '#059669' : 'var(--text-secondary, #475569)', fontWeight: 600
                         }}>
                           {tpl.active ? t('followUp.enabled') : t('followUp.disabled')}
                         </span>

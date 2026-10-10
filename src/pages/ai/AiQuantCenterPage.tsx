@@ -127,7 +127,7 @@ const HeatBar: React.FC<{
   return (
     <div
       style={{
-        background: "#f0f0f0",
+        background: "var(--bg-primary, #f8fafc)",
         borderRadius: 6,
         overflow: "hidden",
         height,

@@ -1115,7 +1115,10 @@ export default function FindingLibraryPage() {
     return (
       <Card bordered={false}
         key={finding.id}
+        role="button"
+        tabIndex={0}
         onClick={() => openDetail(finding)}
+        onKeyDown={(e) => { if (e.target !== e.currentTarget) return; if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail(finding) } }}
         onMouseEnter={() => setHoveredId(finding.id)}
         onMouseLeave={() => setHoveredId(null)}
         style={{
@@ -1631,7 +1634,10 @@ export default function FindingLibraryPage() {
         {favFindings.slice(0, 5).map(f => (
           <div
             key={f.id}
+            role="button"
+            tabIndex={0}
             onClick={() => openDetail(f)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail(f) } }}
             style={{
               padding: '8px 10px',
               background: COLORS.backgroundLight,

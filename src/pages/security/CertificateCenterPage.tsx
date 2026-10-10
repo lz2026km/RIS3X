@@ -24,10 +24,11 @@ import type { ReportCertificateDto, ReportSignatureVerificationDto } from '../..
 import { LoadingBanner, ErrorBanner } from '../../components/feedback'
 import { DataTable, StatCard, StatCardGrid } from "../../components/common"
 import { t } from '../../i18n/appI18n'
+import { severityToAntd } from '../../theme/statusTokens'
 
 const { Text } = Typography
 
-const STATUS_COLOR: Record<string, string> = { valid: 'green', revoked: 'red' }
+const STATUS_COLOR: Record<string, string> = { valid: severityToAntd('success'), revoked: severityToAntd('critical') }
 
 const AlgorithmTag: React.FC<{ algorithm: string }> = ({ algorithm }) => (
   <Tag color={algorithm === 'SM3' ? 'purple' : 'blue'}>{algorithm}</Tag>

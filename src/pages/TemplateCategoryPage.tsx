@@ -130,7 +130,10 @@ const TreeNode: React.FC<{
   return (
     <div>
       <div
+        role="button"
+        tabIndex={0}
         onClick={() => onSelect(node.id)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(node.id) } }}
         style={{
           padding: '6px 8px',
           paddingLeft: 8 + depth * 16,
@@ -552,7 +555,10 @@ export default function TemplateCategoryPage() {
                 .map(n => (
                   <div
                     key={n.id}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => setSelectedId(n.id)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedId(n.id) } }}
                     style={{
                       padding: '4px 8px',
                       paddingLeft: 8 + n.depth * 12,
@@ -648,7 +654,10 @@ export default function TemplateCategoryPage() {
                       {selectedChildren.map(c => (
                         <div
                           key={c.id}
+                          role="button"
+                          tabIndex={0}
                           onClick={() => setSelectedId(c.id)}
+                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedId(c.id) } }}
                           style={{
                             padding: 10, background: 'var(--bg-card)', border: '1px solid var(--border-color)',
                             borderRadius: 6, cursor: 'pointer', fontSize: 12,

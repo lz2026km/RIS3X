@@ -181,7 +181,7 @@ export default function CdsManagementPage() {
       dataIndex: "version",
       key: "version",
       width: 100,
-      render: (v: string) => <span style={{ fontSize: 12, color: "#8b949e" }}>v{v}</span>,
+      render: (v: string) => <span style={{ fontSize: 12, color: "var(--text-muted, #8b949e)" }}>v{v}</span>,
     },
     {
       title: t("cdsMgmt.col.status"),
@@ -204,7 +204,7 @@ export default function CdsManagementPage() {
       dataIndex: "usageCount",
       key: "usage",
       width: 90,
-      render: (v: number) => <span style={{ fontSize: 12, color: "#8b949e" }}>{v}</span>,
+      render: (v: number) => <span style={{ fontSize: 12, color: "var(--text-muted, #8b949e)" }}>{v}</span>,
     },
     {
       title: t("cdsMgmt.col.updated"),
@@ -217,8 +217,8 @@ export default function CdsManagementPage() {
 
   return (
     <div
-      style={{ background: "#0d1117",
-        color: "#f0f6fc",
+      style={{ background: "var(--bg-primary, #0d1117)",
+        color: "var(--text-primary, #f0f6fc)",
         fontSize: 14,
         fontFamily: '"Segoe UI",sans-serif',
       }}
@@ -282,8 +282,8 @@ export default function CdsManagementPage() {
         <div
           style={{
             margin: "16px 24px 0",
-            background: "#161b22",
-            border: "1px solid #30363d",
+            background: "var(--bg-card, #161b22)",
+            border: "1px solid var(--border-default, #30363d)",
             borderRadius: 8,
             padding: 16,
           }}
@@ -293,7 +293,7 @@ export default function CdsManagementPage() {
               fontSize: 14,
               fontWeight: 600,
               marginBottom: 12,
-              color: "#f0f6fc",
+              color: "var(--text-primary, #f0f6fc)",
             }}
           >
             {t("cdsMgmt.auditLog")}
@@ -307,7 +307,7 @@ export default function CdsManagementPage() {
                   alignItems: "center",
                   gap: 12,
                   padding: "8px 12px",
-                  background: "#0d1117",
+                  background: "var(--bg-primary, #0d1117)",
                   borderRadius: 6,
                 }}
               >
@@ -352,8 +352,8 @@ export default function CdsManagementPage() {
                   display: "flex",
                   alignItems: "center",
                   gap: 6,
-                  background: activeTab === tab.key ? "#1e40af" : "#21262d",
-                  color: activeTab === tab.key ? "#fff" : "#8b949e",
+                  background: activeTab === tab.key ? "#1e40af" : "var(--bg-secondary, #21262d)",
+                  color: activeTab === tab.key ? "#fff" : "var(--text-muted, #8b949e)",
                 }}
               >
                 <Icon size={14} />
@@ -390,9 +390,9 @@ export default function CdsManagementPage() {
                 style={{
                   padding: "8px 12px 8px 34px",
                   borderRadius: 6,
-                  border: "1px solid #30363d",
-                  background: "#161b22",
-                  color: "#f0f6fc",
+                  border: "1px solid var(--border-default, #30363d)",
+                  background: "var(--bg-card, #161b22)",
+                  color: "var(--text-primary, #f0f6fc)",
                   fontSize: 13,
                   width: 240, }}
               />
@@ -408,8 +408,8 @@ export default function CdsManagementPage() {
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
-                background: showInactive ? "#f59e0b20" : "#21262d",
-                color: showInactive ? "#f59e0b" : "#8b949e",
+                background: showInactive ? "#f59e0b20" : "var(--bg-secondary, #21262d)",
+                color: showInactive ? "#f59e0b" : "var(--text-muted, #8b949e)",
               }}
             >
               {showInactive ? (
@@ -439,7 +439,13 @@ export default function CdsManagementPage() {
           rowKey="id"
           showPagination={false}
           emptyText={t("w2d.empty")}
-          onRow={(rule) => ({ onClick: () => toggleExpand(rule.id), style: { cursor: "pointer" } })}
+          onRow={(rule) => ({
+            role: "button",
+            tabIndex: 0,
+            onClick: () => toggleExpand(rule.id),
+            onKeyDown: (e) => { if (e.target !== e.currentTarget) return; if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleExpand(rule.id) } },
+            style: { cursor: "pointer" },
+          })}
           expandable={{
             expandedRowKeys: expandedId ? [expandedId] : [],
             onExpand: (expanded, rule) => setExpandedId(expanded ? rule.id : null),
@@ -450,9 +456,9 @@ export default function CdsManagementPage() {
                   style={{
                     padding: "6px 12px",
                     borderRadius: 4,
-                    border: "1px solid #30363d",
+                    border: "1px solid var(--border-default, #30363d)",
                     background: "transparent",
-                    color: "#8b949e",
+                    color: "var(--text-muted, #8b949e)",
                     cursor: "pointer",
                     fontSize: 12,
                     display: "flex",
@@ -468,7 +474,7 @@ export default function CdsManagementPage() {
                   style={{
                     padding: "6px 12px",
                     borderRadius: 4,
-                    border: "1px solid #30363d",
+                    border: "1px solid var(--border-default, #30363d)",
                     background: "transparent",
                     color: rule.isActive ? "var(--color-error-500, #ef4444)" : "var(--color-success-500, #22c55e)",
                     cursor: "pointer",
@@ -504,8 +510,8 @@ export default function CdsManagementPage() {
         >
           <div
             style={{
-              background: "#161b22",
-              border: "1px solid #30363d",
+              background: "var(--bg-card, #161b22)",
+              border: "1px solid var(--border-default, #30363d)",
               borderRadius: 12,
               padding: 24,
               width: 480,
@@ -525,7 +531,7 @@ export default function CdsManagementPage() {
                 style={{
                   fontSize: 16,
                   fontWeight: 600,
-                  color: "#f0f6fc",
+                  color: "var(--text-primary, #f0f6fc)",
                   display: "flex",
                   alignItems: "center",
                   gap: 8,
@@ -552,7 +558,7 @@ export default function CdsManagementPage() {
                   style={{
                     display: "block",
                     fontSize: 12,
-                    color: "#8b949e",
+                    color: "var(--text-muted, #8b949e)",
                     marginBottom: 4,
                   }}
                 >
@@ -568,9 +574,9 @@ export default function CdsManagementPage() {
                     width: "100%",
                     padding: "8px 12px",
                     borderRadius: 6,
-                    border: "1px solid #30363d",
-                    background: "#0d1117",
-                    color: "#f0f6fc",
+                    border: "1px solid var(--border-default, #30363d)",
+                    background: "var(--bg-primary, #0d1117)",
+                    color: "var(--text-primary, #f0f6fc)",
                     fontSize: 13, boxSizing: "border-box",
                   }}
                 />
@@ -580,7 +586,7 @@ export default function CdsManagementPage() {
                   style={{
                     display: "block",
                     fontSize: 12,
-                    color: "#8b949e",
+                    color: "var(--text-muted, #8b949e)",
                     marginBottom: 4,
                   }}
                 >
@@ -596,9 +602,9 @@ export default function CdsManagementPage() {
                     width: "100%",
                     padding: "8px 12px",
                     borderRadius: 6,
-                    border: "1px solid #30363d",
-                    background: "#0d1117",
-                    color: "#f0f6fc",
+                    border: "1px solid var(--border-default, #30363d)",
+                    background: "var(--bg-primary, #0d1117)",
+                    color: "var(--text-primary, #f0f6fc)",
                     fontSize: 13, boxSizing: "border-box",
                   }}
                 />
@@ -608,7 +614,7 @@ export default function CdsManagementPage() {
                   style={{
                     display: "block",
                     fontSize: 12,
-                    color: "#8b949e",
+                    color: "var(--text-muted, #8b949e)",
                     marginBottom: 4,
                   }}
                 >
@@ -628,9 +634,9 @@ export default function CdsManagementPage() {
                     width: "100%",
                     padding: "8px 12px",
                     borderRadius: 6,
-                    border: "1px solid #30363d",
-                    background: "#0d1117",
-                    color: "#f0f6fc",
+                    border: "1px solid var(--border-default, #30363d)",
+                    background: "var(--bg-primary, #0d1117)",
+                    color: "var(--text-primary, #f0f6fc)",
                     fontSize: 13, resize: "vertical",
                     fontFamily: "inherit",
                     boxSizing: "border-box",
@@ -651,9 +657,9 @@ export default function CdsManagementPage() {
                 style={{
                   padding: "8px 16px",
                   borderRadius: 6,
-                  border: "1px solid #30363d",
+                  border: "1px solid var(--border-default, #30363d)",
                   background: "transparent",
-                  color: "#8b949e",
+                  color: "var(--text-muted, #8b949e)",
                   cursor: "pointer",
                   fontSize: 13,
                 }}
@@ -698,8 +704,8 @@ export default function CdsManagementPage() {
         >
           <div
             style={{
-              background: "#161b22",
-              border: "1px solid #30363d",
+              background: "var(--bg-card, #161b22)",
+              border: "1px solid var(--border-default, #30363d)",
               borderRadius: 12,
               padding: 24,
               width: 480,
@@ -719,7 +725,7 @@ export default function CdsManagementPage() {
                 style={{
                   fontSize: 16,
                   fontWeight: 600,
-                  color: "#f0f6fc",
+                  color: "var(--text-primary, #f0f6fc)",
                   display: "flex",
                   alignItems: "center",
                   gap: 8,
@@ -741,28 +747,28 @@ export default function CdsManagementPage() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div>
-                <label style={{ display: "block", fontSize: 12, color: "#8b949e", marginBottom: 4 }}>{t("cdsMgmt.ruleNameLabel")}</label>
+                <label style={{ display: "block", fontSize: 12, color: "var(--text-muted, #8b949e)", marginBottom: 4 }}>{t("cdsMgmt.ruleNameLabel")}</label>
                 <input
                   value={editForm.name}
                   onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
                   placeholder={t("cdsMgmt.ruleNamePlaceholder")}
                   style={{
                     width: "100%", padding: "8px 12px", borderRadius: 6,
-                    border: "1px solid #30363d", background: "#0d1117",
-                    color: "#f0f6fc", fontSize: 13, boxSizing: "border-box",
+                    border: "1px solid var(--border-default, #30363d)", background: "var(--bg-primary, #0d1117)",
+                    color: "var(--text-primary, #f0f6fc)", fontSize: 13, boxSizing: "border-box",
                   }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", fontSize: 12, color: "#8b949e", marginBottom: 4 }}>{t("cdsMgmt.versionLabel")}</label>
+                <label style={{ display: "block", fontSize: 12, color: "var(--text-muted, #8b949e)", marginBottom: 4 }}>{t("cdsMgmt.versionLabel")}</label>
                 <input
                   value={editForm.version}
                   onChange={(e) => setEditForm((f) => ({ ...f, version: e.target.value }))}
                   placeholder="1.0"
                   style={{
                     width: "100%", padding: "8px 12px", borderRadius: 6,
-                    border: "1px solid #30363d", background: "#0d1117",
-                    color: "#f0f6fc", fontSize: 13, boxSizing: "border-box",
+                    border: "1px solid var(--border-default, #30363d)", background: "var(--bg-primary, #0d1117)",
+                    color: "var(--text-primary, #f0f6fc)", fontSize: 13, boxSizing: "border-box",
                   }}
                 />
               </div>
@@ -774,8 +780,8 @@ export default function CdsManagementPage() {
               <button
                 onClick={() => setEditRule(null)}
                 style={{
-                  padding: "8px 16px", borderRadius: 6, border: "1px solid #30363d",
-                  background: "transparent", color: "#8b949e", cursor: "pointer", fontSize: 13,
+                  padding: "8px 16px", borderRadius: 6, border: "1px solid var(--border-default, #30363d)",
+                  background: "transparent", color: "var(--text-muted, #8b949e)", cursor: "pointer", fontSize: 13,
                 }}
               >
                 {t("cdsMgmt.cancel")}

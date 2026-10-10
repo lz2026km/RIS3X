@@ -32,6 +32,7 @@ import {
 import { LoadingBanner, ErrorBanner } from '../../components/feedback'
 import { DataTable, StatCard, StatCardGrid } from "../../components/common"
 import { t } from '../../i18n/appI18n'
+import { severityColor, severityToAntd, toneToAntd } from '../../theme/statusTokens'
 import {
   auditChainApi, complianceAssessmentApi, drApi, fieldEncryptionApi, hsmApi, ocspApi, raApi, w13CertificateApi,
   type AuditChainVerificationDto, type BackupSetDto, type ComplianceAssessmentDto, type ControlEvaluationDto,
@@ -44,9 +45,9 @@ import type { ReportCertificateDto } from '../../services/api/reportApi'
 const { Text, Paragraph } = Typography
 
 const ALGO_COLOR: Record<string, string> = { 'SM3': 'purple', 'SM2': 'purple', 'SHA-256': 'blue', 'RSA-2048': 'blue', 'RSA-3072': 'cyan' }
-const STATUS_COLOR: Record<string, string> = { valid: 'green', revoked: 'red', active: 'green', retired: 'default', compromised: 'red', pending: 'gold', approved: 'green', rejected: 'red', completed: 'green', running: 'processing', failed: 'red' }
-const OCSP_COLOR: Record<string, string> = { good: 'green', revoked: 'red', unknown: 'default' }
-const DRILL_COLOR: Record<string, string> = { pass: 'green', warn: 'gold', fail: 'red' }
+const STATUS_COLOR: Record<string, string> = { valid: severityToAntd('success'), revoked: severityToAntd('critical'), active: toneToAntd('active'), retired: toneToAntd('archived'), compromised: toneToAntd('failed'), pending: toneToAntd('pending'), approved: toneToAntd('approved'), rejected: toneToAntd('rejected'), completed: toneToAntd('completed'), running: toneToAntd('running'), failed: toneToAntd('failed') }
+const OCSP_COLOR: Record<string, string> = { good: severityToAntd('success'), revoked: severityToAntd('critical'), unknown: severityToAntd('neutral') }
+const DRILL_COLOR: Record<string, string> = { pass: severityToAntd('success'), warn: severityToAntd('warning'), fail: severityToAntd('critical') }
 
 interface EnvelopeList<T> { data: T[] }
 
@@ -377,7 +378,7 @@ const FieldEncryptionTab: React.FC = () => {
 // ─────────────────────────────────────────────────────────────
 // 等保 2.0 评估 Tab
 // ─────────────────────────────────────────────────────────────
-const LEVEL_COLOR: Record<string, string> = { '优秀': '#16a34a', '良好': '#0891b2', '基本符合': '#d97706', '不符合': '#dc2626' }
+const LEVEL_COLOR: Record<string, string> = { '优秀': severityColor('success'), '良好': severityColor('info'), '基本符合': severityColor('warning'), '不符合': severityColor('critical') }
 
 const ComplianceTab: React.FC = () => {
   const [assessment, setAssessment] = useState<ComplianceAssessmentDto | null>(null)

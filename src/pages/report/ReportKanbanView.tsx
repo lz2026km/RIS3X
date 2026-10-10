@@ -7,8 +7,8 @@ import { isDraftOverdue } from './reportUtils'
 
 
 const PRIMARY = '#1e40af'
-const WHITE = '#ffffff'
-const GRAY = '#64748b'
+const WHITE = 'var(--bg-card, #ffffff)'
+const GRAY = 'var(--text-secondary, #475569)'
 const DANGER = '#dc2626'
 
 const ANOMALY_KEYWORDS = [
@@ -147,10 +147,10 @@ export default function ReportKanbanView({ reports, onView, onReview }: ReportKa
                 <div style={{ fontSize: 12, color: GRAY, marginBottom: 6 }}>{r.modality} · {r.bodyPart}</div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
-                    <div style={{ fontSize: 12, color: '#64748b' }}>报告: <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{r.reportDoctorName || '-'}</span></div>
-                    {r.auditorName && <div style={{ fontSize: 12, color: '#64748b' }}>审核: <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{r.auditorName}</span></div>}
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)' }}>报告: <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{r.reportDoctorName || '-'}</span></div>
+                    {r.auditorName && <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)' }}>审核: <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{r.auditorName}</span></div>}
                   </div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'right' }}>{formatDateTime(r.createdTime)}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted, #94a3b8)', textAlign: 'right' }}>{formatDateTime(r.createdTime)}</div>
                 </div>
                 <div style={{ marginTop: 7, padding: '5px 8px', borderRadius: 4, background: 'var(--bg-card)', fontSize: 12, color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', lineHeight: 1.5, maxHeight: 48, overflow: 'hidden' }}>
                   {r.diagnosis ? highlightAnomalies(r.diagnosis.slice(0, 50)) : '(无诊断)'}

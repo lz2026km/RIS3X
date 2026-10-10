@@ -91,7 +91,7 @@ export default function DepartmentQualityPage() {
   }
 
   return (
-    <div style={{ background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+    <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <CheckCircle size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>科室质量管理</span>
@@ -110,12 +110,12 @@ export default function DepartmentQualityPage() {
             { title: '未通过', value: totalFailed, icon: XCircle, color: '#ef4444' },
             { title: '总计检查', value: totalChecks, icon: BarChart3, color: '#3b82f6' },
           ].map((k, i) => (
-            <div key={i} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 160 }}>
+            <div key={i} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 160 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-                <span style={{ fontSize: 12, color: '#8b949e' }}>{k.title}</span>
+                <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{k.title}</span>
                 <k.icon size={20} style={{ color: k.color }} />
               </div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: '#f0f6fc' }}>
+              <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--text-primary, #f0f6fc)' }}>
                 {k.value}<span style={{ fontSize: 14, fontWeight: 400, color: '#6e7681', marginLeft: 4 }}>{k.unit}</span>
               </div>
             </div>
@@ -123,16 +123,16 @@ export default function DepartmentQualityPage() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
               <TrendingUp size={16} color="#3b82f6" />质量评分趋势
             </div>
             <ChartContainer height={240} state={SCORE_TREND.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
               <LineChart data={SCORE_TREND}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} />
-                <YAxis domain={[60, 100]} tick={{ fontSize: 12, fill: '#8b949e' }} />
-                <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default, #30363d)" />
+                <XAxis dataKey="month" tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
+                <YAxis domain={[60, 100]} tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
+                <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, fontSize: 12 }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Line type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={2} dot={{ fill: '#3b82f6' }} name="评分" />
                 <Line type="monotone" dataKey="passRate" stroke="#22c55e" strokeWidth={2} dot={{ fill: '#22c55e' }} name="通过率(%)" />
@@ -140,16 +140,16 @@ export default function DepartmentQualityPage() {
             </ChartContainer>
           </div>
 
-          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
               <BarChart3 size={16} color="#22c55e" />各检查项通过/未通过
             </div>
             <ChartContainer height={240} state={barData.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
               <BarChart data={barData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="category" tick={{ fontSize: 12, fill: '#8b949e' }} />
-                <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
-                <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default, #30363d)" />
+                <XAxis dataKey="category" tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
+                <YAxis tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
+                <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, fontSize: 12 }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Bar dataKey="passed" fill="#22c55e" radius={[4, 4, 0, 0]} name="通过" stackId="a" />
                 <Bar dataKey="failed" fill="#ef4444" radius={[4, 4, 0, 0]} name="未通过" stackId="a" />
@@ -159,8 +159,8 @@ export default function DepartmentQualityPage() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
               <PieIcon size={16} color="#8b5cf6" />评分等级分布
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
@@ -169,30 +169,30 @@ export default function DepartmentQualityPage() {
                   <Pie data={SCORE_DIST} cx="50%" cy="50%" outerRadius={80} dataKey="count" nameKey="range" labelLine={false}>
                     {SCORE_DIST.map((e, i) => <Cell key={i} fill={e.color} />)}
                   </Pie>
-                  <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
+                  <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, fontSize: 12 }} />
                 </PieChart>
               </ChartContainer>
               <div style={{ flex: 1 }}>
                 {SCORE_DIST.map((d, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontSize: 12 }}>
                     <span style={{ width: 10, height: 10, borderRadius: 2, background: d.color, display: 'inline-block' }} />
-                    <span style={{ color: '#8b949e', flex: 1 }}>{d.range}</span>
-                    <span style={{ color: '#f0f6fc', fontWeight: 600 }}>{d.count}</span>
+                    <span style={{ color: 'var(--text-muted, #8b949e)', flex: 1 }}>{d.range}</span>
+                    <span style={{ color: 'var(--text-primary, #f0f6fc)', fontWeight: 600 }}>{d.count}</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
-          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
               <AlertTriangle size={16} color="#ef4444" />提醒
             </div>
-            <div style={{ fontSize: 13, color: '#8b949e', marginBottom: 12 }}>近期未通过检查 ({totalFailed}) 项需复查</div>
+            <div style={{ fontSize: 13, color: 'var(--text-muted, #8b949e)', marginBottom: 12 }}>近期未通过检查 ({totalFailed}) 项需复查</div>
             {RECENT_CHECKS.filter(c => !c.passed).slice(0, 3).map(c => (
-              <div key={c.id} style={{ padding: '10px 0', borderBottom: '1px solid #21262d', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div key={c.id} style={{ padding: '10px 0', borderBottom: '1px solid var(--bg-secondary, #21262d)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontSize: 13, color: '#f0f6fc' }}>{c.examId}</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-primary, #f0f6fc)' }}>{c.examId}</div>
                   <div style={{ fontSize: 12, color: '#6e7681' }}>{c.modality} · {c.date}</div>
                 </div>
                 <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: c.severity === 'critical' ? '#ef444420' : '#f59e0b20', color: c.severity === 'critical' ? '#ef4444' : '#f59e0b' }}>
@@ -203,34 +203,34 @@ export default function DepartmentQualityPage() {
           </div>
         </div>
 
-        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
-          <div style={{ padding: '12px 16px', borderBottom: '1px solid #21262d', fontSize: 14, fontWeight: 600, color: '#f0f6fc' }}>最近检查记录</div>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, overflow: 'hidden' }}>
+          <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--bg-secondary, #21262d)', fontSize: 14, fontWeight: 600, color: 'var(--text-primary, #f0f6fc)' }}>最近检查记录</div>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>编号</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>检查ID</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>设备</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>评分</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>结果</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>检查人</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>日期</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>编号</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>检查ID</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>设备</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>评分</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>结果</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>检查人</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>日期</th>
               </tr>
             </thead>
             <tbody>
               {RECENT_CHECKS.map(c => (
                 <tr key={c.id}>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#6e7681', fontSize: 12 }}>{c.id}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{c.examId}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#8b949e' }}>{c.modality}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', fontWeight: 600, color: c.score >= 80 ? '#22c55e' : c.score >= 60 ? '#f59e0b' : '#ef4444' }}>{c.score}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>
+                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: '#6e7681', fontSize: 12 }}>{c.id}</td>
+                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>{c.examId}</td>
+                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{c.modality}</td>
+                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', fontWeight: 600, color: c.score >= 80 ? '#22c55e' : c.score >= 60 ? '#f59e0b' : '#ef4444' }}>{c.score}</td>
+                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: c.passed ? '#22c55e' : '#ef4444', fontSize: 12 }}>
                       {c.passed ? <CheckCircle size={12} /> : <XCircle size={12} />}{c.passed ? '通过' : '未通过'}
                     </span>
                   </td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#8b949e' }}>{c.checkedBy}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#8b949e' }}>{c.date}</td>
+                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{c.checkedBy}</td>
+                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{c.date}</td>
                 </tr>
               ))}
             </tbody>

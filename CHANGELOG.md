@@ -1,3 +1,22 @@
+## v3.0.6.13-1 (2026-10-10) — 暗色主题令牌化 + statusTokens 统一 + 键盘可达性
+
+> **目标**: 继续 UI 审查整改（暗色正确性 / 语义色一致性 / 可访问性）
+> **范围**: UI-B2（暗色/可访问性）、UI-E（statusTokens）
+> **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；7 路由 E2E 通过；`guard:ui` 全绿
+
+### UI-B2 暗色主题正确性
+- 28 页移除硬编码浅色字面量（`#fff/#ffffff/white/#f5f5f5/#fafafa/#f0f0f0`、`WHITE` 常量）→ `var(--bg-card/--bg-primary/--border-default/--text-*)`，暗色主题不再白块
+- 31 个 GitHub-暗色锁定页（safety/cds/rcm/cost/contrast/ops/quality 等）**1279 处** `#0d1117/#161b22/#21262d/#30363d/#8b949e/#f0f6fc` → 主题令牌（保留深色回退值），浅色/高对比主题可用
+
+### UI-E 语义色唯一来源（statusTokens）
+- 33 页本地 `SEVERITY_COLORS` / `STATUS_COLORS` / `*_STATUS_META` 等映射改为由 `src/theme/statusTokens.ts` 派生（`severityToAntd/severityColor/statusColor/toneToAntd`），调用点不变
+- 收敛漂移色（4 种成功绿 / 2 种警告橙 → 令牌）；保留图表系列/装饰色不动
+
+### UI-B2 可访问性（键盘）
+- 53 处可点击 `div/span` 补 `role="button"` + `tabIndex={0}` + Enter/Space 激活（共享同一 handler），图标按钮补 `aria-label`
+- 修复 `ResearchPage` 进度弹窗缺 Escape 关闭（新增 `role="dialog"` + Escape）
+- `guard:ui` 新增 `clickableNoRole` 预算（289，只减不增）
+
 ## v3.0.6.13-0 (2026-10-10) — 全站表格统一 + 可访问性/外壳整改 + UI 防回退守则
 
 > **目标**: 全面审查并整改"界面排版 / 表格大小 / 美观 / 实用性"

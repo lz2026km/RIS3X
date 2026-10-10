@@ -47,6 +47,7 @@ import {
 import type { PatientDto } from '../../types/dto'
 import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 import { t } from '../../i18n/appI18n'
+import { severityColor, severityToAntd } from '../../theme/statusTokens'
 
 const { Text } = Typography
 
@@ -57,19 +58,19 @@ const SOURCE_COLOR: Record<LesionSource, string> = {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  稳定: 'blue',
-  增大: 'red',
-  缩小: 'green',
-  消失: 'default',
-  新发: 'orange',
+  稳定: severityToAntd('info'),
+  增大: severityToAntd('critical'),
+  缩小: severityToAntd('success'),
+  消失: severityToAntd('neutral'),
+  新发: severityToAntd('warning'),
 }
 
 const RESPONSE_COLORS: Record<ResponseClass, string> = {
-  CR: 'green',
+  CR: severityToAntd('success'),
   PR: 'cyan',
-  SD: 'blue',
-  PD: 'red',
-  NE: 'default',
+  SD: severityToAntd('info'),
+  PD: severityToAntd('critical'),
+  NE: severityToAntd('neutral'),
 }
 
 const TYPE_OPTIONS: LesionType[] = ['肺结节', '肝占位', '淋巴结', '其他']
@@ -670,7 +671,7 @@ const LesionTrackingPage: React.FC = () => {
                   <div style={{ marginTop: 12, padding: 12, background: '#111c33', border: '1px solid #1e2b45', borderRadius: 8 }} data-testid="lt-compare-result">
                     <div style={{ fontSize: 13, color: '#e2e8f0', marginBottom: 6 }}>
                       {compareResult.sizeA.toFixed(1)}mm → {compareResult.sizeB.toFixed(1)}mm
-                      <b style={{ color: compareResult.changeMm > 0 ? '#ef4444' : compareResult.changeMm < 0 ? '#22c55e' : '#94a3b8', marginLeft: 8 }}>
+                      <b style={{ color: compareResult.changeMm > 0 ? severityColor('critical') : compareResult.changeMm < 0 ? severityColor('success') : '#94a3b8', marginLeft: 8 }}>
                         {compareResult.changeMm > 0 ? '+' : ''}{compareResult.changeMm}mm ({compareResult.changePercent > 0 ? '+' : ''}{compareResult.changePercent}%)
                       </b>
                     </div>

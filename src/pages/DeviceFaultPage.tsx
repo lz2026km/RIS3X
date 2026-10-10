@@ -17,6 +17,7 @@ import {
 import { deviceMgmtApi, type DeviceFault } from '../services/api/deviceMgmtApi'
 import { ChartContainer } from '../components/charts'
 import { t } from '../i18n/appI18n'
+import { severityColor } from '../theme/statusTokens'
 
 // ============================================================
 // 样式常量
@@ -43,18 +44,18 @@ const C = {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  '待处理': C.warning,
-  '维修中': C.info,
-  '待验收': C.primary,
-  '已完成': C.success,
-  '已取消': C.textLight,
+  '待处理': severityColor('warning'),
+  '维修中': severityColor('info'),
+  '待验收': severityColor('info'),
+  '已完成': severityColor('success'),
+  '已取消': severityColor('neutral'),
 }
 
 const PRIORITY_COLORS: Record<string, string> = {
-  '紧急': C.danger,
-  '高': C.warning,
-  '中': C.primary,
-  '低': C.textLight,
+  '紧急': severityColor('critical'),
+  '高': severityColor('high'),
+  '中': severityColor('warning'),
+  '低': severityColor('neutral'),
 }
 
 // ============================================================

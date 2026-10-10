@@ -38,31 +38,32 @@ import type {
   WorkOrder, WorkOrderStats,
 } from '../../services/api/deviceOpsApi'
 import { t } from '../../i18n/appI18n'
+import { severityToAntd, toneToAntd } from '../../theme/statusTokens'
 
 const { Text } = Typography
 
 const WO_STATUS_COLOR: Record<string, string> = {
-  new: 'default', open: 'orange', assigned: 'blue', in_progress: 'processing',
-  waiting_parts: 'gold', completed: 'green', closed: 'default',
+  new: toneToAntd('new'), open: toneToAntd('open'), assigned: toneToAntd('assigned'), in_progress: toneToAntd('in_progress'),
+  waiting_parts: toneToAntd('on_hold'), completed: toneToAntd('completed'), closed: toneToAntd('closed'),
 }
 const WO_STATUS_LABEL: Record<string, string> = {
   new: 'w11Device.wo.statusNew', open: 'w11Device.wo.statusOpen', assigned: 'w11Device.wo.statusAssigned',
   in_progress: 'w11Device.wo.statusInProgress', waiting_parts: 'w11Device.wo.statusWaitingParts',
   completed: 'w11Device.wo.statusCompleted', closed: 'w11Device.wo.statusClosed',
 }
-const WO_PRI_COLOR: Record<string, string> = { critical: 'red', high: 'volcano', medium: 'blue', low: 'default' }
+const WO_PRI_COLOR: Record<string, string> = { critical: severityToAntd('critical'), high: severityToAntd('high'), medium: severityToAntd('warning'), low: severityToAntd('low') }
 const WO_PRI_LABEL: Record<string, string> = {
   critical: 'w11Device.wo.priCritical', high: 'w11Device.wo.priHigh', medium: 'w11Device.wo.priMedium', low: 'w11Device.wo.priLow',
 }
-const SLA_COLOR: Record<string, string> = { on_track: 'green', at_risk: 'orange', breached: 'red', met: 'green' }
+const SLA_COLOR: Record<string, string> = { on_track: severityToAntd('success'), at_risk: severityToAntd('warning'), breached: severityToAntd('critical'), met: severityToAntd('success') }
 const SLA_LABEL: Record<string, string> = {
   on_track: 'w11Device.wo.slaOnTrack', at_risk: 'w11Device.wo.slaAtRisk', breached: 'w11Device.wo.slaBreached', met: 'w11Device.wo.slaMet',
 }
-const CAL_DUE_COLOR: Record<string, string> = { overdue: 'red', due_soon: 'orange', valid: 'green', none: 'default' }
+const CAL_DUE_COLOR: Record<string, string> = { overdue: severityToAntd('critical'), due_soon: severityToAntd('warning'), valid: severityToAntd('success'), none: severityToAntd('neutral') }
 const CAL_DUE_LABEL: Record<string, string> = {
   overdue: 'w11Device.cal.dueOverdue', due_soon: 'w11Device.cal.dueSoonState', valid: 'w11Device.cal.dueValid', none: 'w11Device.dash',
 }
-const ASSET_STATUS_COLOR: Record<string, string> = { in_use: 'green', maintenance: 'orange', retired: 'default', scrapped: 'red' }
+const ASSET_STATUS_COLOR: Record<string, string> = { in_use: severityToAntd('success'), maintenance: severityToAntd('warning'), retired: severityToAntd('neutral'), scrapped: severityToAntd('critical') }
 const ASSET_STATUS_LABEL: Record<string, string> = {
   in_use: 'w11Device.asset.statusInUse', maintenance: 'w11Device.asset.statusMaintenance',
   retired: 'w11Device.asset.statusRetired', scrapped: 'w11Device.asset.statusScrapped',

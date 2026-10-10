@@ -67,24 +67,25 @@ import {
 } from '../../services/api/qualityScoringCenterApi'
 import { reportQcV2Api, type QcTask, type QcTaskStatus } from '../../services/api/reportQcV2Api'
 import { t } from '../../i18n/appI18n'
+import { severityColor, severityToAntd, toneToAntd } from '../../theme/statusTokens'
 
 const QC_STATUS_META: Record<string, { label: string; color: string; icon: typeof CheckCircle2 }> = {
-  pass: { label: t('w9Qc.status.pass'), color: 'green', icon: CheckCircle2 },
-  warn: { label: t('w9Qc.status.warn'), color: 'orange', icon: AlertTriangle },
-  fail: { label: t('w9Qc.status.fail'), color: 'red', icon: XCircle },
-  nodata: { label: t('w9Qc.status.nodata'), color: 'default', icon: AlertTriangle },
+  pass: { label: t('w9Qc.status.pass'), color: toneToAntd('passed'), icon: CheckCircle2 },
+  warn: { label: t('w9Qc.status.warn'), color: toneToAntd('warning'), icon: AlertTriangle },
+  fail: { label: t('w9Qc.status.fail'), color: toneToAntd('failed'), icon: XCircle },
+  nodata: { label: t('w9Qc.status.nodata'), color: toneToAntd('unknown'), icon: AlertTriangle },
 }
 
-const GRADE_COLORS: Record<string, string> = { A: '#047857', B: '#1e40af', C: '#92400e', D: '#7f1d1d' }
+const GRADE_COLORS: Record<string, string> = { A: severityColor('success'), B: severityColor('info'), C: severityColor('warning'), D: severityColor('critical') }
 
 const ACTION_STATUS_META: Record<string, { label: string; color: string }> = {
-  pending: { label: t('w9Qc.action.pending'), color: 'default' },
-  in_progress: { label: t('w9Qc.action.inProgress'), color: 'processing' },
-  done: { label: t('w9Qc.action.done'), color: 'success' },
-  overdue: { label: t('w9Qc.action.overdue'), color: 'error' },
+  pending: { label: t('w9Qc.action.pending'), color: toneToAntd('pending') },
+  in_progress: { label: t('w9Qc.action.inProgress'), color: toneToAntd('in_progress') },
+  done: { label: t('w9Qc.action.done'), color: toneToAntd('done') },
+  overdue: { label: t('w9Qc.action.overdue'), color: toneToAntd('overdue') },
 }
 
-const SEVERITY_COLORS: Record<string, string> = { low: 'default', medium: 'blue', high: 'orange', critical: 'red' }
+const SEVERITY_COLORS: Record<string, string> = { low: severityToAntd('low'), medium: severityToAntd('warning'), high: severityToAntd('high'), critical: severityToAntd('critical') }
 
 const METHOD_LABELS: Record<string, string> = {
   random: t('w9Qc.sampling.method.random'),
@@ -693,13 +694,13 @@ function PeerReviewTab() {
 // ================= Tab: 报告质控任务 (report-qc-v2) =================
 
 const QC_TASK_STATUS_META: Record<QcTaskStatus, { labelKey: string; color: string }> = {
-  pending: { labelKey: 'w4a.qcTask.status.pending', color: 'default' },
-  in_progress: { labelKey: 'w4a.qcTask.status.inProgress', color: 'processing' },
-  reviewing: { labelKey: 'w4a.qcTask.status.reviewing', color: 'blue' },
-  closed: { labelKey: 'w4a.qcTask.status.closed', color: 'success' },
+  pending: { labelKey: 'w4a.qcTask.status.pending', color: toneToAntd('pending') },
+  in_progress: { labelKey: 'w4a.qcTask.status.inProgress', color: toneToAntd('in_progress') },
+  reviewing: { labelKey: 'w4a.qcTask.status.reviewing', color: toneToAntd('in_progress') },
+  closed: { labelKey: 'w4a.qcTask.status.closed', color: toneToAntd('closed') },
 }
 
-const QC_GRADE_COLORS: Record<string, string> = { A: 'green', B: 'blue', C: 'orange', D: 'red' }
+const QC_GRADE_COLORS: Record<string, string> = { A: severityToAntd('success'), B: severityToAntd('info'), C: severityToAntd('warning'), D: severityToAntd('critical') }
 
 function ReportQcTasksTab() {
   const [tasks, setTasks] = useState<QcTask[]>([])

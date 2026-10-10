@@ -57,13 +57,13 @@ import QualityScoringCenterPage from './qc/QualityScoringCenterPage'
 const PRIMARY = '#1e40af'
 
 const ACCENT = '#3b82f6'
-const SUCCESS = '#059669'
-const WARNING = '#d97706'
-const DANGER = '#dc2626'
-const GRAY = '#64748b'
+const SUCCESS = severityColor('success')
+const WARNING = severityColor('warning')
+const DANGER = severityColor('critical')
+const GRAY = 'var(--text-secondary, #475569)'
 const LIGHT_BG = 'var(--content-bg)'
 const BORDER = 'var(--border-color)'
-const WHITE = '#ffffff'
+const WHITE = 'var(--bg-card, #ffffff)'
 
 // 甲乙丙丁等级颜色 — [UI] sourced from @/theme/statusTokens (single source)
 const GRADE_COLORS: Record<string, { bg: string; color: string; border: string; label: string }> = {
@@ -1871,6 +1871,8 @@ export default function QCPage() {
                   {regionalInstitutions.slice(0, 4).map(inst => (
                     <div
                       key={inst.id}
+                      role="button"
+                      tabIndex={0}
                       style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -1882,6 +1884,7 @@ export default function QCPage() {
                         cursor: 'pointer',
                       }}
                       onClick={() => setExpandedInstitution(expandedInstitution === inst.id ? null : inst.id)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpandedInstitution(expandedInstitution === inst.id ? null : inst.id) } }}
                     >
                       <div style={{ width: 36, height: 36, borderRadius: 8, background: inst.ranking <= 3 ? 'var(--color-warning-bg)' : 'var(--color-info-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {inst.ranking <= 3 ? (

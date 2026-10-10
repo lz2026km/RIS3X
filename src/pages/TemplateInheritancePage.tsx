@@ -232,7 +232,10 @@ export default function TemplateInheritancePage() {
           return (
             <div key={node.id}>
               <div
+                role="button"
+                tabIndex={0}
                 onClick={() => setSelectedId(node.id)}
+                onKeyDown={(e) => { if (e.target !== e.currentTarget) return; if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedId(node.id) } }}
                 style={{
                   padding: '6px 8px',
                   paddingLeft: 8 + depth * 20,
@@ -399,7 +402,10 @@ export default function TemplateInheritancePage() {
                   .map(n => (
                     <div
                       key={n.id}
+                      role="button"
+                      tabIndex={0}
                       onClick={() => setSelectedId(n.id)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedId(n.id) } }}
                       style={{
                         padding: 6, fontSize: 12, cursor: 'pointer',
                         background: selectedId === n.id ? 'var(--color-info-bg)' : 'transparent',
@@ -510,7 +516,10 @@ export default function TemplateInheritancePage() {
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase' }}>{t('tinh.parentTemplate')}</div>
                     {selectedParent ? (
                       <div
+                        role="button"
+                        tabIndex={0}
                         onClick={() => setSelectedId(selectedParent.id)}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedId(selectedParent.id) } }}
                         style={{
                           padding: 8, background: '#8b5cf622', border: '1px solid #c4b5fd',
                           borderRadius: 6, cursor: 'pointer', fontSize: 12,
@@ -551,7 +560,10 @@ export default function TemplateInheritancePage() {
                         {selectedChildren.map(c => (
                           <div
                             key={c.id}
+                            role="button"
+                            tabIndex={0}
                             onClick={() => setSelectedId(c.id)}
+                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedId(c.id) } }}
                             style={{
                               padding: 6, background: '#06b6d422', border: '1px solid #a5f3fc',
                               borderRadius: 4, cursor: 'pointer', fontSize: 12,
@@ -582,7 +594,10 @@ export default function TemplateInheritancePage() {
                       {selectedSiblings.map(s => (
                         <div
                           key={s.id}
+                          role="button"
+                          tabIndex={0}
                           onClick={() => setSelectedId(s.id)}
+                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedId(s.id) } }}
                           style={{
                             padding: '4px 8px', background: 'var(--bg-card)', border: '1px solid var(--border-color)',
                             borderRadius: 4, cursor: 'pointer', fontSize: 12, color: 'var(--text-secondary)',

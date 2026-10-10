@@ -3,14 +3,15 @@ import { useState, useMemo, useEffect, useCallback } from 'react'
 import { Bell, CheckCircle2, RefreshCw, Info } from 'lucide-react'
 import { cdsApi, type CdsAlertDto } from '../../services/api/cdsApi'
 import { DataTable } from '../../components/common/DataTable'
+import { severityColor } from '../../theme/statusTokens'
 
 const SEVERITY_COLORS: Record<string, string> = {
-  critical: '#ef4444',
-  high: '#f97316',
-  warning: '#f59e0b',
-  medium: '#f59e0b',
-  info: '#3b82f6',
-  low: '#3b82f6',
+  critical: severityColor('critical'),
+  high: severityColor('high'),
+  warning: severityColor('warning'),
+  medium: severityColor('warning'),
+  info: severityColor('info'),
+  low: severityColor('low'),
 }
 
 const SEVERITY_LABELS: Record<string, string> = {
@@ -125,7 +126,7 @@ export default function AlertCenterPage() {
   ]
 
   return (
-    <div style={{ background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+    <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <Bell size={24} />
@@ -144,7 +145,7 @@ export default function AlertCenterPage() {
       <div style={{ padding: '20px 24px' }}>
         <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
           {([['all', '全部'], ['pending', '待确认'], ['acknowledged', '已确认']] as const).map(([key, label]) => (
-            <button key={key} onClick={() => setStatusFilter(key)} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: statusFilter === key ? '#1e40af' : '#21262d', color: statusFilter === key ? '#fff' : '#8b949e' }}>
+            <button key={key} onClick={() => setStatusFilter(key)} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: statusFilter === key ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: statusFilter === key ? '#fff' : 'var(--text-muted, #8b949e)' }}>
               {label}
             </button>
           ))}
@@ -156,11 +157,11 @@ export default function AlertCenterPage() {
           </div>
         )}
 
-        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, overflow: 'hidden' }}>
           <DataTable dataSource={filtered} rowKey="id" columns={alertColumns} loading={loading} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText="暂无告警" />
         </div>
 
-        <div style={{ marginTop: 20, padding: '12px 16px', background: '#161b22', border: '1px solid #30363d', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, color: '#8b949e' }}>
+        <div style={{ marginTop: 20, padding: '12px 16px', background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>
           <Info size={14} style={{ color: '#3b82f6' }} />
           CDS 告警来自规则引擎评估结果，确认后将在统计报表中计入响应时长。
         </div>

@@ -35,7 +35,7 @@ export function CostFilter({ activeTab, onTabChange, timeRange, onTimeRangeChang
     display: 'flex',
     gap: 4,
     marginBottom: 20,
-    borderBottom: '1px solid #30363d',
+    borderBottom: '1px solid var(--border-default, #30363d)',
     paddingBottom: 0,
     flexWrap: 'wrap',
   }
@@ -44,7 +44,7 @@ export function CostFilter({ activeTab, onTabChange, timeRange, onTimeRangeChang
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
-          <div style={{ fontSize: 20, fontWeight: 700, color: '#f0f6fc', marginBottom: 4 }}>{t('costFilter.title')}</div>
+          <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary, #f0f6fc)', marginBottom: 4 }}>{t('costFilter.title')}</div>
           <div style={{ fontSize: 13, color: '#6e7681' }}>{t('costFilter.subtitle')}</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -59,8 +59,8 @@ export function CostFilter({ activeTab, onTabChange, timeRange, onTimeRangeChang
                 fontSize: 12,
                 fontWeight: 500,
                 cursor: 'pointer',
-                background: timeRange === range ? PRIMARY : '#21262d',
-                color: timeRange === range ? '#fff' : '#8b949e',
+                background: timeRange === range ? PRIMARY : 'var(--bg-secondary, #21262d)',
+                color: timeRange === range ? '#fff' : 'var(--text-muted, #8b949e)',
                 transition: 'all 0.2s',
               }}
             >
@@ -80,7 +80,7 @@ export function CostFilter({ activeTab, onTabChange, timeRange, onTimeRangeChang
               border: 'none',
               borderBottom: activeTab === tab.key ? '2px solid #3b82f6' : '2px solid transparent',
               background: 'transparent',
-              color: activeTab === tab.key ? '#f0f6fc' : '#8b949e',
+              color: activeTab === tab.key ? 'var(--text-primary, #f0f6fc)' : 'var(--text-muted, #8b949e)',
               fontSize: 13,
               fontWeight: 500,
               cursor: 'pointer',

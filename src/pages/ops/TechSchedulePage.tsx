@@ -19,11 +19,11 @@ import { t } from '../../i18n/appI18n'
 // 样式常量 (ops 深色主题)
 // ============================================================
 const C = {
-  bg: '#0d1117',
-  panel: '#161b22',
-  border: '#30363d',
-  text: '#f0f6fc',
-  textMid: '#8b949e',
+  bg: 'var(--bg-primary, #0d1117)',
+  panel: 'var(--bg-card, #161b22)',
+  border: 'var(--border-default, #30363d)',
+  text: 'var(--text-primary, #f0f6fc)',
+  textMid: 'var(--text-muted, #8b949e)',
   textLight: '#6e7681',
   blue: '#3b82f6',
   green: '#4ade80',

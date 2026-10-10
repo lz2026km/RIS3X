@@ -42,6 +42,7 @@ import { PageHeader } from '../../components/common/PageHeader'
 import { ErrorBanner } from '../../components/feedback'
 import { StatCard, StatCardGrid } from '../../components/common/StatCard'
 import { t } from '../../i18n/appI18n'
+import { toneToAntd } from '../../theme/statusTokens'
 import {
   reportSignV2Api,
   WATERMARK_POSITION_LABELS,
@@ -60,7 +61,7 @@ import {
 } from '../../services/api/reportSignV2Api'
 
 const POSITION_OPTIONS = Object.entries(WATERMARK_POSITION_LABELS).map(([value, label]) => ({ value, label }))
-const STATUS_COLORS: Record<string, string> = { pending: 'orange', approved: 'green', rejected: 'red', cancelled: 'default' }
+const STATUS_COLORS: Record<string, string> = { pending: toneToAntd('pending'), approved: toneToAntd('approved'), rejected: toneToAntd('rejected'), cancelled: toneToAntd('cancelled') }
 const KIND_COLORS: Record<string, string> = { doctor: 'blue', reviewer: 'purple', 'co-signer': 'magenta' }
 
 const ACTOR = { id: 'u-001', name: '张主任' }

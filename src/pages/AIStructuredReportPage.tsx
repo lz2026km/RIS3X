@@ -1257,6 +1257,8 @@ const AIStructuredReportPage: React.FC = () => {
             {templates.map((template) => (
               <div
                 key={template.id}
+                role="button"
+                tabIndex={0}
                 style={{
                   ...styles.templateItem,
                   borderColor:
@@ -1265,6 +1267,7 @@ const AIStructuredReportPage: React.FC = () => {
                     selectedTemplate === template.id ? "#eff6ff" : "#f8fafc",
                 }}
                 onClick={() => handleTemplateSelect(template)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleTemplateSelect(template) } }}
               >
                 <span
                   style={{

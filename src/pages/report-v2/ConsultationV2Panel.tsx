@@ -314,7 +314,7 @@ const ConsultationV2Panel: React.FC = () => {
                     </Col>
                     <Col span={16}>
                       <Text strong>{t('consultationV2.messageStream')}</Text>
-                      <div style={{ maxHeight: 260, overflowY: 'auto', border: '1px solid #f0f0f0', borderRadius: 6, padding: 8 }}>
+                      <div style={{ maxHeight: 260, overflowY: 'auto', border: '1px solid var(--border-default, rgba(0,0,0,0.12))', borderRadius: 6, padding: 8 }}>
                         {active.messages.length === 0 ? (
                           <Empty description={t('consultationV2.noMessages')} />
                         ) : (
@@ -435,7 +435,7 @@ const ConsultationV2Panel: React.FC = () => {
       <Modal title={t('consultationV2.exportModalTitle', { title: exportData?.reportTitle ?? '' })} open={!!exportData}
         onCancel={() => setExportData(null)} footer={null} width={720}>
         {exportData && (
-          <pre style={{ whiteSpace: 'pre-wrap', fontSize: 12, background: '#fafafa', padding: 12, borderRadius: 6, maxHeight: 480, overflowY: 'auto' }}>
+          <pre style={{ whiteSpace: 'pre-wrap', fontSize: 12, background: 'var(--bg-primary, #f8fafc)', padding: 12, borderRadius: 6, maxHeight: 480, overflowY: 'auto' }}>
             {exportData.content}
           </pre>
         )}

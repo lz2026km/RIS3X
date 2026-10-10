@@ -29,9 +29,9 @@ const SUCCESS = '#059669'
 const WARNING = '#d97706'
 const DANGER = '#dc2626'
 const PURPLE = '#7c3aed'
-const GRAY = '#64748b'
+const GRAY = 'var(--text-secondary, #475569)'
 const BG = 'var(--bg-primary)'
-const WHITE = '#ffffff'
+const WHITE = 'var(--bg-card, #ffffff)'
 
 const NOTIFICATION_TYPES = [
   { key: 'all', label: t('notification.typeAll'), icon: <Bell size={14} />, color: PRIMARY },
@@ -424,10 +424,13 @@ function NotificationCard({ notification, onView, onMarkRead, onDelete, isSelect
 
   return (
     <div
+      role="button"
+      tabIndex={0}
       onClick={onView}
+      onKeyDown={e => { if (e.target !== e.currentTarget) return; if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onView() } }}
       style={{
         background: isSelected ? 'var(--color-info-bg)' : isUnread ? 'var(--bg-primary)' : 'var(--bg-card)',
-        border: `1px solid ${isSelected ? ACCENT : isUnread ? '#bfdbfe' : '#e2e8f0'}`,
+        border: `1px solid ${isSelected ? ACCENT : isUnread ? '#bfdbfe' : 'var(--border-default, rgba(0,0,0,0.12))'}`,
         borderLeft: `4px solid ${typeConfig.color}`,
         borderRadius: 10, padding: 14, cursor: 'pointer',
         transition: 'all 0.15s', position: 'relative',
@@ -441,7 +444,7 @@ function NotificationCard({ notification, onView, onMarkRead, onDelete, isSelect
       }}
       onMouseLeave={e => {
         if (!isSelected) {
-          e.currentTarget.style.borderColor = isUnread ? '#bfdbfe' : '#e2e8f0'
+          e.currentTarget.style.borderColor = isUnread ? '#bfdbfe' : 'var(--border-default, rgba(0,0,0,0.12))'
           e.currentTarget.style.boxShadow = isUnread ? '0 1px 3px rgba(0,0,0,0.05)' : 'none'
         }
       }}
@@ -766,7 +769,7 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
             return (
               <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                 <div style={{
-                  width: '100%', background: i === todayIdx ? ACCENT : '#e2e8f0',
+                  width: '100%', background: i === todayIdx ? ACCENT : 'var(--border-default, rgba(0,0,0,0.12))',
                   borderRadius: 4, height: `${(day.count / maxCount) * 62}px`,
                   transition: 'height 0.3s', position: 'relative',
                 }} title={`${day.day}: ${day.count} 条 (${day.unread} 未读)`}>
@@ -940,7 +943,10 @@ function HistoryPanel({ notifications, onViewNotification }: HistoryPanelProps) 
             return (
               <div
                 key={n.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => onViewNotification(n)}
+                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onViewNotification(n) } }}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px',
                   background: 'var(--content-bg)', borderRadius: 6, marginBottom: 4, cursor: 'pointer',
@@ -1007,7 +1013,7 @@ function RulesEnginePanel({ rules, onToggle, onDelete }: { rules: NotificationRu
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{rule.name}</span>
-              <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, background: rule.priority === 'high' ? 'var(--color-error-bg)' : 'var(--bg-card)', color: rule.priority === 'high' ? '#dc2626' : '#64748b' }}>
+              <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, background: rule.priority === 'high' ? 'var(--color-error-bg)' : 'var(--bg-card)', color: rule.priority === 'high' ? '#dc2626' : 'var(--text-secondary, #475569)' }}>
                 {rule.priority === 'high' ? t('notification.priorityHighLabel') : t('notification.priorityNormal')}
               </span>
             </div>
@@ -1042,8 +1048,13 @@ function PreferencesPanel({ preferences, onUpdate }: { preferences: UserNotifyPr
       <div style={{ marginBottom: 16 }}>
         <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, fontWeight: 600 }}>{t('notification.quietHours')}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <div onClick={() => onUpdate({ ...preferences, quietHoursEnabled: !preferences.quietHoursEnabled })}
-            style={{ width: 36, height: 20, borderRadius: 10, background: preferences.quietHoursEnabled ? ACCENT : '#e2e8f0', position: 'relative', cursor: 'pointer' }}>
+          <div
+            role="button"
+            tabIndex={0}
+            aria-label={t('notification.enableQuietHours')}
+            onClick={() => onUpdate({ ...preferences, quietHoursEnabled: !preferences.quietHoursEnabled })}
+            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onUpdate({ ...preferences, quietHoursEnabled: !preferences.quietHoursEnabled }) } }}
+            style={{ width: 36, height: 20, borderRadius: 10, background: preferences.quietHoursEnabled ? ACCENT : 'var(--border-default, rgba(0,0,0,0.12))', position: 'relative', cursor: 'pointer' }}>
             <div style={{ width: 16, height: 16, borderRadius: '50%', background: 'var(--bg-card)', position: 'absolute', top: 2, left: preferences.quietHoursEnabled ? 18 : 2, boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
           </div>
           <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{t('notification.enableQuietHours')}</span>
@@ -1146,10 +1157,14 @@ function SubscriptionPanel({
               </div>
             </div>
             <div
+              role="button"
+              tabIndex={0}
+              aria-label={def.label}
               onClick={() => onToggle(def.key)}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle(def.key) } }}
               style={{
                 width: 40, height: 22, borderRadius: 11, cursor: 'pointer',
-                background: checked ? (def.key === 'CRITICAL' ? DANGER : ACCENT) : '#e2e8f0', position: 'relative',
+                background: checked ? (def.key === 'CRITICAL' ? DANGER : ACCENT) : 'var(--border-default, rgba(0,0,0,0.12))', position: 'relative',
                 transition: 'background 0.2s', flexShrink: 0,
               }}
             >
@@ -1665,7 +1680,7 @@ export default function NotificationCenter() {
                 </div>
                 {count > 0 && (
                   <span style={{
-                    background: type.key === activeTab ? type.color : '#e2e8f0',
+                    background: type.key === activeTab ? type.color : 'var(--border-default, rgba(0,0,0,0.12))',
                     color: type.key === activeTab ? WHITE : GRAY,
                     padding: '1px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600,
                     minWidth: 20, textAlign: 'center',
@@ -1807,7 +1822,7 @@ export default function NotificationCenter() {
               <button
                 onClick={() => setShowBroadcast(true)}
                 style={{
-                  padding: '6px 12px', borderRadius: 6, border: `1px solid ${showBroadcast ? SUCCESS : '#e2e8f0'}`,
+                  padding: '6px 12px', borderRadius: 6, border: `1px solid ${showBroadcast ? SUCCESS : 'var(--border-default, rgba(0,0,0,0.12))'}`,
                   background: showBroadcast ? `${SUCCESS}15` : 'var(--bg-card)', color: showBroadcast ? SUCCESS : GRAY,
                   fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                 }}
@@ -1819,7 +1834,7 @@ export default function NotificationCenter() {
             <button
               onClick={() => setShowDeliveryTracking(!showDeliveryTracking)}
               style={{
-                padding: '6px 12px', borderRadius: 6, border: `1px solid ${showDeliveryTracking ? ACCENT : '#e2e8f0'}`,
+                padding: '6px 12px', borderRadius: 6, border: `1px solid ${showDeliveryTracking ? ACCENT : 'var(--border-default, rgba(0,0,0,0.12))'}`,
                 background: showDeliveryTracking ? `${ACCENT}15` : 'var(--bg-card)', color: showDeliveryTracking ? ACCENT : GRAY,
                 fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
               }}
@@ -1830,7 +1845,7 @@ export default function NotificationCenter() {
             <button
               onClick={() => { setShowDeliveryTracking(false); setShowPreferences(false); setShowSettings(!showSettings) }}
               style={{
-                padding: '6px 12px', borderRadius: 6, border: `1px solid ${showSettings ? ACCENT : '#e2e8f0'}`,
+                padding: '6px 12px', borderRadius: 6, border: `1px solid ${showSettings ? ACCENT : 'var(--border-default, rgba(0,0,0,0.12))'}`,
                 background: showSettings ? `${ACCENT}15` : 'var(--bg-card)', color: showSettings ? ACCENT : GRAY,
                 fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
               }}
@@ -1895,7 +1910,7 @@ export default function NotificationCenter() {
                 {t('notification.groupByRead')}
               </label>
               {groupByRead && (
-                <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 'auto' }}>
+                <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginLeft: 'auto' }}>
                   未读 {filteredNotifications.filter(n => n.status === 'unread').length} · 已读 {filteredNotifications.filter(n => n.status === 'read').length}
                 </span>
               )}
@@ -1909,7 +1924,7 @@ export default function NotificationCenter() {
                 textAlign: 'center', padding: '60px 20px', background: 'var(--bg-card)',
                 borderRadius: 10, border: '1px solid var(--border-color)',
               }}>
-                <Bell size={48} color="#e2e8f0" style={{ marginBottom: 12 }} />
+                <Bell size={48} color="var(--border-default, rgba(0,0,0,0.12))" style={{ marginBottom: 12 }} />
                 <div style={{ fontSize: 14, color: GRAY }}>{t('notification.noNotifications')}</div>
               </div>
             ) : groupByRead ? (

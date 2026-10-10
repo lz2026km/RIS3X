@@ -206,7 +206,7 @@ const ClinicalConfigCenter: React.FC = () => {
                   <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("clinicalConfig.moduleNotLoaded")} />
                 ) : sample !== null && sample !== undefined ? (
                   <Card size="small" title={t("clinicalConfig.summarySample")}>
-                    <pre style={{ background: "#f5f5f5", padding: 12, borderRadius: 4, overflow: "auto", maxHeight: 240 }}>
+                    <pre style={{ background: "var(--bg-primary, #f8fafc)", padding: 12, borderRadius: 4, overflow: "auto", maxHeight: 240 }}>
                       {JSON.stringify(sample, null, 2)}
                     </pre>
                   </Card>

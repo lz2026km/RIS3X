@@ -138,7 +138,7 @@ function toNum(v: unknown): number {
 
 // ==================== 样式 ====================
 const s: Record<string, React.CSSProperties> = {
-  root: { background: 'linear-gradient(135deg, #0d1117 0%, #1a1f2e 100%)',
+  root: { background: 'linear-gradient(135deg, var(--bg-primary, #0d1117) 0%, #1a1f2e 100%)',
     color: '#f1f5f9',
     padding: '20px 24px',
     fontFamily: '"Microsoft YaHei", "PingFang SC", sans-serif',

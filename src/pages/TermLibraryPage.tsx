@@ -933,7 +933,10 @@ export default function TermLibraryPage() {
     const renderTree = (nodes: CategoryTreeNode[], level: number = 0) => nodes.map(node => (
       <div key={node.id}>
         <div
+          role="button"
+          tabIndex={0}
           onClick={() => { setSelectedCategory(node.id); toggleExpand(node.id) }}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedCategory(node.id); toggleExpand(node.id) } }}
           style={{
             display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px',
             cursor: 'pointer', borderRadius: 4, marginLeft: level * 16,

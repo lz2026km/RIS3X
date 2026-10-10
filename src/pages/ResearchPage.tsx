@@ -165,9 +165,15 @@ function useToast() {
 // ==================== 进度Modal组件 ====================
 interface ProgressModalProps { open: boolean; title: string; message: string; progress?: number; onClose?: () => void }
 function ProgressModal({ open, title, message, progress, onClose }: ProgressModalProps) {
+  useEffect(() => {
+    if (!open || !onClose) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open, onClose])
   if (!open) return null
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }} onClick={onClose}>
+    <div role="dialog" aria-modal="true" aria-label={title} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }} onClick={onClose}>
       <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 32, width: 400, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
         <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 16 }}>{title}</div>
         <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 20 }}>{message}</div>
@@ -651,7 +657,7 @@ function DeidEngineTab() {
         <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Shield size={16} /> {t('researchPage.deidProfile')}</div>
         <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
           {[{ id: 'hipaa', label: t('researchPage.hipaaLabel'), desc: t('researchPage.hipaaDesc') }, { id: 'expert', label: t('researchPage.expertLabel'), desc: t('researchPage.expertDesc') }].map(p => (
-            <div key={p.id} onClick={() => setDeidProfile(p.id)} style={{ flex: 1, padding: 16, borderRadius: 8, border: `2px solid ${deidProfile === p.id ? COLORS.primary : COLORS.border}`, cursor: 'pointer', background: deidProfile === p.id ? COLORS.primaryLighter : 'transparent' }}>
+            <div key={p.id} role="button" tabIndex={0} onClick={() => setDeidProfile(p.id)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setDeidProfile(p.id) } }} style={{ flex: 1, padding: 16, borderRadius: 8, border: `2px solid ${deidProfile === p.id ? COLORS.primary : COLORS.border}`, cursor: 'pointer', background: deidProfile === p.id ? COLORS.primaryLighter : 'transparent' }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: deidProfile === p.id ? COLORS.primary : COLORS.textPrimary }}>{p.label}</div>
               <div style={{ fontSize: 12, color: COLORS.textSecondary, marginTop: 4 }}>{p.desc}</div>
             </div>

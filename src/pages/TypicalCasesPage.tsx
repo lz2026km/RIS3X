@@ -109,7 +109,12 @@ const Accordion: React.FC<AccordionProps> = ({ title, icon, children, defaultOpe
   const [isOpen, setIsOpen] = useState(defaultOpen)
   return (
     <div style={{ border: `1px solid ${COLORS.border}`, borderRadius: 8, marginBottom: 8, overflow: 'hidden' }}>
-      <div onClick={() => setIsOpen(!isOpen)} style={{
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => setIsOpen(!isOpen)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsOpen(!isOpen) } }}
+        style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '10px 12px', background: isOpen ? COLORS.infoBg : COLORS.white,
         cursor: 'pointer', transition: 'all 0.2s',
@@ -138,6 +143,8 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, onEdit, onDelete,
   const { t } = useTranslation('v3report')
   const [isHovered, setIsHovered] = useState(false)
   const getModalityIcon = (modality: string) => <Scan size={14} style={{ color: MODALITY_COLORS[modality] || '#64748b' }} />
+  const handleToggleFavorite = (e: React.MouseEvent | React.KeyboardEvent) => { e.stopPropagation(); onToggleFavorite?.(caseData) }
+  const handleEdit = (e: React.MouseEvent | React.KeyboardEvent) => { e.stopPropagation(); onEdit?.(caseData) }
 
   return (
     <Card bordered={false} onClick={() => onView(caseData)} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}
@@ -159,8 +166,10 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, onEdit, onDelete,
         {/* [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-06)] 收藏星标 */}
         <span
           role="button"
+          tabIndex={0}
           aria-label={favorited ? '取消教学收藏' : '加入教学收藏'}
-          onClick={(e) => { e.stopPropagation(); onToggleFavorite?.(caseData) }}
+          onClick={handleToggleFavorite}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleToggleFavorite(e) } }}
           style={{ marginLeft: 'auto', cursor: 'pointer', color: favorited ? COLORS.warning : COLORS.textLight, display: 'inline-flex', alignItems: 'center' }}
         >
           <Star size={16} fill={favorited ? COLORS.warning : 'transparent'} />
@@ -226,9 +235,9 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, onEdit, onDelete,
           <div style={{ fontSize: 12, color: COLORS.textLight, display: 'flex', alignItems: 'center', gap: 6 }}>{caseData.createdAt}
             {isAdmin && (
               <>
-                <span role="button" onClick={(e) => { e.stopPropagation(); onEdit?.(caseData) }} style={{ cursor: 'pointer', color: COLORS.info, fontWeight: 600 }}><Edit3 size={13} /></span>
+                <span role="button" tabIndex={0} aria-label={t('editCaseFormTitle')} onClick={handleEdit} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleEdit(e) } }} style={{ cursor: 'pointer', color: COLORS.info, fontWeight: 600 }}><Edit3 size={13} /></span>
                 <Popconfirm title={t('deleteCaseConfirm')} onConfirm={(e) => { e?.stopPropagation?.(); onDelete?.(caseData) }} onCancel={(e) => e?.stopPropagation?.()} okText={t('formSave') ? '删除' : '删除'} cancelText="取消">
-                  <span role="button" onClick={(e) => e.stopPropagation()} style={{ cursor: 'pointer', color: COLORS.danger, fontWeight: 600 }}><Trash2 size={13} /></span>
+                  <span role="button" tabIndex={0} aria-label={t('deleteCaseConfirm')} onClick={(e) => e.stopPropagation()} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); e.currentTarget.click() } }} style={{ cursor: 'pointer', color: COLORS.danger, fontWeight: 600 }}><Trash2 size={13} /></span>
                 </Popconfirm>
               </>
             )}
@@ -308,10 +317,10 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
 
       {/* 标签页 */}
       <div style={{ display: 'flex', borderBottom: `1px solid ${COLORS.border}`, background: COLORS.white }}>
-        <div style={tabStyle('info')} onClick={() => setActiveTab('info')}>{t('tabBasicInfo')}</div>
-        <div style={tabStyle('images')} onClick={() => setActiveTab('images')}>{t('tabImages')}</div>
-        <div style={tabStyle('report')} onClick={() => setActiveTab('report')}>{t('tabReport')}</div>
-        <div style={tabStyle('discussion')} onClick={() => setActiveTab('discussion')}>{t('tabDiscussion')} ({caseData.discussions.length})</div>
+        <div role="button" tabIndex={0} style={tabStyle('info')} onClick={() => setActiveTab('info')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab('info') } }}>{t('tabBasicInfo')}</div>
+        <div role="button" tabIndex={0} style={tabStyle('images')} onClick={() => setActiveTab('images')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab('images') } }}>{t('tabImages')}</div>
+        <div role="button" tabIndex={0} style={tabStyle('report')} onClick={() => setActiveTab('report')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab('report') } }}>{t('tabReport')}</div>
+        <div role="button" tabIndex={0} style={tabStyle('discussion')} onClick={() => setActiveTab('discussion')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab('discussion') } }}>{t('tabDiscussion')} ({caseData.discussions.length})</div>
       </div>
 
       {/* 内容区域 */}
@@ -409,7 +418,7 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
             <div style={{ background: '#1a1a2e', borderRadius: 10, padding: 20, marginBottom: 16, minHeight: 400, position: 'relative' }}>
               <div style={{ width: '100%', height: 360, background: 'linear-gradient(135deg, #2d2d44, #1a1a2e)', borderRadius: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
                 {caseData.annotations.map((ann, idx) => (
-                  <div key={ann.id} onClick={() => setSelectedAnnotation(selectedAnnotation === idx ? null : idx)} style={{
+                  <div key={ann.id} role="button" tabIndex={0} aria-label={ann.label} onClick={() => setSelectedAnnotation(selectedAnnotation === idx ? null : idx)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedAnnotation(selectedAnnotation === idx ? null : idx) } }} style={{
                     position: 'absolute', left: `${ann.x}%`, top: `${ann.y}%`, width: 24, height: 24, borderRadius: '50%',
                     background: ann.type === 'stenosis' ? COLORS.danger : ann.type === 'mass' ? COLORS.warning : ann.type === 'emboli' ? '#ff6b6b' : COLORS.info,
                     border: '2px solid white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -442,7 +451,7 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
                 {caseData.annotations.map((ann, idx) => (
-                  <div key={ann.id} onClick={() => setSelectedAnnotation(idx)} style={{
+                  <div key={ann.id} role="button" tabIndex={0} onClick={() => setSelectedAnnotation(idx)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedAnnotation(idx) } }} style={{
                     display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: 'rgba(255,255,255,0.1)', borderRadius: 4, cursor: 'pointer',
                   }}>
                     <div style={{ width: 12, height: 12, borderRadius: '50%', background: ann.type === 'stenosis' ? COLORS.danger : ann.type === 'mass' ? COLORS.warning : ann.type === 'emboli' ? '#ff6b6b' : COLORS.info }} />

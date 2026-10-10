@@ -14,13 +14,14 @@ import {
 import { ChartContainer } from '../../components/charts'
 import { StateView } from '../../components/common/StateView'
 import { t } from '../../i18n/appI18n'
+import { severityColor } from '../../theme/statusTokens'
 
 const SEVERITY_COLORS: Record<EventSeverity, string> = {
   'near-miss': '#8b5cf6',
-  minor: '#3b82f6',
-  moderate: '#f59e0b',
-  severe: '#ef4444',
-  catastrophic: '#dc2626',
+  minor: severityColor('info'),
+  moderate: severityColor('warning'),
+  severe: severityColor('high'),
+  catastrophic: severityColor('critical'),
 }
 
 
@@ -110,7 +111,7 @@ export default function AdverseEventPage() {
   }
 
   return (
-    <div style={{ background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+    <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#7c3aed,#5b21b6)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <ShieldAlert size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('ade.title')}</span>
@@ -122,27 +123,27 @@ export default function AdverseEventPage() {
 
       <div style={{ padding: '20px 24px' }}>
         {showForm && (
-          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20, marginBottom: 20 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20, marginBottom: 20 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('ade.newEvent')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
-              <select style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: 4, padding: '6px 10px' }} value={formData.eventType ?? ''} onChange={e => setFormData({ ...formData, eventType: e.target.value as EventCategory })}>
+              <select style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px' }} value={formData.eventType ?? ''} onChange={e => setFormData({ ...formData, eventType: e.target.value as EventCategory })}>
                 <option value="">{t('ade.selectEventType')}</option>
                 {Object.entries(CATEGORY_LABELS).map(([k, v]) => <option key={k} value={k}>{t(v)}</option>)}
               </select>
-              <select style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: 4, padding: '6px 10px' }} value={formData.severity ?? ''} onChange={e => setFormData({ ...formData, severity: e.target.value as EventSeverity })}>
+              <select style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px' }} value={formData.severity ?? ''} onChange={e => setFormData({ ...formData, severity: e.target.value as EventSeverity })}>
                 <option value="">{t('ade.selectSeverity')}</option>
                 {Object.entries(SEVERITY_COLORS).map(([k]) => <option key={k} value={k}>{t(SEVERITY_LABELS[k as EventSeverity] ?? k)}</option>)}
               </select>
-              <input style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: 4, padding: '6px 10px' }} placeholder={t('ade.patientName')} value={formData.patientName ?? ''} onChange={e => setFormData({ ...formData, patientName: e.target.value })} />
-              <input style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: 4, padding: '6px 10px' }} placeholder={t('ade.patientId')} value={formData.patientId ?? ''} onChange={e => setFormData({ ...formData, patientId: e.target.value })} />
-              <input style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: 4, padding: '6px 10px' }} placeholder={t('ade.location')} value={formData.location ?? ''} onChange={e => setFormData({ ...formData, location: e.target.value })} />
-              <input style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: 4, padding: '6px 10px' }} placeholder={t('ade.reportedBy')} value={formData.reportedBy ?? ''} onChange={e => setFormData({ ...formData, reportedBy: e.target.value })} />
+              <input style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px' }} placeholder={t('ade.patientName')} value={formData.patientName ?? ''} onChange={e => setFormData({ ...formData, patientName: e.target.value })} />
+              <input style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px' }} placeholder={t('ade.patientId')} value={formData.patientId ?? ''} onChange={e => setFormData({ ...formData, patientId: e.target.value })} />
+              <input style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px' }} placeholder={t('ade.location')} value={formData.location ?? ''} onChange={e => setFormData({ ...formData, location: e.target.value })} />
+              <input style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px' }} placeholder={t('ade.reportedBy')} value={formData.reportedBy ?? ''} onChange={e => setFormData({ ...formData, reportedBy: e.target.value })} />
             </div>
-            <textarea style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: 4, padding: '6px 10px', width: '100%', minHeight: 80, marginBottom: 12 }} placeholder={t('ade.description')} value={formData.description ?? ''} onChange={e => setFormData({ ...formData, description: e.target.value })} />
-            <input style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: 4, padding: '6px 10px', width: '100%', marginBottom: 12 }} placeholder={t('ade.contributingFactors')} value={(formData.contributingFactors ?? []).join(', ')} onChange={e => setFormData({ ...formData, contributingFactors: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })} />
+            <textarea style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px', width: '100%', minHeight: 80, marginBottom: 12 }} placeholder={t('ade.description')} value={formData.description ?? ''} onChange={e => setFormData({ ...formData, description: e.target.value })} />
+            <input style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, padding: '6px 10px', width: '100%', marginBottom: 12 }} placeholder={t('ade.contributingFactors')} value={(formData.contributingFactors ?? []).join(', ')} onChange={e => setFormData({ ...formData, contributingFactors: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })} />
             <div style={{ display: 'flex', gap: 8 }}>
               <button onClick={handleSubmit} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#7c3aed', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Send size={13} />{t('ade.submit')}</button>
-              <button onClick={() => setShowForm(false)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer' }}>{t('ade.cancel')}</button>
+              <button onClick={() => setShowForm(false)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: 'var(--text-muted, #8b949e)', cursor: 'pointer' }}>{t('ade.cancel')}</button>
             </div>
           </div>
         )}
@@ -152,11 +153,11 @@ export default function AdverseEventPage() {
             { title: t('ade.monthEvents'), value: events.length, icon: AlertTriangle, color: 'var(--color-error-500, #ef4444)' },
             { title: t('ade.investigating'), value: events.filter(e => e.status === 'investigating').length, icon: Search, color: 'var(--color-warning-500, #f59e0b)' },
             { title: t('ade.resolved'), value: events.filter(e => e.status === 'resolved').length, icon: CheckCircle, color: 'var(--color-success-500, #22c55e)' },
-            { title: t('ade.closed'), value: events.filter(e => e.status === 'closed').length, icon: XCircle, color: '#8b949e' },
+            { title: t('ade.closed'), value: events.filter(e => e.status === 'closed').length, icon: XCircle, color: 'var(--text-muted, #8b949e)' },
           ].map((k, i) => (
-            <div key={i} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 140 }}>
+            <div key={i} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 140 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-                <span style={{ fontSize: 12, color: '#8b949e' }}>{k.title}</span>
+                <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{k.title}</span>
                 <k.icon size={20} style={{ color: k.color }} />
               </div>
               <div style={{ fontSize: 28, fontWeight: 700 }}>{k.value}</div>
@@ -165,30 +166,30 @@ export default function AdverseEventPage() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
               <Activity size={16} color="#3b82f6" />{t('ade.trendTitle')}
             </div>
             <ChartContainer height={240} state={trendChartData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('ade.noTrendData')}>
               <LineChart data={trendChartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="period" tick={{ fontSize: 12, fill: '#8b949e' }} />
-                <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
-                <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default, #30363d)" />
+                <XAxis dataKey="period" tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
+                <YAxis tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
+                <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, fontSize: 12 }} />
                 <Line type="monotone" dataKey="total" stroke="#7c3aed" strokeWidth={2} dot={{ fill: '#7c3aed' }} name={t('ade.eventCount')} />
               </LineChart>
             </ChartContainer>
           </div>
-          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
               <BarChart3 size={16} color="#22c55e" />{t('ade.typeDistribution')}
             </div>
             <ChartContainer height={240} state={categoryChartData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('ade.noTypeData')}>
               <BarChart data={categoryChartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
-                <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
-                <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default, #30363d)" />
+                <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
+                <YAxis tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
+                <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, fontSize: 12 }} />
                 <Bar dataKey="count" fill="#7c3aed" radius={[4, 4, 0, 0]} name={t('ade.count')} />
               </BarChart>
             </ChartContainer>
@@ -197,7 +198,7 @@ export default function AdverseEventPage() {
 
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
           {(['all', 'reported', 'investigating', 'resolved', 'closed'] as const).map(s => (
-            <button key={s} onClick={() => setFilter(s)} style={{ padding: '4px 12px', borderRadius: 4, border: `1px solid ${filter === s ? '#7c3aed' : '#30363d'}`, background: filter === s ? '#7c3aed20' : 'transparent', color: filter === s ? '#7c3aed' : '#8b949e', cursor: 'pointer', fontSize: 12 }}>
+            <button key={s} onClick={() => setFilter(s)} style={{ padding: '4px 12px', borderRadius: 4, border: `1px solid ${filter === s ? '#7c3aed' : 'var(--border-default, #30363d)'}`, background: filter === s ? '#7c3aed20' : 'transparent', color: filter === s ? '#7c3aed' : 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>
               {s === 'all' ? t('ade.all') : t(STATUS_LABELS[s])}
             </button>
           ))}
@@ -211,35 +212,35 @@ export default function AdverseEventPage() {
           onRetry={() => void load()}
           skeletonRows={5}
         >
-        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('ade.colId')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('ade.colType')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('ade.colSeverity')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('ade.colPatient')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('ade.colStatus')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('ade.colReporter')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('ade.colDate')}</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('ade.colId')}</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('ade.colType')}</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('ade.colSeverity')}</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('ade.colPatient')}</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('ade.colStatus')}</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('ade.colReporter')}</th>
+                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('ade.colDate')}</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map(e => (
                 <tr key={e.id}>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#6e7681', fontSize: 12 }}>{e.id}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{t(CATEGORY_LABELS[e.eventType])}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>
+                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: '#6e7681', fontSize: 12 }}>{e.id}</td>
+                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>{t(CATEGORY_LABELS[e.eventType])}</td>
+                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
                     <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${SEVERITY_COLORS[e.severity]}20`, color: SEVERITY_COLORS[e.severity] }}>{t(SEVERITY_LABELS[e.severity] ?? e.severity)}</span>
                   </td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#f0f6fc' }}>{e.patientName ?? '-'}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>
-                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: e.status === 'closed' ? '#22c55e20' : e.status === 'resolved' ? '#3b82f620' : e.status === 'investigating' ? '#f59e0b20' : '#8b949e20', color: e.status === 'closed' ? '#22c55e' : e.status === 'resolved' ? '#3b82f6' : e.status === 'investigating' ? '#f59e0b' : '#8b949e' }}>
+                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-primary, #f0f6fc)' }}>{e.patientName ?? '-'}</td>
+                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
+                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: e.status === 'closed' ? '#22c55e20' : e.status === 'resolved' ? '#3b82f620' : e.status === 'investigating' ? '#f59e0b20' : '#8b949e20', color: e.status === 'closed' ? '#22c55e' : e.status === 'resolved' ? '#3b82f6' : e.status === 'investigating' ? '#f59e0b' : 'var(--text-muted, #8b949e)' }}>
                       {t(STATUS_LABELS[e.status])}
                     </span>
                   </td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#8b949e' }}>{e.reportedBy}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#8b949e', fontSize: 12 }}>{e.reportedAt}</td>
+                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{e.reportedBy}</td>
+                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{e.reportedAt}</td>
                 </tr>
               ))}
             </tbody>

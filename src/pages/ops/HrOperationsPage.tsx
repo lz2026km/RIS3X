@@ -129,7 +129,7 @@ export default function HrOperationsPage() {
         </span>
       ),
     },
-    { title: t('hrOps.colRole'), dataIndex: 'role', key: 'role', render: (v: string) => <span style={{ fontSize: 12, color: '#8b949e' }}>{v}</span> },
+    { title: t('hrOps.colRole'), dataIndex: 'role', key: 'role', render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
     {
       title: t('hrOps.colTeam'), key: 'status',
       render: (_: unknown, s: Staff) => (
@@ -139,13 +139,13 @@ export default function HrOperationsPage() {
         </span>
       ),
     },
-    { title: t('hrOps.colShift'), dataIndex: 'shift', key: 'shift', render: (v: string) => <span style={{ fontSize: 12, color: '#8b949e' }}>{v}</span> },
-    { title: t('hrOps.colWeeklyExams'), dataIndex: 'examsThisWeek', key: 'examsThisWeek', render: (v: number) => <strong style={{ color: '#f0f6fc' }}>{v}</strong> },
-    { title: t('hrOps.colOvertime'), dataIndex: 'overtimeHrs', key: 'overtimeHrs', render: (v: number) => <span style={{ color: v > 5 ? '#ef4444' : '#8b949e' }}>{v}</span> },
+    { title: t('hrOps.colShift'), dataIndex: 'shift', key: 'shift', render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
+    { title: t('hrOps.colWeeklyExams'), dataIndex: 'examsThisWeek', key: 'examsThisWeek', render: (v: number) => <strong style={{ color: 'var(--text-primary, #f0f6fc)' }}>{v}</strong> },
+    { title: t('hrOps.colOvertime'), dataIndex: 'overtimeHrs', key: 'overtimeHrs', render: (v: number) => <span style={{ color: v > 5 ? '#ef4444' : 'var(--text-muted, #8b949e)' }}>{v}</span> },
   ]
 
   return (
-    <div style={{ background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+    <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><Users size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('hrOps.title')}</span></div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -168,12 +168,12 @@ export default function HrOperationsPage() {
               <button onClick={() => void loadStaff()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid var(--color-error-500, #ef4444)', background: 'transparent', color: 'var(--color-error-500, #ef4444)', cursor: 'pointer', fontSize: 12 }}>{t('hrOps.retry')}</button>
             </span>
           )}
-          <span style={{ color: '#8b949e' }}>{t('hrOps.builtinDemoNote')}</span>
+          <span style={{ color: 'var(--text-muted, #8b949e)' }}>{t('hrOps.builtinDemoNote')}</span>
         </div>
-        <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: '#21262d', padding: 4, borderRadius: 8 }}>
+        <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: 'var(--bg-secondary, #21262d)', padding: 4, borderRadius: 8 }}>
           {(['roster', 'shift', 'certs'] as const).map(v => (
             <button key={v} onClick={() => setView(v)}
-              style={{ flex: 1, padding: '8px 0', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, background: view === v ? '#1e40af' : 'transparent', color: view === v ? '#fff' : '#8b949e' }}>
+              style={{ flex: 1, padding: '8px 0', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, background: view === v ? '#1e40af' : 'transparent', color: view === v ? '#fff' : 'var(--text-muted, #8b949e)' }}>
               {v === 'roster' ? t('hrOps.tabRoster') : v === 'shift' ? t('hrOps.tabShift') : t('hrOps.tabCerts')}
             </button>
           ))}
@@ -184,43 +184,43 @@ export default function HrOperationsPage() {
             <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
               {['all', ...roles].map(r => (
                 <button key={r} onClick={() => setRoleFilter(r)}
-                  style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: roleFilter === r ? '#1e40af' : '#21262d', color: roleFilter === r ? '#fff' : '#8b949e' }}>
+                  style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: roleFilter === r ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: roleFilter === r ? '#fff' : 'var(--text-muted, #8b949e)' }}>
                   {r === 'all' ? t('hrOps.all') : r}
                 </button>
               ))}
               <div style={{ position: 'relative', marginLeft: 'auto' }}>
                 <Search size={14} style={{ position: 'absolute', left: 10, top: 9, color: '#6e7681' }} />
                 <input placeholder={t('hrOps.searchName')} value={search} onChange={e => setSearch(e.target.value)}
-                  style={{ padding: '6px 12px 6px 32px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, width: 180 }} />
+                  style={{ padding: '6px 12px 6px 32px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, width: 180 }} />
               </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-              <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
                   <TrendingUp size={16} color="#22c55e" />{t('hrOps.weeklyWorkload')} {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>{t('hrOps.apiRealtimeTag')}</span>}
                 </div>
                 <ChartContainer height={220} state={prodData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('hrOps.noWorkload')}>
                   <BarChart data={prodData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                    <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
-                    <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
-                    <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default, #30363d)" />
+                    <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
+                    <YAxis tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
+                    <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, fontSize: 12 }} />
                     <Bar dataKey="examsThisWeek" fill="#22c55e" radius={[4, 4, 0, 0]} name={t('hrOps.examVolume')} />
                   </BarChart>
                 </ChartContainer>
               </div>
 
-              <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
                   <TrendingUp size={16} color="#8b5cf6" />{t('hrOps.satisfactionTrend')} <span style={{ fontSize: 11, color: '#f59e0b' }}>{t('hrOps.demoTag')}</span>
                 </div>
                 <ChartContainer height={220} state={SATISFACTION_TREND.length === 0 ? 'empty' : 'ready'} emptyDescription={t('hrOps.noSatisfaction')}>
                   <LineChart data={SATISFACTION_TREND}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                    <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} />
-                    <YAxis domain={[60, 100]} tick={{ fontSize: 12, fill: '#8b949e' }} />
-                    <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`${v}`, t('hrOps.satisfaction')]} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default, #30363d)" />
+                    <XAxis dataKey="month" tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
+                    <YAxis domain={[60, 100]} tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
+                    <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`${v}`, t('hrOps.satisfaction')]} />
                     <Line type="monotone" dataKey="satisfaction" stroke="#8b5cf6" strokeWidth={2} dot={{ fill: '#8b5cf6' }} name={t('hrOps.satisfaction')} />
                   </LineChart>
                 </ChartContainer>
@@ -228,7 +228,7 @@ export default function HrOperationsPage() {
             </div>
 
             <StateView empty={filtered.length === 0} emptyDescription={t('w2d.empty')}>
-            <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
+            <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, overflow: 'hidden' }}>
               <DataTable
                 dataSource={filtered}
                 rowKey="id"
@@ -255,24 +255,24 @@ export default function HrOperationsPage() {
         )}
 
         {view === 'shift' && (
-          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: '#f0f6fc' }}>{t('hrOps.weeklyShift')} <span style={{ fontSize: 11, color: '#f59e0b' }}>{t('hrOps.demoTag')}</span></div>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: 'var(--text-primary, #f0f6fc)' }}>{t('hrOps.weeklyShift')} <span style={{ fontSize: 11, color: '#f59e0b' }}>{t('hrOps.demoTag')}</span></div>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
                 <tr>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('hrOps.colDate')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('hrOps.dayShift')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('hrOps.nightShift')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('hrOps.backupShift')}</th>
+                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('hrOps.colDate')}</th>
+                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('hrOps.dayShift')}</th>
+                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('hrOps.nightShift')}</th>
+                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('hrOps.backupShift')}</th>
                 </tr>
               </thead>
               <tbody>
                 {SHIFT_GRID.map((row, i) => (
                   <tr key={i}>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', fontWeight: 600 }}>{row.day}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#8b949e' }}>{row['白班']}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#8b949e' }}>{row['夜班']}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#8b949e' }}>{row['备班']}</td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', fontWeight: 600 }}>{row.day}</td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{row['白班']}</td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{row['夜班']}</td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{row['备班']}</td>
                   </tr>
                 ))}
               </tbody>
@@ -281,26 +281,26 @@ export default function HrOperationsPage() {
         )}
 
         {view === 'certs' && (
-          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
               <Award size={16} color="#f59e0b" />{t('hrOps.certExpiry')} {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>{t('hrOps.certExpiryTag')}</span>}
             </div>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
                 <tr>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('hrOps.colName')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('hrOps.colCert')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('hrOps.colExpiry')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: '#8b949e', borderBottom: '1px solid #30363d' }}>{t('hrOps.colStatus')}</th>
+                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('hrOps.colName')}</th>
+                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('hrOps.colCert')}</th>
+                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('hrOps.colExpiry')}</th>
+                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('hrOps.colStatus')}</th>
                 </tr>
               </thead>
               <tbody>
                 {certRows.map((c, i) => (
                   <tr key={i}>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{c.staff}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#8b949e' }}>{c.cert}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#8b949e' }}>{c.expiry}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>{c.staff}</td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{c.cert}</td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{c.expiry}</td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
                       <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: c.status === 'valid' ? '#22c55e20' : '#f59e0b20', color: c.status === 'valid' ? '#22c55e' : '#f59e0b' }}>
                         {c.status === 'valid' ? t('hrOps.certValid') : t('hrOps.certExpiring')}
                       </span>

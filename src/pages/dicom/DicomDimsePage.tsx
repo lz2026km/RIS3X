@@ -21,6 +21,7 @@ import { dicomDimseApi, type DicomTlsConfig, type MppsRecord, type TransferRecor
 import { usePagination } from '../../hooks/usePagination'
 import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 import { t } from '../../i18n/appI18n'
+import { severityToAntd, toneToAntd } from '../../theme/statusTokens'
 
 const STAT_COLOR_MAP: Record<string, string> = {
   '#cf1322': 'error', '#dc2626': 'error', '#f5222d': 'error', '#ff4d4f': 'error',
@@ -89,9 +90,9 @@ const C_MOVE_COLUMNS = [
 
 // [G005 v3.0.6.11-86 Wave 4B (G-05)] MPPS 进度列
 const MPPS_STATUS_COLOR: Record<string, string> = {
-  IN_PROGRESS: 'processing',
-  COMPLETED: 'success',
-  DISCONTINUED: 'error',
+  IN_PROGRESS: toneToAntd('in_progress'),
+  COMPLETED: toneToAntd('completed'),
+  DISCONTINUED: toneToAntd('failed'),
 }
 const MPPS_COLUMNS = [
   { title: t('dicomDimse.colStudyUid'), dataIndex: 'studyUid', key: 'studyUid', ellipsis: true },
@@ -122,15 +123,15 @@ const TLS_NODE_COLUMNS = [
 
 // [G005 v3.0.6.11-90 Wave 4A (PACS P0-1)] 传输队列状态/标签映射
 const TRANSFER_STATUS_META: Record<string, { color: string; label: string }> = {
-  queued: { color: 'default', label: t('dicomDimse.transferQueued') },
-  sending: { color: 'processing', label: t('dicomDimse.transferSending') },
-  paused: { color: 'warning', label: t('dicomDimse.transferPaused') },
-  failed: { color: 'error', label: t('dicomDimse.transferFailed') },
-  completed: { color: 'success', label: t('dicomDimse.transferCompleted') },
-  canceled: { color: 'default', label: t('dicomDimse.transferCanceled') },
+  queued: { color: toneToAntd('queued'), label: t('dicomDimse.transferQueued') },
+  sending: { color: toneToAntd('in_progress'), label: t('dicomDimse.transferSending') },
+  paused: { color: toneToAntd('paused'), label: t('dicomDimse.transferPaused') },
+  failed: { color: toneToAntd('failed'), label: t('dicomDimse.transferFailed') },
+  completed: { color: toneToAntd('completed'), label: t('dicomDimse.transferCompleted') },
+  canceled: { color: toneToAntd('cancelled'), label: t('dicomDimse.transferCanceled') },
 }
 
-const TRANSFER_PRIORITY_COLOR: Record<string, string> = { HIGH: 'red', NORMAL: 'blue', LOW: 'default' }
+const TRANSFER_PRIORITY_COLOR: Record<string, string> = { HIGH: severityToAntd('high'), NORMAL: severityToAntd('normal'), LOW: severityToAntd('neutral') }
 const TRANSFER_PRIORITY_LABEL: Record<string, string> = { HIGH: t('dicomDimse.priorityHigh'), NORMAL: t('dicomDimse.priorityNormal'), LOW: t('dicomDimse.priorityLow') }
 
 interface DimseDevice {

@@ -240,7 +240,7 @@ export default function DeviceScheduleGanttPage() {
             <CalendarDays size={20} color="#1677ff" />
             {t('title', '设备调度甘特图 V2')}
           </div>
-          <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{t('subtitle', '设备×时间周视图 · 检查/维护/空闲三色 · 拖拽调整 · 冲突检测')}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginTop: 2 }}>{t('subtitle', '设备×时间周视图 · 检查/维护/空闲三色 · 拖拽调整 · 冲突检测')}</div>
         </div>
         <Space wrap>
           <Button icon={<RefreshCw size={14} />} onClick={() => void fetchWeek()}>{t('refresh', '刷新')}</Button>
@@ -272,7 +272,7 @@ export default function DeviceScheduleGanttPage() {
           {view ? `${view.weekStart} ~ ${dayjs(view.weekStart).add(6, 'day').format('YYYY-MM-DD')}` : weekStart}
         </span>
         <Tag color="blue" style={{ fontSize: 11 }}>{t('weekHint', '周一 ~ 周日')}</Tag>
-        <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 8 }}>
+        <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginLeft: 8 }}>
           <GripVertical size={11} style={{ verticalAlign: -1 }} /> {t('dragHint', '拖拽检查/维护块可调整时间 (15 分钟吸附)')}
         </span>
       </div>
@@ -315,7 +315,7 @@ export default function DeviceScheduleGanttPage() {
             <div style={{ minWidth: 160 + DAY_WIDTH * 7 }}>
               {/* 表头 */}
               <div style={{ display: 'flex', marginBottom: 4 }}>
-                <div style={{ width: 160, flexShrink: 0, fontSize: 12, color: '#64748b', fontWeight: 600, padding: '0 8px' }}>
+                <div style={{ width: 160, flexShrink: 0, fontSize: 12, color: 'var(--text-secondary, #475569)', fontWeight: 600, padding: '0 8px' }}>
                   {t('device', '设备')}
                 </div>
                 {view.days.map((d, i) => {
@@ -326,8 +326,8 @@ export default function DeviceScheduleGanttPage() {
                         {d.label}
                         {isToday && <Tag color="blue" style={{ marginLeft: 4, fontSize: 10 }}>今</Tag>}
                       </div>
-                      <div style={{ color: '#94a3b8', fontSize: 11 }}>{d.date.slice(5)}</div>
-                      {i > 0 && <div style={{ height: 1, background: '#f1f5f9' }} />}
+                      <div style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 11 }}>{d.date.slice(5)}</div>
+                      {i > 0 && <div style={{ height: 1, background: 'var(--border-default, rgba(0,0,0,0.12))' }} />}
                     </div>
                   )
                 })}
@@ -336,14 +336,14 @@ export default function DeviceScheduleGanttPage() {
               {devices.map((dev) => {
                 const utilization = dev.utilization
                 return (
-                  <div key={dev.deviceId} style={{ display: 'flex', borderTop: '1px solid #f1f5f9' }}>
+                  <div key={dev.deviceId} style={{ display: 'flex', borderTop: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>
                     <div style={{ width: 160, flexShrink: 0, padding: 6, fontSize: 12 }}>
                       <div style={{ fontWeight: 600, color: '#0f172a' }}>{dev.name}</div>
-                      <div style={{ fontSize: 11, color: '#94a3b8' }}>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>
                         <Tag style={{ fontSize: 10, marginInlineEnd: 4 }}>{dev.modality}</Tag>
                         {t('utilization', '利用率')} {utilization}%
                       </div>
-                      <div style={{ height: 3, background: '#e2e8f0', borderRadius: 2, marginTop: 4, overflow: 'hidden' }}>
+                      <div style={{ height: 3, background: 'var(--border-default, rgba(0,0,0,0.12))', borderRadius: 2, marginTop: 4, overflow: 'hidden' }}>
                         <div style={{ width: `${utilization}%`, height: '100%', background: utilization > 70 ? '#16a34a' : utilization > 40 ? '#f59e0b' : '#e11d48' }} />
                       </div>
                       {dev.conflicts.length > 0 && (
@@ -360,8 +360,8 @@ export default function DeviceScheduleGanttPage() {
                           key={day.date}
                           style={{
                             width: DAY_WIDTH, flexShrink: 0, position: 'relative', height: ROW_HEIGHT,
-                            background: di % 2 === 0 ? '#f8fafc' : '#fff',
-                            borderRight: '1px solid #f1f5f9',
+                            background: di % 2 === 0 ? 'var(--bg-primary, #f8fafc)' : 'var(--bg-card, #ffffff)',
+                            borderRight: '1px solid var(--border-default, rgba(0,0,0,0.12))',
                           }}
                         >
                           {/* 小时刻度 */}
@@ -413,7 +413,7 @@ export default function DeviceScheduleGanttPage() {
       </Card>
 
       {/* 图例 */}
-      <div style={{ display: 'flex', gap: 16, marginTop: 10, fontSize: 12, color: '#64748b', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 16, marginTop: 10, fontSize: 12, color: 'var(--text-secondary, #475569)', flexWrap: 'wrap' }}>
         <span><span style={{ display: 'inline-block', width: 12, height: 12, background: '#dbeafe', border: '1px solid #3b82f6', borderRadius: 3, marginRight: 4, verticalAlign: -1 }} />{t('legendExam', '检查块 (可拖拽)')}</span>
         <span><span style={{ display: 'inline-block', width: 12, height: 12, background: '#fef3c7', border: '1px solid #f59e0b', borderRadius: 3, marginRight: 4, verticalAlign: -1 }} />{t('legendMaint', '维护块')}</span>
         <span><span style={{ display: 'inline-block', width: 12, height: 12, background: '#dcfce7', border: '1px dashed #86efac', borderRadius: 3, marginRight: 4, verticalAlign: -1 }} />{t('legendIdle', '空闲时段')}</span>

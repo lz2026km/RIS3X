@@ -279,7 +279,7 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
                 const pct = Math.round((r.count / Math.max(1, errorTotal)) * 100)
                 return (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{ flex: 1, height: 8, background: '#f1f5f9', borderRadius: 999, overflow: 'hidden' }}>
+                    <div style={{ flex: 1, height: 8, background: 'var(--bg-primary, #f8fafc)', borderRadius: 999, overflow: 'hidden' }}>
                       <div style={{ width: `${pct}%`, height: '100%', background: pct > 40 ? '#dc2626' : '#d97706', borderRadius: 999 }} />
                     </div>
                     <span style={{ fontSize: 12, width: 34, textAlign: 'right' }}>{pct}%</span>

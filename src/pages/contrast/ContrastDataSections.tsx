@@ -11,7 +11,7 @@ import { CONTRAST_SCREENING_ITEMS } from '../../data/contrastProtocols'
 import { SURGERY_CHECKLISTS } from '../../data/surgeryChecklists'
 import { t } from '../../i18n/appI18n'
 
-const panel: CSSProperties = { background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }
+const panel: CSSProperties = { background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }
 
 export interface ContrastDataSectionsProps {
   /** 当前录入的 eGFR (mL/min)，用于 30-59 警告 */
@@ -56,14 +56,14 @@ export function ContrastScreeningChecklist() {
           <ListChecks size={16} color="#22d3ee" />
           {t('w3d.screening.title')}
         </div>
-        <span style={{ fontSize: 12, color: done === CONTRAST_SCREENING_ITEMS.length ? '#22c55e' : '#8b949e' }}>
+        <span style={{ fontSize: 12, color: done === CONTRAST_SCREENING_ITEMS.length ? '#22c55e' : 'var(--text-muted, #8b949e)' }}>
           {done}/{CONTRAST_SCREENING_ITEMS.length}
         </span>
       </div>
       <div style={{ fontSize: 12, color: '#6e7681', marginBottom: 10 }}>{t('w3d.screening.subtitle')}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         {CONTRAST_SCREENING_ITEMS.map((item) => (
-          <label key={item.id} style={{ display: 'flex', gap: 10, padding: '8px 10px', background: checked[item.id] ? '#22c55e12' : '#0d1117', border: `1px solid ${checked[item.id] ? '#22c55e40' : '#21262d'}`, borderRadius: 6, cursor: 'pointer' }}>
+          <label key={item.id} style={{ display: 'flex', gap: 10, padding: '8px 10px', background: checked[item.id] ? '#22c55e12' : 'var(--bg-primary, #0d1117)', border: `1px solid ${checked[item.id] ? '#22c55e40' : 'var(--bg-secondary, #21262d)'}`, borderRadius: 6, cursor: 'pointer' }}>
             <input type="checkbox" checked={!!checked[item.id]} onChange={(e) => setChecked((p) => ({ ...p, [item.id]: e.target.checked }))} style={{ marginTop: 2 }} />
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -72,7 +72,7 @@ export function ContrastScreeningChecklist() {
                   {t(TYPE_LABEL[item.type] ?? 'w3d.screening.type.ask')}
                 </span>
               </div>
-              <div style={{ fontSize: 12, color: '#8b949e', marginTop: 2 }}>{item.detail}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginTop: 2 }}>{item.detail}</div>
               <div style={{ fontSize: 12, color: '#f59e0b', marginTop: 2 }}>→ {item.action}</div>
             </div>
           </label>
@@ -101,7 +101,7 @@ export function SurgeryChecklistPanel({ modality }: { modality?: string }) {
       <select
         value={selected}
         onChange={(e) => setSelected(Number(e.target.value))}
-        style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, marginBottom: 12 }}
+        style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, marginBottom: 12 }}
       >
         {list.map((c, i) => (
           <option key={c.procedure} value={i}>{c.procedure} · {c.modality}</option>
@@ -110,11 +110,11 @@ export function SurgeryChecklistPanel({ modality }: { modality?: string }) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {current.phases.map((phase) => (
-          <div key={phase.name} style={{ background: '#0d1117', borderRadius: 6, padding: 10 }}>
+          <div key={phase.name} style={{ background: 'var(--bg-primary, #0d1117)', borderRadius: 6, padding: 10 }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: '#22d3ee', marginBottom: 6 }}>{t('w3d.surgery.phase')}: {phase.name}</div>
             <ul style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 3 }}>
               {phase.checks.map((c, i) => (
-                <li key={i} style={{ fontSize: 12, color: '#c9d1d9' }}>{c}</li>
+                <li key={i} style={{ fontSize: 12, color: 'var(--text-primary, #f0f6fc)' }}>{c}</li>
               ))}
             </ul>
           </div>
@@ -128,7 +128,7 @@ export function SurgeryChecklistPanel({ modality }: { modality?: string }) {
             {current.adverseEvents.map((a, i) => (
               <div key={i} style={{ fontSize: 12, background: '#ef444410', border: '1px solid #ef444430', borderRadius: 4, padding: '6px 8px' }}>
                 <span style={{ color: '#f87171', fontWeight: 600 }}>{a.event}</span>
-                <span style={{ color: '#8b949e' }}> — {a.management}</span>
+                <span style={{ color: 'var(--text-muted, #8b949e)' }}> — {a.management}</span>
               </div>
             ))}
           </div>
@@ -137,7 +137,7 @@ export function SurgeryChecklistPanel({ modality }: { modality?: string }) {
 
       {current.supplies.length > 0 && (
         <div style={{ marginTop: 12 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#8b949e', marginBottom: 6 }}>{t('w3d.surgery.supplies')}</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #8b949e)', marginBottom: 6 }}>{t('w3d.surgery.supplies')}</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {current.supplies.map((s, i) => (
               <span key={i} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#0891b218', color: '#22d3ee', border: '1px solid #0891b230' }}>{s}</span>

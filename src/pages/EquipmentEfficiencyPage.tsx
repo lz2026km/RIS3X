@@ -14,6 +14,7 @@ import { DEVICE_MASTER } from '../data/master'
 import { DAILY_KPI_PRE } from '../data/_generators'
 import { seededUnit } from '../utils/seededRandom'
 import { t } from '../i18n/appI18n'
+import { severityColor } from '../theme/statusTokens'
 
 // ============================================================
 // 样式常量
@@ -50,10 +51,10 @@ const C = {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  '运行中': C.success,
-  '待机': C.warning,
-  '维护': C.gray,
-  '故障': C.danger,
+  '运行中': severityColor('success'),
+  '待机': severityColor('warning'),
+  '维护': severityColor('neutral'),
+  '故障': severityColor('critical'),
 }
 
 // ============================================================

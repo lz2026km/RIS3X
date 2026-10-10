@@ -26,7 +26,7 @@ let outlineNone = 0;
 let viewportHeight = 0;
 let hexTotal = 0;
 let mojibake = 0;
-let href = 0;
+let clickableNoRole = 0;
 
 for (const f of pages) {
   const c = readFileSync(f, "utf8");
@@ -34,18 +34,23 @@ for (const f of pages) {
   outlineNone += (c.match(/outline:\s*['"]none['"]/g) || []).length;
   viewportHeight += (c.match(/minHeight:\s*['"]100vh['"]/g) || []).length;
   hexTotal += (c.match(/#[0-9a-fA-F]{6}\b/g) || []).length;
+  const tagRe = /<(div|span)[^>]*?onClick=[^>]*?>/g;
+  let m;
+  while ((m = tagRe.exec(c))) {
+    if (!/role=/.test(m[0])) clickableNoRole++;
+  }
 }
 for (const f of allSrc) {
   mojibake += (readFileSync(f, "utf8").match(/\uFFFD/g) || []).length;
-  href += 0;
 }
 
 const BUDGET = {
   antdTable: 0,
   outlineNone: 0,
   viewportHeight: 0,
-  hexTotal: 13775, // 只减不增
+  hexTotal: 13654, // 只减不增
   mojibake: 0,
+  clickableNoRole: 289, // 只减不增 (剩余多为遮罩/stopPropagation 包装)
 };
 
 const checks = [
@@ -54,6 +59,7 @@ const checks = [
   ["viewportHeight", viewportHeight, "minHeight:'100vh' (内容区已滚动, 会造成幽灵滚动条)"],
   ["hexTotal", hexTotal, "硬编码 #rrggbb (优先使用 design-system.css 令牌)"],
   ["mojibake", mojibake, "U+FFFD 乱码"],
+  ["clickableNoRole", clickableNoRole, "可点击 div/span 缺 role (交互元素需键盘可达)"],
 ];
 
 let failed = false;

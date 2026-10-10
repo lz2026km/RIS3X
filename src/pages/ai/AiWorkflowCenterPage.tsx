@@ -45,6 +45,7 @@ import {
 } from "../../components/common";
 import { DataTable } from "../../components/common/DataTable";
 import { t } from "../../i18n/appI18n";
+import { severityColor, severityToAntd, toneToAntd } from "../../theme/statusTokens";
 import {
   getAiModelCatalog,
   getDriftAlerts,
@@ -67,17 +68,17 @@ import {
 const { Text, Paragraph } = Typography;
 
 const PRIORITY_COLOR: Record<TriagePriority, string> = {
-  CRITICAL: "red",
-  URGENT: "orange",
-  SEMI: "gold",
-  ROUTINE: "default",
+  CRITICAL: severityToAntd("critical"),
+  URGENT: severityToAntd("urgent"),
+  SEMI: severityToAntd("warning"),
+  ROUTINE: severityToAntd("normal"),
 };
 
 const PRIORITY_BAR: Record<TriagePriority, string> = {
-  CRITICAL: "#dc2626",
-  URGENT: "#ea580c",
-  SEMI: "#d97706",
-  ROUTINE: "#16a34a",
+  CRITICAL: severityColor("critical"),
+  URGENT: severityColor("urgent"),
+  SEMI: severityColor("warning"),
+  ROUTINE: severityColor("normal"),
 };
 
 const PRIORITY_I18N: Record<TriagePriority, string> = {
@@ -88,10 +89,10 @@ const PRIORITY_I18N: Record<TriagePriority, string> = {
 };
 
 const TRIAGE_STATUS_COLOR: Record<TriageStatus, string> = {
-  pending: "blue",
-  reviewing: "processing",
-  holded: "default",
-  adopted: "green",
+  pending: toneToAntd("pending"),
+  reviewing: toneToAntd("in_progress"),
+  holded: toneToAntd("on_hold"),
+  adopted: toneToAntd("approved"),
 };
 
 const TRIAGE_STATUS_I18N: Record<TriageStatus, string> = {
@@ -102,9 +103,9 @@ const TRIAGE_STATUS_I18N: Record<TriageStatus, string> = {
 };
 
 const SEVERITY_COLOR: Record<DriftAlert["severity"], string> = {
-  high: "red",
-  medium: "orange",
-  low: "blue",
+  high: severityToAntd("high"),
+  medium: severityToAntd("warning"),
+  low: severityToAntd("info"),
 };
 
 const SEVERITY_I18N: Record<DriftAlert["severity"], string> = {
@@ -126,9 +127,9 @@ const DOCTORS: { value: string; label: string }[] = [
 ];
 
 function scoreColor(score: number): string {
-  if (score >= 70) return "#dc2626";
-  if (score >= 42) return "#d97706";
-  return "#16a34a";
+  if (score >= 70) return severityColor("critical");
+  if (score >= 42) return severityColor("warning");
+  return severityColor("success");
 }
 
 /* ------------------------------------------------------------------ */
@@ -582,9 +583,9 @@ const QcTab: React.FC = () => {
   const [errors, setErrors] = useState<ErrorReviewItem[]>(() => getErrorReviewQueue(catalog));
 
   const verdictColor: Record<"pass" | "warn" | "fail", string> = {
-    pass: "green",
-    warn: "orange",
-    fail: "red",
+    pass: toneToAntd('passed'),
+    warn: toneToAntd('warning'),
+    fail: toneToAntd('failed'),
   };
   const verdictI18n: Record<"pass" | "warn" | "fail", string> = {
     pass: "w4ai.qc.verdict.pass",

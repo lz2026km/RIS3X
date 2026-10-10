@@ -28,6 +28,7 @@ import {
 import type { ColumnsType } from "antd/es/table";
 import { useTranslation } from "react-i18next";
 import { t as appT } from '../../i18n/appI18n';
+import { statusColor } from '../../theme/statusTokens';
 import { orchestratorApi, type OrchestratorFlow, type FlowExecution, type FlowStepDefinition, type SlaConfigDto, type SlaStats } from '../../services/api/orchestratorApi';
 import { usePagination } from '../../hooks/usePagination';
 import { DataTable, StatCard, StatCardGrid } from "../../components/common";
@@ -44,12 +45,12 @@ const STEP_TYPES: StepTypeColor[] = [
 ];
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING: "#9ca3af",
-  RUNNING: "#3b82f6",
-  COMPLETED: "#22c55e",
-  FAILED: "#ef4444",
-  TIMEOUT: "#f59e0b",
-  SKIPPED: "#8b5cf6",
+  PENDING: statusColor('pending'),
+  RUNNING: statusColor('running'),
+  COMPLETED: statusColor('completed'),
+  FAILED: statusColor('failed'),
+  TIMEOUT: statusColor('delayed'),
+  SKIPPED: statusColor('neutral'),
 };
 
 function PaletteItem({ type }: { type: string; label: string }) {
@@ -65,7 +66,7 @@ function PaletteItem({ type }: { type: string; label: string }) {
     marginBottom: 6,
     borderRadius: 6,
     border: `1px solid ${color}40`,
-    background: isDragging ? `${color}20` : "#fff",
+    background: isDragging ? `${color}20` : "var(--bg-card, #ffffff)",
     cursor: "grab",
     display: "flex",
     alignItems: "center",
@@ -109,7 +110,7 @@ function CanvasStep({
         marginBottom: 8,
         borderRadius: 8,
         border: `2px solid ${isOver ? color : `${color}30`}`,
-        background: isOver ? `${color}10` : "#fafafa",
+        background: isOver ? `${color}10` : "var(--bg-primary, #f8fafc)",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
@@ -123,7 +124,7 @@ function CanvasStep({
         />
         <div>
           <strong style={{ fontSize: 14 }}>{step.name}</strong>
-          <div style={{ fontSize: 12, color: "#666", marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: "var(--text-secondary, #475569)", marginTop: 2 }}>
             <Tag color={color} style={{ fontSize: 11 }}>
               {step.stepType}
             </Tag>
@@ -526,7 +527,7 @@ export default function OrchestratorPage() {
         >
           <DndContext onDragEnd={handleDragEnd}>
             {steps.length === 0 ? (
-              <div style={{ textAlign: "center", padding: 40, color: "#999" }}>
+              <div style={{ textAlign: "center", padding: 40, color: "var(--text-muted, #94a3b8)" }}>
                 <Layers size={32} style={{ opacity: 0.3, marginBottom: 8 }} />
                 <div>{t("noFlows")}</div>
               </div>
@@ -562,7 +563,7 @@ export default function OrchestratorPage() {
                 key={sc.id}
                 style={{
                   padding: "6px 8px",
-                  background: "#f5f5f5",
+                  background: "var(--bg-primary, #f8fafc)",
                   borderRadius: 4,
                   fontSize: 12,
                 }}
@@ -897,7 +898,7 @@ export default function OrchestratorPage() {
             </Tooltip>,
           ]}
         >
-          <div style={{ fontSize: 12, color: "#666", marginBottom: 8 }}>
+          <div style={{ fontSize: 12, color: "var(--text-secondary, #475569)", marginBottom: 8 }}>
             {flow.description || t("flowDescription")}
           </div>
           <Space size={4} wrap>
@@ -911,7 +912,7 @@ export default function OrchestratorPage() {
               </Tag>
             ))}
           </Space>
-          <div style={{ marginTop: 8, fontSize: 11, color: "#999" }}>
+          <div style={{ marginTop: 8, fontSize: 11, color: "var(--text-muted, #94a3b8)" }}>
             v{flow.version} · {new Date(flow.updatedAt).toLocaleDateString()}
           </div>
         </Card>
@@ -980,7 +981,7 @@ export default function OrchestratorPage() {
             style={{
               fontSize: 13,
               fontWeight: 400,
-              color: "#666",
+              color: "var(--text-secondary, #475569)",
               marginLeft: 8,
             }}
           >

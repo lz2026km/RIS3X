@@ -660,8 +660,11 @@ export default function EquipmentLifecyclePage() {
         {[{ key: '设备列表', label: t('equipLifecycle.tabDevices') }, { key: '维保计划', label: t('equipLifecycle.tabMaintPlans') }, { key: '维保记录', label: t('equipLifecycle.tabMaintRecords') }, { key: '深度分析', label: t('equipLifecycle.tabDeepAnalysis') }].map(tab => (
           <div
             key={tab.key}
+            role="button"
+            tabIndex={0}
             style={{ ...s.tab, ...(activeTab === tab.key ? s.tabActive : {}) }}
             onClick={() => setActiveTab(tab.key)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab(tab.key) } }}
           >
             {tab.label}
           </div>

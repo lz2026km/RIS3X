@@ -4,6 +4,7 @@ import { Search, ListChecks, Camera, Monitor, Play, CheckCircle, Clock, AlertCir
 import { useNavigate } from 'react-router-dom'
 import { appointmentApi, type AppointmentDto, deviceApi, type DeviceDto, examApi, mobileApi, type TodaySummary, type WorklistItem, worklistApi, type WorklistItemDto } from '../../../services/api'
 import { t } from '../../../i18n/appI18n'
+import { statusTone } from '../../../theme/statusTokens'
 import { LoadingBanner, ErrorBanner } from '../../../components/feedback'
 import TimeoutVerifyModal from '../../../components/worklist/TimeoutVerifyModal'
 
@@ -34,11 +35,11 @@ export interface DeviceStatus {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  scheduled: '#dbeafe',
-  arrived: '#fef9c3',
-  'in-progress': '#fef3c7',
-  completed: '#d1fae5',
-  cancelled: '#f1f5f9',
+  scheduled: statusTone('scheduled').bg,
+  arrived: statusTone('waiting').bg,
+  'in-progress': statusTone('in_progress').bg,
+  completed: statusTone('completed').bg,
+  cancelled: statusTone('cancelled').bg,
 }
 
 const GENDER_CN: Record<string, string> = { MALE: '男', FEMALE: '女', OTHER: '其他', '男': '男', '女': '女' }
@@ -447,7 +448,7 @@ export default function TechMobileWorkstation() {
 
       <div style={s.tabRow}>
         {[{ key: 'exams' as const, icon: ListChecks, label: t('techMobile.tabExams') }, { key: 'devices' as const, icon: Monitor, label: t('techMobile.tabDevices') }].map(tb => (
-          <div key={tb.key} style={s.tab(tab === tb.key)} onClick={() => setTab(tb.key)}>
+          <div key={tb.key} role="button" tabIndex={0} style={s.tab(tab === tb.key)} onClick={() => setTab(tb.key)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setTab(tb.key) } }}>
             <tb.icon size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
             {tb.label}
           </div>
@@ -458,7 +459,8 @@ export default function TechMobileWorkstation() {
         <>
           <div style={{ display: 'flex', gap: 6, padding: '8px 16px' }}>
             {[{ key: 'all', label: t('techMobile.filterAll') }, { key: 'scheduled', label: t('techMobile.filterScheduled') }, { key: 'in-progress', label: t('techMobile.filterInProgress') }].map(f => (
-              <div key={f.key} onClick={() => setFilter(f.key as typeof filter)}
+              <div key={f.key} role="button" tabIndex={0} onClick={() => setFilter(f.key as typeof filter)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFilter(f.key as typeof filter) } }}
                 style={{ padding: '4px 12px', borderRadius: 14, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: filter === f.key ? '#0f766e' : 'var(--bg-card)', color: filter === f.key ? '#fff' : '#64748b' }}>
                 {f.label}
               </div>
@@ -467,7 +469,7 @@ export default function TechMobileWorkstation() {
 
           <div style={{ marginTop: 4 }}>
             {filteredExams.map(item => (
-              <div key={item.id} style={s.listItem} onClick={() => void openDetail(item)}>
+              <div key={item.id} role="button" tabIndex={0} style={s.listItem} onClick={() => void openDetail(item)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); void openDetail(item) } }}>
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: STATUS_COLORS[item.status], display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   {item.status === 'completed' ? <CheckCircle size={18} color="#059669" /> : item.status === 'in-progress' ? <Play size={18} color="#d97706" /> : item.status === 'cancelled' ? <XCircle size={18} color="#94a3b8" /> : <Clock size={18} color="#2563eb" />}
                 </div>
@@ -583,8 +585,9 @@ export default function TechMobileWorkstation() {
           { key: 'scan', icon: Camera, label: t('techMobile.navScan') },
           { key: 'bell', icon: AlertCircle, label: t('techMobile.navNotice') },
         ].map(nav => (
-          <div key={nav.key} style={{ flex: 1, textAlign: 'center', padding: '4px 0', fontSize: 12, color: tab === nav.key ? '#0f766e' : '#94a3b8', cursor: 'pointer', fontWeight: tab === nav.key ? 700 : 400 }}
-            onClick={nav.key === 'scan' ? handleScan : () => nav.key !== 'scan' && setTab(nav.key as 'exams' | 'devices')}>
+          <div key={nav.key} role="button" tabIndex={0} style={{ flex: 1, textAlign: 'center', padding: '4px 0', fontSize: 12, color: tab === nav.key ? '#0f766e' : '#94a3b8', cursor: 'pointer', fontWeight: tab === nav.key ? 700 : 400 }}
+            onClick={nav.key === 'scan' ? handleScan : () => nav.key !== 'scan' && setTab(nav.key as 'exams' | 'devices')}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (nav.key === 'scan') handleScan(); else if (nav.key !== 'scan') setTab(nav.key as 'exams' | 'devices') } }}>
             <nav.icon size={18} style={{ display: 'block', margin: '0 auto 2px' }} />
             {nav.label}
           </div>

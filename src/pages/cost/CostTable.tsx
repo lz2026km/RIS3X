@@ -11,9 +11,9 @@ export function EquipmentRow({ equipment, index }: { equipment: EquipmentCost; i
     gridTemplateColumns: '40px 1fr 80px 100px 100px 100px 100px',
     gap: 8,
     padding: '12px 16px',
-    borderBottom: '1px solid #21262d',
+    borderBottom: '1px solid var(--bg-secondary, #21262d)',
     alignItems: 'center',
-    background: index % 2 === 0 ? '#0d1117' : '#161b22',
+    background: index % 2 === 0 ? 'var(--bg-primary, #0d1117)' : 'var(--bg-card, #161b22)',
   }
 
   const modalityColors: Record<string, string> = {
@@ -26,7 +26,7 @@ export function EquipmentRow({ equipment, index }: { equipment: EquipmentCost; i
     <div style={rowStyle}>
       <span style={{ color: '#6e7681', fontSize: 12 }}>{index + 1}</span>
       <div>
-        <div style={{ color: '#f0f6fc', fontSize: 13, fontWeight: 500 }}>{equipment.name}</div>
+        <div style={{ color: 'var(--text-primary, #f0f6fc)', fontSize: 13, fontWeight: 500 }}>{equipment.name}</div>
         <div style={{ color: '#6e7681', fontSize: 12 }}>{equipment.id.toUpperCase()}</div>
       </div>
       <span style={{
@@ -39,9 +39,9 @@ export function EquipmentRow({ equipment, index }: { equipment: EquipmentCost; i
       }}>
         {equipment.modality}
       </span>
-      <span style={{ color: '#8b949e', fontSize: 13 }}>{formatCurrency(equipment.purchasePrice)}</span>
-      <span style={{ color: '#8b949e', fontSize: 13 }}>{formatCurrency(totalAnnual)}</span>
-      <span style={{ color: '#8b949e', fontSize: 13 }}>{equipment.annualUsage.toLocaleString()}</span>
+      <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 13 }}>{formatCurrency(equipment.purchasePrice)}</span>
+      <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 13 }}>{formatCurrency(totalAnnual)}</span>
+      <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 13 }}>{equipment.annualUsage.toLocaleString()}</span>
       <span style={{ color: '#22c55e', fontSize: 13, fontWeight: 600 }}>
         ¥{unitCostNum.toFixed(0)}
       </span>
@@ -63,15 +63,15 @@ export function ConsumableRow({ item, index }: { item: ConsumableCost; index: nu
     gridTemplateColumns: '40px 1fr 80px 80px 100px 100px',
     gap: 8,
     padding: '12px 16px',
-    borderBottom: '1px solid #21262d',
+    borderBottom: '1px solid var(--bg-secondary, #21262d)',
     alignItems: 'center',
-    background: index % 2 === 0 ? '#0d1117' : '#161b22',
+    background: index % 2 === 0 ? 'var(--bg-primary, #0d1117)' : 'var(--bg-card, #161b22)',
   }
 
   return (
     <div style={rowStyle}>
       <span style={{ color: '#6e7681', fontSize: 12 }}>{index + 1}</span>
-      <span style={{ color: '#f0f6fc', fontSize: 13 }}>{item.name}</span>
+      <span style={{ color: 'var(--text-primary, #f0f6fc)', fontSize: 13 }}>{item.name}</span>
       <span style={{
         padding: '2px 8px',
         borderRadius: 4,
@@ -82,8 +82,8 @@ export function ConsumableRow({ item, index }: { item: ConsumableCost; index: nu
       }}>
         {item.category}
       </span>
-      <span style={{ color: '#8b949e', fontSize: 13 }}>{formatCurrency(item.unitPrice, true)}/{item.unit}</span>
-      <span style={{ color: '#8b949e', fontSize: 13 }}>{item.monthlyUsage.toLocaleString()}</span>
+      <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 13 }}>{formatCurrency(item.unitPrice, true)}/{item.unit}</span>
+      <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 13 }}>{item.monthlyUsage.toLocaleString()}</span>
       <span style={{ color: '#22c55e', fontSize: 13, fontWeight: 600 }}>
         {formatCurrency(item.annualCost, true)}
       </span>
@@ -106,9 +106,9 @@ export function LaborRow({ item, index }: { item: LaborCost; index: number }) {
     gridTemplateColumns: '40px 1fr 60px 100px 100px 100px',
     gap: 8,
     padding: '12px 16px',
-    borderBottom: '1px solid #21262d',
+    borderBottom: '1px solid var(--bg-secondary, #21262d)',
     alignItems: 'center',
-    background: index % 2 === 0 ? '#0d1117' : '#161b22',
+    background: index % 2 === 0 ? 'var(--bg-primary, #0d1117)' : 'var(--bg-card, #161b22)',
   }
 
   return (
@@ -125,11 +125,11 @@ export function LaborRow({ item, index }: { item: LaborCost; index: number }) {
         }}>
           {roleType}
         </span>
-        <span style={{ color: '#f0f6fc', fontSize: 13 }}>{item.role}</span>
+        <span style={{ color: 'var(--text-primary, #f0f6fc)', fontSize: 13 }}>{item.role}</span>
       </div>
-      <span style={{ color: '#8b949e', fontSize: 13 }}>{item.count}人</span>
-      <span style={{ color: '#8b949e', fontSize: 13 }}>{formatCurrency(item.avgSalary, true)}/月</span>
-      <span style={{ color: '#8b949e', fontSize: 13 }}>{formatCurrency(annualCost, true)}</span>
+      <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 13 }}>{item.count}人</span>
+      <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 13 }}>{formatCurrency(item.avgSalary, true)}/月</span>
+      <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 13 }}>{formatCurrency(annualCost, true)}</span>
       <span style={{ color: '#22c55e', fontSize: 13, fontWeight: 600 }}>
         {item.count > 0 ? Math.round(item.workload / item.count) : 0}例/人
       </span>
@@ -149,9 +149,9 @@ export function MedicalConsumableRow({ item, index }: { item: MedicalConsumableD
     gridTemplateColumns: '40px 80px 1fr 80px 80px 100px 120px',
     gap: 8,
     padding: '12px 16px',
-    borderBottom: '1px solid #21262d',
+    borderBottom: '1px solid var(--bg-secondary, #21262d)',
     alignItems: 'center',
-    background: index % 2 === 0 ? '#0d1117' : '#161b22',
+    background: index % 2 === 0 ? 'var(--bg-primary, #0d1117)' : 'var(--bg-card, #161b22)',
   }
 
   return (
@@ -167,10 +167,10 @@ export function MedicalConsumableRow({ item, index }: { item: MedicalConsumableD
       }}>
         {item.examType}
       </span>
-      <span style={{ color: '#f0f6fc', fontSize: 13 }}>{item.itemName}</span>
-      <span style={{ color: '#8b949e', fontSize: 13 }}>{item.unit}</span>
-      <span style={{ color: '#8b949e', fontSize: 13 }}>¥{item.unitPrice.toLocaleString()}</span>
-      <span style={{ color: '#8b949e', fontSize: 13 }}>{item.monthlyUsage.toLocaleString()}</span>
+      <span style={{ color: 'var(--text-primary, #f0f6fc)', fontSize: 13 }}>{item.itemName}</span>
+      <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 13 }}>{item.unit}</span>
+      <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 13 }}>¥{item.unitPrice.toLocaleString()}</span>
+      <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 13 }}>{item.monthlyUsage.toLocaleString()}</span>
       <span style={{ color: '#22c55e', fontSize: 13, fontWeight: 600 }}>
         ¥{item.annualCost.toLocaleString()}
       </span>
@@ -190,9 +190,9 @@ export function DepreciationRow({ item, index }: { item: EquipmentDepreciation; 
     gridTemplateColumns: '40px 1fr 80px 80px 80px 80px 100px 100px 100px',
     gap: 8,
     padding: '12px 16px',
-    borderBottom: '1px solid #21262d',
+    borderBottom: '1px solid var(--bg-secondary, #21262d)',
     alignItems: 'center',
-    background: index % 2 === 0 ? '#0d1117' : '#161b22',
+    background: index % 2 === 0 ? 'var(--bg-primary, #0d1117)' : 'var(--bg-card, #161b22)',
   }
 
   const methodLabel = item.depreciationMethod === 'straightLine' ? '直线法' : '双倍余额递减'
@@ -201,7 +201,7 @@ export function DepreciationRow({ item, index }: { item: EquipmentDepreciation; 
     <div style={rowStyle}>
       <span style={{ color: '#6e7681', fontSize: 12 }}>{index + 1}</span>
       <div>
-        <div style={{ color: '#f0f6fc', fontSize: 13, fontWeight: 500 }}>{item.name}</div>
+        <div style={{ color: 'var(--text-primary, #f0f6fc)', fontSize: 13, fontWeight: 500 }}>{item.name}</div>
         <div style={{ color: '#6e7681', fontSize: 12 }}>{item.id}</div>
       </div>
       <span style={{
@@ -214,9 +214,9 @@ export function DepreciationRow({ item, index }: { item: EquipmentDepreciation; 
       }}>
         {item.modality}
       </span>
-      <span style={{ color: '#8b949e', fontSize: 12 }}>{methodLabel}</span>
-      <span style={{ color: '#8b949e', fontSize: 13 }}>{item.usefulYears}年</span>
-      <span style={{ color: '#8b949e', fontSize: 13 }}>{formatCurrency(item.purchasePrice)}</span>
+      <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{methodLabel}</span>
+      <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 13 }}>{item.usefulYears}年</span>
+      <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 13 }}>{formatCurrency(item.purchasePrice)}</span>
       <span style={{ color: '#ef4444', fontSize: 13 }}>¥{item.monthlyDepreciation.toFixed(1)}万</span>
       <span style={{ color: '#f59e0b', fontSize: 13 }}>¥{item.annualDepreciation.toFixed(1)}万</span>
       <span style={{ color: '#22c55e', fontSize: 13, fontWeight: 600 }}>
@@ -239,9 +239,9 @@ export function ProfitMarginRow({ item, index }: { item: ExamProfitMargin; index
     gridTemplateColumns: '40px 1fr 80px 90px 90px 90px 100px 100px',
     gap: 8,
     padding: '12px 16px',
-    borderBottom: '1px solid #21262d',
+    borderBottom: '1px solid var(--bg-secondary, #21262d)',
     alignItems: 'center',
-    background: index % 2 === 0 ? '#0d1117' : '#161b22',
+    background: index % 2 === 0 ? 'var(--bg-primary, #0d1117)' : 'var(--bg-card, #161b22)',
   }
 
   const profitRateColor = item.isLoss ? '#ef4444' : item.profitRate < 20 ? '#f59e0b' : '#22c55e'
@@ -260,7 +260,7 @@ export function ProfitMarginRow({ item, index }: { item: ExamProfitMargin; index
         }}>
           {item.modality}
         </span>
-        <span style={{ color: '#f0f6fc', fontSize: 13 }}>{item.examName}</span>
+        <span style={{ color: 'var(--text-primary, #f0f6fc)', fontSize: 13 }}>{item.examName}</span>
         {item.isLoss && (
           <span style={{
             padding: '2px 6px',
@@ -274,7 +274,7 @@ export function ProfitMarginRow({ item, index }: { item: ExamProfitMargin; index
           </span>
         )}
       </div>
-      <span style={{ color: '#8b949e', fontSize: 13 }}>{item.monthlyCount}例</span>
+      <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 13 }}>{item.monthlyCount}例</span>
       <span style={{ color: '#22c55e', fontSize: 13 }}>¥{item.revenue}</span>
       <span style={{ color: '#ef4444', fontSize: 13 }}>¥{item.cost}</span>
       <span style={{ color: profitRateColor, fontSize: 13, fontWeight: 600 }}>
@@ -310,9 +310,9 @@ export function DeptRevenueRow({ item, index }: { item: DeptRevenue; index: numb
     gridTemplateColumns: '40px 1fr 80px 90px 90px 90px 80px 90px 90px',
     gap: 8,
     padding: '12px 16px',
-    borderBottom: '1px solid #21262d',
+    borderBottom: '1px solid var(--bg-secondary, #21262d)',
     alignItems: 'center',
-    background: index % 2 === 0 ? '#0d1117' : '#161b22',
+    background: index % 2 === 0 ? 'var(--bg-primary, #0d1117)' : 'var(--bg-card, #161b22)',
   }
 
   return (
@@ -335,13 +335,13 @@ export function DeptRevenueRow({ item, index }: { item: DeptRevenue; index: numb
         }}>
           {item.modality}
         </span>
-        <span style={{ color: '#f0f6fc', fontSize: 13, fontWeight: 500 }}>{item.deptName}</span>
+        <span style={{ color: 'var(--text-primary, #f0f6fc)', fontSize: 13, fontWeight: 500 }}>{item.deptName}</span>
       </div>
-      <span style={{ color: '#8b949e', fontSize: 13 }}>{item.examCount}例</span>
+      <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 13 }}>{item.examCount}例</span>
       <span style={{ color: '#22c55e', fontSize: 13 }}>{formatCurrency(item.monthlyRevenue)}</span>
       <span style={{ color: '#ef4444', fontSize: 13 }}>{formatCurrency(item.monthlyCost)}</span>
       <span style={{ color: '#22c55e', fontSize: 13, fontWeight: 600 }}>{formatCurrency(item.monthlyProfit)}</span>
-      <span style={{ color: '#8b949e', fontSize: 12 }}>¥{item.profitPerExam}/人</span>
+      <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>¥{item.profitPerExam}/人</span>
       <span style={{ color: item.yoyGrowth >= 0 ? '#22c55e' : '#ef4444', fontSize: 12 }}>
         {item.yoyGrowth >= 0 ? '+' : ''}{item.yoyGrowth.toFixed(1)}%
       </span>

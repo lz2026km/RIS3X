@@ -221,7 +221,7 @@ function SimilarTab({ reportText, modality, bodyPart }: { reportText: string; mo
       ) : (
         <>
       {cases.map((c) => (
-        <div key={c.id} className="p-2 border border-slate-200 rounded text-xs cursor-pointer hover:bg-slate-50" onClick={() => setDetail(c)}>
+        <div key={c.id} role="button" tabIndex={0} className="p-2 border border-slate-200 rounded text-xs cursor-pointer hover:bg-slate-50" onClick={() => setDetail(c)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setDetail(c) } }}>
           <div className="flex items-center justify-between">
             <Space size={4}>
               <Tag color="purple">{c.reportId}</Tag>
@@ -498,8 +498,8 @@ function TemplateSmartPanel({ templates, loading, favIds, recentIds, modality, b
   const recents = useMemo(() => templates.filter((tl: any) => recentSet.has(tl.id) && !favSet.has(tl.id)), [templates, recentSet, favSet]);
 
   const renderRow = (tl: any, match?: number) => (
-    <div key={`t-${tl.id}`} className="group p-2 border border-slate-200 rounded text-xs cursor-pointer hover:border-sky-300 hover:bg-sky-50/40 transition-colors"
-      onClick={() => onApply(tl.id)} data-testid={`smart-template-${tl.id}`}>
+    <div key={`t-${tl.id}`} role="button" tabIndex={0} className="group p-2 border border-slate-200 rounded text-xs cursor-pointer hover:border-sky-300 hover:bg-sky-50/40 transition-colors"
+      onClick={() => onApply(tl.id)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onApply(tl.id) } }} data-testid={`smart-template-${tl.id}`}>
       <div className="flex items-center justify-between gap-2">
         <span className="font-semibold text-slate-800 truncate flex items-center gap-1">
           {favSet.has(tl.id) && <Star className="w-3 h-3 text-amber-400 fill-amber-400" />}
@@ -2664,9 +2664,12 @@ export default function ReportWritePage() {
           {printLayouts.map((l) => (
             <div
               key={l.id}
+              role="button"
+              tabIndex={0}
               className="p-3 border rounded cursor-pointer flex items-start gap-3 transition-colors"
               style={{ borderColor: printLayoutId === l.id ? '#2563eb' : '#e2e8f0', background: printLayoutId === l.id ? '#eff6ff' : '#fff' }}
               onClick={() => setPrintLayoutId(l.id)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setPrintLayoutId(l.id) } }}
             >
               <Radio checked={printLayoutId === l.id} />
               <div className="text-xs">
@@ -3065,8 +3068,11 @@ function PhraseLibraryModal({ open, phrases, loading, dataSource = 'api', favIds
               return (
               <div
                 key={p?.id ?? i}
+                role="button"
+                tabIndex={0}
                 className="p-2 border border-slate-200 rounded cursor-pointer hover:bg-slate-50 hover:border-sky-300 transition-colors"
                 onClick={() => onPick(p)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick(p) } }}
               >
                 <div className="flex items-start gap-2">
                   <div className="flex-1 min-w-0">
@@ -3286,8 +3292,8 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
                 ) : (
                   <div className="space-y-1">
                     {recommended.map((tpl: any) => (
-                      <div key={`rec-${tpl.id}`} className="p-1.5 border border-purple-200 bg-white rounded text-xs cursor-pointer hover:border-purple-400 hover:bg-purple-50 transition-colors flex items-center gap-1.5"
-                        onClick={() => onInsert(tpl)}>
+                      <div key={`rec-${tpl.id}`} role="button" tabIndex={0} className="p-1.5 border border-purple-200 bg-white rounded text-xs cursor-pointer hover:border-purple-400 hover:bg-purple-50 transition-colors flex items-center gap-1.5"
+                        onClick={() => onInsert(tpl)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onInsert(tpl) } }}>
                         <Tag color="purple" className="m-0 text-[10px] shrink-0">{t("reportWrite.tagRecommended")}</Tag>
                         <span className="text-slate-700 truncate flex-1">{tpl.name}</span>
                         <Tag color={recMatchLevel(tpl) === 0 ? 'volcano' : 'cyan'} className="m-0 text-[10px] shrink-0">{recMatchLevel(tpl) === 0 ? t("reportWrite.matchExact") : recMatchLevel(tpl) === 1 ? t("reportWrite.matchModality") : t("reportWrite.matchBodyPart")}</Tag>
@@ -3309,11 +3315,18 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
                   const isFav = favIdsSet.has(tpl.id);
                   const isRecent = recentIdsSet.has(tpl.id);
                   return (
-                    <div key={tpl.id} className="group p-2 border border-slate-200 rounded text-xs cursor-pointer hover:border-sky-300 hover:bg-sky-50/40 transition-colors"
+                    <div key={tpl.id} role="button" tabIndex={0} className="group p-2 border border-slate-200 rounded text-xs cursor-pointer hover:border-sky-300 hover:bg-sky-50/40 transition-colors"
                       onClick={() => {
                         // [v3.0.6.11-100 Wave2C P2] 全文模板: 按插入方式 (追加光标处 / 覆盖全文); 其余点击插入光标处
                         if ((tpl?.templateType ?? 'SECTION') === 'FULL' && insertMode === 'replace') onReplace(tpl.id);
                         else onInsert(tpl);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          if ((tpl?.templateType ?? 'SECTION') === 'FULL' && insertMode === 'replace') onReplace(tpl.id);
+                          else onInsert(tpl);
+                        }
                       }}>
                       <div className="flex items-center justify-between gap-2">
                         <span className="font-semibold text-slate-800 truncate flex items-center gap-1">
@@ -3367,7 +3380,7 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
                     <div className="text-[11px] font-semibold text-slate-500 mb-1">{cat} ({items.length})</div>
                     <div className="space-y-1">
                       {items.map((p: any, i: number) => (
-                        <div key={p?.id ?? i} className="p-1.5 border border-slate-200 rounded text-xs cursor-pointer hover:bg-slate-50 hover:border-sky-300 transition-colors" onClick={() => onPickPhrase(p)}>
+                        <div key={p?.id ?? i} role="button" tabIndex={0} className="p-1.5 border border-slate-200 rounded text-xs cursor-pointer hover:bg-slate-50 hover:border-sky-300 transition-colors" onClick={() => onPickPhrase(p)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPickPhrase(p) } }}>
                           <div className="text-slate-700 line-clamp-2">{p?.content ?? p?.text}</div>
                           <div className="flex items-center gap-1 mt-1">
                             <Tag className="m-0 text-[10px]">{p?.category ?? t("reportWrite.general")}</Tag>

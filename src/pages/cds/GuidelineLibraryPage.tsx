@@ -4,13 +4,14 @@ import { BookOpen, Plus, Search, Eye, X, Save, RefreshCw } from 'lucide-react'
 import { cdsApi, type CdsGuidelineDto } from '../../services/api/cdsApi'
 import { DataTable } from '../../components/common/DataTable'
 import { t } from '../../i18n/appI18n'
+import { severityColor, statusColor } from '../../theme/statusTokens'
 
 const INITIAL_FORM = { name: '', category: '通用', version: '1.0', status: 'draft', description: '', source: '' }
 
 const STATUS_COLORS: Record<string, string> = {
-  active: 'var(--color-success-500, #22c55e)',
-  draft: 'var(--color-warning-500, #f59e0b)',
-  archived: 'var(--text-muted, #6e7681)',
+  active: severityColor('success'),
+  draft: severityColor('warning'),
+  archived: statusColor('archived'),
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -137,14 +138,14 @@ export default function GuidelineLibraryPage() {
         </div>
       ),
     },
-    { title: t('guideline.colCategory'), dataIndex: 'category', key: 'category', render: (v: string) => <span style={{ fontSize: 12, color: '#8b949e' }}>{v}</span> },
-    { title: t('guideline.colVersion'), dataIndex: 'version', key: 'version', render: (v: string) => <span style={{ fontSize: 12, color: '#8b949e' }}>v{v}</span> },
-    { title: t('guideline.colStatus'), dataIndex: 'status', key: 'status', render: (v: string) => <span style={{ fontSize: 12, color: STATUS_COLORS[v] || '#8b949e' }}>{STATUS_LABELS[v] || v}</span> },
+    { title: t('guideline.colCategory'), dataIndex: 'category', key: 'category', render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
+    { title: t('guideline.colVersion'), dataIndex: 'version', key: 'version', render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>v{v}</span> },
+    { title: t('guideline.colStatus'), dataIndex: 'status', key: 'status', render: (v: string) => <span style={{ fontSize: 12, color: STATUS_COLORS[v] || 'var(--text-muted, #8b949e)' }}>{STATUS_LABELS[v] || v}</span> },
     { title: t('guideline.colUpdatedAt'), dataIndex: 'updatedAt', key: 'updatedAt', render: (v: string) => <span style={{ fontSize: 12, color: '#6e7681' }}>{v ? new Date(v).toLocaleString('zh-CN') : '-'}</span> },
     {
       title: t('guideline.colActions'), key: 'actions',
       render: (_: unknown, g: CdsGuidelineDto) => (
-        <button onClick={(e) => { e.stopPropagation(); handleOpenDetail(g.id) }} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button onClick={(e) => { e.stopPropagation(); handleOpenDetail(g.id) }} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
           <Eye size={12} />{t('guideline.detail')}
         </button>
       ),
@@ -152,7 +153,7 @@ export default function GuidelineLibraryPage() {
   ]
 
   return (
-    <div style={{ background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+    <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <BookOpen size={24} />
@@ -177,7 +178,7 @@ export default function GuidelineLibraryPage() {
               placeholder={t('guideline.searchPlaceholder')}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              style={{ padding: '8px 12px 8px 34px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, width: 260,}}
+              style={{ padding: '8px 12px 8px 34px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, width: 260,}}
             />
           </div>
           <span style={{ fontSize: 13, color: '#6e7681' }}>{t('guideline.total', { count: filtered.length })}</span>
@@ -189,7 +190,7 @@ export default function GuidelineLibraryPage() {
           </div>
         )}
 
-        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, overflow: 'hidden' }}>
           <DataTable
             dataSource={filtered}
             rowKey="id"
@@ -197,16 +198,22 @@ export default function GuidelineLibraryPage() {
             loading={loading}
             pagination={{ pageSize: 10, showSizeChanger: false }}
             emptyText={t('guideline.emptyList')}
-            onRow={(record) => ({ onClick: () => handleOpenDetail(record.id), style: { cursor: 'pointer' } })}
+            onRow={(record) => ({
+              role: 'button',
+              tabIndex: 0,
+              onClick: () => handleOpenDetail(record.id),
+              onKeyDown: (e) => { if (e.target !== e.currentTarget) return; if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleOpenDetail(record.id) } },
+              style: { cursor: 'pointer' },
+            })}
           />
         </div>
       </div>
 
       {showCreateModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowCreateModal(false)}>
-          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 12, padding: 24, width: 520, maxWidth: '90vw' }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 12, padding: 24, width: 520, maxWidth: '90vw' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <div style={{ fontSize: 16, fontWeight: 600, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <BookOpen size={18} style={{ color: '#3b82f6' }} /> {t('guideline.newGuideline')}
               </div>
               <button onClick={() => setShowCreateModal(false)} style={{ border: 'none', background: 'transparent', color: '#6e7681', cursor: 'pointer' }}>
@@ -215,40 +222,40 @@ export default function GuidelineLibraryPage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 4 }}>{t('guideline.labelName')}</label>
-                <input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder={t('guideline.namePlaceholder')} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 4 }}>{t('guideline.labelName')}</label>
+                <input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder={t('guideline.namePlaceholder')} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, boxSizing: 'border-box' }} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 4 }}>{t('guideline.colCategory')}</label>
-                  <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, boxSizing: 'border-box' }}>
+                  <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 4 }}>{t('guideline.colCategory')}</label>
+                  <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, boxSizing: 'border-box' }}>
                     {CATEGORY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 4 }}>{t('guideline.labelVersion')}</label>
-                  <input value={form.version} onChange={(e) => setForm((f) => ({ ...f, version: e.target.value }))} placeholder="2025" style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, boxSizing: 'border-box' }} />
+                  <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 4 }}>{t('guideline.labelVersion')}</label>
+                  <input value={form.version} onChange={(e) => setForm((f) => ({ ...f, version: e.target.value }))} placeholder="2025" style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, boxSizing: 'border-box' }} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 4 }}>{t('guideline.colStatus')}</label>
-                  <select value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, boxSizing: 'border-box' }}>
+                  <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 4 }}>{t('guideline.colStatus')}</label>
+                  <select value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, boxSizing: 'border-box' }}>
                     <option value="draft">{t('guideline.statusDraft')}</option>
                     <option value="active">{t('guideline.statusActive')}</option>
                     <option value="archived">{t('guideline.statusArchived')}</option>
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 4 }}>{t('guideline.labelSource')}</label>
-                  <input value={form.source} onChange={(e) => setForm((f) => ({ ...f, source: e.target.value }))} placeholder={t('guideline.sourcePlaceholder')} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, boxSizing: 'border-box' }} />
+                  <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 4 }}>{t('guideline.labelSource')}</label>
+                  <input value={form.source} onChange={(e) => setForm((f) => ({ ...f, source: e.target.value }))} placeholder={t('guideline.sourcePlaceholder')} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, boxSizing: 'border-box' }} />
                 </div>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 4 }}>{t('guideline.labelDescription')}</label>
-                <textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} rows={3} placeholder={t('guideline.descriptionPlaceholder')} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 4 }}>{t('guideline.labelDescription')}</label>
+                <textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} rows={3} placeholder={t('guideline.descriptionPlaceholder')} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 20 }}>
-              <button onClick={() => setShowCreateModal(false)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', fontSize: 13 }}>{t('guideline.cancel')}</button>
+              <button onClick={() => setShowCreateModal(false)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 13 }}>{t('guideline.cancel')}</button>
               <button onClick={handleCreate} disabled={creating} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#1e40af', color: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Save size={14} />{creating ? t('guideline.creating') : t('guideline.createGuideline')}
               </button>
@@ -259,9 +266,9 @@ export default function GuidelineLibraryPage() {
 
       {detailOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'flex-end', zIndex: 1000 }} onClick={() => setDetailOpen(false)}>
-          <div style={{ width: 480, maxWidth: '92vw', height: '100%', background: '#161b22', borderLeft: '1px solid #30363d', padding: 24, overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ width: 480, maxWidth: '92vw', height: '100%', background: 'var(--bg-card, #161b22)', borderLeft: '1px solid var(--border-default, #30363d)', padding: 24, overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <div style={{ fontSize: 16, fontWeight: 600, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <BookOpen size={18} style={{ color: '#3b82f6' }} /> {t('guideline.detailTitle')}
               </div>
               <button onClick={() => setDetailOpen(false)} style={{ border: 'none', background: 'transparent', color: '#6e7681', cursor: 'pointer' }}>
@@ -281,14 +288,14 @@ export default function GuidelineLibraryPage() {
                   { label: t('guideline.labelSource'), value: detail.source || '-' },
                   { label: t('guideline.colUpdatedAt'), value: detail.updatedAt ? new Date(detail.updatedAt).toLocaleString('zh-CN') : '-' },
                 ].map((row) => (
-                  <div key={row.label} style={{ display: 'flex', gap: 12, padding: '10px 12px', background: '#0d1117', borderRadius: 6 }}>
-                    <span style={{ width: 80, fontSize: 12, color: '#8b949e', flexShrink: 0 }}>{row.label}</span>
-                    <span style={{ fontSize: 13, color: '#f0f6fc' }}>{row.value}</span>
+                  <div key={row.label} style={{ display: 'flex', gap: 12, padding: '10px 12px', background: 'var(--bg-primary, #0d1117)', borderRadius: 6 }}>
+                    <span style={{ width: 80, fontSize: 12, color: 'var(--text-muted, #8b949e)', flexShrink: 0 }}>{row.label}</span>
+                    <span style={{ fontSize: 13, color: 'var(--text-primary, #f0f6fc)' }}>{row.value}</span>
                   </div>
                 ))}
-                <div style={{ display: 'flex', gap: 12, padding: '10px 12px', background: '#0d1117', borderRadius: 6 }}>
-                  <span style={{ width: 80, fontSize: 12, color: '#8b949e', flexShrink: 0 }}>{t('guideline.labelDescription')}</span>
-                  <span style={{ fontSize: 13, color: '#f0f6fc', lineHeight: 1.6 }}>{detail.description || '-'}</span>
+                <div style={{ display: 'flex', gap: 12, padding: '10px 12px', background: 'var(--bg-primary, #0d1117)', borderRadius: 6 }}>
+                  <span style={{ width: 80, fontSize: 12, color: 'var(--text-muted, #8b949e)', flexShrink: 0 }}>{t('guideline.labelDescription')}</span>
+                  <span style={{ fontSize: 13, color: 'var(--text-primary, #f0f6fc)', lineHeight: 1.6 }}>{detail.description || '-'}</span>
                 </div>
               </div>
             ) : (

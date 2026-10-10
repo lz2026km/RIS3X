@@ -49,7 +49,7 @@ function fmtTime(iso?: string): string {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`
 }
 
-const darkCard: CSSProperties = { background: '#161b22', border: '1px solid #30363d', boxShadow: 'none' }
+const darkCard: CSSProperties = { background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', boxShadow: 'none' }
 
 export default function ExportApprovalPage() {
   const { user } = useAuth()
@@ -195,7 +195,7 @@ export default function ExportApprovalPage() {
     { key: 'REJECTED', label: t('w9.exportApproval.rejected'), count: counts.rejected },
   ]
 
-  const modalStyle = { container: { background: '#161b22', color: '#f0f6fc' }, header: { background: '#161b22', color: '#f0f6fc', borderBottom: '1px solid #30363d' }, footer: { borderTop: '1px solid #30363d' } }
+  const modalStyle = { container: { background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)' }, header: { background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', borderBottom: '1px solid var(--border-default, #30363d)' }, footer: { borderTop: '1px solid var(--border-default, #30363d)' } }
 
   const columns: ColumnsType<ExportApprovalDto> = [
     {
@@ -216,7 +216,7 @@ export default function ExportApprovalPage() {
       render: (_: unknown, item) => (
         <div>
           <div style={{ fontSize: 13 }}>{item.resourceId ?? '—'}</div>
-          <div style={{ fontSize: 12, color: '#8b949e' }}>{item.reason}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{item.reason}</div>
           {item.status === 'REJECTED' && item.rejectReason && (
             <div style={{ fontSize: 12, color: '#fca5a5', marginTop: 2 }}>{t('w9.exportApproval.rejectReason')}:{item.rejectReason}</div>
           )}
@@ -234,7 +234,7 @@ export default function ExportApprovalPage() {
       title: t('w9.exportApproval.time'), dataIndex: 'createdAt', key: 'time', width: 150,
       render: (_: unknown, item) => (
         <div>
-          <div style={{ fontSize: 12, color: '#8b949e' }}>{fmtTime(item.createdAt)}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{fmtTime(item.createdAt)}</div>
           {item.approverId && <div style={{ fontSize: 11, color: '#6e7681' }}>审批人:{item.approverId}</div>}
         </div>
       ),
@@ -265,7 +265,7 @@ export default function ExportApprovalPage() {
   ]
 
   return (
-    <div style={{ background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+    <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <FileDown size={24} />
@@ -295,12 +295,12 @@ export default function ExportApprovalPage() {
         <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
           {filterTabs.map(tab => (
             <button key={tab.key} onClick={() => setFilter(tab.key)}
-              style={{ padding: '7px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: filter === tab.key ? '#1e40af' : '#21262d', color: filter === tab.key ? '#fff' : '#8b949e', display: 'flex', alignItems: 'center', gap: 6 }}>
+              style={{ padding: '7px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: filter === tab.key ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: filter === tab.key ? '#fff' : 'var(--text-muted, #8b949e)', display: 'flex', alignItems: 'center', gap: 6 }}>
               {tab.key === 'PENDING' && <Clock size={13} />}
               {tab.key === 'APPROVED' && <Check size={13} />}
               {tab.key === 'REJECTED' && <X size={13} />}
               {tab.label}
-              <span style={{ padding: '1px 7px', borderRadius: 10, background: filter === tab.key ? 'rgba(255,255,255,0.25)' : '#161b22', fontSize: 11 }}>{tab.count}</span>
+              <span style={{ padding: '1px 7px', borderRadius: 10, background: filter === tab.key ? 'rgba(255,255,255,0.25)' : 'var(--bg-card, #161b22)', fontSize: 11 }}>{tab.count}</span>
             </button>
           ))}
         </div>
@@ -341,7 +341,7 @@ export default function ExportApprovalPage() {
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 8 }}>
           <div>
-            <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('w9.exportApproval.resourceLabel')}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 6 }}>{t('w9.exportApproval.resourceLabel')}</div>
             <Select
               value={createResource}
               onChange={setCreateResource}
@@ -351,11 +351,11 @@ export default function ExportApprovalPage() {
             />
           </div>
           <div>
-            <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('w9.exportApproval.resourceIdLabel')}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 6 }}>{t('w9.exportApproval.resourceIdLabel')}</div>
             <Input value={createResourceId} onChange={e => setCreateResourceId(e.target.value)} placeholder="例如 RPT-202607-001" />
           </div>
           <div>
-            <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('w9.exportApproval.reasonLabel')}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 6 }}>{t('w9.exportApproval.reasonLabel')}</div>
             <Input.TextArea value={createReason} onChange={e => setCreateReason(e.target.value)} rows={4} placeholder={t('w9.exportApproval.reasonPlaceholder')} maxLength={200} showCount />
           </div>
         </div>
@@ -375,7 +375,7 @@ export default function ExportApprovalPage() {
         styles={modalStyle}
       >
         <div style={{ marginTop: 8 }}>
-          <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('w9.exportApproval.rejectReason')}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 6 }}>{t('w9.exportApproval.rejectReason')}</div>
           <Input.TextArea value={rejectReason} onChange={e => setRejectReason(e.target.value)} rows={4} placeholder={t('w9.exportApproval.rejectReason')} maxLength={200} showCount />
         </div>
       </Modal>

@@ -66,7 +66,13 @@ const CriticalItemsDirectory = () => {
             const isExpanded = expandedCategory === category
             return (
               <div key={category} style={{ marginBottom: 8 }}>
-                <div onClick={() => setExpandedCategory(isExpanded ? null : category)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: isExpanded ? 'var(--color-info-bg)' : 'var(--bg-card)', borderRadius: 8, cursor: 'pointer', border: `1px solid ${isExpanded ? 'var(--color-info-border)' : 'var(--border-color)'}` }}>
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setExpandedCategory(isExpanded ? null : category)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpandedCategory(isExpanded ? null : category) } }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: isExpanded ? 'var(--color-info-bg)' : 'var(--bg-card)', borderRadius: 8, cursor: 'pointer', border: `1px solid ${isExpanded ? 'var(--color-info-border)' : 'var(--border-color)'}` }}
+                >
                   <CategoryIcon size={14} style={{ color: PRIMARY_COLOR }} />
                   <span style={{ flex: 1, fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{CATEGORY_LABELS[category] ?? category}</span>
                   <span style={{ fontSize: 12, color: '#64748b', background: 'var(--border-light)', padding: '2px 8px', borderRadius: 10 }}>{t('cvSection.itemCount', { count: items.length })}</span>

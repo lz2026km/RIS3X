@@ -1175,6 +1175,9 @@ export default function AppointmentManagementPage() {
                     {dayAppts.slice(0, 3).map(apt => (
                       <div
                         key={apt.id}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedAppointment(apt); setShowDetailModal(true) } }}
                         style={{
                           ...styles.badge(
                             STATUS_CONFIG[apt.status]?.bg || '#f1f5f9',

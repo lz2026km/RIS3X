@@ -165,11 +165,11 @@ export default function AdverseReactionPage() {
   }, [reactions, typeFilter, searchText])
 
   if (loading) {
-    return <div style={{ background: '#0d1117', color: '#f0f6fc', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>{t('advR.loading')}</div>
+    return <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>{t('advR.loading')}</div>
   }
 
   return (
-    <div style={{ background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+    <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#dc2626,#991b1b)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <AlertTriangle size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('advR.title')}</span>
@@ -194,10 +194,10 @@ export default function AdverseReactionPage() {
             <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
               <div style={{ position: 'relative' }}>
                 <Search size={16} style={{ position: 'absolute', left: 10, top: 10, color: '#6e7681' }} />
-                <input type="text" placeholder={t('advR.searchPlaceholder')} value={searchText} onChange={e => setSearchText(e.target.value)} style={{ padding: '8px 12px 8px 34px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, width: 200,}} />
+                <input type="text" placeholder={t('advR.searchPlaceholder')} value={searchText} onChange={e => setSearchText(e.target.value)} style={{ padding: '8px 12px 8px 34px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, width: 200,}} />
               </div>
               {(Object.keys(TYPE_LABELS) as ReactionType[]).map(t => (
-                <button key={t} onClick={() => setTypeFilter(typeFilter === t ? '' : t)} style={{ padding: '6px 12px', borderRadius: 4, border: '1px solid #30363d', background: typeFilter === t ? `${TYPE_COLORS[t]}20` : 'transparent', color: typeFilter === t ? TYPE_COLORS[t] : '#8b949e', cursor: 'pointer', fontSize: 12 }}>
+                <button key={t} onClick={() => setTypeFilter(typeFilter === t ? '' : t)} style={{ padding: '6px 12px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: typeFilter === t ? `${TYPE_COLORS[t]}20` : 'transparent', color: typeFilter === t ? TYPE_COLORS[t] : 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>
                   {TYPE_LABELS[t]}
                 </button>
               ))}
@@ -205,35 +205,35 @@ export default function AdverseReactionPage() {
             <span style={{ fontSize: 13, color: '#6e7681' }}>{t('advR.totalCases', { count: filtered.length })}</span>
           </div>
 
-          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '24px 120px 80px 80px 1fr 100px 100px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, overflow: 'hidden' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '24px 120px 80px 80px 1fr 100px 100px', gap: 8, padding: '12px 16px', borderBottom: '1px solid var(--bg-secondary, #21262d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-muted, #8b949e)', fontSize: 12, fontWeight: 600 }}>
               <span></span><span>{t('advR.col.patient')}</span><span>{t('advR.col.type')}</span><span>{t('advR.col.severity')}</span><span>{t('advR.col.description')}</span><span>{t('advR.col.time')}</span><span>{t('advR.col.outcome')}</span>
             </div>
             {filtered.length === 0 && <AppEmpty variant="no-data" minHeight={120} />}
             {filtered.map((r, idx) => (
               <div key={r.id}>
-                <div onClick={() => setExpandedId(expandedId === r.id ? null : r.id)} style={{ display: 'grid', gridTemplateColumns: '24px 120px 80px 80px 1fr 100px 100px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', alignItems: 'center', background: idx % 2 === 0 ? '#0d1117' : '#161b22', cursor: 'pointer' }}>
+                <div role="button" tabIndex={0} onClick={() => setExpandedId(expandedId === r.id ? null : r.id)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpandedId(expandedId === r.id ? null : r.id) } }} style={{ display: 'grid', gridTemplateColumns: '24px 120px 80px 80px 1fr 100px 100px', gap: 8, padding: '12px 16px', borderBottom: '1px solid var(--bg-secondary, #21262d)', alignItems: 'center', background: idx % 2 === 0 ? 'var(--bg-primary, #0d1117)' : 'var(--bg-card, #161b22)', cursor: 'pointer' }}>
                   <span style={{ color: '#6e7681' }}>{expandedId === r.id ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</span>
                   <div><div style={{ fontSize: 13 }}>{r.patientName}</div><div style={{ fontSize: 12, color: '#6e7681' }}>{r.patientId}</div></div>
                   <span style={{ fontSize: 12, padding: '2px 6px', borderRadius: 3, background: `${TYPE_COLORS[r.reactionType]}20`, color: TYPE_COLORS[r.reactionType], textAlign: 'center' }}>{TYPE_LABELS[r.reactionType]}</span>
                   <span style={{ fontSize: 12, padding: '2px 6px', borderRadius: 3, background: `${SEV_COLORS[r.severity]}20`, color: SEV_COLORS[r.severity], textAlign: 'center' }}>{SEV_LABELS[r.severity]}</span>
-                  <span style={{ fontSize: 12, color: '#8b949e', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.description}</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.description}</span>
                   <span style={{ fontSize: 12, color: '#6e7681' }}>{new Date(r.occurredAt).toLocaleString('zh-CN')}</span>
                   <span style={{ fontSize: 12, color: r.outcome === 'fatal' ? '#ef4444' : r.outcome === 'ongoing' ? '#f59e0b' : '#22c55e' }}>{OUTCOME_LABELS[r.outcome]}</span>
                 </div>
                 {expandedId === r.id && (
-                  <div style={{ padding: '12px 16px 12px 48px', background: '#0d1117', borderBottom: '1px solid #21262d' }}>
+                  <div style={{ padding: '12px 16px 12px 48px', background: 'var(--bg-primary, #0d1117)', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
-                      <div><span style={{ color: '#8b949e' }}>{t('advR.symptomsLabel')}</span>{r.symptoms.join('、')}</div>
-                      <div><span style={{ color: '#8b949e' }}>{t('advR.contrastLabel')}</span>{r.contrastName}</div>
-                      <div><span style={{ color: '#8b949e' }}>{t('advR.actionLabel')}</span>{r.action}</div>
-                      <div><span style={{ color: '#8b949e' }}>{t('advR.medicationLabel')}</span>{r.medicationGiven || '-'}</div>
-                      <div><span style={{ color: '#8b949e' }}>{t('advR.reporterLabel')}</span>{r.reportedBy}</div>
-                      <div><span style={{ color: '#8b949e' }}>{t('advR.reportStatusLabel')}</span>{r.isReported ? <span style={{ color: '#22c55e' }}>{t('advR.reported')}</span> : <span style={{ color: '#f59e0b' }}>{t('advR.notReported')}</span>}</div>
+                      <div><span style={{ color: 'var(--text-muted, #8b949e)' }}>{t('advR.symptomsLabel')}</span>{r.symptoms.join('、')}</div>
+                      <div><span style={{ color: 'var(--text-muted, #8b949e)' }}>{t('advR.contrastLabel')}</span>{r.contrastName}</div>
+                      <div><span style={{ color: 'var(--text-muted, #8b949e)' }}>{t('advR.actionLabel')}</span>{r.action}</div>
+                      <div><span style={{ color: 'var(--text-muted, #8b949e)' }}>{t('advR.medicationLabel')}</span>{r.medicationGiven || '-'}</div>
+                      <div><span style={{ color: 'var(--text-muted, #8b949e)' }}>{t('advR.reporterLabel')}</span>{r.reportedBy}</div>
+                      <div><span style={{ color: 'var(--text-muted, #8b949e)' }}>{t('advR.reportStatusLabel')}</span>{r.isReported ? <span style={{ color: '#22c55e' }}>{t('advR.reported')}</span> : <span style={{ color: '#f59e0b' }}>{t('advR.notReported')}</span>}</div>
                     </div>
-                    {r.followUpNotes && <div style={{ marginTop: 8, padding: 8, background: '#161b22', borderRadius: 4, fontSize: 12, color: '#8b949e' }}>{t('advR.followupLabel')}{r.followUpNotes}</div>}
+                    {r.followUpNotes && <div style={{ marginTop: 8, padding: 8, background: 'var(--bg-card, #161b22)', borderRadius: 4, fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('advR.followupLabel')}{r.followUpNotes}</div>}
                     <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
-                      <button onClick={() => { openEdit(r); setShowForm(true) }} style={{ padding: '6px 12px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', fontSize: 12 }}>{t('advR.edit')}</button>
+                      <button onClick={() => { openEdit(r); setShowForm(true) }} style={{ padding: '6px 12px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>{t('advR.edit')}</button>
                       {!r.isReported && <button onClick={() => {
                         void (async () => {
                           try {
@@ -264,18 +264,18 @@ export default function AdverseReactionPage() {
         </div>
 
         {showForm && (
-          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>{editTarget ? `编辑记录 - ${editTarget.patientName}` : t('advR.recordReaction')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <div><label style={{ fontSize: 12, color: '#8b949e' }}>{t('advR.patientIdLabel')}</label><input value={form.patientId} onChange={e => setForm({ ...form, patientId: e.target.value })} placeholder={t('advR.required')} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, marginTop: 4, boxSizing: 'border-box' }} /></div>
-              <div><label style={{ fontSize: 12, color: '#8b949e' }}>{t('contrastSafety.observationIdOptional')}</label><input value={form.observationId} onChange={e => setForm({ ...form, observationId: e.target.value })} placeholder="obs-0001" style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, marginTop: 4, boxSizing: 'border-box' }} /></div>
-              <div><label style={{ fontSize: 12, color: '#8b949e' }}>{t('advR.typeLabel')}</label><select value={form.reactionType} onChange={e => setForm({ ...form, reactionType: e.target.value as ReactionType })} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, marginTop: 4, boxSizing: 'border-box' }}>{Object.entries(TYPE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></div>
-              <div><label style={{ fontSize: 12, color: '#8b949e' }}>{t('advR.severityLabel')}</label><select value={form.severity} onChange={e => setForm({ ...form, severity: e.target.value as ReactionSeverity })} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, marginTop: 4, boxSizing: 'border-box' }}>{Object.entries(SEV_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></div>
-              <div><label style={{ fontSize: 12, color: '#8b949e' }}>{t('advR.symptoms')}</label><input value={form.symptoms} onChange={e => setForm({ ...form, symptoms: e.target.value })} placeholder={t('advR.symptomsPlaceholder')} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, marginTop: 4, boxSizing: 'border-box' }} /></div>
-              <div><label style={{ fontSize: 12, color: '#8b949e' }}>{t('advR.contrast')}</label><input value={form.contrastName} onChange={e => setForm({ ...form, contrastName: e.target.value })} placeholder={t('advR.contrastPlaceholder')} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, marginTop: 4, boxSizing: 'border-box' }} /></div>
-              <div><label style={{ fontSize: 12, color: '#8b949e' }}>{t('advR.action')}</label><input value={form.action} onChange={e => setForm({ ...form, action: e.target.value })} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, marginTop: 4, boxSizing: 'border-box' }} /></div>
-              <div><label style={{ fontSize: 12, color: '#8b949e' }}>{t('advR.outcomeLabel')}</label><select value={form.outcome} onChange={e => setForm({ ...form, outcome: e.target.value as ReactionOutcome })} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, marginTop: 4, boxSizing: 'border-box' }}>{OUTCOME_OPTIONS.map(k => <option key={k} value={k}>{OUTCOME_LABELS[k]}</option>)}</select></div>
-              <div><label style={{ fontSize: 12, color: '#8b949e' }}>{t('advR.descriptionLabel')}</label><textarea rows={3} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder={t('advR.descriptionPlaceholder')} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, marginTop: 4, boxSizing: 'border-box', resize: 'vertical' }} /></div>
+              <div><label style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('advR.patientIdLabel')}</label><input value={form.patientId} onChange={e => setForm({ ...form, patientId: e.target.value })} placeholder={t('advR.required')} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, marginTop: 4, boxSizing: 'border-box' }} /></div>
+              <div><label style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('contrastSafety.observationIdOptional')}</label><input value={form.observationId} onChange={e => setForm({ ...form, observationId: e.target.value })} placeholder="obs-0001" style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, marginTop: 4, boxSizing: 'border-box' }} /></div>
+              <div><label style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('advR.typeLabel')}</label><select value={form.reactionType} onChange={e => setForm({ ...form, reactionType: e.target.value as ReactionType })} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, marginTop: 4, boxSizing: 'border-box' }}>{Object.entries(TYPE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></div>
+              <div><label style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('advR.severityLabel')}</label><select value={form.severity} onChange={e => setForm({ ...form, severity: e.target.value as ReactionSeverity })} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, marginTop: 4, boxSizing: 'border-box' }}>{Object.entries(SEV_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></div>
+              <div><label style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('advR.symptoms')}</label><input value={form.symptoms} onChange={e => setForm({ ...form, symptoms: e.target.value })} placeholder={t('advR.symptomsPlaceholder')} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, marginTop: 4, boxSizing: 'border-box' }} /></div>
+              <div><label style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('advR.contrast')}</label><input value={form.contrastName} onChange={e => setForm({ ...form, contrastName: e.target.value })} placeholder={t('advR.contrastPlaceholder')} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, marginTop: 4, boxSizing: 'border-box' }} /></div>
+              <div><label style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('advR.action')}</label><input value={form.action} onChange={e => setForm({ ...form, action: e.target.value })} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, marginTop: 4, boxSizing: 'border-box' }} /></div>
+              <div><label style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('advR.outcomeLabel')}</label><select value={form.outcome} onChange={e => setForm({ ...form, outcome: e.target.value as ReactionOutcome })} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, marginTop: 4, boxSizing: 'border-box' }}>{OUTCOME_OPTIONS.map(k => <option key={k} value={k}>{OUTCOME_LABELS[k]}</option>)}</select></div>
+              <div><label style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('advR.descriptionLabel')}</label><textarea rows={3} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder={t('advR.descriptionPlaceholder')} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, marginTop: 4, boxSizing: 'border-box', resize: 'vertical' }} /></div>
               <button onClick={() => void handleSubmitForm()} disabled={submitting} style={{ padding: '8px', borderRadius: 6, border: 'none', cursor: submitting ? 'wait' : 'pointer', background: '#dc2626', color: '#fff', fontSize: 13 }}>{submitting ? t('advR.submitting') : (editTarget ? t('advR.saveChanges') : t('advR.submitRecord'))}</button>
             </div>
           </div>
@@ -284,26 +284,26 @@ export default function AdverseReactionPage() {
 
       {showStats && stats && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowStats(false)}>
-          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: 24, width: 520, maxHeight: '85vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 10, padding: 24, width: 520, maxHeight: '85vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div style={{ fontSize: 16, fontWeight: 600 }}>{t('advR.statsTitle')}</div>
-              <button onClick={() => setShowStats(false)} style={{ background: 'none', border: 'none', color: '#8b949e', cursor: 'pointer', padding: 4 }}><X size={18} /></button>
+              <button onClick={() => setShowStats(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted, #8b949e)', cursor: 'pointer', padding: 4 }}><X size={18} /></button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
-              <div style={{ padding: 14, background: '#0d1117', borderRadius: 8, textAlign: 'center' }}><div style={{ fontSize: 28, fontWeight: 700, color: '#f0f6fc' }}>{stats.totalReactions}</div><div style={{ fontSize: 12, color: '#8b949e', marginTop: 4 }}>{t('advR.totalCount')}</div></div>
-              <div style={{ padding: 14, background: '#0d1117', borderRadius: 8, textAlign: 'center' }}><div style={{ fontSize: 28, fontWeight: 700, color: '#ef4444' }}>{stats.bySeverity?.severe ?? 0}</div><div style={{ fontSize: 12, color: '#8b949e', marginTop: 4 }}>{t('advR.severeReactions')}</div></div>
+              <div style={{ padding: 14, background: 'var(--bg-primary, #0d1117)', borderRadius: 8, textAlign: 'center' }}><div style={{ fontSize: 28, fontWeight: 700, color: 'var(--text-primary, #f0f6fc)' }}>{stats.totalReactions}</div><div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginTop: 4 }}>{t('advR.totalCount')}</div></div>
+              <div style={{ padding: 14, background: 'var(--bg-primary, #0d1117)', borderRadius: 8, textAlign: 'center' }}><div style={{ fontSize: 28, fontWeight: 700, color: '#ef4444' }}>{stats.bySeverity?.severe ?? 0}</div><div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginTop: 4 }}>{t('advR.severeReactions')}</div></div>
             </div>
             <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t('advR.byType')}</div>
             {(Object.keys(TYPE_LABELS) as ReactionType[]).map(t => (
               <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
                 <span style={{ width: 56, fontSize: 12, color: TYPE_COLORS[t] }}>{TYPE_LABELS[t]}</span>
-                <div style={{ flex: 1, height: 8, background: '#0d1117', borderRadius: 4, overflow: 'hidden' }}><div style={{ height: '100%', width: `${stats.totalReactions > 0 ? ((stats.byType?.[t] ?? 0) / stats.totalReactions) * 100 : 0}%`, background: TYPE_COLORS[t] }} /></div>
+                <div style={{ flex: 1, height: 8, background: 'var(--bg-primary, #0d1117)', borderRadius: 4, overflow: 'hidden' }}><div style={{ height: '100%', width: `${stats.totalReactions > 0 ? ((stats.byType?.[t] ?? 0) / stats.totalReactions) * 100 : 0}%`, background: TYPE_COLORS[t] }} /></div>
                 <span style={{ width: 30, textAlign: 'right', fontSize: 12 }}>{stats.byType?.[t] ?? 0}</span>
               </div>
             ))}
             <div style={{ fontSize: 13, fontWeight: 600, margin: '12px 0 8px' }}>{t('advR.byOutcome')}</div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>{OUTCOME_OPTIONS.map(k => (
-              <span key={k} style={{ padding: '4px 10px', borderRadius: 12, background: '#0d1117', border: '1px solid #30363d', fontSize: 12 }}>{OUTCOME_LABELS[k]}: {stats.byOutcome?.[k] ?? 0} {t('advR.caseUnit')}</span>
+              <span key={k} style={{ padding: '4px 10px', borderRadius: 12, background: 'var(--bg-primary, #0d1117)', border: '1px solid var(--border-default, #30363d)', fontSize: 12 }}>{OUTCOME_LABELS[k]}: {stats.byOutcome?.[k] ?? 0} {t('advR.caseUnit')}</span>
             ))}</div>
           </div>
         </div>
@@ -312,32 +312,32 @@ export default function AdverseReactionPage() {
       {/* [v3.0.6.11-104 Wave 3D] 过敏分级处置指引 (CONTRAST_ALLERGY_TREATMENT 4 级) */}
       {showAllergyGuide && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowAllergyGuide(false)}>
-          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 10, padding: 24, width: 720, maxHeight: '88vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 10, padding: 24, width: 720, maxHeight: '88vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div style={{ fontSize: 16, fontWeight: 600 }}>{t('w3d.allergy.title')}</div>
-              <button onClick={() => setShowAllergyGuide(false)} style={{ background: 'none', border: 'none', color: '#8b949e', cursor: 'pointer', padding: 4 }}><X size={18} /></button>
+              <button onClick={() => setShowAllergyGuide(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted, #8b949e)', cursor: 'pointer', padding: 4 }}><X size={18} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {CONTRAST_ALLERGY_TREATMENT.map(a => {
                 const color = a.grade === 1 ? '#22c55e' : a.grade === 2 ? '#f59e0b' : a.grade === 3 ? '#f97316' : '#ef4444'
                 return (
-                  <div key={a.grade} style={{ border: `1px solid ${color}40`, borderRadius: 8, padding: 14, background: '#0d1117' }}>
+                  <div key={a.grade} style={{ border: `1px solid ${color}40`, borderRadius: 8, padding: 14, background: 'var(--bg-primary, #0d1117)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                       <span style={{ fontSize: 12, fontWeight: 700, padding: '2px 8px', borderRadius: 4, background: `${color}20`, color }}>{t('w3d.allergy.grade', { grade: a.grade })} · {a.name}</span>
-                      <span style={{ fontSize: 12, color: '#8b949e' }}>{t('w3d.allergy.onset')}: {a.onset}</span>
+                      <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w3d.allergy.onset')}: {a.onset}</span>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, fontSize: 12 }}>
                       <div>
-                        <div style={{ color: '#8b949e', fontWeight: 600, marginBottom: 4 }}>{t('w3d.allergy.symptoms')}</div>
-                        <ul style={{ margin: 0, paddingLeft: 16 }}>{a.symptoms.map((s, i) => <li key={i} style={{ color: '#c9d1d9' }}>{s}</li>)}</ul>
+                        <div style={{ color: 'var(--text-muted, #8b949e)', fontWeight: 600, marginBottom: 4 }}>{t('w3d.allergy.symptoms')}</div>
+                        <ul style={{ margin: 0, paddingLeft: 16 }}>{a.symptoms.map((s, i) => <li key={i} style={{ color: 'var(--text-primary, #f0f6fc)' }}>{s}</li>)}</ul>
                       </div>
                       <div>
-                        <div style={{ color: '#8b949e', fontWeight: 600, marginBottom: 4 }}>{t('w3d.allergy.treatment')}</div>
-                        <ul style={{ margin: 0, paddingLeft: 16 }}>{a.treatment.map((s, i) => <li key={i} style={{ color: '#c9d1d9' }}>{s}</li>)}</ul>
+                        <div style={{ color: 'var(--text-muted, #8b949e)', fontWeight: 600, marginBottom: 4 }}>{t('w3d.allergy.treatment')}</div>
+                        <ul style={{ margin: 0, paddingLeft: 16 }}>{a.treatment.map((s, i) => <li key={i} style={{ color: 'var(--text-primary, #f0f6fc)' }}>{s}</li>)}</ul>
                       </div>
                     </div>
-                    <div style={{ marginTop: 8, fontSize: 12 }}><span style={{ color: '#8b949e' }}>{t('w3d.allergy.medication')}: </span><span style={{ color: '#c9d1d9' }}>{a.medication}</span></div>
-                    <div style={{ marginTop: 4, fontSize: 12 }}><span style={{ color: '#8b949e' }}>{t('w3d.allergy.hospitalization')}: </span><span style={{ color }}>{a.hospitalization}</span></div>
+                    <div style={{ marginTop: 8, fontSize: 12 }}><span style={{ color: 'var(--text-muted, #8b949e)' }}>{t('w3d.allergy.medication')}: </span><span style={{ color: 'var(--text-primary, #f0f6fc)' }}>{a.medication}</span></div>
+                    <div style={{ marginTop: 4, fontSize: 12 }}><span style={{ color: 'var(--text-muted, #8b949e)' }}>{t('w3d.allergy.hospitalization')}: </span><span style={{ color }}>{a.hospitalization}</span></div>
                   </div>
                 )
               })}

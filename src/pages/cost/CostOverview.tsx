@@ -67,7 +67,7 @@ export function CostOverview({ live }: { live?: LiveOverviewData | null }) {
   const sectionTitleStyle: React.CSSProperties = {
     fontSize: 14,
     fontWeight: 600,
-    color: '#f0f6fc',
+    color: 'var(--text-primary, #f0f6fc)',
     marginBottom: 12,
     display: 'flex',
     alignItems: 'center',
@@ -83,13 +83,13 @@ export function CostOverview({ live }: { live?: LiveOverviewData | null }) {
         <CostCard title={t('w8.costOverview.costPerExam')} value={formatCurrency(summaryData.costPerExam, true)} subtitle={t('w8.costOverview.examsSubtitle', { count: summaryData.totalExams.toLocaleString() })} icon={Users} color="#3b82f6" />
       </div>
 
-      <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
+      <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20 }}>
         <div style={sectionTitleStyle}>
-          <PieChartIcon size={16} color="#8b949e" />
+          <PieChartIcon size={16} color="var(--text-muted, #8b949e)" />
           {t('w8.costOverview.costCompositionTitle')} {live && <span style={{ fontSize: 11, color: '#f59e0b' }}>{t('w8.costOverview.demoNote')}</span>}
         </div>
         {live ? (
-          <div style={{ fontSize: 13, color: '#8b949e', padding: 12, background: '#21262d', borderRadius: 6 }}>
+          <div style={{ fontSize: 13, color: 'var(--text-muted, #8b949e)', padding: 12, background: 'var(--bg-secondary, #21262d)', borderRadius: 6 }}>
             {t('w8.costOverview.liveNote')}
           </div>
         ) : (
@@ -99,10 +99,10 @@ export function CostOverview({ live }: { live?: LiveOverviewData | null }) {
               {costCompositionData.map((item, idx) => (
                 <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 13, color: '#f0f6fc' }}>{item.label}</span>
+                    <span style={{ fontSize: 13, color: 'var(--text-primary, #f0f6fc)' }}>{item.label}</span>
                     <span style={{ fontSize: 13, color: item.color, fontWeight: 600 }}>{formatCurrency(item.value)}</span>
                   </div>
-                  <div style={{ height: 6, background: '#21262d', borderRadius: 3, overflow: 'hidden' }}>
+                  <div style={{ height: 6, background: 'var(--bg-secondary, #21262d)', borderRadius: 3, overflow: 'hidden' }}>
                     <div style={{ width: `${(item.value / summaryData.totalCost) * 100}%`, height: '100%', background: item.color, borderRadius: 3, transition: 'width 0.3s ease' }} />
                   </div>
                 </div>
@@ -113,22 +113,22 @@ export function CostOverview({ live }: { live?: LiveOverviewData | null }) {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20 }}>
           <div style={sectionTitleStyle}><Activity size={16} color="#3b82f6" />{t('w8.costOverview.costTrendTitle')} {live && <span style={{ fontSize: 11, color: '#22c55e' }}>({t('w8.costOverview.realtime')})</span>}</div>
           <SimpleBarChart data={costTrendData} height={180} />
         </div>
-        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20 }}>
           <div style={sectionTitleStyle}><TrendingUp size={16} color="#22c55e" />{t('w8.costOverview.profitTrendTitle')} {live && <span style={{ fontSize: 11, color: '#22c55e' }}>({t('w8.costOverview.realtime')})</span>}</div>
           <SimpleBarChart data={benefitTrendData} height={180} />
         </div>
       </div>
 
-      <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
+      <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20 }}>
         <div style={sectionTitleStyle}><Monitor size={16} color="#3b82f6" />{t('w8.costOverview.equipmentRankingTitle')} {live && <span style={{ fontSize: 11, color: '#f59e0b' }}>{t('w8.costOverview.demoData')}</span>}</div>
         <div style={{
           display: 'grid', gridTemplateColumns: '40px 1fr 80px 100px 100px 100px 100px', gap: 8,
-          padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d',
-          fontSize: 12, fontWeight: 600, color: '#8b949e',
+          padding: '8px 16px', background: 'var(--bg-secondary, #21262d)', borderBottom: '1px solid var(--border-default, #30363d)',
+          fontSize: 12, fontWeight: 600, color: 'var(--text-muted, #8b949e)',
         }}>
           <span>{t('w8.costOverview.colRank')}</span><span>{t('w8.costOverview.colDeviceName')}</span><span>{t('w8.costOverview.colType')}</span><span>{t('w8.costOverview.colPurchase')}</span><span>{t('w8.costOverview.colAnnualCost')}</span><span>{t('w8.costOverview.colUsage')}</span><span>{t('w8.costOverview.colUnitCost')}</span>
         </div>

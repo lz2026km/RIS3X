@@ -96,13 +96,13 @@ export default function CdsDoseMonitoringPage() {
         </div>
       ),
     },
-    { title: t('cdsDose.col.modality'), dataIndex: 'modality', key: 'modality', render: (v: string) => <span style={{ fontSize: 12, color: '#8b949e' }}>{v || '-'}</span> },
+    { title: t('cdsDose.col.modality'), dataIndex: 'modality', key: 'modality', render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{v || '-'}</span> },
     {
       title: 'DLP', dataIndex: 'dlp', key: 'dlp',
-      render: (v: number, r: any) => <span style={{ fontSize: 12, color: r.status === 'exceeded' ? '#ef4444' : '#f0f6fc', fontWeight: r.status === 'exceeded' ? 600 : 400 }}>{Number(v)?.toFixed(1) ?? '-'} mGy·cm</span>,
+      render: (v: number, r: any) => <span style={{ fontSize: 12, color: r.status === 'exceeded' ? '#ef4444' : 'var(--text-primary, #f0f6fc)', fontWeight: r.status === 'exceeded' ? 600 : 400 }}>{Number(v)?.toFixed(1) ?? '-'} mGy·cm</span>,
     },
-    { title: t('cdsDose.col.kerma'), dataIndex: 'kerma', key: 'kerma', render: (v: number) => <span style={{ fontSize: 12, color: '#8b949e' }}>{Number(v)?.toFixed(2) ?? '-'} mGy</span> },
-    { title: t('cdsDose.col.threshold'), dataIndex: 'threshold', key: 'threshold', render: (v: number) => <span style={{ fontSize: 12, color: '#8b949e' }}>{Number(v)?.toFixed(0) ?? '-'} mGy·cm</span> },
+    { title: t('cdsDose.col.kerma'), dataIndex: 'kerma', key: 'kerma', render: (v: number) => <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{Number(v)?.toFixed(2) ?? '-'} mGy</span> },
+    { title: t('cdsDose.col.threshold'), dataIndex: 'threshold', key: 'threshold', render: (v: number) => <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{Number(v)?.toFixed(0) ?? '-'} mGy·cm</span> },
     {
       title: t('cdsDose.col.status'), dataIndex: 'status', key: 'status',
       render: (v: string) => v === 'exceeded'
@@ -113,13 +113,13 @@ export default function CdsDoseMonitoringPage() {
 
   const thresholdColumns = [
     { title: t('cdsDose.col.modality'), dataIndex: 'modality', key: 'modality', render: (v: string) => v || '-' },
-    { title: t('cdsDose.col.dlpLimit'), dataIndex: 'dlpLimit', key: 'dlpLimit', render: (v: number) => <span style={{ color: '#f0f6fc' }}>{Number(v)?.toFixed(0) ?? '-'}</span> },
-    { title: t('cdsDose.col.unit'), dataIndex: 'unit', key: 'unit', render: (v: string) => <span style={{ fontSize: 12, color: '#8b949e' }}>{v || 'mGy·cm'}</span> },
-    { title: t('cdsDose.col.level'), dataIndex: 'level', key: 'level', render: (v: string) => <span style={{ fontSize: 12, color: '#8b949e' }}>{v || '-'}</span> },
+    { title: t('cdsDose.col.dlpLimit'), dataIndex: 'dlpLimit', key: 'dlpLimit', render: (v: number) => <span style={{ color: 'var(--text-primary, #f0f6fc)' }}>{Number(v)?.toFixed(0) ?? '-'}</span> },
+    { title: t('cdsDose.col.unit'), dataIndex: 'unit', key: 'unit', render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{v || 'mGy·cm'}</span> },
+    { title: t('cdsDose.col.level'), dataIndex: 'level', key: 'level', render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{v || '-'}</span> },
   ]
 
   return (
-    <div style={{ background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+    <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <Gauge size={24} />
@@ -132,17 +132,17 @@ export default function CdsDoseMonitoringPage() {
 
       <div style={{ padding: '20px 24px' }}>
         <div style={{ display: 'flex', gap: 16, marginBottom: 20, flexWrap: 'wrap' }}>
-          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 180 }}>
-            <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 8 }}>{t('cdsDose.stat.recordCount')}</div>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 180 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 8 }}>{t('cdsDose.stat.recordCount')}</div>
             <div style={{ fontSize: 26, fontWeight: 700 }}>{data.records.length}</div>
           </div>
-          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 180 }}>
-            <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 8 }}>{t('cdsDose.stat.avgDlp')}</div>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 180 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 8 }}>{t('cdsDose.stat.avgDlp')}</div>
             <div style={{ fontSize: 26, fontWeight: 700 }}>{avgDlp}</div>
           </div>
-          <div style={{ background: '#161b22', border: '1px solid #ef444455', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 180 }}>
+          <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid #ef444455', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 180 }}>
             <div style={{ fontSize: 12, color: 'var(--color-error-400, #f87171)', marginBottom: 8 }}>{t('cdsDose.stat.exceeded')}</div>
-            <div style={{ fontSize: 26, fontWeight: 700, color: exceeded.length ? 'var(--color-error-500, #ef4444)' : '#f0f6fc' }}>{exceeded.length}</div>
+            <div style={{ fontSize: 26, fontWeight: 700, color: exceeded.length ? 'var(--color-error-500, #ef4444)' : 'var(--text-primary, #f0f6fc)' }}>{exceeded.length}</div>
           </div>
         </div>
 
@@ -155,14 +155,14 @@ export default function CdsDoseMonitoringPage() {
         <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
           <AlertTriangle size={16} style={{ color: 'var(--color-warning-500, #f59e0b)' }} /> {t('cdsDose.recordsTitle')}
         </div>
-        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden', marginBottom: 24 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, overflow: 'hidden', marginBottom: 24 }}>
           <DataTable dataSource={data.records} rowKey={(r: any) => r.id || `${r.patientName}-${r.recordedAt}`} columns={recordColumns} loading={loading} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('cdsDose.emptyRecords')} />
         </div>
 
         <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
           <ShieldCheck size={16} style={{ color: 'var(--color-success-500, #22c55e)' }} /> {t('cdsDose.thresholdTitle')}
         </div>
-        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, overflow: 'hidden' }}>
           <DataTable dataSource={data.thresholds} rowKey={(r: any) => r.id} columns={thresholdColumns} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('cdsDose.emptyThresholds')} />
         </div>
       </div>

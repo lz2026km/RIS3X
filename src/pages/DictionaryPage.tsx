@@ -928,7 +928,10 @@ export default function DictionaryPage() {
               {mockConcepts.map(concept => (
                 <div key={concept.code} style={{ paddingLeft: 0 }}>
                   <div
+                    role="button"
+                    tabIndex={0}
                     onClick={() => setSelectedConcept(concept)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedConcept(concept) } }}
                     style={{ padding: '6px 10px', cursor: 'pointer', borderRadius: 4, background: selectedConcept?.code === concept.code ? '#dbeafe' : 'transparent', display: 'flex', alignItems: 'center', gap: 6 }}
                   >
                     <Layers size={14} color="#2563eb" />
@@ -938,7 +941,10 @@ export default function DictionaryPage() {
                   {concept.children?.map(child => (
                     <div key={child.code} style={{ paddingLeft: 24 }}>
                       <div
+                        role="button"
+                        tabIndex={0}
                         onClick={() => setSelectedConcept(child)}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedConcept(child) } }}
                         style={{ padding: '6px 10px', cursor: 'pointer', borderRadius: 4, background: selectedConcept?.code === child.code ? '#dbeafe' : 'transparent', display: 'flex', alignItems: 'center', gap: 6 }}
                       >
                         <Layers size={14} color="var(--text-secondary)" />
@@ -1215,7 +1221,10 @@ export default function DictionaryPage() {
               {importStep === 'upload' && (
                 <>
                   <div style={{ border: '2px dashed var(--border-color)', borderRadius: 8, padding: 40, textAlign: 'center', marginBottom: 12, cursor: 'pointer' }}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => document.getElementById('importFileInput')?.click()}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.getElementById('importFileInput')?.click() } }}
                   >
                     <FileSpreadsheet size={32} color="var(--text-secondary)" style={{ marginBottom: 8 }} />
                     <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{t('dictionary.clickSelectFile')}</div>

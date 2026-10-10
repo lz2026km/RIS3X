@@ -1576,11 +1576,14 @@ export default function NationalReportPage() {
             ].map(item => (
               <div
                 key={item.key}
+                role="button"
+                tabIndex={0}
                 style={{
                   ...styles.listItem,
                   ...(activeTab === item.key ? styles.listItemActive : {}),
                 }}
                 onClick={() => setActiveTab(item.key as any)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab(item.key as any) } }}
               >
                 <item.icon size={18} color={activeTab === item.key ? COLORS.primary : COLORS.textMuted} />
                 <div style={{ flex: 1 }}>

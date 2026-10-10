@@ -23,11 +23,12 @@ import { DentalPageLayout } from './DentalShared';
 import { dentalApi } from '../../services/api/dentalApi';
 import { usePagination } from '../../hooks/usePagination';
 import { t } from '../../i18n/appI18n';
+import { toneToAntd } from '../../theme/statusTokens';
 import { DataTable, StatCard, StatCardGrid } from "../../components/common";
 
 const STATUS_COLOR: Record<string, string> = {
-  completed: 'green', Completed: 'green', InProgress: 'orange', in_progress: 'orange',
-  planned: 'blue', Planned: 'blue', cancelled: 'red', Cancelled: 'red',
+  completed: toneToAntd('completed'), Completed: toneToAntd('completed'), InProgress: toneToAntd('in_progress'), in_progress: toneToAntd('in_progress'),
+  planned: toneToAntd('scheduled'), Planned: toneToAntd('scheduled'), cancelled: toneToAntd('cancelled'), Cancelled: toneToAntd('cancelled'),
 };
 
 export const DentalTreatmentPage: React.FC = () => {

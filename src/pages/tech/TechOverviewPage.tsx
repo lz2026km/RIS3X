@@ -18,11 +18,11 @@ import { t } from '../../i18n/appI18n'
 // 样式常量 (ops 深色主题, 与 TechOpsPage 对齐)
 // ============================================================
 const C = {
-  bg: '#0d1117',
-  panel: '#161b22',
-  border: '#30363d',
-  text: '#f0f6fc',
-  textMid: '#8b949e',
+  bg: 'var(--bg-primary, #0d1117)',
+  panel: 'var(--bg-card, #161b22)',
+  border: 'var(--border-default, #30363d)',
+  text: 'var(--text-primary, #f0f6fc)',
+  textMid: 'var(--text-muted, #8b949e)',
   textLight: '#6e7681',
   blue: '#3b82f6',
   green: '#4ade80',
@@ -582,7 +582,7 @@ function RoomGrid({ rooms }: { rooms: RoomStatus[] }) {
             {t('techOverview.roomQueue')} <b style={{ color: C.orange }}>{r.queueCount}</b> {t('techOverview.people')}
           </div>
           {r.currentExam ? (
-            <div style={{ background: '#0d1117', border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 10px' }}>
+            <div style={{ background: 'var(--bg-primary, #0d1117)', border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 10px' }}>
               <div style={{ fontSize: 11, color: C.textLight, marginBottom: 4 }}>{t('techOverview.inProgressExam', { time: fmtMin(r.currentExam.startedAt) })}</div>
               <div style={{ fontSize: 13, marginBottom: 6 }}>
                 <span style={{ color: C.text, fontWeight: 600 }}>{r.currentExam.patientName}</span>

@@ -260,12 +260,12 @@ const MedicalAlliancePage: React.FC = () => {
   return (
     <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
       <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>{t('medicalAlliance.title')}</h1>
-      <p style={{ color: '#666', marginBottom: 24 }}>{t('medicalAlliance.subtitle')}
+      <p style={{ color: 'var(--text-secondary, #475569)', marginBottom: 24 }}>{t('medicalAlliance.subtitle')}
         {/* [v3.0.6.11-88 Round10] /regional/alliance-referrals 后端未实现, MSW 演示数据 */}
         <span style={{ marginLeft: 12, fontSize: 12, padding: '2px 8px', background: '#fef3c7', color: '#d97706', borderRadius: 10 }}>{t('medicalAlliance.mswDemoTag')}</span>
       </p>
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 24, borderBottom: '2px solid #e5e7eb', paddingBottom: 8 }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 24, borderBottom: '2px solid var(--border-default, rgba(0,0,0,0.12))', paddingBottom: 8 }}>
         {(['members', 'referrals', 'dashboard', 'ops'] as const).map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)}
             style={{ padding: '8px 16px', border: 'none', background: activeTab === tab ? '#3b82f6' : 'transparent', color: activeTab === tab ? '#fff' : '#374151', borderRadius: 6, cursor: 'pointer', fontWeight: activeTab === tab ? 600 : 400 }}>
@@ -292,7 +292,7 @@ const MedicalAlliancePage: React.FC = () => {
             </thead>
             <tbody>
               {memberPager.pageData.map(m => (
-                <tr key={m.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                <tr key={m.id} style={{ borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>
                   <td style={tdStyle}>{m.name}</td>
                   <td style={tdStyle}>{m.level} / {m.type}</td>
                   <td style={tdStyle}>{m.region}</td>
@@ -343,7 +343,7 @@ const MedicalAlliancePage: React.FC = () => {
             </thead>
             <tbody>
               {referralPager.pageData.map(r => (
-                <tr key={r.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                <tr key={r.id} style={{ borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>
                   <td style={tdStyle}><strong>{r.patientName}</strong><br /><small>{r.patientId}</small></td>
                   <td style={tdStyle}>{r.fromMemberName}</td>
                   <td style={tdStyle}>{r.toMemberName}</td>
@@ -465,15 +465,15 @@ const MedicalAlliancePage: React.FC = () => {
                 <div key={s.id} style={{ padding: 14, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: `1px solid ${st.color}22` }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                     {s.status === 'offline' ? <WifiOff size={15} color="#dc2626" /> : <Wifi size={15} color="#16a34a" />}
-                    <b style={{ fontSize: 13, color: '#1e293b' }}>{s.name}</b>
+                    <b style={{ fontSize: 13, color: 'var(--text-primary, #1e293b)' }}>{s.name}</b>
                     {s.primary && <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 999, background: '#dbeafe', color: '#1e40af', fontWeight: 700 }}>{t('medicalAlliance.mainSite')}</span>}
                     <span style={{ marginLeft: 'auto', padding: '2px 10px', borderRadius: 999, fontSize: 11, fontWeight: 700, background: st.bg, color: st.color }}>{st.label}</span>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, fontSize: 11, color: '#6b7280' }}>
-                    <span>{t('medicalAlliance.studiesLabel')} <b style={{ color: '#1e293b' }}>{Number(s.studies ?? 0).toLocaleString()}</b></span>
-                    <span>{t('medicalAlliance.storageLabel')} <b style={{ color: '#1e293b' }}>{s.storage ?? '-'} TB</b></span>
+                    <span>{t('medicalAlliance.studiesLabel')} <b style={{ color: 'var(--text-primary, #1e293b)' }}>{Number(s.studies ?? 0).toLocaleString()}</b></span>
+                    <span>{t('medicalAlliance.storageLabel')} <b style={{ color: 'var(--text-primary, #1e293b)' }}>{s.storage ?? '-'} TB</b></span>
                     <span>{t('medicalAlliance.uptimeLabel')} <b style={{ color: Number(s.uptimePct ?? 0) >= 95 ? '#16a34a' : '#dc2626' }}>{s.uptimePct ?? '-'}%</b></span>
-                    <span>{t('medicalAlliance.latencyLabel')} <b style={{ color: '#1e293b' }}>{s.latencyMs ?? '-'} ms</b></span>
+                    <span>{t('medicalAlliance.latencyLabel')} <b style={{ color: 'var(--text-primary, #1e293b)' }}>{s.latencyMs ?? '-'} ms</b></span>
                   </div>
                   <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: lag ? '#d97706' : 'var(--text-secondary)' }}>
                     <Clock size={11} />
@@ -501,17 +501,17 @@ const MedicalAlliancePage: React.FC = () => {
                   const rate = f.count > 0 ? Math.round((f.completed / f.count) * 100) : 0
                   return (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <span style={{ width: 130, fontSize: 12, fontWeight: 600, color: '#1e293b', textAlign: 'right', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.from}</span>
+                      <span style={{ width: 130, fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #1e293b)', textAlign: 'right', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.from}</span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
                         <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
                           <div style={{ width: `${(f.count / max) * 90}%`, height: 10, background: '#3b82f6', borderRadius: '4px 0 0 4px', opacity: 0.5 + (f.count / max) * 0.5 }} />
                         </div>
-                        <ArrowRight size={13} color="#94a3b8" />
+                        <ArrowRight size={13} color="var(--text-muted, #94a3b8)" />
                         <div style={{ flex: 1 }}>
                           <div style={{ width: `${(f.count / max) * 90}%`, height: 10, background: '#10b981', borderRadius: '0 4px 4px 0' }} />
                         </div>
                       </div>
-                      <span style={{ width: 130, fontSize: 12, fontWeight: 600, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.to}</span>
+                      <span style={{ width: 130, fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #1e293b)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.to}</span>
                       <b style={{ width: 46, fontSize: 13, color: '#1e40af', textAlign: 'right' }}>{t('medicalAlliance.caseCount', { count: f.count })}</b>
                       <span style={{ width: 52, fontSize: 11, color: rate >= 80 ? '#16a34a' : '#d97706', textAlign: 'right' }}>{t('medicalAlliance.closureRate', { rate })}</span>
                     </div>
@@ -531,11 +531,11 @@ const MedicalAlliancePage: React.FC = () => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {sharedStats.map((d: any) => (
                   <div key={d.modality} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ width: 64, fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{d.modality}</span>
+                    <span style={{ width: 64, fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #1e293b)' }}>{d.modality}</span>
                     <div style={{ flex: 1, height: 10, background: '#f3f4f6', borderRadius: 5, overflow: 'hidden' }}>
                       <div style={{ width: `${(d.count / sharedTotal) * 100}%`, height: '100%', background: d.color, borderRadius: 5 }} />
                     </div>
-                    <b style={{ width: 56, fontSize: 12, textAlign: 'right', color: '#1e293b' }}>{d.count}</b>
+                    <b style={{ width: 56, fontSize: 12, textAlign: 'right', color: 'var(--text-primary, #1e293b)' }}>{d.count}</b>
                     <span style={{ width: 44, fontSize: 11, color: '#6b7280', textAlign: 'right' }}>{Math.round((d.count / sharedTotal) * 100)}%</span>
                   </div>
                 ))}
@@ -566,19 +566,19 @@ const MedicalAlliancePage: React.FC = () => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
                   <span style={{ color: '#6b7280' }}>{t('medicalAlliance.referralClosure')}</span>
-                  <b style={{ color: '#1e293b' }}>{slaMetrics.referralSla}%</b>
+                  <b style={{ color: 'var(--text-primary, #1e293b)' }}>{slaMetrics.referralSla}%</b>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
                   <span style={{ color: '#6b7280' }}>{t('medicalAlliance.orgOnlineRate')}</span>
-                  <b style={{ color: '#1e293b' }}>{slaMetrics.onlineRate}%</b>
+                  <b style={{ color: 'var(--text-primary, #1e293b)' }}>{slaMetrics.onlineRate}%</b>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
                   <span style={{ color: '#6b7280' }}>{t('medicalAlliance.urgentCompliance')}</span>
-                  <b style={{ color: '#1e293b' }}>{slaMetrics.urgentSla}%</b>
+                  <b style={{ color: 'var(--text-primary, #1e293b)' }}>{slaMetrics.urgentSla}%</b>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
                   <span style={{ color: '#6b7280' }}>{t('medicalAlliance.avgSyncLatency')}</span>
-                  <b style={{ color: '#1e293b' }}>{siteSummary.avgLatency} ms</b>
+                  <b style={{ color: 'var(--text-primary, #1e293b)' }}>{siteSummary.avgLatency} ms</b>
                 </div>
               </div>
               <div style={{ marginTop: 12, padding: '8px 10px', background: slaMetrics.compliance >= 90 ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', borderRadius: 6, fontSize: 11, color: slaMetrics.compliance >= 90 ? '#15803d' : '#92400e', display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -645,17 +645,17 @@ const MedicalAlliancePage: React.FC = () => {
                 }
                 const ok = e.status === 'success'
                 return (
-                  <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', background: '#f8fafc', borderRadius: 6, fontSize: 12, border: '1px solid #e2e8f0' }}>
+                  <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', background: 'var(--bg-primary, #f8fafc)', borderRadius: 6, fontSize: 12, border: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>
                     <span style={{
                       width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
                       background: ok ? '#16a34a' : '#dc2626',
                     }} />
-                    <b style={{ color: '#1e293b', width: 90 }}>{typeMap[e.type] ?? e.type}</b>
+                    <b style={{ color: 'var(--text-primary, #1e293b)', width: 90 }}>{typeMap[e.type] ?? e.type}</b>
                     <code style={{ fontSize: 11, color: '#6b7280', fontFamily: 'monospace' }}>{e.siteId}</code>
                     <span style={{ color: '#6b7280' }}>{t('medicalAlliance.eventData', { count: Number(e.count ?? 0), mb: Number(e.bytes ?? 0) })}</span>
                     <span style={{ color: '#6b7280' }}>{t('medicalAlliance.durationSuffix', { seconds: e.duration })}</span>
                     <span style={{ marginLeft: 'auto', color: ok ? '#16a34a' : '#dc2626', fontWeight: 700 }}>{ok ? t('medicalAlliance.success') : t('medicalAlliance.failed')}</span>
-                    <span style={{ color: '#94a3b8', fontSize: 11 }}>{e.timestamp ? new Date(e.timestamp).toLocaleString('zh-CN') : ''}</span>
+                    <span style={{ color: 'var(--text-muted, #94a3b8)', fontSize: 11 }}>{e.timestamp ? new Date(e.timestamp).toLocaleString('zh-CN') : ''}</span>
                   </div>
                 )
               })}
@@ -679,12 +679,12 @@ const MedicalAlliancePage: React.FC = () => {
                 const score = Math.max(0, Math.min(100, Math.round(uptime * 0.5 + Math.max(0, 100 - lagHours * 5) * 0.3 + Math.max(0, 100 - latency) * 0.2)))
                 const color = score >= 90 ? '#16a34a' : score >= 75 ? '#d97706' : '#dc2626'
                 return (
-                  <div key={s.id} style={{ padding: 12, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                  <div key={s.id} style={{ padding: 12, background: 'var(--bg-primary, #f8fafc)', borderRadius: 8, border: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                      <b style={{ fontSize: 12, color: '#1e293b', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</b>
+                      <b style={{ fontSize: 12, color: 'var(--text-primary, #1e293b)', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</b>
                       <span style={{ fontSize: 16, fontWeight: 800, color }}>{score}</span>
                     </div>
-                    <div style={{ height: 6, background: '#e5e7eb', borderRadius: 999, overflow: 'hidden' }}>
+                    <div style={{ height: 6, background: 'var(--border-default, rgba(0,0,0,0.12))', borderRadius: 999, overflow: 'hidden' }}>
                       <div style={{ width: `${score}%`, height: '100%', background: color, borderRadius: 999 }} />
                     </div>
                     <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#6b7280' }}>

@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.13-0",
-  "description": "G005 Radiology RIS v3.0.6.13-0 - DataTable Unification & UI Guardrails",
+  "version": "3.0.6.13-1",
+  "description": "G005 Radiology RIS v3.0.6.13-1 - Dark Theme Tokens, statusTokens & A11y",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

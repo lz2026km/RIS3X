@@ -8,6 +8,7 @@ import { dentalApi } from "../../services/api/dentalApi";
 import { LoadingBanner, ErrorBanner, AppEmpty } from "../../components/feedback";
 import { ActionButton, ExportButton } from "../../components/common";
 import { t } from "../../i18n/appI18n";
+import { severityColor, statusColor } from "../../theme/statusTokens";
 
 export const ToothChartPage: React.FC = () => {
   // [G005 2B] 写死 P100000 真实化: 患者下拉选择, 切换后重查牙位图
@@ -56,12 +57,12 @@ export const ToothChartPage: React.FC = () => {
   const FDI_ROW_4 = [41, 42, 43, 44, 45, 46, 47, 48];
 
   const STATUS_COLORS: Record<string, string> = {
-    Healthy: "#52c41a",
-    Caries: "#faad14",
-    Restored: "#1890ff",
-    Missing: "#d9d9d9",
+    Healthy: severityColor("success"),
+    Caries: severityColor("warning"),
+    Restored: severityColor("info"),
+    Missing: statusColor("neutral"),
     Crown: "#722ed1",
-    RootCanal: "#f5222d",
+    RootCanal: severityColor("critical"),
     Implant: "#13c2c2",
   };
 

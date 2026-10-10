@@ -43,6 +43,7 @@ import { PageHeader } from '../../components/common/PageHeader'
 import { ErrorBanner } from '../../components/feedback'
 import { StatCard, StatCardGrid } from '../../components/common/StatCard'
 import { t } from '../../i18n/appI18n'
+import { severityToAntd } from '../../theme/statusTokens'
 import {
   reportRulesApi,
   RULE_TYPE_LABELS,
@@ -68,7 +69,7 @@ import {
   CASE_SEVERITIES,
 } from '../../services/api/reportRulesApi'
 
-const SEVERITY_COLORS: Record<string, string> = { error: 'red', warning: 'orange', info: 'blue' }
+const SEVERITY_COLORS: Record<string, string> = { error: severityToAntd('critical'), warning: severityToAntd('warning'), info: severityToAntd('info') }
 const TYPE_COLORS: Record<string, string> = {
   missing_field: 'magenta',
   terminology: 'purple',

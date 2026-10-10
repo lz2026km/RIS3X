@@ -26,6 +26,7 @@ import {
 } from "antd";
 import { RefreshCw } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
+import { severityToAntd, toneToAntd } from '../../theme/statusTokens'
 import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 import {
   wechatApi, paymentApi, notificationChannelApi, satisfactionApi, selfRegistrationApi,
@@ -45,12 +46,12 @@ const splitList = (v: string) => v.split(/[,，、\s]+/).map((s) => s.trim()).fi
 
 const PAY_METHODS: PaymentMethod[] = ['WECHAT', 'ALIPAY', 'INSURANCE', 'CASH', 'MIXED']
 const PAY_ITEM_TYPES: PaymentOrderDto['itemType'][] = ['REGISTRATION', 'APPOINTMENT', 'EXAM', 'REPORT']
-const PAY_STATUS_COLOR: Record<string, string> = { CREATED: 'gold', PAID: 'green', REFUNDED: 'default', PARTIAL_REFUND: 'orange', CLOSED: 'default', FAILED: 'red' }
-const WX_LOG_COLOR: Record<string, string> = { SENT: 'green', FAILED: 'red', ARCHIVED: 'default' }
-const NC_STATUS_COLOR: Record<string, string> = { SENT: 'green', FAILED: 'red', PENDING: 'gold', RETRYING: 'blue' }
-const SENTIMENT_COLOR: Record<string, string> = { positive: 'green', neutral: 'default', negative: 'red' }
-const RISK_COLOR: Record<string, string> = { LOW: 'green', MEDIUM: 'orange', HIGH: 'red' }
-const CHECKIN_COLOR: Record<string, string> = { CHECKED_IN: 'green', ALREADY_CHECKED_IN: 'blue', BLOCKED: 'red' }
+const PAY_STATUS_COLOR: Record<string, string> = { CREATED: toneToAntd('pending'), PAID: toneToAntd('completed'), REFUNDED: toneToAntd('cancelled'), PARTIAL_REFUND: toneToAntd('on_hold'), CLOSED: toneToAntd('closed'), FAILED: toneToAntd('failed') }
+const WX_LOG_COLOR: Record<string, string> = { SENT: toneToAntd('completed'), FAILED: toneToAntd('failed'), ARCHIVED: toneToAntd('archived') }
+const NC_STATUS_COLOR: Record<string, string> = { SENT: toneToAntd('completed'), FAILED: toneToAntd('failed'), PENDING: toneToAntd('pending'), RETRYING: toneToAntd('retrying') }
+const SENTIMENT_COLOR: Record<string, string> = { positive: severityToAntd('success'), neutral: severityToAntd('neutral'), negative: severityToAntd('critical') }
+const RISK_COLOR: Record<string, string> = { LOW: severityToAntd('low'), MEDIUM: severityToAntd('warning'), HIGH: severityToAntd('high') }
+const CHECKIN_COLOR: Record<string, string> = { CHECKED_IN: toneToAntd('completed'), ALREADY_CHECKED_IN: toneToAntd('in_progress'), BLOCKED: toneToAntd('blocked') }
 
 type WxBindMethod = 'idCard' | 'phone' | 'empi'
 

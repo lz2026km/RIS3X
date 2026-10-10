@@ -255,10 +255,10 @@ export default function AsrDictationPage() {
               {streaming ? <Square size={26} color="#dc2626" /> : <Mic size={26} color="#3b82f6" />}
             </div>
             <div style={{ flex: 1, minWidth: 220 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary, #1e293b)' }}>
                 {streaming ? (paused ? t('w17.asr.paused') : t('w17.asr.dictating')) : t('w17.asr.idle')}
               </div>
-              <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginTop: 2 }}>
                 {session ? `${t('w17.asr.session')}: ${session.id.slice(0, 12)} · ${t('w17.asr.chars')}: ${stats.chars}` : t('w17.asr.sessionHint')}
               </div>
             </div>
@@ -293,13 +293,13 @@ export default function AsrDictationPage() {
           {/* 实时流 + 分区 */}
           {session && (
             <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 14 }}>
-              <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 12, background: '#f8fafc', minHeight: 160 }}>
+              <div style={{ border: '1px solid var(--border-default, rgba(0,0,0,0.12))', borderRadius: 8, padding: 12, background: 'var(--bg-primary, #f8fafc)', minHeight: 160 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 12, fontWeight: 600, color: '#334155' }}>
                   <Activity size={13} color="#3b82f6" />{t('w17.asr.realtimeText')}
                   {streaming && <span style={{ color: '#dc2626', fontSize: 11, animation: 'pulse 1.2s infinite' }}>●</span>}
                 </div>
                 <div style={{ fontSize: 13, lineHeight: 1.9, color: '#0f172a', whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>
-                  {session.text || <span style={{ color: '#94a3b8' }}>{t('w17.asr.streamEmpty')}</span>}
+                  {session.text || <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{t('w17.asr.streamEmpty')}</span>}
                 </div>
                 {lastCommand && (
                   <div style={{ marginTop: 10, padding: '6px 10px', background: '#eff6ff', borderRadius: 6, fontSize: 12, color: '#1d4ed8', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -316,13 +316,13 @@ export default function AsrDictationPage() {
                     <div
                       key={key}
                       onClick={() => setActiveSection(key)}
-                      style={{ padding: '8px 10px', borderRadius: 6, border: active ? '1.5px solid #3b82f6' : '1px solid #e2e8f0', background: active ? '#eff6ff' : '#fff', marginBottom: 6, cursor: 'pointer' }}
+                      style={{ padding: '8px 10px', borderRadius: 6, border: active ? '1.5px solid #3b82f6' : '1px solid var(--border-default, rgba(0,0,0,0.12))', background: active ? '#eff6ff' : 'var(--bg-card, #ffffff)', marginBottom: 6, cursor: 'pointer' }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 600, color: active ? '#1d4ed8' : '#475569' }}>
                         <span>{t(`w17.asr.section.${key}`)}</span>
-                        <span style={{ color: '#94a3b8', fontWeight: 400 }}>{text.length}{t('w17.asr.chars')}</span>
+                        <span style={{ color: 'var(--text-muted, #94a3b8)', fontWeight: 400 }}>{text.length}{t('w17.asr.chars')}</span>
                       </div>
-                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{text || '—'}</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-secondary, #475569)', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{text || '—'}</div>
                     </div>
                   )
                 })}
@@ -343,14 +343,14 @@ export default function AsrDictationPage() {
               { label: t('w17.asr.statHotwordHits'), value: stats.hits },
               { label: t('w17.asr.statCommands'), value: session?.commands.length ?? 0 },
             ].map((s) => (
-              <div key={s.label} style={{ flex: 1, minWidth: 110, background: '#f8fafc', borderRadius: 8, padding: '10px 14px', textAlign: 'center' }}>
-                <div style={{ fontSize: 20, fontWeight: 700, color: '#1e293b' }}>{s.value}</div>
-                <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>{s.label}</div>
+              <div key={s.label} style={{ flex: 1, minWidth: 110, background: 'var(--bg-primary, #f8fafc)', borderRadius: 8, padding: '10px 14px', textAlign: 'center' }}>
+                <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary, #1e293b)' }}>{s.value}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary, #475569)', marginTop: 2 }}>{s.label}</div>
               </div>
             ))}
           </div>
 
-          <div style={{ marginTop: 12, fontSize: 12, color: '#94a3b8' }}>
+          <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-muted, #94a3b8)' }}>
             {t('w17.asr.commandListHint')} 「下一段」·「保存」·「提交」·「暂停」·「继续」
           </div>
         </div>
@@ -358,13 +358,13 @@ export default function AsrDictationPage() {
         {/* 术语库 (热词) */}
         <div style={{ marginTop: 16, background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary, #1e293b)', margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
               <BookOpen size={16} color="#8b5cf6" />{t('w17.asr.hotwordBank')}
             </h3>
-            <span style={{ fontSize: 12, color: '#64748b' }}>{t('w17.asr.hotwordCount')}: {hotwords.length}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary, #475569)' }}>{t('w17.asr.hotwordCount')}: {hotwords.length}</span>
           </div>
 
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginBottom: 12, padding: 12, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginBottom: 12, padding: 12, background: 'var(--bg-primary, #f8fafc)', borderRadius: 8, border: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>
             <input
               value={hotwordForm.term}
               onChange={(e) => setHotwordForm((f) => ({ ...f, term: e.target.value }))}
@@ -395,25 +395,25 @@ export default function AsrDictationPage() {
             )}
           </div>
 
-          <div style={{ overflowX: 'auto', maxHeight: 300, overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: 8 }}>
+          <div style={{ overflowX: 'auto', maxHeight: 300, overflowY: 'auto', border: '1px solid var(--border-default, rgba(0,0,0,0.12))', borderRadius: 8 }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-              <thead style={{ position: 'sticky', top: 0, background: '#f1f5f9' }}>
+              <thead style={{ position: 'sticky', top: 0, background: 'var(--bg-primary, #f8fafc)' }}>
                 <tr>
                   {[t('w17.asr.colTerm'), t('w17.asr.colCategory'), t('w17.asr.colPriority'), t('w17.asr.colType'), t('w17.asr.colActions')].map((h) => (
-                    <th key={h} style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
+                    <th key={h} style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap', borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {hotwords.slice(0, 150).map((entry) => (
-                  <tr key={entry.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <tr key={entry.id} style={{ borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>
                     <td style={{ padding: '8px 10px', fontWeight: 500 }}>{entry.term}</td>
                     <td style={{ padding: '8px 10px' }}>
                       <span style={{ fontSize: 11, fontWeight: 600, color: '#fff', background: CATEGORY_COLORS[entry.category] ?? '#64748b', padding: '2px 8px', borderRadius: 10 }}>{entry.category}</span>
                     </td>
-                    <td style={{ padding: '8px 10px', color: '#64748b' }}>{entry.priority}</td>
+                    <td style={{ padding: '8px 10px', color: 'var(--text-secondary, #475569)' }}>{entry.priority}</td>
                     <td style={{ padding: '8px 10px' }}>
-                      <span style={{ fontSize: 11, fontWeight: 600, color: entry.builtin ? '#64748b' : '#8b5cf6', background: entry.builtin ? '#f1f5f9' : '#ede9fe', padding: '2px 8px', borderRadius: 4 }}>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: entry.builtin ? 'var(--text-secondary, #475569)' : '#8b5cf6', background: entry.builtin ? 'var(--bg-primary, #f8fafc)' : '#ede9fe', padding: '2px 8px', borderRadius: 4 }}>
                         {entry.builtin ? t('w17.asr.builtin') : t('w17.asr.custom')}
                       </span>
                     </td>
@@ -424,12 +424,12 @@ export default function AsrDictationPage() {
                           <button onClick={() => void handleHotwordDelete(entry.id)} title={t('w17.asr.delete')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444' }}><Trash2 size={14} /></button>
                         </>
                       )}
-                      {entry.builtin && <span style={{ fontSize: 11, color: '#94a3b8' }}>—</span>}
+                      {entry.builtin && <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>—</span>}
                     </td>
                   </tr>
                 ))}
                 {hotwords.length === 0 && (
-                  <tr><td colSpan={5} style={{ padding: 24, textAlign: 'center', color: '#94a3b8' }}>{t('w17.asr.hotwordEmpty')}</td></tr>
+                  <tr><td colSpan={5} style={{ padding: 24, textAlign: 'center', color: 'var(--text-muted, #94a3b8)' }}>{t('w17.asr.hotwordEmpty')}</td></tr>
                 )}
               </tbody>
             </table>

@@ -36,6 +36,7 @@ import {
 } from "../../components/common";
 import { DataTable } from "../../components/common/DataTable";
 import { t } from "../../i18n/appI18n";
+import { severityToAntd } from "../../theme/statusTokens";
 import {
   AI_STATUS_KEYS,
   AI_VENDOR_KEYS,
@@ -51,9 +52,9 @@ import {
 const { Text } = Typography;
 
 const STATUS_COLOR: Record<AiModelStatus, string> = {
-  deployed: "green",
-  gray: "gold",
-  offline: "red",
+  deployed: severityToAntd("success"),
+  gray: severityToAntd("warning"),
+  offline: severityToAntd("critical"),
 };
 
 const VENDOR_COLOR: Record<AiVendorKey, string> = {

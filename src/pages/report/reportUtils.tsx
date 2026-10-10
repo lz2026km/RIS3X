@@ -10,9 +10,9 @@ export const SUCCESS = '#059669'
 export const WARNING = '#d97706'
 export const DANGER = '#dc2626'
 export const PURPLE = '#7c3aed'
-export const GRAY = '#64748b'
+export const GRAY = 'var(--text-secondary, #475569)'
 export const BG = 'var(--bg-primary)'
-export const WHITE = '#ffffff'
+export const WHITE = 'var(--bg-card, #ffffff)'
 
 export const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string; border: string }> = {
   待审核: { label: '待审核', bg: '#ede9fe', color: '#6d28d9', border: '#c4b5fd' },

@@ -12,11 +12,12 @@ import {
 import { DataTable } from '../../components/common/DataTable'
 import { usePagination } from '../../hooks/usePagination'
 import { t } from '../../i18n/appI18n'
+import { toneToAntd } from '../../theme/statusTokens'
 
 const INTERFACES: InterfaceType[] = ['HL7', 'FHIR', 'DICOM', 'ORU', 'XDS']
 
 const IFACE_COLOR: Record<string, string> = { HL7: 'purple', FHIR: 'geekblue', DICOM: 'cyan', ORU: 'green', XDS: 'gold' }
-const STATUS_COLOR: Record<string, string> = { success: 'green', fail: 'red', retry: 'orange', pending: 'default', retrying: 'orange', dead_letter: 'volcano' }
+const STATUS_COLOR: Record<string, string> = { success: toneToAntd('success'), fail: toneToAntd('failed'), retry: toneToAntd('retry'), pending: toneToAntd('pending'), retrying: toneToAntd('retrying'), dead_letter: toneToAntd('blocked') }
 
 const FALLBACK_MESSAGES: InterfaceMessageRecord[] = [
   { id: 'MSG-00001', interfaceType: 'HL7', direction: 'OUTBOUND', messageType: 'ORU^R01', status: 'success', ackStatus: 'AA', retryCount: 0, endpoint: 'mllp://his.local/1', summary: '报告结果发送 HIS', createdAt: new Date(Date.now() - 5 * 60000).toISOString() },

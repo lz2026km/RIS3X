@@ -24,6 +24,7 @@ import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../componen
 import { Plus, ClipboardList, RefreshCw, PlayCircle, CheckCircle2, Trash2 } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { t } from '../../i18n/appI18n';
+import { toneToAntd } from '../../theme/statusTokens';
 
 const { TextArea } = Input;
 
@@ -35,10 +36,10 @@ const planStatusLabel = (s: string): string =>
           : s;
 
 const PLAN_STATUS_COLOR: Record<string, string> = {
-  planned: 'default',
-  in_progress: 'blue',
-  completed: 'green',
-  pending: 'orange',
+  planned: toneToAntd('scheduled'),
+  in_progress: toneToAntd('in_progress'),
+  completed: toneToAntd('completed'),
+  pending: toneToAntd('pending'),
 };
 
 const PLAN_TYPE_OPTIONS = ['种植', '根管治疗', '正畸-正颌', '颌面外科', '修复'].map((x) => ({ value: x, label: x }));
@@ -51,9 +52,9 @@ const PATIENT_OPTIONS = [
 ];
 
 const TIMELINE_STATUS_COLOR: Record<string, string> = {
-  completed: 'green',
-  in_progress: 'blue',
-  pending: 'default',
+  completed: toneToAntd('completed'),
+  in_progress: toneToAntd('in_progress'),
+  pending: toneToAntd('pending'),
 };
 
 export const TreatmentPlanCenterPage: React.FC = () => {

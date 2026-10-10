@@ -894,7 +894,10 @@ const Patient360View = () => {
               return (
                 <div
                   key={patient.id}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => setSelectedPatient(pData)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedPatient(pData) } }}
                   style={{
                     padding: '12px',
                     borderRadius: '8px',
@@ -2095,6 +2098,9 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
           />
           {searchQuery && (
             <div
+              role="button"
+              tabIndex={0}
+              aria-label={t('clinicalData.clear')}
               style={{
                 position: 'absolute',
                 right: '14px',
@@ -2104,6 +2110,7 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
                 color: COLORS.textMuted,
               }}
               onClick={() => handleSearch('')}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSearch('') } }}
             >
               <X size={18} />
             </div>
@@ -2267,6 +2274,8 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
             {recentSearches.map((term, i) => (
               <div
                 key={i}
+                role="button"
+                tabIndex={0}
                 style={{
                   padding: '8px 14px',
                   backgroundColor: COLORS.bgGray,
@@ -2278,6 +2287,7 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
                   gap: '6px',
                 }}
                 onClick={() => handleSearch(term)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSearch(term) } }}
               >
                 <Search size={14} />
                 {term}

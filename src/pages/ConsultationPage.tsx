@@ -18,10 +18,10 @@ const ACCENT = '#3b82f6'
 const SUCCESS = '#059669'
 const WARNING = '#d97706'
 const DANGER = '#dc2626'
-const GRAY = '#64748b'
+const GRAY = 'var(--text-secondary, #475569)'
 const LIGHT_BG = 'var(--bg-card)'
 const BORDER = 'var(--border-color)'
-const WHITE = '#ffffff'
+const WHITE = 'var(--bg-card, #ffffff)'
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
   '待回复': { bg: '#f59e0b22', color: '#f59e0b', label: '待回复' },
@@ -325,12 +325,12 @@ export default function ConsultationPage() {
   }
 
   const renderRegResultRow = (c: ConsultationDto) => (
-    <div key={c.id} onClick={() => { setSelectedId(c.id); setActiveTab('会诊列表') }} style={{ padding: '10px 14px', borderBottom: `1px solid ${BORDER}`, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, background: 'var(--bg-card)' }}>
+    <div key={c.id} role="button" tabIndex={0} onClick={() => { setSelectedId(c.id); setActiveTab('会诊列表') }} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedId(c.id); setActiveTab('会诊列表') } }} style={{ padding: '10px 14px', borderBottom: `1px solid ${BORDER}`, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, background: 'var(--bg-card)' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{c.patientName || '—'} <span style={{ fontWeight: 400, color: GRAY, fontSize: 12 }}>#{c.id}</span></div>
         <div style={{ fontSize: 12, color: GRAY }}>{c.modality} · {c.bodyPart} · {c.consultationType || c.type}</div>
       </div>
-      <StatusTag size="md" style={{ fontWeight: 700 }} tone={{ bg: STATUS_CONFIG[c.status]?.bg ?? '#f1f5f9', border: 'transparent', color: STATUS_CONFIG[c.status]?.color ?? GRAY, dot: STATUS_CONFIG[c.status]?.color ?? GRAY }}>
+      <StatusTag size="md" style={{ fontWeight: 700 }} tone={{ bg: STATUS_CONFIG[c.status]?.bg ?? 'var(--bg-primary, #f8fafc)', border: 'transparent', color: STATUS_CONFIG[c.status]?.color ?? GRAY, dot: STATUS_CONFIG[c.status]?.color ?? GRAY }}>
         {STATUS_CONFIG[c.status]?.label ?? c.status}
       </StatusTag>
     </div>
@@ -599,6 +599,15 @@ export default function ConsultationPage() {
     setIsPlaying(false)
   }
 
+  const openConsultationRecording = (consultationId: string) => {
+    const archiveId = consultationVideoMap[consultationId]
+    const archive = mockRecordingArchives.find(a => a.id === archiveId)
+    if (archive) {
+      setSelectedArchive(archive)
+      setVideoModalOpen(true)
+    }
+  }
+
   const handleDownloadArchive = (archive: RecordingArchive) => {
     showToast(`开始下载: ${archive.patientName}_${archive.recordTime.replace(/:/g, '-')}.mp4`, 'progress')
   }
@@ -818,7 +827,7 @@ export default function ConsultationPage() {
                     >
                       {f}
                       <span style={{
-                        background: isActive ? 'rgba(255,255,255,0.2)' : '#f1f5f9',
+                        background: isActive ? 'rgba(255,255,255,0.2)' : 'var(--bg-primary, #f8fafc)',
                         color: isActive ? WHITE : GRAY,
                         borderRadius: 10,
                         padding: '1px 6px',
@@ -844,7 +853,10 @@ export default function ConsultationPage() {
                   return (
                     <div
                       key={c.id}
+                      role="button"
+                      tabIndex={0}
                       onClick={() => handleSelectConsultation(c.id)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectConsultation(c.id) } }}
                       style={{
                         padding: '14px 16px',
                         borderBottom: `1px solid ${BORDER}`,
@@ -866,16 +878,15 @@ export default function ConsultationPage() {
                           )}
                           {hasVideo && (
                             <span
+                              role="button"
+                              tabIndex={0}
+                              aria-label={t('consultation.playRecording')}
                               style={{ padding: '1px 6px', background: 'var(--color-error-bg)', color: DANGER, borderRadius: 4, fontSize: 12, display: 'flex', alignItems: 'center', gap: 2, cursor: 'pointer' }}
                               onClick={(e) => {
                                 e.stopPropagation()
-                                const archiveId = consultationVideoMap[c.id]
-                                const archive = mockRecordingArchives.find(a => a.id === archiveId)
-                                if (archive) {
-                                  setSelectedArchive(archive)
-                                  setVideoModalOpen(true)
-                                }
+                                openConsultationRecording(c.id)
                               }}
+                              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); openConsultationRecording(c.id) } }}
                               title={t('consultation.playRecording')}
                             >
                               {t('consultation.video')}
@@ -942,15 +953,12 @@ export default function ConsultationPage() {
                           )}
                           {consultationVideoMap[selected.id] && (
                             <span
+                              role="button"
+                              tabIndex={0}
+                              aria-label={t('consultation.playRecording')}
                               style={{ padding: '2px 8px', background: 'var(--color-error-bg)', color: DANGER, borderRadius: 4, fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}
-                              onClick={() => {
-                                const archiveId = consultationVideoMap[selected.id]
-                                const archive = mockRecordingArchives.find(a => a.id === archiveId)
-                                if (archive) {
-                                  setSelectedArchive(archive)
-                                  setVideoModalOpen(true)
-                                }
-                              }}
+                              onClick={() => openConsultationRecording(selected.id)}
+                              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openConsultationRecording(selected.id) } }}
                             >
                               <Film size={11} />{t('consultation.hasVideo')}
                             </span>
@@ -1353,7 +1361,7 @@ export default function ConsultationPage() {
                         height: 48,
                         borderRadius: '50%',
                         background: 'var(--bg-card)',
-                        border: '2px solid #64748b',
+                        border: '2px solid var(--text-secondary, #475569)',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -1480,7 +1488,11 @@ export default function ConsultationPage() {
 
                     {/* 进度条 */}
                     <div
+                      role="button"
+                      tabIndex={0}
+                      aria-label={t('consultation.videoPlayback')}
                       onClick={handleSeek}
+                      onKeyDown={(e) => { if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); setVideoProgress(p => Math.max(0, Math.min(100, p + (e.key === 'ArrowLeft' ? -5 : 5)))) } }}
                       style={{
                         flex: 1,
                         height: 6,
@@ -1635,7 +1647,7 @@ export default function ConsultationPage() {
                             style={{
                               padding: '4px 10px',
                               borderRadius: 4,
-                              background: archive.status === '可用' ? '#f0f7ff' : '#f1f5f9',
+                              background: archive.status === '可用' ? '#f0f7ff' : 'var(--bg-primary, #f8fafc)',
                               border: `1px solid ${archive.status === '可用' ? ACCENT : BORDER}`,
                               color: archive.status === '可用' ? ACCENT : GRAY,
                               fontSize: 12,
@@ -1654,7 +1666,7 @@ export default function ConsultationPage() {
                             style={{
                               padding: '4px 10px',
                               borderRadius: 4,
-                              background: archive.status === '可用' ? '#f0f7ff' : '#f1f5f9',
+                              background: archive.status === '可用' ? '#f0f7ff' : 'var(--bg-primary, #f8fafc)',
                               border: `1px solid ${archive.status === '可用' ? ACCENT : BORDER}`,
                               color: archive.status === '可用' ? ACCENT : GRAY,
                               fontSize: 12,
@@ -1999,7 +2011,11 @@ export default function ConsultationPage() {
 
                   {/* Progress */}
                   <div
+                    role="button"
+                    tabIndex={0}
+                    aria-label={t('consultation.videoPlayback')}
                     onClick={handleSeek}
+                    onKeyDown={(e) => { if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); setVideoProgress(p => Math.max(0, Math.min(100, p + (e.key === 'ArrowLeft' ? -5 : 5)))) } }}
                     style={{
                       flex: 1,
                       height: 8,
@@ -2159,7 +2175,7 @@ export default function ConsultationPage() {
                 <X size={20} />
               </button>
             </div>
-            <div style={{ border: `2px dashed ${BORDER}`, borderRadius: 12, padding: '32px 16px', textAlign: 'center', marginBottom: 16, cursor: 'pointer' }} onClick={() => uploadInputRef.current?.click()}>
+            <div role="button" tabIndex={0} style={{ border: `2px dashed ${BORDER}`, borderRadius: 12, padding: '32px 16px', textAlign: 'center', marginBottom: 16, cursor: 'pointer' }} onClick={() => uploadInputRef.current?.click()} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); uploadInputRef.current?.click() } }}>
               <Upload size={32} color={GRAY} style={{ marginBottom: 8 }} />
               <div style={{ fontSize: 13, color: GRAY, marginBottom: 8 }}>{t('consultation.dragDropHint')}</div>
               <div style={{ fontSize: 12, color: GRAY }}>{t('consultation.supportedFormats')}</div>

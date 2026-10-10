@@ -59,7 +59,11 @@ export const InstitutionList: React.FC<InstitutionListProps> = ({ selectedInstit
     <div style={styles.leftPanel}>
       <div style={styles.panelHeader}><span>{t('regionalReport.institutions')}</span><span style={{ fontSize: '12px', fontWeight: 400, color: COLORS.textMuted }}>{institutions.length}{t('regionalReport.institutionsUnit')}</span></div>
       <div style={{ padding: '8px' }}>
-        <div style={{ ...styles.listItem, ...(selectedInstitution === 'all' ? styles.listItemActive : {}) }} onClick={() => onSelect('all')}
+        <div style={{ ...styles.listItem, ...(selectedInstitution === 'all' ? styles.listItemActive : {}) }}
+          role="button"
+          tabIndex={0}
+          onClick={() => onSelect('all')}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect('all') } }}
           onMouseEnter={e => { if (selectedInstitution !== 'all') e.currentTarget.style.backgroundColor = 'var(--bg-card)' }}
           onMouseLeave={e => { if (selectedInstitution !== 'all') e.currentTarget.style.backgroundColor = 'transparent' }}>
           <Building size={16} style={{ color: COLORS.primary }} />
@@ -67,7 +71,11 @@ export const InstitutionList: React.FC<InstitutionListProps> = ({ selectedInstit
           <span style={{ ...styles.badge, backgroundColor: 'var(--color-info-bg)', color: COLORS.primary }}>{institutions.reduce((sum, i) => sum + i.reportCount, 0)}</span>
         </div>
         {institutions.map(inst => (
-          <div key={inst.id} style={{ ...styles.listItem, ...(selectedInstitution === inst.id ? styles.listItemActive : {}) }} onClick={() => onSelect(inst.id)}
+          <div key={inst.id} style={{ ...styles.listItem, ...(selectedInstitution === inst.id ? styles.listItemActive : {}) }}
+            role="button"
+            tabIndex={0}
+            onClick={() => onSelect(inst.id)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(inst.id) } }}
             onMouseEnter={e => { if (selectedInstitution !== inst.id) e.currentTarget.style.backgroundColor = 'var(--bg-card)' }}
             onMouseLeave={e => { if (selectedInstitution !== inst.id) e.currentTarget.style.backgroundColor = 'transparent' }}>
             <Building2 size={16} style={{ color: COLORS.secondary }} />
@@ -221,7 +229,13 @@ export const ConsultationList: React.FC<ConsultationListProps> = ({
             columns={consultationColumns}
             scroll={{ x: 'max-content' }}
             emptyText={t('regionalReport.noConsultRecords')}
-            onRow={(c) => ({ onClick: () => onSelect(c), style: { cursor: 'pointer', background: selectedConsultation?.id === c.id ? 'var(--color-info-bg)' : undefined } })}
+            onRow={(c) => ({
+              role: 'button',
+              tabIndex: 0,
+              onClick: () => onSelect(c),
+              onKeyDown: (e) => { if (e.target !== e.currentTarget) return; if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(c) } },
+              style: { cursor: 'pointer', background: selectedConsultation?.id === c.id ? 'var(--color-info-bg)' : undefined },
+            })}
           />
         </div>
       )}
@@ -300,7 +314,13 @@ export const ReportList: React.FC<ReportListProps> = ({ reports, selectedReport,
           dataSource={reports}
           columns={reportColumns}
           scroll={{ x: 'max-content' }}
-          onRow={(r) => ({ onClick: () => onSelect(r), style: { cursor: 'pointer', background: selectedReport?.id === r.id ? 'var(--color-info-bg)' : undefined } })}
+          onRow={(r) => ({
+            role: 'button',
+            tabIndex: 0,
+            onClick: () => onSelect(r),
+            onKeyDown: (e) => { if (e.target !== e.currentTarget) return; if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(r) } },
+            style: { cursor: 'pointer', background: selectedReport?.id === r.id ? 'var(--color-info-bg)' : undefined },
+          })}
         />
       </div>
     </div>
@@ -356,7 +376,13 @@ export const RemoteDiagnosisList: React.FC<RemoteDiagnosisListProps> = ({ diagno
           dataSource={diagnoses}
           columns={remoteColumns}
           scroll={{ x: 'max-content' }}
-          onRow={(rd) => ({ onClick: () => onSelect(rd), style: { cursor: 'pointer', background: selectedRemoteDiagnosis?.id === rd.id ? 'var(--color-info-bg)' : undefined } })}
+          onRow={(rd) => ({
+            role: 'button',
+            tabIndex: 0,
+            onClick: () => onSelect(rd),
+            onKeyDown: (e) => { if (e.target !== e.currentTarget) return; if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(rd) } },
+            style: { cursor: 'pointer', background: selectedRemoteDiagnosis?.id === rd.id ? 'var(--color-info-bg)' : undefined },
+          })}
         />
       </div>
     </div>
@@ -406,7 +432,13 @@ export const CoSignList: React.FC<CoSignListProps> = ({ records, selectedCoSign,
           dataSource={records}
           columns={coSignColumns}
           scroll={{ x: 'max-content' }}
-          onRow={(cs) => ({ onClick: () => onSelect(cs), style: { cursor: 'pointer', background: selectedCoSign?.id === cs.id ? 'var(--color-info-bg)' : undefined } })}
+          onRow={(cs) => ({
+            role: 'button',
+            tabIndex: 0,
+            onClick: () => onSelect(cs),
+            onKeyDown: (e) => { if (e.target !== e.currentTarget) return; if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(cs) } },
+            style: { cursor: 'pointer', background: selectedCoSign?.id === cs.id ? 'var(--color-info-bg)' : undefined },
+          })}
         />
       </div>
     </div>

@@ -9,6 +9,7 @@ import { Alert, Button, Card, Empty, Select, Spin, Tag } from 'antd'
 import { Activity, AlertTriangle, Heart, HeartPulse, RefreshCw, Stethoscope } from 'lucide-react'
 import { cardiacAiApi, type CardiacAiResult, type CardiacStenosis } from '../../services/api/cardiacAiApi'
 import { t } from '../../i18n/appI18n'
+import { severityColor } from '../../theme/statusTokens'
 
 // 演示回退数据 (仅当真实接口不可用时)
 const DEMO_RESULTS: CardiacAiResult[] = [
@@ -59,7 +60,7 @@ const VESSEL_PATHS: Array<{ vessel: string; d: string; labelX: number; labelY: n
 ]
 
 const SEVERITY_COLOR: Record<string, string> = {
-  normal: '#16a34a', mild: '#ca8a04', moderate: '#ea580c', severe: '#dc2626', occluded: '#7f1d1d',
+  normal: severityColor('normal'), mild: severityColor('warning'), moderate: severityColor('urgent'), severe: severityColor('critical'), occluded: severityColor('life_threatening'),
 }
 
 const SEVERITY_LABEL: Record<string, string> = {

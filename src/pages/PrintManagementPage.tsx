@@ -1365,7 +1365,10 @@ export default function PrintManagementPage() {
           {printers.filter(p => p.name.toLowerCase().includes(searchKeyword.toLowerCase())).map(printer => (
             <div
               key={printer.id}
+              role="button"
+              tabIndex={0}
               onClick={() => handleOpenPrinterModal(printer)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleOpenPrinterModal(printer) } }}
               style={{
                 padding: 10, borderRadius: 4, border: `1px solid ${C.border}`,
                 cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -1488,7 +1491,10 @@ export default function PrintManagementPage() {
           {dicomPresets.map(preset => (
             <div
               key={preset.id}
+              role="button"
+              tabIndex={0}
               onClick={() => setSelectedPreset(preset.id)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedPreset(preset.id) } }}
               style={{
                 padding: 10, borderRadius: 4, border: `1px solid ${C.border}`,
                 cursor: 'pointer',
@@ -1637,9 +1643,18 @@ export default function PrintManagementPage() {
             {printHistory.slice(0, 5).map((item, idx) => (
               <div
                 key={item.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => {
                   const key = `batch-${idx}`
                   setSelectedQueueItems(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key])
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    const key = `batch-${idx}`
+                    setSelectedQueueItems(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key])
+                  }
                 }}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px',
@@ -1651,6 +1666,7 @@ export default function PrintManagementPage() {
                   type="checkbox"
                   checked={selectedQueueItems.includes(`batch-${idx}`)}
                   onChange={() => {}}
+                  tabIndex={-1}
                   style={{ accentColor: C.primary }}
                 />
                 <span style={{ fontSize: 12, color: C.textDark }}>{item.patientName}</span>

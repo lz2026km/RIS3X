@@ -436,11 +436,14 @@ const DicomViewer: React.FC = () => {
         {[...Array(6)].map((_, idx) => (
           <div
             key={idx}
+            role="button"
+            tabIndex={0}
             style={{
               ...styles.dicomImage,
               ...(activeImage === idx ? styles.dicomImageActive : {}),
             }}
             onClick={() => setActiveImage(idx)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveImage(idx) } }}
           >
             <div style={styles.dicomPlaceholder}>
               <div style={styles.dicomImageContent}>

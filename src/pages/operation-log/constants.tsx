@@ -8,9 +8,9 @@ export const SUCCESS = '#059669'
 export const WARNING = '#d97706'
 export const DANGER = '#dc2626'
 export const PURPLE = '#7c3aed'
-export const GRAY = '#64748b'
-export const BG = '#f8fafc'
-export const WHITE = '#ffffff'
+export const GRAY = 'var(--text-secondary, #475569)'
+export const BG = 'var(--bg-primary, #f8fafc)'
+export const WHITE = 'var(--bg-card, #ffffff)'
 
 export const ACTION_TYPES = ['全部', '修改报告', '审核通过', '审核驳回', '登录', '登出', '导出数据', '修改设置', '批量审核', '打印报告', '数据导入', '系统维护']
 export const MODULES = ['全部', '报告管理', '检查管理', '患者管理', '设备管理', '系统设置', '统计报表', '预约管理']

@@ -189,7 +189,7 @@ export default function FinancialReportsPage() {
   }
 
   return (
-    <div style={{ background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+    <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><FileSpreadsheet size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('financeReport.title')}</span></div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -200,7 +200,7 @@ export default function FinancialReportsPage() {
 
       <div style={{ display: 'flex', gap: 8, padding: '20px 24px 0' }}>
         {(['pl', 'kpi'] as const).map(tabKey => (
-          <button key={tabKey} onClick={() => setTab(tabKey)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: tab === tabKey ? '#1e40af' : '#21262d', color: tab === tabKey ? '#fff' : '#8b949e', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button key={tabKey} onClick={() => setTab(tabKey)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: tab === tabKey ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: tab === tabKey ? '#fff' : 'var(--text-muted, #8b949e)', display: 'flex', alignItems: 'center', gap: 6 }}>
             {tabKey === 'pl' ? <BarChart3 size={14} /> : <Activity size={14} />}
             {tabKey === 'pl' ? t('financeReport.pl') : t('financeReport.kpi')}
           </button>
@@ -220,37 +220,37 @@ export default function FinancialReportsPage() {
       <div style={{ padding: '20px 24px' }}>
         {tab === 'pl' ? (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-            <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
+            <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20 }}>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>{t('financeReport.plTitle')} — {periodLabel} {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>{t('financeReport.realtimeNote')}</span>}</div>
-              <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 16 }}>{t('financeReport.unitYuan')}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 16 }}>{t('financeReport.unitYuan')}</div>
               {plData.map((r, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #21262d', fontSize: 13 }}>
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--bg-secondary, #21262d)', fontSize: 13 }}>
                   <span style={{ color: r.type === 'revenue' ? 'var(--color-success-500, #22c55e)' : r.type === 'cost' ? 'var(--color-error-500, #ef4444)' : 'var(--color-warning-500, #f59e0b)' }}>
                     {r.type === 'revenue' ? '' : r.type === 'cost' ? '' : ''} {t(r.itemKey)}
                   </span>
-                  <span style={{ fontWeight: 600, color: r.amount >= 0 ? '#f0f6fc' : 'var(--color-error-500, #ef4444)' }}>
+                  <span style={{ fontWeight: 600, color: r.amount >= 0 ? 'var(--text-primary, #f0f6fc)' : 'var(--color-error-500, #ef4444)' }}>
                     {r.amount >= 0 ? '+' : ''}¥{r.amount.toLocaleString()}
                   </span>
                 </div>
               ))}
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', fontSize: 15, fontWeight: 700, borderTop: '2px solid #30363d', marginTop: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', fontSize: 15, fontWeight: 700, borderTop: '2px solid var(--border-default, #30363d)', marginTop: 8 }}>
                 <span>{t('financeReport.netIncome')}</span>
                 <span style={{ color: netIncome >= 0 ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)' }}>¥{netIncome.toLocaleString()}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#8b949e', marginTop: 4 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-muted, #8b949e)', marginTop: 4 }}>
                 <span>{t('financeReport.grossMargin')}: {((totalRevenue + totalCost) / totalRevenue * 100).toFixed(1)}%</span>
                 <span>{t('financeReport.netMargin')}: {profitRate.toFixed(1)}%</span>
               </div>
             </div>
-            <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
+            <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20 }}>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('financeReport.monthlyTrend')} {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>{t('financeReport.realtimeShort')}</span>}</div>
               {monthlyPl.map(m => {
                 const maxNI = Math.max(...monthlyPl.map(x => x.netIncome)) || 1
                 const barPct = (m.netIncome / maxNI) * 100
                 return (
                   <div key={m.month} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                    <span style={{ width: 60, fontSize: 12, color: '#8b949e' }}>{m.month.slice(5)}</span>
-                    <div style={{ flex: 1, height: 20, background: '#21262d', borderRadius: 4, overflow: 'hidden' }}>
+                    <span style={{ width: 60, fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{m.month.slice(5)}</span>
+                    <div style={{ flex: 1, height: 20, background: 'var(--bg-secondary, #21262d)', borderRadius: 4, overflow: 'hidden' }}>
                       <div style={{ width: `${barPct}%`, height: '100%', background: m.netIncome >= 0 ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)', borderRadius: 4, transition: 'width 0.3s' }} />
                     </div>
                     <span style={{ width: 80, textAlign: 'right', fontSize: 12, fontWeight: 600 }}>¥{(m.netIncome / 10000).toFixed(1)}{t('financeReport.unitWan')}</span>
@@ -259,11 +259,11 @@ export default function FinancialReportsPage() {
               })}
                 <div style={{ marginTop: 20 }}>
                   <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>{t('financeReport.monthlySummary')}</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, padding: '8px 0', borderBottom: '1px solid #21262d', fontSize: 12, color: '#8b949e', fontWeight: 600 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, padding: '8px 0', borderBottom: '1px solid var(--bg-secondary, #21262d)', fontSize: 12, color: 'var(--text-muted, #8b949e)', fontWeight: 600 }}>
                     <span>{t('financeReport.colMonth')}</span><span style={{ textAlign: 'right' }}>{t('financeReport.colRevenue')}</span><span style={{ textAlign: 'right' }}>{t('financeReport.colCost')}</span><span style={{ textAlign: 'right' }}>{t('financeReport.colGrossProfit')}</span><span style={{ textAlign: 'right' }}>{t('financeReport.colNetIncome')}</span>
                   </div>
                   {monthlyPl.map(m => (
-                    <div key={m.month} style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, padding: '8px 0', borderBottom: '1px solid #21262d', fontSize: 12 }}>
+                    <div key={m.month} style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, padding: '8px 0', borderBottom: '1px solid var(--bg-secondary, #21262d)', fontSize: 12 }}>
                       <span>{m.month}</span>
                       <span style={{ textAlign: 'right', color: 'var(--color-success-500, #22c55e)' }}>¥{(m.revenue / 10000).toFixed(1)}{t('financeReport.unitWan')}</span>
                       <span style={{ textAlign: 'right', color: 'var(--color-error-500, #ef4444)' }}>¥{(m.cost / 10000).toFixed(1)}{t('financeReport.unitWan')}</span>
@@ -276,14 +276,14 @@ export default function FinancialReportsPage() {
           </div>
         ) : (
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, fontSize: 12, color: '#8b949e' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>
               {t('financeReport.kpiNote')}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
               {kpiData.map(kpi => (
-                <div key={kpi.labelKey} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
+                <div key={kpi.labelKey} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                    <span style={{ fontSize: 13, color: '#8b949e' }}>{t(kpi.labelKey)}</span>
+                    <span style={{ fontSize: 13, color: 'var(--text-muted, #8b949e)' }}>{t(kpi.labelKey)}</span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: kpi.trend === 'up' ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)' }}>
                       {kpi.trend === 'up' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
                       {kpi.change >= 0 ? '+' : ''}{kpi.change.toFixed(1)}%
@@ -294,7 +294,7 @@ export default function FinancialReportsPage() {
                 </div>
               ))}
             </div>
-            <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
+            <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20 }}>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('financeReport.kpiExplain')}</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                 {[
@@ -305,9 +305,9 @@ export default function FinancialReportsPage() {
                   { titleKey: 'financeReport.kpi.revenuePerDevice', descKey: 'financeReport.kpiExplain.revenuePerDevice' },
                   { titleKey: 'financeReport.kpi.receivableTurnover', descKey: 'financeReport.kpiExplain.receivableTurnover' },
                 ].map(m => (
-                  <div key={m.titleKey} style={{ padding: 12, background: '#0d1117', borderRadius: 6 }}>
+                  <div key={m.titleKey} style={{ padding: 12, background: 'var(--bg-primary, #0d1117)', borderRadius: 6 }}>
                     <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t(m.titleKey)}</div>
-                    <div style={{ fontSize: 12, color: '#8b949e' }}>{t(m.descKey)}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t(m.descKey)}</div>
                   </div>
                 ))}
               </div>

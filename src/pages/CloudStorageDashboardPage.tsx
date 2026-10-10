@@ -44,6 +44,7 @@ import { autoInterval } from '../utils/chartUtils';
 import { STORAGE_NODES, TIER_METRICS, ARCHIVE_JOBS, COMPRESSION } from "../services/storage";
 import { usePagination } from "../hooks/usePagination";
 import { t } from "../i18n/appI18n";
+import { severityColor, toneToAntd } from "../theme/statusTokens";
 import {
   storageConfigApi,
   type StorageConfigDto,
@@ -78,10 +79,10 @@ const tierLabel = (tier: string) => t(`cloudStorage.tier${tier.charAt(0).toUpper
 const nodeTypeLabel = (tier: string) => t(`cloudStorage.node${tier.charAt(0).toUpperCase()}${tier.slice(1)}`);
 
 const STATUS_COLORS: Record<string, string> = {
-  online: "green",
-  syncing: "blue",
-  offline: "red",
-  readonly: "orange",
+  online: toneToAntd('active'),
+  syncing: toneToAntd('running'),
+  offline: toneToAntd('failed'),
+  readonly: toneToAntd('warning'),
 };
 const statusLabel = (s: string) => t(`cloudStorage.status${s.charAt(0).toUpperCase()}${s.slice(1)}`);
 
@@ -110,10 +111,10 @@ const JOB_TYPE: Record<string, { color: string }> = {
 const jobTypeLabel = (type: string) => t(type === "auto_archive" ? "cloudStorage.jobAutoArchive" : type === "manual_archive" ? "cloudStorage.jobManualArchive" : type === "restore" ? "cloudStorage.jobRestore" : "cloudStorage.jobPurge");
 
 const JOB_STATUS: Record<string, { color: string }> = {
-  success: { color: "green" },
-  running: { color: "blue" },
-  failed: { color: "red" },
-  queued: { color: "orange" },
+  success: { color: toneToAntd('success') },
+  running: { color: toneToAntd('running') },
+  failed: { color: toneToAntd('failed') },
+  queued: { color: toneToAntd('queued') },
 };
 
 function formatBytes(bytes: number | undefined): string {
@@ -140,10 +141,10 @@ const BAR_PALETTE = ["#0ea5e9", "#06b6d4", "#22c55e", "#f59e0b", "#8b5cf6", "#ec
 
 // [G005 v3.0.6.11-100 Wave 3B (G-28)] 复制任务状态徽标
 const REP_STATUS_META: Record<string, { color: string }> = {
-  queued: { color: "orange" },
-  running: { color: "blue" },
-  completed: { color: "green" },
-  failed: { color: "red" },
+  queued: { color: toneToAntd('queued') },
+  running: { color: toneToAntd('running') },
+  completed: { color: toneToAntd('completed') },
+  failed: { color: toneToAntd('failed') },
 };
 const repStatusLabel = (s: string) => t(`cloudStorage.rep${s.charAt(0).toUpperCase()}${s.slice(1)}`);
 
@@ -640,7 +641,7 @@ function StorageConfigTab() {
   };
 
   const driverLabel = driver === "s3" ? t("cloudStorage.config.driverS3") : t("cloudStorage.config.driverLocal");
-  const activeColor = stats?.status === "active" ? "#16a34a" : "#dc2626";
+  const activeColor = stats?.status === "active" ? severityColor("success") : severityColor("critical");
 
   return (
     <>

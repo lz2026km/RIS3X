@@ -22,8 +22,8 @@ import { useNavigate } from 'react-router-dom'
 import { t } from '../../i18n/appI18n'
 
 const PRIMARY = '#1e40af'
-const WHITE = '#ffffff'
-const GRAY = '#64748b'
+const WHITE = 'var(--bg-card, #ffffff)'
+const GRAY = 'var(--text-secondary, #475569)'
 
 const DANGER = '#dc2626'
 const SUCCESS = '#059669'
@@ -384,7 +384,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
                 </div>
               )}
               {timelineLoading ? (
-                <div style={{ textAlign: 'center', padding: 20, color: '#94a3b8', fontSize: 12 }}>{t('reportDetail.auditTrailLoading')}</div>
+                <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{t('reportDetail.auditTrailLoading')}</div>
               ) : (
                 <StatusTimeline report={report} auditTrail={timelineTrail ?? undefined} />
               )}
@@ -517,7 +517,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
                 <span style={{ fontSize: 12, color: GRAY }}>{t('reportDetail.reverseRefCount', { count: linkedCritical.length })}</span>
               </div>
               {criticalLoading ? (
-                <div style={{ textAlign: 'center', padding: 24, color: '#94a3b8', fontSize: 12 }}>{t('reportDetail.criticalLoading')}</div>
+                <div style={{ textAlign: 'center', padding: 24, color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{t('reportDetail.criticalLoading')}</div>
               ) : linkedCritical.length === 0 ? (
                 <div style={{ padding: '18px 16px', borderRadius: 8, background: 'var(--bg-card)', border: '1px solid var(--border-color)', textAlign: 'center', color: GRAY, fontSize: 12 }}>
                   <Zap size={18} style={{ opacity: 0.35, marginBottom: 6 }} />
@@ -554,7 +554,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
                   ))}
                 </div>
               )}
-              <div style={{ marginTop: 14, fontSize: 11, color: '#94a3b8', lineHeight: 1.6 }}>
+              <div style={{ marginTop: 14, fontSize: 11, color: 'var(--text-muted, #94a3b8)', lineHeight: 1.6 }}>
                 {t('reportDetail.criticalFooterHint')}
               </div>
             </div>
@@ -569,7 +569,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
                 <span style={{ fontSize: 12, color: GRAY }}>{t('reportDetail.reverseRefCount', { count: lesionItems.length })}</span>
               </div>
               {lesionLoading ? (
-                <div style={{ textAlign: 'center', padding: 24, color: '#94a3b8', fontSize: 12 }}>{t('reportDetail.lesionsLoading')}</div>
+                <div style={{ textAlign: 'center', padding: 24, color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{t('reportDetail.lesionsLoading')}</div>
               ) : lesionItems.length === 0 ? (
                 <div style={{ padding: '18px 16px', borderRadius: 8, background: 'var(--bg-card)', border: '1px solid var(--border-color)', textAlign: 'center', color: GRAY, fontSize: 12 }}>
                   <Target size={18} style={{ opacity: 0.35, marginBottom: 6 }} />
@@ -613,7 +613,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
                 <span style={{ fontSize: 12, color: GRAY }}>{t('reportDetail.relatedSub')}</span>
               </div>
               {relatedLoading ? (
-                <div style={{ textAlign: 'center', padding: 24, color: '#94a3b8', fontSize: 12 }}>{t('reportDetail.relatedLoading')}</div>
+                <div style={{ textAlign: 'center', padding: 24, color: 'var(--text-muted, #94a3b8)', fontSize: 12 }}>{t('reportDetail.relatedLoading')}</div>
               ) : !relatedData ? (
                 <div style={{ padding: '18px 16px', borderRadius: 8, background: 'var(--bg-card)', border: '1px solid var(--border-color)', textAlign: 'center', color: GRAY, fontSize: 12 }}>
                   <Link2 size={18} style={{ opacity: 0.35, marginBottom: 6 }} />
@@ -656,7 +656,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
                               <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{p.id}</span>
                               {p.state && <span style={{ fontSize: 11, color: GRAY }}>{p.state}</span>}
                               {p.isCritical && <span style={{ fontSize: 11, padding: '0 5px', borderRadius: 3, background: 'var(--color-error-bg)', color: 'var(--color-error)', fontWeight: 700 }}>{t('reportDetail.criticalTag')}</span>}
-                              {p.createdAt && <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 'auto' }}>{new Date(p.createdAt).toLocaleDateString('zh-CN')}</span>}
+                              {p.createdAt && <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginLeft: 'auto' }}>{new Date(p.createdAt).toLocaleDateString('zh-CN')}</span>}
                             </div>
                             <div style={{ color: 'var(--text-secondary)', lineHeight: 1.6, maxHeight: 40, overflow: 'hidden' }}>
                               {(p.conclusion || p.findings || t('reportDetail.noContent'))}
@@ -849,25 +849,25 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
                 {t('reportDetail.archiveEnabled')}
               </label>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
-                <span style={{ width: 90, color: '#64748b' }}>{t('reportDetail.archiveDays')}</span>
+                <span style={{ width: 90, color: 'var(--text-secondary, #475569)' }}>{t('reportDetail.archiveDays')}</span>
                 <input type="number" min={1} max={36500} value={policyForm.archiveAfterDays} onChange={(e) => setPolicyForm(f => ({ ...f, archiveAfterDays: Number(e.target.value) || 1 }))} style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13 }} />
-                <span style={{ color: '#94a3b8' }}>{t('reportDetail.daysUnit')}</span>
+                <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{t('reportDetail.daysUnit')}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
-                <span style={{ width: 90, color: '#64748b' }}>{t('reportDetail.archiveTier')}</span>
+                <span style={{ width: 90, color: 'var(--text-secondary, #475569)' }}>{t('reportDetail.archiveTier')}</span>
                 <select value={policyForm.targetTier} onChange={(e) => setPolicyForm(f => ({ ...f, targetTier: e.target.value as 'archive' | 'cold' }))} style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, background: 'var(--bg-card)' }}>
                   <option value="archive">{t('reportDetail.tierArchive')}</option>
                   <option value="cold">{t('reportDetail.tierCold')}</option>
                 </select>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
-                <span style={{ width: 90, color: '#64748b' }}>{t('reportDetail.archiveDeleteDays')}</span>
+                <span style={{ width: 90, color: 'var(--text-secondary, #475569)' }}>{t('reportDetail.archiveDeleteDays')}</span>
                 <input type="number" min={0} value={policyForm.deleteSourceAfterDays ?? 0} onChange={(e) => setPolicyForm(f => ({ ...f, deleteSourceAfterDays: Number(e.target.value) > 0 ? Number(e.target.value) : null }))} style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13 }} />
-                <span style={{ color: '#94a3b8' }}>{t('reportDetail.daysAfterNoDelete')}</span>
+                <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{t('reportDetail.daysAfterNoDelete')}</span>
               </div>
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 18 }}>
-              <button onClick={() => setPolicyEditOpen(false)} style={{ padding: '6px 16px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 13, cursor: 'pointer' }}>{t('reportDetail.cancel')}</button>
+              <button onClick={() => setPolicyEditOpen(false)} style={{ padding: '6px 16px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary, #475569)', fontSize: 13, cursor: 'pointer' }}>{t('reportDetail.cancel')}</button>
               <button onClick={() => void savePolicy()} disabled={policySaving} style={{ padding: '6px 16px', borderRadius: 6, border: 'none', background: '#1e40af', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }} data-testid="save-archive-policy">
                 {policySaving ? t('reportDetail.archiveSaving') : t('reportDetail.archiveSave')}
               </button>

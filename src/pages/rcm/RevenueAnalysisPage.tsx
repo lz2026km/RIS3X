@@ -230,7 +230,7 @@ export default function RevenueAnalysisPage() {
   ]
 
   return (
-    <div style={{ background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+    <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <BarChart3 size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('w9e.revenueAnalysis.title')}</span>
@@ -257,9 +257,9 @@ export default function RevenueAnalysisPage() {
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, padding: '20px 24px' }}>
-        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 12, color: '#8b949e' }}>{t('w9e.revenueAnalysis.monthlyRevenue')}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.revenueAnalysis.monthlyRevenue')}</span>
             <DollarSign size={16} color="#22c55e" />
           </div>
           <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-success-500, #22c55e)', marginTop: 4 }}>{latest.revenue.toLocaleString()}</div>
@@ -267,9 +267,9 @@ export default function RevenueAnalysisPage() {
             {momRevenue >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{momRevenue >= 0 ? '+' : ''}{momRevenue.toFixed(1)}% {t('w9e.revenueAnalysis.momSuffix')}
           </div>
         </div>
-        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 12, color: '#8b949e' }}>{t('w9e.revenueAnalysis.monthlyProfit')}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.revenueAnalysis.monthlyProfit')}</span>
             <Activity size={16} color="#f59e0b" />
           </div>
           <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-warning-500, #f59e0b)', marginTop: 4 }}>{latest.profit.toLocaleString()}</div>
@@ -277,9 +277,9 @@ export default function RevenueAnalysisPage() {
             {momProfit >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{momProfit >= 0 ? '+' : ''}{momProfit.toFixed(1)}% {t('w9e.revenueAnalysis.momSuffix')}
           </div>
         </div>
-        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 12, color: '#8b949e' }}>{t('w9e.revenueAnalysis.monthlyExams')}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.revenueAnalysis.monthlyExams')}</span>
             <Users size={16} color="#3b82f6" />
           </div>
           <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-primary-500, #3b82f6)', marginTop: 4 }}>{latest.exams.toLocaleString()}</div>
@@ -287,9 +287,9 @@ export default function RevenueAnalysisPage() {
             {momExams >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{momExams >= 0 ? '+' : ''}{momExams.toFixed(1)}% {t('w9e.revenueAnalysis.momSuffix')}
           </div>
         </div>
-        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 12, color: '#8b949e' }}>{t('w9e.revenueAnalysis.avgRevenue')}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.revenueAnalysis.avgRevenue')}</span>
             <TrendingUp size={16} color="#8b5cf6" />
           </div>
           <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-modality-mr, #8b5cf6)', marginTop: 4 }}>{(latest.revenue * 10000 / Math.max(latest.exams, 1)).toFixed(0)}</div>
@@ -300,28 +300,28 @@ export default function RevenueAnalysisPage() {
       <div style={{ padding: '0 24px 24px' }}>
         <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
           {(['trend', 'modality', 'payer', 'doctor'] as const).map(tab => (
-            <button key={tab} onClick={() => setView(tab)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: view === tab ? '#1e40af' : '#21262d', color: view === tab ? '#fff' : '#8b949e', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button key={tab} onClick={() => setView(tab)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: view === tab ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: view === tab ? '#fff' : 'var(--text-muted, #8b949e)', display: 'flex', alignItems: 'center', gap: 6 }}>
               {tab === 'trend' ? <BarChart3 size={14} /> : tab === 'modality' ? <Monitor size={14} /> : tab === 'payer' ? <Building2 size={14} /> : <Users size={14} />}
               {tab === 'trend' ? t('w9e.revenueAnalysis.tabTrend') : tab === 'modality' ? t('w9e.revenueAnalysis.tabModality') : tab === 'payer' ? t('w9e.revenueAnalysis.tabPayer') : t('w9e.revenueAnalysis.tabDoctor')}
             </button>
           ))}
         </div>
 
-        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20 }}>
           {view === 'trend' && (
             <div>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>
                 {t('w9e.revenueAnalysis.trendTitle')}
-                <span style={{ fontSize: 11, color: '#8b949e', fontWeight: 400, marginLeft: 8 }}>{source === 'api'
+                <span style={{ fontSize: 11, color: 'var(--text-muted, #8b949e)', fontWeight: 400, marginLeft: 8 }}>{source === 'api'
                   ? (costFromApi ? t('w9e.revenueAnalysis.derivedFromInvoices') : t('w9e.revenueAnalysis.trendApiNote'))
                   : t('w9e.revenueAnalysis.demoData')}</span>
               </div>
 <ChartContainer height={320} state={monthlyData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.revenueAnalysis.noMonthlyData')}>
   <BarChart data={monthlyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#21262d" />
-                  <XAxis dataKey="month" tick={{ fill: '#8b949e', fontSize: 12 }} />
-                  <YAxis tick={{ fill: '#8b949e', fontSize: 12 }} />
-                  <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4 }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--bg-secondary, #21262d)" />
+                  <XAxis dataKey="month" tick={{ fill: 'var(--text-muted, #8b949e)', fontSize: 12 }} />
+                  <YAxis tick={{ fill: 'var(--text-muted, #8b949e)', fontSize: 12 }} />
+                  <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4 }} />
                   <Legend />
                   <Bar dataKey="revenue" name={t('w9e.revenueAnalysis.revenueWan')} fill="#22c55e" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="cost" name={t('w9e.revenueAnalysis.costWan')} fill="#ef4444" radius={[4, 4, 0, 0]} />
@@ -333,13 +333,13 @@ export default function RevenueAnalysisPage() {
           {view === 'modality' && (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('w9e.revenueAnalysis.modalityShareTitle')} <span style={{ fontSize: 11, color: '#8b949e', fontWeight: 400 }}>{source === 'api' ? t('w9e.revenueAnalysis.derivedFromInvoices') : t('w9e.revenueAnalysis.demoData')}</span></div>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('w9e.revenueAnalysis.modalityShareTitle')} <span style={{ fontSize: 11, color: 'var(--text-muted, #8b949e)', fontWeight: 400 }}>{source === 'api' ? t('w9e.revenueAnalysis.derivedFromInvoices') : t('w9e.revenueAnalysis.demoData')}</span></div>
                 <ChartContainer height={300} state={modalityData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.revenueAnalysis.noModalityData')}>
                   <RePie>
                     <Pie data={modalityData} dataKey="revenue" nameKey="name" cx="50%" cy="50%" outerRadius={100} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}>
                       {modalityData.map(d => <Cell key={d.name} fill={d.color} />)}
                     </Pie>
-                    <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d' }} />
+                    <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)' }} />
                   </RePie>
                 </ChartContainer>
               </div>
@@ -347,10 +347,10 @@ export default function RevenueAnalysisPage() {
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('w9e.revenueAnalysis.modalityRevenueTitle')}</div>
                 <ChartContainer height={300} state={modalityData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.revenueAnalysis.noModalityData')}>
                   <BarChart data={modalityData} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke="#21262d" />
-                    <XAxis type="number" tick={{ fill: '#8b949e', fontSize: 12 }} />
-                    <YAxis type="category" dataKey="name" tick={{ fill: '#8b949e', fontSize: 12 }} />
-                    <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d' }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--bg-secondary, #21262d)" />
+                    <XAxis type="number" tick={{ fill: 'var(--text-muted, #8b949e)', fontSize: 12 }} />
+                    <YAxis type="category" dataKey="name" tick={{ fill: 'var(--text-muted, #8b949e)', fontSize: 12 }} />
+                    <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)' }} />
                     <Bar dataKey="revenue" radius={[0, 4, 4, 0]}>
                       {modalityData.map(d => <Cell key={d.name} fill={d.color} />)}
                     </Bar>
@@ -362,23 +362,23 @@ export default function RevenueAnalysisPage() {
           {view === 'payer' && (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('w9e.revenueAnalysis.payerTitle')} <span style={{ fontSize: 11, color: '#8b949e', fontWeight: 400 }}>{source === 'api' ? t('w9e.revenueAnalysis.payerApiNote') : t('w9e.revenueAnalysis.demoData')}</span></div>
+                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>{t('w9e.revenueAnalysis.payerTitle')} <span style={{ fontSize: 11, color: 'var(--text-muted, #8b949e)', fontWeight: 400 }}>{source === 'api' ? t('w9e.revenueAnalysis.payerApiNote') : t('w9e.revenueAnalysis.demoData')}</span></div>
                 <ChartContainer height={300} state={payerData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.revenueAnalysis.noPayerData')}>
                   <RePie>
                     <Pie data={payerData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} labelLine={false}>
                       {payerData.map(d => <Cell key={d.name} fill={d.color} />)}
                     </Pie>
-                    <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d' }} />
+                    <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)' }} />
                   </RePie>
                 </ChartContainer>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 {payerData.map(d => (
-                  <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid #21262d' }}>
+                  <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
                     <div style={{ width: 12, height: 12, borderRadius: 2, background: d.color }} />
                     <span style={{ flex: 1, fontSize: 13 }}>{d.name}</span>
                     <span style={{ fontSize: 14, fontWeight: 600 }}>¥{d.value}万</span>
-                    <span style={{ fontSize: 12, color: '#8b949e' }}>{((d.value / payerData.reduce((s, x) => s + x.value, 0)) * 100).toFixed(1)}%</span>
+                    <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{((d.value / payerData.reduce((s, x) => s + x.value, 0)) * 100).toFixed(1)}%</span>
                   </div>
                 ))}
               </div>
@@ -388,14 +388,14 @@ export default function RevenueAnalysisPage() {
             <div>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>
                 {t('w9e.revenueAnalysis.doctorTitle')}
-                <span style={{ fontSize: 11, color: '#8b949e', fontWeight: 400, marginLeft: 8 }}>{t('w9e.revenueAnalysis.doctorNote')}</span>
+                <span style={{ fontSize: 11, color: 'var(--text-muted, #8b949e)', fontWeight: 400, marginLeft: 8 }}>{t('w9e.revenueAnalysis.doctorNote')}</span>
               </div>
               <ChartContainer height={300} state={doctorData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.revenueAnalysis.noDoctorData')}>
                 <BarChart data={doctorData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#21262d" />
-                  <XAxis type="number" tick={{ fill: '#8b949e', fontSize: 12 }} />
-                  <YAxis type="category" dataKey="name" tick={{ fill: '#8b949e', fontSize: 12 }} />
-                  <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--bg-secondary, #21262d)" />
+                  <XAxis type="number" tick={{ fill: 'var(--text-muted, #8b949e)', fontSize: 12 }} />
+                  <YAxis type="category" dataKey="name" tick={{ fill: 'var(--text-muted, #8b949e)', fontSize: 12 }} />
+                  <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)' }} />
                   <Bar dataKey="revenue" name={t('w9e.revenueAnalysis.revenueWan')} fill="#3b82f6" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ChartContainer>
@@ -403,8 +403,8 @@ export default function RevenueAnalysisPage() {
           )}
         </div>
 
-        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16, marginTop: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc' }}>{t('w1tables.revenue.title')}</div>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16, marginTop: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)' }}>{t('w1tables.revenue.title')}</div>
           <DataTable dataSource={monthlyData} rowKey="month" columns={revenueColumns} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('w1tables.noData')} />
         </div>
       </div>

@@ -265,7 +265,7 @@ export default function DoctorMobileWorkstation() {
 
       <div style={s.tabRow}>
         {[{ key: 'worklist' as const, icon: ListChecks, label: t('docMobile.tab.worklist') }, { key: 'critical' as const, icon: AlertTriangle, label: t('docMobile.tab.critical') }, { key: 'approval' as const, icon: FileCheck2, label: t('docMobile.tab.approval') }, { key: 'reports' as const, icon: FileText, label: t('docMobile.tab.reports') }, { key: 'stats' as const, icon: BarChart3, label: t('docMobile.tab.stats') }].map(tb => (
-          <div key={tb.key} style={s.tab(tab === tb.key)} onClick={() => setTab(tb.key)}>
+          <div key={tb.key} role="button" tabIndex={0} style={s.tab(tab === tb.key)} onClick={() => setTab(tb.key)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setTab(tb.key) } }}>
             <tb.icon size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
             {tb.label}
             {tb.key === 'approval' && pendingReviews.length > 0 && (
@@ -281,7 +281,8 @@ export default function DoctorMobileWorkstation() {
         <>
           <div style={{ display: 'flex', gap: 6, padding: '8px 16px' }}>
             {[{ key: 'all', label: t('docMobile.filter.all') }, { key: 'pending', label: t('docMobile.filter.pending') }, { key: 'reading', label: t('docMobile.filter.reading') }].map(f => (
-              <div key={f.key} onClick={() => setFilter(f.key as typeof filter)}
+              <div key={f.key} role="button" tabIndex={0} onClick={() => setFilter(f.key as typeof filter)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFilter(f.key as typeof filter) } }}
                 style={{ padding: '4px 12px', borderRadius: 14, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: filter === f.key ? '#1e40af' : 'var(--bg-card)', color: filter === f.key ? '#fff' : '#64748b' }}>
                 {f.label}
               </div>
@@ -290,7 +291,7 @@ export default function DoctorMobileWorkstation() {
 
           <div style={{ marginTop: 4 }}>
             {filtered.map(item => (
-              <div key={item.id} style={s.listItem} onClick={() => handleItemClick(item)}>
+              <div key={item.id} role="button" tabIndex={0} style={s.listItem} onClick={() => handleItemClick(item)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleItemClick(item) } }}>
                 <div style={s.priorityDot(PRIORITY_COLORS[item.urgency] ?? '#64748b')} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>

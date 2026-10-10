@@ -23,6 +23,7 @@ import { ActionButton } from '../components/common/ActionButton'
 import { qcextApi, type QcDefectDto } from '../services/api/qcextApi'
 import { DEFECT_LIBRARY } from '../data/qualityScoreMock'
 import { t } from '../i18n/appI18n'
+import { severityToAntd, toneToAntd } from '../theme/statusTokens'
 
 type StatusFilter = 'all' | 'open' | 'in_progress' | 'resolved'
 type SeverityFilter = 'all' | 'high' | 'medium' | 'low'
@@ -48,15 +49,15 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 const SEVERITY_COLORS: Record<string, string> = {
-  high: 'red',
-  medium: 'orange',
-  low: 'blue',
+  high: severityToAntd('high'),
+  medium: severityToAntd('warning'),
+  low: severityToAntd('low'),
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  open: 'red',
-  in_progress: 'orange',
-  resolved: 'green',
+  open: toneToAntd('open'),
+  in_progress: toneToAntd('in_progress'),
+  resolved: toneToAntd('resolved'),
 };
 
 const STATUS_LABELS: Record<string, string> = {

@@ -1,3 +1,5 @@
+import { severityColor } from '../../theme/statusTokens'
+
 export const C = {
   primary: '#1e40af',
   primaryLight: '#2d5a87',
@@ -16,11 +18,11 @@ export const C = {
 }
 
 export const STATUS_COLORS: Record<string, string> = {
-  '使用中': '#059669',
-  '空闲': '#2563eb',
-  '维护中': '#d97706',
-  '维修中': '#dc2626',
-  '已报废': '#94a3b8',
+  '使用中': severityColor('success'),
+  '空闲': severityColor('info'),
+  '维护中': severityColor('warning'),
+  '维修中': severityColor('critical'),
+  '已报废': severityColor('neutral'),
 }
 
 export const MODALITY_LABELS: Record<string, { label: string; color: string }> = {

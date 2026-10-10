@@ -1,4 +1,4 @@
-# G005 放射科 RIS 系统 v3.0.6.13-0
+# G005 放射科 RIS 系统 v3.0.6.13-1
 
 > **企业级放射信息系统 · 对标前 10 大 PACS/RIS 厂商** · 17 模块 / 9,000+ R3 点完整实施
 
@@ -14,7 +14,7 @@
 
 G005 是面向**三级甲等综合医院**的企业级放射信息系统(RIS)，对标全球前 10 大 PACS/RIS 厂商（GE、Siemens、Philips、Fujifilm、Carestream、Agfa、Canon、Hologic、Intelerad、Mach7），涵盖从 AI 辅助到患者门户的完整放射科工作流。
 
-**版本迭代**: v3.0.0 → v3.0.6.13-0（**全站表格统一**：318 张裸表 → `DataTable`；去 100vh 幽灵滚动/恢复焦点可访问性；UI 防回退守则；**后端 357 suites/3770 tests + 前端 tsc 0 / 47 文件 831 测试 0 失败**）
+**版本迭代**: v3.0.0 → v3.0.6.13-1（**暗色主题令牌化**：53 页浅色/暗色字面量 → 设计令牌；**statusTokens 唯一色彩源**：33 页严重度/状态映射收敛；可点击元素键盘可达；UI 防回退；**后端 357 suites/3770 tests + 前端 tsc 0 / 47 文件 831 测试 0 失败**）
 
 ### v3.0.6.8-40 眼科深化 (7 PR 并行, 对标 Topcon Synergy 8.0)
 
@@ -264,7 +264,8 @@ g005-radiology-ris/
 | v3.0.5.1          | 修复 MSW 路径 + 最终发布                                                     |   ✅ 完成   |
 | v3.0.6.1          | 4 PACS 厂商 MVP (GE/Siemens/Philips/Canon)                                   |   ✅ 完成   |
 | v3.0.6.8-xx       | 17 模块 9,000+ 升级点 + 眼科深化                                             |   ✅ 完成   |
-| **v3.0.6.13-0**  | **全站表格统一**：318 张裸 antd `<Table>` → `DataTable`(密度/空态/加载/分页/列宽/固定列统一) + 去 `minHeight:100vh`(幽灵滚动) + 移除 394 处 `outline:none`(恢复焦点) + emoji/字形图标清理 + 死图标层移除 + `PageSection` 节奏原语 + `guard:ui` 防回退 | ✅ **当前** |
+| **v3.0.6.13-1**  | **暗色主题正确性 + 语义色统一**：28 页浅色字面量(`#fff/#f5f5f5/WHITE`)→令牌 + 31 个 GitHub-暗色锁定页 → 主题令牌(1279 处) + 33 页本地严重度/状态映射 → `statusTokens` 单一来源 + 可点击 `div/span` 键盘可达(Enter/Space/role/aria) | ✅ **当前** |
+| v3.0.6.13-0      | **全站表格统一**：318 张裸 antd `<Table>` → `DataTable`(密度/空态/加载/分页/列宽/固定列统一) + 去 `minHeight:100vh`(幽灵滚动) + 移除 394 处 `outline:none`(恢复焦点) + emoji/字形图标清理 + 死图标层移除 + `PageSection` 节奏原语 + `guard:ui` 防回退 | ✅ 完成 |
 | v3.0.6.12-9      | **全站 KPI 统计块统一**：`StatCard` 扩 `prefix/precision/formatter/sparkline` + `StatCardGrid` 自适应等高网格(根治比例失衡) + `dashboard/KpiCard` 收敛 + ~130 页迁移 + 本地 KpiCard 去重 + 页面外壳令牌化 | ✅ 完成 |
 | v3.0.6.12-8      | **图表专业级整改**：统一 `ChartContainer`(类型化高度/margins/单序列去图例) + `chartUtils`(归一/安全百分比/日期排序) + 21 裸图表迁移 + **重叠修复**(饼图标签/长轴) + 尺寸标准化 + **数据准确性**(SLA 语义/域/契约/除零/伪数据确定性化) | ✅ 完成 |
 | v3.0.6.12-7      | UI 迁移续：47 张原生 `<table>`→`DataTable` + 硬编码色→令牌 |   ✅ 完成   |

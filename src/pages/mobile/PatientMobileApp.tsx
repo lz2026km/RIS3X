@@ -309,8 +309,9 @@ export default function PatientMobileApp() {
           { icon: '', labelKey: 'mobileApp.action.viewImages', tab: 'reports' as const },
           { icon: '', labelKey: 'mobileApp.action.messageCenter', tab: 'notifications' as const },
         ].map(action => (
-          <div key={action.labelKey} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 12, textAlign: 'center', border: '1px solid var(--border-color)', cursor: 'pointer' }}
-            onClick={() => setActiveTab(action.tab)}>
+          <div key={action.labelKey} role="button" tabIndex={0} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 12, textAlign: 'center', border: '1px solid var(--border-color)', cursor: 'pointer' }}
+            onClick={() => setActiveTab(action.tab)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab(action.tab) } }}>
             <div style={{ fontSize: 24, marginBottom: 4 }}>{action.icon}</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>{t(action.labelKey)}</div>
           </div>
@@ -321,11 +322,12 @@ export default function PatientMobileApp() {
       <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <div style={s.cardTitle}>{t('mobileApp.recentReports')}</div>
-          <span style={{ fontSize: 12, color: '#3b82f6', cursor: 'pointer' }} onClick={() => setActiveTab('reports')}>{t('mobileApp.viewAll')}</span>
+          <span role="button" tabIndex={0} style={{ fontSize: 12, color: '#3b82f6', cursor: 'pointer' }} onClick={() => setActiveTab('reports')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab('reports') } }}>{t('mobileApp.viewAll')}</span>
         </div>
         {mobileReports.slice(0, 2).map(r => (
-          <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' }}
-            onClick={() => setSelectedReport(r)}>
+          <div key={r.id} role="button" tabIndex={0} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' }}
+            onClick={() => setSelectedReport(r)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedReport(r) } }}>
             <div>
               <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{r.examType}</div>
               <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.examDate}</div>
@@ -339,7 +341,7 @@ export default function PatientMobileApp() {
       <Card bordered={false} style={s.card} styles={{ body: { padding: 0 } }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <div style={s.cardTitle}>{t('mobileApp.messages')}</div>
-          <span style={{ fontSize: 12, color: '#3b82f6', cursor: 'pointer' }} onClick={() => setActiveTab('notifications')}>{t('mobileApp.viewAll')}</span>
+          <span role="button" tabIndex={0} style={{ fontSize: 12, color: '#3b82f6', cursor: 'pointer' }} onClick={() => setActiveTab('notifications')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab('notifications') } }}>{t('mobileApp.viewAll')}</span>
         </div>
         {mobileNotifications.filter(n => !n.read).slice(0, 2).map(n => (
           <div key={n.id} style={{ display: 'flex', gap: 10, padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
@@ -400,7 +402,7 @@ export default function PatientMobileApp() {
         <>
           <div style={s.cardTitle}>{t('mobileApp.examReports')}</div>
           {mobileReports.map(r => (
-            <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' }} onClick={() => setSelectedReport(r)}>
+            <div key={r.id} role="button" tabIndex={0} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' }} onClick={() => setSelectedReport(r)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedReport(r) } }}>
               <div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{r.examType}</div>
                 <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.examDate}</div>
@@ -560,14 +562,14 @@ export default function PatientMobileApp() {
               <span style={s.verifiedBadge}>{t('mobileApp.verified')}</span>
             </div>
           </div>
-          <span style={{ fontSize: 20, cursor: 'pointer' }} onClick={togglePush} title={pushEnabled ? t('mobileApp.disablePush') : t('mobileApp.enablePush')}>
+          <span role="button" tabIndex={0} aria-label={pushEnabled ? t('mobileApp.disablePush') : t('mobileApp.enablePush')} style={{ fontSize: 20, cursor: 'pointer' }} onClick={togglePush} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePush() } }} title={pushEnabled ? t('mobileApp.disablePush') : t('mobileApp.enablePush')}>
             {pushEnabled ? <Bell size={20} /> : <BellOff size={20} />}
           </span>
         </div>
         {/* Tab Bar */}
         <div style={{ display: 'flex', marginTop: 8 }}>
           {(['home', 'reports', 'notifications', 'profile', 'login'] as const).map(tabKey => (
-            <div key={tabKey} style={s.tab(activeTab === tabKey)} onClick={() => setActiveTab(tabKey)}>
+            <div key={tabKey} role="button" tabIndex={0} style={s.tab(activeTab === tabKey)} onClick={() => setActiveTab(tabKey)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab(tabKey) } }}>
               {tabKey === 'home' ? t('mobileApp.tab.home') : tabKey === 'reports' ? t('mobileApp.tab.reports') : tabKey === 'notifications' ? t('mobileApp.tab.notifications') : tabKey === 'profile' ? t('mobileApp.tab.profile') : t('mobileApp.tab.login')}
             </div>
           ))}
@@ -590,7 +592,7 @@ export default function PatientMobileApp() {
           { key: 'profile' as const, icon: '', labelKey: 'mobileApp.tab.profile' },
           { key: 'login' as const, icon: '', labelKey: 'mobileApp.tab.login' },
         ].map(n => (
-          <div key={n.key} style={s.navItem(activeTab === n.key)} onClick={() => setActiveTab(n.key)}>
+          <div key={n.key} role="button" tabIndex={0} style={s.navItem(activeTab === n.key)} onClick={() => setActiveTab(n.key)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTab(n.key) } }}>
             <div style={{ fontSize: 18 }}>{n.icon}</div>
             <div>{t(n.labelKey)}</div>
           </div>

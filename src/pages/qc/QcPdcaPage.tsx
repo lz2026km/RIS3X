@@ -51,6 +51,7 @@ import {
   type PdcaStats,
 } from '../../services/api/qcPdcaApi'
 import { t } from '../../i18n/appI18n'
+import { toneToAntd } from '../../theme/statusTokens'
 
 const PHASE_META: Record<string, { label: string; color: string; next: string }> = {
   plan: { label: t('qcPdca.phase.plan'), color: 'blue', next: t('qcPdca.phase.do') },
@@ -82,9 +83,9 @@ const OWNER_OPTIONS = [
 ]
 
 const STATUS_COLORS: Record<string, string> = {
-  open: 'red',
-  in_progress: 'orange',
-  resolved: 'green',
+  open: toneToAntd('open'),
+  in_progress: toneToAntd('in_progress'),
+  resolved: toneToAntd('resolved'),
 }
 
 const STATUS_LABELS: Record<string, string> = {

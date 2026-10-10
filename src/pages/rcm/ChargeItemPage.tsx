@@ -190,18 +190,18 @@ export default function ChargeItemPage() {
       title: t('chargeItem.colActions'), key: 'actions',
       render: (_: unknown, item: ChargeItemDto) => (
         <div style={{ display: 'flex', gap: 6 }}>
-          <button type="button" onClick={() => openEdit(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Edit3 size={12} />{t('chargeItem.edit')}</button>
-          <button type="button" onClick={() => handleToggleActive(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: item.active ? 'var(--color-warning-500, #f59e0b)' : 'var(--color-success-500, #22c55e)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>{item.active ? <ToggleRight size={12} /> : <ToggleLeft size={12} />}{item.active ? t('chargeItem.disabled') : t('chargeItem.enabled')}</button>
+          <button type="button" onClick={() => openEdit(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: 'var(--text-muted, #8b949e)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Edit3 size={12} />{t('chargeItem.edit')}</button>
+          <button type="button" onClick={() => handleToggleActive(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: item.active ? 'var(--color-warning-500, #f59e0b)' : 'var(--color-success-500, #22c55e)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>{item.active ? <ToggleRight size={12} /> : <ToggleLeft size={12} />}{item.active ? t('chargeItem.disabled') : t('chargeItem.enabled')}</button>
           <button type="button" onClick={() => handleDelete(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid var(--color-error-500, #ef4444)', background: 'transparent', color: 'var(--color-error-400, #f87171)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Trash2 size={12} />{t('chargeItem.delete')}</button>
         </div>
       ),
     },
   ]
 
-  const modalStyle = { container: { background: '#161b22', color: '#f0f6fc' }, header: { background: '#161b22', color: '#f0f6fc', borderBottom: '1px solid #30363d' }, footer: { borderTop: '1px solid #30363d' } }
+  const modalStyle = { container: { background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)' }, header: { background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', borderBottom: '1px solid var(--border-default, #30363d)' }, footer: { borderTop: '1px solid var(--border-default, #30363d)' } }
 
   return (
-    <div style={{ background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+    <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <DollarSign size={24} />
@@ -219,13 +219,13 @@ export default function ChargeItemPage() {
           <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
             <div style={{ position: 'relative' }}>
               <Search size={16} style={{ position: 'absolute', left: 10, top: 10, color: '#6e7681' }} />
-              <input type="text" placeholder={t('chargeItem.searchPlaceholder')} value={searchText} onChange={e => setSearchText(e.target.value)} style={{ padding: '8px 12px 8px 34px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, width: 240,}} />
+              <input type="text" placeholder={t('chargeItem.searchPlaceholder')} value={searchText} onChange={e => setSearchText(e.target.value)} style={{ padding: '8px 12px 8px 34px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, width: 240,}} />
             </div>
-            <button type="button" onClick={() => setCategoryFilter('all')} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, background: categoryFilter === 'all' ? '#1e40af' : '#21262d', color: categoryFilter === 'all' ? '#fff' : '#8b949e' }}><List size={14} />{t('chargeItem.all')}</button>
+            <button type="button" onClick={() => setCategoryFilter('all')} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, background: categoryFilter === 'all' ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: categoryFilter === 'all' ? '#fff' : 'var(--text-muted, #8b949e)' }}><List size={14} />{t('chargeItem.all')}</button>
             {CATEGORY_OPTIONS.map(cat => (
-              <button key={cat} type="button" onClick={() => setCategoryFilter(cat)} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: categoryFilter === cat ? '#1e40af' : '#21262d', color: categoryFilter === cat ? '#fff' : '#8b949e' }}>{cat}</button>
+              <button key={cat} type="button" onClick={() => setCategoryFilter(cat)} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: categoryFilter === cat ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: categoryFilter === cat ? '#fff' : 'var(--text-muted, #8b949e)' }}>{cat}</button>
             ))}
-            <button type="button" onClick={() => setShowInactive(!showInactive)} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, background: showInactive ? '#f59e0b20' : '#21262d', color: showInactive ? '#f59e0b' : '#8b949e' }}>
+            <button type="button" onClick={() => setShowInactive(!showInactive)} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, background: showInactive ? '#f59e0b20' : 'var(--bg-secondary, #21262d)', color: showInactive ? '#f59e0b' : 'var(--text-muted, #8b949e)' }}>
               {showInactive ? <ToggleRight size={14} /> : <ToggleLeft size={14} />}{t('chargeItem.showInactive')}
             </button>
           </div>
@@ -239,7 +239,7 @@ export default function ChargeItemPage() {
           </div>
         )}
 
-        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, overflow: 'hidden' }}>
           <DataTable dataSource={filteredItems} rowKey="id" columns={chargeColumns} loading={loading} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('chargeItem.empty')} />
         </div>
       </div>
@@ -257,21 +257,21 @@ export default function ChargeItemPage() {
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 8 }}>
           <div>
-            <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('chargeItem.fieldName')}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 6 }}>{t('chargeItem.fieldName')}</div>
             <Input value={editor.name} onChange={e => setEditor({ ...editor, name: e.target.value })} placeholder={t('chargeItem.namePlaceholder')} />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
-              <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('chargeItem.colCategory')}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 6 }}>{t('chargeItem.colCategory')}</div>
               <Select value={editor.category} onChange={v => setEditor({ ...editor, category: v })} style={{ width: '100%' }} options={CATEGORY_OPTIONS.map(c => ({ value: c, label: c }))} />
             </div>
             <div>
-              <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('chargeItem.fieldPrice')}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 6 }}>{t('chargeItem.fieldPrice')}</div>
               <Input type="number" min={0} value={editor.unitPrice} onChange={e => setEditor({ ...editor, unitPrice: e.target.value })} />
             </div>
           </div>
           <div>
-            <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('chargeItem.fieldDescription')}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 6 }}>{t('chargeItem.fieldDescription')}</div>
             <Input.TextArea value={editor.description} onChange={e => setEditor({ ...editor, description: e.target.value })} rows={2} placeholder={t('chargeItem.descriptionPlaceholder')} />
           </div>
           <div style={{ display: 'flex', gap: 24 }}>

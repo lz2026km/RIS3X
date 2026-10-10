@@ -61,17 +61,18 @@ import {
   type LoopStatus,
 } from '../../services/api/qcAnalyticsApi'
 import { t } from '../../i18n/appI18n'
+import { severityToAntd, toneToAntd } from '../../theme/statusTokens'
 
 const LOOP_STATUS_META: Record<LoopStatus, { label: string; color: string }> = {
-  open: { label: t('qcAnalytics.loopStatus.open'), color: 'orange' },
-  rectifying: { label: t('qcAnalytics.loopStatus.rectifying'), color: 'blue' },
+  open: { label: t('qcAnalytics.loopStatus.open'), color: toneToAntd('open') },
+  rectifying: { label: t('qcAnalytics.loopStatus.rectifying'), color: toneToAntd('in_progress') },
   rechecking: { label: t('qcAnalytics.loopStatus.rechecking'), color: 'purple' },
-  closed: { label: t('qcAnalytics.loopStatus.closed'), color: 'green' },
+  closed: { label: t('qcAnalytics.loopStatus.closed'), color: toneToAntd('closed') },
 }
 
 const loopStatusLabel = (s: LoopStatus) => t(`qcAnalytics.loopStatus.${s}`)
 
-const SEVERITY_COLORS: Record<string, string> = { high: 'red', medium: 'orange', low: 'default' }
+const SEVERITY_COLORS: Record<string, string> = { high: severityToAntd('high'), medium: severityToAntd('warning'), low: severityToAntd('low') }
 
 const severityLabel = (s: string) => t(`qcAnalytics.severity.${s}`)
 const sourceLabel = (s: string) => t(`qcAnalytics.source.${s}`)

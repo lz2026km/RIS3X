@@ -186,7 +186,7 @@ export default function CostAccountingPage() {
   ]
 
   return (
-    <div style={{ background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+    <div style={{ background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <DollarSign size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('w9e.costAccounting.title')}</span>
@@ -213,27 +213,27 @@ export default function CostAccountingPage() {
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, padding: '20px 24px' }}>
-        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-          <div style={{ fontSize: 12, color: '#8b949e' }}>{t('w9e.costAccounting.monthTotalCost')}</div>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.costAccounting.monthTotalCost')}</div>
           <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-error-500, #ef4444)', marginTop: 4 }}>¥{(totalActual / 10000).toFixed(1)}万</div>
           <div style={{ fontSize: 12, color: totalActual > totalBudget ? 'var(--color-error-500, #ef4444)' : 'var(--color-success-500, #22c55e)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
             {totalActual > totalBudget ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{t('w9e.costAccounting.overspend')} ¥{((totalActual - totalBudget) / 10000).toFixed(1)}万
           </div>
         </div>
-        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-          <div style={{ fontSize: 12, color: '#8b949e' }}>{t('w9e.costAccounting.laborCostShare')}</div>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.costAccounting.laborCostShare')}</div>
           <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-primary-500, #3b82f6)', marginTop: 4 }}>
             {((categoryData.find(c => c.name === '人力成本')?.actual || 0) / totalActual * 100).toFixed(1)}%
           </div>
         </div>
-        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-          <div style={{ fontSize: 12, color: '#8b949e' }}>{t('w9e.costAccounting.materialCostShare')}</div>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.costAccounting.materialCostShare')}</div>
           <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-success-500, #22c55e)', marginTop: 4 }}>
             {((categoryData.find(c => c.name === '耗材成本')?.actual || 0) / totalActual * 100).toFixed(1)}%
           </div>
         </div>
-        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-          <div style={{ fontSize: 12, color: '#8b949e' }}>{t('w9e.costAccounting.costRevenueRatio')}</div>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.costAccounting.costRevenueRatio')}</div>
           <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-warning-500, #f59e0b)', marginTop: 4 }}>
             {costRevenueRatio != null ? (costRevenueRatio * 100).toFixed(1) : '55.2'}%
           </div>
@@ -244,14 +244,14 @@ export default function CostAccountingPage() {
       <div style={{ padding: '0 24px 24px' }}>
         <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
           {(['overview', 'modality', 'budget'] as const).map(tabKey => (
-            <button key={tabKey} onClick={() => setTab(tabKey)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: tab === tabKey ? '#1e40af' : '#21262d', color: tab === tabKey ? '#fff' : '#8b949e', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button key={tabKey} onClick={() => setTab(tabKey)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: tab === tabKey ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: tab === tabKey ? '#fff' : 'var(--text-muted, #8b949e)', display: 'flex', alignItems: 'center', gap: 6 }}>
               {tabKey === 'overview' ? <PieChart size={14} /> : tabKey === 'modality' ? <Monitor size={14} /> : <BarChart3 size={14} />}
               {tabKey === 'overview' ? t('w9e.costAccounting.tabOverview') : tabKey === 'modality' ? t('w9e.costAccounting.tabModality') : t('w9e.costAccounting.tabBudget')}
             </button>
           ))}
         </div>
 
-        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20 }}>
           {tab === 'overview' && (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
               <div>
@@ -261,7 +261,7 @@ export default function CostAccountingPage() {
                     <Pie data={categoryData} dataKey="actual" nameKey="name" cx="50%" cy="50%" outerRadius={90} labelLine={false}>
                       {categoryData.map(d => <Cell key={d.name} fill={d.color} />)}
                     </Pie>
-                    <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d' }} />
+                    <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)' }} />
                   </RePie>
                 </ChartContainer>
               </div>
@@ -271,10 +271,10 @@ export default function CostAccountingPage() {
                   {categoryData.map(c => {
                     const pct = c.budget ? ((c.actual - c.budget) / c.budget * 100) : 0
                     return (
-                      <div key={c.name} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid #21262d' }}>
+                      <div key={c.name} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
                         <div style={{ width: 10, height: 10, borderRadius: 2, background: c.color }} />
                         <span style={{ width: 80, fontSize: 13 }}>{c.name}</span>
-                        <div style={{ flex: 1, height: 8, background: '#21262d', borderRadius: 4, overflow: 'hidden' }}>
+                        <div style={{ flex: 1, height: 8, background: 'var(--bg-secondary, #21262d)', borderRadius: 4, overflow: 'hidden' }}>
                           <div style={{ width: `${Math.min((c.actual / totalActual) * 100, 100)}%`, height: '100%', background: c.color, borderRadius: 4 }} />
                         </div>
                         <span style={{ width: 80, textAlign: 'right', fontSize: 12 }}>¥{(c.actual / 10000).toFixed(1)}万</span>
@@ -290,14 +290,14 @@ export default function CostAccountingPage() {
             <div>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>
                 {t('w9e.costAccounting.modalityTitle')}
-                <span style={{ fontSize: 11, color: '#8b949e', fontWeight: 400, marginLeft: 8 }}>{source === 'api' ? t('w9e.costAccounting.modalityApiNote') : t('w9e.revenueAnalysis.demoData')}</span>
+                <span style={{ fontSize: 11, color: 'var(--text-muted, #8b949e)', fontWeight: 400, marginLeft: 8 }}>{source === 'api' ? t('w9e.costAccounting.modalityApiNote') : t('w9e.revenueAnalysis.demoData')}</span>
               </div>
               <ChartContainer height={320} state={modalityCostData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.costAccounting.noModalityData')}>
                 <BarChart data={modalityCostData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#21262d" />
-                  <XAxis dataKey="name" tick={{ fill: '#8b949e', fontSize: 12 }} />
-                  <YAxis tick={{ fill: '#8b949e', fontSize: 12 }} />
-                  <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--bg-secondary, #21262d)" />
+                  <XAxis dataKey="name" tick={{ fill: 'var(--text-muted, #8b949e)', fontSize: 12 }} />
+                  <YAxis tick={{ fill: 'var(--text-muted, #8b949e)', fontSize: 12 }} />
+                  <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)' }} />
                   <Legend />
                   <Bar dataKey="costPerExam" name={t('w9e.costAccounting.costPerExam')} fill="#ef4444" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="revenuePerExam" name={t('w9e.costAccounting.revenuePerExam')} fill="#22c55e" radius={[4, 4, 0, 0]} />
@@ -310,28 +310,28 @@ export default function CostAccountingPage() {
             <div>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>
                 {t('w9e.costAccounting.budgetTitle')}
-                <span style={{ fontSize: 11, color: '#8b949e', fontWeight: 400, marginLeft: 8 }}>{source === 'api' ? t('w9e.costAccounting.budgetApiNote') : t('w9e.revenueAnalysis.demoData')}</span>
+                <span style={{ fontSize: 11, color: 'var(--text-muted, #8b949e)', fontWeight: 400, marginLeft: 8 }}>{source === 'api' ? t('w9e.costAccounting.budgetApiNote') : t('w9e.revenueAnalysis.demoData')}</span>
               </div>
               <ChartContainer height={320} state={budgetData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('w9e.costAccounting.noBudgetData')}>
                 <BarChart data={budgetData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#21262d" />
-                  <XAxis dataKey="month" tick={{ fill: '#8b949e', fontSize: 12 }} />
-                  <YAxis tick={{ fill: '#8b949e', fontSize: 12 }} />
-                  <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--bg-secondary, #21262d)" />
+                  <XAxis dataKey="month" tick={{ fill: 'var(--text-muted, #8b949e)', fontSize: 12 }} />
+                  <YAxis tick={{ fill: 'var(--text-muted, #8b949e)', fontSize: 12 }} />
+                  <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)' }} />
                   <Legend />
                   <Bar dataKey="budget" name={t('w9e.costAccounting.budget')} fill="#3b82f6" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="actual" name={t('w9e.costAccounting.actual')} fill="#f59e0b" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ChartContainer>
               <div style={{ marginTop: 16 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 100px 100px 80px', gap: 8, padding: '8px 16px', background: '#0d1117', borderRadius: 4, fontSize: 12, color: '#8b949e', fontWeight: 600 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 100px 100px 80px', gap: 8, padding: '8px 16px', background: 'var(--bg-primary, #0d1117)', borderRadius: 4, fontSize: 12, color: 'var(--text-muted, #8b949e)', fontWeight: 600 }}>
                   <span>{t('w9e.costAccounting.colMonth')}</span><span style={{ textAlign: 'right' }}>{t('w9e.costAccounting.budget')}</span><span style={{ textAlign: 'right' }}>{t('w9e.costAccounting.actual')}</span><span style={{ textAlign: 'right' }}>{t('w9e.costAccounting.colVariance')}</span><span style={{ textAlign: 'right' }}>{t('w9e.costAccounting.colVarianceRate')}</span>
                 </div>
                 {budgetData.map(b => {
                   const v = b.actual - b.budget
                   const vr = b.budget ? (v / b.budget * 100) : 0
                   return (
-                    <div key={b.month} style={{ display: 'grid', gridTemplateColumns: '1fr 100px 100px 100px 80px', gap: 8, padding: '8px 16px', borderBottom: '1px solid #21262d', fontSize: 13 }}>
+                    <div key={b.month} style={{ display: 'grid', gridTemplateColumns: '1fr 100px 100px 100px 80px', gap: 8, padding: '8px 16px', borderBottom: '1px solid var(--bg-secondary, #21262d)', fontSize: 13 }}>
                       <span>{b.month}</span>
                       <span style={{ textAlign: 'right' }}>¥{b.budget.toLocaleString()}</span>
                       <span style={{ textAlign: 'right' }}>¥{b.actual.toLocaleString()}</span>
@@ -345,8 +345,8 @@ export default function CostAccountingPage() {
           )}
         </div>
 
-        <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16, marginTop: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc' }}>{t('w1tables.cost.title')}</div>
+        <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16, marginTop: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)' }}>{t('w1tables.cost.title')}</div>
           <DataTable dataSource={categoryData} rowKey="name" columns={costColumns} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('w1tables.noData')} />
         </div>
       </div>

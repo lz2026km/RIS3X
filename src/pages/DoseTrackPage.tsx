@@ -456,7 +456,7 @@ function PrimaryStats({ stats }: { stats: CumulativeStats }) {
         label={t("doseTrack.stats.doseAlerts")}
         value={stats.doseAlertsToday}
         delta={t('doseTrack.criticalWarningDelta', { critical: stats.criticalAlerts, warning: stats.warningAlerts })}
-        deltaColor="#64748b"
+        deltaColor="var(--text-secondary, #475569)"
         icon={<ShieldAlert size={18} />}
         iconBg="var(--color-warning-bg)"
         iconColor="#d97706"
@@ -465,7 +465,7 @@ function PrimaryStats({ stats }: { stats: CumulativeStats }) {
         label={t("doseTrack.stats.devicesOnline")}
         value={stats.deviceOnlineCount}
         delta={t('doseTrack.avgCtdiDelta', { value: stats.averageCTDIvol })}
-        deltaColor="#64748b"
+        deltaColor="var(--text-secondary, #475569)"
         icon={<Monitor size={18} />}
         iconBg="#ecfdf5"
         iconColor="#059669"
@@ -796,13 +796,13 @@ function DoseAnalyticsSection({
   const patientRankColumns: ColumnsType<PatientRankRow> = [
     {
       title: t("w3tables.col.index"), key: "rank", width: 70, align: "center",
-      render: (_: unknown, _row, index) => <span style={{ fontSize: 13, fontWeight: 800, color: index < 3 ? "#d97706" : "#94a3b8" }}>#{index + 1}</span>,
+      render: (_: unknown, _row, index) => <span style={{ fontSize: 13, fontWeight: 800, color: index < 3 ? "#d97706" : "var(--text-muted, #94a3b8)" }}>#{index + 1}</span>,
     },
     {
       title: t("w3tables.col.patient"), dataIndex: "name", key: "name",
       render: (_: unknown, p) => (
         <div>
-          <b style={{ fontSize: 12, color: "#1e293b" }}>{p.name}</b>
+          <b style={{ fontSize: 12, color: "var(--text-primary, #1e293b)" }}>{p.name}</b>
           <div style={{ fontSize: 11, color: "var(--text-secondary)", fontFamily: "monospace" }}>{p.id}</div>
         </div>
       ),
@@ -814,10 +814,10 @@ function DoseAnalyticsSection({
         const color = v > 2000 ? "#dc2626" : v > 1200 ? "#d97706" : "#3b82f6";
         return (
           <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 220 }}>
-            <div style={{ flex: 1, height: 12, background: "#f1f5f9", borderRadius: 6, overflow: "hidden" }}>
+            <div style={{ flex: 1, height: 12, background: "var(--bg-primary, #f8fafc)", borderRadius: 6, overflow: "hidden" }}>
               <div style={{ width: `${pct}%`, height: "100%", background: color, borderRadius: 6, opacity: 0.85 }} />
             </div>
-            <span style={{ width: 100, fontSize: 12, fontWeight: 700, color: "#1e293b", textAlign: "right" }}>{v.toLocaleString()} mGy·cm</span>
+            <span style={{ width: 100, fontSize: 12, fontWeight: 700, color: "var(--text-primary, #1e293b)", textAlign: "right" }}>{v.toLocaleString()} mGy·cm</span>
           </div>
         );
       },
@@ -901,14 +901,14 @@ function DoseAnalyticsSection({
           {drlOverDevice.map(d => {
             const rate = d.total > 0 ? Math.round((d.over / d.total) * 100) : 0;
             return (
-              <div key={d.device} style={{ padding: 12, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+              <div key={d.device} style={{ padding: 12, background: 'var(--bg-primary, #f8fafc)', borderRadius: 8, border: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                   <Monitor size={13} color="#1e40af" />
-                  <b style={{ fontSize: 12, color: '#1e293b', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.device}</b>
+                  <b style={{ fontSize: 12, color: 'var(--text-primary, #1e293b)', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.device}</b>
                   <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{d.modality}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div style={{ flex: 1, height: 8, background: '#e2e8f0', borderRadius: 999, overflow: 'hidden' }}>
+                  <div style={{ flex: 1, height: 8, background: 'var(--border-default, rgba(0,0,0,0.12))', borderRadius: 999, overflow: 'hidden' }}>
                     <div style={{ width: `${Math.min(100, rate)}%`, height: '100%', background: rate > 12 ? '#dc2626' : rate > 6 ? '#d97706' : '#16a34a', borderRadius: 999 }} />
                   </div>
                   <b style={{ fontSize: 13, color: rate > 12 ? '#dc2626' : '#d97706', width: 34, textAlign: 'right' }}>{rate}%</b>
@@ -1000,7 +1000,7 @@ function DoseAnalyticsSection({
                     <span style={{ color: 'var(--text-secondary)' }}>{l.label}</span>
                     <b style={{ color: l.color }}>{l.value} ({pct}%)</b>
                   </div>
-                  <div style={{ height: 8, background: '#f1f5f9', borderRadius: 999, overflow: 'hidden' }}>
+                  <div style={{ height: 8, background: 'var(--bg-primary, #f8fafc)', borderRadius: 999, overflow: 'hidden' }}>
                     <div style={{ width: `${pct}%`, height: '100%', background: l.color, borderRadius: 999 }} />
                   </div>
                 </div>
@@ -1026,10 +1026,10 @@ function DoseAnalyticsSection({
             { icon: '', title: t('doseTrack.sug3Title'), desc: t('doseTrack.sug3Desc', { rate: Math.min(96, 82 + overTotal) }), priority: t('doseTrack.priorityHigh') },
             { icon: '', title: t('doseTrack.sug4Title'), desc: t('doseTrack.sug4Desc'), priority: t('doseTrack.priorityMedium') },
           ].map(s => (
-            <div key={s.title} style={{ padding: 12, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div key={s.title} style={{ padding: 12, background: 'var(--bg-primary, #f8fafc)', borderRadius: 8, border: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                 <span style={{ fontSize: 16 }}>{s.icon}</span>
-                <b style={{ fontSize: 12, color: '#1e293b' }}>{s.title}</b>
+                <b style={{ fontSize: 12, color: 'var(--text-primary, #1e293b)' }}>{s.title}</b>
                 <span style={{ marginLeft: 'auto', padding: '1px 8px', borderRadius: 999, fontSize: 10, fontWeight: 700, background: s.priority === t('doseTrack.priorityHigh') ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: s.priority === t('doseTrack.priorityHigh') ? '#dc2626' : '#d97706' }}>{t('doseTrack.prioritySuffix', { priority: s.priority })}</span>
               </div>
               <div style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{s.desc}</div>
@@ -1055,12 +1055,12 @@ function DoseAnalyticsSection({
                 const over = dlp > 700;
                 return (
                   <div key={d.device} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <b style={{ width: 130, fontSize: 12, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.device}</b>
-                    <div style={{ flex: 1, height: 12, background: '#f1f5f9', borderRadius: 6, overflow: 'hidden', position: 'relative' }}>
+                    <b style={{ width: 130, fontSize: 12, color: 'var(--text-primary, #1e293b)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.device}</b>
+                    <div style={{ flex: 1, height: 12, background: 'var(--bg-primary, #f8fafc)', borderRadius: 6, overflow: 'hidden', position: 'relative' }}>
                       <div style={{ width: `${(dlp / maxDlp) * 100}%`, height: '100%', background: over ? '#dc2626' : '#3b82f6', borderRadius: 6, opacity: 0.9 }} />
                       <div style={{ position: 'absolute', left: '55%', top: 0, bottom: 0, width: 2, background: '#94a3b8', opacity: 0.6 }} title={t('doseTrack.referenceLine')} />
                     </div>
-                    <span style={{ width: 90, fontSize: 12, fontWeight: 700, color: over ? '#dc2626' : '#1e293b', textAlign: 'right' }}>{dlp.toLocaleString()} mGy·cm</span>
+                    <span style={{ width: 90, fontSize: 12, fontWeight: 700, color: over ? '#dc2626' : 'var(--text-primary, #1e293b)', textAlign: 'right' }}>{dlp.toLocaleString()} mGy·cm</span>
                     <span style={{ width: 90, fontSize: 11, color: 'var(--text-secondary)', textAlign: 'right' }}>CTDIvol {ctdi} mGy</span>
                   </div>
                 );
@@ -1092,9 +1092,9 @@ function DoseAnalyticsSection({
               watch: p.dlp30d > 300,
             }));
             return list.map(p => (
-              <div key={p.id} style={{ padding: '10px 12px', background: p.watch ? 'var(--color-warning-bg)' : '#f8fafc', borderRadius: 8, border: `1px solid ${p.watch ? '#fde68a' : '#e2e8f0'}` }}>
+              <div key={p.id} style={{ padding: '10px 12px', background: p.watch ? 'var(--color-warning-bg)' : 'var(--bg-primary, #f8fafc)', borderRadius: 8, border: `1px solid ${p.watch ? '#fde68a' : 'var(--border-default, rgba(0,0,0,0.12))'}` }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <b style={{ fontSize: 12, color: '#1e293b' }}>{p.name}</b>
+                  <b style={{ fontSize: 12, color: 'var(--text-primary, #1e293b)' }}>{p.name}</b>
                   <code style={{ fontSize: 11, color: 'var(--text-secondary)', fontFamily: 'monospace' }}>{p.id}</code>
                   <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('doseTrack.examCount', { count: p.exams })}</span>
                   {p.watch && (
@@ -1106,17 +1106,17 @@ function DoseAnalyticsSection({
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11 }}>
                     <span style={{ width: 84, color: 'var(--text-secondary)' }}>{t('doseTrack.cumulative30d')}</span>
-                    <div style={{ flex: 1, height: 7, background: '#e2e8f0', borderRadius: 999, overflow: 'hidden' }}>
+                    <div style={{ flex: 1, height: 7, background: 'var(--border-default, rgba(0,0,0,0.12))', borderRadius: 999, overflow: 'hidden' }}>
                       <div style={{ width: `${Math.min(100, p.pct30)}%`, height: '100%', background: p.pct30 > 60 ? '#dc2626' : p.pct30 > 30 ? '#d97706' : '#3b82f6', borderRadius: 999 }} />
                     </div>
-                    <b style={{ width: 90, textAlign: 'right', color: '#1e293b' }}>{p.dlp30d} mGy·cm</b>
+                    <b style={{ width: 90, textAlign: 'right', color: 'var(--text-primary, #1e293b)' }}>{p.dlp30d} mGy·cm</b>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11 }}>
                     <span style={{ width: 84, color: 'var(--text-secondary)' }}>{t('doseTrack.cumulative1y')}</span>
-                    <div style={{ flex: 1, height: 7, background: '#e2e8f0', borderRadius: 999, overflow: 'hidden' }}>
+                    <div style={{ flex: 1, height: 7, background: 'var(--border-default, rgba(0,0,0,0.12))', borderRadius: 999, overflow: 'hidden' }}>
                       <div style={{ width: `${Math.min(100, p.pct1y)}%`, height: '100%', background: p.pct1y > 100 ? '#dc2626' : p.pct1y > 60 ? '#d97706' : '#16a34a', borderRadius: 999 }} />
                     </div>
-                    <b style={{ width: 90, textAlign: 'right', color: p.pct1y > 100 ? '#dc2626' : '#1e293b' }}>{p.dlp1y} mGy·cm</b>
+                    <b style={{ width: 90, textAlign: 'right', color: p.pct1y > 100 ? '#dc2626' : 'var(--text-primary, #1e293b)' }}>{p.dlp1y} mGy·cm</b>
                   </div>
                 </div>
               </div>
