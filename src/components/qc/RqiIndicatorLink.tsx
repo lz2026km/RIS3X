@@ -119,7 +119,7 @@ export function RqiIndicatorLink({
       <div style={{ textAlign: "right", minWidth: 96 }}>
         <div
           style={{
-            fontSize: 22,
+            fontSize: 20,
             fontWeight: 700,
             color: accent,
             lineHeight: 1.1,

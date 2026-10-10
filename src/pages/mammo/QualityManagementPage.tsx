@@ -16,18 +16,18 @@ const s: Record<string, React.CSSProperties> = {
   root: { padding: 0 },
   header: { marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
   title: { fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0 },
-  subtitle: { fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 },
+  subtitle: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 },
   statsRow: { display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, marginBottom: 24 },
   statCard: { background: 'var(--bg-card)', borderRadius: 12, padding: '18px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', position: 'relative', overflow: 'hidden' },
   statIcon: { width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
-  statValue: { fontSize: 26, fontWeight: 700, color: 'var(--color-primary-800)', lineHeight: 1.1 },
+  statValue: { fontSize: 24, fontWeight: 700, color: 'var(--color-primary-800)', lineHeight: 1.1 },
   statLabel: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 },
   statSub: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 },
   section: { background: 'var(--bg-card)', borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
-  sectionTitle: { fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
+  sectionTitle: { fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
   grid3: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 },
-  btn: { padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
-  btnPrimary: { padding: '8px 14px', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
+  btn: { padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
+  btnPrimary: { padding: '8px 14px', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: 12 },
   th: { textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600, whiteSpace: 'nowrap' },
   td: { padding: '10px 8px', borderBottom: '1px solid var(--border-light)', color: 'var(--text-primary)' },
@@ -223,7 +223,7 @@ const QualityManagementPage = () => {
       <RqiIndicatorLink code="RQI-RCR-07" />
 
       {error && (
-        <div style={{ marginBottom: 16, padding: '10px 14px', background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 8, fontSize: 13, color: '#b91c1c', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ marginBottom: 16, padding: '10px 14px', background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 8, fontSize: 12, color: '#b91c1c', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span>{t('mammoQc.loadFailedPrefix')}{error}</span>
           <button onClick={fetchAll} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #fca5a5', background: 'var(--bg-card)', color: '#b91c1c', cursor: 'pointer', fontSize: 12 }}>{t('mammoQc.retry')}</button>
         </div>
@@ -246,7 +246,7 @@ const QualityManagementPage = () => {
           {acrChecks.map((item, i) => (
             <div key={i} style={{ padding: 14, background: 'var(--bg-card)', borderRadius: 10 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <span style={{ fontWeight: 600, fontSize: 13 }}>{item.name}</span>
+                <span style={{ fontWeight: 600, fontSize: 12 }}>{item.name}</span>
                 <span style={{ fontWeight: 700, fontSize: 16, color: item.score >= 90 ? '#16a34a' : item.score >= 80 ? '#ca8a04' : '#dc2626' }}>{item.score}</span>
               </div>
               <div style={s.progressBar}><div style={{ width: `${item.score}%`, height: '100%', background: item.score >= 90 ? '#16a34a' : item.score >= 80 ? '#ca8a04' : '#dc2626', borderRadius: 4 }} /></div>
@@ -255,14 +255,14 @@ const QualityManagementPage = () => {
               </ul>
             </div>
           ))}
-          {!loading && acrChecks.length === 0 && <div style={{ fontSize: 13, color: 'var(--text-secondary)', padding: 12 }}>{t('mammoQc.noAcrData')}</div>}
+          {!loading && acrChecks.length === 0 && <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: 12 }}>{t('mammoQc.noAcrData')}</div>}
         </div>
       </Card>
 
       <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
         <div style={s.sectionTitle}><FileText size={16} color='#7c3aed' />{t('mammoQc.qcRecords')}</div>
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-          <input style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13,}} placeholder={t('mammoQc.searchPlaceholder')} value={search} onChange={e => setSearch(e.target.value)} />
+          <input style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12,}} placeholder={t('mammoQc.searchPlaceholder')} value={search} onChange={e => setSearch(e.target.value)} />
           <button style={s.btn} onClick={fetchAll}><RefreshCw size={14} /> {t('mammoQc.refresh')}</button>
         </div>
         <DataTable<MammoQcRecord>
@@ -292,10 +292,10 @@ const QualityManagementPage = () => {
               {evaluateImages.map((img, i) => (
                 <tr key={img.view}>
                   <td style={{ ...s.td, fontWeight: 600 }}>{img.view}</td>
-                  <td style={s.td}><input type="number" min={0} max={100} style={{ width: 90, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13 }} value={img.coverage ?? ''} onChange={e => patchImage(i, { coverage: Number(e.target.value) })} /></td>
+                  <td style={s.td}><input type="number" min={0} max={100} style={{ width: 90, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12 }} value={img.coverage ?? ''} onChange={e => patchImage(i, { coverage: Number(e.target.value) })} /></td>
                   <td style={s.td}><input type="checkbox" checked={img.nippleTangential ?? false} onChange={e => patchImage(i, { nippleTangential: e.target.checked })} /></td>
-                  <td style={s.td}><input type="number" min={0} style={{ width: 90, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13 }} value={img.compression ?? ''} onChange={e => patchImage(i, { compression: Number(e.target.value) })} /></td>
-                  <td style={s.td}><input type="number" min={0} step={0.1} style={{ width: 90, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13 }} value={img.agd ?? ''} onChange={e => patchImage(i, { agd: Number(e.target.value) })} /></td>
+                  <td style={s.td}><input type="number" min={0} style={{ width: 90, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12 }} value={img.compression ?? ''} onChange={e => patchImage(i, { compression: Number(e.target.value) })} /></td>
+                  <td style={s.td}><input type="number" min={0} step={0.1} style={{ width: 90, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12 }} value={img.agd ?? ''} onChange={e => patchImage(i, { agd: Number(e.target.value) })} /></td>
                 </tr>
               ))}
             </tbody>
@@ -311,7 +311,7 @@ const QualityManagementPage = () => {
         </div>
         {evaluateResult && (
           <div style={{ marginTop: 14 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t('mammoQc.ruleHits')} ({evaluateResult.hits.length})</div>
+            <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>{t('mammoQc.ruleHits')} ({evaluateResult.hits.length})</div>
             <div style={s.scrollBox}>
               <table style={s.table}>
                 <thead><tr>
@@ -397,7 +397,7 @@ const QualityManagementPage = () => {
                   ].map((item, i) => (
                     <div key={i} style={{ padding: 14, background: 'var(--bg-card)', borderRadius: 10 }}>
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{item.label}</div>
-                      <div style={{ fontSize: 22, fontWeight: 800, color: item.color }}>{item.value}<span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>{item.unit}</span></div>
+                      <div style={{ fontSize: 20, fontWeight: 800, color: item.color }}>{item.value}<span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>{item.unit}</span></div>
                     </div>
                   ))}
                   <div style={{ gridColumn: '1 / -1' }}>

@@ -12,7 +12,7 @@ const containerStyle: CSSProperties = {
   color: 'var(--state-warning-fg, #92400e)',
   border: '1px solid var(--state-warning-border, #fde68a)',
   borderRadius: 6,
-  fontSize: 13,
+  fontSize: 12,
   display: 'flex',
   alignItems: 'center',
   gap: 8,

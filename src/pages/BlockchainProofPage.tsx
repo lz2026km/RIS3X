@@ -353,7 +353,7 @@ export default function BlockchainProofPage() {
                     padding: 6, background: '#8b5cf622', border: `1px solid ${c.color}`, borderRadius: 4, textAlign: 'center',
                   }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: c.color }}>{c.label}</div>
-                    <div style={{ fontSize: 8, color: 'var(--text-secondary)', marginTop: 2, fontFamily: 'monospace' }}>{c.desc}</div>
+                    <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 2, fontFamily: 'monospace' }}>{c.desc}</div>
                   </div>
                 ))}
               </div>

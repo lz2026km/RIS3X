@@ -144,7 +144,7 @@ export function DashboardCard({
             <span style={{ color: "var(--color-error-500, #ef4444)", opacity: 0.7 }}>
               <AlertTriangle size={32} strokeWidth={1.5} />
             </span>
-            <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
               {typeof error === "string" ? error : "数据加载失败"}
             </div>
             {onRetry && (
@@ -185,7 +185,7 @@ export function DashboardCard({
             <span style={{ opacity: 0.4 }}>
               <Inbox size={36} strokeWidth={1.5} />
             </span>
-            <span style={{ fontSize: 13 }}>{emptyDescription}</span>
+            <span style={{ fontSize: 12 }}>{emptyDescription}</span>
           </div>
         ) : (
           children

@@ -178,7 +178,7 @@ export default function ReceiverPortalPage() {
       key: 'receiver',
       render: (_: unknown, r: ReceiverItem) => (
         <div>
-          <div style={{ fontSize: 13 }}>{r.receiverName ?? '-'}</div>
+          <div style={{ fontSize: 12 }}>{r.receiverName ?? '-'}</div>
           <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.receiverDept ?? ''}{r.receiverPhone ? ` · ${r.receiverPhone}` : ''}</div>
         </div>
       ),
@@ -268,7 +268,7 @@ export default function ReceiverPortalPage() {
         {receiptItem && (
           <div>
             <div style={{ marginBottom: 12, padding: '10px 12px', background: 'var(--color-error-bg)', borderRadius: 8, border: '1px solid var(--color-error-border)' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#dc2626' }}>{receiptItem.patientName ?? t('receiverPortal.unknownPatient')} · {receiptItem.finding ?? t('receiverPortal.criticalValue')}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#dc2626' }}>{receiptItem.patientName ?? t('receiverPortal.unknownPatient')} · {receiptItem.finding ?? t('receiverPortal.criticalValue')}</div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{receiptItem.id ?? ''}</div>
             </div>
             <div style={{ marginBottom: 12 }}>

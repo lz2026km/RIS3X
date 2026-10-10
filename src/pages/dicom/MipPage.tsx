@@ -136,7 +136,7 @@ const MipPage: React.FC = () => {
       {loadError && <ErrorBanner message={loadError} />}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Layers size={18} color={BLUE} />
-        <span style={{ fontSize: 15, fontWeight: 700 }}>{t('w9d.mip.title')}</span>
+        <span style={{ fontSize: 14, fontWeight: 700 }}>{t('w9d.mip.title')}</span>
         <Tag color="cyan">{t('w9d.mip.tag')}</Tag>
         {mode === 'real' && <Tag color="green">{t('w9d.realDicom')}</Tag>}
         {mode === 'synthetic' && <Tag>{t('w9d.syntheticData')}</Tag>}

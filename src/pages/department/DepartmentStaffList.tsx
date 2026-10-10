@@ -125,7 +125,7 @@ export default function DepartmentStaffList({
         <div style={panelHeaderStyle}><span>{t("deptStaff.title")}</span><span style={{ fontSize: 12, color: C.textLight }}>{t("deptStaff.memberCount", { count: filteredStaff.length })}</span></div>
         <div style={{ padding: 12 }}>
           <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-            <input type="text" placeholder={t("deptStaff.searchPlaceholder")} value={searchKeyword} onChange={(e) => setSearchKeyword(e.target.value)} style={{ flex: 1, padding: "6px 10px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}} />
+            <input type="text" placeholder={t("deptStaff.searchPlaceholder")} value={searchKeyword} onChange={(e) => setSearchKeyword(e.target.value)} style={{ flex: 1, padding: "6px 10px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12,}} />
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 12 }}>
             {roleFilters.map((f) => (
@@ -145,27 +145,27 @@ export default function DepartmentStaffList({
           {selectedStaff && (
             <div>
               <div style={{ display: "flex", gap: 20, marginBottom: 24 }}>
-                <div style={{ width: 80, height: 80, borderRadius: "50%", background: ROLES[selectedStaff.role]?.color || C.textLight, display: "flex", alignItems: "center", justifyContent: "center", color: C.white, fontSize: 32, fontWeight: 600 }}>{selectedStaff.name.charAt(0)}</div>
+                <div style={{ width: 80, height: 80, borderRadius: "50%", background: ROLES[selectedStaff.role]?.color || C.textLight, display: "flex", alignItems: "center", justifyContent: "center", color: C.white, fontSize: 30, fontWeight: 600 }}>{selectedStaff.name.charAt(0)}</div>
                 <div>
                   <div style={{ fontSize: 20, fontWeight: 700, color: C.textDark, marginBottom: 4 }}>{selectedStaff.name}</div>
                   <div style={{ fontSize: 14, color: ROLES[selectedStaff.role]?.color, marginBottom: 8 }}>{ROLES[selectedStaff.role]?.label} · {selectedStaff.title}</div>
-                  <div style={{ display: "flex", gap: 16, fontSize: 13, color: C.textMid }}><span>{t("deptStaff.employeeId")}{selectedStaff.id}</span><span>{t("deptStaff.dept")}{selectedStaff.dept}</span></div>
+                  <div style={{ display: "flex", gap: 16, fontSize: 12, color: C.textMid }}><span>{t("deptStaff.employeeId")}{selectedStaff.id}</span><span>{t("deptStaff.dept")}{selectedStaff.dept}</span></div>
                 </div>
               </div>
               <div style={{ marginBottom: 24 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, marginBottom: 12, borderBottom: `1px solid ${C.borderLight}`, paddingBottom: 8 }}>{t("deptStaff.contactInfo")}</div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                  <div style={{ fontSize: 13 }}><span style={{ color: C.textMid }}>{t("deptStaff.phone")}</span>{selectedStaff.phone}</div>
-                  <div style={{ fontSize: 13 }}><span style={{ color: C.textMid }}>{t("deptStaff.email")}</span>{selectedStaff.email}</div>
-                  <div style={{ fontSize: 13 }}><span style={{ color: C.textMid }}>{t("deptStaff.joinDate")}</span>{selectedStaff.joinDate}</div>
-                  <div style={{ fontSize: 13 }}><span style={{ color: C.textMid }}>{t("deptStaff.status")}</span><span style={{ color: selectedStaff.status === "online" ? C.success : selectedStaff.status === "busy" ? C.warning : C.textLight }}>{selectedStaff.status === "online" ? t("deptStaff.status.online") : selectedStaff.status === "busy" ? t("deptStaff.status.busy") : t("deptStaff.status.offline")}</span></div>
+                  <div style={{ fontSize: 12 }}><span style={{ color: C.textMid }}>{t("deptStaff.phone")}</span>{selectedStaff.phone}</div>
+                  <div style={{ fontSize: 12 }}><span style={{ color: C.textMid }}>{t("deptStaff.email")}</span>{selectedStaff.email}</div>
+                  <div style={{ fontSize: 12 }}><span style={{ color: C.textMid }}>{t("deptStaff.joinDate")}</span>{selectedStaff.joinDate}</div>
+                  <div style={{ fontSize: 12 }}><span style={{ color: C.textMid }}>{t("deptStaff.status")}</span><span style={{ color: selectedStaff.status === "online" ? C.success : selectedStaff.status === "busy" ? C.warning : C.textLight }}>{selectedStaff.status === "online" ? t("deptStaff.status.online") : selectedStaff.status === "busy" ? t("deptStaff.status.busy") : t("deptStaff.status.offline")}</span></div>
                 </div>
               </div>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, marginBottom: 12, borderBottom: `1px solid ${C.borderLight}`, paddingBottom: 8 }}>{t("deptStaff.permissions")}</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
                   {(ROLES[selectedStaff.role]?.permission || []).map((p) => <PermissionTag key={p} permission={p} />)}
-                  {(((!ROLES[selectedStaff.role]?.permission || []) as unknown) as { length: number }).length === 0 && <span style={{ fontSize: 13, color: C.textLight, fontStyle: "italic" }}>{t("deptStaff.noPermissions")}</span>}
+                  {(((!ROLES[selectedStaff.role]?.permission || []) as unknown) as { length: number }).length === 0 && <span style={{ fontSize: 12, color: C.textLight, fontStyle: "italic" }}>{t("deptStaff.noPermissions")}</span>}
                 </div>
               </div>
             </div>

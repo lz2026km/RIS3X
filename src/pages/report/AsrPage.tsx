@@ -200,7 +200,7 @@ export default function AsrPage() {
         {loading && (
           <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 24, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", textAlign: "center" }}>
             <RefreshCw size={24} color="#3b82f6" style={{ animation: "spin 1s linear infinite" }} />
-            <div style={{ marginTop: 8, color: "#64748b", fontSize: 13 }}>{rt("transcribing")}</div>
+            <div style={{ marginTop: 8, color: "#64748b", fontSize: 12 }}>{rt("transcribing")}</div>
           </div>
         )}
 
@@ -232,19 +232,19 @@ export default function AsrPage() {
               value={editing}
               onChange={e => setEditing(e.target.value)}
               rows={6}
-              style={{ width: "100%", padding: 12, border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 13, fontFamily: "monospace", lineHeight: 1.6, resize: "vertical" }}
+              style={{ width: "100%", padding: 12, border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12, fontFamily: "monospace", lineHeight: 1.6, resize: "vertical" }}
             />
             <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
               {!submitted ? (
-                <button onClick={handleSubmit} style={{ padding: "8px 20px", background: "#10b981", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+                <button onClick={handleSubmit} style={{ padding: "8px 20px", background: "#10b981", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
                   <Send size={14} />{rt("submitToReport")}
                 </button>
               ) : (
-                <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#10b981", fontWeight: 600, fontSize: 13 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#10b981", fontWeight: 600, fontSize: 12 }}>
                   <CheckCircle size={16} />{rt("submitted")}
                 </div>
               )}
-              <button onClick={handleReset} style={{ padding: "8px 20px", background: "var(--bg-card)", color: "#475569", border: "1px solid #cbd5e1", borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+              <button onClick={handleReset} style={{ padding: "8px 20px", background: "var(--bg-card)", color: "#475569", border: "1px solid #cbd5e1", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
                 <RefreshCw size={14} />{rt("reset")}
               </button>
             </div>
@@ -282,7 +282,7 @@ export default function AsrPage() {
                   value={lexQuery}
                   onChange={(e) => handleSearch(e.target.value)}
                   placeholder={t("asrPage.searchPlaceholder")}
-                  style={{ padding: "6px 10px 6px 30px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 13, width: 200 }}
+                  style={{ padding: "6px 10px 6px 30px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12, width: 200 }}
                 />
               </div>
               <span style={{ fontSize: 12, color: "#64748b" }}>{t("asrPage.totalEntries", { count: lexicon.length })}</span>
@@ -295,12 +295,12 @@ export default function AsrPage() {
               value={lexForm.term}
               onChange={(e) => setLexForm((f) => ({ ...f, term: e.target.value }))}
               placeholder={t("asrPage.termPlaceholder")}
-              style={{ padding: "6px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 13, width: 160 }}
+              style={{ padding: "6px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12, width: 160 }}
             />
             <select
               value={lexForm.category}
               onChange={(e) => setLexForm((f) => ({ ...f, category: e.target.value as LexiconEntry["category"] }))}
-              style={{ padding: "6px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 13 }}
+              style={{ padding: "6px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12 }}
             >
               {Object.keys(CATEGORY_COLORS).map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
@@ -309,19 +309,19 @@ export default function AsrPage() {
               value={lexForm.priority}
               onChange={(e) => setLexForm((f) => ({ ...f, priority: Number(e.target.value) || 0 }))}
               placeholder={t("asrPage.priorityPlaceholder")}
-              style={{ padding: "6px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 13, width: 80 }}
+              style={{ padding: "6px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12, width: 80 }}
             />
             <input
               value={lexForm.aliases}
               onChange={(e) => setLexForm((f) => ({ ...f, aliases: e.target.value }))}
               placeholder={t("asrPage.aliasesPlaceholder")}
-              style={{ padding: "6px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 13, flex: 1, minWidth: 200 }}
+              style={{ padding: "6px 10px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12, flex: 1, minWidth: 200 }}
             />
-            <button onClick={handleLexiconSubmit} style={{ padding: "6px 14px", background: editingId ? "#f59e0b" : "#3b82f6", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+            <button onClick={handleLexiconSubmit} style={{ padding: "6px 14px", background: editingId ? "#f59e0b" : "#3b82f6", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
               {editingId ? <Save size={14} /> : <Plus size={14} />}{editingId ? t("asrPage.saveEdit") : t("asrPage.addEntry")}
             </button>
             {editingId && (
-              <button onClick={cancelEdit} style={{ padding: "6px 14px", background: "var(--bg-card)", color: "#475569", border: "1px solid #cbd5e1", borderRadius: 6, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
+              <button onClick={cancelEdit} style={{ padding: "6px 14px", background: "var(--bg-card)", color: "#475569", border: "1px solid #cbd5e1", borderRadius: 6, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 6 }}>
                 <X size={14} />{t("common.action.cancel")}
               </button>
             )}
@@ -329,7 +329,7 @@ export default function AsrPage() {
 
           {/* 词库表格 */}
           <div style={{ overflowX: "auto", maxHeight: 320, overflowY: "auto", border: "1px solid #e2e8f0", borderRadius: 8 }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
               <thead style={{ position: "sticky", top: 0, background: "#f1f5f9" }}>
                 <tr>
                   {[t("asrPage.colTerm"), t("asrPage.colCategory"), t("asrPage.colPriority"), t("asrPage.colAliases"), t("asrPage.colActions")].map((h) => (
@@ -371,7 +371,7 @@ export default function AsrPage() {
                 <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 4px", borderBottom: "1px solid #f1f5f9" }}>
                   <ChevronRight size={14} color="#cbd5e1" />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <div style={{ fontSize: 12, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {t("asrPage.report")} {s.reportId} <span style={{ color: "#94a3b8", fontWeight: 400 }}>· {s.doctorId}</span>
                     </div>
                     <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{new Date(s.createdAt).toLocaleString()} · {s.duration}s</div>

@@ -146,7 +146,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     gap: 6,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: 500,
   },
 
@@ -191,7 +191,7 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'space-between',
   },
   cardTitle: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: 700,
     color: PRIMARY,
     display: 'flex',
@@ -254,7 +254,7 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: 4,
   },
   roomPatient: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: 600,
     color: TEXT_DARK,
     marginTop: 8,
@@ -314,7 +314,7 @@ const styles: Record<string, React.CSSProperties> = {
     letterSpacing: -2,
   },
   callPatientName: {
-    fontSize: 42,
+    fontSize: 36,
     fontWeight: 700,
     marginTop: 8,
     letterSpacing: 6,
@@ -474,7 +474,7 @@ const styles: Record<string, React.CSSProperties> = {
     textAlign: 'center' as const,
   },
   statValue: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: 700,
     color: PRIMARY,
   },
@@ -552,12 +552,12 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '8px 12px',
     border: '1px solid var(--border-color)',
     borderRadius: 8,
-    fontSize: 13, },
+    fontSize: 12, },
   filterSelect: {
     padding: '8px 12px',
     border: '1px solid var(--border-color)',
     borderRadius: 8,
-    fontSize: 13, background: 'var(--bg-card)',
+    fontSize: 12, background: 'var(--bg-card)',
   },
 }
 
@@ -1044,7 +1044,7 @@ export default function QueueCallPage() {
               {selectedRoom && (
                 <div style={{ marginTop: 12, padding: 12, background: 'var(--color-info-bg)', borderRadius: 10, border: `1px solid ${PRIMARY_LIGHT}40` }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>
                       {roomDetail?.roomName ?? selectedRoom} {t('queueCall.roomDetail')}
                     </span>
                     <button
@@ -1070,7 +1070,7 @@ export default function QueueCallPage() {
                           <div style={{ fontSize: 12, color: TEXT_MUTED }}>{t('queueCall.emptyRoomQueue')}</div>
                         ) : (roomDetail?.queue ?? []).map((q: any, idx: number) => (
                           <div key={q.id ?? idx} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid var(--border-color)' }}>
-                            <span style={{ fontSize: 13, fontWeight: 800, color: PRIMARY, width: 50 }}>{q.queueNum ?? '-'}</span>
+                            <span style={{ fontSize: 12, fontWeight: 800, color: PRIMARY, width: 50 }}>{q.queueNum ?? '-'}</span>
                             <span style={{ flex: 1, fontSize: 12, fontWeight: 600 }}>{q.patientName ?? '-'}</span>
                             <span style={{ fontSize: 12, color: TEXT_MUTED }}>{q.examItemName ?? q.examItem ?? ''}</span>
                             <span style={{ ...styles.statusBadge, ...getStatusStyle(q.status) }}>{q.status ?? '-'}</span>
@@ -1139,7 +1139,7 @@ export default function QueueCallPage() {
                   <div key={type} style={{ marginBottom: 12 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                       <span style={{ ...styles.typeBadge, ...getTypeStyle(type) }}>{type}</span>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: TEXT_DARK }}>{count}{t('queueCall.personSuffix')}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: TEXT_DARK }}>{count}{t('queueCall.personSuffix')}</span>
                     </div>
                     <div style={{ background: 'var(--border-color)', borderRadius: 4, height: 8, overflow: 'hidden' }}>
                       <div style={{ 
@@ -1174,7 +1174,7 @@ export default function QueueCallPage() {
                   <div key={priority} style={{ marginBottom: 12 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                       <span style={{ ...styles.priorityBadge, ...getPriorityStyle(priority) }}>{priority}</span>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: TEXT_DARK }}>{count}{t('queueCall.personSuffix')}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: TEXT_DARK }}>{count}{t('queueCall.personSuffix')}</span>
                     </div>
                     <div style={{ background: 'var(--border-color)', borderRadius: 4, height: 8, overflow: 'hidden' }}>
                       <div style={{ 

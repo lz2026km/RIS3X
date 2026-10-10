@@ -8,14 +8,16 @@ import { PageContainer } from "../../components/common/PageContainer";
 import { PageHeader } from "../../components/common/PageHeader";
 import { StickyActionBar } from "../../components/common/StickyActionBar";
 import { StatCard, StatCardGrid } from "../../components/common/StatCard";
+import { DataTable } from "../../components/common";
 import { EmptyState } from "../../components/common/EmptyState";
 import { AppText } from "../../components/common/AppText";
-import { THEME_TOKENS } from "../../components/common/ThemeTokens";
 import { DOCTOR_MASTER } from '../../data/master';
 import { DOCTOR_PERFORMANCE_PRE } from "../../data/_generators";
 import { qcextApi, type RadiologistAnnualDto } from '../../services/api/qcextApi';
 import { LoadingBanner, ErrorBanner } from '../../components/feedback';
 import { t } from '../../i18n/appI18n';
+
+type AnnualCompareRow = { metric: string; selected: string | number; dept: string | number; unit: string; better: string };
 
 function downloadCsv(filename: string, sections: Array<{ title: string; rows: (string | number)[][] }>) {
   const lines: string[] = [];
@@ -141,38 +143,49 @@ export default function RadiologistAnnualQCPage() {
               <span style={{ marginLeft: 8, padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "var(--color-warning-bg)", color: "#92400e" }}>{t('annualQc.demoData')}</span>
             </h3>
             <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ background: "var(--bg-card)" }}>
-                    <th style={{ padding: 8, textAlign: "left", fontWeight: 600, color: THEME_TOKENS.textSecondary }}>{t('annualQc.colMetric')}</th>
-                    <th style={{ padding: 8, textAlign: "right", fontWeight: 600, color: "#1e40af" }}>{selected.name}</th>
-                    <th style={{ padding: 8, textAlign: "right", fontWeight: 600, color: THEME_TOKENS.textSecondary }}>{t('annualQc.colDeptAvg')}</th>
-                    <th style={{ padding: 8, textAlign: "right", fontWeight: 600, color: THEME_TOKENS.textSecondary }}>{t('annualQc.colDiff')}</th>
-                    <th style={{ padding: 8, textAlign: "center", fontWeight: 600, color: THEME_TOKENS.textSecondary }}>{t('annualQc.colConclusion')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {compareData.map((c) => {
-                    const diff = parseFloat(String(c.selected)) - parseFloat(String(c.dept));
-                    const better = c.better === "low" ? diff < 0 : diff > 0;
-                    return (
-                      <tr key={c.metric} style={{ borderBottom: "1px solid var(--border-color)" }}>
-                        <td style={{ padding: 8 }}>{t(c.metric)}</td>
-                        <td style={{ padding: 8, textAlign: "right", fontWeight: 700, color: "var(--text-primary)" }}>{c.selected} {t(c.unit)}</td>
-                        <td style={{ padding: 8, textAlign: "right" }}>{c.dept} {t(c.unit)}</td>
-                        <td style={{ padding: 8, textAlign: "right", color: diff === 0 ? "#64748b" : diff > 0 ? "#059669" : "#dc2626", fontWeight: 600 }}>
-                          {diff > 0 ? "+" : ""}{Math.abs(diff) < 0.05 ? "0" : diff.toFixed(1)} {t(c.unit)}
-                        </td>
-                        <td style={{ padding: 8, textAlign: "center" }}>
-                          <span style={{ padding: "2px 10px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: better ? "var(--color-success-bg)" : "var(--color-error-bg)", color: better ? "#065f46" : "#991b1b" }}>
-                            {better ? t('annualQc.betterThanAvg') : t('annualQc.belowAvg')}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+              <DataTable<AnnualCompareRow>
+                rowKey="metric"
+                dataSource={compareData}
+                showPagination={false}
+                showExport={false}
+                showDensity={false}
+                columns={[
+                  { title: t('annualQc.colMetric'), dataIndex: 'metric', key: 'metric', render: (v: string) => t(v) },
+                  {
+                    title: selected.name, key: 'selected', align: 'right',
+                    render: (_: unknown, c: AnnualCompareRow) => (
+                      <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{c.selected} {t(c.unit)}</span>
+                    ),
+                  },
+                  {
+                    title: t('annualQc.colDeptAvg'), key: 'dept', align: 'right',
+                    render: (_: unknown, c: AnnualCompareRow) => <>{c.dept} {t(c.unit)}</>,
+                  },
+                  {
+                    title: t('annualQc.colDiff'), key: 'diff', align: 'right',
+                    render: (_: unknown, c: AnnualCompareRow) => {
+                      const diff = parseFloat(String(c.selected)) - parseFloat(String(c.dept));
+                      return (
+                        <span style={{ color: diff === 0 ? '#64748b' : diff > 0 ? '#059669' : '#dc2626', fontWeight: 600 }}>
+                          {diff > 0 ? '+' : ''}{Math.abs(diff) < 0.05 ? '0' : diff.toFixed(1)} {t(c.unit)}
+                        </span>
+                      );
+                    },
+                  },
+                  {
+                    title: t('annualQc.colConclusion'), key: 'conclusion', align: 'center',
+                    render: (_: unknown, c: AnnualCompareRow) => {
+                      const diff = parseFloat(String(c.selected)) - parseFloat(String(c.dept));
+                      const better = c.better === 'low' ? diff < 0 : diff > 0;
+                      return (
+                        <span style={{ padding: '2px 10px', borderRadius: 999, fontSize: 11, fontWeight: 600, background: better ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: better ? '#065f46' : '#991b1b' }}>
+                          {better ? t('annualQc.betterThanAvg') : t('annualQc.belowAvg')}
+                        </span>
+                      );
+                    },
+                  },
+                ]}
+              />
             </div>
           </div>
         </div>
@@ -184,7 +197,7 @@ export default function RadiologistAnnualQCPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('annualQc.searchDoctor')}
-            style={{ width: "100%", padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 13, marginBottom: 12 }}
+            style={{ width: "100%", padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12, marginBottom: 12 }}
           />
           {filteredDoctors.slice(0, 50).map((d) => (
             <button
@@ -221,7 +234,7 @@ export default function RadiologistAnnualQCPage() {
           <div>
             <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", marginBottom: 16 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
-                <div style={{ width: 64, height: 64, background: "linear-gradient(135deg, #1e40af, #3b82f6)", color: "#fff", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 700 }}>
+                <div style={{ width: 64, height: 64, background: "linear-gradient(135deg, #1e40af, #3b82f6)", color: "#fff", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30, fontWeight: 700 }}>
                   {selected.name[0]}
                 </div>
                 <div style={{ flex: 1 }}>
@@ -231,7 +244,7 @@ export default function RadiologistAnnualQCPage() {
                   </AppText>
                 </div>
                 <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: 26, fontWeight: 700, color: selected.annualQCScore >= 90 ? "#10b981" : "#f59e0b" }}>{selected.annualQCScore}</div>
+                  <div style={{ fontSize: 24, fontWeight: 700, color: selected.annualQCScore >= 90 ? "#10b981" : "#f59e0b" }}>{selected.annualQCScore}</div>
                   <AppText size="xs" color="muted" as="div">{t('annualQc.annualScore')}</AppText>
                 </div>
               </div>
@@ -255,7 +268,7 @@ export default function RadiologistAnnualQCPage() {
                       <div key={h.id} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
                         <div style={{ fontSize: 10, color: "var(--text-primary)", fontWeight: 700 }}>{h.qcScore}</div>
                         <div style={{ width: "100%", height: `${(h.qcScore / 100) * 160}px`, background: h.qcScore >= 90 ? "linear-gradient(180deg, #10b981, #059669)" : h.qcScore >= 80 ? "linear-gradient(180deg, #f59e0b, #d97706)" : "linear-gradient(180deg, #dc2626, #991b1b)", borderRadius: "4px 4px 0 0", minHeight: 4 }} />
-                        <div style={{ fontSize: 9, color: "#94a3b8" }}>{h.month.slice(5)}</div>
+                        <div style={{ fontSize: 10, color: "#94a3b8" }}>{h.month.slice(5)}</div>
                       </div>
                     ))}
                   </div>

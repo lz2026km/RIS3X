@@ -12,7 +12,7 @@ const AiDiagnosisCard: React.FC<{ diagnosis: AiDiagnosis }> = ({
     title={
       <Space>
         <Brain size={16} />
-        <span style={{ fontSize: 13 }}>
+        <span style={{ fontSize: 12 }}>
           {diagnosis.modelName} v{diagnosis.modelVersion}
         </span>
         <Tag color="cyan">{diagnosis.vendor}</Tag>
@@ -32,7 +32,7 @@ const AiDiagnosisCard: React.FC<{ diagnosis: AiDiagnosis }> = ({
       )
     }
   >
-    <div style={{ fontSize: 13, marginBottom: 8 }}>
+    <div style={{ fontSize: 12, marginBottom: 8 }}>
       <Badge
         status={
           diagnosis.severity === "severe"

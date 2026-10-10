@@ -546,7 +546,7 @@ const CriticalValuePanelV2: React.FC<CriticalValuePanelV2Props> = ({ compact = f
         cancelText={t('criticalValueV2.cancel')}
       >
         <Space direction="vertical" style={{ width: '100%' }}>
-          <div style={{ fontSize: 13 }}>
+          <div style={{ fontSize: 12 }}>
             {t('criticalValueV2.modal.patient')} <strong>{selectedTrigger?.patientName}</strong> · {selectedTrigger?.ruleName}
             <br />
             <span style={{ color: '#64748b', fontSize: 12 }}>{t('criticalValueV2.modal.recipient')} {confirmTarget?.notification.recipientName} ({confirmTarget?.notification.recipientDept})</span>

@@ -10,7 +10,7 @@ const containerStyle: CSSProperties = {
   color: 'var(--state-loading-fg, #1e40af)',
   border: '1px solid var(--state-loading-border, #bfdbfe)',
   borderRadius: 6,
-  fontSize: 13,
+  fontSize: 12,
   display: 'flex',
   alignItems: 'center',
   gap: 8,

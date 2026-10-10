@@ -197,7 +197,7 @@ export const MprViewerPage: React.FC = () => {
             {rebuild.done ? (
               <>
                 <CheckCircle2 size={40} color="#00ff88" />
-                <div style={{ color: '#00ff88', marginTop: 8, fontSize: 13, fontWeight: 600 }}>{t('w9d.mprViewer.volumeDone')}</div>
+                <div style={{ color: '#00ff88', marginTop: 8, fontSize: 12, fontWeight: 600 }}>{t('w9d.mprViewer.volumeDone')}</div>
                 <div style={{ color: 'var(--text-secondary)', fontSize: 11, marginTop: 4 }}>
                   {t('w9d.mprViewer.volumeInfo')}
                 </div>

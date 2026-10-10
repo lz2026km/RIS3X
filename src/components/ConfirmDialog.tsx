@@ -214,7 +214,7 @@ interface FormFieldProps {
 export const FormField = React.memo(function FormField({ label, error, required, children }: FormFieldProps) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <label style={{ fontSize: 13, fontWeight: 500, color: '#334155' }}>
+      <label style={{ fontSize: 12, fontWeight: 500, color: '#334155' }}>
         {label}
         {required && <span aria-label="必填" style={{ color: '#ef4444', marginLeft: 2 }}>*</span>}
       </label>

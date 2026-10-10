@@ -19,7 +19,7 @@ interface DetailPanelProps {
 }
 
 const labelStyle: React.CSSProperties = { fontSize: 12, color: '#94a3b8', marginBottom: 2 }
-const valueStyle: React.CSSProperties = { fontSize: 13, fontWeight: 600, color: '#1e40af' }
+const valueStyle: React.CSSProperties = { fontSize: 12, fontWeight: 600, color: '#1e40af' }
 
 export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpRecords, historyEvents }: DetailPanelProps) => {
   const tabs = [
@@ -42,7 +42,7 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <ShieldAlert size={20} style={{ color: '#dc2626' }} />
           <div>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#dc2626' }}>{t('critDetail.title')}</div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: '#dc2626' }}>{t('critDetail.title')}</div>
             <div style={{ fontSize: 12, color: '#94a3b8' }}>{cv.id} · {cv.patientName}</div>
           </div>
         </div>
@@ -127,13 +127,13 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
               {cv.exceedRatio && (
                 <div style={{ marginTop: 12, padding: '8px 12px', background: 'var(--color-error-bg)', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <TrendingUp size={14} style={{ color: '#dc2626' }} />
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#dc2626' }}>{t('critDetail.exceed', { value: cv.exceedRatio })}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#dc2626' }}>{t('critDetail.exceed', { value: cv.exceedRatio })}</span>
                 </div>
               )}
             </div>
             <div style={{ marginBottom: 16 }}>
               <div style={{ ...labelStyle, marginBottom: 6 }}>{t('critDetail.description')}</div>
-              <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 14, border: '1px solid var(--border-color)', fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.7 }}>
+              <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 14, border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.7 }}>
                 {cv.findingDetails}
               </div>
             </div>
@@ -153,7 +153,7 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
             <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <Bell size={16} style={{ color: '#d97706' }} />
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>{t('critDetail.reportInfo')}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{t('critDetail.reportInfo')}</span>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 {[{ label: t('critDetail.reportedTime'), value: cv.reportedTime }, { label: t('critDetail.reportedBy'), value: cv.reportedByName }, { label: t('critDetail.notifyMethod'), value: cv.notificationMethod }, { label: t('critDetail.receivingDept'), value: cv.receivingDepartment }].map(item => (
@@ -164,7 +164,7 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
             <div style={{ background: 'var(--color-warning-bg)', borderRadius: 10, padding: 16, border: '1px solid var(--color-warning-border)', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <PhoneIncoming size={16} style={{ color: '#ea580c' }} />
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#ea580c' }}>{t('critDetail.phoneNotify')}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#ea580c' }}>{t('critDetail.phoneNotify')}</span>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 {[{ label: t('critDetail.phoneCaller'), value: cv.voiceCalledBy || cv.receivingDoctorName || t('critDetail.toNotify') }, { label: t('critDetail.notifyTime'), value: cv.voiceCalledAt || cv.receivingTime || '-' }].map(item => (
@@ -175,7 +175,7 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
             <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <Stethoscope size={16} style={{ color: '#1e40af' }} />
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>{t('critDetail.receiveClinical')}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{t('critDetail.receiveClinical')}</span>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 {[{ label: t('critDetail.receivingDoctor'), value: cv.receivingDoctorName || t('critDetail.toAssign') }, { label: t('critDetail.receivingTime'), value: cv.receivingTime || '-' }, { label: t('critDetail.clinicalReply'), value: cv.acknowledgedBy || t('critDetail.toReply') }, { label: t('critDetail.replyTime'), value: cv.acknowledgedTime || '-' }].map(item => (
@@ -186,7 +186,7 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
             <div style={{ background: 'var(--color-success-bg)', borderRadius: 10, padding: 16, border: '1px solid var(--color-success-border)', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <CheckCircle size={16} style={{ color: '#16a34a' }} />
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#16a34a' }}>{t('critDetail.clinicalReceipt')}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#16a34a' }}>{t('critDetail.clinicalReceipt')}</span>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 {[{ label: t('critDetail.confirmedBy'), value: cv.confirmedBy || t('critDetail.toReceipt') }, { label: t('critDetail.receiptTime'), value: cv.confirmedAt || '-' }, { label: t('critDetail.signature'), value: cv.confirmedSignature || '-' }, { label: t('critDetail.receiptNote'), value: cv.confirmedComment || '-' }].map(item => (
@@ -221,13 +221,13 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
             {cv.processingMeasure && (
               <div style={{ marginBottom: 16 }}>
                 <div style={{ ...labelStyle, marginBottom: 6 }}>{t('critDetail.processingMeasure')}</div>
-                <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 14, border: '1px solid var(--border-color)', fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.6 }}>{cv.processingMeasure}</div>
+                <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 14, border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6 }}>{cv.processingMeasure}</div>
               </div>
             )}
             {cv.processingResult && (
               <div>
                 <div style={{ ...labelStyle, marginBottom: 6 }}>{t('critDetail.processingResult')}</div>
-                <div style={{ background: 'var(--color-success-bg)', borderRadius: 8, padding: 14, border: '1px solid var(--color-success-border)', fontSize: 13, color: '#166534', lineHeight: 1.6, fontWeight: 600 }}>{cv.processingResult}</div>
+                <div style={{ background: 'var(--color-success-bg)', borderRadius: 8, padding: 14, border: '1px solid var(--color-success-border)', fontSize: 12, color: '#166534', lineHeight: 1.6, fontWeight: 600 }}>{cv.processingResult}</div>
               </div>
             )}
           </div>
@@ -249,7 +249,7 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
                     {idx < cv.timeline.length - 1 && <div style={{ width: 2, flex: 1, background: 'var(--border-color)', marginTop: 4, minHeight: 20 }} />}
                   </div>
                   <div style={{ flex: 1, paddingTop: 4 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>{event.event}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{event.event}</div>
                     <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{event.time}</div>
                     <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{event.user}</div>
                     {event.detail && (
@@ -272,7 +272,7 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
                         <div style={{ width: 2, flex: 1, background: 'var(--border-color)', marginTop: 4, minHeight: 20 }} />
                       </div>
                       <div style={{ flex: 1, paddingTop: 4 }}>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: '#4338ca' }}>{event.event}</div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: '#4338ca' }}>{event.event}</div>
                         <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{event.time}</div>
                         <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{event.user}</div>
                         {event.detail && (

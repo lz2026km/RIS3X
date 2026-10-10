@@ -326,7 +326,7 @@ const s: Record<string, React.CSSProperties> = {
     display: "flex",
     alignItems: "center",
     gap: 4,
-    fontSize: 13,
+    fontSize: 12,
     color: "var(--text-muted, #64748b)",
     minWidth: 0,
     overflow: "hidden",
@@ -987,7 +987,7 @@ export function AppLayout() {
                   border: "1px solid var(--border-color, #475569)",
                   background: "var(--bg-deep, #0f172a)",
                   color: "var(--text-header, #f1f5f9)",
-                  fontSize: 13,
+                  fontSize: 12,
                   outline: "none",
                   transition: "border-color 0.15s",
                 }}
@@ -1044,7 +1044,7 @@ export function AppLayout() {
                       }}
                       style={{
                         padding: "8px 12px",
-                        fontSize: 13,
+                        fontSize: 12,
                         cursor: "pointer",
                         display: "flex",
                         alignItems: "center",
@@ -1143,7 +1143,7 @@ export function AppLayout() {
             <span
               className="hide-xs"
               style={{
-                fontSize: 13,
+                fontSize: 12,
                 color: "var(--text-secondary, #c8ccd4)",
                 fontVariantNumeric: "tabular-nums",
               }}

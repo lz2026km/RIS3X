@@ -279,7 +279,7 @@ export default function ReportDeliveryPage() {
         return (
           <div style={{ minWidth: 220 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{r.patientName}</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{r.patientName}</span>
               <span style={{ fontSize: 12, padding: '1px 4px', borderRadius: 2, background: cConf.bg, color: cConf.color, fontWeight: 600 }}>{cConf.label}</span>
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
@@ -382,7 +382,7 @@ export default function ReportDeliveryPage() {
       {fromReportId && (
         <div style={{
           marginBottom: 12, padding: '10px 14px', background: 'var(--color-success-bg)', border: '1px solid #bbf7d0',
-          borderRadius: 8, fontSize: 13, color: '#166534', display: 'flex', alignItems: 'center', gap: 8,
+          borderRadius: 8, fontSize: 12, color: '#166534', display: 'flex', alignItems: 'center', gap: 8,
         }}>
           <Send size={14} />
           <span>
@@ -436,7 +436,7 @@ export default function ReportDeliveryPage() {
       {/* [G005 W8-Report] 召回通知列表 (HL7 ORU C + 临床回执) */}
       {Object.keys(recalls).length > 0 && (
         <div style={{ marginBottom: 16, border: '1px solid var(--border-color)', borderRadius: 8, background: 'var(--bg-card)', padding: 12 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#dc2626', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#dc2626', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Undo2 size={13} /> {t('w8Report.recall.listTitle')} ({Object.keys(recalls).length})
           </div>
           <div style={{ display: 'grid', gap: 6 }}>
@@ -607,7 +607,7 @@ export default function ReportDeliveryPage() {
           value={recallReason}
           onChange={e => setRecallReason(e.target.value)}
           placeholder={t('reportDelivery.recallReasonPlaceholder')}
-          style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13, resize: 'vertical' }}
+          style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, resize: 'vertical' }}
         />
       </Modal>
 
@@ -641,7 +641,7 @@ export default function ReportDeliveryPage() {
             ].map(item => (
               <div key={item.label} style={{ padding: '8px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6 }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 2 }}>{item.label}</div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', wordBreak: 'break-all' }}>{item.value}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', wordBreak: 'break-all' }}>{item.value}</div>
               </div>
             ))}
             {recalls[detailTarget.id] && (() => {

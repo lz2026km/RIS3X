@@ -20,6 +20,7 @@ import { t } from '../../i18n/appI18n'
 import { PageHeader } from '../../components/common/PageHeader'
 import { StatCard, StatCardGrid } from '../../components/common/StatCard'
 import { EmptyState } from '../../components/common/EmptyState'
+import { DataTable } from '../../components/common'
 
 const shiftLabel = (shift: TechShift) => t(`techRotation.shift.${shift}`)
 
@@ -599,28 +600,23 @@ export default function TechRotationPage() {
           </div>
           {executions.length > 0 ? (
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 720, fontSize: 12 }}>
-                <thead>
-                  <tr>
-                    {[t('techRotation.thDate'), t('techRotation.thShift'), t('techRotation.thTech'), t('techRotation.thRoom'), t('techRotation.thStatus'), t('techRotation.thExecTime'), t('techRotation.thNote')].map((h) => (
-                      <th key={h} style={thStyle}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {executions.slice(0, 12).map((e) => (
-                    <tr key={e.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                      <td style={tdStyle}>{e.date}</td>
-                      <td style={tdStyle}>{shiftLabel(e.shift)}</td>
-                      <td style={tdStyle}><b>{e.technicianName}</b></td>
-                      <td style={tdStyle}>{e.roomId ? ROOM_DEMO.find((r) => r.id === e.roomId)?.name ?? e.roomId : t('techRotation.mobile')}</td>
-                      <td style={tdStyle}><Tag color={e.status === 'EXECUTED' ? 'green' : 'orange'}>{e.status === 'EXECUTED' ? t('techRotation.executed') : t('techRotation.skipped')}</Tag></td>
-                      <td style={tdStyle}>{e.executedAt.slice(0, 16).replace('T', ' ')}</td>
-                      <td style={tdStyle}><span style={{ color: 'var(--text-secondary)' }}>{e.note ?? '-'}</span></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <DataTable
+                dataSource={executions.slice(0, 12)}
+                rowKey="id"
+                pagination={false}
+                columns={[
+                  { title: t('techRotation.thDate'), dataIndex: 'date' },
+                  { title: t('techRotation.thShift'), dataIndex: 'shift', render: (v: TechShift) => shiftLabel(v) },
+                  { title: t('techRotation.thTech'), dataIndex: 'technicianName', render: (v: string) => <b>{v}</b> },
+                  { title: t('techRotation.thRoom'), dataIndex: 'roomId', render: (v: string | null) => v ? ROOM_DEMO.find((r) => r.id === v)?.name ?? v : t('techRotation.mobile') },
+                  {
+                    title: t('techRotation.thStatus'), dataIndex: 'status',
+                    render: (v: string) => <Tag color={v === 'EXECUTED' ? 'green' : 'orange'}>{v === 'EXECUTED' ? t('techRotation.executed') : t('techRotation.skipped')}</Tag>,
+                  },
+                  { title: t('techRotation.thExecTime'), dataIndex: 'executedAt', render: (v: string) => v.slice(0, 16).replace('T', ' ') },
+                  { title: t('techRotation.thNote'), dataIndex: 'note', render: (v: string | null | undefined) => <span style={{ color: 'var(--text-secondary)' }}>{v ?? '-'}</span> },
+                ]}
+              />
             </div>
           ) : (
             <EmptyState description={t('techRotation.noExec')} />
@@ -640,7 +636,7 @@ export default function TechRotationPage() {
         destroyOnClose
       >
         {execModal && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12 }}>
             <div>{t('techRotation.execTech')} <b>{execModal.techName}</b></div>
             <div>{t('techRotation.execDate')} {execModal.date} · {shiftLabel(execModal.shift)}</div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('techRotation.execConfirmHint')}</div>

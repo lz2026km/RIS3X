@@ -128,7 +128,7 @@ export function TemplatePendingSection() {
         onCancel={() => setRejectTarget(null)}
         confirmLoading={!!rejectTarget && actingId === rejectTarget.id}
       >
-        <div style={{ marginBottom: 8, fontSize: 13 }}>
+        <div style={{ marginBottom: 8, fontSize: 12 }}>
           {rejectTarget?.name}
         </div>
         <Input.TextArea

@@ -257,7 +257,7 @@ export function PageHeader({
           {title}
         </As>
         {subtitle && (
-          <span style={{ fontSize: 13, color: "var(--color-gray-500, #64748b)" }}>
+          <span style={{ fontSize: 12, color: "var(--color-gray-500, #64748b)" }}>
             {subtitle}
           </span>
         )}
@@ -321,7 +321,7 @@ export function PageHeader({
               <p
                 style={{
                   margin: "4px 0 0",
-                  fontSize: 13,
+                  fontSize: 12,
                   color: "var(--color-gray-500, #64748b)",
                   display: "flex",
                   alignItems: "center",

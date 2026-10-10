@@ -3,7 +3,9 @@
 // 顶部: 技师今日概览卡 (进行中/待检/已完成/重拍数)
 // 一键流转: 报到→开始→完成 (每步确认 + 可附注); 完成强制检查项; 重拍登记; 危急置顶
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import type { HTMLAttributes } from 'react'
 import { Button, Checkbox, Empty, Input, InputNumber, Modal, Radio, Select, Spin, Tag, Tooltip, message } from 'antd'
+import type { TableColumnsType } from 'antd'
 import {
   Activity, AlertTriangle, ArrowRightLeft, CheckCircle2, ClipboardList,
   DoorOpen, FileText, Flame, Gauge, Layers, ListOrdered, Play, RadioTower, RefreshCw,
@@ -43,6 +45,7 @@ import ExamRoomStatusBoard from './ExamRoomStatusBoard'
 import RetakeRateAnalyticsPage from './RetakeRateAnalyticsPage'
 // [v3.0.6.11-104 Wave 3D] 检查流程模板面板 (登记核对/妊娠询问/摆位/质控)
 import WorkflowTemplatePanel from '../../components/common/WorkflowTemplatePanel'
+import { DataTable } from '../../components/common'
 
 // ============================================================
 // 工具
@@ -619,6 +622,26 @@ export default function TechWorkbenchPage() {
 
   const renderExecution = () => {
     const validation = execution?.validation
+
+    const qcColumns: TableColumnsType<any> = [
+      { title: t('w7exec.seriesNumber'), dataIndex: 'seriesNumber', key: 'seriesNumber', render: (v: number) => <span style={{ fontWeight: 600 }}>#{v}</span> },
+      { title: t('w7exec.imageCount'), dataIndex: 'imageCount', key: 'imageCount' },
+      {
+        title: t('w7exec.seriesQc'), key: 'qc',
+        render: (_v: unknown, s: any) => (
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+            <Input size="small" style={{ width: 140 }} placeholder={t('w7exec.qcReason')} value={qcReasons[s.seriesNumber] ?? ''} onChange={e => setQcReasons(r => ({ ...r, [s.seriesNumber]: e.target.value }))} />
+            <Button size="small" style={{ color: '#059669' }} disabled={execBusy} onClick={() => void submitSeriesQc(s.seriesNumber, 'PASS')}>
+              {t('w7exec.qcPass')}
+            </Button>
+            <Button size="small" danger disabled={execBusy} onClick={() => void submitSeriesQc(s.seriesNumber, 'REJECT')}>
+              {t('w7exec.qcReject')}
+            </Button>
+          </div>
+        ),
+      },
+    ]
+
     return (
       <div data-testid="execution-tab">
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 14, flexWrap: 'wrap' }}>
@@ -642,7 +665,7 @@ export default function TechWorkbenchPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {/* 协议 + 曝光参数 */}
               <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 16px' }} data-testid="exec-protocol-panel">
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
                   <ScanLine size={14} /> {t('w7exec.protocol')}
                 </div>
                 <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', marginBottom: 10 }}>
@@ -680,7 +703,7 @@ export default function TechWorkbenchPage() {
 
               {/* 序列 + 序列级 QC */}
               <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 16px' }} data-testid="exec-series-panel">
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
                   <Layers size={14} /> {t('w7exec.series')}
                   <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>{t('w7exec.seriesQcDesc')}</span>
                 </div>
@@ -702,34 +725,16 @@ export default function TechWorkbenchPage() {
                 {execution.series.length === 0 ? (
                   <Empty description={t('w7exec.empty')} style={{ padding: 16 }} />
                 ) : (
-                  <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: 12 }} data-testid="exec-series-table">
-                    <thead>
-                      <tr style={{ color: 'var(--text-secondary)', textAlign: 'left' }}>
-                        <th style={{ padding: '4px 6px' }}>{t('w7exec.seriesNumber')}</th>
-                        <th style={{ padding: '4px 6px' }}>{t('w7exec.imageCount')}</th>
-                        <th style={{ padding: '4px 6px' }}>{t('w7exec.seriesQc')}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {execution.series.map(s => (
-                        <tr key={s.id} style={{ borderTop: '1px solid var(--border-color)' }}>
-                          <td style={{ padding: '6px 6px', fontWeight: 600 }}>#{s.seriesNumber}</td>
-                          <td style={{ padding: '6px 6px' }}>{s.imageCount}</td>
-                          <td style={{ padding: '6px 6px' }}>
-                            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-                              <Input size="small" style={{ width: 140 }} placeholder={t('w7exec.qcReason')} value={qcReasons[s.seriesNumber] ?? ''} onChange={e => setQcReasons(r => ({ ...r, [s.seriesNumber]: e.target.value }))} />
-                              <Button size="small" style={{ color: '#059669' }} disabled={execBusy} onClick={() => void submitSeriesQc(s.seriesNumber, 'PASS')}>
-                                {t('w7exec.qcPass')}
-                              </Button>
-                              <Button size="small" danger disabled={execBusy} onClick={() => void submitSeriesQc(s.seriesNumber, 'REJECT')}>
-                                {t('w7exec.qcReject')}
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <div data-testid="exec-series-table">
+                    <DataTable<any>
+                      columns={qcColumns}
+                      dataSource={execution.series}
+                      rowKey="id"
+                      showPagination={false}
+                      showExport={false}
+                      showDensity={false}
+                    />
+                  </div>
                 )}
               </div>
             </div>
@@ -737,7 +742,7 @@ export default function TechWorkbenchPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {/* MWL 队列 */}
               <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 16px' }} data-testid="exec-mwl-panel">
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
                   <RadioTower size={14} /> {t('w7exec.mwlQueue')}
                   <Button size="small" type="text" icon={<RefreshCw size={11} />} onClick={() => void loadMwlQueue()} />
                 </div>
@@ -759,7 +764,7 @@ export default function TechWorkbenchPage() {
 
               {/* 剂量 */}
               <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 16px' }} data-testid="exec-dose-panel">
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
                   <Activity size={14} /> {t('w7exec.dose')}
                 </div>
                 {execution.dose ? (
@@ -867,6 +872,85 @@ export default function TechWorkbenchPage() {
     return () => { cancelled = true }
   }, [selectedExam])
 
+  const todayColumns: TableColumnsType<WorklistItemDto> = [
+    {
+      title: t('techWorkbench.thPriority'), key: 'priority',
+      render: (_v, exam) => {
+        const crit = isCritical(exam)
+        const pm = PRIORITY_META[priorityOf(exam)] ?? PRIORITY_META.ROUTINE!
+        return (
+          <Tag color={pm.color} style={{ background: pm.bg, color: pm.color, border: 'none', fontWeight: 700 }}>
+            {crit && <Zap size={10} style={{ verticalAlign: -1, marginRight: 2 }} />}{pm.label}
+          </Tag>
+        )
+      },
+    },
+    { title: t('techWorkbench.thPatient'), dataIndex: 'patientName', key: 'patientName', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+    { title: t('techWorkbench.thExamItem'), dataIndex: 'examName', key: 'examName' },
+    { title: t('techWorkbench.thModality'), dataIndex: 'modality', key: 'modality', render: (v: string) => <Tag color="geekblue">{v}</Tag> },
+    { title: t('techWorkbench.thDevice'), key: 'device', render: (_v, exam) => <span style={{ color: 'var(--text-secondary)' }}>{exam.device?.name ?? exam.deviceName ?? '--'}</span> },
+    {
+      title: t('techWorkbench.thStatus'), key: 'status',
+      render: (_v, exam) => {
+        const normalized = normalizeExamStatus(String(exam.state ?? exam.status))
+        return (
+          <Tag color={normalized === 'IN_PROGRESS' ? 'magenta' : normalized === 'ARRIVED' ? 'purple' : normalized === 'COMPLETED' ? 'green' : 'blue'}>
+            {displayExamStatus(normalized)}
+          </Tag>
+        )
+      },
+    },
+    { title: t('techWorkbench.thWait'), key: 'wait', render: (_v, exam) => <span style={{ color: waitMin(exam) > 30 ? '#dc2626' : 'var(--text-secondary)' }}>{waitMin(exam) > 0 ? `${waitMin(exam)}min` : '--'}</span> },
+    {
+      title: t('techWorkbench.thActions'), key: 'actions',
+      render: (_v, exam) => {
+        const normalized = normalizeExamStatus(String(exam.state ?? exam.status))
+        return (
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }} onClick={e => e.stopPropagation()}>
+            {normalized === 'SCHEDULED' && (
+              <Button size="small" type="primary" icon={<UserCheck size={11} />} disabled={busy} onClick={() => handleFlowAction('checkin', exam)}>
+                {t('techWorkbench.actionCheckin')}
+              </Button>
+            )}
+            {normalized === 'ARRIVED' && (
+              <>
+                {exam.timeoutVerified ? (
+                  <Tag color="green" style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                    <ShieldCheck size={11} />{t('techWorkbench.timeoutVerifiedTag')}
+                  </Tag>
+                ) : (
+                  <Tooltip title={t('techWorkbench.timeoutRequiredHint')}>
+                    <Button size="small" icon={<ShieldCheck size={11} />} disabled={busy} onClick={() => void openTimeoutModal(exam)}>
+                      {t('techWorkbench.timeoutAction')}
+                    </Button>
+                  </Tooltip>
+                )}
+                <Tooltip title={exam.timeoutVerified ? '' : t('techWorkbench.timeoutRequiredHint')}>
+                  <Button size="small" type="primary" icon={<Play size={11} />} disabled={busy || !exam.timeoutVerified} onClick={() => handleFlowAction('start', exam)}>
+                    {t('techWorkbench.actionStart')}
+                  </Button>
+                </Tooltip>
+              </>
+            )}
+            {normalized === 'IN_PROGRESS' && (
+              <Button size="small" type="primary" style={{ background: '#059669' }} icon={<CheckCircle2 size={11} />} disabled={busy} onClick={() => handleFlowAction('complete', exam)}>
+                {t('techWorkbench.actionComplete')}
+              </Button>
+            )}
+            {normalized === 'QC_REJECT' && (
+              <Button size="small" danger icon={<RefreshCw size={11} />} disabled={busy} onClick={() => handleFlowAction('retake', exam)}>
+                {t('techWorkbench.actionRetake')}
+              </Button>
+            )}
+            <Button size="small" icon={<FileText size={11} />} onClick={() => setSelectedExam(exam)}>
+              {t('techWorkbench.actionDetail')}
+            </Button>
+          </div>
+        )
+      },
+    },
+  ]
+
   const renderToday = () => (
     <div>
       {/* 概览卡 */}
@@ -894,7 +978,7 @@ export default function TechWorkbenchPage() {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px',
           borderBottom: '1px solid var(--border-color)',
         }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
             <ClipboardList size={14} /> {t('techWorkbench.tabToday')}
             <Tag color="blue" style={{ marginLeft: 4 }}>{exams.length}</Tag>
           </span>
@@ -910,105 +994,53 @@ export default function TechWorkbenchPage() {
           <Empty description={t('techWorkbench.emptyToday')} style={{ padding: 40 }} />
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 980, fontSize: 12.5 }}>
-              <thead>
-                <tr style={{ color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-color)', background: 'var(--content-bg)' }}>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('techWorkbench.thPriority')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('techWorkbench.thPatient')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('techWorkbench.thExamItem')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('techWorkbench.thModality')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('techWorkbench.thDevice')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('techWorkbench.thStatus')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('techWorkbench.thWait')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('techWorkbench.thActions')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orderedExams.map(exam => {
-                  const normalized = normalizeExamStatus(String(exam.state ?? exam.status))
-                  const crit = isCritical(exam)
-                  const pm = PRIORITY_META[priorityOf(exam)] ?? PRIORITY_META.ROUTINE!
-                  return (
-                    <tr
-                      key={exam.id}
-                      data-testid={crit ? 'critical-exam-row' : 'exam-row'}
-                      style={{
-                        borderBottom: '1px solid var(--border-color)',
-                        background: crit ? '#fef2f2' : 'var(--bg-card)',
-                        borderLeft: crit ? '4px solid #dc2626' : '4px solid transparent',
-                        cursor: 'pointer',
-                      }}
-                      onClick={() => setSelectedExam(exam)}
-                    >
-                      <td style={{ padding: '10px 12px' }}>
-                        <Tag color={pm.color} style={{ background: pm.bg, color: pm.color, border: 'none', fontWeight: 700 }}>
-                          {crit && <Zap size={10} style={{ verticalAlign: -1, marginRight: 2 }} />}{pm.label}
-                        </Tag>
-                      </td>
-                      <td style={{ padding: '10px 12px', fontWeight: 600 }}>{exam.patientName}</td>
-                      <td style={{ padding: '10px 12px' }}>{exam.examName}</td>
-                      <td style={{ padding: '10px 12px' }}><Tag color="geekblue">{exam.modality}</Tag></td>
-                      <td style={{ padding: '10px 12px', color: 'var(--text-secondary)' }}>{exam.device?.name ?? exam.deviceName ?? '--'}</td>
-                      <td style={{ padding: '10px 12px' }}>
-                        <Tag color={normalized === 'IN_PROGRESS' ? 'magenta' : normalized === 'ARRIVED' ? 'purple' : normalized === 'COMPLETED' ? 'green' : 'blue'}>
-                          {displayExamStatus(normalized)}
-                        </Tag>
-                      </td>
-                      <td style={{ padding: '10px 12px', color: waitMin(exam) > 30 ? '#dc2626' : 'var(--text-secondary)' }}>
-                        {waitMin(exam) > 0 ? `${waitMin(exam)}min` : '--'}
-                      </td>
-                      <td style={{ padding: '10px 12px' }} onClick={e => e.stopPropagation()}>
-                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                          {normalized === 'SCHEDULED' && (
-                            <Button size="small" type="primary" icon={<UserCheck size={11} />} disabled={busy} onClick={() => handleFlowAction('checkin', exam)}>
-                              {t('techWorkbench.actionCheckin')}
-                            </Button>
-                          )}
-                          {normalized === 'ARRIVED' && (
-                            <>
-                              {exam.timeoutVerified ? (
-                                <Tag color="green" style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
-                                  <ShieldCheck size={11} />{t('techWorkbench.timeoutVerifiedTag')}
-                                </Tag>
-                              ) : (
-                                <Tooltip title={t('techWorkbench.timeoutRequiredHint')}>
-                                  <Button size="small" icon={<ShieldCheck size={11} />} disabled={busy} onClick={() => void openTimeoutModal(exam)}>
-                                    {t('techWorkbench.timeoutAction')}
-                                  </Button>
-                                </Tooltip>
-                              )}
-                              <Tooltip title={exam.timeoutVerified ? '' : t('techWorkbench.timeoutRequiredHint')}>
-                                <Button size="small" type="primary" icon={<Play size={11} />} disabled={busy || !exam.timeoutVerified} onClick={() => handleFlowAction('start', exam)}>
-                                  {t('techWorkbench.actionStart')}
-                                </Button>
-                              </Tooltip>
-                            </>
-                          )}
-                          {normalized === 'IN_PROGRESS' && (
-                            <Button size="small" type="primary" style={{ background: '#059669' }} icon={<CheckCircle2 size={11} />} disabled={busy} onClick={() => handleFlowAction('complete', exam)}>
-                              {t('techWorkbench.actionComplete')}
-                            </Button>
-                          )}
-                          {normalized === 'QC_REJECT' && (
-                            <Button size="small" danger icon={<RefreshCw size={11} />} disabled={busy} onClick={() => handleFlowAction('retake', exam)}>
-                              {t('techWorkbench.actionRetake')}
-                            </Button>
-                          )}
-                          <Button size="small" icon={<FileText size={11} />} onClick={() => setSelectedExam(exam)}>
-                            {t('techWorkbench.actionDetail')}
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+            <DataTable<WorklistItemDto>
+              columns={todayColumns}
+              dataSource={orderedExams}
+              rowKey="id"
+              onRow={(exam) => {
+                const crit = isCritical(exam)
+                return {
+                  'data-testid': crit ? 'critical-exam-row' : 'exam-row',
+                  onClick: () => setSelectedExam(exam),
+                  style: {
+                    background: crit ? '#fef2f2' : 'var(--bg-card)',
+                    borderLeft: crit ? '4px solid #dc2626' : '4px solid transparent',
+                    cursor: 'pointer',
+                  },
+                } as HTMLAttributes<HTMLElement>
+              }}
+            />
           </div>
         )}
       </div>
     </div>
   )
+
+  const handoverColumns: TableColumnsType<WorklistItemDto> = [
+    { title: t('techWorkbench.thPatient'), dataIndex: 'patientName', key: 'patientName', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+    { title: t('techWorkbench.thExamItem'), dataIndex: 'examName', key: 'examName' },
+    {
+      title: t('techWorkbench.thStatus'), key: 'status',
+      render: (_v, exam) => (
+        <Tag color={normalizeExamStatus(String(exam.state ?? exam.status)) === 'PAUSED' ? 'orange' : 'magenta'}>
+          {displayExamStatus(String(exam.state ?? exam.status))}
+        </Tag>
+      ),
+    },
+    { title: t('techWorkbench.handoverFrom'), key: 'from', render: (_v, exam) => <span style={{ color: 'var(--text-secondary)' }}>{exam.primaryTechnician?.fullName ?? exam.primaryTechnicianId ?? '--'}</span> },
+    {
+      title: t('techWorkbench.thActions'), key: 'actions',
+      render: (_v, exam) => {
+        const fromId = String(exam.primaryTechnicianId ?? user?.id ?? '')
+        return (
+          <Button size="small" icon={<ArrowRightLeft size={11} />} disabled={!fromId || busy} onClick={() => setHandoverModal({ exam, toId: '', note: '' })}>
+            {t('techWorkbench.actionHandover')}
+          </Button>
+        )
+      },
+    },
+  ]
 
   const renderHandover = () => (
     <div>
@@ -1016,7 +1048,7 @@ export default function TechWorkbenchPage() {
         background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)',
         padding: '14px 18px', marginBottom: 16,
       }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
           <ArrowRightLeft size={14} /> {t('techWorkbench.handoverTitle')}
         </div>
         <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('techWorkbench.handoverDesc')}</div>
@@ -1026,46 +1058,25 @@ export default function TechWorkbenchPage() {
       ) : (
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 760, fontSize: 12.5 }}>
-              <thead>
-                <tr style={{ color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-color)', background: 'var(--content-bg)' }}>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('techWorkbench.thPatient')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('techWorkbench.thExamItem')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('techWorkbench.thStatus')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('techWorkbench.handoverFrom')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('techWorkbench.thActions')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {inProgressExams.map(exam => {
-                  const fromId = String(exam.primaryTechnicianId ?? user?.id ?? '')
-                  return (
-                    <tr key={exam.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                      <td style={{ padding: '10px 12px', fontWeight: 600 }}>{exam.patientName}</td>
-                      <td style={{ padding: '10px 12px' }}>{exam.examName}</td>
-                      <td style={{ padding: '10px 12px' }}>
-                        <Tag color={normalizeExamStatus(String(exam.state ?? exam.status)) === 'PAUSED' ? 'orange' : 'magenta'}>
-                          {displayExamStatus(String(exam.state ?? exam.status))}
-                        </Tag>
-                      </td>
-                      <td style={{ padding: '10px 12px', color: 'var(--text-secondary)' }}>
-                        {exam.primaryTechnician?.fullName ?? exam.primaryTechnicianId ?? '--'}
-                      </td>
-                      <td style={{ padding: '10px 12px' }}>
-                        <Button size="small" icon={<ArrowRightLeft size={11} />} disabled={!fromId || busy} onClick={() => setHandoverModal({ exam, toId: '', note: '' })}>
-                          {t('techWorkbench.actionHandover')}
-                        </Button>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+            <DataTable<WorklistItemDto>
+              columns={handoverColumns}
+              dataSource={inProgressExams}
+              rowKey="id"
+            />
           </div>
         </div>
       )}
     </div>
   )
+
+  const emergencyRecordColumns: TableColumnsType<EmergencyRecord> = [
+    { title: t('techOps.thPatient'), dataIndex: 'patientName', key: 'patientName', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+    { title: t('techOps.thItem'), dataIndex: 'examItem', key: 'examItem' },
+    { title: t('techOps.thDevice'), dataIndex: 'deviceName', key: 'deviceName' },
+    { title: t('techOps.thPriority'), dataIndex: 'priority', key: 'priority', render: (v: string) => <Tag color={v === 'STAT' ? 'red' : 'orange'}>{t(`techOps.priority.${v}`)}</Tag> },
+    { title: t('techOps.thStart'), dataIndex: 'startAt', key: 'startAt', render: (v: string) => <span style={{ color: '#059669' }}>{fmtTime(v)}</span> },
+    { title: t('techOps.thRemark'), dataIndex: 'reason', key: 'reason', render: (v: string) => <span style={{ color: 'var(--text-secondary)' }}>{v ?? '--'}</span> },
+  ]
 
   const renderEmergency = () => (
     <div>
@@ -1073,7 +1084,7 @@ export default function TechWorkbenchPage() {
         background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)',
         padding: '14px 18px', marginBottom: 16,
       }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#dc2626', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: '#dc2626', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
           <Siren size={14} /> {t('techWorkbench.emergencyTitle')}
         </div>
         <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('techWorkbench.emergencyDesc')}</div>
@@ -1117,7 +1128,7 @@ export default function TechWorkbenchPage() {
                     ? <Tag color="orange" icon={<AlertTriangle size={10} />}>{t('techOps.conflicts', { count: s.conflictCount })}</Tag>
                     : <Tag color="green" icon={<CheckCircle2 size={10} />}>{t('techOps.noConflict')}</Tag>}
                 </div>
-                <div style={{ fontSize: 12.5, marginBottom: 6 }}>
+                <div style={{ fontSize: 12, marginBottom: 6 }}>
                   <b>{s.deviceName}</b> <Tag color="geekblue">{s.modality}</Tag>
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>
@@ -1135,7 +1146,7 @@ export default function TechWorkbenchPage() {
       )}
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px' }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
           <Gauge size={14} /> {t('techWorkbench.emergencyRecords')}
           <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>({emgRecords.length})</span>
         </div>
@@ -1143,32 +1154,11 @@ export default function TechWorkbenchPage() {
           <Empty description={t('techWorkbench.emergencyEmpty')} style={{ padding: 20 }} />
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 640, fontSize: 12 }}>
-              <thead>
-                <tr style={{ color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-color)' }}>
-                  <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thPatient')}</th>
-                  <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thItem')}</th>
-                  <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thDevice')}</th>
-                  <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thPriority')}</th>
-                  <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thStart')}</th>
-                  <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOps.thRemark')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {emgRecords.map(r => (
-                  <tr key={r.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                    <td style={{ padding: '8px 10px', fontWeight: 600 }}>{r.patientName}</td>
-                    <td style={{ padding: '8px 10px' }}>{r.examItem}</td>
-                    <td style={{ padding: '8px 10px' }}>{r.deviceName}</td>
-                    <td style={{ padding: '8px 10px' }}>
-                      <Tag color={r.priority === 'STAT' ? 'red' : 'orange'}>{t(`techOps.priority.${r.priority}`)}</Tag>
-                    </td>
-                    <td style={{ padding: '8px 10px', color: '#059669' }}>{fmtTime(r.startAt)}</td>
-                    <td style={{ padding: '8px 10px', color: 'var(--text-secondary)' }}>{r.reason ?? '--'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable<EmergencyRecord>
+              columns={emergencyRecordColumns}
+              dataSource={emgRecords}
+              rowKey="id"
+            />
           </div>
         )}
       </div>
@@ -1230,7 +1220,7 @@ export default function TechWorkbenchPage() {
               busy={busy}
               onAction={action => handleFlowAction(action, selectedExam)}
             />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 14, fontSize: 12.5 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 14, fontSize: 12 }}>
               {[
                 [t('techWorkbench.thPatient'), `${selectedExam.patientName} (${selectedExam.patient?.gender ?? selectedExam.gender ?? '--'}${selectedExam.age ? `, ${selectedExam.age}岁` : ''})`],
                 [t('techWorkbench.thExamItem'), selectedExam.examName],
@@ -1277,7 +1267,7 @@ export default function TechWorkbenchPage() {
       >
         {transitionModal && (
           <div>
-            <div style={{ marginBottom: 12, fontSize: 13, color: 'var(--text-secondary)' }}>
+            <div style={{ marginBottom: 12, fontSize: 12, color: 'var(--text-secondary)' }}>
               {t(transitionModal.action === 'checkin' ? 'techWorkbench.confirmCheckin' : 'techWorkbench.confirmStart', {
                 name: transitionModal.exam.patientName,
                 item: transitionModal.exam.examName,
@@ -1312,7 +1302,7 @@ export default function TechWorkbenchPage() {
           <div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('techWorkbench.timeoutDesc')}</div>
             <div style={{
-              display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14, fontSize: 12.5,
+              display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14, fontSize: 12,
               background: 'var(--content-bg)', borderRadius: 8, padding: '10px 12px',
             }}>
               <div><b>{t('techWorkbench.timeoutIdentityName')}</b>: {timeoutModal.data.patient.name}</div>
@@ -1322,7 +1312,7 @@ export default function TechWorkbenchPage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {timeoutModal.data.items.map(item => (
-                <label key={item.key} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 12.5, cursor: 'pointer' }}>
+                <label key={item.key} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 12, cursor: 'pointer' }}>
                   <Checkbox
                     checked={timeoutModal.checks[item.key] === true}
                     onChange={e => setTimeoutModal(s => s ? { ...s, checks: { ...s.checks, [item.key]: e.target.checked } } : s)}
@@ -1357,7 +1347,7 @@ export default function TechWorkbenchPage() {
               {t('techWorkbench.completeDesc')}
             </div>
             <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>
                 <CheckCircle2 size={12} style={{ verticalAlign: -2, marginRight: 4 }} /> {t('techWorkbench.qualityLabel')}
               </div>
               <Radio.Group
@@ -1371,7 +1361,7 @@ export default function TechWorkbenchPage() {
             </div>
             {completeModal.quality === 'ok' && (
               <>
-                <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 8 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>
                   <Activity size={12} style={{ verticalAlign: -2, marginRight: 4 }} /> {t('techWorkbench.doseSection')}
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
@@ -1466,7 +1456,7 @@ export default function TechWorkbenchPage() {
       >
         {handoverModal && (
           <div>
-            <div style={{ marginBottom: 10, fontSize: 13 }}>
+            <div style={{ marginBottom: 10, fontSize: 12 }}>
               {t('techWorkbench.handoverSelectExam')}: <b>{handoverModal.exam.patientName} · {handoverModal.exam.examName}</b>
             </div>
             <div style={{ marginBottom: 10 }}>
@@ -1501,7 +1491,7 @@ export default function TechWorkbenchPage() {
         destroyOnClose
       >
         {emgTarget && (
-          <div style={{ fontSize: 13 }}>
+          <div style={{ fontSize: 12 }}>
             <div style={{ marginBottom: 8 }}>
               {t('techOps.device')} <b>{emgTarget.deviceName}</b>
             </div>

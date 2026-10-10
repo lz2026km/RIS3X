@@ -121,7 +121,7 @@ const Accordion: React.FC<AccordionProps> = ({ title, icon, children, defaultOpe
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ color: isOpen ? COLORS.info : COLORS.textMuted }}>{icon}</span>
-          <span style={{ fontSize: 13, fontWeight: 600, color: isOpen ? COLORS.info : COLORS.text }}>{title}</span>
+          <span style={{ fontSize: 12, fontWeight: 600, color: isOpen ? COLORS.info : COLORS.text }}>{title}</span>
           {count !== undefined && (
             <span style={{ fontSize: 12, padding: '1px 6px', borderRadius: 10, background: isOpen ? COLORS.info : COLORS.textLight, color: COLORS.white }}>{count}</span>
           )}
@@ -270,7 +270,7 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
   }
 
   const tabStyle = (tab: string) => ({
-    padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+    padding: '8px 16px', fontSize: 12, fontWeight: 600, cursor: 'pointer',
     borderBottom: activeTab === tab ? `2px solid ${COLORS.info}` : '2px solid transparent',
     color: activeTab === tab ? COLORS.info : COLORS.textMuted, transition: 'all 0.2s',
   })
@@ -328,29 +328,29 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
         {activeTab === 'info' && (
           <div>
             <div style={{ background: COLORS.backgroundLight, borderRadius: 10, padding: 16, marginBottom: 16 }}>
-              <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: COLORS.textMuted }}>{t('sectionPatientInfo')}</h4>
+              <h4 style={{ margin: '0 0 12px', fontSize: 12, fontWeight: 700, color: COLORS.textMuted }}>{t('sectionPatientInfo')}</h4>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
-                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldName')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.patientName}</div></div>
-                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldGender')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.gender}</div></div>
-                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldAge')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.age}岁</div></div>
-                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldExamType')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.examType}</div></div>
+                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldName')}</div><div style={{ fontSize: 12, fontWeight: 600, color: COLORS.text }}>{caseData.patientName}</div></div>
+                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldGender')}</div><div style={{ fontSize: 12, fontWeight: 600, color: COLORS.text }}>{caseData.gender}</div></div>
+                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldAge')}</div><div style={{ fontSize: 12, fontWeight: 600, color: COLORS.text }}>{caseData.age}岁</div></div>
+                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldExamType')}</div><div style={{ fontSize: 12, fontWeight: 600, color: COLORS.text }}>{caseData.examType}</div></div>
               </div>
             </div>
 
             <div style={{ background: COLORS.backgroundLight, borderRadius: 10, padding: 16, marginBottom: 16 }}>
-              <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: COLORS.textMuted }}>{t('sectionExamInfo')}</h4>
+              <h4 style={{ margin: '0 0 12px', fontSize: 12, fontWeight: 700, color: COLORS.textMuted }}>{t('sectionExamInfo')}</h4>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldExamItem')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.examName}</div></div>
-                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldBodyPart')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.bodyPart}</div></div>
-                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldDisease')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.disease}</div></div>
-                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldCreateDate')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.createdAt}</div></div>
-                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldCreatedBy')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.createdBy}</div></div>
-                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldStatus')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.status}</div></div>
+                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldExamItem')}</div><div style={{ fontSize: 12, fontWeight: 600, color: COLORS.text }}>{caseData.examName}</div></div>
+                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldBodyPart')}</div><div style={{ fontSize: 12, fontWeight: 600, color: COLORS.text }}>{caseData.bodyPart}</div></div>
+                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldDisease')}</div><div style={{ fontSize: 12, fontWeight: 600, color: COLORS.text }}>{caseData.disease}</div></div>
+                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldCreateDate')}</div><div style={{ fontSize: 12, fontWeight: 600, color: COLORS.text }}>{caseData.createdAt}</div></div>
+                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldCreatedBy')}</div><div style={{ fontSize: 12, fontWeight: 600, color: COLORS.text }}>{caseData.createdBy}</div></div>
+                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldStatus')}</div><div style={{ fontSize: 12, fontWeight: 600, color: COLORS.text }}>{caseData.status}</div></div>
               </div>
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <h4 style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 700, color: COLORS.textMuted }}>{t('fieldTags')}</h4>
+              <h4 style={{ margin: '0 0 8px', fontSize: 12, fontWeight: 700, color: COLORS.textMuted }}>{t('fieldTags')}</h4>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {caseData.tags.map((tag, idx) => (
                   <span key={idx} style={{ padding: '4px 12px', borderRadius: 12, fontSize: 12, fontWeight: 500, background: COLORS.background, color: COLORS.text }}>
@@ -362,7 +362,7 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
 
             {/* [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-06)] 教学标记: 标签 chip 多选 (localStorage 按 id) */}
             <div style={{ marginBottom: 16, background: COLORS.purpleBg, borderRadius: 10, padding: 14, border: `1px solid ${COLORS.purple}30` }}>
-              <h4 style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: COLORS.purple, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <h4 style={{ margin: '0 0 4px', fontSize: 12, fontWeight: 700, color: COLORS.purple, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Star size={14} />教学标记
               </h4>
               <p style={{ margin: '0 0 10px', fontSize: 11, color: COLORS.textMuted }}>点击切换教学标签 (localStorage 持久化, 仅本人可见)</p>
@@ -462,7 +462,7 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
             </div>
 
             <div style={{ marginTop: 12 }}>
-              <h4 style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 700, color: COLORS.textMuted }}>{t('imageList', { count: caseData.images.length })}</h4>
+              <h4 style={{ margin: '0 0 8px', fontSize: 12, fontWeight: 700, color: COLORS.textMuted }}>{t('imageList', { count: caseData.images.length })}</h4>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
                 {caseData.images.map((img, idx) => (
                   <div key={idx} style={{
@@ -487,7 +487,7 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
               <h4 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 700, color: COLORS.primary, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <FileText size={16} />{t('reportFindings')}
               </h4>
-              <div style={{ fontSize: 13, color: COLORS.text, lineHeight: 1.8 }}>{caseData.findings}</div>
+              <div style={{ fontSize: 12, color: COLORS.text, lineHeight: 1.8 }}>{caseData.findings}</div>
             </div>
 
             <div style={{ background: COLORS.backgroundLight, borderRadius: 10, padding: 16, marginBottom: 16 }}>
@@ -496,7 +496,7 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
               </h4>
               <ul style={{ margin: 0, paddingLeft: 20 }}>
                 {caseData.findingsList.map((finding, idx) => (
-                  <li key={idx} style={{ fontSize: 13, color: COLORS.text, marginBottom: 6, lineHeight: 1.6 }}>{finding}</li>
+                  <li key={idx} style={{ fontSize: 12, color: COLORS.text, marginBottom: 6, lineHeight: 1.6 }}>{finding}</li>
                 ))}
               </ul>
             </div>
@@ -505,7 +505,7 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
               <h4 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 700, color: COLORS.info, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <AlertTriangle size={16} />{t('reportImpression')}
               </h4>
-              <div style={{ fontSize: 13, color: COLORS.text, lineHeight: 1.8, whiteSpace: 'pre-line' }}>{caseData.impression}</div>
+              <div style={{ fontSize: 12, color: COLORS.text, lineHeight: 1.8, whiteSpace: 'pre-line' }}>{caseData.impression}</div>
             </div>
 
             {caseData.annotations.length > 0 && (
@@ -520,7 +520,7 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
                         {idx + 1}
                       </div>
                       <div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{ann.label}</div>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: COLORS.text }}>{ann.label}</div>
                         <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 2 }}>{ann.description}</div>
                       </div>
                     </div>
@@ -541,7 +541,7 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
                       {disc.avatar}
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{disc.user}</div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: COLORS.text }}>{disc.user}</div>
                       <div style={{ fontSize: 12, color: COLORS.textMuted }}>{disc.time}</div>
                     </div>
                     <button onClick={() => handleLikeDiscussion(disc.id)} style={{
@@ -552,15 +552,15 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
                       <ThumbsUp size={14} />{disc.likes + (likedDiscussions.has(disc.id) ? 1 : 0)}
                     </button>
                   </div>
-                  <div style={{ fontSize: 13, color: COLORS.text, lineHeight: 1.6, paddingLeft: 46 }}>{disc.content}</div>
+                  <div style={{ fontSize: 12, color: COLORS.text, lineHeight: 1.6, paddingLeft: 46 }}>{disc.content}</div>
                 </div>
               ))}
             </div>
 
             <div style={{ padding: 14, background: COLORS.white, borderRadius: 10, border: `1px solid ${COLORS.border}` }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text, marginBottom: 8 }}>{t('discussionAdd')}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: COLORS.text, marginBottom: 8 }}>{t('discussionAdd')}</div>
               <textarea value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder={t('discussionPlaceholder')}
-                style={{ width: '100%', minHeight: 80, padding: 10, borderRadius: 6, border: `1px solid ${COLORS.border}`, fontSize: 13, resize: 'vertical', fontFamily: 'inherit' }} />
+                style={{ width: '100%', minHeight: 80, padding: 10, borderRadius: 6, border: `1px solid ${COLORS.border}`, fontSize: 12, resize: 'vertical', fontFamily: 'inherit' }} />
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
                 <button onClick={() => setNewComment('')} disabled={!newComment.trim()} style={{
                   padding: '6px 16px', borderRadius: 6, border: 'none', background: newComment.trim() ? COLORS.info : COLORS.textLight,
@@ -611,7 +611,7 @@ const AddCaseForm: React.FC<AddCaseFormProps> = ({ visible, onClose, onSubmit, i
 
   if (!visible) return null
 
-  const inputStyle = { width: '100%', padding: '8px 12px', borderRadius: 6, border: `1px solid ${COLORS.border}`, fontSize: 13,}
+  const inputStyle = { width: '100%', padding: '8px 12px', borderRadius: 6, border: `1px solid ${COLORS.border}`, fontSize: 12,}
   const labelStyle = { display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.text, marginBottom: 4 }
 
   return (
@@ -645,8 +645,8 @@ const AddCaseForm: React.FC<AddCaseFormProps> = ({ visible, onClose, onSubmit, i
         </div>
 
         <div style={{ padding: '16px 20px', borderTop: `1px solid ${COLORS.border}`, display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
-          <button onClick={onClose} style={{ padding: '8px 20px', borderRadius: 6, border: `1px solid ${COLORS.border}`, background: COLORS.white, color: COLORS.text, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('formCancel')}</button>
-          <button onClick={handleSubmit} style={{ padding: '8px 20px', borderRadius: 6, border: 'none', background: COLORS.info, color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('formSave')}</button>
+          <button onClick={onClose} style={{ padding: '8px 20px', borderRadius: 6, border: `1px solid ${COLORS.border}`, background: COLORS.white, color: COLORS.text, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('formCancel')}</button>
+          <button onClick={handleSubmit} style={{ padding: '8px 20px', borderRadius: 6, border: 'none', background: COLORS.info, color: COLORS.white, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('formSave')}</button>
         </div>
       </Card>
     </div>
@@ -904,26 +904,26 @@ export default function TypicalCasesPage() {
           </span>
           <button
             onClick={() => void loadCases()}
-            style={{ padding: '8px 14px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+            style={{ padding: '8px 14px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: COLORS.white, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
           >
             <RefreshCw size={14} />刷新
           </button>
           {/* [G005 Wave4B] G-04 在线考试模式入口 */}
           <button
             onClick={() => setExamModeVisible(true)}
-            style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#f59e0b', color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+            style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#f59e0b', color: COLORS.white, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
           >
             <Award size={16} />考试模式
           </button>
           {/* [G005 v3.0.6.11-91 Wave 4B (PACS P1 G-06)] 教学收藏筛选 */}
           <button
             onClick={() => setFavoriteOnly(!favoriteOnly)}
-            style={{ padding: '8px 16px', borderRadius: 6, border: favoriteOnly ? 'none' : '1px solid rgba(255,255,255,0.3)', background: favoriteOnly ? COLORS.warning : 'rgba(255,255,255,0.1)', color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+            style={{ padding: '8px 16px', borderRadius: 6, border: favoriteOnly ? 'none' : '1px solid rgba(255,255,255,0.3)', background: favoriteOnly ? COLORS.warning : 'rgba(255,255,255,0.1)', color: COLORS.white, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
           >
             <Star size={16} fill={favoriteOnly ? '#fff' : 'transparent'} />教学收藏{favoriteOnly ? ` (${favorites.length})` : ''}
           </button>
           {isAdmin && (
-            <button onClick={() => { setEditingCase(null); setAddFormVisible(true) }} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: COLORS.info, color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button onClick={() => { setEditingCase(null); setAddFormVisible(true) }} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: COLORS.info, color: COLORS.white, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Plus size={16} />{t('addCase')}
             </button>
           )}
@@ -940,7 +940,7 @@ export default function TypicalCasesPage() {
               btn.innerHTML = t('importSuccess');
               setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2000);
             }}
-            style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+            style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: COLORS.white, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Upload size={16} />{t('batchImport')}
           </button>
           <button
@@ -960,7 +960,7 @@ export default function TypicalCasesPage() {
               a.click()
               URL.revokeObjectURL(url)
             }}
-            style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+            style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: COLORS.white, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Download size={16} />{t('exportCases')}
           </button>
         </div>
@@ -994,7 +994,7 @@ export default function TypicalCasesPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '8px 12px', background: COLORS.backgroundLight }}>
                 <Search size={16} style={{ color: COLORS.textMuted }} />
                 <input type="text" value={searchKeyword} onChange={(e) => setSearchKeyword(e.target.value)} placeholder={t('searchCases')}
-                  style={{ border: 'none', fontSize: 13, width: '100%', background: 'transparent' }} />
+                  style={{ border: 'none', fontSize: 12, width: '100%', background: 'transparent' }} />
               </div>
             </div>
 
@@ -1015,7 +1015,7 @@ export default function TypicalCasesPage() {
                     <span style={{ width: 24, height: 16, borderRadius: 4, background: `${MODALITY_COLORS[type]}20`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <Scan size={14} style={{ color: MODALITY_COLORS[type] }} />
                     </span>
-                    <span style={{ fontSize: 13, color: COLORS.text }}>{type}</span>
+                    <span style={{ fontSize: 12, color: COLORS.text }}>{type}</span>
                     <span style={{ marginLeft: 'auto', fontSize: 12, color: COLORS.textMuted, background: COLORS.background, padding: '1px 6px', borderRadius: 8 }}>
                       {cases.filter(c => c.examType === type).length}
                     </span>
@@ -1094,7 +1094,7 @@ export default function TypicalCasesPage() {
               <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
                 <input type="checkbox" checked={teachingOnly} onChange={() => setTeachingOnly(!teachingOnly)} style={{ width: 16, height: 16 }} />
                 <Award size={14} style={{ color: COLORS.danger }} />
-                <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{t('teachingOnly')}</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.text }}>{t('teachingOnly')}</span>
               </label>
             </div>
           </div>
@@ -1112,7 +1112,7 @@ export default function TypicalCasesPage() {
               }}>
                 <Filter size={14} />{showFilters ? t('hideFilters') : t('showFilters')}
               </button>
-              <span style={{ fontSize: 13, color: COLORS.textMuted }}>{t('foundCases', { count: filteredCases.length }) }</span>
+              <span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('foundCases', { count: filteredCases.length }) }</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('sortBy')}</span>
@@ -1129,7 +1129,7 @@ export default function TypicalCasesPage() {
             <div style={{ textAlign: 'center', padding: '60px 20px', background: COLORS.white, borderRadius: 10, border: `1px solid ${COLORS.border}` }}>
               <FileText size={48} style={{ color: COLORS.textLight, marginBottom: 12 }} />
               <h3 style={{ margin: '0 0 8px', fontSize: 16, fontWeight: 600, color: COLORS.text }}>{t('noCasesFound')}</h3>
-              <p style={{ margin: 0, fontSize: 13, color: COLORS.textMuted }}>{t('adjustFiltersHint')}</p>
+              <p style={{ margin: 0, fontSize: 12, color: COLORS.textMuted }}>{t('adjustFiltersHint')}</p>
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>

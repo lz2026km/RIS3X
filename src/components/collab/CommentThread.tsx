@@ -361,7 +361,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
       <div style={{ padding: '8px 12px', borderBottom: '1px solid #e2e8f0', background: 'var(--bg-card)' }}>
         <Space>
           <MessageSquare size={14} color="#3b82f6" />
-          <strong style={{ fontSize: 13 }}>评论协作</strong>
+          <strong style={{ fontSize: 12 }}>评论协作</strong>
           <Tag color="blue">{filtered.length}</Tag>
         </Space>
         <div style={{ marginTop: 6 }}>

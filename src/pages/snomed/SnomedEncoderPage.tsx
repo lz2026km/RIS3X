@@ -211,7 +211,7 @@ const SnomedEncoderPage: React.FC = () => {
               onChange={e => setText(e.target.value)}
               rows={8}
               placeholder={t('snomedEncoder.textPlaceholder')}
-              style={{ fontFamily: 'monospace', fontSize: 13, lineHeight: 1.6 }}
+              style={{ fontFamily: 'monospace', fontSize: 12, lineHeight: 1.6 }}
             />
             <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between' }}>
               <Text type="secondary" style={{ fontSize: 12 }}>
@@ -260,7 +260,7 @@ const SnomedEncoderPage: React.FC = () => {
                   >
                     <BookOpen size={14} color="#8b5cf6" />
                     <div style={{ flex: 1 }}>
-                      <Text strong style={{ fontSize: 13 }}>{c.pt}</Text>
+                      <Text strong style={{ fontSize: 12 }}>{c.pt}</Text>
                       <div style={{ fontSize: 11, color: '#64748b' }}>
                         {c.conceptId} | {c.semanticTag}
                       </div>

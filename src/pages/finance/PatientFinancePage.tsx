@@ -29,12 +29,12 @@ const s = {
   btnSmall: { padding: '4px 10px', borderRadius: 4, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer' },
   select: { padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)',},
   tab: (active: boolean) => ({
-    flex: 1, padding: '10px 0', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+    flex: 1, padding: '10px 0', borderRadius: 8, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer',
     background: active ? 'var(--bg-card)' : 'transparent', color: active ? '#1e40af' : '#64748b',
     boxShadow: active ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
   }),
   label: { fontSize: 12, color: '#64748b', marginBottom: 2 },
-  value: { fontSize: 13, color: 'var(--text-primary)', fontWeight: 500 },
+  value: { fontSize: 12, color: 'var(--text-primary)', fontWeight: 500 },
   row: { display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-color)' },
 }
 
@@ -153,7 +153,7 @@ export default function PatientFinancePage() {
       title: t('w3tables.col.examItem'), dataIndex: 'examItem', key: 'examItem',
       render: (_: unknown, b) => (
         <div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{b.examItem}</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{b.examItem}</div>
           <div style={{ fontSize: 12, color: '#94a3b8' }}>{b.examDate} · {b.id}</div>
         </div>
       ),
@@ -177,7 +177,7 @@ export default function PatientFinancePage() {
 
   // [G005 W1-Controls P1-8] 缴费流水 (PaymentRecord) / 发票 (InvoiceDto)
   const paymentRecordColumns: ColumnsType<PaymentRecord> = [
-    { title: t('w3tables.col.examItem'), key: 'billId', render: (_: unknown, p) => <div><div style={{ fontSize: 13, fontWeight: 600 }}>{p.transactionId}</div><div style={{ fontSize: 11, color: '#94a3b8' }}>{p.billId}</div></div> },
+    { title: t('w3tables.col.examItem'), key: 'billId', render: (_: unknown, p) => <div><div style={{ fontSize: 12, fontWeight: 600 }}>{p.transactionId}</div><div style={{ fontSize: 11, color: '#94a3b8' }}>{p.billId}</div></div> },
     { title: t('patientFinance.payMethod'), key: 'method', width: 110, render: (_: unknown, p) => methodLabel(p.method) },
     { title: t('w1Controls.patientFinance.colAmount'), dataIndex: 'amount', key: 'amount', width: 120, align: 'right', render: (v: number) => <span style={{ fontWeight: 600, color: '#059669' }}>¥{v}</span> },
     { title: t('w1Controls.patientFinance.colIssuedAt'), dataIndex: 'paidAt', key: 'paidAt', width: 170, render: (v: string) => new Date(v).toLocaleString() },
@@ -186,7 +186,7 @@ export default function PatientFinancePage() {
 
   const invoiceColumns: ColumnsType<InvoiceDto> = [
     { title: t('w1Controls.patientFinance.colInvoice'), dataIndex: 'id', key: 'id', render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span> },
-    { title: t('w1Controls.patientFinance.colPatient'), key: 'patient', render: (_: unknown, r) => <div><div style={{ fontSize: 13 }}>{r.patientName ?? r.patientId}</div><div style={{ fontSize: 11, color: '#94a3b8' }}>{r.examItem}</div></div> },
+    { title: t('w1Controls.patientFinance.colPatient'), key: 'patient', render: (_: unknown, r) => <div><div style={{ fontSize: 12 }}>{r.patientName ?? r.patientId}</div><div style={{ fontSize: 11, color: '#94a3b8' }}>{r.examItem}</div></div> },
     { title: t('w1Controls.patientFinance.colAmount'), dataIndex: 'totalAmount', key: 'totalAmount', width: 120, align: 'right', render: (v: number) => <span style={{ fontWeight: 600 }}>¥{v}</span> },
     { title: t('w1Controls.patientFinance.colBalance'), dataIndex: 'balance', key: 'balance', width: 110, align: 'right', render: (v: number) => <span style={{ color: v > 0 ? '#dc2626' : '#059669' }}>¥{v}</span> },
     { title: t('w1Controls.patientFinance.colIssuedAt'), dataIndex: 'createdAt', key: 'createdAt', width: 170, render: (v: string) => v ? new Date(v).toLocaleString() : '-' },
@@ -197,7 +197,7 @@ export default function PatientFinancePage() {
       title: t('w3tables.col.insuranceType'), dataIndex: 'insuranceType', key: 'insuranceType',
       render: (_: unknown, c) => (
         <div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{c.insuranceType}</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{c.insuranceType}</div>
           {c.rejectReason && <div style={{ fontSize: 12, color: '#dc2626', marginTop: 2 }}>{t('patientFinance.rejectReason')}{c.rejectReason}</div>}
         </div>
       ),
@@ -251,7 +251,7 @@ export default function PatientFinancePage() {
               <span style={s.badge(selectedBill.status)}>{statusLabel(selectedBill.status)}</span>
 
               <div style={{ margin: '16px 0' }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>{t('patientFinance.chargeDetails')}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>{t('patientFinance.chargeDetails')}</div>
                 {selectedBill.items.map(item => (
                   <div key={item.id} style={s.row}>
                     <div>
@@ -261,7 +261,7 @@ export default function PatientFinancePage() {
                     <div style={{ fontWeight: 600 }}>¥{item.amount}</div>
                   </div>
                 ))}
-                <div style={{ ...s.row, borderTop: '2px solid #e2e8f0', fontWeight: 700, fontSize: 15 }}>
+                <div style={{ ...s.row, borderTop: '2px solid #e2e8f0', fontWeight: 700, fontSize: 14 }}>
                   <span>{t('patientFinance.total')}</span><span>¥{selectedBill.totalAmount}</span>
                 </div>
               </div>
@@ -285,7 +285,7 @@ export default function PatientFinancePage() {
 
               {billPayments.length > 0 && (
                 <div style={{ marginTop: 16 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>{t('patientFinance.paymentHistory')}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>{t('patientFinance.paymentHistory')}</div>
                   {billPayments.map(p => (
                     <div key={p.id} style={s.row}>
                       <div>
@@ -362,14 +362,14 @@ export default function PatientFinancePage() {
               <div>
                 <div style={s.label}>{t('patientFinance.patientIdLabel')}</div>
                 <input value={invPatientId} onChange={e => setInvPatientId(e.target.value)} placeholder={t('patientFinance.patientIdPlaceholder')}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, boxSizing: 'border-box',}} />
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, boxSizing: 'border-box',}} />
               </div>
               <div>
                 <div style={s.label}>{t('patientFinance.chargeItemsLabel')}</div>
                 <div style={{ maxHeight: 200, overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: 6, padding: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {chargeItems.length === 0 && <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('patientFinance.noChargeItems')}</div>}
                   {chargeItems.map(item => (
-                    <label key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, cursor: 'pointer' }}>
+                    <label key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, cursor: 'pointer' }}>
                       <input type="checkbox" checked={invItemIds.includes(item.id)}
                         onChange={e => setInvItemIds(prev => e.target.checked ? [...prev, item.id] : prev.filter(x => x !== item.id))} />
                       <span>{item.name}</span>
@@ -381,7 +381,7 @@ export default function PatientFinancePage() {
               <div>
                 <div style={s.label}>{t('patientFinance.discountAmount')}</div>
                 <input type="number" min={0} value={invDiscount} onChange={e => setInvDiscount(Number(e.target.value))}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, boxSizing: 'border-box',}} />
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, boxSizing: 'border-box',}} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 8 }}>
                 <button style={{ ...s.btn, background: '#64748b' }} onClick={() => setShowInvoiceModal(false)}>{t('patientFinance.cancel')}</button>

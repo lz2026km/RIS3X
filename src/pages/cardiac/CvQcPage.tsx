@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 
 import { Shield, CheckCircle2, AlertTriangle, XCircle, BarChart3, ClipboardCheck } from 'lucide-react'
+import { DataTable } from '../../components/common'
 import { qcextApi } from '../../services/api/qcextApi'
 import { t } from '../../i18n/appI18n'
 
@@ -173,7 +174,7 @@ export default function CvQcPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24, opacity: loading ? 0.6 : 1 }}>
         <div style={{ padding: 16, background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid var(--color-success-border)' }}>
           <div style={{ fontSize: 12, color: 'var(--color-success)', fontWeight: 600, textTransform: 'uppercase' }}>{t('cvQc.overallPassRate')}</div>
-          <div style={{ fontSize: 28, fontWeight: 'bold', marginTop: 4 }}>{dashboard ? `${Math.round(dashboard.passedRate)}%` : `${Math.round(overallPass / overallTotal * 100)}%`}</div>
+          <div style={{ fontSize: 30, fontWeight: 'bold', marginTop: 4 }}>{dashboard ? `${Math.round(dashboard.passedRate)}%` : `${Math.round(overallPass / overallTotal * 100)}%`}</div>
           <div style={{ fontSize: 12, color: '#64748b' }}>{dashboard ? `检查 ${dashboard.totalInspected} 例 · 平均 ${dashboard.avgScore} 分` : `${overallPass}/${overallTotal} 项指标通过`}</div>
         </div>
         {MODALITY_QC.map((m, i) => (
@@ -190,36 +191,35 @@ export default function CvQcPage() {
           {MODALITY_QC[activeModality]?.modalityKey ? t(MODALITY_QC[activeModality].modalityKey!) : (MODALITY_QC[activeModality]?.modality ?? '')} — {t('cvQc.detailMetrics')}
           <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400, marginLeft: 8 }}>{t('cvQc.demoDataLabel')}</span>
         </div>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
-              <th style={{ padding: '10px 16px', textAlign: 'left' }}>{t('cvQc.colMetric')}</th>
-              <th style={{ padding: '10px 16px', textAlign: 'center' }}>{t('cvQc.colCurrent')}</th>
-              <th style={{ padding: '10px 16px', textAlign: 'center' }}>{t('cvQc.colTarget')}</th>
-              <th style={{ padding: '10px 16px', textAlign: 'center' }}>{t('cvQc.colStatus')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(MODALITY_QC[activeModality]?.metrics ?? []).map(m => {
-              const s = STATUS_CONFIG[m.status]
-              const Icon = s.icon
-              return (
-                <tr key={m.labelKey} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                  <td style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <ClipboardCheck size={16} color="#64748b" /> {t(m.labelKey)}
-                  </td>
-                  <td style={{ padding: '10px 16px', textAlign: 'center', fontWeight: 600 }}>{m.current}</td>
-                  <td style={{ padding: '10px 16px', textAlign: 'center', color: '#64748b' }}>{m.target}</td>
-                  <td style={{ padding: '10px 16px', textAlign: 'center' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: s.bg, color: s.color, padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600 }}>
-                      <Icon size={14} /> {m.status === 'pass' ? t('cvQc.statusPass') : m.status === 'warning' ? t('cvQc.statusWarning') : t('cvQc.statusFail')}
-                    </span>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+        <DataTable
+          dataSource={MODALITY_QC[activeModality]?.metrics ?? []}
+          rowKey="labelKey"
+          pagination={false}
+          columns={[
+            {
+              title: t('cvQc.colMetric'), dataIndex: 'labelKey',
+              render: (v: string) => (
+                <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <ClipboardCheck size={16} color="#64748b" /> {t(v)}
+                </span>
+              ),
+            },
+            { title: t('cvQc.colCurrent'), dataIndex: 'current', align: 'center', render: (v: number) => <span style={{ fontWeight: 600 }}>{v}</span> },
+            { title: t('cvQc.colTarget'), dataIndex: 'target', align: 'center', render: (v: number) => <span style={{ color: '#64748b' }}>{v}</span> },
+            {
+              title: t('cvQc.colStatus'), dataIndex: 'status', align: 'center',
+              render: (v: QcMetric['status']) => {
+                const s = STATUS_CONFIG[v]
+                const Icon = s.icon
+                return (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: s.bg, color: s.color, padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600 }}>
+                    <Icon size={14} /> {v === 'pass' ? t('cvQc.statusPass') : v === 'warning' ? t('cvQc.statusWarning') : t('cvQc.statusFail')}
+                  </span>
+                )
+              },
+            },
+          ]}
+        />
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>

@@ -89,7 +89,7 @@ export function CostOverview({ live }: { live?: LiveOverviewData | null }) {
           {t('w8.costOverview.costCompositionTitle')} {live && <span style={{ fontSize: 11, color: '#f59e0b' }}>{t('w8.costOverview.demoNote')}</span>}
         </div>
         {live ? (
-          <div style={{ fontSize: 13, color: 'var(--text-muted, #8b949e)', padding: 12, background: 'var(--bg-secondary, #21262d)', borderRadius: 6 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', padding: 12, background: 'var(--bg-secondary, #21262d)', borderRadius: 6 }}>
             {t('w8.costOverview.liveNote')}
           </div>
         ) : (
@@ -99,8 +99,8 @@ export function CostOverview({ live }: { live?: LiveOverviewData | null }) {
               {costCompositionData.map((item, idx) => (
                 <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 13, color: 'var(--text-primary, #f0f6fc)' }}>{item.label}</span>
-                    <span style={{ fontSize: 13, color: item.color, fontWeight: 600 }}>{formatCurrency(item.value)}</span>
+                    <span style={{ fontSize: 12, color: 'var(--text-primary, #f0f6fc)' }}>{item.label}</span>
+                    <span style={{ fontSize: 12, color: item.color, fontWeight: 600 }}>{formatCurrency(item.value)}</span>
                   </div>
                   <div style={{ height: 6, background: 'var(--bg-secondary, #21262d)', borderRadius: 3, overflow: 'hidden' }}>
                     <div style={{ width: `${(item.value / summaryData.totalCost) * 100}%`, height: '100%', background: item.color, borderRadius: 3, transition: 'width 0.3s ease' }} />

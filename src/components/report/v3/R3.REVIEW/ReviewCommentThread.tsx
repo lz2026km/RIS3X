@@ -106,7 +106,7 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
       >
         <Space style={{ width: '100%' }}>
           <MessageCircle size={14} color="#3b82f6" />
-          <strong style={{ fontSize: 13 }}>{t('w9e.reviewComment.title')}</strong>
+          <strong style={{ fontSize: 12 }}>{t('w9e.reviewComment.title')}</strong>
           <Tag color="purple">R3.REVIEW.063</Tag>
           <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('w9e.reviewComment.countUnit', { count: comments.length })}</span>
         </Space>
@@ -181,7 +181,7 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
                 }
                 title={
                   <Space>
-                    <strong style={{ fontSize: 13 }}>{c.authorName}</strong>
+                    <strong style={{ fontSize: 12 }}>{c.authorName}</strong>
                     <span style={{ fontSize: 12, color: '#94a3b8' }}>{timeAgo(c.createdAt)}</span>
                     {c.resolved && (
                       <Tag color="green" icon={<CheckCircle2 size={10} />}>

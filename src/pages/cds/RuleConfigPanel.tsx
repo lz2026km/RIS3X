@@ -97,18 +97,18 @@ export default function RuleConfigPanel() {
                 <input value={evalParams.clinicalInfo ?? ""} onChange={e => setEvalParams(p => ({ ...p, clinicalInfo: e.target.value }))} style={{ width: "100%", padding: "6px 10px", border: "1px solid #cbd5e1", borderRadius: 4, fontSize: 12 }} />
               </div>
             </div>
-            <button onClick={handleEvaluate} disabled={loading} style={{ marginTop: 12, padding: "8px 20px", background: "#1e40af", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
+            <button onClick={handleEvaluate} disabled={loading} style={{ marginTop: 12, padding: "8px 20px", background: "#1e40af", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
               {loading ? t("evaluating") : t("evaluate")}
             </button>
 
             {results.length > 0 && (
               <div style={{ marginTop: 16 }}>
-                <h4 style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)", margin: "0 0 8px" }}>{t("evalResults")}</h4>
+                <h4 style={{ fontSize: 12, fontWeight: 700, color: "var(--text-primary)", margin: "0 0 8px" }}>{t("evalResults")}</h4>
                 {results.map((r, _i) => (
                   <div key={r.ruleId} style={{ padding: "10px 12px", marginBottom: 8, background: r.triggered ? "var(--color-warning-bg)" : "var(--bg-card)", borderRadius: 6, border: "1px solid " + (r.triggered ? "var(--color-warning-border)" : "var(--border-color)") }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
                       {severityIcon(r.severity)}
-                      <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>{r.ruleName}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>{r.ruleName}</span>
                       <span style={{ fontSize: 11, color: "#64748b", marginLeft: "auto" }}>{r.source}</span>
                     </div>
                     <div style={{ fontSize: 12, color: "#475569", marginBottom: 4 }}>{r.message}</div>
@@ -133,7 +133,7 @@ export default function RuleConfigPanel() {
                 <div key={r.ruleId} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid var(--border-color)" }}>
                   <Icon size={16} color="#8b5cf6" />
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>{r.ruleName}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>{r.ruleName}</div>
                     <div style={{ fontSize: 11, color: "#64748b" }}>ID: {r.ruleId}</div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 4 }}>

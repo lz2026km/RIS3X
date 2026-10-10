@@ -210,7 +210,7 @@ export function CommandPalette({
             style={{
               flex: 1,
               border: "none",
-              fontSize: 15,
+              fontSize: 14,
               background: "transparent",
               color: "#1e293b",
             }}

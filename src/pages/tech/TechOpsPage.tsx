@@ -86,7 +86,7 @@ const rateColor = (rate: number) => {
 
 const inputStyle: React.CSSProperties = {
   background: 'var(--bg-primary)', color: C.text, border: `1px solid ${C.border}`,
-  borderRadius: 6, padding: '4px 10px', fontSize: 13, }
+  borderRadius: 6, padding: '4px 10px', fontSize: 12, }
 
 // ============================================================
 // 本地演示回退数据 (API 不可用时保证页面可用)
@@ -470,7 +470,7 @@ export default function TechOpsPage() {
                   <span style={{ fontSize: 12, color: C.textMid }}>{kpi.title}</span>
                   <span style={{ color: kpi.color }}>{kpi.icon}</span>
                 </div>
-                <div style={{ fontSize: 26, fontWeight: 700 }}>{kpi.value}</div>
+                <div style={{ fontSize: 24, fontWeight: 700 }}>{kpi.value}</div>
                 <div style={{ fontSize: 11, color: C.textLight, marginTop: 2 }}>{kpi.sub}</div>
               </div>
             ))}
@@ -589,7 +589,7 @@ export default function TechOpsPage() {
               onChange={(v) => setEmgForm({ ...emgForm, deviceId: v ?? '' })} allowClear
               options={DEMO_DEVICES.map((d) => ({ value: d.id, label: `${d.name} (${d.modality})` }))}
             />
-            <span style={{ color: C.textMid, fontSize: 13 }}>{t('techOps.duration')}</span>
+            <span style={{ color: C.textMid, fontSize: 12 }}>{t('techOps.duration')}</span>
             <InputNumber
               size="middle" min={5} max={90} value={emgForm.durationMin}
               onChange={(v) => setEmgForm({ ...emgForm, durationMin: v ?? 15 })}
@@ -633,12 +633,12 @@ export default function TechOpsPage() {
                         ? <Tag color="red" icon={<AlertTriangle size={11} />}>{t('techOps.conflicts', { count: s.conflictCount })}</Tag>
                         : <Tag color="green" icon={<CheckCircle2 size={11} />}>{t('techOps.noConflict')}</Tag>}
                     </div>
-                    <div style={{ fontSize: 13, marginBottom: 6 }}>
+                    <div style={{ fontSize: 12, marginBottom: 6 }}>
                       <span style={{ color: C.textMid }}>{t('techOps.device')}</span>
                       <b style={{ color: C.text }}>{s.deviceName}</b>
                       <Tag color={MODALITY_COLORS[s.modality]} style={{ marginLeft: 6 }}>{s.modality}</Tag>
                     </div>
-                    <div style={{ fontSize: 13, display: 'flex', gap: 14, marginBottom: 6, flexWrap: 'wrap' }}>
+                    <div style={{ fontSize: 12, display: 'flex', gap: 14, marginBottom: 6, flexWrap: 'wrap' }}>
                       <span><span style={{ color: C.textLight }}>{t('techOps.start')} </span><b style={{ color: s.startInMin <= 10 ? C.green : C.text }}>{fmtTime(s.startAt)}</b></span>
                       <span><span style={{ color: C.textLight }}>{t('techOps.end')} </span><b>{fmtTime(s.endAt)}</b></span>
                       <span><span style={{ color: C.textLight }}>{t('techOps.wait')} </span><b style={{ color: C.orange }}>{t('techOps.waitMin', { count: s.startInMin })}</b></span>
@@ -806,15 +806,15 @@ export default function TechOpsPage() {
             <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
               <div style={{ flex: 1, minWidth: 160, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px' }}>
                 <div style={{ fontSize: 12, color: C.textMid, marginBottom: 8 }}>{t('techOps.waitBefore')}</div>
-                <div style={{ fontSize: 26, fontWeight: 700, color: C.red }}>{t('techOps.minUnit', { count: optResult.totalWaitBefore })}</div>
+                <div style={{ fontSize: 24, fontWeight: 700, color: C.red }}>{t('techOps.minUnit', { count: optResult.totalWaitBefore })}</div>
               </div>
               <div style={{ flex: 1, minWidth: 160, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px' }}>
                 <div style={{ fontSize: 12, color: C.textMid, marginBottom: 8 }}>{t('techOps.waitAfter')}</div>
-                <div style={{ fontSize: 26, fontWeight: 700, color: C.green }}>{t('techOps.minUnit', { count: optResult.totalWaitAfter })}</div>
+                <div style={{ fontSize: 24, fontWeight: 700, color: C.green }}>{t('techOps.minUnit', { count: optResult.totalWaitAfter })}</div>
               </div>
               <div style={{ flex: 1, minWidth: 160, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: '14px 18px' }}>
                 <div style={{ fontSize: 12, color: C.textMid, marginBottom: 8 }}>{t('techOps.waitReduce')}</div>
-                <div style={{ fontSize: 26, fontWeight: 700, color: C.blue }}>{optResult.better ? `${optResult.improvementPct}%` : t('techOps.notImproved')}</div>
+                <div style={{ fontSize: 24, fontWeight: 700, color: C.blue }}>{optResult.better ? `${optResult.improvementPct}%` : t('techOps.notImproved')}</div>
                 <div style={{ fontSize: 11, color: C.textLight, marginTop: 2 }}>
                   {optResult.better ? t('techOps.savedMin', { count: Math.max(0, optResult.totalWaitBefore - optResult.totalWaitAfter) }) : t('techOps.sameAsBefore')}
                 </div>
@@ -822,7 +822,7 @@ export default function TechOpsPage() {
             </div>
 
             {optResult.unassigned.length > 0 && (
-              <div style={{ background: 'rgba(248,113,113,0.08)', border: `1px solid ${C.red}`, borderRadius: 8, padding: '10px 16px', marginBottom: 16, fontSize: 13, color: C.red }}>
+              <div style={{ background: 'rgba(248,113,113,0.08)', border: `1px solid ${C.red}`, borderRadius: 8, padding: '10px 16px', marginBottom: 16, fontSize: 12, color: C.red }}>
                 <AlertTriangle size={14} style={{ verticalAlign: -2, marginRight: 6 }} />
                 {t('techOps.unassignedWarn', { count: optResult.unassigned.length, list: optResult.unassigned.map((u) => `${u.patientName}(${u.modality})`).join('、') })}
               </div>
@@ -933,7 +933,7 @@ export default function TechOpsPage() {
         styles={{ body: { background: C.panel }, header: { background: C.panel } }}
       >
         {confirmTarget && (
-          <div style={{ fontSize: 13 }}>
+          <div style={{ fontSize: 12 }}>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
               <Tag color={STRATEGY_COLORS[confirmTarget.strategy]}>{confirmTarget.strategyLabel}</Tag>
               <Tag color={MODALITY_COLORS[confirmTarget.modality]}>{confirmTarget.modality}</Tag>
@@ -965,7 +965,7 @@ export default function TechOpsPage() {
         styles={{ body: { background: C.panel }, header: { background: C.panel } }}
       >
         {insertResult && (
-          <div style={{ fontSize: 13 }}>
+          <div style={{ fontSize: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
               {insertResult.success
                 ? <CheckCircle2 size={18} color={C.green} />

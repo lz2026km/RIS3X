@@ -568,7 +568,7 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
                 <Popover
                   content={
                     <div style={{ minWidth: 180 }}>
-                      <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 13 }}>
+                      <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 12 }}>
                         {collab.isConnected ? t('w9b.reportRich.onlineUsers') : t('w9b.reportRich.offline')}
                       </div>
                       {collab.onlineUsers.map((u) => (
@@ -576,7 +576,7 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
                           <Avatar size={24} style={{ backgroundColor: u.color, fontSize: 12, flexShrink: 0 }}>
                             {u.name.charAt(0).toUpperCase()}
                           </Avatar>
-                          <span style={{ fontSize: 13 }}>{u.name}</span>
+                          <span style={{ fontSize: 12 }}>{u.name}</span>
                         </div>
                       ))}
                     </div>

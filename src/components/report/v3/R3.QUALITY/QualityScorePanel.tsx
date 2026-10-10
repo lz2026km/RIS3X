@@ -241,7 +241,7 @@ export const QualityScorePanel: React.FC<{
         <Space style={{ width: '100%', justifyContent: 'space-between' }} wrap>
           <Space size="middle" wrap>
             <Award size={20} />
-            <strong style={{ fontSize: 17 }}>{t('qualityScore.title')}</strong>
+            <strong style={{ fontSize: 16 }}>{t('qualityScore.title')}</strong>
             <Tag color="purple">R3.QUALITY.SCORING</Tag>
             <Tag color="cyan">{score.modelVersion}</Tag>
             {reportId && <Tag color="blue">{t('qualityScore.reportPrefix')}{reportId}</Tag>}
@@ -281,7 +281,7 @@ export const QualityScorePanel: React.FC<{
                 textAlign: 'center',
               }}
             >
-              <div style={{ fontSize: 38, fontWeight: 800, color: '#fff', lineHeight: 1 }}>
+              <div style={{ fontSize: 36, fontWeight: 800, color: '#fff', lineHeight: 1 }}>
                 {score.totalScore}
               </div>
               <Tag
@@ -305,7 +305,7 @@ export const QualityScorePanel: React.FC<{
               title={<span style={{ color: '#fff' }}>{t('qualityScore.completenessAvg')}</span>}
               value={score.categoryScores.completeness}
               precision={1}
-              styles={{ content: {  color: '#fff', fontSize: 22  } }}
+              styles={{ content: {  color: '#fff', fontSize: 20  } }}
               prefix={<FileText size={14} />}
               suffix="/100"
             />
@@ -315,7 +315,7 @@ export const QualityScorePanel: React.FC<{
               title={<span style={{ color: '#fff' }}>{t('qualityScore.accuracyAvg')}</span>}
               value={score.categoryScores.accuracy}
               precision={1}
-              styles={{ content: {  color: '#fff', fontSize: 22  } }}
+              styles={{ content: {  color: '#fff', fontSize: 20  } }}
               prefix={<Target size={14} />}
               suffix="/100"
             />
@@ -325,7 +325,7 @@ export const QualityScorePanel: React.FC<{
               title={<span style={{ color: '#fff' }}>{t('qualityScore.timelinessAvg')}</span>}
               value={score.categoryScores.timeliness}
               precision={1}
-              styles={{ content: {  color: '#fff', fontSize: 22  } }}
+              styles={{ content: {  color: '#fff', fontSize: 20  } }}
               prefix={<Clock size={14} />}
               suffix="/100"
             />
@@ -498,7 +498,7 @@ export const QualityScorePanel: React.FC<{
                           <Space style={{ width: '100%', justifyContent: 'space-between' }}>
                             <Space>
                               <span style={{ fontSize: 20 }}>{d.icon}</span>
-                              <strong style={{ fontSize: 13 }}>{d.name}</strong>
+                              <strong style={{ fontSize: 12 }}>{d.name}</strong>
                             </Space>
                             {grade && (
                               <Tag
@@ -577,7 +577,7 @@ export const QualityScorePanel: React.FC<{
                           background: th.bg,
                         }}
                       >
-                        <div style={{ fontSize: 28, fontWeight: 800, color: th.color }}>
+                        <div style={{ fontSize: 30, fontWeight: 800, color: th.color }}>
                           {th.grade}
                         </div>
                         <div style={{ fontSize: 12, color: th.color }}>

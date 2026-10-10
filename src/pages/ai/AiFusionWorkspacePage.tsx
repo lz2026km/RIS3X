@@ -167,7 +167,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
             styles={{ body: { width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 8 } }}
           >
             <Activity size={36} color="#2563eb" />
-            <span style={{ opacity: 0.8, fontSize: 13 }}>[ {t('aiFusion.canvasArea')} {modality.toUpperCase()} ]</span>
+            <span style={{ opacity: 0.8, fontSize: 12 }}>[ {t('aiFusion.canvasArea')} {modality.toUpperCase()} ]</span>
             <span style={{ opacity: 0.5, fontSize: 12 }}>{t('aiFusion.canvasSubtitle')}</span>
             {layerVisible && (
               <span style={{ padding: '3px 12px', background: 'rgba(255,255,255,0.15)', borderRadius: 12, fontSize: 12 }}>

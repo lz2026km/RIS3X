@@ -231,7 +231,7 @@ const AiDraftPage: React.FC = () => {
           {currentExam && (
             <div style={{ padding: '4px 12px', background: '#f0f5ff', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
               <FileText size={14} color="#2563eb" />
-              <span style={{ fontSize: 13 }}>{currentExam.modality} · {currentExam.bodyPart}</span>
+              <span style={{ fontSize: 12 }}>{currentExam.modality} · {currentExam.bodyPart}</span>
             </div>
           )}
         </div>
@@ -286,7 +286,7 @@ const AiDraftPage: React.FC = () => {
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                 <Space>
-                  <Text strong style={{ fontSize: 13 }}>{p.heading}</Text>
+                  <Text strong style={{ fontSize: 12 }}>{p.heading}</Text>
                   <Tag color="purple" style={{ fontSize: 11 }}>{(p.confidence * 100).toFixed(0)}%</Tag>
                 </Space>
                 <Space>
@@ -297,14 +297,14 @@ const AiDraftPage: React.FC = () => {
               </div>
               {editingParagraph === p.id ? (
                 <div>
-                  <TextArea value={editContent} onChange={e => setEditContent(e.target.value)} rows={3} style={{ fontSize: 13 }} />
+                  <TextArea value={editContent} onChange={e => setEditContent(e.target.value)} rows={3} style={{ fontSize: 12 }} />
                   <Space style={{ marginTop: 6 }}>
                     <Button size="small" type="primary" icon={<Save size={12} />} onClick={handleSaveEdit}>{t('aiDraft.save')}</Button>
                     <Button size="small" onClick={() => setEditingParagraph(null)}>{t('aiDraft.cancel')}</Button>
                   </Space>
                 </div>
               ) : (
-                <Text style={{ fontSize: 13, whiteSpace: 'pre-wrap' }}>{p.content}</Text>
+                <Text style={{ fontSize: 12, whiteSpace: 'pre-wrap' }}>{p.content}</Text>
               )}
             </div>
           ))}

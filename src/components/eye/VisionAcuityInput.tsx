@@ -21,7 +21,7 @@ const VisionAcuityInput: React.FC<Props> = ({ label, value, onChange }) => {
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
-      <span style={{ minWidth: 60, fontSize: 13, color: '#475569' }}>{label}</span>
+      <span style={{ minWidth: 60, fontSize: 12, color: '#475569' }}>{label}</span>
       <InputNumber
         value={value}
         onChange={(v) => onChange(v ?? 0)}

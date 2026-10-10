@@ -308,7 +308,7 @@ function StorageMonitorTab() {
                 </PieChart>
               </ChartContainer>
               <div style={{ marginTop: -6 }}>
-                <Text strong style={{ fontSize: 15 }}>{t("cloudStorage.monitor.usageRate", { level: capacityLevel === "critical" ? t("cloudStorage.monitor.levelCritical") : capacityLevel === "warn" ? t("cloudStorage.monitor.levelWarn") : t("cloudStorage.monitor.levelOk"), pct: monitor?.usedPercent ?? usedPct.toFixed(1) })}</Text>
+                <Text strong style={{ fontSize: 14 }}>{t("cloudStorage.monitor.usageRate", { level: capacityLevel === "critical" ? t("cloudStorage.monitor.levelCritical") : capacityLevel === "warn" ? t("cloudStorage.monitor.levelWarn") : t("cloudStorage.monitor.levelOk"), pct: monitor?.usedPercent ?? usedPct.toFixed(1) })}</Text>
                 <div>
                   <Text type="secondary" style={{ fontSize: 12 }}>
                     {t("cloudStorage.monitor.usedOfTotal", { used: formatBytes(monitor?.totalUsedBytes ?? totalUsed * 1024 ** 3), total: formatBytes(monitor?.totalCapacityBytes ?? totalCapacity * 1024 ** 4) })}
@@ -485,7 +485,7 @@ function StorageMonitorTab() {
                   <Space>
                     <Layers size={14} color={TIER_COLORS[r.tier]} />
                     <div>
-                      <div style={{ fontWeight: 600, fontSize: 13 }}>{n}</div>
+                      <div style={{ fontWeight: 600, fontSize: 12 }}>{n}</div>
                       <Text type="secondary" style={{ fontSize: 11 }}>{r.vendor}</Text>
                     </div>
                   </Space>
@@ -732,7 +732,7 @@ function StorageConfigTab() {
             <div style={{ marginBottom: 12 }}>
               <Space>
                 <div style={{ width: 10, height: 10, background: activeColor, borderRadius: "50%" }} />
-                <Text strong style={{ fontSize: 15 }}>
+                <Text strong style={{ fontSize: 14 }}>
                   {t("cloudStorage.config.currentDriver", { driver: stats?.driver === "s3" ? "S3 / MinIO" : t("cloudStorage.monitor.localStorage") })}
                   <Tag color={stats?.status === "active" ? "green" : "red"} style={{ marginLeft: 8 }}>
                     {stats?.status === "active" ? t("cloudStorage.config.running") : t("cloudStorage.config.abnormal")}
@@ -1435,7 +1435,7 @@ function StorageBucketsTab() {
         {repTasks.length > 0 && (
           <div style={{ marginTop: 12 }}>
             <Space style={{ marginBottom: 6 }}>
-              <Text strong style={{ fontSize: 13 }}>{t("cloudStorage.buckets.recentRepTasks")}</Text>
+              <Text strong style={{ fontSize: 12 }}>{t("cloudStorage.buckets.recentRepTasks")}</Text>
               {repPolling && <Tag color="blue">{t("cloudStorage.buckets.refreshing")}</Tag>}
             </Space>
             <DataTable
@@ -1739,7 +1739,7 @@ export default function CloudStorageDashboardPage() {
         <Space size={16}>
           <Cloud size={36} color="#fff" />
           <div>
-            <div style={{ fontSize: 22, fontWeight: 800 }}>{t("cloudStorage.pageTitle")}</div>
+            <div style={{ fontSize: 20, fontWeight: 800 }}>{t("cloudStorage.pageTitle")}</div>
             <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>
               {t("cloudStorage.pageSub")}
             </div>

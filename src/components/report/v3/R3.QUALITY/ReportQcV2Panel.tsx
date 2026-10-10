@@ -443,7 +443,7 @@ const ScoreResultView: React.FC<{ result: QcScoreResult; dimensions: QcDimension
         <Col xs={12} sm={6}>
           <Card size="small" style={{ background: '#f8fafc' }}>
             <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('reportQcV2.grade')}</div>
-            <div style={{ fontSize: 28, fontWeight: 700, color: GRADE_COLOR[result.grade] }}>{result.grade}</div>
+            <div style={{ fontSize: 30, fontWeight: 700, color: GRADE_COLOR[result.grade] }}>{result.grade}</div>
           </Card>
         </Col>
         <Col xs={12} sm={6}>
@@ -453,7 +453,7 @@ const ScoreResultView: React.FC<{ result: QcScoreResult; dimensions: QcDimension
         </Col>
         <Col xs={12} sm={6}>
           <Card size="small" style={{ background: '#f8fafc' }}>
-            <Statistic title={t('reportQcV2.report')} value={result.reportId} valueStyle={{ fontSize: 13 }} />
+            <Statistic title={t('reportQcV2.report')} value={result.reportId} valueStyle={{ fontSize: 12 }} />
           </Card>
         </Col>
       </Row>
@@ -462,7 +462,7 @@ const ScoreResultView: React.FC<{ result: QcScoreResult; dimensions: QcDimension
           <Col xs={24} sm={12} key={d.key}>
             <Card size="small" style={{ borderLeft: `4px solid ${dimColors.get(d.key) ?? '#3b82f6'}` }}>
               <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                <strong style={{ fontSize: 13 }}>{d.label}</strong>
+                <strong style={{ fontSize: 12 }}>{d.label}</strong>
                 <Tag color={d.score >= d.max * 0.85 ? 'green' : d.score >= d.max * 0.6 ? 'gold' : 'red'}>
                   {d.score}/{d.max}
                 </Tag>

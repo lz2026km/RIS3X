@@ -1,6 +1,7 @@
 import { PageContainer } from "../../components/common/PageContainer"
 import { PageHeader } from "../../components/common/PageHeader"
 import { StatCard, StatCardGrid } from "../../components/common/StatCard"
+import { DataTable } from "../../components/common"
 import { qcImageAiApi } from "../../services/api/qcImageAiApi"
 import { QcImageAiScoreV2Result, QcImageAiScoreV1Result, QcImageAiStatsV2 } from '../../services/api/qcImageAiApi'
 import { t as tr } from "../../i18n/appI18n"
@@ -202,7 +203,7 @@ export default function QcImageAiPage() {
         <RqiIndicatorLink code="RQI-IIA-01" />
         <div style={{ marginBottom: 16, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
           {MODALITY_OPTIONS.map(m => (
-            <button key={m} onClick={() => setModality(m)} style={{ padding: "6px 14px", background: modality === m ? "#1e40af" : "var(--bg-card)", color: modality === m ? "#fff" : "#475569", border: "1px solid " + (modality === m ? "#1e40af" : "var(--border-color)"), borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
+            <button key={m} onClick={() => setModality(m)} style={{ padding: "6px 14px", background: modality === m ? "#1e40af" : "var(--bg-card)", color: modality === m ? "#fff" : "#475569", border: "1px solid " + (modality === m ? "#1e40af" : "var(--border-color)"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
               {m === "all" ? t("all") : m}
             </button>
           ))}
@@ -235,10 +236,10 @@ export default function QcImageAiPage() {
         </Spin>
 
         <div style={{ marginBottom: 16, display: "flex", gap: 8 }}>
-          <button onClick={() => setActiveTab("v1")} style={{ padding: "6px 16px", background: activeTab === "v1" ? "#1e40af" : "var(--bg-card)", color: activeTab === "v1" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "v1" ? "#1e40af" : "var(--border-color)"), borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
+          <button onClick={() => setActiveTab("v1")} style={{ padding: "6px 16px", background: activeTab === "v1" ? "#1e40af" : "var(--bg-card)", color: activeTab === "v1" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "v1" ? "#1e40af" : "var(--border-color)"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
             V1
           </button>
-          <button onClick={() => setActiveTab("v2")} style={{ padding: "6px 16px", background: activeTab === "v2" ? "#1e40af" : "var(--bg-card)", color: activeTab === "v2" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "v2" ? "#1e40af" : "var(--border-color)"), borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
+          <button onClick={() => setActiveTab("v2")} style={{ padding: "6px 16px", background: activeTab === "v2" ? "#1e40af" : "var(--bg-card)", color: activeTab === "v2" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "v2" ? "#1e40af" : "var(--border-color)"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>
             V2 {t("detailed")}
           </button>
         </div>
@@ -296,7 +297,7 @@ export default function QcImageAiPage() {
               </div>
             </div>
           ) : (
-            <div style={{ padding: 20, textAlign: "center", color: "#94a3b8", fontSize: 13 }}>{tr("qcai.lookup.empty")}</div>
+            <div style={{ padding: 20, textAlign: "center", color: "#94a3b8", fontSize: 12 }}>{tr("qcai.lookup.empty")}</div>
           )}
 
           <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border-color)", fontSize: 12, color: "#64748b" }}>
@@ -356,7 +357,7 @@ export default function QcImageAiPage() {
                         <div style={{ width: "100%", maxWidth: 32, height: 100, background: "var(--border-color)", borderRadius: "4px 4px 0 0", position: "relative", overflow: "hidden" }}>
                           <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: `${h}%`, background: "linear-gradient(to top, #3b82f6, #60a5fa)", borderRadius: "4px 4px 0 0", transition: "height 0.3s" }} />
                         </div>
-                        <span style={{ fontSize: 9, color: "#94a3b8", transform: "rotate(-45deg)", whiteSpace: "nowrap" }}>{p.date.slice(5)}</span>
+                        <span style={{ fontSize: 10, color: "#94a3b8", transform: "rotate(-45deg)", whiteSpace: "nowrap" }}>{p.date.slice(5)}</span>
                       </div>
                     )
                   })}
@@ -372,40 +373,32 @@ export default function QcImageAiPage() {
           <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 16px" }}>{t("scoreTable")}</h3>
           <Spin spinning={detailLoading || recordsLoading}>
             <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ background: "var(--bg-card)" }}>
-                    {[t("instanceId"), t("modality"), t("artifactScore"), t("positioningScore"), t("exposureScore"), t("overallScore"), t("scoreDate"), "操作"].map(h => (
-                      <th key={h} style={{ padding: 10, textAlign: "left", fontWeight: 600, color: "#475569", borderBottom: "2px solid var(--border-color)", whiteSpace: "nowrap" }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.slice(0, 50).map(r => {
-                    const a = (r.artifactScores.motion + r.artifactScores.metal + r.artifactScores.ring) / 3
-                    const p = (r.positioningScores.setup + r.positioningScores.rotation + r.positioningScores.offset) / 3
-                    return (
-                      <tr key={r.id} style={{ borderBottom: "1px solid var(--border-color)" }}>
-                        <td style={{ padding: 10, fontFamily: "monospace", fontSize: 11 }}>{r.instanceId}</td>
-                        <td style={{ padding: 10 }}><span style={{ background: modalityColor(r.modality), color: "#fff", padding: "2px 8px", borderRadius: 4, fontWeight: 600 }}>{r.modality}</span></td>
-                        <td style={{ padding: 10 }}>{scoreBadge(a)}</td>
-                        <td style={{ padding: 10 }}>{scoreBadge(p)}</td>
-                        <td style={{ padding: 10 }}>{scoreBadge(r.exposure.score)}</td>
-                        <td style={{ padding: 10 }}>{scoreBadge(r.overall)}</td>
-                        <td style={{ padding: 10, color: "#64748b" }}>{r.createdAt.slice(0, 10)}</td>
-                        <td style={{ padding: 10 }}>
-                          <Button size="small" type="link" icon={<Eye size={12} />} onClick={() => void viewResult(r.instanceId)}>结果详情</Button>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-              {filtered.length === 0 && (
-                <div style={{ padding: 32, textAlign: "center", color: "#94a3b8" }}>
-                  {t("noData")} - 在上方输入实例 ID 执行 AI 评分后展示真实结果
-                </div>
-              )}
+              <DataTable
+                rowKey="id"
+                dataSource={filtered.slice(0, 50)}
+                showPagination={false}
+                showExport={false}
+                showDensity={false}
+                emptyText={`${t("noData")} - 在上方输入实例 ID 执行 AI 评分后展示真实结果`}
+                columns={[
+                  { title: t("instanceId"), dataIndex: "instanceId", key: "instanceId", render: (v: string) => <span style={{ fontFamily: "monospace", fontSize: 11 }}>{v}</span> },
+                  {
+                    title: t("modality"), dataIndex: "modality", key: "modality",
+                    render: (v: string) => <span style={{ background: modalityColor(v), color: "#fff", padding: "2px 8px", borderRadius: 4, fontWeight: 600 }}>{v}</span>,
+                  },
+                  { title: t("artifactScore"), key: "artifactScore", render: (_: unknown, r: QcImageAiScoreV2Result) => scoreBadge((r.artifactScores.motion + r.artifactScores.metal + r.artifactScores.ring) / 3) },
+                  { title: t("positioningScore"), key: "positioningScore", render: (_: unknown, r: QcImageAiScoreV2Result) => scoreBadge((r.positioningScores.setup + r.positioningScores.rotation + r.positioningScores.offset) / 3) },
+                  { title: t("exposureScore"), key: "exposureScore", render: (_: unknown, r: QcImageAiScoreV2Result) => scoreBadge(r.exposure.score) },
+                  { title: t("overallScore"), dataIndex: "overall", key: "overall", render: (v: number) => scoreBadge(v) },
+                  { title: t("scoreDate"), dataIndex: "createdAt", key: "createdAt", render: (v: string) => <span style={{ color: "#64748b" }}>{v.slice(0, 10)}</span> },
+                  {
+                    title: "操作", key: "actions",
+                    render: (_: unknown, r: QcImageAiScoreV2Result) => (
+                      <Button size="small" type="link" icon={<Eye size={12} />} onClick={() => void viewResult(r.instanceId)}>结果详情</Button>
+                    ),
+                  },
+                ]}
+              />
             </div>
           </Spin>
           {detail && (

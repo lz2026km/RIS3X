@@ -926,7 +926,7 @@ const s: Record<string, React.CSSProperties> = {
     flexWrap: "wrap",
   },
   brand: { display: "flex", alignItems: "center", gap: 8 },
-  brandText: { fontSize: 13, fontWeight: 700, color: "#f8fafc", whiteSpace: "nowrap" },
+  brandText: { fontSize: 12, fontWeight: 700, color: "#f8fafc", whiteSpace: "nowrap" },
   pill: {
     fontSize: 10,
     padding: "2px 6px",

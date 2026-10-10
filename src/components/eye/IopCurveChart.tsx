@@ -8,7 +8,7 @@ interface Props {
 
 const IopCurveChart: React.FC<Props> = ({ records, patientId }) => {
   if (records.length === 0) {
-    return <div style={{ textAlign: 'center', padding: 24, color: '#94a3b8', fontSize: 13 }}>暂无眼压记录</div>;
+    return <div style={{ textAlign: 'center', padding: 24, color: '#94a3b8', fontSize: 12 }}>暂无眼压记录</div>;
   }
 
   const iopMin = Math.min(...records.flatMap((r) => [r.od, r.os])) - 2;

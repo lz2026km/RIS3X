@@ -7,6 +7,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
 } from "recharts";
 import { ChartContainer, chartDefaults } from "../../components/charts";
+import { DataTable } from "../../components/common";
 import { t } from "../../i18n/appI18n";
 
 const C = {
@@ -90,7 +91,7 @@ const LeaveRow = ({ leave, onApprove, onReject }: { leave: LeaveRequest; onAppro
   const statusStyles = { pending: { bg: C.warningBg, color: C.warning }, approved: { bg: C.successBg, color: C.success }, rejected: { bg: C.dangerBg, color: C.danger } };
   const s = statusStyles[leave.status] || statusStyles.pending;
   return (
-    <div style={{ display: "flex", alignItems: "center", padding: "10px 16px", borderBottom: `1px solid ${C.borderLight}`, gap: 16, fontSize: 13 }}>
+    <div style={{ display: "flex", alignItems: "center", padding: "10px 16px", borderBottom: `1px solid ${C.borderLight}`, gap: 16, fontSize: 12 }}>
       <div style={{ flex: 1, fontWeight: 500, color: C.textDark }}>{leave.name}</div>
       <div style={{ flex: 1, color: C.primary }}>{leave.type}</div>
       <div style={{ flex: 1, color: C.textDark }}>{leave.startDate} ~ {leave.endDate}</div>
@@ -180,29 +181,39 @@ export default function DepartmentSchedule() {
         </div>
         {attendResult && <div style={{ padding: "8px 16px", background: C.infoBg, color: C.info, fontSize: 12 }}>{attendResult}</div>}
         <div style={{ overflow: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-            <thead><tr style={{ background: "var(--bg-primary)" }}>
-              <th style={{ padding: "10px 12px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>{t("deptSched.colName")}</th>
-              <th style={{ padding: "10px 12px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>{t("deptSched.colShift")}</th>
-              <th style={{ padding: "10px 12px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>{t("deptSched.colCheckIn")}</th>
-              <th style={{ padding: "10px 12px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>{t("deptSched.colCheckOut")}</th>
-              <th style={{ padding: "10px 12px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>{t("deptSched.colStatus")}</th>
-              <th style={{ padding: "10px 12px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>{t("deptSched.colAbnormal")}</th>
-            </tr></thead>
-            <tbody>{attendanceRows.map((a) => (
-              <tr key={a.staffId} style={{ borderBottom: `1px solid ${C.borderLight}` }}>
-                <td style={{ padding: "10px 12px", fontWeight: 500, color: C.textDark }}>{a.name}</td>
-                <td style={{ padding: "10px 12px", color: C.textMid }}>{a.shift === "morning" ? t("deptSched.shiftMorning") : a.shift === "afternoon" ? t("deptSched.shiftAfternoon") : a.shift === "night" ? t("deptSched.shiftNight") : t("deptSched.shiftDay")}</td>
-                <td style={{ padding: "10px 12px", color: C.textMid }}>{a.checkIn}</td>
-                <td style={{ padding: "10px 12px", color: C.textMid }}>{a.checkOut}</td>
-                <td style={{ padding: "10px 12px" }}><span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 12, background: a.status === "normal" ? C.successBg : C.warningBg, color: a.status === "normal" ? C.success : C.warning }}>{a.status === "normal" ? t("deptSched.statusNormal") : t("deptSched.statusAbnormal")}</span></td>
-                <td style={{ padding: "10px 12px", color: a.late > 0 ? C.danger : a.early > 0 ? C.warning : C.success }}>{a.late > 0 ? t("deptSched.lateTimes", { count: a.late }) : a.early > 0 ? t("deptSched.earlyTimes", { count: a.early }) : t("deptSched.none")}</td>
-              </tr>
-            ))}</tbody>
-          </table>
+          <DataTable
+            rowKey="staffId"
+            dataSource={attendanceRows}
+            showPagination={false}
+            showExport={false}
+            showDensity={false}
+            columns={[
+              { title: t("deptSched.colName"), dataIndex: "name", key: "name", render: (v: string) => <span style={{ fontWeight: 500, color: C.textDark }}>{v}</span> },
+              {
+                title: t("deptSched.colShift"), dataIndex: "shift", key: "shift",
+                render: (v: string) => (
+                  <span style={{ color: C.textMid }}>{v === "morning" ? t("deptSched.shiftMorning") : v === "afternoon" ? t("deptSched.shiftAfternoon") : v === "night" ? t("deptSched.shiftNight") : t("deptSched.shiftDay")}</span>
+                ),
+              },
+              { title: t("deptSched.colCheckIn"), dataIndex: "checkIn", key: "checkIn", render: (v: string) => <span style={{ color: C.textMid }}>{v}</span> },
+              { title: t("deptSched.colCheckOut"), dataIndex: "checkOut", key: "checkOut", render: (v: string) => <span style={{ color: C.textMid }}>{v}</span> },
+              {
+                title: t("deptSched.colStatus"), dataIndex: "status", key: "status",
+                render: (v: string) => (
+                  <span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 12, background: v === "normal" ? C.successBg : C.warningBg, color: v === "normal" ? C.success : C.warning }}>{v === "normal" ? t("deptSched.statusNormal") : t("deptSched.statusAbnormal")}</span>
+                ),
+              },
+              {
+                title: t("deptSched.colAbnormal"), key: "abnormal",
+                render: (_: unknown, a: AttendanceRow) => (
+                  <span style={{ color: a.late > 0 ? C.danger : a.early > 0 ? C.warning : C.success }}>{a.late > 0 ? t("deptSched.lateTimes", { count: a.late }) : a.early > 0 ? t("deptSched.earlyTimes", { count: a.early }) : t("deptSched.none")}</span>
+                ),
+              },
+            ]}
+          />
         </div>
         <div style={{ padding: 16, borderTop: `1px solid ${C.borderLight}` }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>{t("deptSched.monthlyTrend")}</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>{t("deptSched.monthlyTrend")}</div>
           <ChartContainer type="area" height={160}>
             <AreaChart data={ATTENDANCE_MONTHLY} margin={chartDefaults.margin}>
               <CartesianGrid {...chartDefaults.grid} stroke={C.borderLight} />

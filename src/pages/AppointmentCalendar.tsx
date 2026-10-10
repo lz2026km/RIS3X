@@ -2,6 +2,7 @@ import type { Dispatch, SetStateAction } from 'react'
 import { ChevronLeft, ChevronRight, Filter, Search, CalendarDays, List, Bell, CheckCircle2, CalendarClock, X } from 'lucide-react'
 import { initialModalityDevices } from '../data/initialData'
 import { useContextMenu, type ContextMenuItem } from '../components/common/ContextMenu'
+import { DataTable } from '../components/common'
 import BatchActionBar from '../components/batch/BatchActionBar'
 import { t } from '../i18n/appI18n'
 
@@ -134,7 +135,7 @@ export default function AppointmentCalendar(props: Props) {
         <div style={{ background: whiteBg, borderRadius: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: `1px solid ${borderGray}`, overflow: 'hidden' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 16px', background: lightBlue }}>
             <button onClick={() => { const d = new Date(currentWeekStart); d.setDate(d.getDate() - 7); setCurrentWeekStart(d) }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: primaryBlue }}><ChevronLeft size={16} /></button>
-            <span style={{ fontSize: 13, fontWeight: 700, color: primaryBlue }}>{formatDateCht(weekDates[0]!)} - {formatDateCht(weekDates[6]!)}</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: primaryBlue }}>{formatDateCht(weekDates[0]!)} - {formatDateCht(weekDates[6]!)}</span>
             <button onClick={() => { const d = new Date(currentWeekStart); d.setDate(d.getDate() + 7); setCurrentWeekStart(d) }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: primaryBlue }}><ChevronRight size={16} /></button>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', background: lightBlue, borderBottom: `1px solid ${borderGray}` }}>
@@ -166,7 +167,7 @@ export default function AppointmentCalendar(props: Props) {
       {viewMode === 'calendar' && calendarSubView === 'day' && (
         <div style={{ background: whiteBg, borderRadius: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: `1px solid ${borderGray}`, overflow: 'hidden' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 16px', background: lightBlue }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: primaryBlue }}>{formatDateCht(currentWeekStart)} 日程</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: primaryBlue }}>{formatDateCht(currentWeekStart)} 日程</span>
           </div>
           <div>
             {timeSlots.map(slot => {
@@ -217,54 +218,82 @@ export default function AppointmentCalendar(props: Props) {
             <span style={{ fontSize: 12, color: textGray }}>共 {filteredListAppointments.length} 条记录</span>
           </div>
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 900 }}>
-              <thead>
-                <tr style={{ background: 'var(--bg-card)', borderBottom: `2px solid ${borderGray}` }}>
-                  <th style={{ padding: '8px 10px', width: 36 }}>
+            <DataTable
+              rowKey="id"
+              dataSource={filteredListAppointments}
+              showPagination={false}
+              showExport={false}
+              showDensity={false}
+              onRow={(apt) => ({
+                onClick: () => openDetail(apt),
+                onContextMenu: (e) => { e.preventDefault(); openContextMenu(e, buildContextItems(apt)) },
+                style: { cursor: 'pointer', background: selectedIds?.has(apt.id) ? 'var(--color-info-bg)' : undefined },
+              })}
+              columns={[
+                {
+                  title: (
                     <input
                       type="checkbox"
                       aria-label="全选当前列表"
                       checked={allSelected}
                       onChange={(e) => onToggleSelectAll?.(e.target.checked)}
                     />
-                  </th>
-                  {['患者', '性别/年龄', '检查项目', '检查日期', '时段', '设备', '状态', '优先级', '操作'].map(h => <th key={h} style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, color: textGray, whiteSpace: 'nowrap' }}>{h}</th>)}
-                </tr>
-              </thead>
-              <tbody>
-                {filteredListAppointments.map(apt => (
-                  <tr
-                    key={apt.id}
-                    style={{ borderBottom: `1px solid ${borderGray}`, cursor: 'pointer', background: selectedIds?.has(apt.id) ? 'var(--color-info-bg)' : undefined }}
-                    onClick={() => openDetail(apt)}
-                    onContextMenu={(e) => { e.preventDefault(); openContextMenu(e, buildContextItems(apt)) }}
-                  >
-                    <td style={{ padding: '8px 10px' }}>
-                      <input
-                        type="checkbox"
-                        aria-label={`选择预约 ${apt.patientName}`}
-                        checked={Boolean(selectedIds?.has(apt.id))}
-                        onClick={(e) => e.stopPropagation()}
-                        onChange={() => onToggleSelect?.(apt.id)}
-                      />
-                    </td>
-                    <td style={{ padding: '8px 10px' }}><div style={{ fontSize: 12, fontWeight: 700, color: primaryBlue }}>{apt.patientName}</div></td>
-                    <td style={{ padding: '8px 10px', color: textGray }}>{apt.gender}/{apt.age}岁</td>
-                    <td style={{ padding: '8px 10px', color: primaryBlue, fontWeight: 600 }}>{apt.examItemName}</td>
-                    <td style={{ padding: '8px 10px', color: textGray }}>{apt.examDate}</td>
-                    <td style={{ padding: '8px 10px', fontWeight: 600, color: primaryBlue }}>{apt.examTime}</td>
-                    <td style={{ padding: '8px 10px', color: textGray }}>{apt.deviceName?.split('（')[0]}</td>
-                    <td style={{ padding: '8px 10px' }}><span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 700, background: getStatusConfig(apt.status).bg, color: getStatusConfig(apt.status).color }}>{getStatusConfig(apt.status).label}</span></td>
-                    <td style={{ padding: '8px 10px', color: apt.priority === 'urgent' ? '#d97706' : apt.priority === 'critical' ? '#dc2626' : textGray, fontWeight: 600 }}>{apt.priority === 'urgent' ? '紧急' : apt.priority === 'critical' ? '危重' : '普通'}</td>
-                    <td style={{ padding: '8px 10px' }}>
-                      <div style={{ display: 'flex', gap: 4 }}>
-                        <button onClick={e => { e.stopPropagation(); openDetail(apt) }} style={{ padding: '3px 8px', borderRadius: 4, border: 'none', background: lightBlue, color: primaryBlue, fontSize: 12, cursor: 'pointer' }}>详情</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                  ),
+                  key: '__select',
+                  width: 36,
+                  render: (_: unknown, apt: Appointment) => (
+                    <input
+                      type="checkbox"
+                      aria-label={`选择预约 ${apt.patientName}`}
+                      checked={Boolean(selectedIds?.has(apt.id))}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={() => onToggleSelect?.(apt.id)}
+                    />
+                  ),
+                },
+                {
+                  title: '患者', dataIndex: 'patientName', key: 'patientName',
+                  render: (_: unknown, apt: Appointment) => <div style={{ fontSize: 12, fontWeight: 700, color: primaryBlue }}>{apt.patientName}</div>,
+                },
+                {
+                  title: '性别/年龄', key: 'genderAge',
+                  render: (_: unknown, apt: Appointment) => <span style={{ color: textGray }}>{apt.gender}/{apt.age}岁</span>,
+                },
+                {
+                  title: '检查项目', dataIndex: 'examItemName', key: 'examItemName',
+                  render: (v: string) => <span style={{ color: primaryBlue, fontWeight: 600 }}>{v}</span>,
+                },
+                { title: '检查日期', dataIndex: 'examDate', key: 'examDate', render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
+                {
+                  title: '时段', dataIndex: 'examTime', key: 'examTime',
+                  render: (v: string) => <span style={{ fontWeight: 600, color: primaryBlue }}>{v}</span>,
+                },
+                {
+                  title: '设备', key: 'deviceName',
+                  render: (_: unknown, apt: Appointment) => <span style={{ color: textGray }}>{apt.deviceName?.split('（')[0]}</span>,
+                },
+                {
+                  title: '状态', dataIndex: 'status', key: 'status',
+                  render: (v: string) => <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 700, background: getStatusConfig(v).bg, color: getStatusConfig(v).color }}>{getStatusConfig(v).label}</span>,
+                },
+                {
+                  title: '优先级', dataIndex: 'priority', key: 'priority',
+                  render: (v: string) => (
+                    <span style={{ color: v === 'urgent' ? '#d97706' : v === 'critical' ? '#dc2626' : textGray, fontWeight: 600 }}>
+                      {v === 'urgent' ? '紧急' : v === 'critical' ? '危重' : '普通'}
+                    </span>
+                  ),
+                },
+                {
+                  title: '操作', key: 'actions',
+                  render: (_: unknown, apt: Appointment) => (
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <button onClick={e => { e.stopPropagation(); openDetail(apt) }} style={{ padding: '3px 8px', borderRadius: 4, border: 'none', background: lightBlue, color: primaryBlue, fontSize: 12, cursor: 'pointer' }}>详情</button>
+                    </div>
+                  ),
+                },
+              ]}
+            />
           </div>
         </div>
       )}

@@ -136,7 +136,7 @@ export const DentalVolumeViewerPage: React.FC = () => {
             <Col span={6} key={s.id}>
               <Card size="small" hoverable onClick={() => handleSelect(s)} style={{cursor:'pointer'}}>
                 <Tag color="purple">CBCT</Tag>
-                <div style={{fontSize:13,fontWeight:600}}>{s.patientName}</div>
+                <div style={{fontSize:12,fontWeight:600}}>{s.patientName}</div>
                 <div style={{fontSize:11,color:'var(--text-secondary)'}}>{s.device} | {s.fov} | {s.slices}{t('dvv.slicesSuffix')}</div>
                 <Badge status={s.status==='processed'?'success':'processing'} text={s.status} />
               </Card>

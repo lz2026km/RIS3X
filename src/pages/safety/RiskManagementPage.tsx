@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import { ChartContainer } from '../../components/charts'
 import { StateView } from '../../components/common/StateView'
+import { DataTable } from '../../components/common'
 import { ShieldAlert, AlertTriangle, CheckCircle, Plus, BarChart3, Target, Send } from 'lucide-react'
 import {
   getRiskItems, createRiskItem, updateRiskItem,
@@ -117,7 +118,7 @@ export default function RiskManagementPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <ShieldAlert size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('riskMgmt.title')}</span>
         </div>
-        <button onClick={() => setShowForm(!showForm)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+        <button onClick={() => setShowForm(!showForm)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
           <Plus size={14} />{t('riskMgmt.identifyRisk')}
         </button>
       </div>
@@ -159,7 +160,7 @@ export default function RiskManagementPage() {
           ].map((k, i) => (
             <div key={i} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 140 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}><span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{k.title}</span><k.icon size={20} style={{ color: k.color }} /></div>
-              <div style={{ fontSize: 28, fontWeight: 700 }}>{k.value}</div>
+              <div style={{ fontSize: 30, fontWeight: 700 }}>{k.value}</div>
             </div>
           ))}
         </div>
@@ -212,45 +213,40 @@ export default function RiskManagementPage() {
           skeletonRows={5}
         >
         <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, overflow: 'hidden' }}>
-          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-            <thead>
-              <tr>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('riskMgmt.colRisk')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('riskMgmt.colCategory')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>L×S</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>RPN</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('riskMgmt.colLevel')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('riskMgmt.colStatus')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('riskMgmt.colResidualRpn')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('riskMgmt.colActions')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(r => (
-                <tr key={r.id}>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>{r.title}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{categoryLabel(r.category)}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>{r.likelihood}×{r.severity}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', fontWeight: 700, color: LEVEL_COLORS[r.riskLevel] }}>{r.rpn}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
-                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${LEVEL_COLORS[r.riskLevel]}20`, color: LEVEL_COLORS[r.riskLevel] }}>{levelLabel(r.riskLevel)}</span>
-                  </td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
-                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: r.status === 'mitigating' ? '#22c55e20' : r.status === 'monitoring' ? '#3b82f620' : '#8b949e20', color: r.status === 'mitigating' ? '#22c55e' : r.status === 'monitoring' ? '#3b82f6' : 'var(--text-muted, #8b949e)' }}>
-                      {statusLabel(r.status)}
-                    </span>
-                  </td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: r.residualRpn ? '#22c55e' : 'var(--text-muted, #8b949e)' }}>{r.residualRpn ?? '-'}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
-                    {r.status === 'identified' && (
-                      <button onClick={() => { setShowMitigate(r.id); setMitigateData({ plan: '', owner: '', deadline: '' }) }} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #e11d48', background: 'transparent', color: '#e11d48', cursor: 'pointer', fontSize: 12 }}>
-                        {t('riskMgmt.developMitigation')}
-                      </button>                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table></div>
+          <DataTable
+            rowKey="id"
+            dataSource={filtered}
+            columns={[
+              { title: t('riskMgmt.colRisk'), dataIndex: 'title', key: 'title' },
+              { title: t('riskMgmt.colCategory'), dataIndex: 'category', key: 'category', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{categoryLabel(v)}</span> },
+              { title: 'L×S', key: 'ls', render: (_v, r) => <span>{r.likelihood}×{r.severity}</span> },
+              { title: 'RPN', dataIndex: 'rpn', key: 'rpn', render: (v: number, r) => <span style={{ fontWeight: 700, color: LEVEL_COLORS[r.riskLevel] }}>{v}</span> },
+              {
+                title: t('riskMgmt.colLevel'),
+                dataIndex: 'riskLevel',
+                key: 'riskLevel',
+                render: (v: RiskLevel) => <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${LEVEL_COLORS[v]}20`, color: LEVEL_COLORS[v] }}>{levelLabel(v)}</span>,
+              },
+              {
+                title: t('riskMgmt.colStatus'),
+                dataIndex: 'status',
+                key: 'status',
+                render: (v: string) => <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: v === 'mitigating' ? '#22c55e20' : v === 'monitoring' ? '#3b82f620' : '#8b949e20', color: v === 'mitigating' ? '#22c55e' : v === 'monitoring' ? '#3b82f6' : 'var(--text-muted, #8b949e)' }}>{statusLabel(v)}</span>,
+              },
+              { title: t('riskMgmt.colResidualRpn'), key: 'residualRpn', render: (_v, r) => <span style={{ color: r.residualRpn ? '#22c55e' : 'var(--text-muted, #8b949e)' }}>{r.residualRpn ?? '-'}</span> },
+              {
+                title: t('riskMgmt.colActions'),
+                key: 'actions',
+                render: (_v, r) => (
+                  r.status === 'identified' && (
+                    <button onClick={() => { setShowMitigate(r.id); setMitigateData({ plan: '', owner: '', deadline: '' }) }} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #e11d48', background: 'transparent', color: '#e11d48', cursor: 'pointer', fontSize: 12 }}>
+                      {t('riskMgmt.developMitigation')}
+                    </button>
+                  )
+                ),
+              },
+            ]}
+          />
         </div>
         </StateView>
 

@@ -23,7 +23,7 @@ function fmtExposure(params?: Record<string, unknown>): string {
 }
 
 const sectionTitle: CSSProperties = {
-  fontSize: 13,
+  fontSize: 12,
   fontWeight: 600,
   color: '#1e40af',
   marginBottom: 12,
@@ -108,7 +108,7 @@ export function ExecutionPanel({ examId, accessionNumber, testId = 'execution-pa
           {data.protocol || data.state.protocolId ? (
             <>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
-                <span style={{ fontWeight: 700, fontSize: 13 }}>{data.protocol?.name ?? data.state.protocolName ?? data.state.protocolId}</span>
+                <span style={{ fontWeight: 700, fontSize: 12 }}>{data.protocol?.name ?? data.state.protocolName ?? data.state.protocolId}</span>
                 <Tag color="geekblue">{data.protocol?.modality ?? '--'}</Tag>
                 {data.protocol?.code && <Tag>{data.protocol.code}</Tag>}
                 <Tag color={(data.protocol?.contrast ?? false) ? 'volcano' : 'default'}>

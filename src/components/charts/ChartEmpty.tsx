@@ -39,7 +39,7 @@ export default function ChartEmpty({
       }}
     >
       {icon ?? <Inbox size={32} aria-hidden="true" />}
-      <span style={{ fontSize: 13 }}>{description}</span>
+      <span style={{ fontSize: 12 }}>{description}</span>
     </div>
   )
 }

@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Brain, Activity, AlertTriangle, Search, ChevronRight, TrendingUp, Zap, BarChart3, FileText, Eye, Loader2, Download, X, Database } from 'lucide-react';
 import { neuroSpecialtyApi, type NeuroStudy, type NeuroStats } from '../services/api/neuroSpecialtyApi';
+import { DataTable } from '../components/common';
 import { Card, Tag } from 'antd';
 import { t } from '../i18n/appI18n';
 
@@ -27,19 +28,16 @@ const s: Record<string, React.CSSProperties> = {
   root: { padding: 0 },
   header: { marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
   title: { fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 },
-  subtitle: { fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 },
+  subtitle: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 },
   statsRow: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 20 },
   statCard: { background: 'var(--bg-card)', borderRadius: 12, padding: '18px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
   statIcon: { width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
-  statValue: { fontSize: 26, fontWeight: 700, color: 'var(--color-primary-800)', lineHeight: 1.1 },
+  statValue: { fontSize: 24, fontWeight: 700, color: 'var(--color-primary-800)', lineHeight: 1.1 },
   statLabel: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 },
   section: { background: 'var(--bg-card)', borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
-  sectionTitle: { fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
-  btn: { padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
-  btnPrimary: { padding: '8px 14px', borderRadius: 8, border: 'none', background: '#dc2626', color: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
-  table: { width: '100%', borderCollapse: 'collapse', fontSize: 13 },
-  th: { textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 },
-  td: { padding: '10px 8px', borderBottom: '1px solid var(--border-light)', color: 'var(--text-primary)' },
+  sectionTitle: { fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
+  btn: { padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
+  btnPrimary: { padding: '8px 14px', borderRadius: 8, border: 'none', background: '#dc2626', color: '#fff', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
   scrollBox: { maxHeight: 320, overflowY: 'auto' },
   grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 },
   grid3: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 },
@@ -52,7 +50,7 @@ const badge = (bg: string, text: string): React.CSSProperties => ({
 const InfoRow = ({ label, value }: { label: string; value: string }) => (
   <div style={{ padding: '10px 12px', background: 'var(--bg-card)', borderRadius: 8 }}>
     <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 2 }}>{label}</div>
-    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{value}</div>
+    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{value}</div>
   </div>
 );
 
@@ -202,14 +200,14 @@ const NeuroSpecialtyPage = () => {
           { key: 'stats', label: t('neuro.tabStats') },
         ].map(tabItem => (
           <button key={tabItem.key} onClick={() => setTab(tabItem.key as any)}
-            style={{ padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, background: tab === tabItem.key ? '#dc2626' : 'var(--bg-card)', color: tab === tabItem.key ? '#fff' : '#64748b' }}>
+            style={{ padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, background: tab === tabItem.key ? '#dc2626' : 'var(--bg-card)', color: tab === tabItem.key ? '#fff' : '#64748b' }}>
             {tabItem.label}
           </button>
         ))}
       </div>
 
       {loading && (
-        <Card bordered={false} style={{ ...s.section, textAlign: 'center', padding: 48, color: 'var(--text-secondary)', fontSize: 13 }} styles={{ body: { padding: 0 } }}>
+        <Card bordered={false} style={{ ...s.section, textAlign: 'center', padding: 48, color: 'var(--text-secondary)', fontSize: 12 }} styles={{ body: { padding: 0 } }}>
           <Loader2 size={22} className="v4-spin" style={{ verticalAlign: 'middle', marginRight: 8 }} />
           {t('neuro.loading')}
         </Card>
@@ -223,47 +221,59 @@ const NeuroSpecialtyPage = () => {
               <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-card)', borderRadius: 8, padding: '4px 12px' }}>
                 <Search size={16} color="var(--text-secondary)" />
                 <input placeholder={t('neuro.searchPatient')} value={search} onChange={e => setSearch(e.target.value)}
-                  style={{ border: 'none', background: 'transparent', marginLeft: 8, fontSize: 13, width: 160 }} />
+                  style={{ border: 'none', background: 'transparent', marginLeft: 8, fontSize: 12, width: 160 }} />
               </div>
             </div>
           </div>
           <div style={s.scrollBox}>
-            <table style={s.table}>
-              <thead><tr>
-                <th style={s.th}>{t('neuro.colId')}</th><th style={s.th}>{t('neuro.colPatient')}</th><th style={s.th}>{t('neuro.colType')}</th>
-                <th style={s.th}>{t('neuro.colVessel')}</th><th style={s.th}>ASPECTS</th><th style={s.th}>{t('neuro.colCoreInfarct')}</th>
-                <th style={s.th}>{t('neuro.colPenumbra')}</th><th style={s.th}>LVO</th><th style={s.th}>{t('neuro.colAction')}</th>
-              </tr></thead>
-              <tbody>
-                {filtered.filter(r => r.type === 'stroke').map(r => (
-                  <tr key={r.id}>
-                    <td style={s.td}>{r.id}</td>
-                    <td style={{ ...s.td, fontWeight: 600 }}>{r.patientName}<br /><span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{r.age}y {r.gender}</span></td>
-                    <td style={s.td}>
-                      <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: STROKE_COLORS[r.subtype ?? 'ischemic'], color: '#fff' }}>
-                        {r.subtype === 'ischemic' ? t('neuro.subtypeIschemic') : r.subtype === 'hemorrhagic' ? t('neuro.subtypeHemorrhagic') : r.subtype === 'subarachnoid' ? t('neuro.subtypeSubarachnoid') : 'TIA'}
-                      </span>
-                    </td>
-                    <td style={s.td}>{r.vessel}</td>
-                    <td style={s.td}>
-                      <span style={{ fontWeight: 700, color: (r.aspectScore ?? 10) < 6 ? '#dc2626' : (r.aspectScore ?? 10) < 8 ? '#ea580c' : '#16a34a' }}>
-                        {r.aspectScore}
-                      </span>
-                    </td>
-                    <td style={s.td}>{r.coreMl} ml</td>
-                    <td style={s.td}>{r.penumbraMl} ml</td>
-                    <td style={s.td}>
-                      <span style={badge(r.lvo ? 'var(--color-error-bg)' : 'var(--color-success-bg)', r.lvo ? t('neuro.positive') : t('neuro.negative'))}></span>
-                    </td>
-                    <td style={s.td}>
-                      <button onClick={() => setDetailStudy(r)} style={{ padding: '4px 10px', background: 'var(--color-error-bg)', color: '#dc2626', border: '1px solid #fecaca', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>
-                        {t('neuro.detail')} <ChevronRight size={12} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable
+              rowKey="id"
+              dataSource={filtered.filter(r => r.type === 'stroke')}
+              showPagination={false}
+              showExport={false}
+              showDensity={false}
+              columns={[
+                { title: t('neuro.colId'), dataIndex: 'id', key: 'id' },
+                {
+                  title: t('neuro.colPatient'), key: 'patient',
+                  render: (_: unknown, r: NeuroStudy) => (
+                    <span style={{ fontWeight: 600 }}>
+                      {r.patientName}<br />
+                      <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{r.age}y {r.gender}</span>
+                    </span>
+                  ),
+                },
+                {
+                  title: t('neuro.colType'), dataIndex: 'subtype', key: 'subtype',
+                  render: (v: string | undefined) => (
+                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: STROKE_COLORS[v ?? 'ischemic'], color: '#fff' }}>
+                      {v === 'ischemic' ? t('neuro.subtypeIschemic') : v === 'hemorrhagic' ? t('neuro.subtypeHemorrhagic') : v === 'subarachnoid' ? t('neuro.subtypeSubarachnoid') : 'TIA'}
+                    </span>
+                  ),
+                },
+                { title: t('neuro.colVessel'), dataIndex: 'vessel', key: 'vessel' },
+                {
+                  title: 'ASPECTS', dataIndex: 'aspectScore', key: 'aspectScore',
+                  render: (v: number | undefined) => (
+                    <span style={{ fontWeight: 700, color: (v ?? 10) < 6 ? '#dc2626' : (v ?? 10) < 8 ? '#ea580c' : '#16a34a' }}>{v}</span>
+                  ),
+                },
+                { title: t('neuro.colCoreInfarct'), dataIndex: 'coreMl', key: 'coreMl', render: (v: number) => <>{v} ml</> },
+                { title: t('neuro.colPenumbra'), dataIndex: 'penumbraMl', key: 'penumbraMl', render: (v: number) => <>{v} ml</> },
+                {
+                  title: 'LVO', dataIndex: 'lvo', key: 'lvo',
+                  render: (v: boolean) => <span style={badge(v ? 'var(--color-error-bg)' : 'var(--color-success-bg)', v ? t('neuro.positive') : t('neuro.negative'))}></span>,
+                },
+                {
+                  title: t('neuro.colAction'), key: 'actions',
+                  render: (_: unknown, r: NeuroStudy) => (
+                    <button onClick={() => setDetailStudy(r)} style={{ padding: '4px 10px', background: 'var(--color-error-bg)', color: '#dc2626', border: '1px solid #fecaca', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>
+                      {t('neuro.detail')} <ChevronRight size={12} />
+                    </button>
+                  ),
+                },
+              ]}
+            />
           </div>
         </Card>
       )}
@@ -274,9 +284,9 @@ const NeuroSpecialtyPage = () => {
             <div style={s.sectionTitle}><Brain size={16} color="#7c3aed" /> {t('neuro.tumorList')}</div>
             {filtered.filter(r => r.type === 'tumor').map(r => (
               <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid var(--border-light)' }}>
-                <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#8b5cf622', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13, color: '#7c3aed' }}>{r.patientName[0]}</div>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#8b5cf622', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 12, color: '#7c3aed' }}>{r.patientName[0]}</div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600 }}>{r.patientName}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600 }}>{r.patientName}</div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{r.id} · {r.modality}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
@@ -304,7 +314,7 @@ const NeuroSpecialtyPage = () => {
               );
             })}
             <div style={{ marginTop: 16 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t('neuro.tumorTypeDist')}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>{t('neuro.tumorTypeDist')}</div>
               {tumorTypes.map(tt => (
                 <div key={tt.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                   <div style={{ width: 8, height: 8, borderRadius: 2, background: TUMOR_COLORS[tt.label] ?? '#94a3b8' }} />
@@ -324,7 +334,7 @@ const NeuroSpecialtyPage = () => {
             {filtered.filter(r => r.type === 'epilepsy').map(r => (
               <div key={r.id} style={{ padding: 14, background: 'var(--color-warning-bg)', borderRadius: 10, marginBottom: 12, border: '1px solid #fef08a' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600 }}>{r.patientName} ({r.id})</span>
+                  <span style={{ fontSize: 12, fontWeight: 600 }}>{r.patientName} ({r.id})</span>
                   <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: '#ca8a04', color: '#fff' }}>{r.modality}</span>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
@@ -341,7 +351,7 @@ const NeuroSpecialtyPage = () => {
             {filtered.filter(r => r.type === 'aneurysm').map(r => (
               <div key={r.id} style={{ padding: 14, background: 'var(--color-error-bg)', borderRadius: 10, marginBottom: 12, border: '1px solid #fecaca' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600 }}>{r.patientName} ({r.id})</span>
+                  <span style={{ fontSize: 12, fontWeight: 600 }}>{r.patientName} ({r.id})</span>
                   <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: '#dc2626', color: '#fff' }}>{r.modality}</span>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
@@ -363,7 +373,7 @@ const NeuroSpecialtyPage = () => {
             {(stats?.diseaseDistribution ?? []).map(d => (
               <div key={d.label} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
                 <div style={{ width: 10, height: 10, borderRadius: 3, background: { 脑卒中: '#dc2626', 脑肿瘤: '#7c3aed', 癫痫: '#ca8a04', 动脉瘤: '#0891b2' }[d.label] ?? '#94a3b8' }} />
-                <span style={{ width: 80, fontSize: 13, fontWeight: 500 }}>{d.label}</span>
+                <span style={{ width: 80, fontSize: 12, fontWeight: 500 }}>{d.label}</span>
                 <div style={{ flex: 1, height: 8, background: 'var(--bg-card)', borderRadius: 4 }}>
                   <div style={{ height: '100%', width: `${d.pct}%`, background: { 脑卒中: '#dc2626', 脑肿瘤: '#7c3aed', 癫痫: '#ca8a04', 动脉瘤: '#0891b2' }[d.label] ?? '#94a3b8', borderRadius: 4 }} />
                 </div>
@@ -394,7 +404,7 @@ const NeuroSpecialtyPage = () => {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setDetailStudy(null)}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, width: 520, maxHeight: '82vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid var(--border-light)' }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Brain size={18} color="#dc2626" />{t('neuro.caseDetail')}
               </div>
               <button onClick={() => setDetailStudy(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
@@ -402,7 +412,7 @@ const NeuroSpecialtyPage = () => {
             <div style={{ padding: 20 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
                 <div>
-                  <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-primary-800)' }}>{detailStudy.patientName}</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)' }}>{detailStudy.patientName}</div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{detailStudy.id} · {detailStudy.age}y {detailStudy.gender} · {detailStudy.modality ?? '-'}</div>
                 </div>
                 <span style={{ alignSelf: 'flex-start', padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: detailStudy.type === 'stroke' ? '#fef2f2' : detailStudy.type === 'tumor' ? '#f5f3ff' : '#fefce8', color: detailStudy.type === 'stroke' ? '#dc2626' : detailStudy.type === 'tumor' ? '#7c3aed' : '#ca8a04' }}>

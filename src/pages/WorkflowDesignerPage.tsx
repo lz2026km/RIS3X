@@ -43,7 +43,7 @@ function DraggableStep({ type }: { type: StepType }) {
     display: 'flex',
     alignItems: 'center',
     gap: 8,
-    fontSize: 13,
+    fontSize: 12,
     color: type.color,
     fontWeight: 500,
     transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
@@ -85,7 +85,7 @@ function CanvasNodeItem({ node, onRemove }: { node: CanvasNode; onRemove: (id: s
     padding: '10px 16px', borderRadius: 8,
     background: `${step?.color ?? '#6b7280'}15`,
     border: `2px solid ${step?.color ?? '#6b7280'}`,
-    fontSize: 13, fontWeight: 600, cursor: 'grab',
+    fontSize: 12, fontWeight: 600, cursor: 'grab',
     display: 'flex', alignItems: 'center', gap: 8,
     transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
     zIndex: 10, whiteSpace: 'nowrap',
@@ -266,19 +266,19 @@ export default function WorkflowDesignerPage() {
         {loadError && !loading && <ErrorBanner message={loadError} />}
         <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
           <aside style={{ width: 200, background: 'var(--bg-card)', borderRight: '1px solid var(--border-color)', padding: 16, overflowY: 'auto' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>{t('workflowDesigner.stepTypes')}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>{t('workflowDesigner.stepTypes')}</div>
             {STEP_TYPES.map(st => <DraggableStep key={st.key} type={st} />)}
           </aside>
           <main style={{ flex: 1, padding: 16, display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8 }}>{t('workflowDesigner.canvasHint')}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8 }}>{t('workflowDesigner.canvasHint')}</div>
             <DropZone>
               {canvasNodes.map(n => <CanvasNodeItem key={n.id} node={n} onRemove={removeNode} />)}
             </DropZone>
           </main>
           <aside style={{ width: 280, background: 'var(--bg-card)', borderLeft: '1px solid var(--border-color)', padding: 16, overflowY: 'auto' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>{t('workflowDesigner.properties')}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>{t('workflowDesigner.properties')}</div>
             {selectedNode ? (
-              <div style={{ fontSize: 13 }}>
+              <div style={{ fontSize: 12 }}>
                 <div style={{ marginBottom: 8 }}><label style={{ fontWeight: 600, display: 'block', marginBottom: 4 }}>{t('workflowDesigner.name')}</label><Input size="small" value={selectedNode.label} onChange={e => setCanvasNodes(prev => prev.map(n => n.id === selectedNode.id ? { ...n, label: e.target.value } : n))} /></div>
                 <div style={{ marginBottom: 8 }}><label style={{ fontWeight: 600, display: 'block', marginBottom: 4 }}>{t('workflowDesigner.type')}</label><Tag color={STEP_TYPES.find(s => s.key === selectedNode.type)?.color}>{(() => { const st = STEP_TYPES.find(s => s.key === selectedNode.type); return st ? t(st.labelKey) : '' })()}</Tag></div>
                 <div style={{ marginBottom: 8 }}><label style={{ fontWeight: 600, display: 'block', marginBottom: 4 }}>{t('workflowDesigner.coords')}</label><span style={{ color: 'var(--text-secondary)' }}>({selectedNode.x}, {selectedNode.y})</span></div>
@@ -290,7 +290,7 @@ export default function WorkflowDesignerPage() {
         </div>
         <div style={{ borderTop: '1px solid var(--border-color)', background: 'var(--bg-card)', padding: '12px 24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}><List size={14} />{t('workflowDesigner.stepList')}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}><List size={14} />{t('workflowDesigner.stepList')}</div>
             <Button size="small" icon={<Plus size={14} />} onClick={() => setShowNewStep(true)}>{t('workflowDesigner.newStep')}</Button>
           </div>
           <DataTable columns={stepColumns} dataSource={stepList} rowKey="key" pagination={false} scroll={{ x: 'max-content' }}/>

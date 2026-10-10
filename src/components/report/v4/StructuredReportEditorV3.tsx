@@ -211,7 +211,7 @@ function ZoneEditor({ section, html, locked, unlockPending, readOnly, onChange, 
   return (
     <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, marginBottom: 14, background: '#fff', overflow: 'visible' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', borderTopLeftRadius: 8, borderTopRightRadius: 8 }}>
-        <span style={{ fontSize: 13, fontWeight: 700, color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: 6 }}>
           <FileText size={14} color="#2563eb" />【{label}】
         </span>
         <div style={{ flex: 1 }} />
@@ -423,7 +423,7 @@ export const StructuredReportEditorV3 = React.forwardRef<StructuredReportEditorH
   return (
     <div style={{ background: 'var(--bg-card)', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', padding: 20 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 15, fontWeight: 700, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span style={{ fontSize: 14, fontWeight: 700, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 6 }}>
           <Type size={16} color="#2563eb" />{t('w17.sr.title')}
         </span>
         <span style={{ fontSize: 12, color: '#94a3b8' }}>{reportId}</span>

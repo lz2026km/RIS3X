@@ -116,7 +116,7 @@ export default function ReportHeader({
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 220, border: '1px solid var(--border-color)', borderRadius: 8, padding: '6px 12px', background: 'var(--bg-card)' }}>
           <Search size={14} style={{ color: '#94a3b8', flexShrink: 0 }} />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="搜索患者姓名 / 检查号 / 报告ID / 检查号..."
-            style={{ border: 'none', fontSize: 13, width: '100%', background: 'transparent' }} />
+            style={{ border: 'none', fontSize: 12, width: '100%', background: 'transparent' }} />
           {search && <X size={13} style={{ color: '#94a3b8', cursor: 'pointer', flexShrink: 0 }} onClick={() => setSearch('')} />}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>

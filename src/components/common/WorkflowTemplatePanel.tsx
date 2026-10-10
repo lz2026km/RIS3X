@@ -42,7 +42,7 @@ export default function WorkflowTemplatePanel({ modality, compact, style }: Work
       <select
         value={selected}
         onChange={(e) => setSelected(Number(e.target.value))}
-        style={{ width: '100%', padding: '7px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: 13, marginBottom: 12 }}
+        style={{ width: '100%', padding: '7px 10px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: 12, marginBottom: 12 }}
       >
         {list.map((w, i) => (
           <option key={w.code} value={i}>{w.code} · {w.name} ({w.modality})</option>

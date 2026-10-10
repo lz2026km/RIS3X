@@ -203,7 +203,7 @@ export default function CostAccountingPage() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <ActionButton action="refresh" onClick={() => setReloadTick(n => n + 1)}>{t('w1tables.refresh')}</ActionButton>
-          <button onClick={handleExport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />{t('w9e.costAccounting.exportReport')}</button>
+          <button onClick={handleExport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}><Download size={14} />{t('w9e.costAccounting.exportReport')}</button>
         </div>
       </div>
       {error && (
@@ -215,26 +215,26 @@ export default function CostAccountingPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, padding: '20px 24px' }}>
         <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
           <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.costAccounting.monthTotalCost')}</div>
-          <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-error-500, #ef4444)', marginTop: 4 }}>¥{(totalActual / 10000).toFixed(1)}万</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-error-500, #ef4444)', marginTop: 4 }}>¥{(totalActual / 10000).toFixed(1)}万</div>
           <div style={{ fontSize: 12, color: totalActual > totalBudget ? 'var(--color-error-500, #ef4444)' : 'var(--color-success-500, #22c55e)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
             {totalActual > totalBudget ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{t('w9e.costAccounting.overspend')} ¥{((totalActual - totalBudget) / 10000).toFixed(1)}万
           </div>
         </div>
         <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
           <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.costAccounting.laborCostShare')}</div>
-          <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-primary-500, #3b82f6)', marginTop: 4 }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-primary-500, #3b82f6)', marginTop: 4 }}>
             {((categoryData.find(c => c.name === '人力成本')?.actual || 0) / totalActual * 100).toFixed(1)}%
           </div>
         </div>
         <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
           <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.costAccounting.materialCostShare')}</div>
-          <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-success-500, #22c55e)', marginTop: 4 }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-success-500, #22c55e)', marginTop: 4 }}>
             {((categoryData.find(c => c.name === '耗材成本')?.actual || 0) / totalActual * 100).toFixed(1)}%
           </div>
         </div>
         <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
           <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.costAccounting.costRevenueRatio')}</div>
-          <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-warning-500, #f59e0b)', marginTop: 4 }}>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-warning-500, #f59e0b)', marginTop: 4 }}>
             {costRevenueRatio != null ? (costRevenueRatio * 100).toFixed(1) : '55.2'}%
           </div>
           <div style={{ fontSize: 12, color: '#6e7681', marginTop: 4 }}>{costRevenueRatio != null ? t('w9e.costAccounting.realtime') : t('w9e.costAccounting.momDemo')}</div>
@@ -244,7 +244,7 @@ export default function CostAccountingPage() {
       <div style={{ padding: '0 24px 24px' }}>
         <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
           {(['overview', 'modality', 'budget'] as const).map(tabKey => (
-            <button key={tabKey} onClick={() => setTab(tabKey)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: tab === tabKey ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: tab === tabKey ? '#fff' : 'var(--text-muted, #8b949e)', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button key={tabKey} onClick={() => setTab(tabKey)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: tab === tabKey ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: tab === tabKey ? '#fff' : 'var(--text-muted, #8b949e)', display: 'flex', alignItems: 'center', gap: 6 }}>
               {tabKey === 'overview' ? <PieChart size={14} /> : tabKey === 'modality' ? <Monitor size={14} /> : <BarChart3 size={14} />}
               {tabKey === 'overview' ? t('w9e.costAccounting.tabOverview') : tabKey === 'modality' ? t('w9e.costAccounting.tabModality') : t('w9e.costAccounting.tabBudget')}
             </button>
@@ -273,7 +273,7 @@ export default function CostAccountingPage() {
                     return (
                       <div key={c.name} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
                         <div style={{ width: 10, height: 10, borderRadius: 2, background: c.color }} />
-                        <span style={{ width: 80, fontSize: 13 }}>{c.name}</span>
+                        <span style={{ width: 80, fontSize: 12 }}>{c.name}</span>
                         <div style={{ flex: 1, height: 8, background: 'var(--bg-secondary, #21262d)', borderRadius: 4, overflow: 'hidden' }}>
                           <div style={{ width: `${Math.min((c.actual / totalActual) * 100, 100)}%`, height: '100%', background: c.color, borderRadius: 4 }} />
                         </div>
@@ -331,7 +331,7 @@ export default function CostAccountingPage() {
                   const v = b.actual - b.budget
                   const vr = b.budget ? (v / b.budget * 100) : 0
                   return (
-                    <div key={b.month} style={{ display: 'grid', gridTemplateColumns: '1fr 100px 100px 100px 80px', gap: 8, padding: '8px 16px', borderBottom: '1px solid var(--bg-secondary, #21262d)', fontSize: 13 }}>
+                    <div key={b.month} style={{ display: 'grid', gridTemplateColumns: '1fr 100px 100px 100px 80px', gap: 8, padding: '8px 16px', borderBottom: '1px solid var(--bg-secondary, #21262d)', fontSize: 12 }}>
                       <span>{b.month}</span>
                       <span style={{ textAlign: 'right' }}>¥{b.budget.toLocaleString()}</span>
                       <span style={{ textAlign: 'right' }}>¥{b.actual.toLocaleString()}</span>

@@ -277,7 +277,7 @@ function EvaluationResultView({ result }: { result: RubricEvaluationResult }) {
     <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16, display: 'grid', gap: 16 }}>
       <Space size="large" wrap>
         <div>
-          <Progress type="circle" size={96} percent={result.totalScore} strokeColor={GRADE_COLORS[result.grade] ?? '#1e40af'} format={(p) => <span style={{ fontSize: 22, fontWeight: 700 }}>{p}</span>} />
+          <Progress type="circle" size={96} percent={result.totalScore} strokeColor={GRADE_COLORS[result.grade] ?? '#1e40af'} format={(p) => <span style={{ fontSize: 20, fontWeight: 700 }}>{p}</span>} />
         </div>
         <div style={{ display: 'grid', gap: 6 }}>
           <Space><strong style={{ fontSize: 18 }}>{t('w9Qc.rubric.totalScore')}</strong><Tag color={GRADE_COLORS[result.grade]}>{result.gradeLabel}</Tag></Space>

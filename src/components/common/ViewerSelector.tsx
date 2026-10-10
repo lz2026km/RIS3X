@@ -8,7 +8,7 @@ const bannerStyle: React.CSSProperties = {
   padding: '8px 16px',
   background: 'linear-gradient(90deg, #1e40af, #2563eb)',
   color: '#fff',
-  fontSize: 13,
+  fontSize: 12,
   fontWeight: 500,
 }
 

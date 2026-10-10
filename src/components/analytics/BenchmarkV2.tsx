@@ -58,7 +58,7 @@ function DualBarChart({ items }: { items: CompareItem[] }) {
               <div style={{ width: 14, height: hPrev, background: '#94a3b8', borderRadius: '3px 3px 0 0', transition: 'height 0.3s' }} title={`去年: ${item.previous}`} />
               <div style={{ width: 14, height: hCurr, background: '#3b82f6', borderRadius: '3px 3px 0 0', transition: 'height 0.3s' }} title={`今年: ${item.current}`} />
             </div>
-            <span style={{ fontSize: 9, color: '#64748b', writingMode: 'vertical-lr', textOrientation: 'mixed', height: 36 }}>{item.label}</span>
+            <span style={{ fontSize: 10, color: '#64748b', writingMode: 'vertical-lr', textOrientation: 'mixed', height: 36 }}>{item.label}</span>
           </div>
         )
       })}
@@ -149,7 +149,7 @@ export default function BenchmarkV2({
   const chartContent = useMemo(() => {
     if (!items.length) {
       return (
-        <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 13 }}>
+        <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 12 }}>
           请选择维度以查看对比图表
         </div>
       )

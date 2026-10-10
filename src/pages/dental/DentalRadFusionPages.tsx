@@ -312,7 +312,7 @@ export const CBCTUnifiedReportPage: React.FC = () => {
                     background: selected?.id === r.id ? 'var(--color-info-bg)' : 'var(--bg-card)',
                   }}
                 >
-                  <div style={{ fontSize: 13, fontWeight: 600 }}>{r.patientName}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600 }}>{r.patientName}</div>
                   <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{r.id} · {r.acquisitionDate?.slice(0, 10) ?? '-'}</div>
                   <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{r.deviceModel ?? ''}</div>
                 </div>
@@ -334,7 +334,7 @@ export const CBCTUnifiedReportPage: React.FC = () => {
                         <Descriptions.Item label={t('dentalRadFusion.scanType')}>{selected.scanType ?? '-'}</Descriptions.Item>
                         <Descriptions.Item label={t('dentalRadFusion.indications')}>{selected.indications ?? '-'}</Descriptions.Item>
                       </Descriptions>
-                      <div style={{ marginTop: 12, color: 'var(--text-secondary)', fontSize: 13 }}>
+                      <div style={{ marginTop: 12, color: 'var(--text-secondary)', fontSize: 12 }}>
                         {t('dentalRadFusion.dentalFinding')}
                       </div>
                       <Tag color="blue" style={{ marginTop: 8 }}>{t('dentalRadFusion.chronicApicalTag')}</Tag>
@@ -343,7 +343,7 @@ export const CBCTUnifiedReportPage: React.FC = () => {
                   </Col>
                   <Col span={12}>
                     <Card size="small" title={t('dentalRadFusion.radiologyReport')}>
-                      <div style={{ marginBottom: 8, color: 'var(--text-secondary)', fontSize: 13 }}>{t('dentalRadFusion.radiologyFinding')}</div>
+                      <div style={{ marginBottom: 8, color: 'var(--text-secondary)', fontSize: 12 }}>{t('dentalRadFusion.radiologyFinding')}</div>
                       {selected.aiAnalysis && (
                         <div style={{ marginBottom: 8 }}>
                           <Tag color="purple">{t('dentalRadFusion.cariesDetected')} {selected.aiAnalysis.cariesDetected ?? 0}</Tag>
@@ -428,7 +428,7 @@ export const DentalRadFusionPage: React.FC = () => {
                         background: selected?.id === s.id ? 'var(--color-info-bg)' : 'var(--bg-card)',
                       }}
                     >
-                      <div style={{ fontSize: 13, fontWeight: 600 }}>{s.patientName}</div>
+                      <div style={{ fontSize: 12, fontWeight: 600 }}>{s.patientName}</div>
                       <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{s.scanType ?? s.modality} · {s.acquisitionDate?.slice(0, 10) ?? '-'}</div>
                     </div>
                   ))}

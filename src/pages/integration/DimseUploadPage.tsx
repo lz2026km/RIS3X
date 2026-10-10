@@ -182,7 +182,7 @@ export const DimseUploadPage: React.FC = () => {
       <Card size="small" title={t('dimseUpload.cardUpload')}>
         <Space direction="vertical" style={{ width: '100%' }}>
           <Space wrap>
-            <span style={{ fontSize: 13, color: '#475569' }}>{t('dimseUpload.archiveTarget')}</span>
+            <span style={{ fontSize: 12, color: '#475569' }}>{t('dimseUpload.archiveTarget')}</span>
             <Select value={destination} onChange={setDestination} options={destOptions()} style={{ width: 180 }} />
             <Upload
               accept=".dcm"

@@ -398,7 +398,7 @@ const DicomViewerProPage: React.FC = () => {
           <Col flex="auto">
             <Space size={12} wrap>
               <MonitorPlay size={18} color="#3b82f6" />
-              <Text strong style={{ color: '#e2e8f0', fontSize: 15 }}>{t('dicomViewer.title')}</Text>
+              <Text strong style={{ color: '#e2e8f0', fontSize: 14 }}>{t('dicomViewer.title')}</Text>
               <Segmented
                 size="small"
                 options={modalityOptions()}

@@ -580,7 +580,7 @@ export function PatientTable({
         >
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <GitFork size={18} color="#d97706" />
-            <span style={{ fontSize: 13, fontWeight: 600, color: "#92400e" }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "#92400e" }}>
               {t("patientTable.duplicates.detected", { count: visibleDuplicates.length })}
             </span>
             <span style={{ fontSize: 12, color: "#78716c" }}>
@@ -644,7 +644,7 @@ export function PatientTable({
           <span
             style={{
               color: "#fff",
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: 600,
               display: "flex",
               alignItems: "center",
@@ -763,7 +763,7 @@ export function PatientTable({
               }}
             >
               <Search size={32} color="#cbd5e1" aria-hidden />
-              <div style={{ fontSize: 13 }}>{t("patientTable.empty.noMatch")}</div>
+              <div style={{ fontSize: 12 }}>{t("patientTable.empty.noMatch")}</div>
               <div style={{ fontSize: 12 }}>{t("patientTable.empty.noData")}</div>
             </div>
           }

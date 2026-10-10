@@ -550,10 +550,10 @@ const EyePixelPage: React.FC = () => {
                         size={64}
                         percent={Number(sharpness.sharpness?.overall ?? 0)}
                         strokeColor={sharpness.passed ? "#10b981" : "#f59e0b"}
-                        format={(p) => <span style={{ fontSize: 13, fontWeight: 700 }}>{p}</span>}
+                        format={(p) => <span style={{ fontSize: 12, fontWeight: 700 }}>{p}</span>}
                       />
                       <div>
-                        <div style={{ fontSize: 15, fontWeight: 700 }}>
+                        <div style={{ fontSize: 14, fontWeight: 700 }}>
                           <Tag color={sharpness.passed ? "green" : "orange"}>{sharpness.grade}</Tag>
                           {sharpness.passed ? t('eyePixel.qualityPass') : t('eyePixel.rescanSuggested')}
                         </div>
@@ -592,10 +592,10 @@ const EyePixelPage: React.FC = () => {
                         size={64}
                         percent={Number(artifacts.qualityScore ?? 0)}
                         strokeColor={artifacts.passed ? "#10b981" : "#f59e0b"}
-                        format={(p) => <span style={{ fontSize: 13, fontWeight: 700 }}>{p}</span>}
+                        format={(p) => <span style={{ fontSize: 12, fontWeight: 700 }}>{p}</span>}
                       />
                       <div>
-                        <div style={{ fontSize: 13, fontWeight: 700 }}>{t('eyePixel.imageQualityScore')}</div>
+                        <div style={{ fontSize: 12, fontWeight: 700 }}>{t('eyePixel.imageQualityScore')}</div>
                         <Tag color={artifacts.passed ? "green" : "orange"}>{artifacts.passed ? t('eyePixel.passed') : t('eyePixel.needsAttention')}</Tag>
                         {artifacts.source && <Tag color="orange">{t('eyePixel.fallback')}</Tag>}
                       </div>

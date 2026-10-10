@@ -106,7 +106,7 @@ const IolCalculator: React.FC<IolCalculatorProps> = ({ initialInput }) => {
     },
     { title: '目标屈光度 (D)', dataIndex: 'targetRefraction', key: 'targetRefraction', width: 100 },
     { title: 'IOL 度数 (D)', dataIndex: 'iolPower', key: 'iolPower', width: 100,
-      render: (v: number) => <span style={{ fontWeight: 600, fontSize: 15, color: '#2563eb' }}>{v?.toFixed(1)}</span>,
+      render: (v: number) => <span style={{ fontWeight: 600, fontSize: 14, color: '#2563eb' }}>{v?.toFixed(1)}</span>,
     },
     { title: '备注', dataIndex: 'note', key: 'note',
       render: (v: string) => v && <Tag color="orange" style={{ fontSize: 12 }}>{v}</Tag>,

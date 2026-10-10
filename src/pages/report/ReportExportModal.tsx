@@ -35,13 +35,13 @@ export default function ReportExportModal({ show, title, message, complete, onCl
               animation: 'spin 0.8s linear infinite', margin: '0 auto 16px',
             }} />
             <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY, marginBottom: 8 }}>{title}</div>
-            <div style={{ fontSize: 13, color: GRAY }}>{message}</div>
+            <div style={{ fontSize: 12, color: GRAY }}>{message}</div>
           </>
         ) : (
           <>
             <CheckCircle size={48} color={SUCCESS} style={{ margin: '0 auto 16px' }} />
             <div style={{ fontSize: 16, fontWeight: 700, color: SUCCESS, marginBottom: 8 }}>{title}完成</div>
-            <div style={{ fontSize: 13, color: GRAY }}>{message}</div>
+            <div style={{ fontSize: 12, color: GRAY }}>{message}</div>
           </>
         )}
       </div>

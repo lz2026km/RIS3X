@@ -138,7 +138,7 @@ export default function AutoCodingPage() {
               value={text}
               onChange={(e) => { setText(e.target.value); setResult(null); setWritten(false) }}
               rows={10}
-              style={{ width: '100%', padding: 12, border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, fontFamily: 'monospace', lineHeight: 1.7, resize: 'vertical' }}
+              style={{ width: '100%', padding: 12, border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, fontFamily: 'monospace', lineHeight: 1.7, resize: 'vertical' }}
               placeholder={t('w17.coding.inputPlaceholder')}
             />
             <div style={{ marginTop: 10, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -147,7 +147,7 @@ export default function AutoCodingPage() {
               </ActionButton>
               <button
                 onClick={() => setText(SAMPLE_REPORT)}
-                style={{ padding: '7px 14px', background: 'var(--bg-card)', color: '#475569', border: '1px solid #cbd5e1', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}
+                style={{ padding: '7px 14px', background: 'var(--bg-card)', color: '#475569', border: '1px solid #cbd5e1', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}
               >
                 {t('w17.coding.sample')}
               </button>
@@ -158,7 +158,7 @@ export default function AutoCodingPage() {
             {result && result.terms.length > 0 && (
               <div style={{ marginTop: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>{t('w17.coding.termList')} ({result.terms.length})</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#1e293b' }}>{t('w17.coding.termList')} ({result.terms.length})</span>
                   <button onClick={() => setConfirmed(new Set(result.terms.map((term) => term.keyword)))} style={{ fontSize: 11, color: '#1d4ed8', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 4, padding: '2px 8px', cursor: 'pointer' }}>
                     {t('w17.coding.confirmAll')}
                   </button>
@@ -227,7 +227,7 @@ export default function AutoCodingPage() {
               value={reportId}
               onChange={(e) => { setReportId(e.target.value); setWritten(false) }}
               placeholder={t('w17.coding.reportIdPlaceholder')}
-              style={{ width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, marginBottom: 10,}}
+              style={{ width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, marginBottom: 10,}}
             />
             <div style={{ fontSize: 12, color: '#64748b', marginBottom: 6 }}>
               {t('w17.coding.confirmedCount')}: <strong>{confirmedTerms.length}</strong>

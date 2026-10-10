@@ -160,7 +160,7 @@ export default function CriticalValueStatsPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
         {/* 按病种分桶 */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Tag size={13} /> 按病种分桶（7 类别）
           </div>
           {byCategory.map(c => {
@@ -186,7 +186,7 @@ export default function CriticalValueStatsPage() {
 
         {/* 按设备分桶 */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Layers size={13} /> 按检查设备分桶
           </div>
           {byModality.map(m => {
@@ -213,7 +213,7 @@ export default function CriticalValueStatsPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
         {/* Top 5 规则 */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
             <ListOrdered size={13} /> Top 5 危急值规则（本月）
           </div>
           {kpi.topRules.map((r, i) => {
@@ -246,7 +246,7 @@ export default function CriticalValueStatsPage() {
 
         {/* 医生排行 */}
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Stethoscope size={13} /> 报告医生排行
           </div>
           {byDoctor.map((d, i) => (
@@ -275,7 +275,7 @@ export default function CriticalValueStatsPage() {
 
       {/* 最近事件 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Activity size={13} /> 最近危急值事件（{events.length} 条）
         </div>
         <div style={{ maxHeight: 400, overflowY: 'auto' }}>
@@ -357,6 +357,6 @@ const BigKpi: React.FC<{ icon: any; label: string; value: number | string; color
         </div>
       )}
     </div>
-    <div style={{ fontSize: 28, fontWeight: 700, color }}>{value}</div>
+    <div style={{ fontSize: 30, fontWeight: 700, color }}>{value}</div>
   </div>
 );

@@ -41,7 +41,7 @@ export const ClosedLoopTracker = ({ cv }: { cv: CriticalValue }) => {
 
   return (
     <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: 16 }}>
-      <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 16 }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 16 }}>
         闭环状态追踪
       </div>
       <div style={{ display: 'flex', alignItems: 'stretch', gap: 0, marginBottom: 16 }}>
@@ -129,7 +129,7 @@ export const ClosedLoopTracker5Nodes = ({ cv }: { cv: CriticalValue }) => {
 
   return (
     <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: 16 }}>
-      <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 16 }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 16 }}>
         5节点闭环追踪
       </div>
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 0, marginBottom: 16 }}>

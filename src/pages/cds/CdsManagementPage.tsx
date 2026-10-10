@@ -171,7 +171,7 @@ export default function CdsManagementPage() {
       render: (_: unknown, rule) => (
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ width: 8, height: 8, borderRadius: "50%", background: TYPE_COLORS[rule.type], display: "inline-block" }} />
-          <span style={{ fontSize: 13 }}>{rule.name}</span>
+          <span style={{ fontSize: 12 }}>{rule.name}</span>
           <span style={{ fontSize: 12, color: "#6e7681" }}>({rule.id})</span>
         </div>
       ),
@@ -251,7 +251,7 @@ export default function CdsManagementPage() {
               display: "flex",
               alignItems: "center",
               gap: 6,
-              fontSize: 13,
+              fontSize: 12,
             }}
           >
             <Eye size={14} />
@@ -269,7 +269,7 @@ export default function CdsManagementPage() {
               display: "flex",
               alignItems: "center",
               gap: 6,
-              fontSize: 13,
+              fontSize: 12,
             }}
           >
             <Plus size={14} />
@@ -322,7 +322,7 @@ export default function CdsManagementPage() {
                 >
                   {t(TYPE_LABELS[entry.ruleType])}
                 </span>
-                <span style={{ fontSize: 13, flex: 1 }}>{entry.details}</span>
+                <span style={{ fontSize: 12, flex: 1 }}>{entry.details}</span>
                 <span style={{ fontSize: 12, color: "#6e7681" }}>
                   {entry.performedBy}
                 </span>
@@ -348,7 +348,7 @@ export default function CdsManagementPage() {
                   borderRadius: 6,
                   border: "none",
                   cursor: "pointer",
-                  fontSize: 13,
+                  fontSize: 12,
                   display: "flex",
                   alignItems: "center",
                   gap: 6,
@@ -393,7 +393,7 @@ export default function CdsManagementPage() {
                   border: "1px solid var(--border-default, #30363d)",
                   background: "var(--bg-card, #161b22)",
                   color: "var(--text-primary, #f0f6fc)",
-                  fontSize: 13,
+                  fontSize: 12,
                   width: 240, }}
               />
             </div>
@@ -404,7 +404,7 @@ export default function CdsManagementPage() {
                 borderRadius: 6,
                 border: "none",
                 cursor: "pointer",
-                fontSize: 13,
+                fontSize: 12,
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
@@ -420,7 +420,7 @@ export default function CdsManagementPage() {
               {t("cdsMgmt.showInactive")}
             </button>
           </div>
-          <span style={{ fontSize: 13, color: "#6e7681" }}>
+          <span style={{ fontSize: 12, color: "#6e7681" }}>
             {t("cdsMgmt.total", { count: filteredRules.length })}
           </span>
         </div>
@@ -577,7 +577,7 @@ export default function CdsManagementPage() {
                     border: "1px solid var(--border-default, #30363d)",
                     background: "var(--bg-primary, #0d1117)",
                     color: "var(--text-primary, #f0f6fc)",
-                    fontSize: 13, boxSizing: "border-box",
+                    fontSize: 12, boxSizing: "border-box",
                   }}
                 />
               </div>
@@ -605,7 +605,7 @@ export default function CdsManagementPage() {
                     border: "1px solid var(--border-default, #30363d)",
                     background: "var(--bg-primary, #0d1117)",
                     color: "var(--text-primary, #f0f6fc)",
-                    fontSize: 13, boxSizing: "border-box",
+                    fontSize: 12, boxSizing: "border-box",
                   }}
                 />
               </div>
@@ -637,7 +637,7 @@ export default function CdsManagementPage() {
                     border: "1px solid var(--border-default, #30363d)",
                     background: "var(--bg-primary, #0d1117)",
                     color: "var(--text-primary, #f0f6fc)",
-                    fontSize: 13, resize: "vertical",
+                    fontSize: 12, resize: "vertical",
                     fontFamily: "inherit",
                     boxSizing: "border-box",
                   }}
@@ -661,7 +661,7 @@ export default function CdsManagementPage() {
                   background: "transparent",
                   color: "var(--text-muted, #8b949e)",
                   cursor: "pointer",
-                  fontSize: 13,
+                  fontSize: 12,
                 }}
               >
                 {t("cdsMgmt.cancel")}
@@ -675,7 +675,7 @@ export default function CdsManagementPage() {
                   background: "#1e40af",
                   color: "#fff",
                   cursor: "pointer",
-                  fontSize: 13,
+                  fontSize: 12,
                   display: "flex",
                   alignItems: "center",
                   gap: 6,
@@ -755,7 +755,7 @@ export default function CdsManagementPage() {
                   style={{
                     width: "100%", padding: "8px 12px", borderRadius: 6,
                     border: "1px solid var(--border-default, #30363d)", background: "var(--bg-primary, #0d1117)",
-                    color: "var(--text-primary, #f0f6fc)", fontSize: 13, boxSizing: "border-box",
+                    color: "var(--text-primary, #f0f6fc)", fontSize: 12, boxSizing: "border-box",
                   }}
                 />
               </div>
@@ -768,7 +768,7 @@ export default function CdsManagementPage() {
                   style={{
                     width: "100%", padding: "8px 12px", borderRadius: 6,
                     border: "1px solid var(--border-default, #30363d)", background: "var(--bg-primary, #0d1117)",
-                    color: "var(--text-primary, #f0f6fc)", fontSize: 13, boxSizing: "border-box",
+                    color: "var(--text-primary, #f0f6fc)", fontSize: 12, boxSizing: "border-box",
                   }}
                 />
               </div>
@@ -781,7 +781,7 @@ export default function CdsManagementPage() {
                 onClick={() => setEditRule(null)}
                 style={{
                   padding: "8px 16px", borderRadius: 6, border: "1px solid var(--border-default, #30363d)",
-                  background: "transparent", color: "var(--text-muted, #8b949e)", cursor: "pointer", fontSize: 13,
+                  background: "transparent", color: "var(--text-muted, #8b949e)", cursor: "pointer", fontSize: 12,
                 }}
               >
                 {t("cdsMgmt.cancel")}
@@ -792,7 +792,7 @@ export default function CdsManagementPage() {
                 style={{
                   padding: "8px 16px", borderRadius: 6, border: "none",
                   background: "#1e40af", color: "#fff", cursor: editSaving ? "wait" : "pointer",
-                  fontSize: 13, display: "flex", alignItems: "center", gap: 6,
+                  fontSize: 12, display: "flex", alignItems: "center", gap: 6,
                 }}
               >
                 <Save size={14} /> {editSaving ? t("cdsMgmt.saving") : t("cdsMgmt.saveChanges")}
@@ -813,7 +813,7 @@ export default function CdsManagementPage() {
             color: "#fff",
             padding: "10px 20px",
             borderRadius: 8,
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: 600,
             boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
             zIndex: 1100,

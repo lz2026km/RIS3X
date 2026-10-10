@@ -27,8 +27,7 @@ import {
   type ExportFormat,
   type ExportTaskContentDto,
 } from '../../services/api/researchExportApi'
-import { DataTable } from '../../components/common/DataTable'
-import { StatCard, StatCardGrid } from '../../components/common'
+import { DataTable, StatCard, StatCardGrid } from '../../components/common'
 
 const { RangePicker } = DatePicker
 
@@ -224,7 +223,7 @@ export default function ResearchExportCenterPage() {
       onClick={() => setActiveTab(key)}
       style={{
         display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', border: 'none', background: 'none',
-        cursor: 'pointer', fontSize: 13, fontWeight: activeTab === key ? 600 : 400,
+        cursor: 'pointer', fontSize: 12, fontWeight: activeTab === key ? 600 : 400,
         color: activeTab === key ? '#1677ff' : 'var(--text-secondary, #475569)',
         borderBottom: activeTab === key ? '2px solid #1677ff' : '2px solid transparent',
       }}
@@ -281,7 +280,7 @@ export default function ResearchExportCenterPage() {
         {activeTab === 'build' && (
           <Row gutter={[16, 16]}>
             <Col xs={24} md={9}>
-              <Card size="small" title={<span style={{ fontSize: 13 }}>{t('criteria', '筛选条件')}</span>}>
+              <Card size="small" title={<span style={{ fontSize: 12 }}>{t('criteria', '筛选条件')}</span>}>
                 <Space direction="vertical" style={{ width: '100%' }} size={10}>
                   <div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginBottom: 4 }}>{t('modality', '检查模态')}</div>
@@ -352,38 +351,30 @@ export default function ResearchExportCenterPage() {
             <Col xs={24} md={15}>
               <Card
                 size="small"
-                title={<span style={{ fontSize: 13 }}>{t('datasetResult', '数据集结果')}</span>}
+                title={<span style={{ fontSize: 12 }}>{t('datasetResult', '数据集结果')}</span>}
                 extra={<span style={{ fontSize: 12, color: 'var(--text-secondary, #475569)' }}>{t('matched', '匹配记录')}: <b>{dataset?.recordCount ?? 0}</b></span>}
               >
                 {!dataset ? (
                   <Empty description={t('buildFirst', '设置筛选条件后点击「构建数据集」')} />
                 ) : (
                   <Spin spinning={building}>
-                    <div style={{ overflowX: 'auto' }}>
-                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-                        <thead>
-                          <tr>
-                            {['患者', '性别', '年龄', '模态', '部位', '检查日期', '病种', '诊断'].map((h) => (
-                              <th key={h} style={{ textAlign: 'left', padding: '6px 8px', borderBottom: '2px solid var(--border-default, rgba(0,0,0,0.12))', color: 'var(--text-secondary, #475569)', fontWeight: 600 }}>{h}</th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {dataset.preview.map((r) => (
-                            <tr key={r.id}>
-                              <td style={{ padding: '6px 8px', borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>{r.patientNameMasked}</td>
-                              <td style={{ padding: '6px 8px', borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>{r.gender}</td>
-                              <td style={{ padding: '6px 8px', borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>{r.age}</td>
-                              <td style={{ padding: '6px 8px', borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}><Tag style={{ fontSize: 11 }}>{r.modality}</Tag></td>
-                              <td style={{ padding: '6px 8px', borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>{r.bodyPart}</td>
-                              <td style={{ padding: '6px 8px', borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>{r.examDate}</td>
-                              <td style={{ padding: '6px 8px', borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>{r.disease}</td>
-                              <td style={{ padding: '6px 8px', borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.diagnosis}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                    <DataTable
+                      rowKey="id"
+                      dataSource={dataset.preview}
+                      pagination={false}
+                      showExport={false}
+                      showDensity={false}
+                      columns={[
+                        { title: '患者', dataIndex: 'patientNameMasked', key: 'patientNameMasked' },
+                        { title: '性别', dataIndex: 'gender', key: 'gender' },
+                        { title: '年龄', dataIndex: 'age', key: 'age' },
+                        { title: '模态', dataIndex: 'modality', key: 'modality', render: (v: string) => <Tag style={{ fontSize: 11 }}>{v}</Tag> },
+                        { title: '部位', dataIndex: 'bodyPart', key: 'bodyPart' },
+                        { title: '检查日期', dataIndex: 'examDate', key: 'examDate' },
+                        { title: '病种', dataIndex: 'disease', key: 'disease' },
+                        { title: '诊断', dataIndex: 'diagnosis', key: 'diagnosis', ellipsis: true },
+                      ]}
+                    />
                     <Divider style={{ margin: '12px 0' }} />
                     <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', marginBottom: 6 }}>
                       {t('selectFields', '选择导出字段 (按组)')}:
@@ -501,7 +492,7 @@ export default function ResearchExportCenterPage() {
             </StatCardGrid>
             <Row gutter={[12, 12]}>
               <Col xs={24} md={10}>
-                <Card size="small" title={<span style={{ fontSize: 13 }}>{t('formatDistribution', '格式分布')}</span>}>
+                <Card size="small" title={<span style={{ fontSize: 12 }}>{t('formatDistribution', '格式分布')}</span>}>
                   {['CSV', 'JSON', 'EXCEL'].map((f) => {
                     const count = stats?.byFormat[f as ExportFormat] ?? 0
                     const max = Math.max(1, stats?.byFormat.CSV ?? 0, stats?.byFormat.JSON ?? 0, stats?.byFormat.EXCEL ?? 0)
@@ -518,7 +509,7 @@ export default function ResearchExportCenterPage() {
                 </Card>
               </Col>
               <Col xs={24} md={14}>
-                <Card size="small" title={<span style={{ fontSize: 13 }}>{t('last7Days', '近 7 天导出趋势')}</span>}>
+                <Card size="small" title={<span style={{ fontSize: 12 }}>{t('last7Days', '近 7 天导出趋势')}</span>}>
                   <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 120 }}>
                     {stats?.last7Days.map((d) => {
                       const max = Math.max(1, ...stats.last7Days.map((x) => x.count))

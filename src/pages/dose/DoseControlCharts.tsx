@@ -145,7 +145,7 @@ export default function DoseControlCharts() {
           }}
         >
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
               X-bar 控制图（CTDIvol均值）
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
@@ -226,7 +226,7 @@ export default function DoseControlCharts() {
       >
         <div
           style={{
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: 700,
             color: "#1e40af",
             marginBottom: 16,

@@ -1,4 +1,5 @@
 import { Card, Select } from 'antd'
+import type { TableColumnsType } from 'antd'
 // G005 放射科RIS系统 - 统计分析页面 v2.0.0
 // 完整重写：6大标签页，800+行，inline样式，recharts图表
 import { useTranslation } from 'react-i18next'
@@ -36,6 +37,7 @@ import { ExportButton } from '../components/common/ExportButton'
 import { THEME_TOKENS } from '../components/common/ThemeTokens'
 import { VirtualTable } from '../components/common/VirtualTable'
 import { StatCard as CommonStatCard } from '../components/common/StatCard'
+import { DataTable } from '../components/common'
 import { t as appT } from '../i18n/appI18n';
 
 // [v3.0.6.8-28] 派生工具 - 把 7-30 天 KPI 转成图表格式
@@ -758,7 +760,14 @@ function WorkloadTab() {
 
   const topDoctors = [...doctorWorkloadData].sort((a, b) => b.written - a.written).slice(0, 5)
 
-  const tableHeaders = [t('statistics.workload.doctorName'), t('statistics.workload.writtenReports'), t('statistics.workload.reviewedReports'), t('statistics.workload.avgTime'), t('statistics.workload.overtimeReports'), t('statistics.workload.criticalReports')]
+  const workloadColumns: TableColumnsType<(typeof doctorWorkloadData)[number]> = [
+    { title: t('statistics.workload.doctorName'), dataIndex: 'name', key: 'name', align: 'center', render: (v: string) => <span style={{ fontWeight: 600, color: C.primary }}>{v}</span> },
+    { title: t('statistics.workload.writtenReports'), dataIndex: 'written', key: 'written', align: 'center' },
+    { title: t('statistics.workload.reviewedReports'), dataIndex: 'reviewed', key: 'reviewed', align: 'center' },
+    { title: t('statistics.workload.avgTime'), dataIndex: 'avgTime', key: 'avgTime', align: 'center', render: (v: number) => `${v}min` },
+    { title: t('statistics.workload.overtimeReports'), dataIndex: 'overtime', key: 'overtime', align: 'center', render: (v: number) => <span style={{ color: v > 3 ? C.danger : C.text }}>{v}</span> },
+    { title: t('statistics.workload.criticalReports'), dataIndex: 'critical', key: 'critical', align: 'center', render: (v: number) => <span style={{ color: v > 10 ? C.warning : C.success }}>{v}</span> },
+  ]
 
   return (
     <div>
@@ -791,27 +800,11 @@ function WorkloadTab() {
           </div>
         </div>
         {viewMode === 'table' ? (
-          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ background: C.background }}>
-                {tableHeaders.map(h => (
-                  <th key={h} style={{ padding: '10px 16px', fontSize: 12, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {doctorWorkloadData.filter(d => doctorFilter === '全部' || d.name === doctorFilter).map((d) => (
-                <tr key={d.name} style={{ borderBottom: `1px solid ${C.border}` }}>
-                  <td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 600, color: C.primary, textAlign: 'center' }}>{d.name}</td>
-                  <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>{d.written}</td>
-                  <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>{d.reviewed}</td>
-                  <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>{d.avgTime}min</td>
-                  <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.overtime > 3 ? C.danger : C.text }}>{d.overtime}</td>
-                  <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.critical > 10 ? C.warning : C.success }}>{d.critical}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table></div>
+          <DataTable<(typeof doctorWorkloadData)[number]>
+            columns={workloadColumns}
+            dataSource={doctorWorkloadData.filter(d => doctorFilter === '全部' || d.name === doctorFilter)}
+            rowKey="name"
+          />
         ) : (
           <div style={{ padding: 20 }}>
           <ChartContainer height={280} state={doctorWorkloadData.length === 0 ? 'empty' : 'ready'} emptyDescription={appT("statsPage.noDoctorWorkloadData")}>
@@ -869,8 +862,8 @@ function WorkloadTab() {
               }}>
                 {idx + 1}
               </div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: C.primary }}>{d.name}</div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: C.info, marginTop: 6 }}>{d.written}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>{d.name}</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: C.info, marginTop: 6 }}>{d.written}</div>
               <div style={{ fontSize: 12, color: C.textMuted }}>{appT("statsPage.reportsUnit")}</div>
               <div style={{ fontSize: 12, color: C.textMuted, marginTop: 4 }}>{appT("statsPage.avgScore")}{d.avgTime}min</div>
               {idx === 0 && <div style={{ fontSize: 12, color: C.warning, marginTop: 2 }}>{appT("statsPage.starOfMonthStar")}</div>}
@@ -1132,7 +1125,7 @@ function QualityControlTab() {
               <Clock size={16} color={C.warning} />
               <span style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>{appT("statsPage.overdueStats")}</span>
             </div>
-            <div style={{ fontSize: 26, fontWeight: 700, color: C.warning }}>{overtimeData.total}</div>
+            <div style={{ fontSize: 24, fontWeight: 700, color: C.warning }}>{overtimeData.total}</div>
             <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 8 }}>{appT("statsPage.overdueTotal")}</div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
               <span style={{ fontSize: 12, color: C.textMuted }}>{appT("statsPage.overdueRate")}</span>
@@ -1148,7 +1141,7 @@ function QualityControlTab() {
               <AlertTriangle size={16} color={C.danger} />
               <span style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>{appT("statsPage.criticalStats")}</span>
             </div>
-            <div style={{ fontSize: 26, fontWeight: 700, color: C.danger }}>{qualityStats.criticalCount}</div>
+            <div style={{ fontSize: 24, fontWeight: 700, color: C.danger }}>{qualityStats.criticalCount}</div>
             <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 8 }}>{appT("statsPage.criticalThisMonth")}</div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
               <span style={{ fontSize: 12, color: C.textMuted }}>{appT("statsPage.criticalTimelyRate")}</span>
@@ -1227,11 +1220,68 @@ function DeviceEfficiencyTab() {
   const [deviceFilter, setDeviceFilter] = useState('全部')
   const [deviceView, setDeviceView] = useState('utilization')
 
-  const extendedHeaders = [appT("statsPage.deviceName"), appT("statsPage.completedToday"), appT("statsPage.avgTime"), appT("statsPage.shortest"), appT("statsPage.longest"), appT("statsPage.overdueCount"), appT("statsPage.status")]
-
   const utilizationAvg = Math.round(deviceEfficiencyData.reduce((sum, d) => sum + d.utilization, 0) / deviceEfficiencyData.length)
   const startupAvg = Math.round(deviceStartupData.reduce((sum, d) => sum + d.startupRate, 0) / deviceStartupData.length)
   const waitAvg = (appointmentWaitData.reduce((sum, d) => sum + d.avgWait, 0) / appointmentWaitData.length).toFixed(1)
+
+  const startupColumns: TableColumnsType<(typeof deviceStartupData)[number]> = [
+    { title: appT("statsPage.deviceName"), dataIndex: 'name', key: 'name', align: 'center', render: (v: string) => <span style={{ fontWeight: 600, color: C.primary }}>{v}</span> },
+    {
+      title: appT("statsPage.powerOnRate"), dataIndex: 'startupRate', key: 'startupRate', align: 'center',
+      render: (v: number) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
+          <div style={{ width: 60, height: 6, background: C.background, borderRadius: 3, overflow: 'hidden' }}>
+            <div style={{ width: `${v}%`, height: '100%', background: v >= 95 ? C.success : v >= 90 ? C.warning : C.danger, borderRadius: 3 }} />
+          </div>
+          <span style={{ fontWeight: 700, color: v >= 95 ? C.success : v >= 90 ? C.warning : C.danger }}>{v}%</span>
+        </div>
+      ),
+    },
+    { title: appT("statsPage.avgStartupTime"), dataIndex: 'avgStartupTime', key: 'avgStartupTime', align: 'center', render: (v: number) => `${v}min` },
+    { title: appT("statsPage.faultCount"), dataIndex: 'faults', key: 'faults', align: 'center', render: (v: number) => <span style={{ color: v > 0 ? C.danger : C.success }}>{v}</span> },
+    {
+      title: appT("statsPage.status"), dataIndex: 'status', key: 'status', align: 'center',
+      render: (v: string) => (
+        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: v === '正常' ? C.successBg : C.warningBg, color: v === '正常' ? C.success : C.warning }}>{v}</span>
+      ),
+    },
+  ]
+
+  const completionColumns: TableColumnsType<(typeof examCompletionTimeData)[number]> = [
+    { title: appT("statsPage.deviceName"), dataIndex: 'name', key: 'name', align: 'center', render: (v: string) => <span style={{ fontWeight: 600, color: C.primary }}>{v}</span> },
+    { title: appT("statsPage.completedToday"), dataIndex: 'completedToday', key: 'completedToday', align: 'center', render: (v: number) => <span style={{ fontWeight: 700, color: C.info }}>{v}</span> },
+    { title: appT("statsPage.avgTime"), dataIndex: 'avgTime', key: 'avgTime', align: 'center', render: (v: number) => <span style={{ color: v > 40 ? C.warning : C.text }}>{v}min</span> },
+    { title: appT("statsPage.shortest"), dataIndex: 'minTime', key: 'minTime', align: 'center', render: (v: number) => <span style={{ color: C.success }}>{v}min</span> },
+    { title: appT("statsPage.longest"), dataIndex: 'maxTime', key: 'maxTime', align: 'center', render: (v: number) => <span style={{ color: C.danger }}>{v}min</span> },
+    { title: appT("statsPage.overdueCount"), dataIndex: 'overtimeCount', key: 'overtimeCount', align: 'center', render: (v: number) => <span style={{ color: v > 3 ? C.danger : C.text }}>{v}</span> },
+    {
+      title: appT("statsPage.status"), key: 'completionStatus', align: 'center',
+      render: (_v, d) => (
+        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: d.overtimeCount === 0 ? C.successBg : d.overtimeCount <= 2 ? C.warningBg : C.dangerBg, color: d.overtimeCount === 0 ? C.success : d.overtimeCount <= 2 ? C.warning : C.danger }}>
+          {d.overtimeCount === 0 ? appT("statsPage.normal") : d.overtimeCount <= 2 ? appT("statsPage.minor") : appT("statsPage.overdue")}
+        </span>
+      ),
+    },
+  ]
+
+  const waitColumns: TableColumnsType<(typeof appointmentWaitData)[number]> = [
+    { title: appT("statsPage.equipmentType"), dataIndex: 'modality', key: 'modality', align: 'center', render: (v: string) => <span style={{ fontWeight: 600, color: C.primary }}>{v}</span> },
+    { title: appT("statsPage.avgWait"), dataIndex: 'avgWait', key: 'avgWait', align: 'center', render: (v: number) => <span style={{ color: v > 3 ? C.warning : C.success }}>{v}{appT("statsPage.daysUnit")}</span> },
+    { title: appT("statsPage.maxWait"), dataIndex: 'maxWait', key: 'maxWait', align: 'center', render: (v: number) => <span style={{ color: v > 7 ? C.danger : C.text }}>{v}{appT("statsPage.daysUnit")}</span> },
+    { title: appT("statsPage.todayAppointments"), dataIndex: 'todayAppointments', key: 'todayAppointments', align: 'center', render: (v: number) => <span style={{ fontWeight: 700, color: C.info }}>{v}</span> },
+    { title: appT("statsPage.completed"), dataIndex: 'completed', key: 'completed', align: 'center', render: (v: number) => <span style={{ color: C.success }}>{v}</span> },
+    { title: appT("statsPage.pending"), dataIndex: 'pending', key: 'pending', align: 'center', render: (v: number) => <span style={{ color: v > 10 ? C.warning : C.text }}>{v}</span> },
+    {
+      title: appT("statsPage.completionRate"), key: 'completionRate', align: 'center',
+      render: (_v, d) => {
+        const rate = ((d.completed / d.todayAppointments) * 100).toFixed(1)
+        const n = parseFloat(rate)
+        return (
+          <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: n >= 85 ? C.successBg : n >= 70 ? C.warningBg : C.dangerBg, color: n >= 85 ? C.success : n >= 70 ? C.warning : C.danger }}>{rate}%</span>
+        )
+      },
+    },
+  ]
 
   return (
     <div>
@@ -1363,39 +1413,11 @@ function DeviceEfficiencyTab() {
             <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{appT("statsPage.powerOnDetail")}</div>
             </div>
-            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: C.background }}>
-                  {[appT("statsPage.deviceName"), appT("statsPage.powerOnRate"), appT("statsPage.avgStartupTime"), appT("statsPage.faultCount"), appT("statsPage.status")].map(h => (
-                    <th key={h} style={{ padding: '10px 16px', fontSize: 12, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {deviceStartupData.filter(d => deviceFilter === '全部' || d.name.includes(deviceFilter)).map(d => (
-                  <tr key={d.name} style={{ borderBottom: `1px solid ${C.border}` }}>
-                    <td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 600, color: C.primary, textAlign: 'center' }}>{d.name}</td>
-                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
-                        <div style={{ width: 60, height: 6, background: C.background, borderRadius: 3, overflow: 'hidden' }}>
-                          <div style={{ width: `${d.startupRate}%`, height: '100%', background: d.startupRate >= 95 ? C.success : d.startupRate >= 90 ? C.warning : C.danger, borderRadius: 3 }} />
-                        </div>
-                        <span style={{ fontWeight: 700, color: d.startupRate >= 95 ? C.success : d.startupRate >= 90 ? C.warning : C.danger }}>{d.startupRate}%</span>
-                      </div>
-                    </td>
-                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>{d.avgStartupTime}min</td>
-                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.faults > 0 ? C.danger : C.success }}>{d.faults}</td>
-                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>
-                      <span style={{
-                        padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
-                        background: d.status === '正常' ? C.successBg : C.warningBg,
-                        color: d.status === '正常' ? C.success : C.warning
-                      }}>{d.status}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table></div>
+            <DataTable<(typeof deviceStartupData)[number]>
+              columns={startupColumns}
+              dataSource={deviceStartupData.filter(d => deviceFilter === '全部' || d.name.includes(deviceFilter))}
+              rowKey="name"
+            />
           </Card>
 
           <ChartCard title={appT("statsPage.powerOnCompare")}>
@@ -1423,36 +1445,11 @@ function DeviceEfficiencyTab() {
             <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{appT("statsPage.completionStats")}</div>
             </div>
-            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: C.background }}>
-                  {extendedHeaders.map(h => (
-                    <th key={h} style={{ padding: '10px 16px', fontSize: 12, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {examCompletionTimeData.filter(d => deviceFilter === '全部' || d.name.includes(deviceFilter)).map(d => (
-                  <tr key={d.name} style={{ borderBottom: `1px solid ${C.border}` }}>
-                    <td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 600, color: C.primary, textAlign: 'center' }}>{d.name}</td>
-                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', fontWeight: 700, color: C.info }}>{d.completedToday}</td>
-                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.avgTime > 40 ? C.warning : C.text }}>{d.avgTime}min</td>
-                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: C.success }}>{d.minTime}min</td>
-                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: C.danger }}>{d.maxTime}min</td>
-                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.overtimeCount > 3 ? C.danger : C.text }}>{d.overtimeCount}</td>
-                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>
-                      <span style={{
-                        padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
-                        background: d.overtimeCount === 0 ? C.successBg : d.overtimeCount <= 2 ? C.warningBg : C.dangerBg,
-                        color: d.overtimeCount === 0 ? C.success : d.overtimeCount <= 2 ? C.warning : C.danger
-                      }}>
-                        {d.overtimeCount === 0 ? appT("statsPage.normal") : d.overtimeCount <= 2 ? appT("statsPage.minor") : appT("statsPage.overdue")}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table></div>
+            <DataTable<(typeof examCompletionTimeData)[number]>
+              columns={completionColumns}
+              dataSource={examCompletionTimeData.filter(d => deviceFilter === '全部' || d.name.includes(deviceFilter))}
+              rowKey="name"
+            />
           </Card>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
@@ -1496,37 +1493,11 @@ function DeviceEfficiencyTab() {
             <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>{appT("statsPage.apptWaitStats")}</div>
             </div>
-            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: C.background }}>
-                  {[appT("statsPage.equipmentType"), appT("statsPage.avgWait"), appT("statsPage.maxWait"), appT("statsPage.todayAppointments"), appT("statsPage.completed"), appT("statsPage.pending"), appT("statsPage.completionRate")].map(h => (
-                    <th key={h} style={{ padding: '10px 16px', fontSize: 12, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {appointmentWaitData.map(d => {
-                  const completionRate = ((d.completed / d.todayAppointments) * 100).toFixed(1)
-                  return (
-                    <tr key={d.modality} style={{ borderBottom: `1px solid ${C.border}` }}>
-                      <td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 600, color: C.primary, textAlign: 'center' }}>{d.modality}</td>
-                      <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.avgWait > 3 ? C.warning : C.success }}>{d.avgWait}{appT("statsPage.daysUnit")}</td>
-                      <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.maxWait > 7 ? C.danger : C.text }}>{d.maxWait}{appT("statsPage.daysUnit")}</td>
-                      <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', fontWeight: 700, color: C.info }}>{d.todayAppointments}</td>
-                      <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: C.success }}>{d.completed}</td>
-                      <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.pending > 10 ? C.warning : C.text }}>{d.pending}</td>
-                      <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>
-                        <span style={{
-                          padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
-                          background: parseFloat(completionRate) >= 85 ? C.successBg : parseFloat(completionRate) >= 70 ? C.warningBg : C.dangerBg,
-                          color: parseFloat(completionRate) >= 85 ? C.success : parseFloat(completionRate) >= 70 ? C.warning : C.danger
-                        }}>{completionRate}%</span>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table></div>
+            <DataTable<(typeof appointmentWaitData)[number]>
+              columns={waitColumns}
+              dataSource={appointmentWaitData}
+              rowKey="modality"
+            />
           </Card>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
@@ -1695,7 +1666,7 @@ function PatientAnalysisTab() {
                 <div key={item.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: `1px solid ${C.border}` }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <div style={{ width: 10, height: 10, borderRadius: '50%', background: item.color }} />
-                    <span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{item.name}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{item.name}</span>
                   </div>
                   <span style={{ fontSize: 18, fontWeight: 800, color: C.primary }}>{item.value}%</span>
                 </div>
@@ -1968,6 +1939,25 @@ function BusinessAnalysisTab({ onExportBusiness }: { onExportBusiness?: () => vo
 
   const profitMargin = ((businessStats.netProfit / businessStats.totalRevenue) * 100).toFixed(1)
 
+  const deptProfitColumns: TableColumnsType<(typeof efficiencyMetrics)[number]> = [
+    { title: appT("statsPage.department"), dataIndex: 'dept', key: 'dept', align: 'center', render: (v: string) => <span style={{ fontWeight: 600, color: C.primary }}>{v}</span> },
+    { title: appT("statsPage.revenueWan"), dataIndex: 'revenue', key: 'revenue', align: 'center', render: (v: number) => <span style={{ color: C.success }}>{(v / 10000).toFixed(0)}</span> },
+    { title: appT("statsPage.costWan"), dataIndex: 'cost', key: 'cost', align: 'center', render: (v: number) => <span style={{ color: C.danger }}>{(v / 10000).toFixed(0)}</span> },
+    { title: appT("statsPage.profitWan"), dataIndex: 'profit', key: 'profit', align: 'center', render: (v: number) => <span style={{ fontWeight: 700, color: C.info }}>{(v / 10000).toFixed(0)}</span> },
+    { title: appT("statsPage.staffCount"), dataIndex: 'staff', key: 'staff', align: 'center' },
+    { title: appT("statsPage.perCapitaProfitWan"), dataIndex: 'perCapita', key: 'perCapita', align: 'center', render: (v: number) => <span style={{ fontWeight: 700, color: C.primary }}>{(v / 10000).toFixed(1)}</span> },
+    {
+      title: appT("statsPage.profitRate"), key: 'profitRate', align: 'center',
+      render: (_v, dept) => {
+        const rate = ((dept.profit / dept.revenue) * 100).toFixed(1)
+        const n = parseFloat(rate)
+        return (
+          <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: n >= 45 ? C.successBg : n >= 35 ? C.warningBg : C.dangerBg, color: n >= 45 ? C.success : n >= 35 ? C.warning : C.danger }}>{rate}%</span>
+        )
+      },
+    },
+  ]
+
   return (
     <div>
       {/* 筛选栏 */}
@@ -2089,37 +2079,11 @@ function BusinessAnalysisTab({ onExportBusiness }: { onExportBusiness?: () => vo
 
       {/* 科室效益排名表 */}
       <ChartCard title={appT("statsPage.deptProfitAnalysis")}>
-        <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ background: C.background }}>
-              {[appT("statsPage.department"), appT("statsPage.revenueWan"), appT("statsPage.costWan"), appT("statsPage.profitWan"), appT("statsPage.staffCount"), appT("statsPage.perCapitaProfitWan"), appT("statsPage.profitRate")].map(h => (
-                <th key={h} style={{ padding: '10px 12px', fontSize: 12, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {efficiencyMetrics.map(dept => {
-              const rate = ((dept.profit / dept.revenue) * 100).toFixed(1)
-              return (
-                <tr key={dept.dept} style={{ borderBottom: `1px solid ${C.border}` }}>
-                  <td style={{ padding: '12px 12px', fontSize: 12, fontWeight: 600, color: C.primary, textAlign: 'center' }}>{dept.dept}</td>
-                  <td style={{ padding: '12px 12px', fontSize: 12, textAlign: 'center', color: C.success }}>{(dept.revenue / 10000).toFixed(0)}</td>
-                  <td style={{ padding: '12px 12px', fontSize: 12, textAlign: 'center', color: C.danger }}>{(dept.cost / 10000).toFixed(0)}</td>
-                  <td style={{ padding: '12px 12px', fontSize: 12, textAlign: 'center', fontWeight: 700, color: C.info }}>{(dept.profit / 10000).toFixed(0)}</td>
-                  <td style={{ padding: '12px 12px', fontSize: 12, textAlign: 'center' }}>{dept.staff}</td>
-                  <td style={{ padding: '12px 12px', fontSize: 12, textAlign: 'center', fontWeight: 700, color: C.primary }}>{(dept.perCapita / 10000).toFixed(1)}</td>
-                  <td style={{ padding: '12px 12px', fontSize: 12, textAlign: 'center' }}>
-                    <span style={{
-                      padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
-                      background: parseFloat(rate) >= 45 ? C.successBg : parseFloat(rate) >= 35 ? C.warningBg : C.dangerBg,
-                      color: parseFloat(rate) >= 45 ? C.success : parseFloat(rate) >= 35 ? C.warning : C.danger
-                    }}>{rate}%</span>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table></div>
+        <DataTable<(typeof efficiencyMetrics)[number]>
+          columns={deptProfitColumns}
+          dataSource={efficiencyMetrics}
+          rowKey="dept"
+        />
       </ChartCard>
     </div>
   )
@@ -2320,6 +2284,51 @@ const DeepAnalysisTab: React.FC = () => {
   const radarSeries = DEEP_RADAR_INDICATORS.map(k => k.label)
   const radarTotal = radarData.length
 
+  const radarColumns: TableColumnsType<any> = [
+    { title: appT("statsPage.department"), dataIndex: 'dept', key: 'dept', render: (v: string) => <span style={{ fontWeight: 600, color: '#1e40af' }}>{v}</span> },
+    ...radarSeries.map(k => ({
+      title: k, dataIndex: k, key: k, align: 'right' as const,
+      render: (v: unknown) => {
+        const n = Number(v) || 0
+        const color = n >= 85 ? '#059669' : n >= 65 ? '#d97706' : '#dc2626'
+        return <span style={{ color, fontWeight: 600 }}>{n}</span>
+      },
+    })),
+    {
+      title: appT("statsPage.compositeScore"), key: 'compositeScore', align: 'center',
+      render: (_v: unknown, row: any) => {
+        const avg = Math.round(radarSeries.reduce((s, k) => s + (Number(row[k]) || 0), 0) / Math.max(1, radarSeries.length))
+        return (
+          <span style={{ display: 'inline-block', padding: '2px 10px', borderRadius: 999, background: avg >= 80 ? 'var(--color-success-bg)' : avg >= 65 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)', color: avg >= 80 ? '#059669' : avg >= 65 ? '#d97706' : '#dc2626', fontWeight: 800 }}>
+            {avg}
+          </span>
+        )
+      },
+    },
+  ]
+
+  const doctorStackColumns: TableColumnsType<any> = [
+    { title: appT("statsPage.doctor"), dataIndex: 'name', key: 'name', render: (v: string) => <span style={{ fontWeight: 600, color: '#1e40af' }}>{v}</span> },
+    { title: appT("statsPage.initialReview"), dataIndex: '初核', key: 'first', align: 'right', render: (v: number) => <span style={{ color: '#3b82f6', fontWeight: 600 }}>{v}</span> },
+    { title: appT("statsPage.finalReview"), dataIndex: '终核', key: 'final', align: 'right', render: (v: number) => <span style={{ color: '#8b5cf6', fontWeight: 600 }}>{v}</span> },
+    { title: appT("statsPage.cosign"), dataIndex: '双签', key: 'cosign', align: 'right', render: (v: number) => <span style={{ color: '#ec4899', fontWeight: 600 }}>{v}</span> },
+    { title: appT("statsPage.total"), key: 'total', align: 'right', render: (_v: unknown, d: any) => <span style={{ fontWeight: 800, color: 'var(--text-primary)' }}>{d.初核 + d.终核 + d.双签}</span> },
+    {
+      title: appT("statsPage.compositionShare"), key: 'share', width: 160,
+      render: (_v: unknown, d: any) => {
+        const total = d.初核 + d.终核 + d.双签
+        const pct = (k: number) => `${Math.round((k / Math.max(1, total)) * 100)}%`
+        return (
+          <div style={{ display: 'flex', height: 10, borderRadius: 5, overflow: 'hidden', background: 'var(--bg-deep)' }}>
+            <div style={{ width: pct(d.初核), background: '#3b82f6' }} title={appT("w9a.statsPage.initialReviewTooltip", { pct: pct(d.初核) })} />
+            <div style={{ width: pct(d.终核), background: '#8b5cf6' }} title={appT("w9a.statsPage.finalReviewTooltip", { pct: pct(d.终核) })} />
+            <div style={{ width: pct(d.双签), background: '#ec4899' }} title={appT("w9a.statsPage.cosignTooltip", { pct: pct(d.双签) })} />
+          </div>
+        )
+      },
+    },
+  ]
+
   return (
     <div data-testid="deep-analysis-tab">
       {/* 数据源徽标 */}
@@ -2345,7 +2354,7 @@ const DeepAnalysisTab: React.FC = () => {
               <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="72%">
                 <PolarGrid stroke="var(--border-color)" />
                 <PolarAngleAxis dataKey="dept" tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} />
-                <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 9 }} />
+                <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 10 }} />
                 {radarSeries.map((label, i) => (
                   <Radar key={label} name={label} dataKey={label} stroke={RAD_COLORS[i % RAD_COLORS.length]} fill={RAD_COLORS[i % RAD_COLORS.length]} fillOpacity={0.12} />
                 ))}
@@ -2510,39 +2519,11 @@ const DeepAnalysisTab: React.FC = () => {
         {radarTotal === 0 ? (
           <ChartEmpty description={appT("statsPage.noDeptData")} height={120} />
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-              <thead>
-                <tr style={{ background: 'var(--content-bg)' }}>
-                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)' }}>{appT("statsPage.department")}</th>
-                  {radarSeries.map(k => (
-                    <th key={k} style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: 'var(--text-secondary)' }}>{k}</th>
-                  ))}
-                  <th style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 700, color: 'var(--text-secondary)' }}>{appT("statsPage.compositeScore")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {radarData.map((row: any) => {
-                  const avg = Math.round(radarSeries.reduce((s, k) => s + (Number(row[k]) || 0), 0) / radarSeries.length)
-                  return (
-                    <tr key={row.dept} style={{ borderBottom: '1px solid var(--border-light)' }}>
-                      <td style={{ padding: '8px 10px', fontWeight: 600, color: '#1e40af' }}>{row.dept}</td>
-                      {radarSeries.map(k => {
-                        const v = Number(row[k]) || 0
-                        const color = v >= 85 ? '#059669' : v >= 65 ? '#d97706' : '#dc2626'
-                        return <td key={k} style={{ padding: '8px 10px', textAlign: 'right', color, fontWeight: 600 }}>{v}</td>
-                      })}
-                      <td style={{ padding: '8px 10px', textAlign: 'center' }}>
-                        <span style={{ display: 'inline-block', padding: '2px 10px', borderRadius: 999, background: avg >= 80 ? 'var(--color-success-bg)' : avg >= 65 ? 'var(--color-warning-bg)' : 'var(--color-error-bg)', color: avg >= 80 ? '#059669' : avg >= 65 ? '#d97706' : '#dc2626', fontWeight: 800 }}>
-                          {avg}
-                        </span>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
+          <DataTable<any>
+            columns={radarColumns}
+            dataSource={radarData}
+            rowKey="dept"
+          />
         )}
       </ChartCard>
 
@@ -2580,42 +2561,11 @@ const DeepAnalysisTab: React.FC = () => {
         {doctorStack.length === 0 ? (
           <ChartEmpty description={appT("statsPage.noData")} height={100} />
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-              <thead>
-                <tr style={{ background: 'var(--content-bg)' }}>
-                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)' }}>{appT("statsPage.doctor")}</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: '#3b82f6' }}>{appT("statsPage.initialReview")}</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: '#8b5cf6' }}>{appT("statsPage.finalReview")}</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: '#ec4899' }}>{appT("statsPage.cosign")}</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 700, color: 'var(--text-secondary)' }}>{appT("statsPage.total")}</th>
-                  <th style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', width: 160 }}>{appT("statsPage.compositionShare")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {doctorStack.map((d: any) => {
-                  const total = d.初核 + d.终核 + d.双签
-                  const pct = (k: number) => `${Math.round((k / Math.max(1, total)) * 100)}%`
-                  return (
-                    <tr key={d.name} style={{ borderBottom: '1px solid var(--border-light)' }}>
-                      <td style={{ padding: '8px 10px', fontWeight: 600, color: '#1e40af' }}>{d.name}</td>
-                      <td style={{ padding: '8px 10px', textAlign: 'right', color: '#3b82f6', fontWeight: 600 }}>{d.初核}</td>
-                      <td style={{ padding: '8px 10px', textAlign: 'right', color: '#8b5cf6', fontWeight: 600 }}>{d.终核}</td>
-                      <td style={{ padding: '8px 10px', textAlign: 'right', color: '#ec4899', fontWeight: 600 }}>{d.双签}</td>
-                      <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 800, color: 'var(--text-primary)' }}>{total}</td>
-                      <td style={{ padding: '8px 10px' }}>
-                        <div style={{ display: 'flex', height: 10, borderRadius: 5, overflow: 'hidden', background: 'var(--bg-deep)' }}>
-                          <div style={{ width: pct(d.初核), background: '#3b82f6' }} title={appT("w9a.statsPage.initialReviewTooltip", { pct: pct(d.初核) })} />
-                          <div style={{ width: pct(d.终核), background: '#8b5cf6' }} title={appT("w9a.statsPage.finalReviewTooltip", { pct: pct(d.终核) })} />
-                          <div style={{ width: pct(d.双签), background: '#ec4899' }} title={appT("w9a.statsPage.cosignTooltip", { pct: pct(d.双签) })} />
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
+          <DataTable<any>
+            columns={doctorStackColumns}
+            dataSource={doctorStack}
+            rowKey="name"
+          />
         )}
       </ChartCard>
 
@@ -2966,7 +2916,7 @@ export default function StatisticsPage() {
         <div style={{ display: 'flex', gap: 4, overflowX: 'auto' }}>
           {tabs.map(tab => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{
-              padding: '8px 16px', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 600,
+              padding: '8px 16px', borderRadius: 8, border: 'none', fontSize: 12, fontWeight: 600,
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap',
               transition: 'all 0.2s',
               background: activeTab === tab.key ? C.infoBg : 'transparent',

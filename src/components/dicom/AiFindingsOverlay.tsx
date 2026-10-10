@@ -49,7 +49,7 @@ function AiMarkerPopover({ finding, onClose, onInsertReport }: { finding: AiFind
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
-        <span style={{ fontWeight: 700, color: '#60a5fa', fontSize: 13 }}>{finding.label}</span>
+        <span style={{ fontWeight: 700, color: '#60a5fa', fontSize: 12 }}>{finding.label}</span>
         <span
           style={{
             padding: '2px 8px',

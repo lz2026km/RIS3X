@@ -872,7 +872,7 @@ const ReportTab: React.FC = () => {
               border: "1px solid #e2e8f0",
               borderRadius: 8,
               padding: 12,
-              fontSize: 13,
+              fontSize: 12,
               lineHeight: 1.8,
               whiteSpace: "pre-wrap",
             }}

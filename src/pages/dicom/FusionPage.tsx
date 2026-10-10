@@ -535,7 +535,7 @@ export default function FusionPage() {
     <div data-testid="fusion-page" style={{ background: '#020617', color: '#cbd5e1', padding: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
         <Layers size={18} color={BLUE} />
-        <span style={{ fontSize: 15, fontWeight: 700 }}>{t('nav.dicomFusion')}</span>
+        <span style={{ fontSize: 14, fontWeight: 700 }}>{t('nav.dicomFusion')}</span>
 
         <div style={{ flex: 1 }} />
 
@@ -659,7 +659,7 @@ export default function FusionPage() {
         <div style={{ width: 292, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8, overflowY: 'auto' }}>
           <div style={{ background: PANEL_BG, borderRadius: 6, padding: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0' }}>{t('fusionPage.suvQuant')}</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0' }}>{t('fusionPage.suvQuant')}</span>
               <span style={{ fontSize: 10, color: '#64748b' }}>PET-CT</span>
               <div style={{ flex: 1 }} />
               {suvLoading ? (
@@ -688,7 +688,7 @@ export default function FusionPage() {
                   ] as const).map(([label, value, color]) => (
                     <div key={label} style={{ background: '#0f172a', borderRadius: 6, padding: '8px 6px', textAlign: 'center' }}>
                       <div style={{ fontSize: 10, color: '#64748b', marginBottom: 2 }}>{label}</div>
-                      <div style={{ fontSize: 17, fontWeight: 800, color }}>{value.toFixed(1)}</div>
+                      <div style={{ fontSize: 16, fontWeight: 800, color }}>{value.toFixed(1)}</div>
                     </div>
                   ))}
                 </div>

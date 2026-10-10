@@ -20,7 +20,7 @@ export default function DoseAlertConfig({
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
       <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
           <AlertTriangle size={16} color="#dc2626" />
           {t("doseTrack.alert.pending")}
           <span style={{ padding: "2px 8px", background: "#fef2f2", color: "#dc2626", borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
@@ -39,7 +39,7 @@ export default function DoseAlertConfig({
                 <div key={alert.id} style={{ padding: 14, border: `1px solid ${badge.border}`, borderRadius: 10, background: badge.bg }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>{alert.patientName}</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>{alert.patientName}</span>
                       <span style={{ padding: "2px 6px", background: "#eff6ff", color: "#2563eb", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{alert.modality}</span>
                       <span style={{ padding: "2px 6px", background: badge.bg, color: badge.color, borderRadius: 4, fontSize: 12, fontWeight: 700 }}>
                         {alert.alertLevel === "critical" ? "危" : "警"}
@@ -98,7 +98,7 @@ export default function DoseAlertConfig({
       </div>
 
       <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
           <ShieldAlert size={16} color="#16a34a" />
           {t("doseTrack.alert.acknowledged")}
         </div>

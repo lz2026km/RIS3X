@@ -1539,7 +1539,7 @@ export default function DataReportCenterPage() {
               items={treeData.map((cat) => ({
                 key: cat.key,
                 label: (
-                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>
                     {cat.title}
                     <Tag style={{ marginLeft: 6, fontSize: 10 }}>{cat.children?.length || 0}</Tag>
                   </span>
@@ -1557,7 +1557,7 @@ export default function DataReportCenterPage() {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            fontSize: 13,
+                            fontSize: 12,
                           }}
                         >
                           <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -1653,19 +1653,19 @@ export default function DataReportCenterPage() {
                     title={
                       <Space size={6}>
                         <Lightbulb size={14} color="#f59e0b" />
-                        <span style={{ fontSize: 13, fontWeight: 600 }}>{t('dataReportCenter.aiInsight')}</span>
+                        <span style={{ fontSize: 12, fontWeight: 600 }}>{t('dataReportCenter.aiInsight')}</span>
                       </Space>
                     }
                     style={{ borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
                   >
                     {showInsight ? (
-                      <div style={{ fontSize: 13, lineHeight: 1.8, color: 'var(--text-primary)', padding: '4px 0' }}>
+                      <div style={{ fontSize: 12, lineHeight: 1.8, color: 'var(--text-primary)', padding: '4px 0' }}>
                         {insightText || (
                           <Text type="secondary">{t('dataReportCenter.noInsightData')}</Text>
                         )}
                       </div>
                     ) : (
-                      <Text type="secondary" style={{ fontSize: 13 }}>
+                      <Text type="secondary" style={{ fontSize: 12 }}>
                         {t('dataReportCenter.aiInsightOff')}
                       </Text>
                     )}
@@ -1675,7 +1675,7 @@ export default function DataReportCenterPage() {
                     title={
                       <Space size={6}>
                         <Table2 size={14} />
-                        <span style={{ fontSize: 13, fontWeight: 600 }}>{t('dataReportCenter.dataDetail')}</span>
+                        <span style={{ fontSize: 12, fontWeight: 600 }}>{t('dataReportCenter.dataDetail')}</span>
                         <Tag style={{ fontSize: 10 }}>{t('dataReportCenter.rowsCount', { count: chartData.length })}</Tag>
                       </Space>
                     }

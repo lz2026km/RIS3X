@@ -1,3 +1,17 @@
+## v3.0.6.13-2 (2026-10-10) — 原生表格迁移 + 字号令牌化 + 守卫预算收紧
+
+> **目标**: 继续 UI 审查整改（表格完全统一 / 排版刻度统一）
+> **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；9 路由 E2E 通过；`guard:ui` 全绿
+
+### UI-A2 原生表格迁移
+- **110 张原生 HTML `<table>` → `DataTable`**（77 文件中的 51 个；含 StatisticsPage 7、BreastSpecialty 5、CvOperations/EquipmentLifecycle/GreenIT/OperationsCenter/PatientDetailPanel/TechWorkbench 各 4 等）
+- 跳过 26 张（打印/邮件/导出 HTML 模板串、热力图、日历/甘特矩阵、colSpan 复杂表、动态表头）——`guard:ui` 冻结为预算上限
+- 保留格式化/徽标/按钮/宽度/对齐/行点击/`data-testid`；`colSpan` 空态行 → `emptyText`
+
+### UI-D2 字号令牌化
+- **2,775 处**脱离设计刻度的内联 `fontSize`（13/15/17/22/26/28/32/34/38/40/42/44/7/8/9/12.5）→ 标准刻度 `10/11/12/14/16/18/20/24/30/36/48`（388 文件）；剩余 36 处为装饰性大字号
+- `guard:ui` 新增 `nativeTable`(26) 与 `offScaleFont`(42) 预算；hex 预算 13,654 → **13,390**；`clickableNoRole` 改为行级判定并收紧至 **151**
+
 ## v3.0.6.13-1 (2026-10-10) — 暗色主题令牌化 + statusTokens 统一 + 键盘可达性
 
 > **目标**: 继续 UI 审查整改（暗色正确性 / 语义色一致性 / 可访问性）

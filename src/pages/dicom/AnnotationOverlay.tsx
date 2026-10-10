@@ -83,7 +83,7 @@ export default function AnnotationOverlay(props: Props) {
             {annotationTypes.map(({ type, icon, label }) => (
               <button key={type} style={{ height: 36, borderRadius: 6, border: `1px solid ${activeAnnotationType === type ? PRIMARY : 'var(--border-color)'}`, background: activeAnnotationType === type ? PRIMARY : 'var(--bg-card)', cursor: 'pointer', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: 2, padding: 4, color: activeAnnotationType === type ? '#fff' : '#64748b' }} onClick={() => setActiveAnnotationType(type)}>
                 {icon}
-                <span style={{ fontSize: 8, color: activeAnnotationType === type ? 'rgba(255,255,255,0.8)' : '#64748b' }}>{label}</span>
+                <span style={{ fontSize: 10, color: activeAnnotationType === type ? 'rgba(255,255,255,0.8)' : '#64748b' }}>{label}</span>
               </button>
             ))}
           </div>

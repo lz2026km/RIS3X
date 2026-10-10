@@ -75,7 +75,7 @@ export const PptxExportDialog: React.FC<PptxExportDialogProps> = ({ open, onClos
           </div>
 
           <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>幻灯片 ({slides.length})</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#1e293b' }}>幻灯片 ({slides.length})</span>
             <button onClick={addSlide} style={addBtnStyle}><Plus size={14} /> 添加</button>
           </div>
 
@@ -107,7 +107,7 @@ export const PptxExportDialog: React.FC<PptxExportDialogProps> = ({ open, onClos
 };
 
 const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 13, };
+  width: '100%', padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, };
 const textAreaStyle: React.CSSProperties = {
   ...inputStyle, resize: 'vertical', fontFamily: 'inherit',
 };
@@ -120,7 +120,7 @@ const addBtnStyle: React.CSSProperties = {
 const btnPrimary: React.CSSProperties = {
   width: '100%', padding: '10px 16px', border: 'none', borderRadius: 6,
   background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', color: '#fff',
-  fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center',
+  fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center',
 };
 const btnDisabled: React.CSSProperties = {
   ...btnPrimary, background: '#cbd5e1', cursor: 'not-allowed',

@@ -264,10 +264,10 @@ const VesselAnalysisPage: React.FC = () => {
                       return (
                         <div key={`${l.vessel}-${l.segment}-${i}`} style={{ background: 'var(--content-bg)', borderRadius: 8, padding: '10px 12px', border: '1px solid var(--border-light)' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{l.vessel} {l.segment}</span>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{l.vessel} {l.segment}</span>
                             <Tag color="error" style={{ margin: 0 }}>{SEVERITY_LABEL[l.severity] ?? l.severity}</Tag>
                             {l.calcified && <Tag color="purple" style={{ margin: 0 }}>{t('vesselAnalysis.calcified')}</Tag>}
-                            <span style={{ marginLeft: 'auto', fontSize: 15, fontWeight: 800, color: severityColor }}>{l.stenosisPercent}%</span>
+                            <span style={{ marginLeft: 'auto', fontSize: 14, fontWeight: 800, color: severityColor }}>{l.stenosisPercent}%</span>
                           </div>
                           <div style={{ marginTop: 6, height: 6, background: 'rgba(148,163,184,0.2)', borderRadius: 3 }}>
                             <div style={{ height: '100%', width: `${Math.min(100, l.stenosisPercent)}%`, background: severityColor, borderRadius: 3 }} />
@@ -285,10 +285,10 @@ const VesselAnalysisPage: React.FC = () => {
 
             {/* 病例总体评估 */}
             <Card title={t('vesselAnalysis.overallAssessment')} size="small" style={{ marginTop: 16, border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 13, color: 'var(--text-primary)', marginBottom: 6 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-primary)', marginBottom: 6 }}>
                 <strong>{t('vesselAnalysis.findings')}</strong> {selected.overallAssessment || '--'}
               </div>
-              <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>
+              <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>
                 <strong>{t('vesselAnalysis.recommendation')}</strong> {selected.recommendation || '--'}
               </div>
               <div style={{ marginTop: 8, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>

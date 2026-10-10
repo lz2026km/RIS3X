@@ -434,7 +434,7 @@ export default function TechMobileWorkstation() {
 
       <div style={s.searchBar}>
         <Search size={16} color="#94a3b8" />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('techMobile.searchPlaceholder')} style={{ border: 'none', fontSize: 13, color: '#334155', width: '100%', background: 'transparent' }} />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('techMobile.searchPlaceholder')} style={{ border: 'none', fontSize: 12, color: '#334155', width: '100%', background: 'transparent' }} />
         <Camera size={16} color="#94a3b8" style={{ cursor: 'pointer' }} onClick={handleScan} />
       </div>
 
@@ -543,8 +543,8 @@ export default function TechMobileWorkstation() {
         width={360}
       >
         {detail && (
-          <div style={{ fontSize: 13 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>{detail.patientName}</div>
+          <div style={{ fontSize: 12 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 10 }}>{detail.patientName}</div>
             <div style={{ marginBottom: 14, fontSize: 12, color: '#64748b' }}>
               {detail.gender} / {detail.age}{t('techMobile.ageUnit')} · {detail.modality} · {detail.bodyPart}
             </div>
@@ -563,7 +563,7 @@ export default function TechMobileWorkstation() {
                 </div>
               ))}
             </div>
-            <div style={{ fontSize: 13, fontWeight: 700, margin: '14px 0 8px' }}>{t('techMobile.operationLog')}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, margin: '14px 0 8px' }}>{t('techMobile.operationLog')}</div>
             {detailOps.length === 0 ? (
               <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('techMobile.noOperationRecords')}</div>
             ) : (

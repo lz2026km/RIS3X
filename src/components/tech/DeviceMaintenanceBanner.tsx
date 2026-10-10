@@ -113,7 +113,7 @@ export default function DeviceMaintenanceBanner({ deviceId, deviceName }: Device
         }}
       >
         <span style={{ color: meta.color, display: 'inline-flex' }}>{meta.icon}</span>
-        <span style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>
+        <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>
           设备 {item.deviceName ?? deviceName ?? ''}
         </span>
         <span style={{ fontSize: 12, fontWeight: 700, color: meta.color }}>

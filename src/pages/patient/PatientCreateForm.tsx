@@ -98,7 +98,7 @@ function RegistrationWizard({
     padding: "10px 12px",
     borderRadius: 8,
     border: `1px solid ${errors[field] ? "#dc2626" : "var(--border-color)"}`,
-    fontSize: 13, boxSizing: "border-box" as const,
+    fontSize: 12, boxSizing: "border-box" as const,
   });
 
   if (!open) return null;
@@ -290,7 +290,7 @@ function RegistrationWizard({
                         alignItems: "center",
                         gap: 6,
                         cursor: "pointer",
-                        fontSize: 13,
+                        fontSize: 12,
                         color: "#334155",
                       }}
                     >
@@ -588,7 +588,7 @@ function RegistrationWizard({
               </div>
               {/* [G005 W6] 结构化登记字段 */}
               <div style={{ gridColumn: "1 / -1", marginTop: 4 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 8 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", marginBottom: 8 }}>
                   {t('patientForm.structuredAllergy')}
                 </div>
               </div>
@@ -898,7 +898,7 @@ function RegistrationWizard({
               border: "1px solid var(--border-color)",
               background: "var(--bg-card)",
               color: "#64748b",
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: 600,
               cursor: "pointer",
             }}
@@ -915,7 +915,7 @@ function RegistrationWizard({
                   border: "1px solid var(--border-color)",
                   background: "var(--bg-card)",
                   color: "#64748b",
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 600,
                   cursor: "pointer",
                   display: "flex",
@@ -936,7 +936,7 @@ function RegistrationWizard({
                   border: "none",
                   background: "#1e40af",
                   color: "#fff",
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 600,
                   cursor: "pointer",
                   display: "flex",
@@ -955,7 +955,7 @@ function RegistrationWizard({
                   border: "none",
                   background: "#059669",
                   color: "#fff",
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 600,
                   cursor: "pointer",
                   display: "flex",
@@ -1051,7 +1051,7 @@ export function PatientCreateForm({
               padding: "10px 12px",
               borderRadius: 8,
               border: `1px solid ${formErrors.name ? "#dc2626" : "var(--border-color)"}`,
-              fontSize: 13, boxSizing: "border-box",
+              fontSize: 12, boxSizing: "border-box",
             }}
           />
         </FormField>
@@ -1069,7 +1069,7 @@ export function PatientCreateForm({
                   alignItems: "center",
                   gap: 6,
                   cursor: "pointer",
-                  fontSize: 13,
+                  fontSize: 12,
                   color: "#334155",
                 }}
               >
@@ -1111,7 +1111,7 @@ export function PatientCreateForm({
               padding: "10px 12px",
               borderRadius: 8,
               border: "1px solid var(--border-color)",
-              fontSize: 13, boxSizing: "border-box",
+              fontSize: 12, boxSizing: "border-box",
             }}
           />
         </div>
@@ -1129,7 +1129,7 @@ export function PatientCreateForm({
               padding: "10px 12px",
               borderRadius: 8,
               border: `1px solid ${formErrors.idCard ? "#dc2626" : "var(--border-color)"}`,
-              fontSize: 13, boxSizing: "border-box",
+              fontSize: 12, boxSizing: "border-box",
             }}
           />
         </FormField>
@@ -1147,7 +1147,7 @@ export function PatientCreateForm({
               padding: "10px 12px",
               borderRadius: 8,
               border: `1px solid ${formErrors.phone ? "#dc2626" : "var(--border-color)"}`,
-              fontSize: 13, boxSizing: "border-box",
+              fontSize: 12, boxSizing: "border-box",
             }}
           />
         </FormField>
@@ -1176,7 +1176,7 @@ export function PatientCreateForm({
               padding: "10px 12px",
               borderRadius: 8,
               border: "1px solid var(--border-color)",
-              fontSize: 13, background: "var(--bg-card)",
+              fontSize: 12, background: "var(--bg-card)",
               boxSizing: "border-box",
             }}
           >
@@ -1215,7 +1215,7 @@ export function PatientCreateForm({
               padding: "10px 12px",
               borderRadius: 8,
               border: "1px solid var(--border-color)",
-              fontSize: 13, boxSizing: "border-box",
+              fontSize: 12, boxSizing: "border-box",
               resize: "vertical",
               fontFamily: "inherit",
             }}
@@ -1248,7 +1248,7 @@ export function PatientCreateForm({
               padding: "10px 12px",
               borderRadius: 8,
               border: `1px solid ${formErrors.emergencyContact ? "#dc2626" : "var(--border-color)"}`,
-              fontSize: 13, boxSizing: "border-box",
+              fontSize: 12, boxSizing: "border-box",
             }}
           />
           {formErrors.emergencyContact && (
@@ -1282,7 +1282,7 @@ export function PatientCreateForm({
               padding: "10px 12px",
               borderRadius: 8,
               border: `1px solid ${formErrors.emergencyPhone ? "#dc2626" : "var(--border-color)"}`,
-              fontSize: 13, boxSizing: "border-box",
+              fontSize: 12, boxSizing: "border-box",
             }}
           />
           {formErrors.emergencyPhone && (
@@ -1313,7 +1313,7 @@ export function PatientCreateForm({
               padding: "10px 12px",
               borderRadius: 8,
               border: "1px solid var(--border-color)",
-              fontSize: 13, background: "var(--bg-card)",
+              fontSize: 12, background: "var(--bg-card)",
               boxSizing: "border-box",
             }}
           >
@@ -1348,7 +1348,7 @@ export function PatientCreateForm({
               padding: "10px 12px",
               borderRadius: 8,
               border: "1px solid var(--border-color)",
-              fontSize: 13, boxSizing: "border-box",
+              fontSize: 12, boxSizing: "border-box",
             }}
           />
         </div>
@@ -1376,7 +1376,7 @@ export function PatientCreateForm({
               padding: "10px 12px",
               borderRadius: 8,
               border: "1px solid var(--border-color)",
-              fontSize: 13, boxSizing: "border-box",
+              fontSize: 12, boxSizing: "border-box",
             }}
           />
         </div>
@@ -1406,7 +1406,7 @@ export function PatientCreateForm({
               padding: "10px 12px",
               borderRadius: 8,
               border: "1px solid var(--border-color)",
-              fontSize: 13, boxSizing: "border-box",
+              fontSize: 12, boxSizing: "border-box",
               resize: "vertical",
               fontFamily: "inherit",
             }}
@@ -1438,7 +1438,7 @@ export function PatientCreateForm({
               padding: "10px 12px",
               borderRadius: 8,
               border: "1px solid var(--border-color)",
-              fontSize: 13, boxSizing: "border-box",
+              fontSize: 12, boxSizing: "border-box",
               resize: "vertical",
               fontFamily: "inherit",
             }}

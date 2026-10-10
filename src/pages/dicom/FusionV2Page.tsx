@@ -558,7 +558,7 @@ export default function FusionV2Page() {
       {/* Top toolbar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
         <Layers size={18} color={BLUE} />
-        <span style={{ fontSize: 15, fontWeight: 700 }}>{t('nav.fusionV2')}</span>
+        <span style={{ fontSize: 14, fontWeight: 700 }}>{t('nav.fusionV2')}</span>
         <div style={{ flex: 1 }} />
 
         {/* Modal selection */}

@@ -337,7 +337,7 @@ const PacsAdminPage: React.FC = () => {
     { title: t('pacsAdmin.time'), dataIndex: 'time', key: 'time', width: 170, render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
     { title: t('pacsAdmin.level'), dataIndex: 'level', key: 'level', width: 80, render: (v: string) => <Tag color={v === 'ERROR' ? 'red' : v === 'WARN' ? 'orange' : 'green'}>{v}</Tag> },
     { title: t('pacsAdmin.source'), dataIndex: 'source', key: 'source', width: 110, render: (v: string) => <Tag color="blue">{v}</Tag> },
-    { title: t('pacsAdmin.message'), dataIndex: 'message', key: 'message', render: (v: string) => <span style={{ fontSize: 12.5 }}>{v}</span> },
+    { title: t('pacsAdmin.message'), dataIndex: 'message', key: 'message', render: (v: string) => <span style={{ fontSize: 12 }}>{v}</span> },
   ]
 
   const configColumns = [

@@ -124,7 +124,7 @@ const headerStyle: React.CSSProperties = {
 
 // 卡片标题样式
 const cardTitleStyle: React.CSSProperties = {
-  fontSize: 15,
+  fontSize: 14,
   fontWeight: 700,
   color: COLORS.primary,
   display: 'flex',
@@ -876,7 +876,7 @@ const HomePage: FC = () => {
         {/* 中间：用户信息 */}
         <div style={{ textAlign: 'center' }}>
           <div style={{
-            fontSize: 26,
+            fontSize: 24,
             fontWeight: 700,
             color: COLORS.white,
             marginBottom: 4,
@@ -925,7 +925,7 @@ const HomePage: FC = () => {
             border: '1px solid rgba(255,255,255,0.15)',
           }}>
             <div style={{
-              fontSize: 28,
+              fontSize: 30,
               fontWeight: 700,
               color: COLORS.white,
             }}>
@@ -948,7 +948,7 @@ const HomePage: FC = () => {
             border: '1px solid rgba(255,255,255,0.15)',
           }}>
             <div style={{
-              fontSize: 28,
+              fontSize: 30,
               fontWeight: 700,
               color: COLORS.white,
             }}>
@@ -971,7 +971,7 @@ const HomePage: FC = () => {
             border: '1px solid rgba(255,255,255,0.15)',
           }}>
             <div style={{
-              fontSize: 28,
+              fontSize: 30,
               fontWeight: 700,
               color: COLORS.white,
             }}>
@@ -1022,7 +1022,7 @@ const HomePage: FC = () => {
             <Scan size={20} />
           </div>
           <div>
-            <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.primary }}>{workload.examsCompleted}</div>
+            <div style={{ fontSize: 30, fontWeight: 700, color: COLORS.primary }}>{workload.examsCompleted}</div>
             <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('homePage.todayExamsDone')}</div>
           </div>
         </div>
@@ -1045,7 +1045,7 @@ const HomePage: FC = () => {
             <FileText size={20} />
           </div>
           <div>
-            <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.primary }}>{workload.reportsWritten}</div>
+            <div style={{ fontSize: 30, fontWeight: 700, color: COLORS.primary }}>{workload.reportsWritten}</div>
             <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('homePage.todayReportsWritten')}</div>
           </div>
         </div>
@@ -1068,7 +1068,7 @@ const HomePage: FC = () => {
             <AlertTriangle size={20} />
           </div>
           <div>
-            <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.primary }}>{workload.pendingReviews}</div>
+            <div style={{ fontSize: 30, fontWeight: 700, color: COLORS.primary }}>{workload.pendingReviews}</div>
             <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('homePage.pendingReviews')}</div>
           </div>
         </div>
@@ -1485,7 +1485,7 @@ const HomePage: FC = () => {
           </div>
           <div>
             <div style={{
-              fontSize: 28,
+              fontSize: 30,
               fontWeight: 700,
               color: COLORS.primary,
             }}>
@@ -1521,7 +1521,7 @@ const HomePage: FC = () => {
           </div>
           <div>
             <div style={{
-              fontSize: 28,
+              fontSize: 30,
               fontWeight: 700,
               color: COLORS.primary,
             }}>
@@ -1557,7 +1557,7 @@ const HomePage: FC = () => {
           </div>
           <div>
             <div style={{
-              fontSize: 28,
+              fontSize: 30,
               fontWeight: 700,
               color: COLORS.primary,
             }}>
@@ -1597,7 +1597,7 @@ const HomePage: FC = () => {
                 marginBottom: 4,
               }}>
                 <span style={{
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 700,
                   color: COLORS.text,
                 }}>
@@ -1770,7 +1770,7 @@ const HomePage: FC = () => {
             }}>
               <div>
                 <div style={{
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 600,
                   color: COLORS.primary,
                 }}>
@@ -1905,7 +1905,7 @@ const HomePage: FC = () => {
                     marginBottom: 4,
                   }}>
                     <span style={{
-                      fontSize: 15,
+                      fontSize: 14,
                       fontWeight: 800,
                       color: COLORS.text,
                     }}>
@@ -2106,7 +2106,7 @@ const HomePage: FC = () => {
                 >
                   <div>
                     <div style={{
-                      fontSize: 13,
+                      fontSize: 12,
                       fontWeight: 700,
                       color: COLORS.text,
                       marginBottom: 2,
@@ -2183,7 +2183,7 @@ const HomePage: FC = () => {
                 >
                   <div>
                     <div style={{
-                      fontSize: 13,
+                      fontSize: 12,
                       fontWeight: 700,
                       color: COLORS.text,
                       marginBottom: 2,
@@ -2296,7 +2296,7 @@ const HomePage: FC = () => {
               pointerEvents: 'none',
             }}>
               <div style={{
-                fontSize: 28,
+                fontSize: 30,
                 fontWeight: 700,
                 color: COLORS.primary,
               }}>
@@ -2334,7 +2334,7 @@ const HomePage: FC = () => {
                     background: item.color,
                   }} />
                   <span style={{
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: 600,
                     color: COLORS.text,
                   }}>
@@ -2357,7 +2357,7 @@ const HomePage: FC = () => {
                     }} />
                   </div>
                   <span style={{
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: 700,
                     color: COLORS.primary,
                     minWidth: 36,
@@ -2430,7 +2430,7 @@ const HomePage: FC = () => {
               {item.period}
             </div>
             <div style={{
-              fontSize: 28,
+              fontSize: 30,
               fontWeight: 700,
               color: COLORS.primary,
               marginBottom: 4,
@@ -2628,7 +2628,7 @@ const HomePage: FC = () => {
                   >
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{
-                        fontSize: 13, fontWeight: 600, color: COLORS.text,
+                        fontSize: 12, fontWeight: 600, color: COLORS.text,
                         display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                       }}>
                         {item.title}
@@ -2699,7 +2699,7 @@ const HomePage: FC = () => {
         <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 20 }}>
           {/* 左侧: 科室公告 */}
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Users size={14} color={COLORS.info} /> {t('homePage.deptAnnouncements')}
             </div>
             <div style={{ maxHeight: 260, overflowY: 'auto' }} tabIndex={0} aria-label={t('homePage.ariaAnnouncementList')}>
@@ -2724,7 +2724,7 @@ const HomePage: FC = () => {
                     }}>
                       {CATEGORY_LABEL[a.category] ?? a.category}
                     </span>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.text, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.text, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {a.pinned ? '' : ''}{a.title}
                     </span>
                     <span style={{ fontSize: 11, color: COLORS.textLight, flexShrink: 0 }}>
@@ -2744,7 +2744,7 @@ const HomePage: FC = () => {
 
           {/* 右侧: 今日值班 */}
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
               <CalendarClock size={14} color={COLORS.warning} /> {t('homePage.todayOnCall')}
             </div>
             <div style={{ maxHeight: 260, overflowY: 'auto' }} tabIndex={0} aria-label={t('homePage.ariaOnCallList')}>
@@ -2772,7 +2772,7 @@ const HomePage: FC = () => {
                     {(s.doctorName ?? t('w9a.homePage.valueFallback')).slice(0, 1)}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{s.doctorName}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: COLORS.text }}>{s.doctorName}</div>
                     <div style={{ fontSize: 11, color: COLORS.textMuted }}>{s.role || t('homePage.onCallDoctor')}</div>
                   </div>
                   <span style={{
@@ -3012,7 +3012,7 @@ const HomePage: FC = () => {
                 {item.icon}
               </div>
               <div>
-                <div style={{ fontSize: 22, fontWeight: 700, color: COLORS.primary, lineHeight: 1.2 }}>
+                <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.primary, lineHeight: 1.2 }}>
                   {item.value}
                   <span style={{ fontSize: 12, fontWeight: 500, color: COLORS.textMuted, marginLeft: 3 }}>{item.unit}</span>
                 </div>

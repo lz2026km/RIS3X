@@ -127,10 +127,10 @@ export const ReportDetail: React.FC<DetailProps> = ({
             {r.qualityScore > 0 ? (
               <>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
-                  <div style={{ fontSize: '32px', fontWeight: 700, color: r.qualityScore >= 90 ? COLORS.success : r.qualityScore >= 70 ? COLORS.warning : COLORS.danger }}>{r.qualityScore}</div>
+                  <div style={{ fontSize: '30px', fontWeight: 700, color: r.qualityScore >= 90 ? COLORS.success : r.qualityScore >= 70 ? COLORS.warning : COLORS.danger }}>{r.qualityScore}</div>
                   <div style={{ flex: 1 }}><div style={{ ...styles.progressBar, height: '12px' }}><div style={{ ...styles.progressFill, width: `${r.qualityScore}%`, backgroundColor: r.qualityScore >= 90 ? COLORS.success : r.qualityScore >= 70 ? COLORS.warning : COLORS.danger }} /></div><div style={{ fontSize: '11px', color: COLORS.textMuted, marginTop: '4px' }}>{t('regionalReport.qualityDimensions')}</div></div>
                 </div>
-                {r.qualityIssues.length > 0 && <div style={{ marginTop: '12px' }}><div style={{ fontSize: '12px', color: COLORS.danger, marginBottom: '6px' }}>{t('regionalReport.issuesFound')}：</div>{r.qualityIssues.map((issue, idx) => <div key={idx} style={{ fontSize: '13px', color: COLORS.danger, marginLeft: '12px' }}>• {issue}</div>)}</div>}
+                {r.qualityIssues.length > 0 && <div style={{ marginTop: '12px' }}><div style={{ fontSize: '12px', color: COLORS.danger, marginBottom: '6px' }}>{t('regionalReport.issuesFound')}：</div>{r.qualityIssues.map((issue, idx) => <div key={idx} style={{ fontSize: '12px', color: COLORS.danger, marginLeft: '12px' }}>• {issue}</div>)}</div>}
               </>
             ) : <div style={{ color: COLORS.textMuted }}>{t('regionalReport.noQualityScore')}</div>}
           </div>
@@ -230,7 +230,7 @@ export const RemoteWriting: React.FC<DetailProps> = ({
           </div>
           <div style={{ flex: 1, padding: '12px', overflow: 'auto' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>{t('regionalReport.reportContent')}</div>
-            <textarea style={{ ...styles.textarea, width: '100%', minHeight: '200px', fontSize: '13px', lineHeight: '1.6' }} placeholder={t('regionalReport.reportPlaceholder')} value={remoteReportContent} onChange={e => onRemoteReportContentChange(e.target.value)} />
+            <textarea style={{ ...styles.textarea, width: '100%', minHeight: '200px', fontSize: '12px', lineHeight: '1.6' }} placeholder={t('regionalReport.reportPlaceholder')} value={remoteReportContent} onChange={e => onRemoteReportContentChange(e.target.value)} />
           </div>
           <div style={{ padding: '12px', borderTop: '1px solid #e5e7eb', backgroundColor: 'var(--bg-card)' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>{t('regionalReport.digitalSignature')}</div>
@@ -295,7 +295,7 @@ export const CoSignDetail: React.FC<DetailProps> = ({ selectedCoSign, onBack }) 
                 <React.Fragment key={idx}>
                   <div style={{ padding: '12px 16px', backgroundColor: 'var(--bg-card)', borderRadius: '8px', border: `1px solid ${sig.certificateStatus === '已认证' ? COLORS.success : COLORS.danger}30`, minWidth: '160px' }}>
                     <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}><BadgeCheck size={12} style={{ color: COLORS.primary }} /> {sig.institution}</div>
-                    <div style={{ fontSize: '13px', fontWeight: 500, marginBottom: '4px' }}>{sig.doctorName}</div>
+                    <div style={{ fontSize: '12px', fontWeight: 500, marginBottom: '4px' }}>{sig.doctorName}</div>
                     <div style={{ fontSize: '10px', color: COLORS.textMuted, marginBottom: '4px' }}>{sig.signTime}</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>{sig.certificateStatus === '已认证' ? <><CheckCircle size={12} style={{ color: COLORS.success }} /><span style={{ fontSize: '10px', color: COLORS.success }}>{t('regionalReport.certified')}</span></> : <><XCircle size={12} style={{ color: COLORS.danger }} /><span style={{ fontSize: '10px', color: COLORS.danger }}>{t('regionalReport.uncertified')}</span></>}</div>
                   </div>
@@ -396,7 +396,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ institutions, onRefreshS
             </svg>
             <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: '14px', fontWeight: 600 }}>67%</div>
           </div>
-          <div style={{ flex: 1 }}><div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('regionalReport.monthRegionPositivity')}</div><div style={{ fontSize: '13px' }}>{t('regionalReport.vsLastMonth')} <span style={{ color: COLORS.success }}>+2.3%</span></div></div>
+          <div style={{ flex: 1 }}><div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('regionalReport.monthRegionPositivity')}</div><div style={{ fontSize: '12px' }}>{t('regionalReport.vsLastMonth')} <span style={{ color: COLORS.success }}>+2.3%</span></div></div>
         </div>
       </div>
       <div style={{ padding: '12px' }}>
@@ -466,7 +466,7 @@ export const ModalContent: React.FC<ModalContentProps> = ({
             <div style={styles.modalHeader}><span>{t('regionalReport.reviewReport')}</span><X size={20} style={{ cursor: 'pointer' }} onClick={onClose} /></div>
             <div style={styles.modalBody}>
               <div style={{ backgroundColor: 'var(--bg-card)', padding: '16px', borderRadius: '8px', marginBottom: '16px' }}>
-                <div style={{ fontSize: '13px' }}><div style={{ marginBottom: '8px' }}>{t('regionalReport.reportNo')}：{selectedReport?.reportId}</div><div style={{ marginBottom: '8px' }}>{t('regionalReport.patient')}：{selectedReport?.patientName}</div><div>{t('regionalReport.exam')}：{selectedReport?.modality} - {selectedReport?.examItem}</div></div>
+                <div style={{ fontSize: '12px' }}><div style={{ marginBottom: '8px' }}>{t('regionalReport.reportNo')}：{selectedReport?.reportId}</div><div style={{ marginBottom: '8px' }}>{t('regionalReport.patient')}：{selectedReport?.patientName}</div><div>{t('regionalReport.exam')}：{selectedReport?.modality} - {selectedReport?.examItem}</div></div>
               </div>
               <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.reviewOpinion')}</label><textarea style={{ ...styles.textarea, width: '100%', minHeight: '120px' }} placeholder={t('regionalReport.reviewOpinionPlaceholder')} value={reviewText} onChange={e => onReviewTextChange(e.target.value)} /></div>
             </div>
@@ -476,7 +476,7 @@ export const ModalContent: React.FC<ModalContentProps> = ({
         {modalType === 'review-pass' && (
           <>
             <div style={styles.modalHeader}><span>{t('regionalReport.reviewPassed')}</span><X size={20} style={{ cursor: 'pointer' }} onClick={onClose} /></div>
-            <div style={styles.modalBody}><div style={{ textAlign: 'center', padding: '20px' }}><CheckCircle size={48} style={{ color: COLORS.success, marginBottom: '16px' }} /><div style={{ fontSize: '16px', fontWeight: 500, marginBottom: '8px' }}>{t('regionalReport.confirmPass')}</div><div style={{ color: COLORS.textMuted, fontSize: '13px' }}>{t('regionalReport.reportNo')}：{selectedReport?.reportId}</div></div></div>
+            <div style={styles.modalBody}><div style={{ textAlign: 'center', padding: '20px' }}><CheckCircle size={48} style={{ color: COLORS.success, marginBottom: '16px' }} /><div style={{ fontSize: '16px', fontWeight: 500, marginBottom: '8px' }}>{t('regionalReport.confirmPass')}</div><div style={{ color: COLORS.textMuted, fontSize: '12px' }}>{t('regionalReport.reportNo')}：{selectedReport?.reportId}</div></div></div>
             <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={onClose}>{t('regionalReport.cancel')}</button><button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={() => { selectedReport && onReviewReport(selectedReport, '通过') }}>{t('regionalReport.confirmPassBtn')}</button></div>
           </>
         )}

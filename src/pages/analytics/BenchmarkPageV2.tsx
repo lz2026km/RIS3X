@@ -312,7 +312,7 @@ export default function BenchmarkPageV2() {
           </div>
           <div>
             <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>报表同比环比分析</h2>
-            <span style={{ color: '#94a3b8', fontSize: 13 }}>跨院区对比 · 指标矩阵 · 趋势分析</span>
+            <span style={{ color: '#94a3b8', fontSize: 12 }}>跨院区对比 · 指标矩阵 · 趋势分析</span>
           </div>
         </Space>
       </div>
@@ -339,7 +339,7 @@ export default function BenchmarkPageV2() {
         </StatCardGrid>
 
         <div style={{ marginTop: 16, marginBottom: 16, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#475569' }}>院区选择:</span>
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#475569' }}>院区选择:</span>
           <Select
             mode="multiple"
             value={selectedSites}

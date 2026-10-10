@@ -788,15 +788,15 @@ export const DicomSrPage: React.FC = () => {
             <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>{t('dicomSrPage.byStatus')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
               <div style={{ textAlign: 'center', padding: 12, background: 'var(--color-warning-bg)', borderRadius: 8 }}>
-                <div style={{ fontSize: 22, fontWeight: 700, color: '#d97706' }}>{srStats.draft}</div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: '#d97706' }}>{srStats.draft}</div>
                 <div style={{ fontSize: 11, color: '#92400e' }}>{t('dicomSrPage.draft')}</div>
               </div>
               <div style={{ textAlign: 'center', padding: 12, background: 'var(--color-info-bg)', borderRadius: 8 }}>
-                <div style={{ fontSize: 22, fontWeight: 700, color: '#1e40af' }}>{srStats.finalized}</div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: '#1e40af' }}>{srStats.finalized}</div>
                 <div style={{ fontSize: 11, color: '#1e40af' }}>{t('dicomSrPage.finalized')}</div>
               </div>
               <div style={{ textAlign: 'center', padding: 12, background: 'var(--color-success-bg)', borderRadius: 8 }}>
-                <div style={{ fontSize: 22, fontWeight: 700, color: '#16a34a' }}>{srStats.pushed}</div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: '#16a34a' }}>{srStats.pushed}</div>
                 <div style={{ fontSize: 11, color: '#065f46' }}>{t('dicomSrPage.pushedOru')}</div>
               </div>
             </div>
@@ -839,7 +839,7 @@ export const DicomSrPage: React.FC = () => {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           {(['tid1500', 'tid2000'] as const).map(tidKey => (
             <div key={tidKey} style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <GitBranch size={13} />
                 {tidKey === 'tid1500' ? t('dicomSrPage.tid1500Label') : t('dicomSrPage.tid2000Label')}
                 {templates.find(t => t.id === tidKey) && (
@@ -864,7 +864,7 @@ export const DicomSrPage: React.FC = () => {
                         }}>
                           <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#3b82f6', flexShrink: 0 }} />
                           {child.label}
-                          <span style={{ fontSize: 9, color: '#b0b7c3', fontFamily: 'monospace' }}>{child.code}</span>
+                          <span style={{ fontSize: 10, color: '#b0b7c3', fontFamily: 'monospace' }}>{child.code}</span>
                         </div>
                       ))}
                     </div>

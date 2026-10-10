@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { ChartContainer } from '../../components/charts'
 import { StateView } from '../../components/common/StateView'
+import { DataTable } from '../../components/common'
 import { Activity, CheckCircle, AlertTriangle, Shield, BarChart3, Download, Zap } from 'lucide-react'
 import {
   getDoseRecords, checkAlaraCompliance, getProtocolOptimizationSuggestions,
@@ -68,7 +69,7 @@ export default function RadiationSafetyPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <Shield size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>辐射安全与防护</span>
         </div>
-        <button onClick={handleExportReport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+        <button onClick={handleExportReport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
           <Download size={14} />导出报告
         </button>
       </div>
@@ -86,14 +87,14 @@ export default function RadiationSafetyPage() {
                 <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{k.title}</span>
                 <k.icon size={20} style={{ color: k.color }} />
               </div>
-              <div style={{ fontSize: 28, fontWeight: 700 }}>{k.value}</div>
+              <div style={{ fontSize: 30, fontWeight: 700 }}>{k.value}</div>
             </div>
           ))}
         </div>
 
         <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
           {(['overview', 'records', 'alerts', 'optimize'] as const).map(t => (
-            <button key={t} onClick={() => setActiveTab(t)} style={{ padding: '6px 16px', borderRadius: 4, border: 'none', background: activeTab === t ? '#059669' : 'var(--bg-card, #161b22)', color: activeTab === t ? '#fff' : 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 13 }}>
+            <button key={t} onClick={() => setActiveTab(t)} style={{ padding: '6px 16px', borderRadius: 4, border: 'none', background: activeTab === t ? '#059669' : 'var(--bg-card, #161b22)', color: activeTab === t ? '#fff' : 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>
               {{ overview: '总览', records: '剂量记录', alerts: '阈值告警', optimize: '优化建议' }[t]}
             </button>
           ))}
@@ -158,7 +159,7 @@ export default function RadiationSafetyPage() {
               {compliance.map(c => (
                 <div key={c.modality} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--bg-secondary, #21262d)', alignItems: 'center' }}>
                   <div>
-                    <div style={{ fontSize: 13, color: 'var(--text-primary, #f0f6fc)' }}>{c.modality}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-primary, #f0f6fc)' }}>{c.modality}</div>
                     <div style={{ fontSize: 12, color: '#6e7681' }}>{c.totalExams}次检查 · {c.avgDose}平均剂量</div>
                   </div>
                   <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: c.status === 'compliant' ? '#22c55e20' : c.status === 'warning' ? '#f59e0b20' : '#ef444420', color: c.status === 'compliant' ? '#22c55e' : c.status === 'warning' ? '#f59e0b' : '#ef4444' }}>
@@ -172,32 +173,19 @@ export default function RadiationSafetyPage() {
 
         {activeTab === 'records' && (
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, overflow: 'hidden' }}>
-            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-              <thead>
-                <tr>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>检查ID</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>患者</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>设备</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>CTDI</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>DLP</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>KAP</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>日期</th>
-                </tr>
-              </thead>
-              <tbody>
-                {doseRecords.map(r => (
-                  <tr key={r.id}>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: '#6e7681', fontSize: 12 }}>{r.examId}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>{r.patientName}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{r.deviceName}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>{r.ctDoseIndex ?? '-'}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>{r.dlp ?? '-'}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>{r.kap ?? '-'}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{r.examDate}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table></div>
+            <DataTable
+              rowKey="id"
+              dataSource={doseRecords}
+              columns={[
+                { title: '检查ID', dataIndex: 'examId', key: 'examId', render: (v: string) => <span style={{ color: '#6e7681', fontSize: 12 }}>{v}</span> },
+                { title: '患者', dataIndex: 'patientName', key: 'patientName' },
+                { title: '设备', dataIndex: 'deviceName', key: 'deviceName', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
+                { title: 'CTDI', dataIndex: 'ctDoseIndex', key: 'ctDoseIndex', render: (v: number) => v ?? '-' },
+                { title: 'DLP', dataIndex: 'dlp', key: 'dlp', render: (v: number) => v ?? '-' },
+                { title: 'KAP', dataIndex: 'kap', key: 'kap', render: (v: number) => v ?? '-' },
+                { title: '日期', dataIndex: 'examDate', key: 'examDate', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{v}</span> },
+              ]}
+            />
           </div>
         )}
 
@@ -210,7 +198,7 @@ export default function RadiationSafetyPage() {
                     <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${MODALITY_COLORS[opt.modality]}20`, color: MODALITY_COLORS[opt.modality], marginRight: 8 }}>{opt.modality}</span>
                     <span style={{ fontSize: 14, fontWeight: 600 }}>{opt.procedureName}</span>
                   </div>
-                  <span style={{ color: '#22c55e', fontSize: 13 }}>预计降低 {opt.estimatedReduction}%</span>
+                  <span style={{ color: '#22c55e', fontSize: 12 }}>预计降低 {opt.estimatedReduction}%</span>
                 </div>
                 <div style={{ display: 'flex', gap: 16, marginBottom: 8, fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>
                   <span>当前平均: <b style={{ color: 'var(--text-primary, #f0f6fc)' }}>{opt.currentAvgDose}</b></span>

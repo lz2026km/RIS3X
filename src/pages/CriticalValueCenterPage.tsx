@@ -14,6 +14,7 @@ import { Link } from 'react-router-dom'
 import { AlertOctagon, Bell, BarChart3, Settings, Activity, TrendingUp, ShieldAlert, Save, Plus, Edit3, Trash2, RefreshCw, ScanSearch, CheckCircle2, Eye } from 'lucide-react'
 import { message, Switch, Modal, Input, Select, Popconfirm } from 'antd'
 import { CRITICAL_RULES } from '../data/criticalValueMock'
+import { DataTable } from '../components/common'
 import { criticalApi, type CriticalStatsDto } from '../services/api/criticalApi'
 import { criticalExtApi, type CriticalChannelDto, type CriticalExtRuleDto, type CriticalExtTimelineDto, type CriticalExtCenterDto } from '../services/api'
 import { invalidateApiCache } from '../services/api/client'
@@ -418,59 +419,55 @@ const CriticalValueCenterPage: React.FC = () => {
         </div>
         {centerError && <div className="text-xs text-red-600 mb-2">{centerError}</div>}
         {center.length > 0 ? (
-          <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
-            <thead>
-              <tr className="text-left text-xs text-gray-500 border-b border-slate-200">
-                <th className="py-2 pr-2 font-semibold">{t('criticalCenter.colEventId')}</th>
-                <th className="py-2 pr-2 font-semibold">{t('criticalCenter.colPatient')}</th>
-                <th className="py-2 pr-2 font-semibold">{t('criticalCenter.colFinding')}</th>
-                <th className="py-2 pr-2 font-semibold">{t('criticalCenter.colSeverity')}</th>
-                <th className="py-2 pr-2 font-semibold">{t('criticalCenter.colStatus')}</th>
-                <th className="py-2 pr-2 font-semibold">{t('criticalCenter.colTriggeredAt')}</th>
-                <th className="py-2 pr-2 font-semibold">{t('criticalCenter.colDepartment')}</th>
-                <th className="py-2 font-semibold">{t('criticalCenter.colActions')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {center.map((c) => {
-                const stateField = String((c as unknown as Record<string, unknown>).state ?? '')
-                const status = String(c.status ?? stateField ?? '').toUpperCase()
-                const closed = ['CLOSED_LOOP', 'RESOLVED', 'CLOSED'].includes(status)
-                return (
-                  <tr key={c.id} className="border-b border-slate-100">
-                    <td className="py-2 pr-2 font-mono text-xs text-slate-500">{c.id}</td>
-                    <td className="py-2 pr-2 font-medium text-slate-800">{c.patientName || '-'}</td>
-                    <td className="py-2 pr-2 text-xs text-slate-600">{c.finding || '-'}</td>
-                    <td className="py-2 pr-2">
-                      <span className={`rounded px-1.5 py-0.5 text-xs font-semibold ${severityBadge(c.severity)}`}>{c.severity || 'HIGH'}</span>
-                    </td>
-                    <td className="py-2 pr-2">
-                      <span className={`rounded px-1.5 py-0.5 text-xs font-semibold ${centerStatusBadge(status)}`}>{status || 'PENDING'}</span>
-                    </td>
-                    <td className="py-2 pr-2 text-xs text-slate-600">{fmtDateTime(c.triggeredAt)}</td>
-                    <td className="py-2 pr-2 text-xs text-slate-600">{c.department || '-'}</td>
-                    <td className="py-2 text-xs text-slate-600">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => void handleViewDetail(c)}
-                          className="inline-flex items-center gap-1 rounded border border-blue-200 bg-blue-50 px-2 py-1 text-xs text-blue-700 hover:bg-blue-100"
-                        >
-                          <Eye size={11} /> {t('criticalCenter.detail')}
-                        </button>
-                        <button
-                          onClick={() => { setCloseTarget(c); setCloseForm({ resolution: '', resolvedBy: '' }) }}
-                          disabled={closed}
-                          className="inline-flex items-center gap-1 rounded border border-green-200 bg-green-50 px-2 py-1 text-xs text-green-700 hover:bg-green-100 disabled:opacity-40 disabled:cursor-not-allowed"
-                        >
-                          <CheckCircle2 size={11} /> {closed ? t('criticalCenter.closedState') : t('criticalCenter.closeLoop')}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+          <DataTable
+            dataSource={center}
+            rowKey="id"
+            pagination={false}
+            columns={[
+              { title: t('criticalCenter.colEventId'), dataIndex: 'id', render: (v: string) => <span className="font-mono text-xs text-slate-500">{v}</span> },
+              { title: t('criticalCenter.colPatient'), dataIndex: 'patientName', render: (v: string) => <span className="font-medium text-slate-800">{v || '-'}</span> },
+              { title: t('criticalCenter.colFinding'), dataIndex: 'finding', render: (v: string) => <span className="text-xs text-slate-600">{v || '-'}</span> },
+              {
+                title: t('criticalCenter.colSeverity'), dataIndex: 'severity',
+                render: (v: string) => <span className={`rounded px-1.5 py-0.5 text-xs font-semibold ${severityBadge(v)}`}>{v || 'HIGH'}</span>,
+              },
+              {
+                title: t('criticalCenter.colStatus'), key: 'status',
+                render: (_: unknown, c: CriticalExtCenterDto) => {
+                  const stateField = String((c as unknown as Record<string, unknown>).state ?? '')
+                  const status = String(c.status ?? stateField ?? '').toUpperCase()
+                  return <span className={`rounded px-1.5 py-0.5 text-xs font-semibold ${centerStatusBadge(status)}`}>{status || 'PENDING'}</span>
+                },
+              },
+              { title: t('criticalCenter.colTriggeredAt'), dataIndex: 'triggeredAt', render: (v: unknown) => <span className="text-xs text-slate-600">{fmtDateTime(v)}</span> },
+              { title: t('criticalCenter.colDepartment'), dataIndex: 'department', render: (v: string) => <span className="text-xs text-slate-600">{v || '-'}</span> },
+              {
+                title: t('criticalCenter.colActions'), key: 'actions',
+                render: (_: unknown, c: CriticalExtCenterDto) => {
+                  const stateField = String((c as unknown as Record<string, unknown>).state ?? '')
+                  const status = String(c.status ?? stateField ?? '').toUpperCase()
+                  const closed = ['CLOSED_LOOP', 'RESOLVED', 'CLOSED'].includes(status)
+                  return (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => void handleViewDetail(c)}
+                        className="inline-flex items-center gap-1 rounded border border-blue-200 bg-blue-50 px-2 py-1 text-xs text-blue-700 hover:bg-blue-100"
+                      >
+                        <Eye size={11} /> {t('criticalCenter.detail')}
+                      </button>
+                      <button
+                        onClick={() => { setCloseTarget(c); setCloseForm({ resolution: '', resolvedBy: '' }) }}
+                        disabled={closed}
+                        className="inline-flex items-center gap-1 rounded border border-green-200 bg-green-50 px-2 py-1 text-xs text-green-700 hover:bg-green-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        <CheckCircle2 size={11} /> {closed ? t('criticalCenter.closedState') : t('criticalCenter.closeLoop')}
+                      </button>
+                    </div>
+                  )
+                },
+              },
+            ]}
+          />
         ) : (
           <div className="text-xs text-gray-400 py-3">
             {centerLoading ? t('criticalCenter.centerLoading') : t('criticalCenter.centerEmpty')}
@@ -653,48 +650,42 @@ const CriticalValueCenterPage: React.FC = () => {
           </div>
         </div>
         {rules.length > 0 ? (
-          <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
-            <thead>
-              <tr className="text-left text-xs text-gray-500 border-b border-slate-200">
-                <th className="py-2 pr-2 font-semibold">{t('criticalCenter.colRuleName')}</th>
-                <th className="py-2 pr-2 font-semibold">{t('criticalCenter.colCondition')}</th>
-                <th className="py-2 pr-2 font-semibold">{t('criticalCenter.colAction')}</th>
-                <th className="py-2 pr-2 font-semibold">{t('criticalCenter.colSeverity')}</th>
-                <th className="py-2 pr-2 font-semibold">{t('criticalCenter.colStatus')}</th>
-                <th className="py-2 font-semibold">{t('criticalCenter.colActions')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rules.map((r) => (
-                <tr key={r.id} className="border-b border-slate-100">
-                  <td className="py-2 pr-2 font-medium text-slate-800">{r.name}</td>
-                  <td className="py-2 pr-2 font-mono text-xs text-slate-600">{r.condition}</td>
-                  <td className="py-2 pr-2 text-xs text-slate-600">{r.action || '-'}</td>
-                  <td className="py-2 pr-2">
-                    <span className={`rounded px-1.5 py-0.5 text-xs font-semibold ${String(r.severity).includes('CRITICAL') ? 'bg-red-100 text-red-700' : String(r.severity).includes('URGENT') ? 'bg-orange-100 text-orange-700' : 'bg-amber-100 text-amber-700'}`}>{r.severity || 'HIGH'}</span>
-                  </td>
-                  <td className="py-2 pr-2">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${r.enabled ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>{r.enabled ? t('criticalCenter.enabledState') : t('criticalCenter.disabledState')}</span>
-                  </td>
-                  <td className="py-2">
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => { setRuleModal({ open: true, editing: r }); setRuleForm({ name: r.name, condition: r.condition, action: r.action ?? '', severity: r.severity || 'HIGH', enabled: r.enabled }) }}
-                        className="inline-flex items-center gap-1 rounded border border-blue-200 bg-blue-50 px-2 py-1 text-xs text-blue-700 hover:bg-blue-100"
-                      >
-                        <Edit3 size={11} /> {t('criticalCenter.edit')}
+          <DataTable
+            dataSource={rules}
+            rowKey="id"
+            pagination={false}
+            columns={[
+              { title: t('criticalCenter.colRuleName'), dataIndex: 'name', render: (v: string) => <span className="font-medium text-slate-800">{v}</span> },
+              { title: t('criticalCenter.colCondition'), dataIndex: 'condition', render: (v: string) => <span className="font-mono text-xs text-slate-600">{v}</span> },
+              { title: t('criticalCenter.colAction'), dataIndex: 'action', render: (v: string) => <span className="text-xs text-slate-600">{v || '-'}</span> },
+              {
+                title: t('criticalCenter.colSeverity'), dataIndex: 'severity',
+                render: (v: string) => <span className={`rounded px-1.5 py-0.5 text-xs font-semibold ${String(v).includes('CRITICAL') ? 'bg-red-100 text-red-700' : String(v).includes('URGENT') ? 'bg-orange-100 text-orange-700' : 'bg-amber-100 text-amber-700'}`}>{v || 'HIGH'}</span>,
+              },
+              {
+                title: t('criticalCenter.colStatus'), dataIndex: 'enabled',
+                render: (v: boolean) => <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${v ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>{v ? t('criticalCenter.enabledState') : t('criticalCenter.disabledState')}</span>,
+              },
+              {
+                title: t('criticalCenter.colActions'), key: 'actions',
+                render: (_: unknown, r: CriticalExtRuleDto) => (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => { setRuleModal({ open: true, editing: r }); setRuleForm({ name: r.name, condition: r.condition, action: r.action ?? '', severity: r.severity || 'HIGH', enabled: r.enabled }) }}
+                      className="inline-flex items-center gap-1 rounded border border-blue-200 bg-blue-50 px-2 py-1 text-xs text-blue-700 hover:bg-blue-100"
+                    >
+                      <Edit3 size={11} /> {t('criticalCenter.edit')}
+                    </button>
+                    <Popconfirm title={t('criticalCenter.deleteRule')} description={`确定删除规则 "${r.name}" 吗?`} onConfirm={() => void handleDeleteRule(r)} okText={t('criticalCenter.delete')} cancelText={t('criticalCenter.cancel')} okButtonProps={{ danger: true }}>
+                      <button className="inline-flex items-center gap-1 rounded border border-red-200 bg-red-50 px-2 py-1 text-xs text-red-600 hover:bg-red-100">
+                        <Trash2 size={11} /> {t('criticalCenter.delete')}
                       </button>
-                      <Popconfirm title={t('criticalCenter.deleteRule')} description={`确定删除规则 "${r.name}" 吗?`} onConfirm={() => void handleDeleteRule(r)} okText={t('criticalCenter.delete')} cancelText={t('criticalCenter.cancel')} okButtonProps={{ danger: true }}>
-                        <button className="inline-flex items-center gap-1 rounded border border-red-200 bg-red-50 px-2 py-1 text-xs text-red-600 hover:bg-red-100">
-                          <Trash2 size={11} /> {t('criticalCenter.delete')}
-                        </button>
-                      </Popconfirm>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    </Popconfirm>
+                  </div>
+                ),
+              },
+            ]}
+          />
         ) : (
           <div className="text-xs text-gray-400 py-3">{t('criticalCenter.ruleLibraryEmpty')}</div>
         )}

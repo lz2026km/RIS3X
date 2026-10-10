@@ -122,7 +122,7 @@ export default function ReportAuditTrailDrawer({ report, onClose }: ReportAuditT
     >
       {/* [G005 W8-Report] 数据签名与证书 */}
       <div style={{ marginBottom: 16, padding: 12, borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 13, fontWeight: 700, color: '#0891b2' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 12, fontWeight: 700, color: '#0891b2' }}>
           <ShieldCheck size={14} /> {t('w8Report.sig.panelTitle')}
         </div>
         {signature ? (
@@ -166,7 +166,7 @@ export default function ReportAuditTrailDrawer({ report, onClose }: ReportAuditT
                 {i < events.length - 1 && (
                   <div style={{ position: 'absolute', left: -16, top: 16, bottom: 0, width: 1, background: 'var(--border-color)' }} />
                 )}
-                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>
                   {e.action || `${e.fromState ?? '?'} → ${e.toState ?? '?'}`}
                 </div>
                 <div style={{ fontSize: 12, color: GRAY, marginTop: 2, display: 'flex', gap: 12, flexWrap: 'wrap' }}>

@@ -107,13 +107,13 @@ export const EmailSendDialog: React.FC<EmailSendDialogProps> = ({ open, onClose,
 };
 
 const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, };
+  width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, };
 const btnPrimary: React.CSSProperties = {
   flex: 1, padding: '8px 16px', border: 'none', borderRadius: 6, background: '#2563eb', color: '#fff',
-  fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center',
+  fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center',
 };
 const btnSecondary: React.CSSProperties = {
-  padding: '8px 16px', border: '1px solid #cbd5e1', borderRadius: 6, background: 'var(--bg-card)', color: '#475569', fontSize: 13, cursor: 'pointer',
+  padding: '8px 16px', border: '1px solid #cbd5e1', borderRadius: 6, background: 'var(--bg-card)', color: '#475569', fontSize: 12, cursor: 'pointer',
 };
 const btnDisabled: React.CSSProperties = {
   ...btnPrimary, background: '#cbd5e1', cursor: 'not-allowed',

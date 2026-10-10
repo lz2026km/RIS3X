@@ -933,7 +933,7 @@ export default function AIOrchestrationPage() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <Space>
-                  <Avatar size={38} style={{ background: color, fontWeight: 700, fontSize: 15 }}>
+                  <Avatar size={38} style={{ background: color, fontWeight: 700, fontSize: 14 }}>
                     {(m.vendor ?? m.name).charAt(0).toUpperCase()}
                   </Avatar>
                   <div>
@@ -1238,7 +1238,7 @@ export default function AIOrchestrationPage() {
                                   {applicable && <Tag style={{ fontSize: 11 }}>{applicable}</Tag>}
                                 </Space>
                               </div>
-                              <div style={{ color: 'var(--text-secondary)', fontSize: 13, lineHeight: '22px', flex: 1 }}>
+                              <div style={{ color: 'var(--text-secondary)', fontSize: 12, lineHeight: '22px', flex: 1 }}>
                                 {suggestion}
                               </div>
                               <Button
@@ -1606,14 +1606,14 @@ export default function AIOrchestrationPage() {
             {drawerJob.status === 'RUNNING' && (
               <div style={{ padding: 16, borderRadius: 8, background: 'var(--color-info-bg)', textAlign: 'center' }}>
                 <Spin />
-                <div style={{ marginTop: 8, color: '#597ef7', fontSize: 13 }}>{t('aiOrch.runningHint')}</div>
+                <div style={{ marginTop: 8, color: '#597ef7', fontSize: 12 }}>{t('aiOrch.runningHint')}</div>
               </div>
             )}
 
             {drawerJob.status === 'COMPLETED' && drawerJob.result && (
               <>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ fontWeight: 700, fontSize: 15 }}>
+                  <div style={{ fontWeight: 700, fontSize: 14 }}>
                     <Space><ScanSearch size={16} color="#8b5cf6" /> {t('aiOrch.reviewResultTitle')}</Space>
                   </div>
                   <Space>

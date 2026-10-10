@@ -687,16 +687,16 @@ export default function TemplateInheritancePage() {
               ID: {previewNode.id} · {t('tinh.creatorLabel')}{previewNode.createdBy} · {previewNode.createdAt} · {t('tinh.typeLabel')}{previewNode.type === 'parent' ? t('tinh.typeParent') : previewNode.type === 'child' ? t('tinh.typeChild') : t('tinh.typeSibling')}
             </div>
             {previewNode.description && (
-              <div style={{ fontSize: 13, lineHeight: 1.8, color: 'var(--text-primary)', padding: 12, background: 'var(--color-info-bg)', borderRadius: 8, marginBottom: 12 }}>
+              <div style={{ fontSize: 12, lineHeight: 1.8, color: 'var(--text-primary)', padding: 12, background: 'var(--color-info-bg)', borderRadius: 8, marginBottom: 12 }}>
                 {previewNode.description}
               </div>
             )}
-            <div style={{ fontSize: 13, lineHeight: 1.9, color: 'var(--text-primary)', padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}>
+            <div style={{ fontSize: 12, lineHeight: 1.9, color: 'var(--text-primary)', padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}>
               {t('tinh.findingsHeader')}<br />{t('tinh.bodyPlaceholder')}<br /><br />
               {t('tinh.diagnosisHeader')}<br />{t('tinh.basedOn', { name: previewNode.name })}
             </div>
             <div style={{ marginTop: 14, display: 'flex', justifyContent: 'flex-end' }}>
-              <button onClick={() => setPreviewNode(null)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer' }}>{t('tinh.close')}</button>
+              <button onClick={() => setPreviewNode(null)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}>{t('tinh.close')}</button>
             </div>
           </div>
         </div>
@@ -736,7 +736,7 @@ export default function TemplateInheritancePage() {
               {t('tinh.usageNote')}
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button onClick={() => setShowStatsModal(false)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer' }}>{t('tinh.close')}</button>
+              <button onClick={() => setShowStatsModal(false)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}>{t('tinh.close')}</button>
             </div>
           </div>
         </div>

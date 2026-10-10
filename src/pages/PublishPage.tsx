@@ -105,7 +105,7 @@ export default function PublishPage() {
             onChange={(e) => setQualityScores((prev) => ({ ...prev, [r.id]: e.target.value }))}
             style={{
               width: 96, padding: '6px 8px', border: '1px solid var(--border-color)',
-              borderRadius: 4, fontSize: 13, color: 'var(--text-primary)',
+              borderRadius: 4, fontSize: 12, color: 'var(--text-primary)',
             }}
             placeholder="0-100"
           />
@@ -126,7 +126,7 @@ export default function PublishPage() {
             style={{
               padding: '6px 16px',
               background: publishing === r.id || !scoreValid ? '#94a3b8' : '#059669',
-              color: '#fff', border: 'none', borderRadius: 4, fontSize: 13, fontWeight: 600,
+              color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600,
               cursor: publishing === r.id || !scoreValid ? 'not-allowed' : 'pointer',
             }}
           >
@@ -153,7 +153,7 @@ export default function PublishPage() {
           role="alert"
           style={{
             marginBottom: 12, padding: '8px 14px', background: 'var(--color-error-bg)',
-            border: '1px solid #fca5a5', color: '#7f1d1d', borderRadius: 6, fontSize: 13,
+            border: '1px solid #fca5a5', color: '#7f1d1d', borderRadius: 6, fontSize: 12,
           }}
         >
           {error}
@@ -182,7 +182,7 @@ export default function PublishPage() {
         >
           <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 24, width: 420, maxWidth: '90%' }}>
             <h2 style={{ margin: 0, fontSize: 16, color: 'var(--text-primary)' }}>确认发布报告</h2>
-            <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginTop: 12 }}>
+            <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6, marginTop: 12 }}>
               报告号 <strong>{confirming.report.reportId}</strong> · 患者 <strong>{confirming.report.patientName}</strong>
               <br />
               质量分 <strong>{confirming.score}</strong> 已通过阈值校验,确认发布到队列?
@@ -192,7 +192,7 @@ export default function PublishPage() {
                 onClick={() => setConfirming(null)}
                 style={{
                   padding: '6px 14px', background: '#e2e8f0', color: 'var(--text-primary)',
-                  border: 'none', borderRadius: 4, fontSize: 13, cursor: 'pointer',
+                  border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer',
                 }}
               >
                 取消
@@ -201,7 +201,7 @@ export default function PublishPage() {
                 onClick={handleConfirmPublish}
                 style={{
                   padding: '6px 14px', background: '#059669', color: '#fff',
-                  border: 'none', borderRadius: 4, fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                  border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer',
                 }}
               >
                 确认发布

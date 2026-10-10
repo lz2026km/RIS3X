@@ -262,7 +262,7 @@ export default function MobilePushPage() {
   const btnBase: React.CSSProperties = {
     minHeight: 40, display: 'flex', alignItems: 'center', justifyContent: 'center',
     border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer',
-    fontSize: 13, padding: '8px 14px',
+    fontSize: 12, padding: '8px 14px',
   }
 
   return (
@@ -329,13 +329,13 @@ export default function MobilePushPage() {
 
       {showTestPanel && (
         <div style={{ ...cardStyle, padding: 12, border: '1px solid var(--color-info-border)', background: 'var(--color-info-bg)' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10 }}>{t('mobilePush.testPanel')}</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10 }}>{t('mobilePush.testPanel')}</div>
           <div style={{ marginBottom: 8 }}>
             <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4 }}>{t('mobilePush.formTitle')}</label>
             <input
               value={testTitle}
               onChange={(e) => setTestTitle(e.target.value)}
-              style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, boxSizing: 'border-box' }}
             />
           </div>
           <div style={{ marginBottom: 8 }}>
@@ -344,7 +344,7 @@ export default function MobilePushPage() {
               value={testBody}
               onChange={(e) => setTestBody(e.target.value)}
               rows={2}
-              style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, resize: 'none', boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, resize: 'none', boxSizing: 'border-box' }}
             />
           </div>
           <button onClick={handleTestPush} style={{ ...btnBase, width: '100%', background: '#2563eb', color: '#fff', gap: 6 }}>
@@ -355,7 +355,7 @@ export default function MobilePushPage() {
 
       {/* [v3.0.6.11-99 Wave7B] 推送订阅类型: 危急值/报告完成/随访提醒/质控通知/系统公告 */}
       <div style={{ ...cardStyle, padding: 12 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>{t('mobilePush.subscriptionTypes')}</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>{t('mobilePush.subscriptionTypes')}</div>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {subscriptionOptions().map(opt => {
             const checked = subTypes.includes(opt.key)
@@ -437,7 +437,7 @@ export default function MobilePushPage() {
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{n.title}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{n.title}</span>
                   {!n.read && <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#dc2626' }} />}
                   <span style={{
                     padding: '1px 6px', borderRadius: 8, fontSize: 10, fontWeight: 600,

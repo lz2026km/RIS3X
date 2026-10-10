@@ -3,6 +3,7 @@ import { loadCardiacAiAnalyses } from "./cardiacAiAdapter";
 import { cardiacSpecialtyApi } from "@/services/api/cardiacSpecialtyApi";
 import { CardiacAnalysis } from '@/services/api/cardiacSpecialtyApi'
 import { Spin, Alert, Button, Select, Empty } from "antd";
+import { DataTable } from "../../components/common";
 import {
   Heart,
   Activity,
@@ -246,7 +247,7 @@ const CardiacSpecialtyPage = () => {
           padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-info-bg)',
           color: dataSource === 'real' ? '#16a34a' : '#1e40af', border: `1px solid ${dataSource === 'real' ? 'var(--color-success-border)' : 'var(--color-pending-border)'}`  }}>{dataSource === 'real' ? t('cardiacSpec.dataRealtime') : t('cardiacSpec.dataDemo')}</span>
           </h1>
-          <p style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>
+          <p style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
             {t('cardiacSpec.subtitle')}
           </p>
         </div>
@@ -267,7 +268,7 @@ const CardiacSpecialtyPage = () => {
               border: "1px solid var(--border-color)",
               background: "var(--bg-card)",
               cursor: "pointer",
-              fontSize: 13,
+              fontSize: 12,
             }}
           >
             <FileText size={14} /> {t('cardiacSpec.export')}
@@ -364,7 +365,7 @@ const CardiacSpecialtyPage = () => {
               >
                 <k.icon size={20} color={k.color} />
               </div>
-                <div style={{ fontSize: 26, fontWeight: 700, color: "var(--color-primary-800)" }}>
+                <div style={{ fontSize: 24, fontWeight: 700, color: "var(--color-primary-800)" }}>
                 {k.value}
               </div>
               <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
@@ -384,7 +385,7 @@ const CardiacSpecialtyPage = () => {
                 borderRadius: 8,
                 border: "none",
                 cursor: "pointer",
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: 600,
                 background: tab === tb.key ? "#1e40af" : "var(--content-bg)",
                 color: tab === tb.key ? "#fff" : "#64748b",
@@ -414,7 +415,7 @@ const CardiacSpecialtyPage = () => {
             >
               <div
                 style={{
-                  fontSize: 15,
+                  fontSize: 14,
                   fontWeight: 700,
                   color: "var(--color-primary-800)",
                   display: "flex",
@@ -442,7 +443,7 @@ const CardiacSpecialtyPage = () => {
                     style={{
                       border: "none",
                       background: "transparent", marginLeft: 8,
-                      fontSize: 13,
+                      fontSize: 12,
                       width: 160,
                     }}
                   />
@@ -454,7 +455,7 @@ const CardiacSpecialtyPage = () => {
                     padding: "6px 12px",
                     borderRadius: 6,
                     border: "1px solid var(--border-color)",
-                    fontSize: 13,
+                    fontSize: 12,
                   }}
                 >
                   <option value="">{t('cardiacSpec.allModalities')}</option>
@@ -466,249 +467,150 @@ const CardiacSpecialtyPage = () => {
               </div>
             </div>
             <div style={{ maxHeight: 320, overflowY: "auto" }}>
-              {filtered.length === 0 ? (
-                <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('cardiacSpec.noData')} />
-              ) : (
-                <table
-                  style={{
-                    width: "100%",
-                    borderCollapse: "collapse",
-                    fontSize: 13,
-                  }}
-                >
-                  <thead>
-                    <tr>
-                      <th
+              <DataTable
+                rowKey="id"
+                dataSource={filtered}
+                showPagination={false}
+                showExport={false}
+                showDensity={false}
+                emptyText={<Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('cardiacSpec.noData')} />}
+                columns={[
+                  {
+                    title: t('cardiacSpec.colId'),
+                    dataIndex: 'id',
+                    key: 'id',
+                    render: (v: string) => <span style={{ padding: "10px 8px", display: "inline-block" }}>{v}</span>,
+                  },
+                  {
+                    title: t('cardiacSpec.colPatient'),
+                    key: 'patient',
+                    render: (_: unknown, a: CardiacAnalysis) => (
+                      <div style={{ fontWeight: 600 }}>
+                        {a.patientName}
+                        <br />
+                        <span style={{ fontSize: 11, color: "#94a3b8" }}>{a.patientId}</span>
+                      </div>
+                    ),
+                  },
+                  {
+                    title: t('cardiacSpec.colModality'),
+                    dataIndex: 'modality',
+                    key: 'modality',
+                    render: (v: string) => (
+                      <span
                         style={{
-                          textAlign: "left",
-                          padding: "10px 8px",
-                          borderBottom: "2px solid var(--border-light)",
-                          color: "#64748b",
+                          padding: "2px 8px",
+                          borderRadius: 4,
+                          fontSize: 12,
                           fontWeight: 600,
+                          background: MODALITY_COLORS[v] ?? "#64748b",
+                          color: "#fff",
                         }}
                       >
-                        {t('cardiacSpec.colId')}
-                      </th>
-                      <th
-                        style={{
-                          textAlign: "left",
-                          padding: "10px 8px",
-                          borderBottom: "2px solid var(--border-light)",
-                          color: "#64748b",
-                          fontWeight: 600,
-                        }}
-                      >
-                        {t('cardiacSpec.colPatient')}
-                      </th>
-                      <th
-                        style={{
-                          textAlign: "left",
-                          padding: "10px 8px",
-                          borderBottom: "2px solid var(--border-light)",
-                          color: "#64748b",
-                          fontWeight: 600,
-                        }}
-                      >
-                        {t('cardiacSpec.colModality')}
-                      </th>
-                      <th
-                        style={{
-                          textAlign: "left",
-                          padding: "10px 8px",
-                          borderBottom: "2px solid var(--border-light)",
-                          color: "#64748b",
-                          fontWeight: 600,
-                        }}
-                      >
-                        CAD-RADS
-                      </th>
-                      <th
-                        style={{
-                          textAlign: "left",
-                          padding: "10px 8px",
-                          borderBottom: "2px solid var(--border-light)",
-                          color: "#64748b",
-                          fontWeight: 600,
-                        }}
-                      >
-                        EF%
-                      </th>
-                      <th
-                        style={{
-                          textAlign: "left",
-                          padding: "10px 8px",
-                          borderBottom: "2px solid var(--border-light)",
-                          color: "#64748b",
-                          fontWeight: 600,
-                        }}
-                      >
-                        {t('cardiacSpec.colCalcium')}
-                      </th>
-                      <th
-                        style={{
-                          textAlign: "left",
-                          padding: "10px 8px",
-                          borderBottom: "2px solid var(--border-light)",
-                          color: "#64748b",
-                          fontWeight: 600,
-                        }}
-                      >
-                        {t('cardiacSpec.colMaxStenosis')}
-                      </th>
-                      <th
-                        style={{
-                          textAlign: "left",
-                          padding: "10px 8px",
-                          borderBottom: "2px solid var(--border-light)",
-                          color: "#64748b",
-                          fontWeight: 600,
-                        }}
-                      >
-                        {t('cardiacSpec.colDate')}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filtered.map((a) => {
+                        {v}
+                      </span>
+                    ),
+                  },
+                  {
+                    title: 'CAD-RADS',
+                    dataIndex: 'cadRads',
+                    key: 'cadRads',
+                    render: (v: string | number | undefined) => <CadRadsTag v={v ?? "N"} />,
+                  },
+                  {
+                    title: 'EF%',
+                    key: 'ef',
+                    render: (_: unknown, a: CardiacAnalysis) => {
+                      const ef = a.lvFunction?.efPercent;
+                      return (
+                        <span
+                          style={{
+                            color:
+                              ef == null
+                                ? "#94a3b8"
+                                : ef < 40
+                                  ? "#dc2626"
+                                  : ef < 50
+                                    ? "#ea580c"
+                                    : "#16a34a",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {ef != null ? `${ef}%` : "-"}
+                        </span>
+                      );
+                    },
+                  },
+                  {
+                    title: t('cardiacSpec.colCalcium'),
+                    key: 'calcium',
+                    render: (_: unknown, a: CardiacAnalysis) => {
+                      const calcium = a.calciumScore?.totalAgatston;
+                      return (
+                        <span
+                          style={{
+                            fontWeight: 600,
+                            color:
+                              calcium == null
+                                ? "#94a3b8"
+                                : calcium > 400
+                                  ? "#dc2626"
+                                  : calcium > 100
+                                    ? "#ea580c"
+                                    : "#64748b",
+                          }}
+                        >
+                          {calcium != null ? calcium : "-"}
+                        </span>
+                      );
+                    },
+                  },
+                  {
+                    title: t('cardiacSpec.colMaxStenosis'),
+                    key: 'maxStenosis',
+                    render: (_: unknown, a: CardiacAnalysis) => {
                       const maxStenosis = (a.coronarySegments ?? []).reduce(
                         (m, s) => Math.max(m, s.stenosisPercent),
                         0,
                       );
-                      const ef = a.lvFunction?.efPercent;
-                      const calcium = a.calciumScore?.totalAgatston;
                       return (
-                        <tr key={a.id}>
-                          <td
-                            style={{
-                              padding: "10px 8px",
-                              borderBottom: "1px solid var(--border-light)",
-                            }}
-                          >
-                            {a.id}
-                          </td>
-                          <td
-                            style={{
-                              padding: "10px 8px",
-                              borderBottom: "1px solid var(--border-light)",
-                              fontWeight: 600,
-                            }}
-                          >
-                            {a.patientName}
-                            <br />
-                            <span style={{ fontSize: 11, color: "#94a3b8" }}>
-                              {a.patientId}
-                            </span>
-                          </td>
-                          <td
-                            style={{
-                              padding: "10px 8px",
-                              borderBottom: "1px solid var(--border-light)",
-                            }}
-                          >
-                            <span
-                              style={{
-                                padding: "2px 8px",
-                                borderRadius: 4,
-                                fontSize: 12,
-                                fontWeight: 600,
-                                background:
-                                  MODALITY_COLORS[a.modality] ?? "#64748b",
-                                color: "#fff",
-                              }}
-                            >
-                              {a.modality}
-                            </span>
-                          </td>
-                          <td
-                            style={{
-                              padding: "10px 8px",
-                              borderBottom: "1px solid var(--border-light)",
-                            }}
-                          >
-                            <CadRadsTag v={a.cadRads ?? "N"} />
-                          </td>
-                          <td
-                            style={{
-                              padding: "10px 8px",
-                              borderBottom: "1px solid var(--border-light)",
-                              color:
-                                ef == null
-                                  ? "#94a3b8"
-                                  : ef < 40
-                                    ? "#dc2626"
-                                    : ef < 50
-                                      ? "#ea580c"
-                                      : "#16a34a",
-                              fontWeight: 700,
-                            }}
-                          >
-                            {ef != null ? `${ef}%` : "-"}
-                          </td>
-                          <td
-                            style={{
-                              padding: "10px 8px",
-                              borderBottom: "1px solid var(--border-light)",
-                              fontWeight: 600,
-                              color:
-                                calcium == null
-                                  ? "#94a3b8"
-                                  : calcium > 400
-                                    ? "#dc2626"
-                                    : calcium > 100
-                                      ? "#ea580c"
-                                      : "#64748b",
-                            }}
-                          >
-                            {calcium != null ? calcium : "-"}
-                          </td>
-                          <td
-                            style={{
-                              padding: "10px 8px",
-                              borderBottom: "1px solid var(--border-light)",
-                            }}
-                          >
-                            <span
-                              style={{
-                                padding: "3px 10px",
-                                borderRadius: 20,
-                                fontSize: 12,
-                                fontWeight: 600,
-                                background:
-                                  maxStenosis >= 70
-                                    ? "var(--color-error-bg)"
-                                    : maxStenosis >= 50
-                                      ? "var(--color-warning-bg)"
-                                      : "var(--color-success-bg)",
-                                color:
-                                  maxStenosis >= 70
-                                    ? "#dc2626"
-                                    : maxStenosis >= 50
-                                      ? "#ea580c"
-                                      : "#16a34a",
-                              }}
-                            >
-                              {maxStenosis >= 70
-                                ? `${maxStenosis}% 重度`
+                        <span
+                          style={{
+                            padding: "3px 10px",
+                            borderRadius: 20,
+                            fontSize: 12,
+                            fontWeight: 600,
+                            background:
+                              maxStenosis >= 70
+                                ? "var(--color-error-bg)"
                                 : maxStenosis >= 50
-                                  ? `${maxStenosis}% 中度`
-                                  : `${maxStenosis}%`}
-                            </span>
-                          </td>
-                          <td
-                            style={{
-                              padding: "10px 8px",
-                              borderBottom: "1px solid var(--border-light)",
-                              color: "#64748b",
-                            }}
-                          >
-                            {a.studyDate}
-                          </td>
-                        </tr>
+                                  ? "var(--color-warning-bg)"
+                                  : "var(--color-success-bg)",
+                            color:
+                              maxStenosis >= 70
+                                ? "#dc2626"
+                                : maxStenosis >= 50
+                                  ? "#ea580c"
+                                  : "#16a34a",
+                          }}
+                        >
+                          {maxStenosis >= 70
+                            ? `${maxStenosis}% 重度`
+                            : maxStenosis >= 50
+                              ? `${maxStenosis}% 中度`
+                              : `${maxStenosis}%`}
+                        </span>
                       );
-                    })}
-                  </tbody>
-                </table>
-              )}
+                    },
+                  },
+                  {
+                    title: t('cardiacSpec.colDate'),
+                    dataIndex: 'studyDate',
+                    key: 'studyDate',
+                    render: (v: string) => <span style={{ color: "#64748b" }}>{v}</span>,
+                  },
+                ]}
+              />
             </div>
           </div>
         )}
@@ -727,7 +629,7 @@ const CardiacSpecialtyPage = () => {
             >
               <div
                 style={{
-                  fontSize: 15,
+                  fontSize: 14,
                   fontWeight: 700,
                   color: "var(--color-primary-800)",
                   marginBottom: 16,
@@ -759,14 +661,14 @@ const CardiacSpecialtyPage = () => {
             alignItems: "center",
             justifyContent: "center",
             fontWeight: 700,
-                        fontSize: 13,
+                        fontSize: 12,
                         color: "#1e40af",
                       }}
                     >
                       {a.patientName[0]}
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600 }}>
                         {a.patientName}
                       </div>
                       <div style={{ fontSize: 12, color: "#94a3b8" }}>
@@ -806,7 +708,7 @@ const CardiacSpecialtyPage = () => {
             >
               <div
                 style={{
-                  fontSize: 15,
+                  fontSize: 14,
                   fontWeight: 700,
                   color: "var(--color-primary-800)",
                   marginBottom: 16,
@@ -826,7 +728,7 @@ const CardiacSpecialtyPage = () => {
                     }}
                   >
                     <div
-                      style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}
+                      style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}
                     >
                       {a.patientName} ({a.modality})
                     </div>
@@ -866,7 +768,7 @@ const CardiacSpecialtyPage = () => {
             >
               <div
                 style={{
-                  fontSize: 15,
+                  fontSize: 14,
                   fontWeight: 700,
                   color: "var(--color-primary-800)",
                   marginBottom: 16,
@@ -915,7 +817,7 @@ const CardiacSpecialtyPage = () => {
                       }}
                     >
                       <span
-                        style={{ width: 140, fontSize: 13, fontWeight: 500 }}
+                        style={{ width: 140, fontSize: 12, fontWeight: 500 }}
                       >
                         {t(seg.name)}
                       </span>
@@ -964,7 +866,7 @@ const CardiacSpecialtyPage = () => {
             >
               <div
                 style={{
-                  fontSize: 15,
+                  fontSize: 14,
                   fontWeight: 700,
                   color: "var(--color-primary-800)",
                   marginBottom: 16,
@@ -988,7 +890,7 @@ const CardiacSpecialtyPage = () => {
                           style={{
                             display: "flex",
                             justifyContent: "space-between",
-                            fontSize: 13,
+                            fontSize: 12,
                             marginBottom: 4,
                           }}
                         >
@@ -1062,7 +964,7 @@ const CardiacSpecialtyPage = () => {
             >
               <div
                 style={{
-                  fontSize: 15,
+                  fontSize: 14,
                   fontWeight: 700,
                   color: "var(--color-primary-800)",
                   marginBottom: 16,
@@ -1141,7 +1043,7 @@ const CardiacSpecialtyPage = () => {
             >
               <div
                 style={{
-                  fontSize: 15,
+                  fontSize: 14,
                   fontWeight: 700,
                   color: "var(--color-primary-800)",
                   marginBottom: 16,

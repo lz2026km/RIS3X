@@ -366,13 +366,13 @@ const DirectorDashboardPage: React.FC = () => {
       borderTop: '3px solid var(--color-primary)',
     } as React.CSSProperties,
     statValue: {
-      fontSize: '28px',
+      fontSize: '30px',
       fontWeight: '700',
       color: 'var(--color-primary)',
       marginBottom: '4px',
     } as React.CSSProperties,
     statLabel: {
-      fontSize: '13px',
+      fontSize: '12px',
       color: 'var(--text-secondary)',
       marginBottom: '8px',
     } as React.CSSProperties,
@@ -416,7 +416,7 @@ const DirectorDashboardPage: React.FC = () => {
     table: {
       width: '100%',
       borderCollapse: 'collapse' as const,
-      fontSize: '13px',
+      fontSize: '12px',
     } as React.CSSProperties,
     th: {
       padding: '12px',
@@ -936,7 +936,7 @@ const DirectorDashboardPage: React.FC = () => {
                 <div key={item.name} style={styles.pieItem}>
                   <div style={styles.pieColor(colors[idx] ?? '#94a3b8')} />
                   <div>
-                    <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)' }}>{item.name}</div>
+                    <div style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-primary)' }}>{item.name}</div>
                     <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>¥{(item.amount / 10000).toFixed(0)}{t('directorDash.wan')} ({item.percent}%)</div>
                   </div>
                 </div>
@@ -1029,7 +1029,7 @@ const DirectorDashboardPage: React.FC = () => {
             )}
             <button
               onClick={() => void load()}
-              style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--color-primary)', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+              style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--color-primary)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}
             >
               <RefreshCw size={14} /> {t('directorDash.refresh')}
             </button>
@@ -1038,7 +1038,7 @@ const DirectorDashboardPage: React.FC = () => {
       </div>
 
       {error && (
-        <div style={{ background: 'var(--color-error-bg)', border: '1px solid #fecaca', color: '#b91c1c', borderRadius: 8, padding: '10px 16px', fontSize: 13, marginBottom: 16 }}>
+        <div style={{ background: 'var(--color-error-bg)', border: '1px solid #fecaca', color: '#b91c1c', borderRadius: 8, padding: '10px 16px', fontSize: 12, marginBottom: 16 }}>
           {error}
           <button onClick={() => void load()} style={{ marginLeft: 12, padding: '3px 10px', borderRadius: 4, border: '1px solid #b91c1c', background: 'transparent', color: '#b91c1c', cursor: 'pointer', fontSize: 12 }}>{t('directorDash.retry')}</button>
         </div>

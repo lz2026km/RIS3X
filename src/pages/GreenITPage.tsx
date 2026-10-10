@@ -9,6 +9,7 @@ import {
   Lightbulb, ClipboardList, AlertTriangle, Activity, ShieldAlert, Clock, BarChart2
 } from 'lucide-react'
 import { Spin, Alert, Tag } from 'antd'
+import type { TableColumnsType } from 'antd'
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend
@@ -18,6 +19,7 @@ import { deviceApi } from '../services/api/deviceApi'
 import { ChartContainer } from '../components/charts'
 import { PageHeader } from '../components/common/PageHeader'
 import { StatCard as CommonStatCard } from '../components/common/StatCard'
+import { DataTable } from '../components/common'
 import { seededUnit } from '../utils/seededRandom'
 import { t } from '../i18n/appI18n'
 
@@ -434,7 +436,7 @@ function PaperlessTrendTab() {
       }}>
         <div>
           <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: 0 }}>{t('greenIt.trendTitle')}</h3>
-          <p style={{ fontSize: 13, color: C.textMuted, margin: '4px 0 0 0' }}>{t('greenIt.trendDesc')}</p>
+          <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0 0' }}>{t('greenIt.trendDesc')}</p>
         </div>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
           <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? t('greenIt.sourceApi') : t('greenIt.demoData')}</Tag>
@@ -521,7 +523,7 @@ function PaperlessTrendTab() {
           textAlign: 'center',
         }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.statAvgRate')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: C.primary }}>{avgRate}%</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.primary }}>{avgRate}%</div>
         </div>
         <div style={{
           background: 'var(--bg-card)',
@@ -531,7 +533,7 @@ function PaperlessTrendTab() {
           textAlign: 'center',
         }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.statMaxRate')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: C.success }}>{maxRate}%</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.success }}>{maxRate}%</div>
         </div>
         <div style={{
           background: 'var(--bg-card)',
@@ -541,7 +543,7 @@ function PaperlessTrendTab() {
           textAlign: 'center',
         }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.stat30dElectronic')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: C.text }}>{totalElectronic.toLocaleString()}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.text }}>{totalElectronic.toLocaleString()}</div>
         </div>
         <div style={{
           background: 'var(--bg-card)',
@@ -551,7 +553,7 @@ function PaperlessTrendTab() {
           textAlign: 'center',
         }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.statMomGrowth')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: C.success }}>+{Math.max(0, Math.round((avgRate - 73.5) * 10) / 10)}%</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.success }}>+{Math.max(0, Math.round((avgRate - 73.5) * 10) / 10)}%</div>
         </div>
       </div>
     </div>
@@ -592,7 +594,7 @@ function CarbonTab() {
         </div>
         <div>
           <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: 0 }}>{t('greenIt.carbonTitle')}</h3>
-          <p style={{ fontSize: 13, color: C.textMuted, margin: '4px 0 0 0' }}>{t('greenIt.carbonDesc')}</p>
+          <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0 0' }}>{t('greenIt.carbonDesc')}</p>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
           <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? t('greenIt.sourceEstimated') : t('greenIt.demoData')}</Tag>
@@ -629,8 +631,8 @@ function CarbonTab() {
               <FileText size={22} />
             </div>
             <div>
-              <div style={{ fontSize: 13, color: C.textMuted }}>{t('greenIt.carbonPaper')}</div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.text }}>
+              <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.carbonPaper')}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.text }}>
                 {d.paperSaved.toLocaleString()} {t('greenIt.unitSheets')}
               </div>
             </div>
@@ -643,7 +645,7 @@ function CarbonTab() {
             alignItems: 'center',
             justifyContent: 'space-between',
           }}>
-            <span style={{ fontSize: 13, color: C.textMuted }}>{t('greenIt.carbonReduction')}</span>
+            <span style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.carbonReduction')}</span>
             <span style={{ fontSize: 16, fontWeight: 600, color: C.primary }}>
               {d.carbonFromPaper} kg CO₂
             </span>
@@ -672,8 +674,8 @@ function CarbonTab() {
               <Printer size={22} />
             </div>
             <div>
-              <div style={{ fontSize: 13, color: C.textMuted }}>{t('greenIt.carbonInk')}</div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.text }}>
+              <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.carbonInk')}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.text }}>
                 {d.inkSaved} {t('greenIt.unitSets')}
               </div>
             </div>
@@ -686,7 +688,7 @@ function CarbonTab() {
             alignItems: 'center',
             justifyContent: 'space-between',
           }}>
-            <span style={{ fontSize: 13, color: C.textMuted }}>{t('greenIt.carbonReduction')}</span>
+            <span style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.carbonReduction')}</span>
             <span style={{ fontSize: 16, fontWeight: 600, color: C.purple }}>
               {d.carbonFromInk} kg CO₂
             </span>
@@ -705,7 +707,7 @@ function CarbonTab() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
             <div style={{ fontSize: 14, opacity: 0.9, marginBottom: 4 }}>{t('greenIt.carbonTotalTitle')}</div>
-            <div style={{ fontSize: 42, fontWeight: 700 }}>
+            <div style={{ fontSize: 36, fontWeight: 700 }}>
               {d.totalCarbon} <span style={{ fontSize: 16, fontWeight: 600 }}>kg CO₂</span>
             </div>
           </div>
@@ -716,7 +718,7 @@ function CarbonTab() {
             textAlign: 'center',
           }}>
             <TreePine size={32} style={{ marginBottom: 8 }} />
-            <div style={{ fontSize: 28, fontWeight: 700 }}>{d.treeEquivalent}</div>
+            <div style={{ fontSize: 30, fontWeight: 700 }}>{d.treeEquivalent}</div>
             <div style={{ fontSize: 12, opacity: 0.9 }}>{t('greenIt.treesPlanted')}</div>
           </div>
         </div>
@@ -796,7 +798,7 @@ function SignatureTab() {
         </div>
         <div>
           <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: 0 }}>{t('greenIt.signatureTitle')}</h3>
-          <p style={{ fontSize: 13, color: C.textMuted, margin: '4px 0 0 0' }}>{t('greenIt.signatureDesc')}</p>
+          <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0 0' }}>{t('greenIt.signatureDesc')}</p>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
           <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? t('greenIt.sourceEstimated') : t('greenIt.demoData')}</Tag>
@@ -894,9 +896,9 @@ function SignatureTab() {
                     }}>
                       {index + 1}
                     </span>
-                    <span style={{ fontSize: 13, color: C.text }}>{dept.name}</span>
+                    <span style={{ fontSize: 12, color: C.text }}>{dept.name}</span>
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: C.primary }}>{dept.rate}%</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: C.primary }}>{dept.rate}%</span>
                 </div>
                 <div style={{
                   height: 6,
@@ -955,7 +957,7 @@ function CostTab() {
         </div>
         <div>
           <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: 0 }}>{t('greenIt.costTitle')}</h3>
-          <p style={{ fontSize: 13, color: C.textMuted, margin: '4px 0 0 0' }}>{t('greenIt.costDesc')}</p>
+          <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0 0' }}>{t('greenIt.costDesc')}</p>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
           <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? t('greenIt.sourceEstimated') : t('greenIt.demoData')}</Tag>
@@ -992,8 +994,8 @@ function CostTab() {
           }}>
             <FileText size={24} />
           </div>
-          <div style={{ fontSize: 13, color: C.textMuted, marginBottom: 8 }}>{t('greenIt.costPaperSaved')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: C.text }}>
+          <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 8 }}>{t('greenIt.costPaperSaved')}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.text }}>
             ¥{costData.paperCost.toFixed(0)}
           </div>
           <div style={{ fontSize: 12, color: C.textLight, marginTop: 4 }}>
@@ -1023,8 +1025,8 @@ function CostTab() {
           }}>
             <Printer size={24} />
           </div>
-          <div style={{ fontSize: 13, color: C.textMuted, marginBottom: 8 }}>{t('greenIt.costInkSaved')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: C.text }}>
+          <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 8 }}>{t('greenIt.costInkSaved')}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.text }}>
             ¥{costData.inkCost.toFixed(0)}
           </div>
           <div style={{ fontSize: 12, color: C.textLight, marginTop: 4 }}>
@@ -1053,8 +1055,8 @@ function CostTab() {
           }}>
             <Calculator size={24} />
           </div>
-          <div style={{ fontSize: 13, opacity: 0.9, marginBottom: 8 }}>{t('greenIt.costTotal')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>
+          <div style={{ fontSize: 12, opacity: 0.9, marginBottom: 8 }}>{t('greenIt.costTotal')}</div>
+          <div style={{ fontSize: 30, fontWeight: 700 }}>
             ¥{costData.total.toFixed(0)}
           </div>
           <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>
@@ -1105,18 +1107,18 @@ function CostTab() {
             <div style={{ marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 <div style={{ width: 12, height: 12, borderRadius: 3, background: C.primary }} />
-                <span style={{ fontSize: 13, color: C.text }}>{t('greenIt.costPaperSavings')}</span>
+                <span style={{ fontSize: 12, color: C.text }}>{t('greenIt.costPaperSavings')}</span>
               </div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.text, marginLeft: 20 }}>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.text, marginLeft: 20 }}>
                 ¥{costData.paperCost.toFixed(2)}
               </div>
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 <div style={{ width: 12, height: 12, borderRadius: 3, background: C.purple }} />
-                <span style={{ fontSize: 13, color: C.text }}>{t('greenIt.costInkSavings')}</span>
+                <span style={{ fontSize: 12, color: C.text }}>{t('greenIt.costInkSavings')}</span>
               </div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.text, marginLeft: 20 }}>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.text, marginLeft: 20 }}>
                 ¥{costData.inkCost.toFixed(2)}
               </div>
             </div>
@@ -1158,6 +1160,15 @@ const PaperConsumptionDashboard = () => {
       }))
     : paperUsageData
 
+  const paperColumns: TableColumnsType<PaperUsageRecord> = [
+    { title: t('greenIt.thDepartment'), dataIndex: 'department', key: 'department', align: 'center', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+    { title: t('greenIt.thPrintedSheets'), dataIndex: 'pagesPrinted', key: 'pagesPrinted', align: 'center', render: (v: number) => v.toLocaleString() },
+    { title: t('greenIt.thSavedSheets'), dataIndex: 'pagesSaved', key: 'pagesSaved', align: 'center', render: (v: number) => <span style={{ color: C.success, fontWeight: 600 }}>{v.toLocaleString()}</span> },
+    { title: t('greenIt.thPaperCost'), dataIndex: 'paperCost', key: 'paperCost', align: 'center', render: (v: number) => `¥${v.toFixed(0)}` },
+    { title: t('greenIt.thTonerCost'), dataIndex: 'tonerCost', key: 'tonerCost', align: 'center', render: (v: number) => `¥${v.toFixed(0)}` },
+    { title: t('greenIt.thTreesSaved'), dataIndex: 'treesSaved', key: 'treesSaved', align: 'center', render: (v: number) => <span style={{ color: C.green, fontWeight: 600 }}>{v.toFixed(2)}</span> },
+  ]
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1168,23 +1179,23 @@ const PaperConsumptionDashboard = () => {
       {/* 统计卡片 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <div style={{ fontSize: 13, color: C.textMuted }}>{t('greenIt.paperMonthPrinted')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: C.text, marginTop: 4 }}>{totalPagesPrinted.toLocaleString()}</div>
+          <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.paperMonthPrinted')}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.text, marginTop: 4 }}>{totalPagesPrinted.toLocaleString()}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{t('greenIt.paperUnitSheets')}</div>
         </div>
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <div style={{ fontSize: 13, color: C.textMuted }}>{t('greenIt.paperSaved')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: C.success, marginTop: 4 }}>{totalPagesSaved.toLocaleString()}</div>
+          <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.paperSaved')}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.success, marginTop: 4 }}>{totalPagesSaved.toLocaleString()}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{t('greenIt.paperPaperless')}</div>
         </div>
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <div style={{ fontSize: 13, color: C.textMuted }}>{t('greenIt.paperCost')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: '#7c3aed', marginTop: 4 }}>¥{(totalPaperCost + totalTonerCost).toFixed(0)}</div>
+          <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.paperCost')}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: '#7c3aed', marginTop: 4 }}>¥{(totalPaperCost + totalTonerCost).toFixed(0)}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{t('greenIt.unitYuan')}</div>
         </div>
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <div style={{ fontSize: 13, color: C.textMuted }}>{t('greenIt.treesSaved')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: C.green, marginTop: 4 }}>{totalTreesSaved.toFixed(1)}</div>
+          <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.treesSaved')}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.green, marginTop: 4 }}>{totalTreesSaved.toFixed(1)}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{t('greenIt.treesUnit')}</div>
         </div>
       </div>
@@ -1195,27 +1206,11 @@ const PaperConsumptionDashboard = () => {
           {t('greenIt.paperDetailTitle')}
         </div>
         <div style={{ overflowX: 'auto' }}>
-          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-            <thead>
-              <tr style={{ background: 'var(--bg-card)' }}>
-                {[t('greenIt.thDepartment'), t('greenIt.thPrintedSheets'), t('greenIt.thSavedSheets'), t('greenIt.thPaperCost'), t('greenIt.thTonerCost'), t('greenIt.thTreesSaved')].map(h => (
-                  <th key={h} style={{ padding: '10px 12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)', fontWeight: 600, color: C.textMuted, fontSize: 12 }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((d, i) => (
-                <tr key={d.department} style={{ borderBottom: '1px solid var(--border-light)', background: i % 2 === 0 ? '#fff' : '#fafbfc' }}>
-                  <td style={{ padding: '10px 12px', fontWeight: 600, textAlign: 'center' }}>{d.department}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>{d.pagesPrinted.toLocaleString()}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'center', color: C.success, fontWeight: 600 }}>{d.pagesSaved.toLocaleString()}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>¥{d.paperCost.toFixed(0)}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>¥{d.tonerCost.toFixed(0)}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'center', color: C.green, fontWeight: 600 }}>{d.treesSaved.toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table></div>
+          <DataTable<PaperUsageRecord>
+            columns={paperColumns}
+            dataSource={rows}
+            rowKey="department"
+          />
         </div>
       </div>
     </div>
@@ -1255,6 +1250,16 @@ const EnergyMonitoring = () => {
 
   const chartData = deviceData.map(d => ({ name: d.device, active: d.dailyKwh, idle: d.dailyIdleHours * d.idlePower }))
 
+  const energyColumns: TableColumnsType<EnergyDeviceRecord> = [
+    { title: t('greenIt.thDevice'), dataIndex: 'device', key: 'device', align: 'center', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+    { title: t('greenIt.thActivePower'), dataIndex: 'activePower', key: 'activePower', align: 'center' },
+    { title: t('greenIt.thIdlePower'), dataIndex: 'idlePower', key: 'idlePower', align: 'center' },
+    { title: t('greenIt.thDailyKwh'), dataIndex: 'dailyKwh', key: 'dailyKwh', align: 'center', render: (v: number) => <span style={{ fontWeight: 600 }}>{v.toFixed(1)}</span> },
+    { title: t('greenIt.thMonthlyKwh'), dataIndex: 'monthlyKwh', key: 'monthlyKwh', align: 'center', render: (v: number) => <span style={{ fontWeight: 600 }}>{v.toLocaleString()}</span> },
+    { title: t('greenIt.thEnergyCost'), dataIndex: 'energyCost', key: 'energyCost', align: 'center', render: (v: number) => `¥${v.toFixed(0)}` },
+    { title: t('greenIt.thCarbonKg'), dataIndex: 'carbonKg', key: 'carbonKg', align: 'center', render: (v: number) => <span style={{ color: C.green, fontWeight: 600 }}>{v.toFixed(0)}</span> },
+  ]
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1264,23 +1269,23 @@ const EnergyMonitoring = () => {
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <div style={{ fontSize: 13, color: C.textMuted }}>{t('greenIt.energyMonthly')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: C.text, marginTop: 4 }}>{totalMonthlyKwh.toLocaleString()}</div>
+          <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.energyMonthly')}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.text, marginTop: 4 }}>{totalMonthlyKwh.toLocaleString()}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>kWh</div>
         </div>
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <div style={{ fontSize: 13, color: C.textMuted }}>{t('greenIt.energyCost')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: '#7c3aed', marginTop: 4 }}>¥{totalEnergyCost.toFixed(0)}</div>
+          <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.energyCost')}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: '#7c3aed', marginTop: 4 }}>¥{totalEnergyCost.toFixed(0)}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{t('greenIt.energyUnitYuanMonth')}</div>
         </div>
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <div style={{ fontSize: 13, color: C.textMuted }}>{t('greenIt.carbonFootprint')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: C.green, marginTop: 4 }}>{(totalCarbon / 1000).toFixed(1)}</div>
+          <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.carbonFootprint')}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.green, marginTop: 4 }}>{(totalCarbon / 1000).toFixed(1)}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{t('greenIt.carbonUnitTonsMonth')}</div>
         </div>
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <div style={{ fontSize: 13, color: C.textMuted }}>{t('greenIt.deviceCount')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: C.primary, marginTop: 4 }}>{deviceData.length}</div>
+          <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.deviceCount')}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.primary, marginTop: 4 }}>{deviceData.length}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{t('greenIt.deviceUnit')}</div>
         </div>
       </div>
@@ -1307,28 +1312,11 @@ const EnergyMonitoring = () => {
           {t('greenIt.energyDetailTitle')}
         </div>
         <div style={{ overflowX: 'auto' }}>
-          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-            <thead>
-              <tr style={{ background: 'var(--bg-card)' }}>
-                {[t('greenIt.thDevice'), t('greenIt.thActivePower'), t('greenIt.thIdlePower'), t('greenIt.thDailyKwh'), t('greenIt.thMonthlyKwh'), t('greenIt.thEnergyCost'), t('greenIt.thCarbonKg')].map(h => (
-                  <th key={h} style={{ padding: '10px 12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)', fontWeight: 600, color: C.textMuted }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {deviceData.map((d, i) => (
-                <tr key={d.device} style={{ borderBottom: '1px solid var(--border-light)', background: i % 2 === 0 ? '#fff' : '#fafbfc' }}>
-                  <td style={{ padding: '10px 12px', fontWeight: 600, textAlign: 'center' }}>{d.device}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>{d.activePower}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>{d.idlePower}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 600 }}>{d.dailyKwh.toFixed(1)}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 600 }}>{d.monthlyKwh.toLocaleString()}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>¥{d.energyCost.toFixed(0)}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'center', color: C.green, fontWeight: 600 }}>{d.carbonKg.toFixed(0)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table></div>
+          <DataTable<EnergyDeviceRecord>
+            columns={energyColumns}
+            dataSource={deviceData}
+            rowKey="device"
+          />
         </div>
       </div>
     </div>
@@ -1376,6 +1364,23 @@ const DigitizationScorecard = () => {
   const topDept = scores[0]
   const bottomDept = scores[scores.length - 1]
 
+  const scoreColumns: TableColumnsType<DigitizationScore> = [
+    {
+      title: t('greenIt.thRank'), dataIndex: 'rank', key: 'rank', align: 'center',
+      render: (v: number) => (
+        <span style={{
+          display: 'inline-flex', width: 24, height: 24, borderRadius: '50%', alignItems: 'center', justifyContent: 'center',
+          background: v <= 3 ? C.primary : '#f1f5f9', color: v <= 3 ? '#fff' : C.textMuted,
+          fontSize: 12, fontWeight: 700
+        }}>{v}</span>
+      ),
+    },
+    { title: t('greenIt.thDepartment'), dataIndex: 'department', key: 'department', align: 'center', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+    { title: t('greenIt.thDigitalRate'), dataIndex: 'digitalRate', key: 'digitalRate', align: 'center', render: (v: number) => <span style={{ color: C.primary, fontWeight: 600 }}>{v}%</span> },
+    { title: t('greenIt.thPaperRate'), dataIndex: 'paperRate', key: 'paperRate', align: 'center', render: (v: number) => `${v}%` },
+    { title: t('greenIt.thCostSaved'), dataIndex: 'costSaved', key: 'costSaved', align: 'center', render: (v: number) => <span style={{ color: C.success, fontWeight: 600 }}>¥{v.toLocaleString()}</span> },
+  ]
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1385,21 +1390,21 @@ const DigitizationScorecard = () => {
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <div style={{ fontSize: 13, color: C.textMuted }}>{t('greenIt.digitalRateWhole')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: C.primary, marginTop: 4 }}>{totalDigital}%</div>
+          <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.digitalRateWhole')}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.primary, marginTop: 4 }}>{totalDigital}%</div>
         </div>
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <div style={{ fontSize: 13, color: C.textMuted }}>{t('greenIt.costSavedTotal')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: C.success, marginTop: 4 }}>¥{totalCostSaved.toLocaleString()}</div>
+          <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.costSavedTotal')}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.success, marginTop: 4 }}>¥{totalCostSaved.toLocaleString()}</div>
         </div>
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <div style={{ fontSize: 13, color: C.textMuted }}>{t('greenIt.highestDept')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: C.text, marginTop: 4 }}>{topDept?.department}</div>
+          <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.highestDept')}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.text, marginTop: 4 }}>{topDept?.department}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{topDept?.digitalRate}%</div>
         </div>
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <div style={{ fontSize: 13, color: C.textMuted }}>{t('greenIt.lowestDept')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: '#dc2626', marginTop: 4 }}>{bottomDept?.department}</div>
+          <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.lowestDept')}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: '#dc2626', marginTop: 4 }}>{bottomDept?.department}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{bottomDept?.digitalRate}%</div>
         </div>
       </div>
@@ -1427,32 +1432,11 @@ const DigitizationScorecard = () => {
           {t('greenIt.departmentRankingTitle')}
         </div>
         <div style={{ overflowX: 'auto' }}>
-          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-            <thead>
-              <tr style={{ background: 'var(--bg-card)' }}>
-                {[t('greenIt.thRank'), t('greenIt.thDepartment'), t('greenIt.thDigitalRate'), t('greenIt.thPaperRate'), t('greenIt.thCostSaved')].map(h => (
-                  <th key={h} style={{ padding: '10px 12px', textAlign: 'center', borderBottom: '2px solid var(--border-color)', fontWeight: 600, color: C.textMuted }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {scores.map((d, i) => (
-                <tr key={d.department} style={{ borderBottom: '1px solid var(--border-light)', background: i % 2 === 0 ? '#fff' : '#fafbfc' }}>
-                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                    <span style={{
-                      display: 'inline-flex', width: 24, height: 24, borderRadius: '50%', alignItems: 'center', justifyContent: 'center',
-                      background: d.rank <= 3 ? C.primary : '#f1f5f9', color: d.rank <= 3 ? '#fff' : C.textMuted,
-                      fontSize: 12, fontWeight: 700
-                    }}>{d.rank}</span>
-                  </td>
-                  <td style={{ padding: '10px 12px', fontWeight: 600, textAlign: 'center' }}>{d.department}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'center', color: C.primary, fontWeight: 600 }}>{d.digitalRate}%</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>{d.paperRate}%</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'center', color: C.success, fontWeight: 600 }}>¥{d.costSaved.toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table></div>
+          <DataTable<DigitizationScore>
+            columns={scoreColumns}
+            dataSource={scores}
+            rowKey="department"
+          />
         </div>
       </div>
     </div>
@@ -1482,7 +1466,7 @@ const GreenRecommendations = () => {
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <Tag color="orange">{t('greenIt.recommendDemoTag')}</Tag>
-          <span style={{ fontSize: 13, color: C.textMuted }}>{t('greenIt.potentialSavingLabel')}</span>
+          <span style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.potentialSavingLabel')}</span>
           <span style={{ fontSize: 16, fontWeight: 600, color: C.success }}>{totalPotential.toLocaleString()}</span>
           <span style={{ fontSize: 12, color: C.textLight }}>{t('greenIt.unitMonth')}</span>
         </div>
@@ -1556,6 +1540,27 @@ const ISO14001Compliance = () => {
   const nonCompliant = isoChecklist.filter(i => i.status === 'non-compliant').length
   const score = Math.round((compliant + partial * 0.5) / isoChecklist.length * 100)
 
+  const isoStatusMap: Record<string, { bg: string; color: string; label: string }> = {
+    'compliant': { bg: '#22c55e22', color: '#16a34a', label: t('greenIt.isoStatusCompliant') },
+    'partial': { bg: '#f59e0b22', color: '#f59e0b', label: t('greenIt.isoStatusPartial') },
+    'non-compliant': { bg: '#ef444422', color: '#ef4444', label: t('greenIt.isoStatusNonCompliant') },
+    'not-applicable': { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: t('greenIt.isoStatusNa') },
+  }
+
+  const isoColumns: TableColumnsType<ISOChecklistItem> = [
+    { title: t('greenIt.thClause'), dataIndex: 'clause', key: 'clause', render: (v: string) => <span style={{ fontWeight: 700, color: C.primary }}>{v}</span> },
+    { title: t('greenIt.thRequirement'), dataIndex: 'requirement', key: 'requirement' },
+    {
+      title: t('greenIt.thStatus'), dataIndex: 'status', key: 'status',
+      render: (v: string) => {
+        const st = isoStatusMap[v] || { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: t('greenIt.isoStatusUnknown') }
+        return <span style={{ padding: '3px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: st.bg, color: st.color }}>{st.label}</span>
+      },
+    },
+    { title: t('greenIt.thEvidence'), dataIndex: 'evidence', key: 'evidence', render: (v: string) => <span style={{ color: C.textMuted }}>{v}</span> },
+    { title: t('greenIt.thTargetDate'), dataIndex: 'targetDate', key: 'targetDate', render: (v: string) => <span style={{ color: C.textMuted }}>{v}</span> },
+  ]
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1564,22 +1569,22 @@ const ISO14001Compliance = () => {
       {/* 审核就绪评分 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <div style={{ fontSize: 13, color: C.textMuted }}>{t('greenIt.auditScore')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: score >= 80 ? C.success : score >= 60 ? C.warning : '#dc2626', marginTop: 4 }}>{score}%</div>
+          <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.auditScore')}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: score >= 80 ? C.success : score >= 60 ? C.warning : '#dc2626', marginTop: 4 }}>{score}%</div>
         </div>
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <div style={{ fontSize: 13, color: C.textMuted }}>{t('greenIt.fullyCompliant')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: C.success, marginTop: 4 }}>{compliant}</div>
+          <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.fullyCompliant')}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.success, marginTop: 4 }}>{compliant}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{t('greenIt.itemsUnit')}</div>
         </div>
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <div style={{ fontSize: 13, color: C.textMuted }}>{t('greenIt.partiallyCompliant')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: C.warning, marginTop: 4 }}>{partial}</div>
+          <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.partiallyCompliant')}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: C.warning, marginTop: 4 }}>{partial}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{t('greenIt.itemsUnit')}</div>
         </div>
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
-          <div style={{ fontSize: 13, color: C.textMuted }}>{t('greenIt.nonCompliant')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: '#dc2626', marginTop: 4 }}>{nonCompliant}</div>
+          <div style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.nonCompliant')}</div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: '#dc2626', marginTop: 4 }}>{nonCompliant}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>{t('greenIt.itemsUnit')}</div>
         </div>
       </div>
@@ -1590,39 +1595,11 @@ const ISO14001Compliance = () => {
           <ClipboardList size={16} color={C.primary} /> {t('greenIt.isoChecklistTitle')}
         </div>
         <div style={{ overflowX: 'auto' }}>
-          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-            <thead>
-              <tr style={{ background: 'var(--bg-card)' }}>
-                {[t('greenIt.thClause'), t('greenIt.thRequirement'), t('greenIt.thStatus'), t('greenIt.thEvidence'), t('greenIt.thTargetDate')].map(h => (
-                  <th key={h} style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '2px solid var(--border-color)', fontWeight: 600, color: C.textMuted }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {isoChecklist.map((item, i) => {
-                const statusMap: Record<string, { bg: string; color: string; label: string }> = {
-                  'compliant': { bg: '#22c55e22', color: '#16a34a', label: t('greenIt.isoStatusCompliant') },
-                  'partial': { bg: '#f59e0b22', color: '#f59e0b', label: t('greenIt.isoStatusPartial') },
-                  'non-compliant': { bg: '#ef444422', color: '#ef4444', label: t('greenIt.isoStatusNonCompliant') },
-                  'not-applicable': { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: t('greenIt.isoStatusNa') },
-                }
-                const s = statusMap[item.status] || { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: t('greenIt.isoStatusUnknown') }
-                return (
-                  <tr key={item.id} style={{ borderBottom: '1px solid var(--border-light)', background: i % 2 === 0 ? '#fff' : '#fafbfc' }}>
-                    <td style={{ padding: '10px 12px', fontWeight: 700, color: C.primary }}>{item.clause}</td>
-                    <td style={{ padding: '10px 12px' }}>{item.requirement}</td>
-                    <td style={{ padding: '10px 12px' }}>
-                      <span style={{ padding: '3px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: s.bg, color: s.color }}>
-                        {s.label}
-                      </span>
-                    </td>
-                    <td style={{ padding: '10px 12px', color: C.textMuted }}>{item.evidence}</td>
-                    <td style={{ padding: '10px 12px', color: C.textMuted }}>{item.targetDate}</td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table></div>
+          <DataTable<ISOChecklistItem>
+            columns={isoColumns}
+            dataSource={isoChecklist}
+            rowKey="id"
+          />
         </div>
       </div>
 
@@ -1713,8 +1690,8 @@ function RunStatsTab() {
               <c.icon size={22} color={c.color} />
             </div>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.1 }}>
-                {c.value}<span style={{ fontSize: 13, fontWeight: 400, color: 'var(--text-secondary)', marginLeft: 4 }}>{c.unit}</span>
+              <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.1 }}>
+                {c.value}<span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)', marginLeft: 4 }}>{c.unit}</span>
               </div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{c.label}</div>
             </div>
@@ -1800,7 +1777,7 @@ export default function GreenITPage() {
           title={<span style={{ display: 'flex', alignItems: 'center', gap: 10 }}><div style={{ width: 36, height: 36, borderRadius: 10, background: `${C.primary}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.primary }}><Leaf size={20} /></div>{t('greenIt.pageTitle')}</span>}
           subtitle={
             <>
-              <span style={{ fontSize: 13, color: C.textMuted }}>{t('greenIt.pageDate', { year: new Date().getFullYear(), month: new Date().getMonth() + 1 })}</span>
+              <span style={{ fontSize: 12, color: C.textMuted }}>{t('greenIt.pageDate', { year: new Date().getFullYear(), month: new Date().getMonth() + 1 })}</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
                 <Tag color={source === 'api' ? 'green' : 'orange'}>
                   {source === 'api' ? t('greenIt.sourceCoreApi') : t('greenIt.sourceFallbackDemo')}

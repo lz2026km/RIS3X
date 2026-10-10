@@ -93,7 +93,7 @@ export default function SnomedPage() {
             onClick={() => setActiveTab(tab.key)}
             style={{
               display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8,
-              fontSize: 13, fontWeight: 600, cursor: "pointer", border: "1px solid var(--border-color)",
+              fontSize: 12, fontWeight: 600, cursor: "pointer", border: "1px solid var(--border-color)",
               background: activeTab === tab.key ? "#1e40af" : "var(--bg-card)",
               color: activeTab === tab.key ? "#fff" : "#64748b",
             }}
@@ -121,7 +121,7 @@ export default function SnomedPage() {
               value={text}
               onChange={e => setText(e.target.value)}
               rows={8}
-              style={{ width: "100%", padding: 12, border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 13, fontFamily: "monospace", lineHeight: 1.6, resize: "vertical" }}
+              style={{ width: "100%", padding: 12, border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12, fontFamily: "monospace", lineHeight: 1.6, resize: "vertical" }}
               placeholder={t("inputPlaceholder")}
             />
             <div style={{ marginTop: 12 }}>
@@ -133,7 +133,7 @@ export default function SnomedPage() {
             {codes.length > 0 && (
               <div style={{ marginTop: 16 }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: "#1e293b" }}>{t("encodedCodes")} ({codes.length})</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: "#1e293b" }}>{t("encodedCodes")} ({codes.length})</span>
                   <ActionButton action="save" size="compact" onClick={confirmAll} icon={<ThumbsUp size={12} />}>
                     {t("confirmAll")}
                   </ActionButton>
@@ -156,7 +156,7 @@ export default function SnomedPage() {
                       dataIndex: "pt",
                       render: (v: string, c) => (
                         <Space direction="vertical" size={0}>
-                          <span style={{ fontSize: 13, fontWeight: 600, color: "#1e293b" }}>{v}</span>
+                          <span style={{ fontSize: 12, fontWeight: 600, color: "#1e293b" }}>{v}</span>
                           <span style={{ fontSize: 11, color: "#64748b" }}>{c.fsn}</span>
                         </Space>
                       ),
@@ -207,7 +207,7 @@ export default function SnomedPage() {
                 onChange={e => setSearchQ(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && void handleSearch()}
                 placeholder={t("searchPlaceholder")}
-                style={{ flex: 1, padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 13 }}
+                style={{ flex: 1, padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12 }}
               />
               <ActionButton action="submit" loading={searching} disabled={!searchQ.trim()} onClick={() => void handleSearch()} icon={<Search size={14} />}>
                 {t9("w9.common.search")}
@@ -221,7 +221,7 @@ export default function SnomedPage() {
                   pagination={{ pageSize: 8, showSizeChanger: false }}
                   scroll={{ x: "max-content" }}
                   columns={[
-                    { title: t9("w9.snomed.pt"), dataIndex: "pt", render: (v: string) => <span style={{ fontSize: 13, fontWeight: 600, color: "#1e293b" }}>{v}</span> },
+                    { title: t9("w9.snomed.pt"), dataIndex: "pt", render: (v: string) => <span style={{ fontSize: 12, fontWeight: 600, color: "#1e293b" }}>{v}</span> },
                     { title: t9("w9.snomed.conceptId"), dataIndex: "conceptId", width: 150, render: (v: string) => <Tag style={{ fontFamily: "monospace" }}>{v}</Tag> },
                     { title: t9("w9.snomed.semanticTag"), dataIndex: "semanticTag", width: 120, render: (v?: string) => v || "-" },
                     {

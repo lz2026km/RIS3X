@@ -95,7 +95,7 @@ export default function DeviceDAPComparisonChart() {
         }}
       >
         <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
             设备剂量占法规阈值对比
           </div>
           <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>

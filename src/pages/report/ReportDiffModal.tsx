@@ -108,7 +108,7 @@ export default function ReportDiffModal({ report, data, loading, onClose }: Repo
         <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 10 }}>
           <GitCompare size={18} color="#f59e0b" />
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>多版本并排对比</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>多版本并排对比</div>
             <div style={{ fontSize: 12, color: '#64748b', marginTop: 1 }}>
               {report.reportId} · {report.patientName} · 当前版本 vs 上一版本
             </div>
@@ -120,11 +120,11 @@ export default function ReportDiffModal({ report, data, loading, onClose }: Repo
 
         <div style={{ flex: 1, overflowY: 'auto', padding: 20 }}>
           {loading ? (
-            <div style={{ padding: 60, textAlign: 'center', color: '#64748b', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            <div style={{ padding: 60, textAlign: 'center', color: '#64748b', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
               <Loader2 size={16} style={{ animation: 'spin 0.9s linear infinite' }} /> 正在加载版本历史...
             </div>
           ) : !data ? (
-            <div style={{ padding: 60, textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>暂无可用版本历史</div>
+            <div style={{ padding: 60, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>暂无可用版本历史</div>
           ) : (
             <>
               {/* 左右分栏 */}
@@ -201,7 +201,7 @@ export default function ReportDiffModal({ report, data, loading, onClose }: Repo
         </div>
 
         <div style={{ padding: '12px 20px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-          <button onClick={onClose} style={{ padding: '8px 24px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>关闭</button>
+          <button onClick={onClose} style={{ padding: '8px 24px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>关闭</button>
         </div>
       </div>
     </div>

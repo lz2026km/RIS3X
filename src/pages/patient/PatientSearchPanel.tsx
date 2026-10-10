@@ -189,7 +189,7 @@ export function PatientSearchPanel(props: PatientSearchPanelProps) {
           value={props.search}
           onChange={e => props.onSearchChange(e.target.value)}
           placeholder="综合搜索：姓名 / 身份证 / 就诊卡号 / 电话 / 检查号..."
-          style={{ border: 'none', fontSize: 13, width: 400, background: 'transparent' }}
+          style={{ border: 'none', fontSize: 12, width: 400, background: 'transparent' }}
         />
         <button
           onClick={props.onToggleAdvanced}

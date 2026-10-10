@@ -26,7 +26,7 @@ const s = {
   select: { padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', fontSize: 12, color: PRIMARY, fontWeight: 600, cursor: 'pointer',},
   slider: { width: 80, accentColor: PRIMARY } as React.CSSProperties,
   sliderVal: { fontSize: 12, color: PRIMARY, fontWeight: 600 },
-  imgCounter: { fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' },
+  imgCounter: { fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' },
   toolBtn: { background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' } as React.CSSProperties,
   layoutBtn: { width: 28, height: 28, borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' } as React.CSSProperties,
   layoutBtnActive: { background: PRIMARY, borderColor: PRIMARY },
@@ -54,7 +54,7 @@ const s = {
   diffRegionNew: { border: '2px dashed #22c55e', background: 'rgba(34,197,94,0.15)' },
   diffRegionImproved: { border: '2px dashed #3b82f6', background: 'rgba(59,130,246,0.15)' },
   wlPopup: { position: 'absolute' as const, left: '50%', top: '50%', transform: 'translate(-50%,-50%)', width: 240, background: CARD_BG, borderRadius: 12, boxShadow: '0 12px 40px rgba(0,0,0,0.4)', zIndex: 100, padding: 14, border: '1px solid var(--border-color)' },
-  wlPopupTitle: { fontSize: 13, fontWeight: 700, color: PRIMARY, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 },
+  wlPopupTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 },
   wlSliderRow: { display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 },
   wlLabel: { fontSize: 12, color: '#64748b', flexShrink: 0, minWidth: 24 },
   wlSlider: { flex: 1, accentColor: PRIMARY } as React.CSSProperties,
@@ -75,7 +75,7 @@ const s = {
   annotationTypeRow: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4, marginBottom: 8 },
   annotationTypeBtn: { height: 36, borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: 2, padding: 4 },
   annotationTypeBtnActive: { background: PRIMARY, borderColor: PRIMARY, color: '#fff' },
-  annotationTypeBtnLabel: { fontSize: 8, color: 'var(--text-muted)', textAlign: 'center' as const },
+  annotationTypeBtnLabel: { fontSize: 10, color: 'var(--text-muted)', textAlign: 'center' as const },
   annotationColorPicker: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4, marginBottom: 8 },
   annotationColorBtn: { width: 24, height: 24, borderRadius: 4, border: '2px solid transparent', cursor: 'pointer', transition: 'all 0.15s' },
   annotationColorBtnActive: { border: '2px solid #1e40af', transform: 'scale(1.1)' },
@@ -591,7 +591,7 @@ export default function ViewportArea(props: Props) {
             title={`${sItem.seriesDescription} (${t('w9d.viewport.imageCountUnit', { count: sItem.imageCount })})`}>
             <div style={{ ...s.seriesThumbInner, background: sItem.thumbnail, opacity: activeSeriesIdx === idx ? 1 : 0.7 }}><Layers size={16} /></div>
             <span style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>{sItem.seriesNumber}</span>
-            <span style={{ fontSize: 8, color: '#6b7280' }}>{t('dcmView.framesUnit', { count: sItem.imageCount })}</span>
+            <span style={{ fontSize: 10, color: '#6b7280' }}>{t('dcmView.framesUnit', { count: sItem.imageCount })}</span>
           </div>
         ))}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>

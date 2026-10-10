@@ -259,7 +259,7 @@ function buildThemeComponents(isDark: boolean, isHighContrast: boolean) {
       cellPaddingBlock: 8,
       cellPaddingInline: 12,
       cellFontSize: 13,
-      fontSize: 13,
+      fontSize: 12,
       borderColor: border,
     },
     Form: {
@@ -273,7 +273,7 @@ function buildThemeComponents(isDark: boolean, isHighContrast: boolean) {
       borderRadius: rad.Input.borderRadius,
       paddingBlock: 5,
       paddingInline: 10,
-      fontSize: 13,
+      fontSize: 12,
       controlHeight: 32,
       colorBgContainer: containerBg,
       colorBorder: border,
@@ -283,7 +283,7 @@ function buildThemeComponents(isDark: boolean, isHighContrast: boolean) {
       optionSelectedBg: selectedBg,
       optionSelectedColor: text,
       optionHeight: 30,
-      fontSize: 13,
+      fontSize: 12,
       controlHeight: 32,
       colorBgContainer: containerBg,
       colorBorder: border,
@@ -315,7 +315,7 @@ function buildThemeComponents(isDark: boolean, isHighContrast: boolean) {
       itemSizeSM: 24,
       borderRadius: 6,
       itemActiveBg: selectedBg,
-      fontSize: 13,
+      fontSize: 12,
     },
     Tooltip: {
       borderRadius: 6,
@@ -377,7 +377,7 @@ function ErrorFallback({
           borderRadius: 8,
           maxWidth: 800,
           overflow: "auto",
-          fontSize: 13,
+          fontSize: 12,
           marginBottom: 16,
         }}
       >

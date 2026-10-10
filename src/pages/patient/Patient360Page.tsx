@@ -410,7 +410,7 @@ export default function Patient360Page() {
               width: 64, height: 64, borderRadius: '50%',
               background: 'linear-gradient(135deg, #1e40af, #3b82f6)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 28, fontWeight: 700, color: '#fff', flexShrink: 0,
+              fontSize: 30, fontWeight: 700, color: '#fff', flexShrink: 0,
             }}
           >
             {patient.name.slice(0, 1)}
@@ -420,7 +420,7 @@ export default function Patient360Page() {
               {patient.name}
               {patient.patientType && <Tag color="blue" style={{ marginLeft: 12, fontSize: 12 }}>{patient.patientType}</Tag>}
             </div>
-            <div style={{ display: 'flex', gap: 24, marginTop: 8, fontSize: 13, color: 'var(--text-secondary, #475569)', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 24, marginTop: 8, fontSize: 12, color: 'var(--text-secondary, #475569)', flexWrap: 'wrap' }}>
               <span><User size={13} style={{ marginRight: 4 }} />{patient.gender} · {patient.age}{t('patient360.ageUnit')}</span>
               {patient.phone && <span><Phone size={13} style={{ marginRight: 4 }} />{patient.phone}</span>}
               <span><Calendar size={13} style={{ marginRight: 4 }} />ID: {patient.id}</span>
@@ -482,14 +482,14 @@ export default function Patient360Page() {
               ].map((item) => (
                 <Col xs={12} sm={8} md={4} key={item.label}>
                   <div style={{ textAlign: 'center', padding: 12, borderRadius: 10, background: item.bg }}>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: item.color }}>{item.value}</div>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: item.color }}>{item.value}</div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)' }}>{item.label}</div>
                   </div>
                 </Col>
               ))}
               <Col xs={12} sm={8} md={4}>
                 <div style={{ textAlign: 'center', padding: 12, borderRadius: 10, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: '#d97706' }}>¥{summary.totalCharges}</div>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: '#d97706' }}>¥{summary.totalCharges}</div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)' }}>{t('patientPage.summaryCharges')}</div>
                 </div>
               </Col>
@@ -543,7 +543,7 @@ export default function Patient360Page() {
               children: (
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    <span style={{ fontWeight: 600, color: '#1e40af', fontSize: 13 }}>{ev.label}</span>
+                    <span style={{ fontWeight: 600, color: '#1e40af', fontSize: 12 }}>{ev.label}</span>
                     <Tag style={{ fontSize: 11, margin: 0 }}>{ev.status || ev.type}</Tag>
                     <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginLeft: 'auto' }}>
                       {String(ev.date || '').slice(0, 10)}
@@ -608,7 +608,7 @@ export default function Patient360Page() {
                 extra: ex.criticalFinding ? <Tag color="red">{t('patient360.critical')}</Tag> : null,
                 children: (
                   <div>
-                    <Descriptions size="small" column={1} style={{ fontSize: 13 }}>
+                    <Descriptions size="small" column={1} style={{ fontSize: 12 }}>
                       <Descriptions.Item label={t('patient360.examDate')}>{ex.examDate || '-'}</Descriptions.Item>
                       <Descriptions.Item label={t('patient360.examType')}>{ex.modality || '-'}</Descriptions.Item>
                       <Descriptions.Item label={t('patient360.examBodyPart')}>{ex.bodyPart || '-'}</Descriptions.Item>
@@ -708,7 +708,7 @@ export default function Patient360Page() {
               children: (
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    <span style={{ fontWeight: 600, color: ev.color, fontSize: 13 }}>{ev.title}</span>
+                    <span style={{ fontWeight: 600, color: ev.color, fontSize: 12 }}>{ev.title}</span>
                     {ev.kind === 'critical' && <Tag color="red" style={{ fontSize: 11, lineHeight: '18px', margin: 0 }}>{t('patient360.critical')}</Tag>}
                     {ev.kind === 'followup' && <Tag color="orange" style={{ fontSize: 11, lineHeight: '18px', margin: 0 }}>{t('patient360.followup')}</Tag>}
                     <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginLeft: 'auto' }}>
@@ -851,23 +851,23 @@ export default function Patient360Page() {
             <Row gutter={[12, 12]}>
               <Col xs={12} md={6}>
                 <div style={{ textAlign: 'center', padding: 14, background: 'var(--color-info-bg)', borderRadius: 10 }}>
-                  <Statistic title={t('patient360.totalCost')} value={financeSummary.totalAmount} precision={2} prefix="¥" valueStyle={{ color: '#1e40af', fontSize: 22 }} />
+                  <Statistic title={t('patient360.totalCost')} value={financeSummary.totalAmount} precision={2} prefix="¥" valueStyle={{ color: '#1e40af', fontSize: 20 }} />
                 </div>
               </Col>
               <Col xs={12} md={6}>
                 <div style={{ textAlign: 'center', padding: 14, background: 'var(--color-success-bg)', borderRadius: 10 }}>
-                  <Statistic title={t('patient360.paid')} value={financeSummary.paidAmount} precision={2} prefix="¥" valueStyle={{ color: '#16a34a', fontSize: 22 }} />
+                  <Statistic title={t('patient360.paid')} value={financeSummary.paidAmount} precision={2} prefix="¥" valueStyle={{ color: '#16a34a', fontSize: 20 }} />
                 </div>
               </Col>
               <Col xs={12} md={6}>
                 <div style={{ textAlign: 'center', padding: 14, background: financeSummary.balance > 0 ? 'var(--color-warning-bg)' : 'var(--color-success-bg)', borderRadius: 10 }}>
-                  <Statistic title={t('patient360.unpaid')} value={financeSummary.balance} precision={2} prefix="¥" valueStyle={{ color: financeSummary.balance > 0 ? '#d97706' : '#16a34a', fontSize: 22 }} />
+                  <Statistic title={t('patient360.unpaid')} value={financeSummary.balance} precision={2} prefix="¥" valueStyle={{ color: financeSummary.balance > 0 ? '#d97706' : '#16a34a', fontSize: 20 }} />
                 </div>
               </Col>
               <Col xs={12} md={6}>
                 <div style={{ textAlign: 'center', padding: 14, background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)' }}>{t('patient360.insuranceSelfPay')}</div>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: '#7c3aed' }}>¥{financeSummary.insuranceCovered} / ¥{financeSummary.selfPay}</div>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: '#7c3aed' }}>¥{financeSummary.insuranceCovered} / ¥{financeSummary.selfPay}</div>
                   <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>{t('patient360.unpaidCount', { count: financeSummary.unpaid })}</div>
                 </div>
               </Col>
@@ -945,7 +945,7 @@ export default function Patient360Page() {
                   background: 'var(--bg-card)', height: '100%',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
-                    <span style={{ fontWeight: 700, color: '#1e40af', fontSize: 13 }}>{ex.examItemName}</span>
+                    <span style={{ fontWeight: 700, color: '#1e40af', fontSize: 12 }}>{ex.examItemName}</span>
                     <Tag color="blue">{ex.modality}</Tag>
                     <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginLeft: 'auto' }}>{String(ex.examDate || '').slice(0, 10)}</span>
                   </div>
@@ -985,7 +985,7 @@ export default function Patient360Page() {
           return (
             <Row gutter={[12, 12]}>
               <Col xs={24} md={12}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Activity size={13} /> {t('patient360.contrastUsage')}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 0' }}>
@@ -1012,7 +1012,7 @@ export default function Patient360Page() {
                 </div>
               </Col>
               <Col xs={24} md={12}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Clock size={13} /> {t('patient360.hourDistribution')}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

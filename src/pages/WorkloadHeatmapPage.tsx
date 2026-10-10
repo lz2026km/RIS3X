@@ -254,7 +254,7 @@ export default function WorkloadHeatmapPage() {
       <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
         {sites.map((s) => (
           <div key={s.siteId} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 12, border: '1px solid var(--border-color)' }}>
-            <div style={{ fontWeight: 700, color: '#1e40af', fontSize: 13 }}>{s.siteName}</div>
+            <div style={{ fontWeight: 700, color: '#1e40af', fontSize: 12 }}>{s.siteName}</div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>容量评分 {s.capacityScore}</div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 6 }}>
               利用率 {s.utilizationPct}% · 报告 {s.pendingReports} · 医生 {s.doctors}

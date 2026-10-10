@@ -67,7 +67,7 @@ function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance, onDele
                 style={{ marginRight: 2 }}
               />
             )}
-            <span style={{ fontSize: 13, fontWeight: 700, color: C.textDark, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: C.textDark, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {device.name.split('（')[0]}
             </span>
             <ModalityBadge modality={device.modality} />
@@ -92,7 +92,7 @@ function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance, onDele
             <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 1 }}>
               {room.currentPatient}
             </div>
-            <div style={{ fontSize: 12.5, color: C.textMid }}>
+            <div style={{ fontSize: 12, color: C.textMid }}>
               {room.name}
             </div>
           </div>
@@ -133,10 +133,10 @@ function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance, onDele
           padding: '6px 10px', background: `${C.accent}0d`, borderRadius: 6, marginBottom: 10
         }}>
           <span style={{ fontSize: 12, color: C.textMid }}>设备利用率</span>
-          <span style={{ fontSize: 13, fontWeight: 800, color: C.accent }}>{device.utilization}%</span>
+          <span style={{ fontSize: 12, fontWeight: 800, color: C.accent }}>{device.utilization}%</span>
         </div>
 
-        <div style={{ fontSize: 12.5, color: C.textLight, paddingTop: 8, borderTop: `1px solid ${C.border}` }}>
+        <div style={{ fontSize: 12, color: C.textLight, paddingTop: 8, borderTop: `1px solid ${C.border}` }}>
           <span>最后维保：2026-04-{10 + Math.floor(Math.random() * 20)}</span>
         </div>
       </div>
@@ -157,7 +157,7 @@ function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance, onDele
               disabled={btn.disabled}
               style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
-                padding: '8px 4px', border: 'none', cursor: 'pointer', fontSize: 12.5,
+                padding: '8px 4px', border: 'none', cursor: 'pointer', fontSize: 12,
                 background: 'transparent', color: btn.disabled ? C.textLight : btn.color,
                 transition: 'background 0.15s',
                 opacity: btn.disabled ? 0.5 : 1,

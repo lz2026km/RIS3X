@@ -116,7 +116,7 @@ export default function AlertCenterPage() {
     {
       title: '操作', key: 'actions', width: 120,
       render: (_: unknown, alert: CdsAlertDto) => alert.status === 'pending' ? (
-        <button onClick={() => handleAcknowledge(alert)} disabled={acknowledgingId === alert.id} style={{ padding: '7px 14px', borderRadius: 6, border: 'none', background: '#059669', color: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <button onClick={() => handleAcknowledge(alert)} disabled={acknowledgingId === alert.id} style={{ padding: '7px 14px', borderRadius: 6, border: 'none', background: '#059669', color: '#fff', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
           <CheckCircle2 size={14} />{acknowledgingId === alert.id ? '确认中...' : '确认'}
         </button>
       ) : (
@@ -137,7 +137,7 @@ export default function AlertCenterPage() {
             </span>
           )}
         </div>
-        <button onClick={() => { fetchAlerts() }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+        <button onClick={() => { fetchAlerts() }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
           <RefreshCw size={14} />刷新
         </button>
       </div>
@@ -145,14 +145,14 @@ export default function AlertCenterPage() {
       <div style={{ padding: '20px 24px' }}>
         <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
           {([['all', '全部'], ['pending', '待确认'], ['acknowledged', '已确认']] as const).map(([key, label]) => (
-            <button key={key} onClick={() => setStatusFilter(key)} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: statusFilter === key ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: statusFilter === key ? '#fff' : 'var(--text-muted, #8b949e)' }}>
+            <button key={key} onClick={() => setStatusFilter(key)} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: statusFilter === key ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: statusFilter === key ? '#fff' : 'var(--text-muted, #8b949e)' }}>
               {label}
             </button>
           ))}
         </div>
 
         {error && (
-          <div style={{ padding: '12px 16px', borderRadius: 6, border: '1px solid #ef444455', background: '#ef444410', color: '#f87171', fontSize: 13, marginBottom: 16 }}>
+          <div style={{ padding: '12px 16px', borderRadius: 6, border: '1px solid #ef444455', background: '#ef444410', color: '#f87171', fontSize: 12, marginBottom: 16 }}>
             加载失败: {error}
           </div>
         )}
@@ -168,7 +168,7 @@ export default function AlertCenterPage() {
       </div>
 
       {toast.show && (
-        <div style={{ position: 'fixed', top: 24, left: '50%', transform: 'translateX(-50%)', background: toast.type === 'success' ? '#059669' : '#dc2626', color: '#fff', padding: '10px 20px', borderRadius: 8, fontSize: 13, fontWeight: 600, boxShadow: '0 4px 12px rgba(0,0,0,0.3)', zIndex: 1100 }}>
+        <div style={{ position: 'fixed', top: 24, left: '50%', transform: 'translateX(-50%)', background: toast.type === 'success' ? '#059669' : '#dc2626', color: '#fff', padding: '10px 20px', borderRadius: 8, fontSize: 12, fontWeight: 600, boxShadow: '0 4px 12px rgba(0,0,0,0.3)', zIndex: 1100 }}>
           {toast.message}
         </div>
       )}

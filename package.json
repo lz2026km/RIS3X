@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.13-1",
-  "description": "G005 Radiology RIS v3.0.6.13-1 - Dark Theme Tokens, statusTokens & A11y",
+  "version": "3.0.6.13-2",
+  "description": "G005 Radiology RIS v3.0.6.13-2 - Native Table Migration & Type Scale",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

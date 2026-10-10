@@ -54,7 +54,7 @@ export function CostCard({ title, value, subtitle, icon: Icon, trend, trendValue
   return (
     <div style={cardStyle}>
       <div style={headerStyle}>
-        <span style={{ fontSize: 13, color: 'var(--text-muted, #8b949e)' }}>{title}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{title}</span>
         <div style={iconContainerStyle}>
           <Icon size={18} color={color || '#3b82f6'} />
         </div>

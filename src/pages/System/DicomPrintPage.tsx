@@ -77,7 +77,7 @@ const SimpleTable: React.FC<{
 
   return (
     <div style={{ overflowX: 'auto' }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
         <thead>
           <tr style={{ borderBottom: `2px solid ${C.border}`, background: C.bg }}>
             {columns.map(col => (
@@ -913,7 +913,7 @@ const DicomPrintPage: React.FC = () => {
               style={{
                 width: '100%',
                 padding: '12px',
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 border: 'none',
                 borderRadius: 6,
@@ -974,7 +974,7 @@ const DicomPrintPage: React.FC = () => {
         borderRadius: 8,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 13, color: C.textMid }}>{t('dicomPrint.pagination', { total: history.length, page: historyPage, pages: totalHistoryPages })}</span>
+          <span style={{ fontSize: 12, color: C.textMid }}>{t('dicomPrint.pagination', { total: history.length, page: historyPage, pages: totalHistoryPages })}</span>
           <div style={{ display: 'flex', gap: 4 }}>
             <button disabled={historyPage <= 1} onClick={() => setHistoryPage(p => Math.max(1, p - 1))} style={{
               padding: '6px 12px',

@@ -302,7 +302,7 @@ const CrossModalSearchPage: React.FC = () => {
                       </Space>
                       <Text strong style={{ color: '#7c3aed' }}>{Math.round((r.score ?? 0) * 100)}%</Text>
                     </div>
-                    <div style={{ fontWeight: 600, fontSize: 13 }}>{r.patientName} <Text type="secondary" style={{ fontSize: 11 }}>{r.patientId}</Text></div>
+                    <div style={{ fontWeight: 600, fontSize: 12 }}>{r.patientName} <Text type="secondary" style={{ fontSize: 11 }}>{r.patientId}</Text></div>
                     <Text type="secondary" style={{ fontSize: 12, display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.studyDescription}</Text>
                     <Text type="secondary" style={{ fontSize: 11 }}>{r.studyDate}</Text>
                   </Card>

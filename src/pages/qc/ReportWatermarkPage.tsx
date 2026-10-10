@@ -397,7 +397,7 @@ export default function ReportWatermarkPage() {
                       padding: 16,
                     }}
                   >
-                    <div style={{ whiteSpace: 'pre-wrap', fontSize: 13, color: '#1f2937', lineHeight: 1.9, maxWidth: 620 }}>
+                    <div style={{ whiteSpace: 'pre-wrap', fontSize: 12, color: '#1f2937', lineHeight: 1.9, maxWidth: 620 }}>
                       {REPORT_TEXT}
                     </div>
                     {watermarkLayer}

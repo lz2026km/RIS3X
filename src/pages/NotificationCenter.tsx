@@ -337,7 +337,7 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
               border: `1px solid ${ACCENT}30`, marginBottom: 16,
             }}>
               <div style={{ fontSize: 12, color: GRAY, marginBottom: 6 }}>{t('notification.relatedInfo')}</div>
-              <div style={{ fontSize: 13, color: PRIMARY, marginBottom: 8 }}>
+              <div style={{ fontSize: 12, color: PRIMARY, marginBottom: 8 }}>
                 类型: {notification.relatedType} | ID: {notification.relatedId}
               </div>
               <button
@@ -364,7 +364,7 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
             }}
             style={{
               padding: '8px 16px', borderRadius: 6, border: '1px solid var(--border-color)',
-              background: 'var(--bg-card)', color: GRAY, fontSize: 13, cursor: 'pointer',
+              background: 'var(--bg-card)', color: GRAY, fontSize: 12, cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: 6,
             }}
           >
@@ -373,7 +373,7 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
           </button>
           <button onClick={onClose} style={{
             padding: '8px 20px', borderRadius: 6, border: 'none',
-            background: PRIMARY, color: WHITE, fontSize: 13, cursor: 'pointer',
+            background: PRIMARY, color: WHITE, fontSize: 12, cursor: 'pointer',
           }}>
             {t('notification.close')}
           </button>
@@ -395,7 +395,7 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
             <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 16 }}>
               ID: {notification.relatedId}
             </div>
-            <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{t('notification.jumpHint')}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('notification.jumpHint')}</div>
             <button onClick={handleCloseJumpModal} style={{
               marginTop: 20, padding: '10px 24px', background: '#1e40af', color: '#fff',
               border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14,
@@ -481,7 +481,7 @@ function NotificationCard({ notification, onView, onMarkRead, onDelete, isSelect
 
       {/* 内容摘要 */}
       <div style={{
-        fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5,
+        fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5,
         overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box',
         WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', marginBottom: 10,
       }}>
@@ -563,7 +563,7 @@ function SettingsPanel({ settings, onUpdate }: SettingsPanelProps) {
 
   const SectionTitle = ({ children }: { children: React.ReactNode }) => (
     <div style={{
-      fontSize: 13, fontWeight: 700, color: PRIMARY, marginBottom: 12,
+      fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 12,
       paddingBottom: 8, borderBottom: '1px solid var(--border-color)',
     }}>
       {children}
@@ -574,7 +574,7 @@ function SettingsPanel({ settings, onUpdate }: SettingsPanelProps) {
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <div style={{ color: GRAY }}>{icon}</div>
-        <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{label}</span>
+        <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</span>
       </div>
       <ToggleSwitch checked={checked} onChange={onChange} />
     </div>
@@ -738,19 +738,19 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
         <div style={{ fontSize: 12, color: GRAY, marginBottom: 8 }}>{t('notification.todayOverview')}</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
           <div style={{ background: 'var(--content-bg)', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: 22, fontWeight: 700, color: PRIMARY }}>{todayStats.total}</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: PRIMARY }}>{todayStats.total}</div>
             <div style={{ fontSize: 12, color: GRAY }}>{t('notification.todayTotal')}</div>
           </div>
           <div style={{ background: 'var(--content-bg)', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: 22, fontWeight: 700, color: SUCCESS }}>{todayStats.total - todayStats.unread}</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: SUCCESS }}>{todayStats.total - todayStats.unread}</div>
             <div style={{ fontSize: 12, color: GRAY }}>{t('notification.read')}</div>
           </div>
           <div style={{ background: 'var(--content-bg)', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: 22, fontWeight: 700, color: DANGER }}>{todayStats.unread}</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: DANGER }}>{todayStats.unread}</div>
             <div style={{ fontSize: 12, color: GRAY }}>{t('notification.unread')}</div>
           </div>
           <div style={{ background: 'var(--color-error-bg)', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid #fecaca' }}>
-            <div style={{ fontSize: 22, fontWeight: 700, color: DANGER }}>{todayStats.critical}</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: DANGER }}>{todayStats.critical}</div>
             <div style={{ fontSize: 12, color: GRAY }}>{t('notification.typeCritical')}</div>
           </div>
         </div>
@@ -1012,7 +1012,7 @@ function RulesEnginePanel({ rules, onToggle, onDelete }: { rules: NotificationRu
         <div key={rule.id} style={{ padding: '12px 0', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{rule.name}</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>{rule.name}</span>
               <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, background: rule.priority === 'high' ? 'var(--color-error-bg)' : 'var(--bg-card)', color: rule.priority === 'high' ? '#dc2626' : 'var(--text-secondary, #475569)' }}>
                 {rule.priority === 'high' ? t('notification.priorityHighLabel') : t('notification.priorityNormal')}
               </span>
@@ -1057,7 +1057,7 @@ function PreferencesPanel({ preferences, onUpdate }: { preferences: UserNotifyPr
             style={{ width: 36, height: 20, borderRadius: 10, background: preferences.quietHoursEnabled ? ACCENT : 'var(--border-default, rgba(0,0,0,0.12))', position: 'relative', cursor: 'pointer' }}>
             <div style={{ width: 16, height: 16, borderRadius: '50%', background: 'var(--bg-card)', position: 'absolute', top: 2, left: preferences.quietHoursEnabled ? 18 : 2, boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
           </div>
-          <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{t('notification.enableQuietHours')}</span>
+          <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('notification.enableQuietHours')}</span>
         </div>
         {preferences.quietHoursEnabled && (
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -1152,7 +1152,7 @@ function SubscriptionPanel({
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ color: checked ? def.key === 'CRITICAL' ? DANGER : ACCENT : GRAY }}>{def.icon}</div>
               <div>
-                <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{def.label}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{def.label}</div>
                 <div style={{ fontSize: 11, color: GRAY }}>{def.desc}</div>
               </div>
             </div>
@@ -1629,7 +1629,7 @@ export default function NotificationCenter() {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               {stats.unread > 0 ? <BellRing size={16} /> : <Check size={16} />}
-              <span style={{ fontSize: 13, fontWeight: 600 }}>
+              <span style={{ fontSize: 12, fontWeight: 600 }}>
                 {stats.unread > 0 ? `${stats.unread} 条未读` : t('notification.noUnread')}
               </span>
             </div>
@@ -1659,7 +1659,7 @@ export default function NotificationCenter() {
                   width: '100%', padding: '10px 12px', borderRadius: 8, border: 'none',
                   background: activeTab === type.key ? `${type.color}15` : 'transparent',
                   color: activeTab === type.key ? type.color : 'var(--text-secondary)',
-                  fontSize: 13, fontWeight: activeTab === type.key ? 600 : 500,
+                  fontSize: 12, fontWeight: activeTab === type.key ? 600 : 500,
                   cursor: 'pointer', display: 'flex', alignItems: 'center',
                   justifyContent: 'space-between', marginBottom: 4, transition: 'all 0.15s',
                 }}
@@ -1748,7 +1748,7 @@ export default function NotificationCenter() {
               width: '100%', padding: '10px 12px', borderRadius: 8, border: 'none',
               background: showSettings ? `${PRIMARY}15` : 'transparent',
               color: showSettings ? PRIMARY : '#334155',
-              fontSize: 13, fontWeight: 500, cursor: 'pointer',
+              fontSize: 12, fontWeight: 500, cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.15s',
             }}
           >
@@ -1761,7 +1761,7 @@ export default function NotificationCenter() {
               width: '100%', marginTop: 4, padding: '10px 12px', borderRadius: 8, border: 'none',
               background: showPreferences ? `${PRIMARY}15` : 'transparent',
               color: showPreferences ? PRIMARY : '#334155',
-              fontSize: 13, fontWeight: 500, cursor: 'pointer',
+              fontSize: 12, fontWeight: 500, cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.15s',
             }}
           >
@@ -1802,7 +1802,7 @@ export default function NotificationCenter() {
                 value={searchText}
                 onChange={e => setSearchText(e.target.value)}
                 placeholder={t('notification.searchPlaceholder')}
-                style={{ border: 'none', fontSize: 13, background: 'transparent', width: 200 }}
+                style={{ border: 'none', fontSize: 12, background: 'transparent', width: 200 }}
               />
               {searchText && (
                 <button onClick={() => setSearchText('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
@@ -1940,7 +1940,7 @@ export default function NotificationCenter() {
                     <div key={key}>
                       <div style={{
                         display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10,
-                        fontSize: 13, fontWeight: 700, color,
+                        fontSize: 12, fontWeight: 700, color,
                       }}>
                         <span style={{ width: 8, height: 8, borderRadius: '50%', background: color }} />
                         {label}
@@ -2109,25 +2109,25 @@ export default function NotificationCenter() {
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>{t('notification.bcTitle')} *</label>
                 <input value={bcForm.title} onChange={e => setBcForm({ ...bcForm, title: e.target.value })} placeholder={t('notification.bcTitlePlaceholder')}
-                  style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box',}} />
+                  style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} />
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>{t('notification.bcContent')} *</label>
                 <textarea rows={3} value={bcForm.content} onChange={e => setBcForm({ ...bcForm, content: e.target.value })} placeholder={t('notification.bcContentPlaceholder')}
-                  style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', resize: 'vertical' }} />
+                  style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box', resize: 'vertical' }} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>{t('notification.bcType')}</label>
                   <select value={bcForm.type} onChange={e => setBcForm({ ...bcForm, type: e.target.value as NotificationDto['type'] })}
-                    style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, background: 'var(--bg-card)',}}>
+                    style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, background: 'var(--bg-card)',}}>
                     {['CRITICAL', 'REPORT', 'TASK', 'SYSTEM', 'APPOINTMENT'].map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>{t('notification.bcSeverity')}</label>
                   <select value={bcForm.severity ?? 'INFO'} onChange={e => setBcForm({ ...bcForm, severity: e.target.value as NotificationDto['severity'] })}
-                    style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, background: 'var(--bg-card)',}}>
+                    style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, background: 'var(--bg-card)',}}>
                     {['INFO', 'WARN', 'ERROR', 'CRITICAL'].map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
@@ -2135,11 +2135,11 @@ export default function NotificationCenter() {
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>{t('notification.bcUsers')}</label>
                 <input value={bcForm.userIds} onChange={e => setBcForm({ ...bcForm, userIds: e.target.value })} placeholder={t('notification.bcUsersPlaceholder')}
-                  style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box',}} />
+                  style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
-                <button onClick={() => setShowBroadcast(false)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, fontSize: 13, cursor: 'pointer' }}>{t('notification.cancel')}</button>
-                <button onClick={() => void handleBroadcast()} disabled={bcSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: SUCCESS, color: WHITE, fontSize: 13, fontWeight: 600, cursor: bcSaving ? 'wait' : 'pointer' }}>{bcSaving ? t('notification.sendingBroadcast') : t('notification.sendBroadcast')}</button>
+                <button onClick={() => setShowBroadcast(false)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, fontSize: 12, cursor: 'pointer' }}>{t('notification.cancel')}</button>
+                <button onClick={() => void handleBroadcast()} disabled={bcSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: SUCCESS, color: WHITE, fontSize: 12, fontWeight: 600, cursor: bcSaving ? 'wait' : 'pointer' }}>{bcSaving ? t('notification.sendingBroadcast') : t('notification.sendBroadcast')}</button>
               </div>
             </div>
           </div>

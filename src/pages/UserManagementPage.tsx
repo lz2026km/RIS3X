@@ -146,7 +146,7 @@ export default function UserManagementPage() {
           onClick={onSave}
           disabled={saving}
           data-testid="user-save-all"
-          style={{ padding: '6px 14px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, cursor: saving ? 'wait' : 'pointer' }}
+          style={{ padding: '6px 14px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, cursor: saving ? 'wait' : 'pointer' }}
         >
           {saving ? '保存中...' : '批量保存'}
         </button>

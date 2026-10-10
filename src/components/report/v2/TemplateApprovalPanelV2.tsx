@@ -461,7 +461,7 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
           </Space>
         ) : (
           <Space direction="vertical" style={{ width: '100%' }}>
-            <div style={{ fontSize: 13 }}>
+            <div style={{ fontSize: 12 }}>
               <Tag color={STATE_META[actionModal?.template.state as TemplateStateV2]?.color}>{STATE_META[actionModal?.template.state as TemplateStateV2]?.label}</Tag>
               v{actionModal?.template.version} · {actionModal?.template.category}/{actionModal?.template.bodyPart}
               {actionModal?.template.assignee && (

@@ -104,7 +104,7 @@ export default function ReportKanbanView({ reports, onView, onReview }: ReportKa
           <div style={{ padding: '10px 14px', borderRadius: '10px 10px 0 0', background: col.bg, border: `1px solid ${col.border}`, borderBottom: 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: col.color }} />
             <col.Icon size={14} style={{ color: col.color }} />
-            <span style={{ fontSize: 13, fontWeight: 700, color: col.color }}>{col.label}</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: col.color }}>{col.label}</span>
             <span style={{ marginLeft: 'auto', padding: '1px 8px', borderRadius: 10, background: col.color, color: WHITE, fontSize: 12, fontWeight: 700 }}>{col.items.length}</span>
           </div>
           <div onDragOver={e => handleDragOver(e, col.key)} onDragLeave={handleDragLeave} onDrop={e => handleDrop(e, col.key)}
@@ -128,7 +128,7 @@ export default function ReportKanbanView({ reports, onView, onReview }: ReportKa
                 onMouseLeave={e => { if (draggedId !== r.id) (e.currentTarget as HTMLDivElement).style.boxShadow = '0 1px 3px rgba(0,0,0,0.06)' }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{r.patientName}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{r.patientName}</span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     {/* [v3.0.6.11-95 Wave2B P1] 草稿超时角标 */}
                     {isDraftOverdue(r.status, r.updatedTime) && (

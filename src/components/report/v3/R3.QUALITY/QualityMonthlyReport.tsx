@@ -436,7 +436,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                     <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1e40af', margin: 0 }}>
                       {s.title} · {s.titleEn}
                     </h3>
-                    <p style={{ fontSize: 13, color: '#475569', marginTop: 4, lineHeight: 1.6 }}>{s.content}</p>
+                    <p style={{ fontSize: 12, color: '#475569', marginTop: 4, lineHeight: 1.6 }}>{s.content}</p>
                   </div>
                 ))}
                 <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>

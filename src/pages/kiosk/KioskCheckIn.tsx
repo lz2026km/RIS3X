@@ -20,11 +20,11 @@ export interface KioskState {
 const s = {
   container: { background: '#0f172a', color: '#e2e8f0', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', padding: '24px', fontFamily: '-apple-system, sans-serif' },
   card: { background: '#1e293b', borderRadius: 16, padding: 40, maxWidth: 520, width: '100%', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' },
-  title: { fontSize: 28, fontWeight: 700, textAlign: 'center' as const, marginBottom: 8 },
+  title: { fontSize: 30, fontWeight: 700, textAlign: 'center' as const, marginBottom: 8 },
   subtitle: { fontSize: 14, color: '#94a3b8', textAlign: 'center' as const, marginBottom: 32 },
   input: { width: '100%', padding: '14px 16px', fontSize: 18, background: '#0f172a', border: '1px solid #334155', borderRadius: 10, color: '#f8fafc', textAlign: 'center' as const, letterSpacing: 4, boxSizing: 'border-box' as const,},
   btn: { width: '100%', padding: '14px', fontSize: 16, fontWeight: 600, border: 'none', borderRadius: 10, cursor: 'pointer', transition: 'all 0.2s' },
-  label: { fontSize: 13, color: '#94a3b8', marginBottom: 8, display: 'block' },
+  label: { fontSize: 12, color: '#94a3b8', marginBottom: 8, display: 'block' },
   value: { fontSize: 16, color: '#f8fafc', fontWeight: 500 },
   row: { display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #334155' },
   badge: (isPrimary: boolean) => ({
@@ -146,7 +146,7 @@ const s = {
                 <style>{marqueeStyle}</style>
                 <div className="kiosk-marquee" style={{ padding: '10px 0' }}>
                   {activeMessages.map(m => (
-                    <div key={m.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, paddingRight: 48, fontSize: 13 }}>
+                    <div key={m.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, paddingRight: 48, fontSize: 12 }}>
                       <span style={{ fontWeight: 700, color: m.level === 'urgent' ? '#f87171' : m.level === 'warning' ? '#fbbf24' : '#60a5fa' }}>{m.title}</span>
                       <span style={{ color: '#cbd5e1' }}>{m.content}</span>
                     </div>
@@ -157,12 +157,12 @@ const s = {
             {announcement && (
               <div style={{ background: '#0f172a', borderRadius: 10, padding: '10px 14px', marginBottom: 16, border: '1px solid #334155' }}>
                 <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 2 }}>{t('kiosk.announcementLabel')}</div>
-                <div style={{ fontSize: 13, color: '#cbd5e1', lineHeight: 1.6 }}>{announcement}</div>
+                <div style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.6 }}>{announcement}</div>
               </div>
             )}
             <div style={{ background: '#0f172a', borderRadius: 10, padding: 12, marginBottom: 20, border: '1px solid #334155' }}>
               <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 6 }}>{t('kiosk.processLabel')}</div>
-              <div style={{ fontSize: 13, color: '#cbd5e1', lineHeight: 1.7 }}>
+              <div style={{ fontSize: 12, color: '#cbd5e1', lineHeight: 1.7 }}>
                 {t('kiosk.processSteps')}
               </div>
             </div>
@@ -209,13 +209,13 @@ const s = {
             </div>
             <div style={s.queueNumber}>{result.queueNumber}</div>
             <div style={{ textAlign: 'center', marginBottom: 20 }}>
-              <div style={{ color: '#94a3b8', fontSize: 13 }}>{t('kiosk.estimatedWait')}</div>
+              <div style={{ color: '#94a3b8', fontSize: 12 }}>{t('kiosk.estimatedWait')}</div>
               <div style={{ fontSize: 24, fontWeight: 700, color: '#f8fafc' }}>{t('kiosk.minutes', { count: result.estimatedWaitMinutes })}</div>
             </div>
             <div style={{ textAlign: 'center', padding: 12, background: '#0f172a', borderRadius: 8, marginBottom: 20 }}>
-              <span style={{ color: '#94a3b8', fontSize: 13 }}>{t('kiosk.goTo')}</span>
+              <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('kiosk.goTo')}</span>
               <span style={{ color: '#3b82f6', fontWeight: 700 }}>{result.roomName}</span>
-              <span style={{ color: '#94a3b8', fontSize: 13 }}>{t('kiosk.waitForCall')}</span>
+              <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('kiosk.waitForCall')}</span>
             </div>
             <button style={{ ...s.btn, background: '#3b82f6', color: '#fff' }} onClick={handleReset}>{t('kiosk.done')}</button>
           </>
@@ -225,7 +225,7 @@ const s = {
       {(step === 'idle' || step === 'result') && (
         <Card bordered={false} style={{ maxWidth: 520, width: '100%', marginTop: 16, background: '#1e293b', borderRadius: 12, padding: 16, border: '1px solid #334155' }} styles={{ body: { padding: 0 } }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0' }}>{t('kiosk.queueTitle')}</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0' }}>{t('kiosk.queueTitle')}</span>
             {queueLoading && <span style={{ fontSize: 11, color: '#64748b' }}>{t('kiosk.loading')}</span>}
           </div>
           {waitingQueue.length === 0 && !queueLoading ? (
@@ -234,7 +234,7 @@ const s = {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {waitingQueue.map(q => (
                 <div key={q.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0f172a', borderRadius: 8, padding: '8px 12px' }}>
-                  <span style={{ fontSize: 13, color: '#e2e8f0' }}>{q.queueNumber} · {q.patientName}</span>
+                  <span style={{ fontSize: 12, color: '#e2e8f0' }}>{q.queueNumber} · {q.patientName}</span>
                   <span style={s.badge(true)}>{q.examItem}</span>
                 </div>
               ))}

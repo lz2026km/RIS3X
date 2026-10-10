@@ -45,7 +45,7 @@ export default function TechnicianRankingTable({ technicians, loading }: Props) 
     }} data-testid="tech-ranking-table">
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
         <Trophy size={13} color="#f59e0b" />
-        <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>技师排行 Top10</span>
+        <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>技师排行 Top10</span>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
           {(Object.keys(KIND_DEFS) as RankKind[]).map((k) => (
             <button

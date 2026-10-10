@@ -329,7 +329,7 @@ export default function PatientMobileApp() {
             onClick={() => setSelectedReport(r)}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedReport(r) } }}>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{r.examType}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{r.examType}</div>
               <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.examDate}</div>
             </div>
             <span style={s.badge(r.status)}>{r.status === 'ready' ? t('mobileApp.status.ready') : t('mobileApp.status.pending')}</span>
@@ -365,7 +365,7 @@ export default function PatientMobileApp() {
           </button>
           <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>{selectedReport.examType}</div>
           <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 12 }}>{selectedReport.examDate} · {selectedReport.doctorName}</div>
-          <div style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 8, fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 16 }}>
+          <div style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 8, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 16 }}>
             检查描述：双肺野清晰，肺纹理走行自然。\n诊断意见：未见明显异常。
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -386,7 +386,7 @@ export default function PatientMobileApp() {
                 border: 'none',
                 background: payState === 'success' && payingReportId === selectedReport.id ? '#94a3b8' : payState === 'invoking' ? '#cbd5e1' : '#07c160',
                 color: '#fff',
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: 600,
                 cursor: payState === 'invoking' ? 'not-allowed' : 'pointer',
               }}
@@ -404,7 +404,7 @@ export default function PatientMobileApp() {
           {mobileReports.map(r => (
             <div key={r.id} role="button" tabIndex={0} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' }} onClick={() => setSelectedReport(r)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedReport(r) } }}>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{r.examType}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{r.examType}</div>
                 <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.examDate}</div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -465,7 +465,7 @@ export default function PatientMobileApp() {
         ].map((item, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '10px 0', borderBottom: i < 3 ? '1px solid var(--border-color)' : 'none', cursor: 'pointer' }}>
             <span style={{ marginRight: 10, fontSize: 16 }}>{item.icon}</span>
-            <span style={{ fontSize: 13, color: 'var(--text-secondary)', flex: 1 }}>{t(item.labelKey)}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)', flex: 1 }}>{t(item.labelKey)}</span>
             <ChevronRight size={14} color="#94a3b8" />
           </div>
         ))}
@@ -608,13 +608,13 @@ export default function PatientMobileApp() {
               <button onClick={() => setImageViewer(null)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 4 }}><X size={18} /></button>
             </div>
             {imageLoading ? (
-              <div style={{ height: 260, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: 13 }}>{t('mobileApp.imageLoading')}</div>
+              <div style={{ height: 260, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: 12 }}>{t('mobileApp.imageLoading')}</div>
             ) : (
               <>
                 <div style={{ height: 260, background: 'linear-gradient(135deg,#1e293b,#0f172a)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #334155' }}>
                   <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
-                    <div style={{ fontSize: 40, marginBottom: 8 }}></div>
-                    <div style={{ fontSize: 13 }}>{imageViewer.report.examType} · {imageViewer.report.examDate}</div>
+                    <div style={{ fontSize: 36, marginBottom: 8 }}></div>
+                    <div style={{ fontSize: 12 }}>{imageViewer.report.examType} · {imageViewer.report.examDate}</div>
                     <div style={{ fontSize: 11, marginTop: 6, color: 'rgba(255,255,255,0.4)' }}>
                       {imageViewer.study ? `序列 ${imageViewer.study.series?.length ?? 0} 组 · ${imageViewer.study.studyInstanceUid?.slice(0, 12) ?? ''}...` : t('mobileApp.dicomPreview')}
                     </div>

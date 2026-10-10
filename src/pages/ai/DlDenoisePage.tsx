@@ -330,7 +330,7 @@ const DlDenoisePage: React.FC = () => {
     <div style={{ background: '#020617', color: '#cbd5e1', padding: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
         <Sparkles size={18} color={BLUE} />
-        <span style={{ fontSize: 15, fontWeight: 700 }}>{t('dlDenoisePage.title')}</span>
+        <span style={{ fontSize: 14, fontWeight: 700 }}>{t('dlDenoisePage.title')}</span>
         <Tag color="cyan">{t('dlDenoisePage.title')} · {activeKernelLabel}</Tag>
         {dataSource === 'real' && <Tag color="green">{t('dlDenoisePage.realBackend')} · {serverResult?.algorithm ?? t('dlDenoisePage.kernelMedian')}{serverResult?.backend ? ` · ${serverResult.backend}` : ''}</Tag>}
         {dataSource === 'fallback' && <Tag color="orange">{t('dlDenoisePage.fallbackRender')}</Tag>}

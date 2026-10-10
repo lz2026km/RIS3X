@@ -943,7 +943,7 @@ const AIStructuredReportPage: React.FC = () => {
       color: "var(--text-secondary)",
       border: "1px solid var(--border-color)",
       borderRadius: "6px",
-      fontSize: "13px",
+      fontSize: "12px",
       cursor: "pointer",
       transition: "all 0.2s",
       fontWeight: 500,
@@ -1082,7 +1082,7 @@ const AIStructuredReportPage: React.FC = () => {
       color: "#1e40af",
       border: "1px dashed #1e40af",
       borderRadius: "6px",
-      fontSize: "13px",
+      fontSize: "12px",
       cursor: "pointer",
       width: "100%",
       textAlign: "center" as const,
@@ -1159,7 +1159,7 @@ const AIStructuredReportPage: React.FC = () => {
       color: "#e2e8f0",
       padding: "16px",
       borderRadius: "8px",
-      fontSize: "13px",
+      fontSize: "12px",
       fontFamily: '"Monaco", "Menlo", monospace',
       overflow: "auto",
       maxHeight: "500px",
@@ -1187,7 +1187,7 @@ const AIStructuredReportPage: React.FC = () => {
       color: "white",
       border: "none",
       borderRadius: "6px",
-      fontSize: "13px",
+      fontSize: "12px",
       cursor: "pointer",
       width: "100%",
     },
@@ -1206,7 +1206,7 @@ const AIStructuredReportPage: React.FC = () => {
           <span style={{ marginLeft: 10, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fff3cd', color: '#b45309', fontWeight: 600, verticalAlign: 'middle' }}>{t("aiStructured.demoBadge")}</span>
         </h1>
         <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-          <span style={{ fontSize: "13px", opacity: 0.9 }}>
+          <span style={{ fontSize: "12px", opacity: 0.9 }}>
             {t("aiStructured.currentUser")}
           </span>
           <button style={styles.voiceButton} onClick={handleVoiceRecord}>

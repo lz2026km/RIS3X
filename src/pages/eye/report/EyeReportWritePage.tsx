@@ -178,7 +178,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
         iconColor="#1e40af"
         size="sm"
       >
-        <div style={{ fontSize: 13, color: "var(--text-primary)" }}>
+        <div style={{ fontSize: 12, color: "var(--text-primary)" }}>
           {t('eyeReport.voiceHint')}
         </div>
         <div
@@ -226,7 +226,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
           </>
         }
       >
-        <div style={{ fontSize: 13, color: "var(--text-primary)" }}>
+        <div style={{ fontSize: 12, color: "var(--text-primary)" }}>
           {t('eyeReport.aiBasedOn')}
         </div>
         <ul
@@ -269,7 +269,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
           </button>
         }
       >
-        <div style={{ fontSize: 13, color: "var(--text-primary)", lineHeight: 1.8 }}>
+        <div style={{ fontSize: 12, color: "var(--text-primary)", lineHeight: 1.8 }}>
           <div>
             <strong>{t('eyeReport.signDoctor')}</strong> {t('eyeReport.signDoctorName')}
           </div>
@@ -326,7 +326,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
           </>
         }
       >
-        <div style={{ fontSize: 13, color: "var(--text-primary)", lineHeight: 1.8 }}>
+        <div style={{ fontSize: 12, color: "var(--text-primary)", lineHeight: 1.8 }}>
           <div>
             <strong>{t('eyeReport.printer')}</strong> DryView 8700
           </div>
@@ -369,7 +369,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
                     {s.required && <Badge status="error" />}
                     <span
                       style={{
-                        fontSize: 13,
+                        fontSize: 12,
                         fontWeight: s.required ? 600 : 400,
                       }}
                     >

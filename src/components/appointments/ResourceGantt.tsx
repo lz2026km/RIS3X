@@ -143,7 +143,7 @@ export default function ResourceGantt({ appointments, onCreate }: Props) {
   return (
     <div data-testid="resource-gantt" style={{ background: 'var(--bg-card)', borderRadius: 10, border: `1px solid ${borderGray}`, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
       <div style={{ padding: '10px 14px', borderBottom: `1px solid ${borderGray}`, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#1e40af' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: '#1e40af' }}>
           <GanttChartSquare size={15} /> {t('w5Appt.ganttTitle')}
         </div>
         <div style={{ display: 'flex', gap: 4 }}>{dimBtn('DEVICE', t('w5Appt.ganttByDevice'))}{dimBtn('ROOM', t('w5Appt.ganttByRoom'))}{dimBtn('TECH', t('w5Appt.ganttByTech'))}</div>

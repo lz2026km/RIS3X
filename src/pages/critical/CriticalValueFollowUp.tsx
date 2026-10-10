@@ -86,7 +86,7 @@ export const TransferToFollowUpModal = ({
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <ArrowUpRight size={20} style={{ color: "#fff" }} />
             <div>
-              <div style={{ fontSize: 15, fontWeight: 800, color: "#fff" }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: "#fff" }}>
                 确认转随访
               </div>
               <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)" }}>
@@ -137,7 +137,7 @@ export const TransferToFollowUpModal = ({
               <div>
                 <span style={{ fontSize: 12, color: "#94a3b8" }}>姓名</span>
                 <div
-                  style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}
+                  style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}
                 >
                   {cv.patientName}
                 </div>
@@ -145,20 +145,20 @@ export const TransferToFollowUpModal = ({
               <div>
                 <span style={{ fontSize: 12, color: "#94a3b8" }}>危急值</span>
                 <div
-                  style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}
+                  style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}
                 >
                   {cv.findingDetails.substring(0, 30)}...
                 </div>
               </div>
               <div>
                 <span style={{ fontSize: 12, color: "#94a3b8" }}>设备</span>
-                <div style={{ fontSize: 13, color: "var(--text-primary)" }}>
+                <div style={{ fontSize: 12, color: "var(--text-primary)" }}>
                   {cv.modality}
                 </div>
               </div>
               <div>
                 <span style={{ fontSize: 12, color: "#94a3b8" }}>状态</span>
-                <div style={{ fontSize: 13, color: "var(--text-primary)" }}>
+                <div style={{ fontSize: 12, color: "var(--text-primary)" }}>
                   {cv.status}
                 </div>
               </div>
@@ -224,7 +224,7 @@ export const TransferToFollowUpModal = ({
                 border: "1px solid var(--border-color)",
                 background: "var(--bg-card)",
                 color: "#64748b",
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: 600,
                 cursor: "pointer",
               }}
@@ -240,7 +240,7 @@ export const TransferToFollowUpModal = ({
                 border: "1px solid #7c3aed",
                 background: "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)",
                 color: "#fff",
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: 600,
                 cursor: "pointer",
                 display: "flex",
@@ -457,7 +457,7 @@ export const DocumentsTab = ({ documents, cvId }: DocumentsTabProps) => {
           marginBottom: 16,
         }}
       >
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
           相关文档 ({documents?.length || 0})
         </div>
         <button

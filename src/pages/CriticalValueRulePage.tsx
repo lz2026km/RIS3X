@@ -794,7 +794,7 @@ export default function CriticalValueRulePage() {
                   padding: "8px 12px",
                   borderRadius: 6,
                   border: "1px solid var(--border-color)",
-                  fontSize: 13, boxSizing: "border-box",
+                  fontSize: 12, boxSizing: "border-box",
                 }}
               />
             </div>
@@ -837,7 +837,7 @@ export default function CriticalValueRulePage() {
                     padding: "8px 12px",
                     borderRadius: 6,
                     border: "1px solid var(--border-color)",
-                    fontSize: 13, boxSizing: "border-box",
+                    fontSize: 12, boxSizing: "border-box",
                   }}
                 />
               </div>
@@ -896,7 +896,7 @@ export default function CriticalValueRulePage() {
                   padding: "8px 12px",
                   borderRadius: 6,
                   border: "1px solid var(--border-color)",
-                  fontSize: 13, resize: "vertical",
+                  fontSize: 12, resize: "vertical",
                   fontFamily: "inherit",
                   boxSizing: "border-box",
                 }}
@@ -957,7 +957,7 @@ export default function CriticalValueRulePage() {
                 marginBottom: 12,
               }}
             >
-              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-primary)" }}>
                 {ruleTriggers.name}
               </div>
               <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
@@ -1020,7 +1020,7 @@ export default function CriticalValueRulePage() {
           </ActionButton>
         }
       >
-        <div style={{ fontSize: 13, color: "var(--text-primary)", padding: "4px 0" }}>
+        <div style={{ fontSize: 12, color: "var(--text-primary)", padding: "4px 0" }}>
           {saveDialog.message}
         </div>
         <div style={{ marginTop: 8, fontSize: 12, color: "var(--text-secondary)" }}>
@@ -1052,7 +1052,7 @@ export default function CriticalValueRulePage() {
             color: "#fff",
             padding: "10px 20px",
             borderRadius: 8,
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: 600,
             boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
             zIndex: "var(--z-toast, 800)",

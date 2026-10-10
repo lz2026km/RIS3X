@@ -98,7 +98,7 @@ const MetricCard: React.FC<{
     <div style={{ fontSize: 12, color: "#8c8c8c" }}>{title}</div>
     <div
       style={{
-        fontSize: 22,
+        fontSize: 20,
         fontWeight: 700,
         lineHeight: 1.3,
         color: tone ?? "#1f1f1f",

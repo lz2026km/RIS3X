@@ -344,7 +344,7 @@ export default function ReportTableView({
           </div>
         ),
       }}
-      locale={{ emptyText: <Empty image={<Search size={32} style={{ color: "#94a3b8" }} />} description={<span style={{ fontSize: 13, color: "#94a3b8" }}>{t('rptTable.empty')}</span>} /> }}
+      locale={{ emptyText: <Empty image={<Search size={32} style={{ color: "#94a3b8" }} />} description={<span style={{ fontSize: 12, color: "#94a3b8" }}>{t('rptTable.empty')}</span>} /> }}
       onRow={(report) => ({ onClick: () => onView(report), style: { cursor: 'pointer' } })}
     />
   )

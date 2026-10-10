@@ -304,7 +304,7 @@ const DraftScorePanel: React.FC = () => {
         onChange={(e) => setDraftText(e.target.value)}
         rows={8}
         placeholder={t('aiEnhanced.draftPlaceholder')}
-        style={{ fontFamily: 'monospace', fontSize: 13, lineHeight: 1.6, marginBottom: 12 }}
+        style={{ fontFamily: 'monospace', fontSize: 12, lineHeight: 1.6, marginBottom: 12 }}
       />
       <Space style={{ width: '100%', justifyContent: 'space-between' }}>
         <Text type="secondary" style={{ fontSize: 12 }}>{draftText.length} {t('aiEnhanced.chars')}</Text>
@@ -340,10 +340,10 @@ const DraftScorePanel: React.FC = () => {
           {result.dimensions.map((d) => (
             <div key={d.key} style={{ marginBottom: 8 }}>
               <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                <Text style={{ fontSize: 13 }}>{d.label}</Text>
+                <Text style={{ fontSize: 12 }}>{d.label}</Text>
                 <Space size={4}>
                   <Text type="secondary" style={{ fontSize: 12 }}>{t('aiEnhanced.weight')} {(d.weight * 100).toFixed(0)}%</Text>
-                  <Text strong style={{ color: scoreColor(d.score), fontSize: 13 }}>{d.score}</Text>
+                  <Text strong style={{ color: scoreColor(d.score), fontSize: 12 }}>{d.score}</Text>
                 </Space>
               </Space>
               <Progress percent={d.score} strokeColor={scoreColor(d.score)} showInfo={false} size="small" />
@@ -363,7 +363,7 @@ const DraftScorePanel: React.FC = () => {
                 <List.Item style={{ alignItems: 'flex-start' }}>
                   <Space align="start" size={8}>
                     <Tag color={LEVEL_COLORS[s.level] ?? 'blue'} style={{ marginTop: 2 }}>{t(LEVEL_LABELS[s.level] ?? s.level)}</Tag>
-                    <Text style={{ fontSize: 13 }}>{s.message}</Text>
+                    <Text style={{ fontSize: 12 }}>{s.message}</Text>
                   </Space>
                 </List.Item>
               )}

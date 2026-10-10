@@ -311,7 +311,7 @@ export const ReviewCheckPage: React.FC = () => {
 
 function AlertTitle({ text }: { text: string }) {
   return (
-    <div style={{ marginBottom: 12, padding: '8px 12px', background: '#e6f4ff', borderRadius: 6, fontSize: 13 }}>
+    <div style={{ marginBottom: 12, padding: '8px 12px', background: '#e6f4ff', borderRadius: 6, fontSize: 12 }}>
       <PenTool size={12} style={{ marginRight: 6, color: '#2563eb' }} />
       {text}
     </div>

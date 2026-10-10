@@ -3,6 +3,7 @@ import { Baby, Info, User, AlertTriangle } from "lucide-react";
 import { pediatricDoseRecords } from "./mockData";
 import { getAlertBadge } from "./utils";
 import { rdsrApi } from "../../services/api/rdsrApi";
+import { DataTable } from "../../components/common";
 import { LoadingBanner, ErrorBanner, AppEmpty } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
 import type { PediatricDoseRecord } from "./types";
@@ -129,7 +130,7 @@ function ReductionFactorCards() {
     >
       <div
         style={{
-          fontSize: 13,
+          fontSize: 12,
           fontWeight: 700,
           color: "#1e40af",
           marginBottom: 16,
@@ -204,7 +205,7 @@ function RecordsTable({ records }: { records: PediatricDoseRecord[] }) {
     >
       <div
         style={{
-          fontSize: 13,
+          fontSize: 12,
           fontWeight: 700,
           color: "#1e40af",
           marginBottom: 16,
@@ -213,111 +214,41 @@ function RecordsTable({ records }: { records: PediatricDoseRecord[] }) {
         儿童CT检查记录
       </div>
       <div style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ background: "var(--bg-primary)" }}>
-              {[
-                "患者姓名",
-                "年龄",
-                "年龄组",
-                "性别",
-                "检查日期",
-                "设备",
-                "检查项目",
-                "剂量值",
-                "折扣系数",
-                "预警级别",
-              ].map((h) => (
-                <th
-                  key={h}
-                  style={{
-                    padding: "10px 12px",
-                    textAlign: "center",
-                    fontSize: 12,
-                    fontWeight: 700,
-                    color: "#64748b",
-                    borderBottom: "2px solid #e2e8f0",
-                  }}
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {records.map((record: PediatricDoseRecord, i: number) => {
-              const badge = getAlertBadge(record.alertLevel);
-              const ageGroupColor =
-                record.ageGroup === "0-5岁"
-                  ? "#dc2626"
-                  : record.ageGroup === "5-10岁"
-                    ? "#d97706"
-                    : "#1e40af";
-              const ageGroupBg =
-                record.ageGroup === "0-5岁"
-                  ? "#fef2f2"
-                  : record.ageGroup === "5-10岁"
-                    ? "#fffbeb"
-                    : "#eff6ff";
-              return (
-                <tr
-                  key={record.id}
-                  style={{ background: i % 2 === 0 ? "var(--bg-card)" : "var(--bg-primary)" }}
-                >
-                  <td style={tdPrimary}>{record.patientName}</td>
-                  <td style={tdSecondary}>{record.age}</td>
-                  <td style={{ padding: "10px 12px", textAlign: "center" }}>
-                    <span
-                      style={{
-                        padding: "2px 8px",
-                        background: ageGroupBg,
-                        color: ageGroupColor,
-                        borderRadius: 4,
-                        fontSize: 12,
-                        fontWeight: 600,
-                      }}
-                    >
-                      {record.ageGroup}
-                    </span>
-                  </td>
-                  <td style={tdSecondary}>{record.gender}</td>
-                  <td style={tdMuted}>{record.examDate}</td>
-                  <td style={tdSecondary}>{record.device}</td>
-                  <td style={tdSecondary}>{record.examItem}</td>
-                  <td style={tdBold}>{record.doseValue}</td>
-                  <td style={{ padding: "10px 12px", textAlign: "center" }}>
-                    <span
-                      style={{
-                        padding: "2px 8px",
-                        background: "#eff6ff",
-                        color: "#1e40af",
-                        borderRadius: 4,
-                        fontSize: 12,
-                        fontWeight: 600,
-                      }}
-                    >
-                      ×{record.doseReductionFactor.toFixed(1)}
-                    </span>
-                  </td>
-                  <td style={{ padding: "10px 12px", textAlign: "center" }}>
-                    <span
-                      style={{
-                        padding: "2px 8px",
-                        background: badge.bg,
-                        color: badge.color,
-                        borderRadius: 4,
-                        fontSize: 12,
-                        fontWeight: 700,
-                      }}
-                    >
-                      {badge.label}级
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <DataTable
+          rowKey="id"
+          dataSource={records}
+          showPagination={false}
+          showExport={false}
+          showDensity={false}
+          columns={[
+            { title: "患者姓名", dataIndex: "patientName", key: "patientName", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "#1e40af" }}>{v}</span> },
+            { title: "年龄", dataIndex: "age", key: "age", align: "center", render: (v: number) => <span style={{ color: "#334155" }}>{v}</span> },
+            {
+              title: "年龄组", dataIndex: "ageGroup", key: "ageGroup", align: "center",
+              render: (v: string) => {
+                const ageGroupColor = v === "0-5岁" ? "#dc2626" : v === "5-10岁" ? "#d97706" : "#1e40af";
+                const ageGroupBg = v === "0-5岁" ? "#fef2f2" : v === "5-10岁" ? "#fffbeb" : "#eff6ff";
+                return <span style={{ padding: "2px 8px", background: ageGroupBg, color: ageGroupColor, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{v}</span>;
+              },
+            },
+            { title: "性别", dataIndex: "gender", key: "gender", align: "center", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
+            { title: "检查日期", dataIndex: "examDate", key: "examDate", align: "center", render: (v: string) => <span style={{ color: "#64748b" }}>{v}</span> },
+            { title: "设备", dataIndex: "device", key: "device", align: "center", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
+            { title: "检查项目", dataIndex: "examItem", key: "examItem", align: "center", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
+            { title: "剂量值", dataIndex: "doseValue", key: "doseValue", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "#1e40af" }}>{v}</span> },
+            {
+              title: "折扣系数", dataIndex: "doseReductionFactor", key: "doseReductionFactor", align: "center",
+              render: (v: number) => <span style={{ padding: "2px 8px", background: "#eff6ff", color: "#1e40af", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>×{v.toFixed(1)}</span>,
+            },
+            {
+              title: "预警级别", dataIndex: "alertLevel", key: "alertLevel", align: "center",
+              render: (v: PediatricDoseRecord["alertLevel"]) => {
+                const badge = getAlertBadge(v);
+                return <span style={{ padding: "2px 8px", background: badge.bg, color: badge.color, borderRadius: 4, fontSize: 12, fontWeight: 700 }}>{badge.label}级</span>;
+              },
+            },
+          ]}
+        />
       </div>
     </div>
   );
@@ -348,30 +279,3 @@ const Stat = ({
     <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{suffix}</div>
   </div>
 );
-
-const tdPrimary: React.CSSProperties = {
-  padding: "10px 12px",
-  fontSize: 12,
-  fontWeight: 600,
-  color: "#1e40af",
-  textAlign: "center",
-};
-const tdSecondary: React.CSSProperties = {
-  padding: "10px 12px",
-  fontSize: 12,
-  color: "#334155",
-  textAlign: "center",
-};
-const tdMuted: React.CSSProperties = {
-  padding: "10px 12px",
-  fontSize: 12,
-  color: "#64748b",
-  textAlign: "center",
-};
-const tdBold: React.CSSProperties = {
-  padding: "10px 12px",
-  fontSize: 12,
-  fontWeight: 700,
-  color: "#1e40af",
-  textAlign: "center",
-};

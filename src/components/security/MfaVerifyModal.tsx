@@ -86,7 +86,7 @@ export default function MfaVerifyModal({ userId, onVerified, onCancel, operation
         }}>
           <ShieldCheck size={22} style={{ color: '#fff' }} />
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>MFA 验证</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>MFA 验证</div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)' }}>操作: {operation}</div>
           </div>
           <button onClick={onCancel} style={{
@@ -100,7 +100,7 @@ export default function MfaVerifyModal({ userId, onVerified, onCancel, operation
         </div>
 
         <div style={{ padding: 24, textAlign: 'center' }}>
-          <div style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>
+          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 20 }}>
             请输入您的身份验证器应用中的 6 位数字验证码
           </div>
 
@@ -116,7 +116,7 @@ export default function MfaVerifyModal({ userId, onVerified, onCancel, operation
                 onChange={(e) => handleChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
                 style={{
-                  width: 44, height: 52, textAlign: 'center', fontSize: 22,
+                  width: 44, height: 52, textAlign: 'center', fontSize: 20,
                   fontWeight: 700, border: `2px solid ${error ? '#dc2626' : digit ? '#1e40af' : '#e2e8f0'}`,
                   borderRadius: 8, background: error ? '#fef2f2' : '#fff',
                   color: '#1e40af', caretColor: '#1e40af',

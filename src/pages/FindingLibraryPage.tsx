@@ -1320,7 +1320,7 @@ export default function FindingLibraryPage() {
               <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.text, marginBottom: 4 }}>
                 {selectedFinding.findingName}
               </div>
-              <div style={{ fontSize: 13, color: COLORS.textMuted }}>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>
                 {selectedFinding.disease}
               </div>
             </div>
@@ -1423,7 +1423,7 @@ export default function FindingLibraryPage() {
           <div style={{ padding: '20px 24px' }}>
             {/* 描述 */}
             <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <FileText size={14} color={COLORS.primaryBlue} />
                 {tv3('findingDetailDescription')}
               </div>
@@ -1431,7 +1431,7 @@ export default function FindingLibraryPage() {
                 padding: '12px 14px',
                 background: COLORS.background,
                 borderRadius: 8,
-                fontSize: 13,
+                fontSize: 12,
                 color: COLORS.text,
                 lineHeight: 1.7,
                 borderLeft: `3px solid ${COLORS.primaryBlue}`,
@@ -1442,7 +1442,7 @@ export default function FindingLibraryPage() {
 
             {/* 典型疾病 */}
             <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Activity size={14} color={COLORS.primaryBlue} />
                 {tv3('findingTypicalFor')}
               </div>
@@ -1465,7 +1465,7 @@ export default function FindingLibraryPage() {
 
             {/* 检查要点 */}
             <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Scan size={14} color={COLORS.primaryBlue} />
                 {tv3('findingExamTips')}
               </div>
@@ -1488,7 +1488,7 @@ export default function FindingLibraryPage() {
 
             {/* 标签 */}
             <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Tag size={14} color={COLORS.primaryBlue} />
                 {tv3('findingDetailTags')}
               </div>
@@ -1509,7 +1509,7 @@ export default function FindingLibraryPage() {
 
             {/* 可插入文本 */}
             <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <FileText size={14} color={COLORS.primaryBlue} />
                 {tv3('findingInsertableText')}
               </div>
@@ -1517,7 +1517,7 @@ export default function FindingLibraryPage() {
                 padding: 14,
                 background: COLORS.backgroundLight,
                 borderRadius: 8,
-                fontSize: 13,
+                fontSize: 12,
                 color: COLORS.text,
                 lineHeight: 1.7,
                 border: `1px solid ${COLORS.border}`,
@@ -1582,7 +1582,7 @@ export default function FindingLibraryPage() {
                   ? COLORS.success
                   : `linear-gradient(135deg, ${COLORS.primaryBlue}, #1d4ed8)`,
                 color: COLORS.white,
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 700,
                 cursor: 'pointer',
                 display: 'flex',
@@ -1980,7 +1980,7 @@ export default function FindingLibraryPage() {
               {showLeftPanel ? <ChevronDown size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronRight size={14} />}
               {tv3('findingFilter')}
             </button>
-            <div style={{ fontSize: 13, color: COLORS.textMuted }}>
+            <div style={{ fontSize: 12, color: COLORS.textMuted }}>
               {tv3('findingResultCount', { count: filteredFindings.length })}
               {showFavoritesOnly && <span style={{ color: '#f59e0b' }}> · {tv3('findingFavoritesOnlyLabel')}</span>}
             </div>
@@ -2044,7 +2044,7 @@ export default function FindingLibraryPage() {
             }}>
               <Search size={48} color={COLORS.textLight} />
               <div style={{ fontSize: 16, fontWeight: 600, marginTop: 16 }}>{tv3('findingNoResults')}</div>
-              <div style={{ fontSize: 13, marginTop: 4 }}>{tv3('findingNoResultsHint')}</div>
+              <div style={{ fontSize: 12, marginTop: 4 }}>{tv3('findingNoResultsHint')}</div>
             </div>
           ) : (
             <div style={{

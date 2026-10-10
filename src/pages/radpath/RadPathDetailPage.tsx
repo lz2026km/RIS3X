@@ -70,7 +70,7 @@ export default function RadPathDetailPage() {
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontSize: 12, color: '#64748b' }}>当前状态:</span>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 12px', borderRadius: 12, fontSize: 13, fontWeight: 600, background: `${consistencyColor[record.consistency]}20`, color: consistencyColor[record.consistency] }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 12px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: `${consistencyColor[record.consistency]}20`, color: consistencyColor[record.consistency] }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: consistencyColor[record.consistency] }} />
             {consistencyLabel[record.consistency]}
           </span>
@@ -84,9 +84,9 @@ export default function RadPathDetailPage() {
             <FileText size={14} /> 影像报告
           </div>
           <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>所见</div>
-          <div style={{ fontSize: 13, color: 'var(--text-primary)', whiteSpace: 'pre-wrap', marginBottom: 12, padding: 8, background: 'var(--bg-card)', borderRadius: 4, minHeight: 60 }}>{record.radFinding || record.report.findings}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-primary)', whiteSpace: 'pre-wrap', marginBottom: 12, padding: 8, background: 'var(--bg-card)', borderRadius: 4, minHeight: 60 }}>{record.radFinding || record.report.findings}</div>
           <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>结论</div>
-          <div style={{ fontSize: 13, color: 'var(--text-primary)', whiteSpace: 'pre-wrap', padding: 8, background: 'var(--bg-card)', borderRadius: 4, minHeight: 40 }}>{record.report.conclusion}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-primary)', whiteSpace: 'pre-wrap', padding: 8, background: 'var(--bg-card)', borderRadius: 4, minHeight: 40 }}>{record.report.conclusion}</div>
         </div>
 
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 16 }}>
@@ -94,11 +94,11 @@ export default function RadPathDetailPage() {
             <Microscope size={14} /> 病理报告
           </div>
           <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>病理结果</div>
-          <div style={{ fontSize: 13, color: 'var(--text-primary)', whiteSpace: 'pre-wrap', padding: 8, background: 'var(--color-success-bg)', borderRadius: 4, minHeight: 100 }}>{record.pathResult}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-primary)', whiteSpace: 'pre-wrap', padding: 8, background: 'var(--color-success-bg)', borderRadius: 4, minHeight: 100 }}>{record.pathResult}</div>
           {record.notes && (
             <>
               <div style={{ fontSize: 12, color: '#64748b', margin: '12 0 4' }}>备注</div>
-              <div style={{ fontSize: 13, color: '#64748b', whiteSpace: 'pre-wrap', padding: 8, background: 'var(--color-warning-bg)', borderRadius: 4 }}>{record.notes}</div>
+              <div style={{ fontSize: 12, color: '#64748b', whiteSpace: 'pre-wrap', padding: 8, background: 'var(--color-warning-bg)', borderRadius: 4 }}>{record.notes}</div>
             </>
           )}
         </div>
@@ -107,7 +107,7 @@ export default function RadPathDetailPage() {
       {/* 差异字段高亮 */}
       {diffs.length > 0 && (
         <div style={{ background: 'var(--color-warning-bg)', borderRadius: 8, border: '1px solid var(--color-warning-border)', padding: 12, marginBottom: 16 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-warning)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-warning)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
             <AlertTriangle size={13} /> 差异字段 ({diffs.length})
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
@@ -122,7 +122,7 @@ export default function RadPathDetailPage() {
         <div style={{ display: 'flex', gap: 8 }}>
           {(['concordant', 'discordant', 'pending'] as const).map(c => (
             <button key={c} onClick={() => handleMark(c)} disabled={saving || record.consistency === c}
-              style={{ padding: '10px 20px', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: record.consistency === c ? `2px solid ${consistencyColor[c]}` : '1px solid #cbd5e1', background: record.consistency === c ? `${consistencyColor[c]}15` : 'var(--bg-card)', color: record.consistency === c ? consistencyColor[c] : '#64748b', display: 'flex', alignItems: 'center', gap: 6 }}>
+              style={{ padding: '10px 20px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: record.consistency === c ? `2px solid ${consistencyColor[c]}` : '1px solid #cbd5e1', background: record.consistency === c ? `${consistencyColor[c]}15` : 'var(--bg-card)', color: record.consistency === c ? consistencyColor[c] : '#64748b', display: 'flex', alignItems: 'center', gap: 6 }}>
               {c === 'concordant' && <CheckCircle2 size={16} />}
               {c === 'discordant' && <XCircle size={16} />}
               {c === 'pending' && <AlertTriangle size={16} />}

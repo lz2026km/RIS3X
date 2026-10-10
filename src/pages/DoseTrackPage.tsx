@@ -511,7 +511,7 @@ function PrimaryStat({
         <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{label}</div>
         <div
           style={{
-            fontSize: 22,
+            fontSize: 20,
             fontWeight: 800,
             color: "#1e40af",
             lineHeight: 1.2,
@@ -796,7 +796,7 @@ function DoseAnalyticsSection({
   const patientRankColumns: ColumnsType<PatientRankRow> = [
     {
       title: t("w3tables.col.index"), key: "rank", width: 70, align: "center",
-      render: (_: unknown, _row, index) => <span style={{ fontSize: 13, fontWeight: 800, color: index < 3 ? "#d97706" : "var(--text-muted, #94a3b8)" }}>#{index + 1}</span>,
+      render: (_: unknown, _row, index) => <span style={{ fontSize: 12, fontWeight: 800, color: index < 3 ? "#d97706" : "var(--text-muted, #94a3b8)" }}>#{index + 1}</span>,
     },
     {
       title: t("w3tables.col.patient"), dataIndex: "name", key: "name",
@@ -911,7 +911,7 @@ function DoseAnalyticsSection({
                   <div style={{ flex: 1, height: 8, background: 'var(--border-default, rgba(0,0,0,0.12))', borderRadius: 999, overflow: 'hidden' }}>
                     <div style={{ width: `${Math.min(100, rate)}%`, height: '100%', background: rate > 12 ? '#dc2626' : rate > 6 ? '#d97706' : '#16a34a', borderRadius: 999 }} />
                   </div>
-                  <b style={{ fontSize: 13, color: rate > 12 ? '#dc2626' : '#d97706', width: 34, textAlign: 'right' }}>{rate}%</b>
+                  <b style={{ fontSize: 12, color: rate > 12 ? '#dc2626' : '#d97706', width: 34, textAlign: 'right' }}>{rate}%</b>
                 </div>
                 <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-secondary)' }}>
                   <span>{t('doseTrack.overLabel')} <b style={{ color: '#dc2626' }}>{d.over}</b> / {d.total} {t('doseTrack.casesUnit')}</span>

@@ -716,7 +716,7 @@ export default function DicomCompressPage() {
       <Title level={3}>
         <Shrink size={16} style={{ marginRight: 8 }} />
         {t("compressV2.title")}
-        <Text type="secondary" style={{ fontSize: 13, marginLeft: 12 }}>
+        <Text type="secondary" style={{ fontSize: 12, marginLeft: 12 }}>
           {t("compressV2.subtitle")}
         </Text>
       </Title>
@@ -830,7 +830,7 @@ export default function DicomCompressPage() {
               {strategies.length > 0 && (
                 <div>
                   <Divider style={{ margin: "12px 0" }} />
-                  <Text strong style={{ fontSize: 13 }}>{t("compressV2.strategyTitle")}</Text>
+                  <Text strong style={{ fontSize: 12 }}>{t("compressV2.strategyTitle")}</Text>
                   <div style={{ marginTop: 8, maxHeight: 240, overflowY: "auto" }}>
                     {strategies.slice(0, 8).map(s => (
                       <div key={s.modality} style={{ marginBottom: 8 }}>
@@ -902,7 +902,7 @@ export default function DicomCompressPage() {
                 {t("compressV2.j2kEncode")}
               </Button>
               <Divider style={{ margin: "8px 0" }} />
-              <Text strong style={{ fontSize: 13 }}>{t("compressV2.transcodeTitle")}</Text>
+              <Text strong style={{ fontSize: 12 }}>{t("compressV2.transcodeTitle")}</Text>
               <Select
                 style={{ width: "100%", marginTop: 4 }}
                 value={transcodeTarget}

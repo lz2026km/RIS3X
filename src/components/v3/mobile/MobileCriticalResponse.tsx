@@ -197,7 +197,7 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
               <div style={{ fontSize: 14, color: '#dc2626', fontWeight: 500 }}>{selected.finding}</div>
             </Card>
             <Card size="small" title={t('w9e.mobileCritical.recipient')}>
-              <div style={{ fontSize: 13 }}>
+              <div style={{ fontSize: 12 }}>
                 <strong>{selected.recipientName}</strong> ({selected.recipientDept})
               </div>
               <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('w9e.mobileCritical.triggeredPrefix')}{selected.triggeredAt} · {selected.triggeredBy}</div>

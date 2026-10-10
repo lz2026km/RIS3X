@@ -13,6 +13,7 @@ import { AlertTriangle } from "lucide-react";
 import { staffDoseRecords } from "./mockData";
 import type { StaffDoseRecord } from "./types";
 import { rdsrApi } from "../../services/api/rdsrApi";
+import { DataTable } from "../../components/common";
 import { LoadingBanner, ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
 import ChartContainer from "../../components/charts/ChartContainer";
@@ -148,7 +149,7 @@ export default function StaffDoseMonitoring() {
       >
         <div
           style={{
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: 700,
             color: "#1e40af",
             marginBottom: 16,
@@ -196,7 +197,7 @@ export default function StaffDoseMonitoring() {
       >
         <div
           style={{
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: 700,
             color: "#1e40af",
             marginBottom: 16,
@@ -205,103 +206,48 @@ export default function StaffDoseMonitoring() {
           个人剂量监测记录
         </div>
         <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ background: "var(--bg-primary)" }}>
-                {[
-                  "姓名",
-                  "科室",
-                  "岗位",
-                  "本月剂量(mSv)",
-                  "年累计(mSv)",
-                  "年限值(mSv)",
-                  "合规率",
-                  "状态",
-                ].map((h) => (
-                  <th
-                    key={h}
-                    style={{
-                      padding: "10px 12px",
-                      textAlign: "center",
-                      fontSize: 12,
-                      fontWeight: 700,
-                      color: "#64748b",
-                      borderBottom: "2px solid #e2e8f0",
-                    }}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {records.map((s: StaffDoseRecord, i: number) => {
-                const isHighRisk = s.complianceRate < 60;
-                const badgeBg = isHighRisk
-                  ? "#fef2f2"
-                  : s.complianceRate < 80
-                    ? "#fffbeb"
-                    : "#f0fdf4";
-                const badgeColor = isHighRisk
-                  ? "#dc2626"
-                  : s.complianceRate < 80
-                    ? "#d97706"
-                    : "#16a34a";
-                return (
-                  <tr
-                    key={s.id}
-                    style={{ background: i % 2 === 0 ? "var(--bg-card)" : "var(--bg-primary)" }}
-                  >
-                    <td style={tdPrimary}>{s.staffName}</td>
-                    <td style={tdSecondary}>{s.department}</td>
-                    <td style={tdMuted}>{s.role}</td>
-                    <td style={tdBold}>{s.monthlyDose}</td>
-                    <td
-                      style={{
-                        ...tdSecondary,
-                        color: s.annualDose > 15 ? "#dc2626" : "#334155",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {s.annualDose}
-                    </td>
-                    <td style={tdMuted}>{s.annualLimit}</td>
-                    <td style={{ padding: "10px 12px", textAlign: "center" }}>
-                      <div
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 4,
-                          padding: "2px 8px",
-                          background: badgeBg,
-                          color: badgeColor,
-                          borderRadius: 4,
-                          fontSize: 12,
-                          fontWeight: 700,
-                        }}
-                      >
-                        {s.complianceRate}%
-                      </div>
-                    </td>
-                    <td style={{ padding: "10px 12px", textAlign: "center" }}>
-                      <span
-                        style={{
-                          padding: "2px 8px",
-                          background: isHighRisk ? "#fef2f2" : "#f0fdf4",
-                          color: isHighRisk ? "#dc2626" : "#16a34a",
-                          borderRadius: 4,
-                          fontSize: 12,
-                          fontWeight: 600,
-                        }}
-                      >
-                        {isHighRisk ? "高风险" : "正常"}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <DataTable
+            rowKey="id"
+            dataSource={records}
+            showPagination={false}
+            showExport={false}
+            showDensity={false}
+            columns={[
+              { title: "姓名", dataIndex: "staffName", key: "staffName", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "#1e40af" }}>{v}</span> },
+              { title: "科室", dataIndex: "department", key: "department", align: "center", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
+              { title: "岗位", dataIndex: "role", key: "role", align: "center", render: (v: string) => <span style={{ color: "#64748b" }}>{v}</span> },
+              { title: "本月剂量(mSv)", dataIndex: "monthlyDose", key: "monthlyDose", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "#1e40af" }}>{v}</span> },
+              {
+                title: "年累计(mSv)", dataIndex: "annualDose", key: "annualDose", align: "center",
+                render: (v: number) => <span style={{ color: v > 15 ? "#dc2626" : "#334155", fontWeight: 600 }}>{v}</span>,
+              },
+              { title: "年限值(mSv)", dataIndex: "annualLimit", key: "annualLimit", align: "center", render: (v: number) => <span style={{ color: "#64748b" }}>{v}</span> },
+              {
+                title: "合规率", dataIndex: "complianceRate", key: "complianceRate", align: "center",
+                render: (v: number) => {
+                  const isHighRisk = v < 60;
+                  const badgeBg = isHighRisk ? "#fef2f2" : v < 80 ? "#fffbeb" : "#f0fdf4";
+                  const badgeColor = isHighRisk ? "#dc2626" : v < 80 ? "#d97706" : "#16a34a";
+                  return (
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 8px", background: badgeBg, color: badgeColor, borderRadius: 4, fontSize: 12, fontWeight: 700 }}>
+                      {v}%
+                    </div>
+                  );
+                },
+              },
+              {
+                title: "状态", dataIndex: "complianceRate", key: "status", align: "center",
+                render: (v: number) => {
+                  const isHighRisk = v < 60;
+                  return (
+                    <span style={{ padding: "2px 8px", background: isHighRisk ? "#fef2f2" : "#f0fdf4", color: isHighRisk ? "#dc2626" : "#16a34a", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>
+                      {isHighRisk ? "高风险" : "正常"}
+                    </span>
+                  );
+                },
+              },
+            ]}
+          />
         </div>
       </div>
     </div>
@@ -322,33 +268,3 @@ const kpiVal = (color: string): React.CSSProperties => ({
   color,
   marginTop: 4,
 });
-
-const tdPrimary: React.CSSProperties = {
-  padding: "10px 12px",
-  fontSize: 12,
-  fontWeight: 600,
-  color: "#1e40af",
-  textAlign: "center",
-};
-
-const tdSecondary: React.CSSProperties = {
-  padding: "10px 12px",
-  fontSize: 12,
-  color: "#334155",
-  textAlign: "center",
-};
-
-const tdMuted: React.CSSProperties = {
-  padding: "10px 12px",
-  fontSize: 12,
-  color: "#64748b",
-  textAlign: "center",
-};
-
-const tdBold: React.CSSProperties = {
-  padding: "10px 12px",
-  fontSize: 12,
-  fontWeight: 700,
-  color: "#1e40af",
-  textAlign: "center",
-};

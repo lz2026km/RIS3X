@@ -154,7 +154,7 @@ export function ShortcutHelpModal({ open, onClose, shortcuts }: ShortcutHelpModa
               style={{
                 border: "none", background: "transparent",
                 color: "inherit",
-                fontSize: 13,
+                fontSize: 12,
                 width: 140,
               }}
             />
@@ -201,7 +201,7 @@ export function ShortcutHelpModal({ open, onClose, shortcuts }: ShortcutHelpModa
               <div style={{ display: "grid", gridTemplateColumns: "1fr auto", rowGap: 6, columnGap: 16 }}>
                 {items.map((sc) => (
                   <div key={sc.id} style={{ display: "contents" }}>
-                    <span style={{ fontSize: 13, color: "var(--text-primary, #1e293b)" }}>
+                    <span style={{ fontSize: 12, color: "var(--text-primary, #1e293b)" }}>
                       {t(sc.labelKey)}
                     </span>
                     <KeyCap keys={sc.keys} />

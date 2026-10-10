@@ -50,7 +50,7 @@ export default function TechnicianKpiCards({ totals, loading }: Props) {
             <span>{c.label}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-            <span style={{ fontSize: 26, fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1 }}>{c.value}</span>
+            <span style={{ fontSize: 24, fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1 }}>{c.value}</span>
             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{c.unit}</span>
           </div>
         </div>

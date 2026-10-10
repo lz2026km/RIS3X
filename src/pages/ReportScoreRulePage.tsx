@@ -179,7 +179,7 @@ export default function ReportScoreRulePage() {
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                   <span style={{ fontSize: 18 }}>{dim.icon}</span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{dim.name}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{dim.name}</span>
                   <span style={{
                     fontSize: 12, padding: '1px 5px', borderRadius: 3,
                     background: `${dim.color}15`, color: dim.color, fontWeight: 700,

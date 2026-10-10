@@ -139,7 +139,7 @@ export function EmptyState({
       </div>
       <div
         style={{
-          fontSize: 13,
+          fontSize: 12,
           color: "var(--text-secondary, #475569)",
           maxWidth: 320,
           lineHeight: 1.5,

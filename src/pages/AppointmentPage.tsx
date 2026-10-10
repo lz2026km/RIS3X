@@ -1,4 +1,5 @@
 ﻿import { Card, message } from 'antd'
+import type { TableColumnsType } from 'antd'
 import { PageHeader } from "../components/common/PageHeader";
 import { StatCard } from "../components/common/StatCard";
 import { AppText } from "../components/common/AppText";
@@ -51,6 +52,7 @@ import AppointmentManagementPage from "./AppointmentManagementPage";
 import { formatDateObj } from '../utils/date';
 import { ActionButton } from "../components/common/ActionButton";
 import { InlineEditCell } from "../components/common/InlineEditCell";
+import { DataTable } from "../components/common";
 import { useUndoActions } from "../components/UndoToast";
 import { t } from '../i18n/appI18n';
 
@@ -800,6 +802,63 @@ export default function AppointmentPage() {
     return list;
   }, [reminderRecords, reminderFilterStatus, reminderFilterChannel]);
 
+  const reminderColumns: TableColumnsType<ReminderRecord> = [
+    { title: t("apptPage.colPatient"), dataIndex: "patientName", key: "patientName", render: (v: string) => <span style={{ fontWeight: 700, color: primaryBlue }}>{v}</span> },
+    { title: t("apptPage.colPhone"), dataIndex: "phone", key: "phone", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
+    { title: t("apptPage.colExamItem"), dataIndex: "examType", key: "examType", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
+    { title: t("apptPage.colExamTime"), key: "examTime", render: (_v, r) => <span style={{ color: textGray }}>{r.examDate} {r.examTime}</span> },
+    { title: t("apptPage.colReminderTime"), dataIndex: "reminderTime", key: "reminderTime", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
+    { title: t("apptPage.colChannel"), dataIndex: "channel", key: "channel", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
+    { title: t("apptPage.colStatus"), dataIndex: "status", key: "status", render: (v: string) => <span style={{ padding: "2px 8px", borderRadius: 10, fontSize: 12, fontWeight: 700, ...getReminderStatusConfig(v) }}>{v}</span> },
+    { title: t("apptPage.colResponseTime"), dataIndex: "responseTime", key: "responseTime", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
+  ]
+
+  const rescheduleColumns: TableColumnsType<RescheduleRecord> = [
+    { title: t("apptPage.colPatient"), dataIndex: "patientName", key: "patientName", render: (v: string) => <span style={{ fontWeight: 700, color: primaryBlue }}>{v}</span> },
+    { title: t("apptPage.colPhone"), dataIndex: "phone", key: "phone", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
+    { title: t("apptPage.colExamItem"), dataIndex: "examType", key: "examType", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
+    { title: t("apptPage.colOriginalTime"), key: "originalTime", render: (_v, r) => <span style={{ color: textGray }}>{r.originalDate} {r.originalTime}</span> },
+    { title: t("apptPage.colNewTime"), key: "newTime", render: (_v, r) => <span style={{ fontWeight: 600, color: primaryBlue }}>{r.newDate} {r.newTime}</span> },
+    {
+      title: t("apptPage.colReason"), dataIndex: "reason", key: "reason",
+      render: (v: RescheduleRecord["reason"]) => {
+        const cfg = getRescheduleReasonConfig(v)
+        return <span style={{ padding: "2px 8px", borderRadius: 10, fontSize: 12, fontWeight: 700, ...cfg }}>{cfg.label}</span>
+      },
+    },
+    {
+      title: t("w14Ux.inline.save"), key: "note", width: 120,
+      render: (_v, r) => (
+        <InlineEditCell
+          value={r.note ?? ""}
+          inputType="text"
+          placeholder={t("w14Ux.inline.doubleClick")}
+          ariaLabel={t("w14Ux.inline.save")}
+          onSave={(next) => {
+            const snapshot = rescheduleRecords;
+            setRescheduleRecords((prev) => prev.map((x) => (x.id === r.id ? { ...x, note: next } : x)));
+            showUndo(t("w14Ux.undo.updated", { name: r.patientName }), () => setRescheduleRecords(snapshot));
+          }}
+        />
+      ),
+    },
+    { title: t("apptPage.colOperateTime"), dataIndex: "operateTime", key: "operateTime", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
+  ]
+
+  const cancellationColumns: TableColumnsType<CancellationRecord> = [
+    { title: t("apptPage.colPatient"), dataIndex: "patientName", key: "patientName", render: (v: string) => <span style={{ fontWeight: 700, color: primaryBlue }}>{v}</span> },
+    { title: t("apptPage.colPhone"), dataIndex: "phone", key: "phone", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
+    { title: t("apptPage.colExamItem"), dataIndex: "examType", key: "examType", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
+    { title: t("apptPage.colCancelTime"), dataIndex: "cancelTime", key: "cancelTime", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
+    { title: t("apptPage.colReason"), dataIndex: "reason", key: "reason", render: (v: string) => <span style={{ color: textGray }}>{v}</span> },
+    {
+      title: t("apptPage.colRebooked"), dataIndex: "rebooked", key: "rebooked",
+      render: (v: string) => (
+        <span style={{ padding: "2px 8px", borderRadius: 10, fontSize: 12, fontWeight: 700, background: v === "是" ? "var(--color-success-bg)" : v === "否" ? "var(--bg-primary)" : "var(--color-warning-bg)", color: v === "是" ? "#059669" : v === "否" ? "#64748b" : "#d97706" }}>{v}</span>
+      ),
+    },
+  ]
+
   // 统计某日某设备的预约数
   const getDeviceDayStats = (date: Date, deviceId: string) => {
     const dateStr = formatDateObj(date);
@@ -1123,7 +1182,7 @@ const borderGray = "var(--border-color)";
 
       {/* [W2-4] 一键预约横幅: 从患者详情跳转时展示 */}
       {patientPreset && (
-        <div style={{ background: 'var(--color-info-bg)', borderBottom: '1px solid #bfdbfe', padding: '10px 24px', display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#1e40af' }}>
+        <div style={{ background: 'var(--color-info-bg)', borderBottom: '1px solid #bfdbfe', padding: '10px 24px', display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, color: '#1e40af' }}>
           <CalendarPlus size={16} />
           <span>{t("apptPage.presetPrefix")}<b>{patientPreset.patientName || patientPreset.patientId}</b>（{patientPreset.patientId}）{t("apptPage.presetSuffix")}</span>
           <button onClick={() => setPatientPreset(null)} style={{ marginLeft: 'auto', border: 'none', background: 'transparent', color: '#1e40af', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
@@ -1466,114 +1525,32 @@ const borderGray = "var(--border-color)";
                 </div>
                 {reminderTab === "reminders" && (
                   <div style={{ overflowX: "auto" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minWidth: 820 }}>
-                      <thead>
-                        <tr style={{ background: "var(--bg-card)", borderBottom: `2px solid ${borderGray}` }}>
-                          {[t("apptPage.colPatient"), t("apptPage.colPhone"), t("apptPage.colExamItem"), t("apptPage.colExamTime"), t("apptPage.colReminderTime"), t("apptPage.colChannel"), t("apptPage.colStatus"), t("apptPage.colResponseTime")].map((h) => (
-                            <th key={h} style={{ padding: "8px 10px", textAlign: "left", fontWeight: 700, color: textGray, whiteSpace: "nowrap" }}>{h}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredReminderRecords.map((r) => (
-                          <tr key={r.id} style={{ borderBottom: `1px solid ${borderGray}` }}>
-                            <td style={{ padding: "8px 10px", fontWeight: 700, color: primaryBlue }}>{r.patientName}</td>
-                            <td style={{ padding: "8px 10px", color: textGray }}>{r.phone}</td>
-                            <td style={{ padding: "8px 10px", color: textGray }}>{r.examType}</td>
-                            <td style={{ padding: "8px 10px", color: textGray }}>{r.examDate} {r.examTime}</td>
-                            <td style={{ padding: "8px 10px", color: textGray }}>{r.reminderTime}</td>
-                            <td style={{ padding: "8px 10px", color: textGray }}>{r.channel}</td>
-                            <td style={{ padding: "8px 10px" }}>
-                              <span style={{ padding: "2px 8px", borderRadius: 10, fontSize: 12, fontWeight: 700, ...getReminderStatusConfig(r.status) }}>{r.status}</span>
-                            </td>
-                            <td style={{ padding: "8px 10px", color: textGray }}>{r.responseTime}</td>
-                          </tr>
-                        ))}
-                        {filteredReminderRecords.length === 0 && (
-                          <tr>
-                            <td colSpan={8} style={{ padding: 24, textAlign: "center", color: textGray }}>{t("apptPage.noReminders")}</td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
+                    <DataTable<ReminderRecord>
+                      columns={reminderColumns}
+                      dataSource={filteredReminderRecords}
+                      rowKey="id"
+                      emptyText={t("apptPage.noReminders")}
+                    />
                   </div>
                 )}
                 {reminderTab === "reschedules" && (
                   <div style={{ overflowX: "auto" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minWidth: 820 }}>
-                      <thead>
-                        <tr style={{ background: "var(--bg-card)", borderBottom: `2px solid ${borderGray}` }}>
-                          {[t("apptPage.colPatient"), t("apptPage.colPhone"), t("apptPage.colExamItem"), t("apptPage.colOriginalTime"), t("apptPage.colNewTime"), t("apptPage.colReason"), t("w14Ux.inline.save"), t("apptPage.colOperateTime")].map((h) => (
-                            <th key={h} style={{ padding: "8px 10px", textAlign: "left", fontWeight: 700, color: textGray, whiteSpace: "nowrap" }}>{h}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {rescheduleRecords.map((r) => (
-                          <tr key={r.id} style={{ borderBottom: `1px solid ${borderGray}` }}>
-                            <td style={{ padding: "8px 10px", fontWeight: 700, color: primaryBlue }}>{r.patientName}</td>
-                            <td style={{ padding: "8px 10px", color: textGray }}>{r.phone}</td>
-                            <td style={{ padding: "8px 10px", color: textGray }}>{r.examType}</td>
-                            <td style={{ padding: "8px 10px", color: textGray }}>{r.originalDate} {r.originalTime}</td>
-                            <td style={{ padding: "8px 10px", fontWeight: 600, color: primaryBlue }}>{r.newDate} {r.newTime}</td>
-                            <td style={{ padding: "8px 10px" }}>
-                              <span style={{ padding: "2px 8px", borderRadius: 10, fontSize: 12, fontWeight: 700, ...getRescheduleReasonConfig(r.reason) }}>{getRescheduleReasonConfig(r.reason).label}</span>
-                            </td>
-                            <td style={{ padding: "8px 10px", minWidth: 120 }}>
-                              <InlineEditCell
-                                value={r.note ?? ""}
-                                inputType="text"
-                                placeholder={t("w14Ux.inline.doubleClick")}
-                                ariaLabel={t("w14Ux.inline.save")}
-                                onSave={(next) => {
-                                  const snapshot = rescheduleRecords;
-                                  setRescheduleRecords((prev) => prev.map((x) => (x.id === r.id ? { ...x, note: next } : x)));
-                                  showUndo(t("w14Ux.undo.updated", { name: r.patientName }), () => setRescheduleRecords(snapshot));
-                                }}
-                              />
-                            </td>
-                            <td style={{ padding: "8px 10px", color: textGray }}>{r.operateTime}</td>
-                          </tr>
-                        ))}
-                        {rescheduleRecords.length === 0 && (
-                          <tr>
-                            <td colSpan={8} style={{ padding: 24, textAlign: "center", color: textGray }}>{t("apptPage.noReschedules")}</td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
+                    <DataTable<RescheduleRecord>
+                      columns={rescheduleColumns}
+                      dataSource={rescheduleRecords}
+                      rowKey="id"
+                      emptyText={t("apptPage.noReschedules")}
+                    />
                   </div>
                 )}
                 {reminderTab === "cancellations" && (
                   <div style={{ overflowX: "auto" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minWidth: 820 }}>
-                      <thead>
-                        <tr style={{ background: "var(--bg-card)", borderBottom: `2px solid ${borderGray}` }}>
-                          {[t("apptPage.colPatient"), t("apptPage.colPhone"), t("apptPage.colExamItem"), t("apptPage.colCancelTime"), t("apptPage.colReason"), t("apptPage.colRebooked")].map((h) => (
-                            <th key={h} style={{ padding: "8px 10px", textAlign: "left", fontWeight: 700, color: textGray, whiteSpace: "nowrap" }}>{h}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {cancellationRecords.map((r) => (
-                          <tr key={r.id} style={{ borderBottom: `1px solid ${borderGray}` }}>
-                            <td style={{ padding: "8px 10px", fontWeight: 700, color: primaryBlue }}>{r.patientName}</td>
-                            <td style={{ padding: "8px 10px", color: textGray }}>{r.phone}</td>
-                            <td style={{ padding: "8px 10px", color: textGray }}>{r.examType}</td>
-                            <td style={{ padding: "8px 10px", color: textGray }}>{r.cancelTime}</td>
-                            <td style={{ padding: "8px 10px", color: textGray }}>{r.reason}</td>
-                            <td style={{ padding: "8px 10px" }}>
-                              <span style={{ padding: "2px 8px", borderRadius: 10, fontSize: 12, fontWeight: 700, background: r.rebooked === "是" ? "var(--color-success-bg)" : r.rebooked === "否" ? "var(--bg-primary)" : "var(--color-warning-bg)", color: r.rebooked === "是" ? "#059669" : r.rebooked === "否" ? "#64748b" : "#d97706" }}>{r.rebooked}</span>
-                            </td>
-                          </tr>
-                        ))}
-                        {cancellationRecords.length === 0 && (
-                          <tr>
-                            <td colSpan={6} style={{ padding: 24, textAlign: "center", color: textGray }}>{t("apptPage.noCancellations")}</td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
+                    <DataTable<CancellationRecord>
+                      columns={cancellationColumns}
+                      dataSource={cancellationRecords}
+                      rowKey="id"
+                      emptyText={t("apptPage.noCancellations")}
+                    />
                   </div>
                 )}
               </div>
@@ -1975,7 +1952,7 @@ const borderGray = "var(--border-color)";
                       color: "#fff",
                       border: "none",
                       borderRadius: 8,
-                      fontSize: 13,
+                      fontSize: 12,
                       fontWeight: 700,
                       cursor: "pointer",
                       display: "flex",
@@ -2065,7 +2042,7 @@ const borderGray = "var(--border-color)";
                     />
                     <div
                       style={{
-                        fontSize: 13,
+                        fontSize: 12,
                         fontWeight: 700,
                         color: primaryBlue,
                         marginBottom: 4,
@@ -2325,7 +2302,7 @@ const borderGray = "var(--border-color)";
                       >
                         <span
                           style={{
-                            fontSize: 13,
+                            fontSize: 12,
                             fontWeight: 700,
                             color: primaryBlue,
                           }}
@@ -2658,7 +2635,7 @@ const borderGray = "var(--border-color)";
             >
               <div
                 style={{
-                  fontSize: 15,
+                  fontSize: 14,
                   fontWeight: 800,
                   display: "flex",
                   alignItems: "center",
@@ -2702,7 +2679,7 @@ const borderGray = "var(--border-color)";
                 >
                   <div
                     style={{
-                      fontSize: 15,
+                      fontSize: 14,
                       fontWeight: 800,
                       color: primaryBlue,
                     }}
@@ -3049,7 +3026,7 @@ const borderGray = "var(--border-color)";
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 800,
               }}
             >
@@ -3070,7 +3047,7 @@ const borderGray = "var(--border-color)";
                 >
                   <div
                     style={{
-                      fontSize: 13,
+                      fontSize: 12,
                       fontWeight: 700,
                       color: primaryBlue,
                     }}
@@ -3139,7 +3116,7 @@ const borderGray = "var(--border-color)";
                     color: primaryBlue,
                     border: `1px solid ${borderGray}`,
                     borderRadius: 8,
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: 700,
                     cursor: "pointer",
                   }}
@@ -3156,7 +3133,7 @@ const borderGray = "var(--border-color)";
                     color: cancelReason ? "#fff" : "#94a3b8",
                     border: "none",
                     borderRadius: 8,
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: 700,
                     cursor: cancelReason ? "pointer" : "not-allowed",
                   }}
@@ -3204,7 +3181,7 @@ const borderGray = "var(--border-color)";
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 800,
               }}
             >
@@ -3264,7 +3241,7 @@ const borderGray = "var(--border-color)";
                     color: primaryBlue,
                     border: `1px solid ${borderGray}`,
                     borderRadius: 8,
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: 700,
                     cursor: "pointer",
                   }}
@@ -3284,7 +3261,7 @@ const borderGray = "var(--border-color)";
                     color: "#fff",
                     border: "none",
                     borderRadius: 8,
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: 700,
                     cursor: "pointer",
                   }}

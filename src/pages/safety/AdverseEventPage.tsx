@@ -13,6 +13,7 @@ import {
 } from '../../services/api/safetyApi'
 import { ChartContainer } from '../../components/charts'
 import { StateView } from '../../components/common/StateView'
+import { DataTable } from '../../components/common'
 import { t } from '../../i18n/appI18n'
 import { severityColor } from '../../theme/statusTokens'
 
@@ -116,7 +117,7 @@ export default function AdverseEventPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <ShieldAlert size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('ade.title')}</span>
         </div>
-        <button onClick={() => setShowForm(!showForm)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+        <button onClick={() => setShowForm(!showForm)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
           <Plus size={14} />{t('ade.reportEvent')}
         </button>
       </div>
@@ -160,7 +161,7 @@ export default function AdverseEventPage() {
                 <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{k.title}</span>
                 <k.icon size={20} style={{ color: k.color }} />
               </div>
-              <div style={{ fontSize: 28, fontWeight: 700 }}>{k.value}</div>
+              <div style={{ fontSize: 30, fontWeight: 700 }}>{k.value}</div>
             </div>
           ))}
         </div>
@@ -213,38 +214,29 @@ export default function AdverseEventPage() {
           skeletonRows={5}
         >
         <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-            <thead>
-              <tr>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('ade.colId')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('ade.colType')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('ade.colSeverity')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('ade.colPatient')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('ade.colStatus')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('ade.colReporter')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('ade.colDate')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(e => (
-                <tr key={e.id}>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: '#6e7681', fontSize: 12 }}>{e.id}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>{t(CATEGORY_LABELS[e.eventType])}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
-                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${SEVERITY_COLORS[e.severity]}20`, color: SEVERITY_COLORS[e.severity] }}>{t(SEVERITY_LABELS[e.severity] ?? e.severity)}</span>
-                  </td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-primary, #f0f6fc)' }}>{e.patientName ?? '-'}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
-                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: e.status === 'closed' ? '#22c55e20' : e.status === 'resolved' ? '#3b82f620' : e.status === 'investigating' ? '#f59e0b20' : '#8b949e20', color: e.status === 'closed' ? '#22c55e' : e.status === 'resolved' ? '#3b82f6' : e.status === 'investigating' ? '#f59e0b' : 'var(--text-muted, #8b949e)' }}>
-                      {t(STATUS_LABELS[e.status])}
-                    </span>
-                  </td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{e.reportedBy}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{e.reportedAt}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable
+            rowKey="id"
+            dataSource={filtered}
+            columns={[
+              { title: t('ade.colId'), dataIndex: 'id', key: 'id', render: (v: string) => <span style={{ color: '#6e7681', fontSize: 12 }}>{v}</span> },
+              { title: t('ade.colType'), dataIndex: 'eventType', key: 'eventType', render: (v: EventCategory) => t(CATEGORY_LABELS[v]) },
+              {
+                title: t('ade.colSeverity'),
+                dataIndex: 'severity',
+                key: 'severity',
+                render: (v: EventSeverity) => <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${SEVERITY_COLORS[v]}20`, color: SEVERITY_COLORS[v] }}>{t(SEVERITY_LABELS[v] ?? v)}</span>,
+              },
+              { title: t('ade.colPatient'), dataIndex: 'patientName', key: 'patientName', render: (v: string) => <span style={{ color: 'var(--text-primary, #f0f6fc)' }}>{v ?? '-'}</span> },
+              {
+                title: t('ade.colStatus'),
+                dataIndex: 'status',
+                key: 'status',
+                render: (v: EventStatus) => <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: v === 'closed' ? '#22c55e20' : v === 'resolved' ? '#3b82f620' : v === 'investigating' ? '#f59e0b20' : '#8b949e20', color: v === 'closed' ? '#22c55e' : v === 'resolved' ? '#3b82f6' : v === 'investigating' ? '#f59e0b' : 'var(--text-muted, #8b949e)' }}>{t(STATUS_LABELS[v])}</span>,
+              },
+              { title: t('ade.colReporter'), dataIndex: 'reportedBy', key: 'reportedBy', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
+              { title: t('ade.colDate'), dataIndex: 'reportedAt', key: 'reportedAt', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{v}</span> },
+            ]}
+          />
         </div>
         </StateView>
       </div>

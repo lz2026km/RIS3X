@@ -27,10 +27,10 @@ export default function ForbiddenPage() {
             {t('w8.forbidden.code')}
           </div>
         </div>
-        <h1 style={{ margin: '0 0 8px', fontSize: 22, fontWeight: 700, color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+        <h1 style={{ margin: '0 0 8px', fontSize: 20, fontWeight: 700, color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
           <ShieldX size={20} color="#f87171" />{t('w8.forbidden.title')}
         </h1>
-        <p style={{ marginTop: 8, marginBottom: 6, fontSize: 13, color: '#94a3b8', lineHeight: 1.7 }}>
+        <p style={{ marginTop: 8, marginBottom: 6, fontSize: 12, color: '#94a3b8', lineHeight: 1.7 }}>
           {user
             ? t('w8.forbidden.hintLogged', { name: user.name, role: user.role })
             : t('w8.forbidden.hintGuest')}

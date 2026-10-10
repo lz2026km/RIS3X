@@ -641,11 +641,11 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
             </Space>
             <div>
               <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('defectLibrary.description')}</div>
-              <div style={{ fontSize: 13 }}>{detailDrawer.description}</div>
+              <div style={{ fontSize: 12 }}>{detailDrawer.description}</div>
             </div>
             <div>
               <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('defectLibrary.solution')}</div>
-              <div style={{ fontSize: 13, color: '#0891b2' }}>{detailDrawer.solution}</div>
+              <div style={{ fontSize: 12, color: '#0891b2' }}>{detailDrawer.solution}</div>
             </div>
             {detailDrawer.examples.length > 0 && (
               <div>

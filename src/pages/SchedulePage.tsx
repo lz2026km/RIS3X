@@ -16,6 +16,7 @@ import { initialUsers } from '../data/initialData'
 import { deviceApi, userApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { ChartContainer } from '../components/charts'
+import { DataTable } from '../components/common'
 import { formatDateObj } from '../utils/date';
 import { t } from '../i18n/appI18n'
 // [W14-UX] 批量排班操作栏 + 撤销
@@ -625,7 +626,7 @@ function WeekNavigator({ weekStart, onPrev, onNext, onToday }: {
       <button onClick={onPrev} aria-label={t('schedulePage.prevWeek')} style={btnStyle(C.primary)}>
         <ChevronLeft size={16} />
       </button>
-      <span style={{ fontSize: 15, fontWeight: 600, color: C.textDark, minWidth: 180, textAlign: 'center' }}>
+      <span style={{ fontSize: 14, fontWeight: 600, color: C.textDark, minWidth: 180, textAlign: 'center' }}>
         {formatRange()}
       </span>
       <button onClick={onNext} aria-label={t('schedulePage.nextWeek')} style={btnStyle(C.primary)}>
@@ -649,7 +650,7 @@ const btnStyle = (bg: string) => ({
   border: 'none',
   borderRadius: 4,
   cursor: 'pointer',
-  fontSize: 13,
+  fontSize: 12,
   gap: 4,
 })
 
@@ -1156,7 +1157,7 @@ export default function SchedulePage() {
                   {t('schedulePage.demoBadge')}
                 </span>
               </h1>
-              <p style={{ fontSize: 13, color: C.textMid, margin: '4px 0 0 0' }}>
+              <p style={{ fontSize: 12, color: C.textMid, margin: '4px 0 0 0' }}>
                 {t('schedulePage.subtitle')}
               </p>
             </div>
@@ -1296,7 +1297,7 @@ export default function SchedulePage() {
                       padding: '6px 12px 6px 32px',
                       border: `1px solid ${C.border}`,
                       borderRadius: 4,
-                      fontSize: 13,
+                      fontSize: 12,
                       width: 160, }}
                   />
                 </div>
@@ -1309,7 +1310,7 @@ export default function SchedulePage() {
                     padding: '6px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 4,
-                    fontSize: 13, cursor: 'pointer',
+                    fontSize: 12, cursor: 'pointer',
                   }}
                 >
                   <option value="all">{t('schedulePage.allModalities')}</option>
@@ -1326,7 +1327,7 @@ export default function SchedulePage() {
                     padding: '6px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 4,
-                    fontSize: 13, cursor: 'pointer',
+                    fontSize: 12, cursor: 'pointer',
                   }}
                 >
                   <option value="all">{t('schedulePage.allStaff')}</option>
@@ -1342,7 +1343,7 @@ export default function SchedulePage() {
               <table style={{ 
                 width: '100%', 
                 borderCollapse: 'collapse',
-                fontSize: 13,
+                fontSize: 12,
               }}>
                 <thead>
                   <tr style={{ background: C.bgLight }}>
@@ -1547,7 +1548,7 @@ export default function SchedulePage() {
                     }}>
                       <div>
                         <span style={{ fontWeight: 500, color: C.textDark }}>{h.name}</span>
-                        <span style={{ marginLeft: 12, color: C.textMid, fontSize: 13 }}>{h.date}</span>
+                        <span style={{ marginLeft: 12, color: C.textMid, fontSize: 12 }}>{h.date}</span>
                       </div>
                       <button 
                         onClick={() => handleHolidayDelete(h.date)}
@@ -1564,7 +1565,7 @@ export default function SchedulePage() {
                     </div>
                   ))}
                   {holidays.filter(h => h.type === 'legal').length === 0 && (
-                    <div style={{ color: C.textLight, fontSize: 13, padding: 12, textAlign: 'center' }}>
+                    <div style={{ color: C.textLight, fontSize: 12, padding: 12, textAlign: 'center' }}>
                       {t('schedulePage.noLegalHolidays')}
                     </div>
                   )}
@@ -1608,7 +1609,7 @@ export default function SchedulePage() {
                     }}>
                       <div>
                         <span style={{ fontWeight: 500, color: C.textDark }}>{h.name}</span>
-                        <span style={{ marginLeft: 12, color: C.textMid, fontSize: 13 }}>{h.date}</span>
+                        <span style={{ marginLeft: 12, color: C.textMid, fontSize: 12 }}>{h.date}</span>
                       </div>
                       <button 
                         onClick={() => handleHolidayDelete(h.date)}
@@ -1625,7 +1626,7 @@ export default function SchedulePage() {
                     </div>
                   ))}
                   {holidays.filter(h => h.type === 'adjustment').length === 0 && (
-                    <div style={{ color: C.textLight, fontSize: 13, padding: 12, textAlign: 'center' }}>
+                    <div style={{ color: C.textLight, fontSize: 12, padding: 12, textAlign: 'center' }}>
                       {t('schedulePage.noAdjustments')}
                     </div>
                   )}
@@ -1641,7 +1642,7 @@ export default function SchedulePage() {
               borderRadius: 6,
               border: `1px solid ${C.info}30`,
             }}>
-              <h5 style={{ fontSize: 13, fontWeight: 600, color: C.info, margin: '0 0 8px 0' }}>
+              <h5 style={{ fontSize: 12, fontWeight: 600, color: C.info, margin: '0 0 8px 0' }}>
                 {t('schedulePage.configNote')}
               </h5>
               <ul style={{ fontSize: 12, color: C.textMid, margin: 0, paddingLeft: 20, lineHeight: 1.8 }}>
@@ -1714,7 +1715,7 @@ export default function SchedulePage() {
                         <StatusBadge status={request.status} />
                       </div>
                       
-                      <div style={{ fontSize: 13, color: C.textMid, display: 'flex', gap: 20 }}>
+                      <div style={{ fontSize: 12, color: C.textMid, display: 'flex', gap: 20 }}>
                         <span>
                           {request.requesterName}：{request.requesterDate} 
                           <ShiftBadge shift={request.requesterShift} size="small" />
@@ -1818,7 +1819,7 @@ export default function SchedulePage() {
                     {stat.icon}
                   </div>
                   <div>
-                    <div style={{ fontSize: 22, fontWeight: 700, color: stat.color }}>{stat.value}</div>
+                    <div style={{ fontSize: 20, fontWeight: 700, color: stat.color }}>{stat.value}</div>
                     <div style={{ fontSize: 12, color: C.textMid }}>{stat.label}</div>
                   </div>
                 </div>
@@ -1862,7 +1863,7 @@ export default function SchedulePage() {
                         {idx + 1}
                       </div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 500, color: C.textDark, fontSize: 13 }}>{stat.staffName}</div>
+                        <div style={{ fontWeight: 500, color: C.textDark, fontSize: 12 }}>{stat.staffName}</div>
                         <div style={{ fontSize: 12, color: C.textMid }}>{stat.title}</div>
                       </div>
                       <div style={{ display: 'flex', gap: 4 }}>
@@ -1946,7 +1947,7 @@ export default function SchedulePage() {
                       }}>
                         {mod.label.slice(0, 2)}
                       </div>
-                      <div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{mod.label}</div>
+                      <div style={{ fontSize: 12, fontWeight: 500, color: C.textDark }}>{mod.label}</div>
                       <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>
                         {t('schedulePage.personTimes', { count: mod.count })}
                       </div>
@@ -1984,7 +1985,7 @@ export default function SchedulePage() {
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {STAFF_LIST.slice(0, 10).map(s => (
                   <div key={s.id} style={{ padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 6, border: `1px solid ${C.borderLight}` }}>
-                    <div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{s.name}</div>
+                    <div style={{ fontSize: 12, fontWeight: 500, color: C.textDark }}>{s.name}</div>
                     <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>
                       {(STAFF_SKILLS[s.id] || []).join(' · ') || t('schedulePage.noCert')}
                     </div>
@@ -2003,7 +2004,7 @@ export default function SchedulePage() {
             )}
             {autoResult && !autoRunning && (
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
                   <thead>
                     <tr style={{ background: C.bgLight }}>
                       <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>{t('schedulePage.thStaff')}</th>
@@ -2064,7 +2065,7 @@ export default function SchedulePage() {
                 <div key={tpl.id} style={{ padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}` }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                     <div>
-                      <div style={{ fontSize: 15, fontWeight: 600, color: C.textDark }}>{tpl.name}</div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark }}>{tpl.name}</div>
                       <div style={{ fontSize: 12, color: C.textMid, marginTop: 2 }}>{tpl.description}</div>
                     </div>
                     <div style={{ display: 'flex', gap: 4 }}>
@@ -2114,7 +2115,7 @@ export default function SchedulePage() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
                 {leaveBalances.slice(0, 8).map(lb => (
                   <div key={lb.staffId} style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 6, border: `1px solid ${C.borderLight}` }}>
-                    <div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{lb.staffName}</div>
+                    <div style={{ fontSize: 12, fontWeight: 500, color: C.textDark }}>{lb.staffName}</div>
                     <div style={{ fontSize: 12, color: C.textMid, marginTop: 4, display: 'flex', gap: 8 }}>
                       <span>{t('schedulePage.annualLeave')} {lb.annualUsed}/{lb.annualTotal}</span>
                       <span>{t('schedulePage.sickLeave')} {lb.sickUsed}/{lb.sickTotal}</span>
@@ -2142,7 +2143,7 @@ export default function SchedulePage() {
                             {statusCfg.label}
                           </span>
                         </div>
-                        <div style={{ fontSize: 13, color: C.textMid }}>
+                        <div style={{ fontSize: 12, color: C.textMid }}>
                           {t('schedulePage.leaveDays', { start: lr.startDate, end: lr.endDate, count: lr.days })}
                         </div>
                         {lr.reason && <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>{t('schedulePage.leaveReason', { reason: lr.reason })}</div>}
@@ -2294,32 +2295,20 @@ export default function SchedulePage() {
               <div style={{ padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}` }}>
                 <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 12px 0' }}>{t('schedulePage.costDetail')}</h4>
                 <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-                    <thead>
-                      <tr style={{ background: 'var(--bg-card)' }}>
-                        <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>{t('schedulePage.thName')}</th>
-                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>{t('schedulePage.thRegularHours')}</th>
-                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>{t('schedulePage.thOvertimeHours')}</th>
-                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>{t('schedulePage.thRegularCost')}</th>
-                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>{t('schedulePage.thOvertimeCost')}</th>
-                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>{t('schedulePage.thDifferential')}</th>
-                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>{t('schedulePage.thTotal')}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {costData.map((c, i) => (
-                        <tr key={c.staffId} style={{ background: i % 2 === 0 ? 'var(--bg-card)' : C.bgLight }}>
-                          <td style={{ padding: '8px 12px', borderBottom: `1px solid ${C.borderLight}`, fontWeight: 500, color: C.textDark }}>{c.staffName}</td>
-                          <td style={{ padding: '8px 12px', textAlign: 'right', borderBottom: `1px solid ${C.borderLight}`, color: C.textMid }}>{c.regularHours}h</td>
-                          <td style={{ padding: '8px 12px', textAlign: 'right', borderBottom: `1px solid ${C.borderLight}`, color: C.warning }}>{c.overtimeHours}h</td>
-                          <td style={{ padding: '8px 12px', textAlign: 'right', borderBottom: `1px solid ${C.borderLight}`, color: C.textMid }}>¥{c.regularCost.toLocaleString()}</td>
-                          <td style={{ padding: '8px 12px', textAlign: 'right', borderBottom: `1px solid ${C.borderLight}`, color: C.warning }}>¥{c.overtimeCost.toLocaleString()}</td>
-                          <td style={{ padding: '8px 12px', textAlign: 'right', borderBottom: `1px solid ${C.borderLight}`, color: C.accent }}>¥{c.shiftDifferential.toLocaleString()}</td>
-                          <td style={{ padding: '8px 12px', textAlign: 'right', borderBottom: `1px solid ${C.borderLight}`, fontWeight: 700, color: C.primary }}>¥{c.totalCost.toLocaleString()}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <DataTable
+                    dataSource={costData}
+                    rowKey="staffId"
+                    pagination={false}
+                    columns={[
+                      { title: t('schedulePage.thName'), dataIndex: 'staffName', render: (v: string) => <span style={{ fontWeight: 500, color: C.textDark }}>{v}</span> },
+                      { title: t('schedulePage.thRegularHours'), dataIndex: 'regularHours', align: 'right', render: (v: number) => <span style={{ color: C.textMid }}>{v}h</span> },
+                      { title: t('schedulePage.thOvertimeHours'), dataIndex: 'overtimeHours', align: 'right', render: (v: number) => <span style={{ color: C.warning }}>{v}h</span> },
+                      { title: t('schedulePage.thRegularCost'), dataIndex: 'regularCost', align: 'right', render: (v: number) => <span style={{ color: C.textMid }}>¥{v.toLocaleString()}</span> },
+                      { title: t('schedulePage.thOvertimeCost'), dataIndex: 'overtimeCost', align: 'right', render: (v: number) => <span style={{ color: C.warning }}>¥{v.toLocaleString()}</span> },
+                      { title: t('schedulePage.thDifferential'), dataIndex: 'shiftDifferential', align: 'right', render: (v: number) => <span style={{ color: C.accent }}>¥{v.toLocaleString()}</span> },
+                      { title: t('schedulePage.thTotal'), dataIndex: 'totalCost', align: 'right', render: (v: number) => <span style={{ fontWeight: 700, color: C.primary }}>¥{v.toLocaleString()}</span> },
+                    ]}
+                  />
                 </div>
               </div>
             )}
@@ -2362,10 +2351,10 @@ export default function SchedulePage() {
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {swapError && <div style={{ color: '#dc2626', fontSize: 13, padding: '8px 12px', background: 'var(--color-error-bg)', borderRadius: 6, border: '1px solid #fca5a5' }}>{swapError}</div>}
+              {swapError && <div style={{ color: '#dc2626', fontSize: 12, padding: '8px 12px', background: 'var(--color-error-bg)', borderRadius: 6, border: '1px solid #fca5a5' }}>{swapError}</div>}
               {/* 申请人 */}
               <div>
-                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>
                   {t('schedulePage.requester')}
                 </label>
                 <select
@@ -2376,7 +2365,7 @@ export default function SchedulePage() {
                     padding: '8px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 6,
-                    fontSize: 13, }}
+                    fontSize: 12, }}
                 >
                   <option value="">{t('w9b.schedule.selectApplicant')}</option>
                   {STAFF_LIST.map(s => (
@@ -2387,7 +2376,7 @@ export default function SchedulePage() {
               
               {/* 申请人班次日期 */}
               <div>
-                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>
                   {t('schedulePage.requesterDate')}
                 </label>
                 <input
@@ -2399,13 +2388,13 @@ export default function SchedulePage() {
                     padding: '8px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 6,
-                    fontSize: 13, }}
+                    fontSize: 12, }}
                 />
               </div>
               
               {/* 申请人班次类型 */}
               <div>
-                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>
                   {t('schedulePage.requesterShift')}
                 </label>
                 <select
@@ -2416,7 +2405,7 @@ export default function SchedulePage() {
                     padding: '8px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 6,
-                    fontSize: 13, }}
+                    fontSize: 12, }}
                 >
                   {Object.entries(SHIFT_CONFIG).map(([key, config]) => (
                     <option key={key} value={key}>{config.label}（{config.time}）</option>
@@ -2430,7 +2419,7 @@ export default function SchedulePage() {
               
               {/* 被换班人 */}
               <div>
-                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>
                   {t('schedulePage.targetStaff')}
                 </label>
                 <select
@@ -2441,7 +2430,7 @@ export default function SchedulePage() {
                     padding: '8px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 6,
-                    fontSize: 13, }}
+                    fontSize: 12, }}
                 >
                   <option value="">{t('schedulePage.selectTarget')}</option>
                   {STAFF_LIST.filter(s => s.id !== swapForm.requesterId).map(s => (
@@ -2452,7 +2441,7 @@ export default function SchedulePage() {
               
               {/* 被换班人班次日期 */}
               <div>
-                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>
                   {t('schedulePage.targetDate')}
                 </label>
                 <input
@@ -2464,13 +2453,13 @@ export default function SchedulePage() {
                     padding: '8px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 6,
-                    fontSize: 13, }}
+                    fontSize: 12, }}
                 />
               </div>
               
               {/* 被换班人班次类型 */}
               <div>
-                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>
                   {t('schedulePage.targetShift')}
                 </label>
                 <select
@@ -2481,7 +2470,7 @@ export default function SchedulePage() {
                     padding: '8px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 6,
-                    fontSize: 13, }}
+                    fontSize: 12, }}
                 >
                   {Object.entries(SHIFT_CONFIG).map(([key, config]) => (
                     <option key={key} value={key}>{config.label}（{config.time}）</option>
@@ -2491,7 +2480,7 @@ export default function SchedulePage() {
               
               {/* 换班原因 */}
               <div>
-                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>
                   {t('schedulePage.swapReason')}
                 </label>
                 <textarea
@@ -2504,7 +2493,7 @@ export default function SchedulePage() {
                     padding: '8px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 6,
-                    fontSize: 13, resize: 'vertical',
+                    fontSize: 12, resize: 'vertical',
                   }}
                 />
               </div>
@@ -2519,7 +2508,7 @@ export default function SchedulePage() {
                     border: 'none',
                     borderRadius: 6,
                     cursor: 'pointer',
-                    fontSize: 13,
+                    fontSize: 12,
                   }}
                 >
                   {t('schedulePage.cancel')}
@@ -2533,7 +2522,7 @@ export default function SchedulePage() {
                     border: 'none',
                     borderRadius: 6,
                     cursor: 'pointer',
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: 500,
                   }}
                 >
@@ -2576,7 +2565,7 @@ export default function SchedulePage() {
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>
                   {t('schedulePage.holidayDate')}
                 </label>
                 <input
@@ -2588,12 +2577,12 @@ export default function SchedulePage() {
                     padding: '8px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 6,
-                    fontSize: 13, }}
+                    fontSize: 12, }}
                 />
               </div>
               
               <div>
-                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>
                   {t('schedulePage.holidayName')}
                 </label>
                 <input
@@ -2606,12 +2595,12 @@ export default function SchedulePage() {
                     padding: '8px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 6,
-                    fontSize: 13, }}
+                    fontSize: 12, }}
                 />
               </div>
               
               <div>
-                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>
                   {t('schedulePage.holidayType')}
                 </label>
                 <select
@@ -2622,7 +2611,7 @@ export default function SchedulePage() {
                     padding: '8px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 6,
-                    fontSize: 13, }}
+                    fontSize: 12, }}
                 >
                   <option value="legal">{t('schedulePage.legalHolidays')}</option>
                   <option value="adjustment">{t('schedulePage.adjustmentWorkdays')}</option>
@@ -2639,7 +2628,7 @@ export default function SchedulePage() {
                     border: 'none',
                     borderRadius: 6,
                     cursor: 'pointer',
-                    fontSize: 13,
+                    fontSize: 12,
                   }}
                 >
                   {t('schedulePage.cancel')}
@@ -2653,7 +2642,7 @@ export default function SchedulePage() {
                     border: 'none',
                     borderRadius: 6,
                     cursor: 'pointer',
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: 500,
                   }}
                 >
@@ -2680,21 +2669,21 @@ export default function SchedulePage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.templateName')}</label>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.templateName')}</label>
                 <input type="text" value={templateForm.name} onChange={e => setTemplateForm({ ...templateForm, name: e.target.value })}
-                  placeholder={t('schedulePage.placeholderTemplateName')} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}} />
+                  placeholder={t('schedulePage.placeholderTemplateName')} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12,}} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.templateDesc')}</label>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.templateDesc')}</label>
                 <input type="text" value={templateForm.description} onChange={e => setTemplateForm({ ...templateForm, description: e.target.value })}
-                  placeholder={t('schedulePage.placeholderTemplateDesc')} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}} />
+                  placeholder={t('schedulePage.placeholderTemplateDesc')} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12,}} />
               </div>
               <div style={{ fontSize: 12, color: C.textLight, padding: 8, background: C.bgLight, borderRadius: 6 }}>
                 {t('schedulePage.templateHint')}
               </div>
               <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
-                <button onClick={() => setShowTemplateModal(false)} style={{ padding: '8px 20px', background: C.bgLight, color: C.textMid, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>{t('schedulePage.cancel')}</button>
-                <button onClick={handleSaveTemplate} style={{ padding: '8px 20px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}><Save size={13} />{t('schedulePage.saveTemplate')}</button>
+                <button onClick={() => setShowTemplateModal(false)} style={{ padding: '8px 20px', background: C.bgLight, color: C.textMid, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>{t('schedulePage.cancel')}</button>
+                <button onClick={handleSaveTemplate} style={{ padding: '8px 20px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}><Save size={13} />{t('schedulePage.saveTemplate')}</button>
               </div>
             </div>
           </div>
@@ -2716,9 +2705,9 @@ export default function SchedulePage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveApplicant')}</label>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveApplicant')}</label>
                 <select value={leaveForm.staffId} onChange={e => setLeaveForm({ ...leaveForm, staffId: e.target.value })}
-                  style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}}>
+                  style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12,}}>
                   <option value="">{t('schedulePage.selectRequester')}</option>
                   {STAFF_LIST.map(s => (
                     <option key={s.id} value={s.id}>{s.name}（{s.title}）</option>
@@ -2726,9 +2715,9 @@ export default function SchedulePage() {
                 </select>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveType')}</label>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveType')}</label>
                 <select value={leaveForm.type} onChange={e => setLeaveForm({ ...leaveForm, type: e.target.value as 'annual' | 'sick' | 'personal' })}
-                  style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}}>
+                  style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12,}}>
                   <option value="annual">{t('schedulePage.annualLeave')}</option>
                   <option value="sick">{t('schedulePage.sickLeave')}</option>
                   <option value="personal">{t('schedulePage.personalLeave')}</option>
@@ -2736,25 +2725,25 @@ export default function SchedulePage() {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveStartDate')}</label>
+                  <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveStartDate')}</label>
                   <input type="date" value={leaveForm.startDate} onChange={e => setLeaveForm({ ...leaveForm, startDate: e.target.value })}
-                    style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}} />
+                    style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12,}} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveEndDate')}</label>
+                  <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveEndDate')}</label>
                   <input type="date" value={leaveForm.endDate} onChange={e => setLeaveForm({ ...leaveForm, endDate: e.target.value })}
-                    style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}} />
+                    style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12,}} />
                 </div>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveReasonLabel')}</label>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveReasonLabel')}</label>
                 <textarea value={leaveForm.reason} onChange={e => setLeaveForm({ ...leaveForm, reason: e.target.value })}
                   placeholder={t('schedulePage.placeholderLeaveReason')} rows={3}
-                  style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, resize: 'vertical' }} />
+                  style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, resize: 'vertical' }} />
               </div>
               <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
-                <button onClick={() => setShowLeaveModal(false)} style={{ padding: '8px 20px', background: C.bgLight, color: C.textMid, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>{t('schedulePage.cancel')}</button>
-                <button onClick={handleLeaveSubmit} style={{ padding: '8px 20px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}><Send size={13} />{t('schedulePage.submitRequest')}</button>
+                <button onClick={() => setShowLeaveModal(false)} style={{ padding: '8px 20px', background: C.bgLight, color: C.textMid, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}>{t('schedulePage.cancel')}</button>
+                <button onClick={handleLeaveSubmit} style={{ padding: '8px 20px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}><Send size={13} />{t('schedulePage.submitRequest')}</button>
               </div>
             </div>
           </div>
@@ -2771,7 +2760,7 @@ export default function SchedulePage() {
                 <X size={20} style={{ color: C.textMid }} />
               </button>
             </div>
-            <div style={{ fontSize: 13, color: C.textMid, marginBottom: 12 }}>
+            <div style={{ fontSize: 12, color: C.textMid, marginBottom: 12 }}>
               {exportProgress < 100 ? t('schedulePage.exportProgressMsg', { count: allSchedules.length }) : t('schedulePage.exportDoneMsg')}
             </div>
             <div style={{ height: 8, background: C.bgLight, borderRadius: 4, overflow: 'hidden', marginBottom: 20 }}>
@@ -2781,7 +2770,7 @@ export default function SchedulePage() {
               {exportProgress >= 100 ? (
                 <button onClick={() => setShowExportModal(false)} style={btnStyle(C.primary)}>{t('schedulePage.close')}</button>
               ) : (
-                <button onClick={() => setShowExportModal(false)} style={{ padding: '6px 10px', background: C.bgLight, color: C.textMid, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 13 }}>{t('schedulePage.cancel')}</button>
+                <button onClick={() => setShowExportModal(false)} style={{ padding: '6px 10px', background: C.bgLight, color: C.textMid, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>{t('schedulePage.cancel')}</button>
               )}
             </div>
           </div>

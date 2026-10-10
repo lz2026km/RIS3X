@@ -767,7 +767,7 @@ export function ExamDetailView({
             <div style={{ marginBottom: 20 }}>
               <div
                 style={{
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 600,
                   color: "#1e40af",
                   marginBottom: 12,
@@ -812,7 +812,7 @@ export function ExamDetailView({
                     </div>
                     <div
                       style={{
-                        fontSize: 13,
+                        fontSize: 12,
                         color: "var(--text-secondary)",
                         fontWeight: 500,
                       }}
@@ -827,7 +827,7 @@ export function ExamDetailView({
             <div style={{ marginBottom: 20 }}>
               <div
                 style={{
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 600,
                   color: "#1e40af",
                   marginBottom: 12,
@@ -873,7 +873,7 @@ export function ExamDetailView({
                     >
                       {label}
                     </div>
-                    <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+                    <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                       {value}
                     </div>
                   </div>
@@ -885,7 +885,7 @@ export function ExamDetailView({
             <div style={{ marginBottom: 20 }}>
               <div
                 style={{
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 600,
                   color: "#1e40af",
                   marginBottom: 12,
@@ -966,7 +966,7 @@ export function ExamDetailView({
             <div style={{ marginBottom: 20 }} data-testid="dose-record-section">
               <div
                 style={{
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 600,
                   color: "#1e40af",
                   marginBottom: 12,
@@ -1034,7 +1034,7 @@ export function ExamDetailView({
             <div style={{ marginBottom: 20 }}>
               <div
                 style={{
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 600,
                   color: "#1e40af",
                   marginBottom: 12,
@@ -1112,7 +1112,7 @@ export function ExamDetailView({
           <div>
             <div
               style={{
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: 600,
                 color: "#1e40af",
                 marginBottom: 12,
@@ -1173,7 +1173,7 @@ export function ExamDetailView({
           <div>
             <div
               style={{
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: 600,
                 color: "#1e40af",
                 marginBottom: 12,
@@ -1286,7 +1286,7 @@ export function ExamDetailView({
           <div>
             <div
               style={{
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: 600,
                 color: "#1e40af",
                 marginBottom: 12,
@@ -1414,7 +1414,7 @@ export function ExamDetailView({
           <div>
             <div
               style={{
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: 600,
                 color: "#1e40af",
                 marginBottom: 12,
@@ -1970,7 +1970,7 @@ export function ExamDetailView({
               {t("examDetail.completeChecklist")}
             </div>
             <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>
                 <CheckCircle size={12} style={{ verticalAlign: -2, marginRight: 4 }} /> {t("examDetail.imageQualified")}
               </div>
               <Radio.Group
@@ -1984,7 +1984,7 @@ export function ExamDetailView({
             </div>
             {completeModal.quality === "ok" && (
               <>
-                <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 8 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>
                   <Activity size={12} style={{ verticalAlign: -2, marginRight: 4 }} /> {t("examDetail.doseRecord")}
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>

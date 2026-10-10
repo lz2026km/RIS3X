@@ -165,7 +165,7 @@ export default function DoseTrendAnalysis() {
           }}
         >
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
               每月CT剂量平均值趋势
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
@@ -312,7 +312,7 @@ export default function DoseTrendAnalysis() {
           }}
         >
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
               新设备换装前后剂量对比
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>

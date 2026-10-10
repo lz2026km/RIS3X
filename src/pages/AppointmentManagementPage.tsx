@@ -578,7 +578,7 @@ export default function AppointmentManagementPage() {
       border: `1px solid ${COLORS.border}`,
     },
     statLabel: {
-      fontSize: '13px',
+      fontSize: '12px',
       color: COLORS.textSecondary,
       marginBottom: '8px',
       display: 'flex',
@@ -586,7 +586,7 @@ export default function AppointmentManagementPage() {
       gap: '6px',
     },
     statValue: {
-      fontSize: '28px',
+      fontSize: '30px',
       fontWeight: '700',
       color: COLORS.text,
     },
@@ -669,7 +669,7 @@ export default function AppointmentManagementPage() {
       padding: '14px 20px',
       backgroundColor: 'var(--bg-card)',
       borderBottom: `1px solid ${COLORS.border}`,
-      fontSize: '13px',
+      fontSize: '12px',
       fontWeight: '600',
       color: COLORS.textSecondary,
     },
@@ -711,7 +711,7 @@ export default function AppointmentManagementPage() {
         borderRadius: '6px',
         border: variant === 'secondary' ? `1px solid ${COLORS.border}` : 'none',
         cursor: 'pointer',
-        fontSize: '13px',
+        fontSize: '12px',
         display: 'inline-flex',
         alignItems: 'center',
         gap: '4px',
@@ -759,7 +759,7 @@ export default function AppointmentManagementPage() {
     },
     formLabel: {
       display: 'block',
-      fontSize: '13px',
+      fontSize: '12px',
       fontWeight: '500',
       color: COLORS.textSecondary,
       marginBottom: '6px',
@@ -1222,7 +1222,7 @@ export default function AppointmentManagementPage() {
                 <div>
                   <div style={{ fontWeight: '600', color: COLORS.danger, marginBottom: '4px' }}>{t('apptMgmt.hasConflict')}</div>
                   {checkConflicts(selectedAppointment).map((c, i) => (
-                    <div key={i} style={{ fontSize: '13px', color: COLORS.text }}>{c.message}</div>
+                    <div key={i} style={{ fontSize: '12px', color: COLORS.text }}>{c.message}</div>
                   ))}
                 </div>
               </div>
@@ -1258,7 +1258,7 @@ export default function AppointmentManagementPage() {
               </div>
               <div style={styles.formGroup}>
                 <label style={styles.formLabel}>{t('apptMgmt.labelPatientInfo')}</label>
-                <div style={{ padding: '10px', fontSize: '13px', color: COLORS.textSecondary }}>
+                <div style={{ padding: '10px', fontSize: '12px', color: COLORS.textSecondary }}>
                   {selectedAppointment.gender} / {selectedAppointment.age}{t('apptMgmt.ageSuffix')} / {selectedAppointment.idCard}
                 </div>
               </div>
@@ -1316,7 +1316,7 @@ export default function AppointmentManagementPage() {
             <div style={styles.formRow}>
               <div style={styles.formGroup}>
                 <label style={styles.formLabel}>{t('apptMgmt.labelDevice')}</label>
-                <div style={{ padding: '10px', fontSize: '13px' }}>{selectedAppointment.deviceName}</div>
+                <div style={{ padding: '10px', fontSize: '12px' }}>{selectedAppointment.deviceName}</div>
               </div>
               <div style={styles.formGroup}>
                 <label style={styles.formLabel}>{t('apptMgmt.labelLocation')}</label>
@@ -1329,7 +1329,7 @@ export default function AppointmentManagementPage() {
 
             <div style={styles.formGroup}>
               <label style={styles.formLabel}>{t('apptMgmt.labelClinicalDiagnosis')}</label>
-              <div style={{ padding: '10px', backgroundColor: 'var(--bg-card)', borderRadius: '8px', fontSize: '13px' }}>
+              <div style={{ padding: '10px', backgroundColor: 'var(--bg-card)', borderRadius: '8px', fontSize: '12px' }}>
                 {selectedAppointment.clinicalDiagnosis}
               </div>
             </div>
@@ -1337,7 +1337,7 @@ export default function AppointmentManagementPage() {
             {selectedAppointment.notes && (
               <div style={styles.formGroup}>
                 <label style={styles.formLabel}>{t('apptMgmt.labelNotes')}</label>
-                <div style={{ padding: '10px', backgroundColor: 'var(--color-warning-bg)', borderRadius: '8px', fontSize: '13px' }}>
+                <div style={{ padding: '10px', backgroundColor: 'var(--color-warning-bg)', borderRadius: '8px', fontSize: '12px' }}>
                   {selectedAppointment.notes}
                 </div>
               </div>
@@ -1346,7 +1346,7 @@ export default function AppointmentManagementPage() {
             {selectedAppointment.cancelReason && (
               <div style={styles.formGroup}>
                 <label style={styles.formLabel}>{t('apptMgmt.labelCancelReason')}</label>
-                <div style={{ padding: '10px', backgroundColor: 'var(--color-error-bg)', borderRadius: '8px', fontSize: '13px', color: COLORS.danger }}>
+                <div style={{ padding: '10px', backgroundColor: 'var(--color-error-bg)', borderRadius: '8px', fontSize: '12px', color: COLORS.danger }}>
                   {selectedAppointment.cancelReason === 'patient' ? t('apptMgmt.cancelReason.patient') :
                    selectedAppointment.cancelReason === 'device' ? t('apptMgmt.cancelReason.device') :
                    selectedAppointment.cancelReason === 'doctor' ? t('apptMgmt.cancelReason.doctor') :
@@ -1393,11 +1393,11 @@ export default function AppointmentManagementPage() {
             </div>
 
             <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: COLORS.primaryLight, borderRadius: '8px' }}>
-              <div style={{ fontSize: '13px', color: COLORS.textSecondary }}>{t('apptMgmt.currentAppointment')}</div>
+              <div style={{ fontSize: '12px', color: COLORS.textSecondary }}>{t('apptMgmt.currentAppointment')}</div>
               <div style={{ fontWeight: '500', marginTop: '4px' }}>
                 {selectedAppointment.patientName} - {selectedAppointment.examItemName}
               </div>
-              <div style={{ fontSize: '13px', color: COLORS.textSecondary, marginTop: '4px' }}>
+              <div style={{ fontSize: '12px', color: COLORS.textSecondary, marginTop: '4px' }}>
                 {selectedAppointment.examDate} {selectedAppointment.examTime} @ {selectedAppointment.deviceName}
               </div>
             </div>
@@ -1428,7 +1428,7 @@ export default function AppointmentManagementPage() {
             {rescheduleData.examDate && rescheduleData.examTime && (
               <div style={styles.conflictAlert}>
                 <AlertTriangle size={20} color={COLORS.warning} />
-                <div style={{ fontSize: '13px' }}>
+                <div style={{ fontSize: '12px' }}>
                   {t('apptMgmt.rescheduleHint')}
                 </div>
               </div>
@@ -1467,13 +1467,13 @@ export default function AppointmentManagementPage() {
                   <AlertTriangle size={18} color={COLORS.warning} />
                   <span style={{ fontWeight: 600, color: COLORS.warning }}>{t('apptMgmt.conflictsFound', { count: conflictDetails.length })}</span>
                 </div>
-                <div style={{ fontSize: 13, color: (COLORS as Record<string, string | undefined>).textDark }}>
+                <div style={{ fontSize: 12, color: (COLORS as Record<string, string | undefined>).textDark }}>
                   {t('apptMgmt.conflictHint')}
                 </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {conflictDetails.map((conflict, index) => (
-                  <div key={index} style={{ padding: '10px 12px', backgroundColor: 'var(--bg-card)', borderRadius: 6, border: `1px solid ${COLORS.border}`, fontSize: 13 }}>
+                  <div key={index} style={{ padding: '10px 12px', backgroundColor: 'var(--bg-card)', borderRadius: 6, border: `1px solid ${COLORS.border}`, fontSize: 12 }}>
                     <div style={{ fontWeight: 500, marginBottom: 4 }}>{conflict.message}</div>
                     {conflict.relatedAppointmentId && (
                       <div style={{ fontSize: 12, color: (COLORS as Record<string, string | undefined>).textMuted }}>{t('apptMgmt.relatedApptId', { id: conflict.relatedAppointmentId })}</div>
@@ -1507,7 +1507,7 @@ export default function AppointmentManagementPage() {
               <div style={{ fontWeight: '500', color: COLORS.danger }}>
                 {selectedAppointment.patientName} - {selectedAppointment.examItemName}
               </div>
-              <div style={{ fontSize: '13px', color: COLORS.textSecondary, marginTop: '4px' }}>
+              <div style={{ fontSize: '12px', color: COLORS.textSecondary, marginTop: '4px' }}>
                 {selectedAppointment.examDate} {selectedAppointment.examTime}
               </div>
             </div>
@@ -1648,14 +1648,14 @@ export default function AppointmentManagementPage() {
                   <ScanLine size={14} /> {accessionParsing ? t('apptMgmt.loading') : t('w4b.accession.parse')}
                 </button>
               </div>
-              {accessionError && <div style={{ color: COLORS.danger, fontSize: 13 }}>{accessionError}</div>}
+              {accessionError && <div style={{ color: COLORS.danger, fontSize: 12 }}>{accessionError}</div>}
               {accessionResult && (
                 accessionResult.valid ? (
                   <div style={{ padding: 12, borderRadius: 8, background: '#22c55e22', border: '1px solid #6ee7b7' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: COLORS.success, fontWeight: 600, marginBottom: 8 }}>
                       <CheckCircle size={16} /> {t('w4b.accession.valid')}
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 13 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
                       <div><span style={{ color: COLORS.textSecondary }}>{t('w4b.accession.modality')}: </span><b>{accessionResult.modality}</b></div>
                       <div><span style={{ color: COLORS.textSecondary }}>{t('w4b.accession.year')}: </span><b>{accessionResult.year}</b></div>
                       <div><span style={{ color: COLORS.textSecondary }}>{t('w4b.accession.seq')}: </span><b>{accessionResult.seq}</b></div>

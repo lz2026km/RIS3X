@@ -323,14 +323,14 @@ export default function DeviceOpsPage() {
         <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
           {['all', ...types].map(ty => (
             <button key={ty} onClick={() => setFilterType(ty)}
-              style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: filterType === ty ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: filterType === ty ? '#fff' : 'var(--text-muted, #8b949e)' }}>
+              style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: filterType === ty ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: filterType === ty ? '#fff' : 'var(--text-muted, #8b949e)' }}>
               {ty === 'all' ? t('deviceOps.all') : ty}
             </button>
           ))}
           <div style={{ position: 'relative', marginLeft: 'auto' }}>
             <Search size={14} style={{ position: 'absolute', left: 10, top: 9, color: '#6e7681' }} />
             <input placeholder={t('deviceOps.searchPlaceholder')} value={search} onChange={e => setSearch(e.target.value)}
-              style={{ padding: '6px 12px 6px 32px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, width: 200 }} />
+              style={{ padding: '6px 12px 6px 32px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12, width: 200 }} />
           </div>
         </div>
 
@@ -357,7 +357,7 @@ export default function DeviceOpsPage() {
             {faults.map((f, i) => (
               <div key={i} style={{ padding: '10px 0', borderBottom: i < faults.length - 1 ? '1px solid var(--bg-secondary, #21262d)' : 'none' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: 13, color: 'var(--text-primary, #f0f6fc)' }}>{f.device}</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-primary, #f0f6fc)' }}>{f.device}</span>
                   <span style={{ fontSize: 12, padding: '2px 6px', borderRadius: 4, background: f.severity === 'critical' ? '#ef444420' : '#f59e0b20', color: f.severity === 'critical' ? '#ef4444' : '#f59e0b' }}>
                     {f.severity === 'critical' ? t('deviceOps.severityCritical') : t('deviceOps.severityWarning')}
                   </span>
@@ -414,28 +414,18 @@ export default function DeviceOpsPage() {
           <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
             <Clock size={16} color="#8b5cf6" />{t('deviceOps.maintRecords')} {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>{t('deviceOps.maintRealtime')}</span>}
           </div>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-            <thead>
-              <tr>
-                <th style={{ textAlign: 'left', padding: '8px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('deviceOps.colDevice')}</th>
-                <th style={{ textAlign: 'left', padding: '8px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('deviceOps.colMaintContent')}</th>
-                <th style={{ textAlign: 'left', padding: '8px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('deviceOps.colPerformer')}</th>
-                <th style={{ textAlign: 'left', padding: '8px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('deviceOps.colDate')}</th>
-                <th style={{ textAlign: 'left', padding: '8px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('deviceOps.colResult')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {maintLog.map((m, i) => (
-                <tr key={i}>
-                  <td style={{ padding: '8px', borderBottom: '1px solid var(--bg-secondary, #21262d)', fontWeight: 500 }}>{m.device}</td>
-                  <td style={{ padding: '8px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{m.action}</td>
-                  <td style={{ padding: '8px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{m.performedBy}</td>
-                  <td style={{ padding: '8px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{m.date}</td>
-                  <td style={{ padding: '8px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: '#22c55e' }}>{m.result}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable
+            dataSource={maintLog}
+            rowKey={(m) => `${m.device}-${m.date}-${m.action}`}
+            pagination={false}
+            columns={[
+              { title: t('deviceOps.colDevice'), dataIndex: 'device', render: (v: string) => <span style={{ fontWeight: 500 }}>{v}</span> },
+              { title: t('deviceOps.colMaintContent'), dataIndex: 'action', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
+              { title: t('deviceOps.colPerformer'), dataIndex: 'performedBy', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
+              { title: t('deviceOps.colDate'), dataIndex: 'date', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
+              { title: t('deviceOps.colResult'), dataIndex: 'result', render: (v: string) => <span style={{ color: '#22c55e' }}>{v}</span> },
+            ]}
+          />
         </div>
 
         {/* [W1-B] 剂量追踪: deviceMgmtApi.getDoseTracking / recordDose */}
@@ -447,47 +437,36 @@ export default function DeviceOpsPage() {
           {doseError && <div style={{ fontSize: 12, color: '#ef4444', marginBottom: 8 }}>{doseError}</div>}
           <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 16, marginBottom: 12 }}>
             <div style={{ maxHeight: 260, overflowY: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-                <thead>
-                  <tr>
-                    <th style={{ textAlign: 'left', padding: '8px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('deviceOps.colPatientId')}</th>
-                    <th style={{ textAlign: 'left', padding: '8px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('deviceOps.colDeviceId')}</th>
-                    <th style={{ textAlign: 'left', padding: '8px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('deviceOps.colDose')}</th>
-                    <th style={{ textAlign: 'left', padding: '8px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('deviceOps.colExamType')}</th>
-                    <th style={{ textAlign: 'left', padding: '8px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('deviceOps.colRecordedAt')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {doseRecords.map(r => (
-                    <tr key={r.id}>
-                      <td style={{ padding: '8px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>{r.patientId}</td>
-                      <td style={{ padding: '8px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{r.deviceId}</td>
-                      <td style={{ padding: '8px', borderBottom: '1px solid var(--bg-secondary, #21262d)', fontWeight: 600, color: '#22d3ee' }}>{r.doseValue} {r.doseUnit}</td>
-                      <td style={{ padding: '8px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{r.examType}</td>
-                      <td style={{ padding: '8px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: '#6e7681' }}>{(r.recordedAt ?? '').replace('T', ' ').slice(0, 16) || '—'}</td>
-                    </tr>
-                  ))}
-                  {doseRecords.length === 0 && (
-                    <tr><td colSpan={5} style={{ padding: '16px', textAlign: 'center', color: '#6e7681' }}>{doseLoading ? t('deviceOps.doseLoading') : t('deviceOps.noDoseRecords')}</td></tr>
-                  )}
-                </tbody>
-              </table>
+              <DataTable
+                dataSource={doseRecords}
+                rowKey="id"
+                pagination={false}
+                loading={doseLoading}
+                emptyText={t('deviceOps.noDoseRecords')}
+                columns={[
+                  { title: t('deviceOps.colPatientId'), dataIndex: 'patientId' },
+                  { title: t('deviceOps.colDeviceId'), dataIndex: 'deviceId', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
+                  { title: t('deviceOps.colDose'), key: 'dose', render: (_: unknown, r: DoseRecord) => <span style={{ fontWeight: 600, color: '#22d3ee' }}>{r.doseValue} {r.doseUnit}</span> },
+                  { title: t('deviceOps.colExamType'), dataIndex: 'examType', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
+                  { title: t('deviceOps.colRecordedAt'), dataIndex: 'recordedAt', render: (v: string) => <span style={{ color: '#6e7681' }}>{(v ?? '').replace('T', ' ').slice(0, 16) || '—'}</span> },
+                ]}
+              />
             </div>
             <div style={{ background: 'var(--bg-primary, #0d1117)', borderRadius: 6, padding: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary, #f0f6fc)', marginBottom: 10 }}>{t('deviceOps.registerDose')}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #f0f6fc)', marginBottom: 10 }}>{t('deviceOps.registerDose')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <input placeholder={t('deviceOps.patientIdPlaceholder')} value={doseForm.patientId} onChange={e => setDoseForm({ ...doseForm, patientId: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13,}} />
-                <input placeholder={t('deviceOps.deviceIdPlaceholder')} value={doseForm.deviceId} onChange={e => setDoseForm({ ...doseForm, deviceId: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13,}} />
+                <input placeholder={t('deviceOps.patientIdPlaceholder')} value={doseForm.patientId} onChange={e => setDoseForm({ ...doseForm, patientId: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12,}} />
+                <input placeholder={t('deviceOps.deviceIdPlaceholder')} value={doseForm.deviceId} onChange={e => setDoseForm({ ...doseForm, deviceId: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12,}} />
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px', gap: 8 }}>
-                  <input type="number" placeholder={t('deviceOps.doseValuePlaceholder')} value={doseForm.doseValue} onChange={e => setDoseForm({ ...doseForm, doseValue: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13,}} />
-                  <select value={doseForm.doseUnit} onChange={e => setDoseForm({ ...doseForm, doseUnit: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13,}}>
+                  <input type="number" placeholder={t('deviceOps.doseValuePlaceholder')} value={doseForm.doseValue} onChange={e => setDoseForm({ ...doseForm, doseValue: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12,}} />
+                  <select value={doseForm.doseUnit} onChange={e => setDoseForm({ ...doseForm, doseUnit: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12,}}>
                     <option>mGy</option><option>mGy·cm</option><option>dGy</option>
                   </select>
                 </div>
-                <select value={doseForm.examType} onChange={e => setDoseForm({ ...doseForm, examType: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13,}}>
+                <select value={doseForm.examType} onChange={e => setDoseForm({ ...doseForm, examType: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12,}}>
                   <option>CT</option><option>DR</option><option>DSA</option><option>MG</option><option>X-ray</option>
                 </select>
-                <button onClick={() => void handleRecordDose()} disabled={doseSaving} style={{ padding: '8px', borderRadius: 4, border: 'none', cursor: doseSaving ? 'wait' : 'pointer', background: '#22d3ee', color: '#0d1117', fontSize: 13, fontWeight: 600 }}>{doseSaving ? t('deviceOps.submitting') : t('deviceOps.registerDoseBtn')}</button>
+                <button onClick={() => void handleRecordDose()} disabled={doseSaving} style={{ padding: '8px', borderRadius: 4, border: 'none', cursor: doseSaving ? 'wait' : 'pointer', background: '#22d3ee', color: '#0d1117', fontSize: 12, fontWeight: 600 }}>{doseSaving ? t('deviceOps.submitting') : t('deviceOps.registerDoseBtn')}</button>
               </div>
             </div>
           </div>

@@ -119,7 +119,7 @@ export default function EnterpriseSearchPage() {
           <Search style={{ marginRight: 8, color: '#1e40af' }} />
           {'\u4F01\u4E1A\u7EA7\u5168\u5C40\u641C\u7D22'}
         </h1>
-        <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: '6px 0 0' }}>
+        <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '6px 0 0' }}>
           {'\u8DE8\u60A3\u8005\u3001\u68C0\u67E5\u3001\u62A5\u544A\u3001\u5F71\u50CF\u7EDF\u4E00\u68C0\u7D22'}
         </p>
       </div>
@@ -141,7 +141,7 @@ export default function EnterpriseSearchPage() {
               <div
                 key={s}
                 onClick={() => { setInputValue(s); void handleSearch(s); }}
-                style={{ padding: '8px 14px', cursor: 'pointer', fontSize: 13, color: 'var(--text-primary)', borderBottom: '1px solid var(--border-light)' }}
+                style={{ padding: '8px 14px', cursor: 'pointer', fontSize: 12, color: 'var(--text-primary)', borderBottom: '1px solid var(--border-light)' }}
                 onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-hover)'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-card)'; }}
               >
@@ -198,7 +198,7 @@ export default function EnterpriseSearchPage() {
 
       {searched && !loading && (
         <>
-          <div style={{ padding: '8px 12px', background: 'var(--color-info-bg)', borderRadius: 6, marginBottom: 4, fontSize: 13, color: '#1e40af' }}>
+          <div style={{ padding: '8px 12px', background: 'var(--color-info-bg)', borderRadius: 6, marginBottom: 4, fontSize: 12, color: '#1e40af' }}>
             找到 <strong>{total}</strong> 条结果{legacyCount > 0 ? ` (${apiResults.length})` : ''} · {tookMs}ms
           </div>
 
@@ -249,7 +249,7 @@ export default function EnterpriseSearchPage() {
                         </div>
                         {r.subtitle && <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 4 }}>{r.subtitle}</div>}
                         {r.description && (
-                          <div style={{ color: 'var(--text-secondary)', fontSize: 13, marginTop: 4, lineHeight: 1.6 }}>
+                          <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 4, lineHeight: 1.6 }}>
                             {highlightText(r.description, query)}
                           </div>
                         )}
@@ -277,7 +277,7 @@ export default function EnterpriseSearchPage() {
                           <strong style={{ color: '#134e4a', fontSize: 14 }}>{r.title}</strong>
                           <Tag color="green">{r.type}</Tag>
                         </div>
-                        <div style={{ color: 'var(--text-secondary)', fontSize: 13, marginTop: 4 }}>{r.description}</div>
+                        <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 4 }}>{r.description}</div>
                         <div style={{ color: 'var(--text-secondary)', fontSize: 12, marginTop: 6 }}>Score: {r.score?.toFixed(1)}</div>
                       </div>
                     ))}

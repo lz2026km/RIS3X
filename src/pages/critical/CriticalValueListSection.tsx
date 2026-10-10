@@ -137,7 +137,7 @@ const CriticalItemsDirectory = () => {
                             </div>
                             <div style={{ flex: 1 }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                                <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>{item.name}</span>
+                                <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{item.name}</span>
                                 <span style={{ fontSize: 12, color: '#fff', background: item.color, padding: '1px 6px', borderRadius: 4 }}>{item.code}</span>
                               </div>
                               <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>{item.description}</div>
@@ -151,9 +151,9 @@ const CriticalItemsDirectory = () => {
               })}
             </div>
             <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'center', gap: 12 }}>
-              <button onClick={() => setShowModal(false)} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('cvSection.close')}</button>
+              <button onClick={() => setShowModal(false)} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('cvSection.close')}</button>
               <button onClick={() => { const blob = new Blob([JSON.stringify(NATIONAL_CRITICAL_ITEMS, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = '危急值目录.json'; link.click(); URL.revokeObjectURL(url) }}
-                style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid ' + PRIMARY_COLOR, background: PRIMARY_COLOR, color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid ' + PRIMARY_COLOR, background: PRIMARY_COLOR, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Download size={14} />{t('cvSection.exportCatalog')}
               </button>
             </div>

@@ -223,7 +223,7 @@ export function ContextMenu({
                   : item.danger || isConfirm
                     ? "var(--color-error, #dc2626)"
                     : "var(--text-primary, #1e293b)",
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: isConfirm ? 600 : 500,
                 cursor: item.disabled ? "not-allowed" : "pointer",
                 textAlign: "left",

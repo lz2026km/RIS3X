@@ -188,7 +188,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
                   <List.Item style={{ padding: '6px 0' }}>
                     <Space direction="vertical" size={2} style={{ width: '100%' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                        <span style={{ fontSize: 13 }}>{r.title}</span>
+                        <span style={{ fontSize: 12 }}>{r.title}</span>
                         <Tag color={RISK_LEVEL_META[r.riskLevel]?.color} style={{ marginInlineEnd: 0 }}>{RISK_LEVEL_META[r.riskLevel]?.label ?? r.riskLevel}</Tag>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>

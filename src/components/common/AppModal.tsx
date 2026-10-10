@@ -227,7 +227,7 @@ export function AppModal({
                   <div
                     id="app-modal-title"
                     style={{
-                      fontSize: 15,
+                      fontSize: 14,
                       fontWeight: 700,
                       color: headerColorResolved,
                       overflow: "hidden",

@@ -105,7 +105,7 @@ export default function CTDIvolTrendChart() {
         }}
       >
         <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
             CTDIvol 趋势监控
           </div>
           <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>

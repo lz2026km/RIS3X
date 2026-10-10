@@ -37,7 +37,7 @@ export default function ChartError({
       }}
     >
       <AlertTriangle size={28} aria-hidden="true" />
-      <span style={{ fontSize: 13, color: 'var(--color-error, #ef4444)' }}>{description}</span>
+      <span style={{ fontSize: 12, color: 'var(--color-error, #ef4444)' }}>{description}</span>
       {onRetry && (
         <button
           type="button"

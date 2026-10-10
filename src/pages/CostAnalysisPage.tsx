@@ -416,11 +416,11 @@ export default function CostAnalysisPage() {
               const profitRate = (item.profit / item.revenue) * 100
               return (
                 <div key={item.month} style={{ display: 'grid', gridTemplateColumns: '80px 100px 100px 100px 100px', gap: 8, padding: '12px 16px', borderBottom: '1px solid var(--bg-secondary,#f8fafc)', background: idx % 2 === 0 ? 'var(--bg-primary)' : 'var(--bg-card)', alignItems: 'center' }}>
-                  <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>{item.month}</span>
-                  <span style={{ color: 'var(--color-success)', fontSize: 13 }}>{formatCurrency(item.revenue)}</span>
-                  <span style={{ color: 'var(--color-error)', fontSize: 13 }}>{formatCurrency(item.cost)}</span>
-                  <span style={{ color: 'var(--color-success)', fontSize: 13, fontWeight: 600 }}>{formatCurrency(item.profit)}</span>
-                  <span style={{ color: 'var(--text-primary)', fontSize: 13 }}>{item.examCount > 0 ? item.examCount.toLocaleString() : '-'}<span style={{ color: 'var(--text-muted)', fontSize: 12, marginLeft: 4 }}>({profitRate > 0 ? '+' : ''}{profitRate.toFixed(1)}%)</span></span>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{item.month}</span>
+                  <span style={{ color: 'var(--color-success)', fontSize: 12 }}>{formatCurrency(item.revenue)}</span>
+                  <span style={{ color: 'var(--color-error)', fontSize: 12 }}>{formatCurrency(item.cost)}</span>
+                  <span style={{ color: 'var(--color-success)', fontSize: 12, fontWeight: 600 }}>{formatCurrency(item.profit)}</span>
+                  <span style={{ color: 'var(--text-primary)', fontSize: 12 }}>{item.examCount > 0 ? item.examCount.toLocaleString() : '-'}<span style={{ color: 'var(--text-muted)', fontSize: 12, marginLeft: 4 }}>({profitRate > 0 ? '+' : ''}{profitRate.toFixed(1)}%)</span></span>
                 </div>
               )
             })}
@@ -445,7 +445,7 @@ export default function CostAnalysisPage() {
               return (
                 <div key={type} style={{ marginBottom: 24 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, padding: '8px 12px', background: `${typeColor}20`, borderRadius: 6, borderLeft: `3px solid ${typeColor}` }}>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: typeColor }}>{type === 'CT增强' ? t('costAnalysis.ctEnhanced') : type === 'MR增强' ? t('costAnalysis.mrEnhanced') : 'DSA'}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: typeColor }}>{type === 'CT增强' ? t('costAnalysis.ctEnhanced') : type === 'MR增强' ? t('costAnalysis.mrEnhanced') : 'DSA'}</span>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '40px 80px 1fr 80px 80px 100px 120px', gap: 8, padding: '8px 16px', background: 'var(--bg-secondary,#f8fafc)', borderBottom: '1px solid var(--border-default)', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>
                     <span>#</span><span>{t('costAnalysis.equipmentType')}</span><span>{t('costAnalysis.itemName')}</span><span>{t('costAnalysis.unit')}</span><span>{t('costAnalysis.unitPriceYuan')}</span><span>{t('costAnalysis.monthlyUsage')}</span><span>{t('costAnalysis.annualCostYuan')}</span>
@@ -467,11 +467,11 @@ export default function CostAnalysisPage() {
             {DEPT_CONSUMABLE_DATA.sort((a, b) => b.total - a.total).map((item, idx) => (
               <div key={item.deptId} style={{ display: 'grid', gridTemplateColumns: '40px 1fr 80px 100px 100px 100px', gap: 8, padding: '12px 16px', borderBottom: '1px solid var(--bg-secondary,#f8fafc)', background: idx % 2 === 0 ? 'var(--bg-primary)' : 'var(--bg-card)', alignItems: 'center' }}>
                 <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>{idx + 1}</span>
-                <span style={{ color: 'var(--text-primary)', fontSize: 13 }}>{item.deptName}</span>
+                <span style={{ color: 'var(--text-primary)', fontSize: 12 }}>{item.deptName}</span>
                 <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 500, background: item.modality === 'CT' ? 'color-mix(in srgb, var(--color-primary) 13%, transparent)' : item.modality === 'MRI' ? 'color-mix(in srgb, var(--color-modality-mr) 13%, transparent)' : item.modality === 'DSA' ? 'color-mix(in srgb, var(--color-warning) 13%, transparent)' : 'color-mix(in srgb, var(--color-success) 13%, transparent)', color: item.modality === 'CT' ? 'var(--color-primary)' : item.modality === 'MRI' ? 'var(--color-modality-mr)' : item.modality === 'DSA' ? 'var(--color-warning)' : 'var(--color-success)' }}>{item.modality}</span>
-                <span style={{ color: 'var(--color-primary)', fontSize: 13 }}>{item.ctConsumable > 0 ? `${item.ctConsumable}万` : '-'}</span>
-                <span style={{ color: 'var(--color-modality-mr)', fontSize: 13 }}>{item.mrConsumable > 0 ? `${item.mrConsumable}万` : '-'}</span>
-                <span style={{ color: 'var(--color-warning)', fontSize: 13 }}>{item.dsaConsumable > 0 ? `${item.dsaConsumable}万` : '-'}</span>
+                <span style={{ color: 'var(--color-primary)', fontSize: 12 }}>{item.ctConsumable > 0 ? `${item.ctConsumable}万` : '-'}</span>
+                <span style={{ color: 'var(--color-modality-mr)', fontSize: 12 }}>{item.mrConsumable > 0 ? `${item.mrConsumable}万` : '-'}</span>
+                <span style={{ color: 'var(--color-warning)', fontSize: 12 }}>{item.dsaConsumable > 0 ? `${item.dsaConsumable}万` : '-'}</span>
               </div>
             ))}
           </div>
@@ -541,7 +541,7 @@ export default function CostAnalysisPage() {
                 {profitMarginStats.lossExams.map(exam => (
                   <div key={exam.id} style={{ background: 'var(--bg-card)', borderRadius: 6, padding: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <div style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 500 }}>{exam.examName}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-primary)', fontWeight: 500 }}>{exam.examName}</div>
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{exam.modality} · {exam.monthlyCount}{t('costAnalysis.casesPerMonth')}</div>
                     </div>
                     <div style={{ textAlign: 'right' }}>
@@ -654,7 +654,7 @@ export default function CostAnalysisPage() {
               showDensity={false}
               columns={[
                 { title: t('costAnalysis.drgCode'), key: 'code', render: (_v, d) => <span style={{ fontSize: 12, color: 'var(--color-primary)', fontWeight: 500 }}>{d.code}</span> },
-                { title: t('costAnalysis.name'), key: 'name', render: (_v, d) => <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>{d.name}</span> },
+                { title: t('costAnalysis.name'), key: 'name', render: (_v, d) => <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{d.name}</span> },
                 { title: t('costAnalysis.weight'), key: 'weight', align: 'center' as const, render: (_v, d) => <span style={{ color: 'var(--text-secondary)' }}>{d.weight}</span> },
                 { title: t('costAnalysis.hospitalCost'), key: 'cost', align: 'right' as const, render: (_v, d) => <span style={{ color: 'var(--text-primary)' }}>¥{d.cost.toLocaleString()}</span> },
                 { title: t('costAnalysis.nationalAverage'), key: 'nationalAvgCost', align: 'right' as const, render: (_v, d) => <span style={{ color: 'var(--text-secondary)' }}>¥{d.nationalAvgCost.toLocaleString()}</span> },
@@ -688,7 +688,7 @@ export default function CostAnalysisPage() {
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('costAnalysis.revenuePerExam')}</span><span style={{ color: 'var(--color-success)' }}>¥{d.revenuePerExam.toLocaleString()}</span></div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('costAnalysis.breakEvenPoint')}</span><span style={{ color: 'var(--color-warning)', fontWeight: 600 }}>{bep}例/月</span></div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t('costAnalysis.actualExamVolume')}</span><span style={{ color: actualExams > bep ? 'var(--color-success)' : 'var(--color-error)', fontWeight: 600 }}>{actualExams}例/月</span></div>
-                    <div style={{ marginTop: 8, padding: 8, borderRadius: 6, background: isProfitable ? 'color-mix(in srgb, var(--color-success) 13%, transparent)' : 'color-mix(in srgb, var(--color-error) 13%, transparent)', textAlign: 'center', fontSize: 13, fontWeight: 600, color: isProfitable ? 'var(--color-success)' : 'var(--color-error)' }}>{isProfitable ? t('costAnalysis.profitable') : t('costAnalysis.loss')}</div>
+                    <div style={{ marginTop: 8, padding: 8, borderRadius: 6, background: isProfitable ? 'color-mix(in srgb, var(--color-success) 13%, transparent)' : 'color-mix(in srgb, var(--color-error) 13%, transparent)', textAlign: 'center', fontSize: 12, fontWeight: 600, color: isProfitable ? 'var(--color-success)' : 'var(--color-error)' }}>{isProfitable ? t('costAnalysis.profitable') : t('costAnalysis.loss')}</div>
                   </div>
                 </div>
               )
@@ -794,7 +794,7 @@ export default function CostAnalysisPage() {
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: 8, padding: 20 }}>
               <div style={sectionTitleStyle}><AlertTriangle size={16} color="var(--color-error)" /> {t('costAnalysis.budgetOverrunWarning')}</div>
               {BUDGET_DATA.monthly.filter(m => m.varianceRate > 5).length === 0 ? (
-                <div style={{ color: 'var(--color-success)', fontSize: 13 }}>{t('costAnalysis.allMonthsGood')}</div>
+                <div style={{ color: 'var(--color-success)', fontSize: 12 }}>{t('costAnalysis.allMonthsGood')}</div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {BUDGET_DATA.monthly.filter(m => m.varianceRate > 5).map(m => (
@@ -876,9 +876,9 @@ export default function CostAnalysisPage() {
                 showDensity={false}
                 columns={[
                   { title: t('costAnalysis.claimNo'), key: 'id', render: (_v, c) => <span style={{ fontSize: 12, color: 'var(--color-primary)' }}>{c.id}</span> },
-                  { title: t('costAnalysis.patient'), key: 'patientName', render: (_v, c) => <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>{c.patientName}</span> },
+                  { title: t('costAnalysis.patient'), key: 'patientName', render: (_v, c) => <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{c.patientName}</span> },
                   { title: t('costAnalysis.type'), key: 'type', render: (_v, c) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{c.type}</span> },
-                  { title: t('costAnalysis.amount'), key: 'amount', align: 'right' as const, render: (_v, c) => <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>¥{c.amount.toLocaleString()}</span> },
+                  { title: t('costAnalysis.amount'), key: 'amount', align: 'right' as const, render: (_v, c) => <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>¥{c.amount.toLocaleString()}</span> },
                   {
                     title: t('costAnalysis.status'), key: 'status',
                     render: (_v, c) => (

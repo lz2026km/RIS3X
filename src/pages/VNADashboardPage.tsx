@@ -547,7 +547,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
         <Space size={16}>
           <Archive size={36} color="#fff" />
           <div>
-            <div style={{ fontSize: 22, fontWeight: 800 }}>{t('vnaPage.pageTitle')}</div>
+            <div style={{ fontSize: 20, fontWeight: 800 }}>{t('vnaPage.pageTitle')}</div>
             <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>
               {t('vnaPage.pageDesc')}
             </div>

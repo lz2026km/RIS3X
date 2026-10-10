@@ -80,7 +80,7 @@ export const BulkExportDialog: React.FC<BulkExportDialogProps> = ({ open, onClos
           <div style={{ marginBottom: 16 }}>
             <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 6 }}>导出格式</label>
             <select value={format} onChange={e => setFormat(e.target.value as ExportFormatV2)}
-              style={{ width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13 }}>
+              style={{ width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12 }}>
               {FORMATS.map(f => <option key={f} value={f}>{f.toUpperCase()}</option>)}
             </select>
           </div>
@@ -100,7 +100,7 @@ export const BulkExportDialog: React.FC<BulkExportDialogProps> = ({ open, onClos
 
           {result && (
             <div style={{ padding: 12, background: result.failureCount === 0 ? '#f0fdf4' : '#fef2f2', borderRadius: 8, marginBottom: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, color: result.failureCount === 0 ? '#16a34a' : '#dc2626' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: result.failureCount === 0 ? '#16a34a' : '#dc2626' }}>
                 {result.failureCount === 0 ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
                 {result.failureCount === 0 ? '全部导出成功' : `${result.successCount} 成功, ${result.failureCount} 失败`}
               </div>
@@ -131,11 +131,11 @@ export const BulkExportDialog: React.FC<BulkExportDialogProps> = ({ open, onClos
 const btnPrimary: React.CSSProperties = {
   flex: 1, padding: '8px 16px', border: 'none', borderRadius: 6,
   background: 'linear-gradient(135deg, #dc2626, #b91c1c)', color: '#fff',
-  fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center',
+  fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center',
 };
 const btnSecondary: React.CSSProperties = {
   padding: '8px 16px', border: '1px solid #cbd5e1', borderRadius: 6,
-  background: 'var(--bg-card)', color: '#475569', fontSize: 13, cursor: 'pointer',
+  background: 'var(--bg-card)', color: '#475569', fontSize: 12, cursor: 'pointer',
 };
 const btnDisabled: React.CSSProperties = {
   ...btnPrimary, background: '#cbd5e1', cursor: 'not-allowed',

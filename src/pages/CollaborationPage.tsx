@@ -374,7 +374,7 @@ export default function CollaborationPage() {
             position: 'relative', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', rowGap: 8, columnGap: 8, marginBottom: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <FileText size={14} /> {t('collab.reportBody')} <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>{t('collab.demoTag')}</span>
               </div>
               <div style={{ display: 'flex', gap: 4, flexShrink: 0, flexWrap: 'wrap' }}>
@@ -401,7 +401,7 @@ export default function CollaborationPage() {
               position: 'relative', padding: 16, flex: 1, minHeight: 160, overflow: 'hidden',
               background: 'var(--bg-card)', borderRadius: 6,
               border: '1px solid var(--border-color)',
-              fontSize: 13, lineHeight: 1.8, color: 'var(--text-primary)',
+              fontSize: 12, lineHeight: 1.8, color: 'var(--text-primary)',
             }}>
               {MOCK_REPORT_CONTENT[activeField]}
 

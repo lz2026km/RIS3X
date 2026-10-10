@@ -270,7 +270,7 @@ const PeerReviewPanel: React.FC = () => {
             <Col span={4} key={dm.key}>
               <Card size="small" title={`${t(dm.labelKey)}${t('peerReview.avgSuffix')}`}>
                 <Space>
-                  <Rate disabled value={Math.round(stats?.avgScores[dm.key] ?? 0)} count={5} style={{ fontSize: 13 }} />
+                  <Rate disabled value={Math.round(stats?.avgScores[dm.key] ?? 0)} count={5} style={{ fontSize: 12 }} />
                   <AppText weight={600}>{(stats?.avgScores[dm.key] ?? 0).toFixed(1)}</AppText>
                 </Space>
               </Card>

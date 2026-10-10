@@ -11,6 +11,7 @@ import type { NotificationMethod } from '../../services/api/criticalApi'
 import { criticalExtApi } from '../../services/api'
 import { TransferToFollowUpModal } from './CriticalValueFollowUp'
 import { LoadingBanner } from '../../components/feedback'
+import { DataTable } from '../../components/common'
 import { t } from '../../i18n/appI18n'
 
 // ---------- shared modal parts ----------
@@ -571,33 +572,33 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
                   <Plus size={14} />{t('cvModals.addRule')}
                 </button>
               </div>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ background: 'var(--bg-card)' }}>
-                    {[t('cvModals.thDevice'), t('cvModals.thExamItem'), t('cvModals.thIndicator'), t('cvModals.thNormalRange'), t('cvModals.thCriticalRange'), t('cvModals.thUnit'), t('cvModals.thStatus'), t('cvModals.thAction')].map((h) => (
-                      <th key={h} style={{ padding: '10px 12px', fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {rules.map((rule) => (
-                    <tr key={rule.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                      <td style={{ padding: '10px 12px', fontSize: 12, color: 'var(--text-primary)' }}>{rule.modality}</td>
-                      <td style={{ padding: '10px 12px', fontSize: 12, color: 'var(--text-primary)' }}>{rule.examItem}</td>
-                      <td style={{ padding: '10px 12px', fontSize: 12, color: 'var(--text-primary)' }}>{rule.resultName}</td>
-                      <td style={{ padding: '10px 12px', fontSize: 12, color: '#059669' }}>{rule.normalMin}~{rule.normalMax}</td>
-                      <td style={{ padding: '10px 12px', fontSize: 12, color: '#dc2626', fontWeight: 600 }}>{rule.criticalMin}~{rule.criticalMax}</td>
-                      <td style={{ padding: '10px 12px', fontSize: 12, color: 'var(--text-muted)' }}>{rule.unit}</td>
-                      <td style={{ padding: '10px 12px' }}>
-                        <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600, background: rule.enabled ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: rule.enabled ? '#059669' : '#dc2626' }}>{rule.enabled ? t('cvModals.enabled') : t('cvModals.disabled')}</span>
-                      </td>
-                      <td style={{ padding: '10px 12px' }}>
-                        <button onClick={() => openRuleForm(rule)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: PRIMARY_COLOR, fontSize: 12, cursor: 'pointer' }}>{t('cvModals.edit')}</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <DataTable
+                rowKey="id"
+                dataSource={rules}
+                showPagination={false}
+                showExport={false}
+                showDensity={false}
+                columns={[
+                  { title: t('cvModals.thDevice'), dataIndex: 'modality', key: 'modality', render: (v: string) => <span style={{ color: 'var(--text-primary)' }}>{v}</span> },
+                  { title: t('cvModals.thExamItem'), dataIndex: 'examItem', key: 'examItem', render: (v: string) => <span style={{ color: 'var(--text-primary)' }}>{v}</span> },
+                  { title: t('cvModals.thIndicator'), dataIndex: 'resultName', key: 'resultName', render: (v: string) => <span style={{ color: 'var(--text-primary)' }}>{v}</span> },
+                  { title: t('cvModals.thNormalRange'), key: 'normalRange', render: (_: unknown, rule: CriticalValueRule) => <span style={{ color: '#059669' }}>{rule.normalMin}~{rule.normalMax}</span> },
+                  { title: t('cvModals.thCriticalRange'), key: 'criticalRange', render: (_: unknown, rule: CriticalValueRule) => <span style={{ color: '#dc2626', fontWeight: 600 }}>{rule.criticalMin}~{rule.criticalMax}</span> },
+                  { title: t('cvModals.thUnit'), dataIndex: 'unit', key: 'unit', render: (v: string) => <span style={{ color: 'var(--text-muted)' }}>{v}</span> },
+                  {
+                    title: t('cvModals.thStatus'), dataIndex: 'enabled', key: 'enabled',
+                    render: (v: boolean) => (
+                      <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600, background: v ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: v ? '#059669' : '#dc2626' }}>{v ? t('cvModals.enabled') : t('cvModals.disabled')}</span>
+                    ),
+                  },
+                  {
+                    title: t('cvModals.thAction'), key: 'actions',
+                    render: (_: unknown, rule: CriticalValueRule) => (
+                      <button onClick={() => openRuleForm(rule)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: PRIMARY_COLOR, fontSize: 12, cursor: 'pointer' }}>{t('cvModals.edit')}</button>
+                    ),
+                  },
+                ]}
+              />
             </div>
           )}
 

@@ -17,6 +17,7 @@ import { statsApi } from '../services/api/statsApi';
 import { t } from '../i18n/appI18n';
 // [v3.0.6.11-105 Wave 2C] 国标指标联动: RQI-RRC-02 急诊报告 2h 完成率
 import { RqiIndicatorLink } from '../components/qc/RqiIndicatorLink';
+import { DataTable } from '../components/common';
 
 // ============================================================
 // 主组件
@@ -212,7 +213,7 @@ export default function ReportTimelinessPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>{t('timeliness.byPriority')}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{t('timeliness.byPriority')}</div>
             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{dataSource === 'api' ? t('timeliness.apiBuckets') : t('timeliness.tatMonitor')}</span>
           </div>
           {priorityData.map(p => (
@@ -240,7 +241,7 @@ export default function ReportTimelinessPage() {
 
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>{t('timeliness.byModality')}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{t('timeliness.byModality')}</div>
             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('timeliness.demoData')}</span>
           </div>
           {data.onTimeByModality.map(m => (
@@ -250,7 +251,7 @@ export default function ReportTimelinessPage() {
                   <div style={{ width: 8, height: 8, borderRadius: 4, background: modalityColor(m.modality) }} />
                   <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('timeliness.modalityTarget', { modality: m.modality, onTime: m.onTime, target: m.target })}</span>
                 </div>
-                <span style={{ fontSize: 13, fontWeight: 700, color: m.rate >= 90 ? '#10b981' : m.rate >= 80 ? '#f59e0b' : '#dc2626' }}>{m.rate}%</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: m.rate >= 90 ? '#10b981' : m.rate >= 80 ? '#f59e0b' : '#dc2626' }}>{m.rate}%</span>
               </div>
               <div style={{ height: 6, background: 'var(--bg-card)', borderRadius: 3, overflow: 'hidden' }}>
                 <div style={{
@@ -267,7 +268,7 @@ export default function ReportTimelinessPage() {
       {/* 7日趋势 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)', marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>{t('timeliness.trend7d')}</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{t('timeliness.trend7d')}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#10b981' }}>
             <TrendingUp size={12} /> {dataSource === 'api' ? `biApi 实时 (${period === 'month' ? '近30日' : '近7日'})` : t('timeliness.overallUp')}
           </div>
@@ -296,7 +297,7 @@ export default function ReportTimelinessPage() {
       {/* 超时工单 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#dc2626', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#dc2626', display: 'flex', alignItems: 'center', gap: 6 }}>
             <AlertTriangle size={13} /> {t('timeliness.overdueList')}
             <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)', marginLeft: 6 }}>{t('timeliness.overdueDemoNote')}</span>
           </div>
@@ -304,35 +305,31 @@ export default function ReportTimelinessPage() {
             {reminding ? t('timeliness.urging') : t('timeliness.urgeAll')}
           </button>
         </div>
-        <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ background: 'var(--color-error-bg)', borderBottom: '1px solid #fecaca' }}>
-              <th style={{ padding: 8, textAlign: 'left', color: '#7f1d1d', fontWeight: 600 }}>{t('timeliness.colReportId')}</th>
-              <th style={{ padding: 8, textAlign: 'left', color: '#7f1d1d', fontWeight: 600 }}>{t('timeliness.colPatient')}</th>
-              <th style={{ padding: 8, textAlign: 'left', color: '#7f1d1d', fontWeight: 600 }}>{t('timeliness.colDoctor')}</th>
-              <th style={{ padding: 8, textAlign: 'right', color: '#7f1d1d', fontWeight: 600 }}>{t('timeliness.colOverdue')}</th>
-              <th style={{ padding: 8, textAlign: 'center', color: '#7f1d1d', fontWeight: 600 }}>{t('timeliness.colActions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.overdue.map(o => (
-              <tr key={o.reportId} style={{ borderBottom: '1px solid #fee2e2' }}>
-                <td style={{ padding: 8, fontFamily: 'monospace', color: '#7f1d1d' }}>{o.reportId}</td>
-                <td style={{ padding: 8 }}><User size={10} /> {o.patientName}</td>
-                <td style={{ padding: 8, color: 'var(--text-secondary)' }}>{o.doctor}</td>
-                <td style={{ padding: 8, textAlign: 'right', color: o.minutes > 60 ? '#dc2626' : '#f59e0b', fontWeight: 700 }}>+{o.minutes} min</td>
-                <td style={{ padding: 8, textAlign: 'center' }}>
+        <DataTable
+          rowKey="reportId"
+          dataSource={data.overdue}
+          columns={[
+            { title: t('timeliness.colReportId'), dataIndex: 'reportId', key: 'reportId', render: (v: string) => <span style={{ fontFamily: 'monospace', color: '#7f1d1d' }}>{v}</span> },
+            { title: t('timeliness.colPatient'), dataIndex: 'patientName', key: 'patientName', render: (v: string) => <span><User size={10} /> {v}</span> },
+            { title: t('timeliness.colDoctor'), dataIndex: 'doctor', key: 'doctor', render: (v: string) => <span style={{ color: 'var(--text-secondary)' }}>{v}</span> },
+            { title: t('timeliness.colOverdue'), dataIndex: 'minutes', key: 'minutes', align: 'right', render: (v: number) => <span style={{ color: v > 60 ? '#dc2626' : '#f59e0b', fontWeight: 700 }}>+{v} min</span> },
+            {
+              title: t('timeliness.colActions'),
+              key: 'actions',
+              align: 'center',
+              render: (_v, o) => (
+                <>
                   <button onClick={() => void handleUrgeOne(o)} style={{ padding: '2px 8px', background: 'var(--bg-card)', border: '1px solid #dc2626', color: '#dc2626', borderRadius: 3, fontSize: 12, cursor: 'pointer', marginRight: 4 }}>
                     {t('timeliness.urge')}
                   </button>
                   <button onClick={() => handleEscalate(o)} disabled={!!escalated[o.reportId]} style={{ padding: '2px 8px', background: escalated[o.reportId] ? '#fca5a5' : '#dc2626', color: '#fff', border: 'none', borderRadius: 3, fontSize: 12, cursor: escalated[o.reportId] ? 'default' : 'pointer' }}>
                     {escalated[o.reportId] ? t('timeliness.escalated') : t('timeliness.escalate')}
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </>
+              ),
+            },
+          ]}
+        />
       </div>
     </div>
   );
@@ -354,8 +351,8 @@ function BigStat({ icon: Icon, label, value, suffix, color, trend, trendValue, a
           </div>
         )}
       </div>
-      <div style={{ fontSize: 26, fontWeight: 700, color: color }}>
-        {value}<span style={{ fontSize: 13, fontWeight: 500, marginLeft: 2 }}>{suffix}</span>
+      <div style={{ fontSize: 24, fontWeight: 700, color: color }}>
+        {value}<span style={{ fontSize: 12, fontWeight: 500, marginLeft: 2 }}>{suffix}</span>
       </div>
     </div>
   );

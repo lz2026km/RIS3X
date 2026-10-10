@@ -17,7 +17,7 @@ export interface StatusBadgeProps {
 const SIZE_MAP: Record<'sm' | 'md' | 'lg', { padding: string; fontSize: number; iconSize: number }> = {
   sm: { padding: '2px 6px', fontSize: 12, iconSize: 10 },
   md: { padding: '3px 8px', fontSize: 12, iconSize: 12 },
-  lg: { padding: '5px 12px', fontSize: 13, iconSize: 14 },
+  lg: { padding: '5px 12px', fontSize: 12, iconSize: 14 },
 };
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({

@@ -806,7 +806,7 @@ export const AIDraftPanel: React.FC<Props> = ({
                   display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                   color: '#94a3b8', fontSize: 12, gap: 8,
                 }}>
-                  <div style={{ fontSize: 32, opacity: 0.6 }}></div>
+                  <div style={{ fontSize: 30, opacity: 0.6 }}></div>
                   <div>{modality} · {bodyPart}</div>
                   <div style={{ fontSize: 11 }}>{t('aiDraft.compareModal.report')} {reportId}</div>
                   <Alert type="warning" showIcon style={{ fontSize: 11, maxWidth: 220 }} message={t('aiDraft.compareModal.noImage')} />

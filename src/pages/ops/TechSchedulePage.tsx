@@ -13,6 +13,7 @@ import type {
   TechCalendar, TechRoom, TechScheduleItem, TechShift, TechScheduleStatus, TechStats, TechTechnician,
 } from '../../services/api/techScheduleApi'
 import { invalidateApiCacheByPrefix } from '../../services/api/client'
+import { DataTable } from '../../components/common'
 import { t } from '../../i18n/appI18n'
 
 // ============================================================
@@ -329,7 +330,7 @@ export default function TechSchedulePage() {
                 <span style={{ fontSize: 12, color: C.textMid }}>{kpi.title}</span>
                 <span style={{ color: kpi.color }}>{kpi.icon}</span>
               </div>
-              <div style={{ fontSize: 28, fontWeight: 700 }}>{kpi.value}</div>
+              <div style={{ fontSize: 30, fontWeight: 700 }}>{kpi.value}</div>
             </div>
           ))}
         </div>
@@ -339,7 +340,7 @@ export default function TechSchedulePage() {
       <div style={{ padding: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <Button size="small" icon={<ChevronLeft size={14} />} onClick={() => setMonth(shiftMonth(month, -1))} />
-          <span style={{ fontSize: 15, fontWeight: 600, minWidth: 90, textAlign: 'center' }}>{monthLabel}</span>
+          <span style={{ fontSize: 14, fontWeight: 600, minWidth: 90, textAlign: 'center' }}>{monthLabel}</span>
           <Button size="small" icon={<ChevronRight size={14} />} onClick={() => setMonth(shiftMonth(month, 1))} />
           <Button size="small" onClick={() => setMonth(monthStr())}>{t('techSchedule.thisMonth')}</Button>
         </div>
@@ -465,38 +466,31 @@ export default function TechSchedulePage() {
           {stats.byTechnician.length === 0 ? (
             <Empty description={t('techSchedule.noMonthlySchedule')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
           ) : (
-            <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: 12 }}>
-              <thead>
-                <tr>
-                  <th style={{ ...thStyle, textAlign: 'left' }}>{t('techSchedule.technician')}</th>
-                  <th style={{ ...thStyle, textAlign: 'center' }}>{t('techSchedule.shiftCount')}</th>
-                  <th style={{ ...thStyle, textAlign: 'center' }}>{t('techSchedule.kpiNight')}</th>
-                  <th style={{ ...thStyle, textAlign: 'center' }}>{t('techSchedule.kpiLeave')}</th>
-                  <th style={{ ...thStyle, textAlign: 'left' }}>{t('techSchedule.share')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stats.byTechnician.map((t) => {
-                  const pct = stats.totalShifts > 0 ? Math.round((t.count / stats.totalShifts) * 100) : 0
-                  return (
-                    <tr key={t.technicianId} style={{ borderBottom: `1px solid ${C.border}` }}>
-                      <td style={{ ...tdStyle, textAlign: 'left' }}>{t.technicianName}</td>
-                      <td style={{ ...tdStyle, textAlign: 'center' }}>{t.count}</td>
-                      <td style={{ ...tdStyle, textAlign: 'center', color: C.purple }}>{t.nights}</td>
-                      <td style={{ ...tdStyle, textAlign: 'center', color: C.red }}>{t.leaves}</td>
-                      <td style={{ ...tdStyle, textAlign: 'left' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <div style={{ flex: 1, maxWidth: 240, height: 6, borderRadius: 3, background: '#1c2129' }}>
-                            <div style={{ width: `${pct}%`, height: 6, borderRadius: 3, background: C.blue }} />
-                          </div>
-                          <span style={{ color: C.textMid, width: 36 }}>{pct}%</span>
+            <DataTable
+              dataSource={stats.byTechnician}
+              rowKey="technicianId"
+              pagination={false}
+              columns={[
+                { title: t('techSchedule.technician'), dataIndex: 'technicianName', render: (v: string) => <span style={{ color: C.text }}>{v}</span> },
+                { title: t('techSchedule.shiftCount'), dataIndex: 'count', align: 'center', render: (v: number) => <span style={{ color: C.text }}>{v}</span> },
+                { title: t('techSchedule.kpiNight'), dataIndex: 'nights', align: 'center', render: (v: number) => <span style={{ color: C.purple }}>{v}</span> },
+                { title: t('techSchedule.kpiLeave'), dataIndex: 'leaves', align: 'center', render: (v: number) => <span style={{ color: C.red }}>{v}</span> },
+                {
+                  title: t('techSchedule.share'), key: 'share',
+                  render: (_: unknown, row: TechStats['byTechnician'][number]) => {
+                    const pct = stats.totalShifts > 0 ? Math.round((row.count / stats.totalShifts) * 100) : 0
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ flex: 1, maxWidth: 240, height: 6, borderRadius: 3, background: '#1c2129' }}>
+                          <div style={{ width: `${pct}%`, height: 6, borderRadius: 3, background: C.blue }} />
                         </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+                        <span style={{ color: C.textMid, width: 36 }}>{pct}%</span>
+                      </div>
+                    )
+                  },
+                },
+              ]}
+            />
           )}
         </div>
       </div>
@@ -524,8 +518,8 @@ export default function TechSchedulePage() {
                   <div style={{ fontSize: 14, fontWeight: 500 }}>{f.value}</div>
                 </div>
               ))}
-              {detail.swapReason && <div style={{ minWidth: 200 }}><div style={{ fontSize: 11, color: C.textMid }}>{t('techSchedule.swapReason')}</div><div style={{ fontSize: 13, color: C.orange }}>{detail.swapReason}</div></div>}
-              {detail.leaveReason && <div style={{ minWidth: 200 }}><div style={{ fontSize: 11, color: C.textMid }}>{t('techSchedule.leaveReason')}</div><div style={{ fontSize: 13, color: C.red }}>{detail.leaveReason}</div></div>}
+              {detail.swapReason && <div style={{ minWidth: 200 }}><div style={{ fontSize: 11, color: C.textMid }}>{t('techSchedule.swapReason')}</div><div style={{ fontSize: 12, color: C.orange }}>{detail.swapReason}</div></div>}
+              {detail.leaveReason && <div style={{ minWidth: 200 }}><div style={{ fontSize: 11, color: C.textMid }}>{t('techSchedule.leaveReason')}</div><div style={{ fontSize: 12, color: C.red }}>{detail.leaveReason}</div></div>}
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {detail.status !== 'CONFIRMED' && detail.status !== 'ON_LEAVE' && (
@@ -654,7 +648,7 @@ const shiftMonth = (month: string, offset: number) => {
 
 const inputStyle: React.CSSProperties = {
   width: '100%', padding: '6px 10px', background: '#0f141b', color: C.text,
-  border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 13, colorScheme: 'dark',
+  border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12, colorScheme: 'dark',
 }
 
 const labelStyle: React.CSSProperties = { fontSize: 12, color: C.textMid }

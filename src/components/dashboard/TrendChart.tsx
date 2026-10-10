@@ -89,7 +89,7 @@ export function TrendChart({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          fontSize: 13,
+          fontSize: 12,
           color: "var(--text-secondary, #475569)",
           ...style,
         }}

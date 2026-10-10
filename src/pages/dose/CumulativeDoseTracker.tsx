@@ -59,7 +59,7 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
-        <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 40, border: "1px solid #e2e8f0", textAlign: "center", color: "#94a3b8", fontSize: 13 }}>
+        <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 40, border: "1px solid #e2e8f0", textAlign: "center", color: "#94a3b8", fontSize: 12 }}>
           暂无累计剂量数据
         </div>
       </div>
@@ -80,7 +80,7 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
       >
         <div
           style={{
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: 700,
             color: "#1e40af",
             marginBottom: 16,
@@ -138,19 +138,19 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
         }}
       >
         <div style={statBox}>
-          <div style={{ fontSize: 22, fontWeight: 800, color: "#1e40af" }}>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "#1e40af" }}>
             {lastPoint.cumulativeDLP}
           </div>
           <div style={{ fontSize: 12, color: "#64748b" }}>当前累计DLP</div>
         </div>
         <div style={statBox}>
-          <div style={{ fontSize: 22, fontWeight: 800, color: "#16a34a" }}>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "#16a34a" }}>
             {lastPoint.examCount}
           </div>
           <div style={{ fontSize: 12, color: "#64748b" }}>累计检查次数</div>
         </div>
         <div style={statBox}>
-          <div style={{ fontSize: 22, fontWeight: 800, color: "#d97706" }}>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "#d97706" }}>
             {Math.round(lastPoint.cumulativeDLP / examCountSafe)}
           </div>
           <div style={{ fontSize: 12, color: "#64748b" }}>次均剂量</div>
@@ -158,7 +158,7 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
         <div style={statBox}>
           <div
             style={{
-              fontSize: 22,
+              fontSize: 20,
               fontWeight: 800,
               color: nearLimit ? "#dc2626" : "#16a34a",
             }}

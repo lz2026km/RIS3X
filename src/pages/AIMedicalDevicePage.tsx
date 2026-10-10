@@ -284,7 +284,7 @@ export default function AIMedicalDevicePage() {
             </div>
             <div>
               <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#fff' }}>{t('aiMedicalDevice.title')}</h1>
-              <p style={{ margin: '4px 0 0', fontSize: 13, color: 'rgba(255,255,255,0.8)' }}>
+              <p style={{ margin: '4px 0 0', fontSize: 12, color: 'rgba(255,255,255,0.8)' }}>
                 {activeTab === 'devices'
                   ? <>{t('aiMedicalDevice.devicesSummaryPrefix')} {devices.length} {t('aiMedicalDevice.unitsUnit')} | {t('aiMedicalDevice.idleLabel')} {devices.filter(d => d.state === 'IDLE').length} | {t('aiMedicalDevice.inUseLabel')} {devices.filter(d => d.state === 'IN_USE').length} | {t('aiMedicalDevice.maintenanceFaultLabel')} {devices.filter(d => ['MAINTENANCE', 'BROKEN', 'OFFLINE'].includes(d.state)).length}</>
                   : <>{t('aiMedicalDevice.certsSummaryPrefix')} {counts.all} {t('aiMedicalDevice.certsCountUnit')} | {t('aiMedicalDevice.validLabel')} {counts.valid} | {t('aiMedicalDevice.expiringLabel')} {counts.expiring} | {t('aiMedicalDevice.expiredLabel')} {counts.expired}</>}
@@ -307,7 +307,7 @@ export default function AIMedicalDevicePage() {
           ].map(tab => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)}
               style={{
-                padding: '8px 18px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600,
+                padding: '8px 18px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
                 background: activeTab === tab.key ? '#fff' : 'rgba(255,255,255,0.15)',
                 color: activeTab === tab.key ? '#1e40af' : '#fff',
                 transition: 'all 0.2s',
@@ -340,7 +340,7 @@ export default function AIMedicalDevicePage() {
                 placeholder={t('aiMedicalDevice.deviceSearchPlaceholder')}
                 style={{
                   width: '100%', padding: '10px 12px 10px 40px', border: '1px solid #dbeafe',
-                  borderRadius: 8, fontSize: 13, boxSizing: 'border-box',
+                  borderRadius: 8, fontSize: 12, boxSizing: 'border-box',
                 }}
               />
               {deviceSearch && (
@@ -392,7 +392,7 @@ export default function AIMedicalDevicePage() {
               placeholder={t('aiMedicalDevice.certSearchPlaceholder')}
               style={{
                 width: '100%', padding: '10px 12px 10px 40px', border: '1px solid #dbeafe',
-                borderRadius: 8, fontSize: 13, transition: 'border-color 0.2s',
+                borderRadius: 8, fontSize: 12, transition: 'border-color 0.2s',
                 boxSizing: 'border-box'
               }}
               onFocus={e => e.target.style.borderColor = '#3b82f6'}
@@ -420,7 +420,7 @@ export default function AIMedicalDevicePage() {
                   borderColor: statusFilter === btn.key ? '#3b82f6' : '#dbeafe',
                   background: statusFilter === btn.key ? '#eff6ff' : '#fff',
                   color: statusFilter === btn.key ? '#1e40af' : '#64748b',
-                  fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
+                  fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
                   display: 'flex', alignItems: 'center', gap: 6,
                 }}
               >
@@ -462,7 +462,7 @@ export default function AIMedicalDevicePage() {
             <div style={{ padding: 24 }}>
               <div style={{ marginBottom: 16 }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.colCertNo')}</div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#1e40af', fontFamily: 'monospace' }}>{selectedDevice.regNumber}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', fontFamily: 'monospace' }}>{selectedDevice.regNumber}</div>
               </div>
               <div style={{ marginBottom: 16 }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.colDeviceName')}</div>
@@ -471,54 +471,54 @@ export default function AIMedicalDevicePage() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                 <div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.colModel')}</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{selectedDevice.model}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{selectedDevice.model}</div>
                 </div>
                 <div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.category')}</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{selectedDevice.category}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{selectedDevice.category}</div>
                 </div>
               </div>
               <div style={{ marginBottom: 16 }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.colManufacturer')}</div>
-                <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{selectedDevice.manufacturer}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{selectedDevice.manufacturer}</div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                 <div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.certifiedDate')}</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{formatDate(selectedDevice.certifiedDate)}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{formatDate(selectedDevice.certifiedDate)}</div>
                 </div>
                 <div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.expiryTo')}</div>
-                  <div style={{ fontSize: 13, color: isExpiringSoon(selectedDevice.expiryDate) ? '#d97706' : 'var(--text-primary)', fontWeight: isExpiringSoon(selectedDevice.expiryDate) ? 600 : 400 }}>{formatDate(selectedDevice.expiryDate)}</div>
+                  <div style={{ fontSize: 12, color: isExpiringSoon(selectedDevice.expiryDate) ? '#d97706' : 'var(--text-primary)', fontWeight: isExpiringSoon(selectedDevice.expiryDate) ? 600 : 400 }}>{formatDate(selectedDevice.expiryDate)}</div>
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                 <div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.certOrg')}</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{selectedDevice.certificateOrg}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{selectedDevice.certificateOrg}</div>
                 </div>
                 <div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.applicationDept')}</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{selectedDevice.applicationArea}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{selectedDevice.applicationArea}</div>
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                 <div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.softwareVersion')}</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-primary)', fontFamily: 'monospace' }}>{selectedDevice.softwareVersion}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-primary)', fontFamily: 'monospace' }}>{selectedDevice.softwareVersion}</div>
                 </div>
                 <div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.aiAlgorithm')}</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{selectedDevice.aiAlgorithm}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{selectedDevice.aiAlgorithm}</div>
                 </div>
               </div>
               <div style={{ marginBottom: 16 }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.diagnosticAccuracy')}</div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#059669' }}>{selectedDevice.accuracy}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#059669' }}>{selectedDevice.accuracy}</div>
               </div>
               <div style={{ marginBottom: 16 }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.approvedIndications')}</div>
-                <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{selectedDevice.approvedIndications}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{selectedDevice.approvedIndications}</div>
               </div>
               <div style={{ marginBottom: 0 }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.colStatus')}</div>
@@ -547,7 +547,7 @@ export default function AIMedicalDevicePage() {
             <div style={{ padding: 24 }}>
               <div style={{ marginBottom: 16 }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.colDeviceCode')}</div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#1e40af', fontFamily: 'monospace' }}>{selectedRealDevice.code}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', fontFamily: 'monospace' }}>{selectedRealDevice.code}</div>
               </div>
               <div style={{ marginBottom: 16 }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.colDeviceName')}</div>
@@ -556,7 +556,7 @@ export default function AIMedicalDevicePage() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                 <div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.colModality')}</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 700 }}>{selectedRealDevice.modality}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-primary)', fontWeight: 700 }}>{selectedRealDevice.modality}</div>
                 </div>
                 <div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.colStatus')}</div>
@@ -566,31 +566,31 @@ export default function AIMedicalDevicePage() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                 <div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.colManufacturer')}</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{selectedRealDevice.manufacturer || '—'}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{selectedRealDevice.manufacturer || '—'}</div>
                 </div>
                 <div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.colLocation')}</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{selectedRealDevice.location || '—'}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{selectedRealDevice.location || '—'}</div>
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                 <div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.colTodayExams')}</div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#059669' }}>{selectedRealDevice.todayExams ?? 0} {t('aiMedicalDevice.casesUnit')}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#059669' }}>{selectedRealDevice.todayExams ?? 0} {t('aiMedicalDevice.casesUnit')}</div>
                 </div>
                 <div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.todayUsage')}</div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#059669' }}>{selectedRealDevice.todayUsageMin ?? 0} min</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#059669' }}>{selectedRealDevice.todayUsageMin ?? 0} min</div>
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                 <div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.colRegisteredAt')}</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{formatIsoDate(selectedRealDevice.createdAt)}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{formatIsoDate(selectedRealDevice.createdAt)}</div>
                 </div>
                 <div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{t('aiMedicalDevice.lastUpdated')}</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{formatIsoDate(selectedRealDevice.updatedAt)}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-primary)' }}>{formatIsoDate(selectedRealDevice.updatedAt)}</div>
                 </div>
               </div>
             </div>

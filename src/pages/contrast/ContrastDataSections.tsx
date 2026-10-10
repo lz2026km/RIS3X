@@ -67,7 +67,7 @@ export function ContrastScreeningChecklist() {
             <input type="checkbox" checked={!!checked[item.id]} onChange={(e) => setChecked((p) => ({ ...p, [item.id]: e.target.checked }))} style={{ marginTop: 2 }} />
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 13, fontWeight: 600 }}>{item.item}</span>
+                <span style={{ fontSize: 12, fontWeight: 600 }}>{item.item}</span>
                 <span style={{ fontSize: 11, padding: '1px 6px', borderRadius: 3, background: '#0891b220', color: '#22d3ee' }}>
                   {t(TYPE_LABEL[item.type] ?? 'w3d.screening.type.ask')}
                 </span>
@@ -101,7 +101,7 @@ export function SurgeryChecklistPanel({ modality }: { modality?: string }) {
       <select
         value={selected}
         onChange={(e) => setSelected(Number(e.target.value))}
-        style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, marginBottom: 12 }}
+        style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-primary, #0d1117)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12, marginBottom: 12 }}
       >
         {list.map((c, i) => (
           <option key={c.procedure} value={i}>{c.procedure} · {c.modality}</option>

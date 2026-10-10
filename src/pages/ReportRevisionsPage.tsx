@@ -538,7 +538,7 @@ export default function ReportRevisionsPage() {
               <div style={{
                 background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)',
               }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <GitBranch size={14} /> {t('reportRev.timeline')}
                 </div>
                 <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8 }}>
@@ -769,7 +769,7 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
         width={720}
       >
         {rightRev && (
-          <div style={{ fontSize: 13, lineHeight: 1.9, color: 'var(--text-primary)' }}>
+          <div style={{ fontSize: 12, lineHeight: 1.9, color: 'var(--text-primary)' }}>
             {report && (
               <div style={{ marginBottom: 12, padding: 10, background: 'var(--color-info-bg)', borderRadius: 6, fontSize: 12 }}>
                 {t('reportRev.patient')}{report.patientName} · {report.modality} · {report.bodyPart} · {t('reportRev.reviser')}{rightRev.authorName} · {rightRev.createdAt}
@@ -801,7 +801,7 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
         cancelText={t('reportRev.cancel')}
         width={480}
       >
-        <div style={{ fontSize: 13 }}>
+        <div style={{ fontSize: 12 }}>
           <p style={{ marginBottom: 10, color: 'var(--text-secondary)' }}>
             {t('w9c.reportRev.createAddendumBody', { reportId: selectedReportId, count: currentRevisions.length })}
           </p>

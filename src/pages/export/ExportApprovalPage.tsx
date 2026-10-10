@@ -202,7 +202,7 @@ export default function ExportApprovalPage() {
       title: t('w9.exportApproval.requester'), dataIndex: 'requesterName', key: 'requester', width: 150,
       render: (_: unknown, item) => (
         <div>
-          <div style={{ fontSize: 13, fontWeight: 600 }}>{item.requesterName ?? '未知用户'}</div>
+          <div style={{ fontSize: 12, fontWeight: 600 }}>{item.requesterName ?? '未知用户'}</div>
           <div style={{ fontSize: 11, color: '#6e7681', fontFamily: 'monospace' }}>{item.requesterId}</div>
         </div>
       ),
@@ -215,7 +215,7 @@ export default function ExportApprovalPage() {
       title: t('w9.exportApproval.resourceInfo'), key: 'resourceInfo',
       render: (_: unknown, item) => (
         <div>
-          <div style={{ fontSize: 13 }}>{item.resourceId ?? '—'}</div>
+          <div style={{ fontSize: 12 }}>{item.resourceId ?? '—'}</div>
           <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{item.reason}</div>
           {item.status === 'REJECTED' && item.rejectReason && (
             <div style={{ fontSize: 12, color: '#fca5a5', marginTop: 2 }}>{t('w9.exportApproval.rejectReason')}:{item.rejectReason}</div>
@@ -295,7 +295,7 @@ export default function ExportApprovalPage() {
         <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
           {filterTabs.map(tab => (
             <button key={tab.key} onClick={() => setFilter(tab.key)}
-              style={{ padding: '7px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: filter === tab.key ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: filter === tab.key ? '#fff' : 'var(--text-muted, #8b949e)', display: 'flex', alignItems: 'center', gap: 6 }}>
+              style={{ padding: '7px 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: filter === tab.key ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: filter === tab.key ? '#fff' : 'var(--text-muted, #8b949e)', display: 'flex', alignItems: 'center', gap: 6 }}>
               {tab.key === 'PENDING' && <Clock size={13} />}
               {tab.key === 'APPROVED' && <Check size={13} />}
               {tab.key === 'REJECTED' && <X size={13} />}
@@ -306,7 +306,7 @@ export default function ExportApprovalPage() {
         </div>
 
         {error && (
-          <div style={{ padding: 12, borderRadius: 6, background: '#ef444420', border: '1px solid #ef4444', color: '#fca5a5', marginBottom: 16, fontSize: 13 }}>
+          <div style={{ padding: 12, borderRadius: 6, background: '#ef444420', border: '1px solid #ef4444', color: '#fca5a5', marginBottom: 16, fontSize: 12 }}>
             {t('w9.exportApproval.loading')}:{error}
             <button onClick={() => void load()} style={{ marginLeft: 12, padding: '2px 10px', borderRadius: 4, border: 'none', background: '#ef4444', color: '#fff', cursor: 'pointer', fontSize: 12 }}>{t('w9.exportApproval.refresh')}</button>
           </div>

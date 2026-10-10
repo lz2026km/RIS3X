@@ -598,7 +598,7 @@ export const TeleConsultPage: React.FC = () => {
                         showIcon
                       />
                       <div
-                        style={{ marginTop: 8, fontSize: 13, color: "var(--text-secondary)" }}
+                        style={{ marginTop: 8, fontSize: 12, color: "var(--text-secondary)" }}
                       >
                         {t("eye.tele.expertLabel")} {consult.specialistId}
                         <br />

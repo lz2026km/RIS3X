@@ -85,7 +85,7 @@ export default function OfflineReportsPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <FileText size={20} />
           <div>
-            <div style={{ fontSize: 17, fontWeight: 700 }}>{t('offlineReports.title')}</div>
+            <div style={{ fontSize: 16, fontWeight: 700 }}>{t('offlineReports.title')}</div>
             <div style={{ fontSize: 12, opacity: 0.8 }}>{t('offlineReports.savedCount', { count: items.length })}</div>
           </div>
         </div>
@@ -116,7 +116,7 @@ export default function OfflineReportsPage() {
         </div>
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 60, color: '#94a3b8', fontSize: 13 }}>{t('offlineReports.loading')}</div>
+          <div style={{ textAlign: 'center', padding: 60, color: '#94a3b8', fontSize: 12 }}>{t('offlineReports.loading')}</div>
         ) : items.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 60, background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)' }}>
             <FileText size={36} style={{ margin: '0 auto 12px', display: 'block', opacity: 0.4 }} />
@@ -174,7 +174,7 @@ export default function OfflineReportsPage() {
               {preview.htmlContent ? (
                 <div dangerouslySetInnerHTML={{ __html: preview.htmlContent }} />
               ) : (
-                <div style={{ whiteSpace: 'pre-wrap', fontSize: 13, lineHeight: 1.8, color: 'var(--text-secondary)' }}>
+                <div style={{ whiteSpace: 'pre-wrap', fontSize: 12, lineHeight: 1.8, color: 'var(--text-secondary)' }}>
                   {preview.reportText || t('offlineReports.emptyReport')}
                 </div>
               )}

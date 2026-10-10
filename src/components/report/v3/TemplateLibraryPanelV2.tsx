@@ -395,7 +395,7 @@ const TemplateLibraryPanelV2: React.FC<TemplateLibraryPanelV2Props> = ({ compact
                   <div key={r.templateId} style={{ border: '1px solid var(--border-color, #e2e8f0)', borderRadius: 8, padding: 10, background: i === 0 ? 'linear-gradient(135deg, #f5f3ff 0%, #ffffff 100%)' : undefined }}>
                     <Space style={{ width: '100%', justifyContent: 'space-between' }}>
                       <Space>
-                        <span style={{ fontSize: 15, fontWeight: 700, color: i === 0 ? '#7c3aed' : '#334155' }}>#{i + 1}</span>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: i === 0 ? '#7c3aed' : '#334155' }}>#{i + 1}</span>
                         <FileText size={13} color="#7c3aed" />
                         <strong>{r.template.name}</strong>
                         <Tag color="blue">{r.template.modality}</Tag>

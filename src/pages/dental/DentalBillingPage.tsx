@@ -334,7 +334,7 @@ export const DentalBillingPage: React.FC = () => {
       <Modal title={`${t('dentalBilling.charge')} - ${currentInvoice?.id}`} open={payModal} onCancel={()=>{setPayModal(false); setPaymentMethod(DEFAULT_METHOD);}} onOk={handlePay} width={400}
         okText={`${t('dentalBilling.confirmCharge')} ¥${currentInvoice?.selfPay || 0}`}>
         <div style={{textAlign:'center',padding:16}}>
-          <div style={{fontSize:28,fontWeight:700,color:'#2563eb'}}>¥{currentInvoice?.selfPay || 0}</div>
+          <div style={{fontSize:30,fontWeight:700,color:'#2563eb'}}>¥{currentInvoice?.selfPay || 0}</div>
           <div style={{color:'var(--text-secondary)',marginBottom:16}}>{t('dentalBilling.cashAmount')}</div>
           <Select value={paymentMethod} onChange={setPaymentMethod} style={{width:'100%'}} options={payMethods.map((m:any)=>({value:m.id,label:m.name}))} />
         </div>

@@ -177,7 +177,7 @@ export default function MultiSiteDashboardPage() {
       <Space>
         <Building2 size={16} color={r.primary ? "#1e40af" : "#64748b"} />
         <div>
-          <div style={{ fontWeight: 600, fontSize: 13 }}>{n}</div>
+          <div style={{ fontWeight: 600, fontSize: 12 }}>{n}</div>
           <Text type="secondary" style={{ fontSize: 11 }}>{r.code}</Text>
         </div>
       </Space>
@@ -207,7 +207,7 @@ export default function MultiSiteDashboardPage() {
           <Space size={16}>
             <Globe size={36} color="#fff" />
             <div>
-              <div style={{ fontSize: 22, fontWeight: 800 }}>{t('multiSiteDashboard.title')}</div>
+              <div style={{ fontSize: 20, fontWeight: 800 }}>{t('multiSiteDashboard.title')}</div>
               <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>
                 {t('multiSiteDashboard.subtitle', { count: sites.length })}
               </div>

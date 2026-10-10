@@ -532,7 +532,7 @@ export default function RqiIndicatorPage() {
             disabled={rangeActive}
           />
           <Space size={6}>
-            <span style={{ color: '#64748b', fontSize: 13 }}>{t('rqi2024.dateRange')}</span>
+            <span style={{ color: '#64748b', fontSize: 12 }}>{t('rqi2024.dateRange')}</span>
             <Input
               size="small"
               type="date"
@@ -880,7 +880,7 @@ export default function RqiIndicatorPage() {
                   padding: 12,
                 }}
               >
-                <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 10 }}>
+                <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 10 }}>
                   {c.name} <span style={{ color: '#94a3b8', fontSize: 11, marginLeft: 4 }}>{c.code}</span>
                 </div>
                 <Space direction="vertical" size={10} style={{ width: '100%' }}>

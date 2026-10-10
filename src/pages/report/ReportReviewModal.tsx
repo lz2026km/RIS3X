@@ -39,7 +39,7 @@ export default function ReportReviewModal({ report, onClose, onSubmit }: ReportR
           background: '#6d28d9', borderRadius: '12px 12px 0 0',
         }}>
           <ShieldCheck size={18} style={{ color: WHITE }} />
-          <span style={{ fontSize: 15, fontWeight: 700, color: WHITE, flex: 1 }}>报告审核</span>
+          <span style={{ fontSize: 14, fontWeight: 700, color: WHITE, flex: 1 }}>报告审核</span>
           <button onClick={onClose} style={{ padding: 4, background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 6, cursor: 'pointer', color: WHITE, display: 'flex' }}>
             <X size={16} />
           </button>
@@ -72,7 +72,7 @@ export default function ReportReviewModal({ report, onClose, onSubmit }: ReportR
                 borderColor: result === 'approved' ? SUCCESS : 'var(--border-color)',
                 background: result === 'approved' ? 'var(--color-success-bg)' : 'var(--bg-card)',
                 color: result === 'approved' ? SUCCESS : GRAY,
-                fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                fontWeight: 700, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
               }}>
                 <ShieldCheck size={16} /> 审核通过
               </button>
@@ -81,7 +81,7 @@ export default function ReportReviewModal({ report, onClose, onSubmit }: ReportR
                 borderColor: result === 'rejected' ? DANGER : 'var(--border-color)',
                 background: result === 'rejected' ? 'var(--color-error-bg)' : 'var(--bg-card)',
                 color: result === 'rejected' ? DANGER : GRAY,
-                fontWeight: 700, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                fontWeight: 700, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
               }}>
                 <AlertTriangle size={16} /> 退回修改
               </button>
@@ -107,12 +107,12 @@ export default function ReportReviewModal({ report, onClose, onSubmit }: ReportR
         </div>
 
         <div style={{ padding: '12px 20px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-          <button onClick={onClose} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+          <button onClick={onClose} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>取消</button>
           <button onClick={handleSubmit} disabled={submitting || !password}
             style={{
               padding: '8px 24px', borderRadius: 8, border: 'none',
               background: result === 'approved' ? SUCCESS : DANGER,
-              color: WHITE, fontSize: 13, fontWeight: 700, cursor: submitting || !password ? 'not-allowed' : 'pointer',
+              color: WHITE, fontSize: 12, fontWeight: 700, cursor: submitting || !password ? 'not-allowed' : 'pointer',
               opacity: submitting || !password ? 0.6 : 1,
             }}>
             {submitting ? '提交中...' : result === 'approved' ? '确认审核通过' : '确认退回'}

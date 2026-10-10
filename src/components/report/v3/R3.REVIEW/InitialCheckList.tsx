@@ -374,7 +374,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
               [t('w1Buttons.checklist.critical'), detailTask.criticalFinding ? t('w1Buttons.checklist.yes') : t('w1Buttons.checklist.no')],
               [t('w1Buttons.checklist.cosign'), detailTask.needsCosign ? t('w1Buttons.checklist.yes') : t('w1Buttons.checklist.no')],
             ] as Array<[string, string]>).map(([k, v]) => (
-              <div key={k} style={{ display: 'flex', gap: 12, fontSize: 13, padding: '6px 8px', background: 'var(--bg-deep, #f8fafc)', borderRadius: 6 }}>
+              <div key={k} style={{ display: 'flex', gap: 12, fontSize: 12, padding: '6px 8px', background: 'var(--bg-deep, #f8fafc)', borderRadius: 6 }}>
                 <span style={{ width: 110, color: 'var(--text-secondary, #64748b)', flexShrink: 0 }}>{k}</span>
                 <span style={{ color: 'var(--text-primary, #1e293b)' }}>{v}</span>
               </div>

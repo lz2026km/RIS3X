@@ -8,6 +8,7 @@ import type { ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { message } from 'antd'
 import { aiPlatformApi } from '../services/api/aiPlatformApi'
+import { DataTable } from '../components/common'
 import { qcImageAiApi } from '../services/api/qcImageAiApi'
 import type { QcAiAssessResult, QcAiAssessRecord } from '../services/api/qcImageAiApi'
 import { t } from '../i18n/appI18n'
@@ -570,7 +571,7 @@ export default function AIQCPage() {
           }} />
         </div>
         <span style={{
-          fontSize: 13,
+          fontSize: 12,
           fontWeight: 700,
           color,
           minWidth: 36,
@@ -692,7 +693,7 @@ export default function AIQCPage() {
                 border: `1px solid ${PRIMARY}`,
                 background: `${PRIMARY}22`,
                 color: PRIMARY,
-                fontSize: 13,
+                fontSize: 12,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -710,7 +711,7 @@ export default function AIQCPage() {
                 border: `1px solid ${autoRefresh ? PRIMARY : DARK_BORDER}`,
                 background: autoRefresh ? `${PRIMARY}22` : 'transparent',
                 color: autoRefresh ? PRIMARY : GRAY,
-                fontSize: 13,
+                fontSize: 12,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -728,7 +729,7 @@ export default function AIQCPage() {
                 border: 'none',
                 background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_DARK})`,
                 color: WHITE,
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: 600,
                 cursor: 'pointer',
                 display: 'flex',
@@ -816,9 +817,9 @@ export default function AIQCPage() {
                 {card.trend}
               </span>
             </div>
-            <div style={{ fontSize: 13, color: GRAY, marginBottom: 4 }}>{card.label}</div>
+            <div style={{ fontSize: 12, color: GRAY, marginBottom: 4 }}>{card.label}</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-              <span style={{ fontSize: 28, fontWeight: 700, color: WHITE }}>{card.value}</span>
+              <span style={{ fontSize: 30, fontWeight: 700, color: WHITE }}>{card.value}</span>
               <span style={{ fontSize: 14, color: GRAY }}>{card.unit}</span>
             </div>
           </div>
@@ -887,7 +888,7 @@ export default function AIQCPage() {
                 border: `1px solid ${DARK_BORDER}`,
                 background: DARK_BG,
                 color: WHITE,
-                fontSize: 13, boxSizing: 'border-box',
+                fontSize: 12, boxSizing: 'border-box',
               }}
             />
           </div>
@@ -902,7 +903,7 @@ export default function AIQCPage() {
               border: `1px solid ${DARK_BORDER}`,
               background: DARK_BG,
               color: WHITE,
-              fontSize: 13, cursor: 'pointer',
+              fontSize: 12, cursor: 'pointer',
             }}
           >
             <option value="全部">{t('aiQcPage.allDevices')}</option>
@@ -921,7 +922,7 @@ export default function AIQCPage() {
               border: `1px solid ${DARK_BORDER}`,
               background: DARK_BG,
               color: WHITE,
-              fontSize: 13, cursor: 'pointer',
+              fontSize: 12, cursor: 'pointer',
             }}
           >
             <option value="全部">{t('aiQcPage.allResults')}</option>
@@ -940,7 +941,7 @@ export default function AIQCPage() {
               border: `1px solid ${DARK_BORDER}`,
               background: DARK_BG,
               color: WHITE,
-              fontSize: 13, cursor: 'pointer',
+              fontSize: 12, cursor: 'pointer',
             }}
           >
             <option value="全部">{t('aiQcPage.allTechnicians')}</option>
@@ -961,7 +962,7 @@ export default function AIQCPage() {
                 border: `1px solid ${DARK_BORDER}`,
                 background: DARK_BG,
                 color: WHITE,
-                fontSize: 13, }}
+                fontSize: 12, }}
             />
             <span style={{ color: GRAY }}>{t('aiQcPage.to')}</span>
             <input
@@ -974,7 +975,7 @@ export default function AIQCPage() {
                 border: `1px solid ${DARK_BORDER}`,
                 background: DARK_BG,
                 color: WHITE,
-                fontSize: 13, }}
+                fontSize: 12, }}
             />
           </div>
         </div>
@@ -1016,7 +1017,7 @@ export default function AIQCPage() {
                 border: `1px solid ${DARK_BORDER}`,
                 background: DARK_BG,
                 color: WHITE,
-                fontSize: 13, }}
+                fontSize: 12, }}
             />
             <button
               onClick={() => void handleManualAssess()}
@@ -1027,7 +1028,7 @@ export default function AIQCPage() {
                 border: 'none',
                 background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_DARK})`,
                 color: WHITE,
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: 600,
                 cursor: assessing ? 'not-allowed' : 'pointer',
                 opacity: assessing ? 0.6 : 1,
@@ -1047,7 +1048,7 @@ export default function AIQCPage() {
                 border: `1px solid ${PRIMARY}`,
                 background: `${PRIMARY}22`,
                 color: PRIMARY,
-                fontSize: 13,
+                fontSize: 12,
                 cursor: assessing ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -1189,42 +1190,51 @@ export default function AIQCPage() {
                 </span>
               ))}
             </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 720 }}>
-              <thead>
-                <tr style={{ background: DARK_CARD }}>
-                  {[t('aiQcPage.studyId'), t('aiQcPage.modality'), t('aiQcPage.bodyPart'), t('aiQcPage.artifact'), t('aiQcPage.exposure'), t('aiQcPage.positioning'), t('aiQcPage.overallScore'), t('aiQcPage.overallVerdict')].map((h, i) => (
-                    <th key={i} style={{ padding: '8px 12px', textAlign: 'left', fontSize: 11, color: GRAY, borderBottom: `1px solid ${DARK_BORDER}` }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {batchResults.map((r) => (
-                  <tr key={r.studyId}>
-                    <td style={{ padding: '8px 12px', fontSize: 12, color: PRIMARY }}>{r.studyId}</td>
-                    <td style={{ padding: '8px 12px', fontSize: 12, color: WHITE }}>{r.modality}</td>
-                    <td style={{ padding: '8px 12px', fontSize: 12, color: WHITE }}>{r.bodyPart}</td>
-                    {[
-                      dimVerdict(r.artifact.score, thresholds.artifact),
-                      dimVerdict(r.exposure.score, thresholds.exposure),
-                      dimVerdict(r.positioning.score, thresholds.positioning),
-                    ].map((v, i) => (
-                      <td key={i} style={{ padding: '8px 12px', fontSize: 12, color: verdictColor(v) }}>{v}</td>
-                    ))}
-                    <td style={{ padding: '8px 12px', fontSize: 12, color: getScoreColor(r.overall.score) }}>{r.overall.score}</td>
-                    <td style={{ padding: '8px 12px' }}>
-                      <span style={{
-                        fontSize: 11,
-                        fontWeight: 700,
-                        color: verdictColor(r.verdict),
-                        background: `${verdictColor(r.verdict)}22`,
-                        padding: '2px 10px',
-                        borderRadius: 10,
-                      }}>{r.verdict}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable
+              dataSource={batchResults}
+              rowKey="studyId"
+              pagination={false}
+              columns={[
+                { title: t('aiQcPage.studyId'), dataIndex: 'studyId', render: (v: string) => <span style={{ fontSize: 12, color: PRIMARY }}>{v}</span> },
+                { title: t('aiQcPage.modality'), dataIndex: 'modality', render: (v: string) => <span style={{ fontSize: 12, color: WHITE }}>{v}</span> },
+                { title: t('aiQcPage.bodyPart'), dataIndex: 'bodyPart', render: (v: string) => <span style={{ fontSize: 12, color: WHITE }}>{v}</span> },
+                {
+                  title: t('aiQcPage.artifact'), key: 'artifact',
+                  render: (_: unknown, r: QcAiAssessResult & { verdict: string }) => {
+                    const v = dimVerdict(r.artifact.score, thresholds.artifact)
+                    return <span style={{ fontSize: 12, color: verdictColor(v) }}>{v}</span>
+                  },
+                },
+                {
+                  title: t('aiQcPage.exposure'), key: 'exposure',
+                  render: (_: unknown, r: QcAiAssessResult & { verdict: string }) => {
+                    const v = dimVerdict(r.exposure.score, thresholds.exposure)
+                    return <span style={{ fontSize: 12, color: verdictColor(v) }}>{v}</span>
+                  },
+                },
+                {
+                  title: t('aiQcPage.positioning'), key: 'positioning',
+                  render: (_: unknown, r: QcAiAssessResult & { verdict: string }) => {
+                    const v = dimVerdict(r.positioning.score, thresholds.positioning)
+                    return <span style={{ fontSize: 12, color: verdictColor(v) }}>{v}</span>
+                  },
+                },
+                { title: t('aiQcPage.overallScore'), key: 'overallScore', render: (_: unknown, r: QcAiAssessResult & { verdict: string }) => <span style={{ fontSize: 12, color: getScoreColor(r.overall.score) }}>{r.overall.score}</span> },
+                {
+                  title: t('aiQcPage.overallVerdict'), dataIndex: 'verdict',
+                  render: (v: string) => (
+                    <span style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: verdictColor(v),
+                      background: `${verdictColor(v)}22`,
+                      padding: '2px 10px',
+                      borderRadius: 10,
+                    }}>{v}</span>
+                  ),
+                },
+              ]}
+            />
           </div>
         )}
         {assessError && (
@@ -1255,7 +1265,7 @@ export default function AIQCPage() {
                   gap: 8,
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: WHITE }}>{t('aiQcPage.studyId')} {a.studyId}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: WHITE }}>{t('aiQcPage.studyId')} {a.studyId}</span>
                     <span style={{ fontSize: 12, color: GRAY }}>{a.modality} · {a.bodyPart}</span>
                     {a.instanceId && <span style={{ fontSize: 12, color: GRAY }}>{t('aiQcPage.instance')} {a.instanceId}</span>}
                   </div>
@@ -1382,89 +1392,56 @@ export default function AIQCPage() {
         </div>
 
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ background: DARK_BG }}>
-                {[t('aiQcPage.reportId'), t('aiQcPage.deviceType'), t('aiQcPage.bodyPart'), t('aiQcPage.aiScore'), t('aiQcPage.qcResult'), t('aiQcPage.technician'), t('aiQcPage.confirmStatus'), t('aiQcPage.time'), t('aiQcPage.actions')].map((h, i) => (
-                  <th
-                    key={i}
-                    style={{
-                      padding: '12px 16px',
-                      textAlign: 'left',
-                      fontSize: 12,
-                      fontWeight: 600,
-                      color: GRAY,
-                      borderBottom: `1px solid ${DARK_BORDER}`,
-                    }}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {pagedData.map((row, idx) => (
-                <tr
-                  key={row.id}
-                  style={{
-                    background: idx % 2 === 0 ? 'transparent' : `${PRIMARY}08`,
-                    transition: 'background 0.2s',
-                  }}
-                  onMouseEnter={e => (e.currentTarget.style.background = `${PRIMARY}15`)}
-                  onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? 'transparent' : `${PRIMARY}08`)}
-                >
-                  <td style={{ padding: '14px 16px', fontSize: 13, color: PRIMARY, fontWeight: 500 }}>{row.id}</td>
-                  <td style={{ padding: '14px 16px', fontSize: 13, color: WHITE }}>{row.deviceType}</td>
-                  <td style={{ padding: '14px 16px', fontSize: 13, color: WHITE }}>{row.bodyPart}</td>
-                  <td style={{ padding: '14px 16px', minWidth: 160 }}>
-                    <ScoreBar score={row.aiScore} />
-                  </td>
-                  <td style={{ padding: '14px 16px' }}>
-                    <ResultBadge result={row.result} />
-                  </td>
-                  <td style={{ padding: '14px 16px', fontSize: 13, color: WHITE }}>{row.technician}</td>
-                  <td style={{ padding: '14px 16px' }}>
-                    <ConfirmStatus confirmed={row.confirmed} time={row.confirmedTime} />
-                  </td>
-                  <td style={{ padding: '14px 16px', fontSize: 12, color: GRAY }}>
+          <DataTable
+            dataSource={pagedData}
+            rowKey="id"
+            pagination={false}
+            emptyText={t('aiQcPage.noMatching')}
+            columns={[
+              { title: t('aiQcPage.reportId'), dataIndex: 'id', render: (v: string) => <span style={{ fontSize: 12, color: PRIMARY, fontWeight: 500 }}>{v}</span> },
+              { title: t('aiQcPage.deviceType'), dataIndex: 'deviceType', render: (v: string) => <span style={{ fontSize: 12, color: WHITE }}>{v}</span> },
+              { title: t('aiQcPage.bodyPart'), dataIndex: 'bodyPart', render: (v: string) => <span style={{ fontSize: 12, color: WHITE }}>{v}</span> },
+              { title: t('aiQcPage.aiScore'), dataIndex: 'aiScore', render: (v: number) => <div style={{ minWidth: 160 }}><ScoreBar score={v} /></div> },
+              { title: t('aiQcPage.qcResult'), dataIndex: 'result', render: (v: string) => <ResultBadge result={v} /> },
+              { title: t('aiQcPage.technician'), dataIndex: 'technician', render: (v: string) => <span style={{ fontSize: 12, color: WHITE }}>{v}</span> },
+              {
+                title: t('aiQcPage.confirmStatus'), key: 'confirmed',
+                render: (_: unknown, row: AIQCRecord) => <ConfirmStatus confirmed={row.confirmed} time={row.confirmedTime} />,
+              },
+              {
+                title: t('aiQcPage.time'), key: 'time',
+                render: (_: unknown, row: AIQCRecord) => (
+                  <span style={{ fontSize: 12, color: GRAY }}>
                     <div>{row.date}</div>
                     <div>{row.time}</div>
-                  </td>
-                  <td style={{ padding: '14px 16px' }}>
-                    <button
-                      onClick={() => handleViewDetail(row)}
-                      style={{
-                        padding: '6px 12px',
-                        borderRadius: 6,
-                        border: `1px solid ${DARK_BORDER}`,
-                        background: 'transparent',
-                        color: PRIMARY,
-                        fontSize: 12,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 4,
-                      }}
-                    >
-                      <Eye size={12} /> {t('aiQcPage.detail')}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </span>
+                ),
+              },
+              {
+                title: t('aiQcPage.actions'), key: 'actions',
+                render: (_: unknown, row: AIQCRecord) => (
+                  <button
+                    onClick={() => handleViewDetail(row)}
+                    style={{
+                      padding: '6px 12px',
+                      borderRadius: 6,
+                      border: `1px solid ${DARK_BORDER}`,
+                      background: 'transparent',
+                      color: PRIMARY,
+                      fontSize: 12,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}
+                  >
+                    <Eye size={12} /> {t('aiQcPage.detail')}
+                  </button>
+                ),
+              },
+            ]}
+          />
         </div>
-
-        {filteredData.length === 0 && (
-          <div style={{
-            padding: 60,
-            textAlign: 'center',
-            color: GRAY,
-          }}>
-            <Search size={40} style={{ marginBottom: 12, opacity: 0.5 }} />
-            <p>{t('aiQcPage.noMatching')}</p>
-          </div>
-        )}
 
         {/* 分页 */}
         <div style={{
@@ -1474,7 +1451,7 @@ export default function AIQCPage() {
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-          <span style={{ fontSize: 13, color: GRAY }}>
+          <span style={{ fontSize: 12, color: GRAY }}>
             {t('aiQcPage.showing', { start: filteredData.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1, end: Math.min(currentPage * PAGE_SIZE, filteredData.length), total: filteredData.length })}
           </span>
           <div style={{ display: 'flex', gap: 6 }}>
@@ -1487,7 +1464,7 @@ export default function AIQCPage() {
                 border: `1px solid ${DARK_BORDER}`,
                 background: 'transparent',
                 color: currentPage <= 1 ? '#475569' : GRAY,
-                fontSize: 13,
+                fontSize: 12,
                 cursor: currentPage <= 1 ? 'not-allowed' : 'pointer',
                 opacity: currentPage <= 1 ? 0.5 : 1,
               }}
@@ -1503,7 +1480,7 @@ export default function AIQCPage() {
                 border: `1px solid ${DARK_BORDER}`,
                 background: 'transparent',
                 color: currentPage >= totalPages ? '#475569' : GRAY,
-                fontSize: 13,
+                fontSize: 12,
                 cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer',
                 opacity: currentPage >= totalPages ? 0.5 : 1,
               }}
@@ -1575,7 +1552,7 @@ export default function AIQCPage() {
                 <div style={{ fontSize: 12, color: GRAY, marginBottom: 8 }}>{t('aiQcPage.aiOverallScore')}</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <span style={{
-                    fontSize: 26,
+                    fontSize: 24,
                     fontWeight: 700,
                     color: getScoreColor(selectedRecord.aiScore),
                   }}>
@@ -1620,7 +1597,7 @@ export default function AIQCPage() {
                   <div style={{ fontSize: 12, color: DANGER, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
                     <AlertTriangle size={14} /> {t('aiQcPage.issuesFoundLabel')}
                   </div>
-                  <div style={{ fontSize: 13, color: WHITE }}>{selectedRecord.issues}</div>
+                  <div style={{ fontSize: 12, color: WHITE }}>{selectedRecord.issues}</div>
                 </div>
               )}
 
@@ -1643,7 +1620,7 @@ export default function AIQCPage() {
                   border: `1px solid ${DARK_BORDER}`,
                   background: 'transparent',
                   color: GRAY,
-                  fontSize: 13,
+                  fontSize: 12,
                   cursor: 'pointer',
                 }}
                 onClick={() => setShowDetail(false)}
@@ -1659,7 +1636,7 @@ export default function AIQCPage() {
                   border: 'none',
                   background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_DARK})`,
                   color: WHITE,
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 600,
                   cursor: 'pointer',
                 }}

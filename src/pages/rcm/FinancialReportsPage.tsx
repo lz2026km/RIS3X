@@ -193,14 +193,14 @@ export default function FinancialReportsPage() {
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><FileSpreadsheet size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('financeReport.title')}</span></div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={handlePrint} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Printer size={14} />{t('financeReport.print')}</button>
-          <button onClick={handleExportCsv} disabled={!financialReports || financialReports.length === 0} title={!financialReports || financialReports.length === 0 ? t('financeReport.exportDisabledTitle') : t('financeReport.exportEnabledTitle')} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: !financialReports || financialReports.length === 0 ? 'not-allowed' : 'pointer', opacity: !financialReports || financialReports.length === 0 ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />{t('financeReport.exportCsv')}</button>
+          <button onClick={handlePrint} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}><Printer size={14} />{t('financeReport.print')}</button>
+          <button onClick={handleExportCsv} disabled={!financialReports || financialReports.length === 0} title={!financialReports || financialReports.length === 0 ? t('financeReport.exportDisabledTitle') : t('financeReport.exportEnabledTitle')} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: !financialReports || financialReports.length === 0 ? 'not-allowed' : 'pointer', opacity: !financialReports || financialReports.length === 0 ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}><Download size={14} />{t('financeReport.exportCsv')}</button>
         </div>
       </div>
 
       <div style={{ display: 'flex', gap: 8, padding: '20px 24px 0' }}>
         {(['pl', 'kpi'] as const).map(tabKey => (
-          <button key={tabKey} onClick={() => setTab(tabKey)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: tab === tabKey ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: tab === tabKey ? '#fff' : 'var(--text-muted, #8b949e)', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button key={tabKey} onClick={() => setTab(tabKey)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: tab === tabKey ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: tab === tabKey ? '#fff' : 'var(--text-muted, #8b949e)', display: 'flex', alignItems: 'center', gap: 6 }}>
             {tabKey === 'pl' ? <BarChart3 size={14} /> : <Activity size={14} />}
             {tabKey === 'pl' ? t('financeReport.pl') : t('financeReport.kpi')}
           </button>
@@ -224,7 +224,7 @@ export default function FinancialReportsPage() {
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>{t('financeReport.plTitle')} — {periodLabel} {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>{t('financeReport.realtimeNote')}</span>}</div>
               <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 16 }}>{t('financeReport.unitYuan')}</div>
               {plData.map((r, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--bg-secondary, #21262d)', fontSize: 13 }}>
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--bg-secondary, #21262d)', fontSize: 12 }}>
                   <span style={{ color: r.type === 'revenue' ? 'var(--color-success-500, #22c55e)' : r.type === 'cost' ? 'var(--color-error-500, #ef4444)' : 'var(--color-warning-500, #f59e0b)' }}>
                     {r.type === 'revenue' ? '' : r.type === 'cost' ? '' : ''} {t(r.itemKey)}
                   </span>
@@ -233,7 +233,7 @@ export default function FinancialReportsPage() {
                   </span>
                 </div>
               ))}
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', fontSize: 15, fontWeight: 700, borderTop: '2px solid var(--border-default, #30363d)', marginTop: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', fontSize: 14, fontWeight: 700, borderTop: '2px solid var(--border-default, #30363d)', marginTop: 8 }}>
                 <span>{t('financeReport.netIncome')}</span>
                 <span style={{ color: netIncome >= 0 ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)' }}>¥{netIncome.toLocaleString()}</span>
               </div>
@@ -283,13 +283,13 @@ export default function FinancialReportsPage() {
               {kpiData.map(kpi => (
                 <div key={kpi.labelKey} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 20 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                    <span style={{ fontSize: 13, color: 'var(--text-muted, #8b949e)' }}>{t(kpi.labelKey)}</span>
+                    <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t(kpi.labelKey)}</span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: kpi.trend === 'up' ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)' }}>
                       {kpi.trend === 'up' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
                       {kpi.change >= 0 ? '+' : ''}{kpi.change.toFixed(1)}%
                     </span>
                   </div>
-                  <div style={{ fontSize: 28, fontWeight: 700 }}>{kpi.value}</div>
+                  <div style={{ fontSize: 30, fontWeight: 700 }}>{kpi.value}</div>
                   <div style={{ fontSize: 12, color: '#6e7681', marginTop: 4 }}>{kpi.trend === 'up' ? t('financeReport.trendUp') : t('financeReport.trendDown')}</div>
                 </div>
               ))}
@@ -306,7 +306,7 @@ export default function FinancialReportsPage() {
                   { titleKey: 'financeReport.kpi.receivableTurnover', descKey: 'financeReport.kpiExplain.receivableTurnover' },
                 ].map(m => (
                   <div key={m.titleKey} style={{ padding: 12, background: 'var(--bg-primary, #0d1117)', borderRadius: 6 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t(m.titleKey)}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>{t(m.titleKey)}</div>
                     <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t(m.descKey)}</div>
                   </div>
                 ))}

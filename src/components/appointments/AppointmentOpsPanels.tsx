@@ -100,7 +100,7 @@ export default function AppointmentOpsPanels() {
   return (
     <div data-testid="appointment-ops" style={{ background: 'var(--bg-card)', borderRadius: 10, border: `1px solid ${borderGray}`, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
       <div style={{ padding: '10px 14px', borderBottom: `1px solid ${borderGray}`, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: primaryBlue, marginRight: 6 }}>{t('w5Appt.opsTitle')}</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: primaryBlue, marginRight: 6 }}>{t('w5Appt.opsTitle')}</div>
         {tabBtn('WAITLIST', t('w5Appt.opsWaitlist'), <ListChecks size={13} />)}
         {tabBtn('REMINDER', t('w5Appt.opsReminderPlan'), <Bell size={13} />)}
         {tabBtn('NOSHOW', t('w5Appt.opsNoShow'), <UserX size={13} />)}

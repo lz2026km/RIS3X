@@ -166,7 +166,7 @@ export const RoomOccupancyPage: React.FC = () => {
                           border: selectedRoom === r.id ? '3px solid #000' : '3px solid transparent',
                         }}
                       >
-                        <div style={{ fontWeight: 600, fontSize: 13 }}>{r.roomNo}</div>
+                        <div style={{ fontWeight: 600, fontSize: 12 }}>{r.roomNo}</div>
                         <div style={{ fontSize: 11 }}>{meta.label}{isOverdue && ' '}</div>
                       </div>
                     </Tooltip>
@@ -188,7 +188,7 @@ export const RoomOccupancyPage: React.FC = () => {
                         width: '100%', height: `${p.rate}%`, background: p.rate > 80 ? '#ff4d4f' : p.rate > 50 ? '#faad14' : '#52c41a',
                         borderRadius: '4px 4px 0 0', minHeight: 4, transition: 'height 0.3s',
                       }} />
-                      <div style={{ fontSize: 9, color: 'var(--text-secondary)', marginTop: 2, transform: 'rotate(-45deg)', whiteSpace: 'nowrap' }}>{p.time}</div>
+                      <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 2, transform: 'rotate(-45deg)', whiteSpace: 'nowrap' }}>{p.time}</div>
                     </div>
                   </Tooltip>
                 ))}
@@ -204,8 +204,8 @@ export const RoomOccupancyPage: React.FC = () => {
             ) : (
               <>
                 <div style={{ marginBottom: 8 }}>
-                  <span style={{ fontSize: 13, fontWeight: 500 }}>{t('roomOccupancy.waitingCount')}: {queue.length} {t('roomOccupancy.people')}</span>
-                  <span style={{ marginLeft: 16, fontSize: 13 }}>{t('roomOccupancy.estimatedWait')}: {queue.reduce((s, q) => s + q.estimatedWaitMin, 0)} {t('roomOccupancy.minutes')}</span>
+                  <span style={{ fontSize: 12, fontWeight: 500 }}>{t('roomOccupancy.waitingCount')}: {queue.length} {t('roomOccupancy.people')}</span>
+                  <span style={{ marginLeft: 16, fontSize: 12 }}>{t('roomOccupancy.estimatedWait')}: {queue.reduce((s, q) => s + q.estimatedWaitMin, 0)} {t('roomOccupancy.minutes')}</span>
                 </div>
                 <DataTable dataSource={queue} rowKey="position" pagination={false} scroll={{ x: 'max-content' }}
                   columns={[

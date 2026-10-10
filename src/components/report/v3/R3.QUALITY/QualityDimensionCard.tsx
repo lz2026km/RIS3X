@@ -232,7 +232,7 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('reportQuality.dimensionTotal')}</span>}
               value={dimensions.length}
-              styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }}
+              styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }}
               prefix={<Target size={14} />}
             />
           </Col>
@@ -240,7 +240,7 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('reportQuality.enabled')}</span>}
               value={Object.values(enabled).filter(Boolean).length}
-              styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }}
+              styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }}
               prefix={<CheckCircle2 size={14} />}
             />
           </Col>
@@ -251,7 +251,7 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
               suffix="%"
               styles={{ content: { 
                 color: Math.abs(totalWeight - 1) > 0.01 ? '#fca5a5' : '#bbf7d0',
-                fontSize: 26, fontWeight: 700,
+                fontSize: 24, fontWeight: 700,
                } }}
               prefix={<Settings size={14} />}
             />
@@ -296,7 +296,7 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
                   title={
                     <Space>
                       <span style={{ fontSize: 18 }}>{d.icon}</span>
-                      <strong style={{ fontSize: 13 }}>{d.name}</strong>
+                      <strong style={{ fontSize: 12 }}>{d.name}</strong>
                       <Tag color="cyan">{d.nameEn}</Tag>
                     </Space>
                   }
@@ -427,7 +427,7 @@ const ThresholdTab: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('reportQuality.criticalMinutes')}</span>}
               value={draft.criticalMaxMinutes}
-              styles={{ content: {  color: '#fff', fontSize: 28  } }}
+              styles={{ content: {  color: '#fff', fontSize: 30  } }}
               prefix={<Zap size={14} />}
               suffix=" min"
             />
@@ -436,7 +436,7 @@ const ThresholdTab: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('reportQuality.emergencyHours')}</span>}
               value={draft.emergencyMaxHours}
-              styles={{ content: {  color: '#fff', fontSize: 28  } }}
+              styles={{ content: {  color: '#fff', fontSize: 30  } }}
               prefix={<TrendingUp size={14} />}
               suffix=" h"
             />
@@ -445,7 +445,7 @@ const ThresholdTab: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('reportQuality.routineHours')}</span>}
               value={draft.routineMaxHours}
-              styles={{ content: {  color: '#fff', fontSize: 28  } }}
+              styles={{ content: {  color: '#fff', fontSize: 30  } }}
               prefix={<History size={14} />}
               suffix=" h"
             />
@@ -454,7 +454,7 @@ const ThresholdTab: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('reportQuality.publishThreshold')}</span>}
               value={draft.publishBlockThreshold}
-              styles={{ content: {  color: '#fff', fontSize: 28  } }}
+              styles={{ content: {  color: '#fff', fontSize: 30  } }}
               prefix={<Target size={14} />}
             />
           </Col>
@@ -548,8 +548,8 @@ const ThresholdTab: React.FC = () => {
                 size="small"
                 style={{ borderTop: `4px solid ${th.color}`, background: th.bg }}
               >
-                <div style={{ fontSize: 28, fontWeight: 700, color: th.color }}>{th.grade}</div>
-                <div style={{ fontSize: 13, color: th.color }}>
+                <div style={{ fontSize: 30, fontWeight: 700, color: th.color }}>{th.grade}</div>
+                <div style={{ fontSize: 12, color: th.color }}>
                   {th.minScore} - {th.maxScore}
                 </div>
                 <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>
@@ -682,7 +682,7 @@ const HistoryTab: React.FC = () => {
       >
         <Row gutter={12}>
           <Col xs={24} sm={6}>
-            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.historyTotal')}</span>} value={total} styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }} prefix={<History size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.historyTotal')}</span>} value={total} styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }} prefix={<History size={14} />} />
           </Col>
           <Col xs={12} sm={6}>
             <Select
@@ -903,13 +903,13 @@ const ReportTab: React.FC = () => {
       >
         <Row gutter={12}>
           <Col xs={24} sm={8}>
-            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.reportFormat')}</span>} value={format.toUpperCase()} styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }} prefix={<FileText size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.reportFormat')}</span>} value={format.toUpperCase()} styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }} prefix={<FileText size={14} />} />
           </Col>
           <Col xs={24} sm={8}>
-            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.generatedCount')}</span>} value={reportUrl ? '1' : '0'} styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }} prefix={<Download size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.generatedCount')}</span>} value={reportUrl ? '1' : '0'} styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }} prefix={<Download size={14} />} />
           </Col>
           <Col xs={24} sm={8}>
-            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.reportType')}</span>} value={t('reportQuality.dimension15')} styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }} prefix={<Sparkles size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.reportType')}</span>} value={t('reportQuality.dimension15')} styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }} prefix={<Sparkles size={14} />} />
           </Col>
         </Row>
       </Card>
@@ -984,7 +984,7 @@ const ReportTab: React.FC = () => {
             <Col xs={12} sm={8} md={4} key={i}>
               <Card size="small" style={{ borderLeft: `3px solid ${item.c}` }}>
                 <div style={{ fontSize: 12, color: '#64748b' }}>{item.k}</div>
-                <div style={{ fontSize: 28, fontWeight: 700, color: item.c }}>{item.v}</div>
+                <div style={{ fontSize: 30, fontWeight: 700, color: item.c }}>{item.v}</div>
               </Card>
             </Col>
           ))}
@@ -1051,7 +1051,7 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('reportQuality.bonusTotal')}</span>}
               value={bonuses.length}
-              styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }}
+              styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }}
               prefix={<Award size={14} />}
             />
           </Col>
@@ -1059,7 +1059,7 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('reportQuality.enabled')}</span>}
               value={bonuses.filter((b) => b.enabled).length}
-              styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }}
+              styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }}
               prefix={<CheckCircle2 size={14} />}
             />
           </Col>
@@ -1067,7 +1067,7 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('reportQuality.bonusTriggered')}</span>}
               value={bonuses.reduce((a, b) => a + b.triggeredCount, 0)}
-              styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }}
+              styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }}
               prefix={<Sparkles size={14} />}
             />
           </Col>
@@ -1075,7 +1075,7 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('reportQuality.beneficiaries')}</span>}
               value={bonuses.reduce((a, b) => a + b.beneficiariesCount, 0)}
-              styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }}
+              styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }}
               prefix={<Target size={14} />}
             />
           </Col>
@@ -1209,13 +1209,13 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
       >
         <Row gutter={12}>
           <Col xs={12} sm={6}>
-            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.templateTotal')}</span>} value={templates.length} styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }} prefix={<Layers size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.templateTotal')}</span>} value={templates.length} styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }} prefix={<Layers size={14} />} />
           </Col>
           <Col xs={12} sm={6}>
-            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.published')}</span>} value={templates.filter((tpl) => tpl.published).length} styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }} prefix={<CheckCircle2 size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.published')}</span>} value={templates.filter((tpl) => tpl.published).length} styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }} prefix={<CheckCircle2 size={14} />} />
           </Col>
           <Col xs={12} sm={6}>
-            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.baseScoreAvg')}</span>} value={Math.round((templates.reduce((a, tpl) => a + tpl.baseScore, 0) / templates.length) * 10) / 10} styles={{ content: {  color: '#fff', fontSize: 26, fontWeight: 700  } }} prefix={<Target size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.baseScoreAvg')}</span>} value={Math.round((templates.reduce((a, tpl) => a + tpl.baseScore, 0) / templates.length) * 10) / 10} styles={{ content: {  color: '#fff', fontSize: 24, fontWeight: 700  } }} prefix={<Target size={14} />} />
           </Col>
           <Col xs={12} sm={6}>
             <Statistic title={<span style={{ color: '#fff' }}>{t('reportQuality.currentTemplate')}</span>} value={templates.find((tpl) => tpl.templateId === selectedId)?.templateName ?? '-'} styles={{ content: {  color: '#fff', fontSize: 14  } }} prefix={<FileText size={14} />} />
@@ -1244,31 +1244,31 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
               <Col xs={12} sm={4}>
                 <Card size="small">
                   <div style={{ fontSize: 12, color: '#64748b' }}>{t('reportQuality.baseScore')}</div>
-                  <div style={{ fontSize: 28, fontWeight: 700, color: '#3b82f6' }}>{result.baseScore}</div>
+                  <div style={{ fontSize: 30, fontWeight: 700, color: '#3b82f6' }}>{result.baseScore}</div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
                 <Card size="small">
                   <div style={{ fontSize: 12, color: '#64748b' }}>{t('reportQuality.bonusScore')}</div>
-                  <div style={{ fontSize: 28, fontWeight: 700, color: '#10b981' }}>+{result.bonusApplied}</div>
+                  <div style={{ fontSize: 30, fontWeight: 700, color: '#10b981' }}>+{result.bonusApplied}</div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
                 <Card size="small">
                   <div style={{ fontSize: 12, color: '#64748b' }}>{t('reportQuality.penaltyScore')}</div>
-                  <div style={{ fontSize: 28, fontWeight: 700, color: '#dc2626' }}>-{result.penaltyApplied}</div>
+                  <div style={{ fontSize: 30, fontWeight: 700, color: '#dc2626' }}>-{result.penaltyApplied}</div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
                 <Card size="small">
                   <div style={{ fontSize: 12, color: '#64748b' }}>{t('reportQuality.finalScore')}</div>
-                  <div style={{ fontSize: 28, fontWeight: 700, color: '#7c3aed' }}>{result.finalScore}</div>
+                  <div style={{ fontSize: 30, fontWeight: 700, color: '#7c3aed' }}>{result.finalScore}</div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
                 <Card size="small">
                   <div style={{ fontSize: 12, color: '#64748b' }}>{t('reportQuality.passingScore')}</div>
-                  <div style={{ fontSize: 28, fontWeight: 700, color: '#64748b' }}>{result.passingScore}</div>
+                  <div style={{ fontSize: 30, fontWeight: 700, color: '#64748b' }}>{result.passingScore}</div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>

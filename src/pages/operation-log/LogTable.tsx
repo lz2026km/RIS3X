@@ -85,7 +85,7 @@ function TimelineView({ logs, onViewDetail }: { logs: OperationLog[]; onViewDeta
                       <span style={{ fontSize: 12, color: GRAY }}>{formatTime(log.timestamp)}</span>
                     </div>
 
-                    <div style={{ fontSize: 13, color: PRIMARY, marginBottom: 6 }}>
+                    <div style={{ fontSize: 12, color: PRIMARY, marginBottom: 6 }}>
                       {log.targetDesc}
                     </div>
 

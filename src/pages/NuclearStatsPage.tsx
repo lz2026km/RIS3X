@@ -521,15 +521,15 @@ export default function NuclearStatsPage() {
               <h1 style={{ fontSize: 20, fontWeight: 700, color: C.primary, margin: '0 0 4px' }}>{t('nuclearStats.title')}
                 {usingFallback && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600, marginLeft: 8, verticalAlign: 'middle' }}>{t('nuclearStats.demoTag')}</span>}
               </h1>
-              <p style={{ fontSize: 13, color: C.textMuted, margin: 0 }}>{t('nuclearStats.subtitle')}</p>
+              <p style={{ fontSize: 12, color: C.textMuted, margin: 0 }}>{t('nuclearStats.subtitle')}</p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: C.accentLight, borderRadius: 8 }}>
               <Calendar size={15} color={C.accent} />
-              <span style={{ fontSize: 13, color: C.accent, fontWeight: 600 }}>{t('nuclearStats.period')}</span>
+              <span style={{ fontSize: 12, color: C.accent, fontWeight: 600 }}>{t('nuclearStats.period')}</span>
             </div>
-            <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: C.white, color: C.accent, border: `1px solid ${C.accent}`, borderRadius: 8, cursor: 'pointer', fontSize: 13 }}
+            <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: C.white, color: C.accent, border: `1px solid ${C.accent}`, borderRadius: 8, cursor: 'pointer', fontSize: 12 }}
               onClick={() => {
                 const data = JSON.stringify({ summary, daily, monthly, devices, suv, drugs }, null, 2)
                 const blob = new Blob([data], { type: 'application/json;charset=utf-8' })
@@ -542,7 +542,7 @@ export default function NuclearStatsPage() {
               }}>
               <Download size={15} /> {t('nuclearStats.exportReport')}
             </button>
-            <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: C.accent, color: C.white, border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 13 }} onClick={() => void load()}>
+            <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: C.accent, color: C.white, border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 12 }} onClick={() => void load()}>
               <RefreshCw size={15} /> {t('nuclearStats.refreshData')}
             </button>
           </div>
@@ -559,7 +559,7 @@ export default function NuclearStatsPage() {
               display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px',
               background: activeTab === tab.key ? C.accent : 'transparent',
               color: activeTab === tab.key ? C.white : C.textMuted,
-              border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: activeTab === tab.key ? 600 : 400,
+              border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: activeTab === tab.key ? 600 : 400,
               transition: 'all 0.2s'
             }}
           >
@@ -592,7 +592,7 @@ export default function NuclearStatsPage() {
                 </div>
                 <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 4px' }}>{card.label}</p>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                  <span style={{ fontSize: 28, fontWeight: 700, color: C.text }}>{card.value}</span>
+                  <span style={{ fontSize: 30, fontWeight: 700, color: C.text }}>{card.value}</span>
                   {card.unit && <span style={{ fontSize: 14, color: C.textMuted }}>{card.unit}</span>}
                 </div>
                 <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>{card.sub}</p>
@@ -644,8 +644,8 @@ export default function NuclearStatsPage() {
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                      <span style={{ fontSize: 13, color: C.text, fontWeight: 500 }}>{device.name}</span>
-                      <span style={{ fontSize: 13, color: C.accent, fontWeight: 600 }}>{device.utilization}%</span>
+                      <span style={{ fontSize: 12, color: C.text, fontWeight: 500 }}>{device.name}</span>
+                      <span style={{ fontSize: 12, color: C.accent, fontWeight: 600 }}>{device.utilization}%</span>
                     </div>
                     <ProgressBar value={device.utilization} color={i === 0 ? C.accent : DEVICE_COLORS[i + 1]} />
                   </div>
@@ -693,13 +693,13 @@ export default function NuclearStatsPage() {
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <div style={{ width: 12, height: 12, borderRadius: 3, background: item.color }} />
-                    <span style={{ width: 60, fontSize: 13, color: C.text }}>{item.name}</span>
+                    <span style={{ width: 60, fontSize: 12, color: C.text }}>{item.name}</span>
                     <div style={{ flex: 1 }}>
                       <div style={{ height: 8, background: C.border, borderRadius: 4, overflow: 'hidden' }}>
                         <div style={{ width: `${item.percent}%`, height: '100%', background: item.color, borderRadius: 4 }} />
                       </div>
                     </div>
-                    <span style={{ width: 50, textAlign: 'right', fontSize: 13, fontWeight: 600, color: C.text }}>{item.count}</span>
+                    <span style={{ width: 50, textAlign: 'right', fontSize: 12, fontWeight: 600, color: C.text }}>{item.count}</span>
                     <span style={{ width: 35, fontSize: 12, color: C.textMuted }}>{item.percent}%</span>
                   </div>
                 ))}
@@ -732,9 +732,9 @@ export default function NuclearStatsPage() {
               { label: '¹³¹I', value: 5800, unit: 'mCi', usage: t('nuclearStats.usageThyroid'), color: '#8b5cf6' },
             ].map((item, i) => (
               <div key={i} style={{ background: C.white, borderRadius: 12, padding: 20, borderLeft: `4px solid ${item.color}` }}>
-                <p style={{ fontSize: 13, color: C.textMuted, margin: '0 0 8px' }}>{item.label}</p>
+                <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 8px' }}>{item.label}</p>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 8 }}>
-                  <span style={{ fontSize: 28, fontWeight: 700, color: C.text }}>{(item.value / 1000).toFixed(1)}</span>
+                  <span style={{ fontSize: 30, fontWeight: 700, color: C.text }}>{(item.value / 1000).toFixed(1)}</span>
                   <span style={{ fontSize: 14, color: C.textMuted }}>{item.unit}</span>
                 </div>
                 <p style={{ fontSize: 12, color: C.textMuted, margin: 0 }}>{t('nuclearStats.usageLabel')}{item.usage}</p>
@@ -756,8 +756,8 @@ export default function NuclearStatsPage() {
                 {drugs.map((d, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <div style={{ width: 12, height: 12, borderRadius: 3, background: d.color }} />
-                    <span style={{ width: 80, fontSize: 13, color: C.text }}>{d.name}</span>
-                    <span style={{ width: 60, fontSize: 13, fontWeight: 600, color: C.text }}>{(d.consumption / 1000).toFixed(1)}k</span>
+                    <span style={{ width: 80, fontSize: 12, color: C.text }}>{d.name}</span>
+                    <span style={{ width: 60, fontSize: 12, fontWeight: 600, color: C.text }}>{(d.consumption / 1000).toFixed(1)}k</span>
                     <span style={{ fontSize: 12, color: C.textMuted }}>{d.percent}%</span>
                   </div>
                 ))}
@@ -802,11 +802,11 @@ export default function NuclearStatsPage() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div style={{ background: C.background, padding: 12, borderRadius: 8, textAlign: 'center' }}>
                     <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 4px' }}>{t('nuclearStats.examVolume')}</p>
-                    <p style={{ fontSize: 28, fontWeight: 700, color: C.text, margin: 0 }}>{device.exams || device.cycles || '-'}</p>
+                    <p style={{ fontSize: 30, fontWeight: 700, color: C.text, margin: 0 }}>{device.exams || device.cycles || '-'}</p>
                   </div>
                   <div style={{ background: C.background, padding: 12, borderRadius: 8, textAlign: 'center' }}>
                     <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 4px' }}>{t('nuclearStats.utilizationLabel')}</p>
-                    <p style={{ fontSize: 28, fontWeight: 700, color: device.utilization >= 80 ? C.success : C.warning, margin: 0 }}>{device.utilization}%</p>
+                    <p style={{ fontSize: 30, fontWeight: 700, color: device.utilization >= 80 ? C.success : C.warning, margin: 0 }}>{device.utilization}%</p>
                   </div>
                 </div>
               </div>
@@ -842,13 +842,13 @@ export default function NuclearStatsPage() {
               ].map((item, i) => (
                 <div key={i} style={{ background: C.background, padding: 16, borderRadius: 10, textAlign: 'center' }}>
                   <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 8px' }}>{item.label}</p>
-                  <p style={{ fontSize: 28, fontWeight: 700, color: item.color, margin: 0 }}>{item.value}</p>
+                  <p style={{ fontSize: 30, fontWeight: 700, color: item.color, margin: 0 }}>{item.value}</p>
                 </div>
               ))}
             </div>
 
             {/* 阳性率趋势 */}
-            <h4 style={{ fontSize: 13, fontWeight: 600, color: C.text, margin: '0 0 16px' }}>{t('nuclearStats.dailyPositiveTrendTitle')}</h4>
+            <h4 style={{ fontSize: 12, fontWeight: 600, color: C.text, margin: '0 0 16px' }}>{t('nuclearStats.dailyPositiveTrendTitle')}</h4>
             <LineChartSVG
               data={daily.map(d => ({ label: d.date, value: d.positive }))}
               width={1100} height={220}
@@ -905,7 +905,7 @@ export default function NuclearStatsPage() {
                   </div>
                   <p style={{ fontSize: 12, color: C.textMuted, margin: 0 }}>{item.label}</p>
                 </div>
-                <p style={{ fontSize: 28, fontWeight: 700, color: item.color, margin: 0 }}>{item.value}</p>
+                <p style={{ fontSize: 30, fontWeight: 700, color: item.color, margin: 0 }}>{item.value}</p>
               </div>
             ))}
           </div>
@@ -916,7 +916,7 @@ export default function NuclearStatsPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
               {/* 病灶SUV分布 */}
               <div>
-                <h4 style={{ fontSize: 13, fontWeight: 600, color: C.text, margin: '0 0 12px' }}>
+                <h4 style={{ fontSize: 12, fontWeight: 600, color: C.text, margin: '0 0 12px' }}>
                   {t('nuclearStats.lesionSuvDistTitle')}
                   <span style={{ fontSize: 12, color: C.textMuted, fontWeight: 400, marginLeft: 8 }}>
                     ({t('nuclearStats.unitCases')}={suvBucketTotal})
@@ -935,25 +935,25 @@ export default function NuclearStatsPage() {
                 <div style={{ background: C.accentLight, padding: 16, borderRadius: 10 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                     <Target size={18} color={C.accent} />
-                    <span style={{ fontSize: 13, color: C.accent, fontWeight: 600 }}>{t('nuclearStats.tumorUptakeAvg')}</span>
+                    <span style={{ fontSize: 12, color: C.accent, fontWeight: 600 }}>{t('nuclearStats.tumorUptakeAvg')}</span>
                   </div>
-                  <p style={{ fontSize: 28, fontWeight: 700, color: C.accent, margin: 0 }}>{suvTumorAvg}</p>
+                  <p style={{ fontSize: 30, fontWeight: 700, color: C.accent, margin: 0 }}>{suvTumorAvg}</p>
                   <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>SUVmax</p>
                 </div>
                 <div style={{ background: C.successBg, padding: 16, borderRadius: 10 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                     <AlertCircle size={18} color={C.success} />
-                    <span style={{ fontSize: 13, color: C.success, fontWeight: 600 }}>{t('nuclearStats.inflammationUptakeAvg')}</span>
+                    <span style={{ fontSize: 12, color: C.success, fontWeight: 600 }}>{t('nuclearStats.inflammationUptakeAvg')}</span>
                   </div>
-                  <p style={{ fontSize: 28, fontWeight: 700, color: C.success, margin: 0 }}>{suvInflammationAvg}</p>
+                  <p style={{ fontSize: 30, fontWeight: 700, color: C.success, margin: 0 }}>{suvInflammationAvg}</p>
                   <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>SUVmax</p>
                 </div>
                 <div style={{ background: C.warningBg, padding: 16, borderRadius: 10 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                     <Eye size={18} color={C.warning} />
-                    <span style={{ fontSize: 13, color: C.warning, fontWeight: 600 }}>{t('nuclearStats.thresholdLabel')}</span>
+                    <span style={{ fontSize: 12, color: C.warning, fontWeight: 600 }}>{t('nuclearStats.thresholdLabel')}</span>
                   </div>
-                  <p style={{ fontSize: 28, fontWeight: 700, color: C.warning, margin: 0 }}>{threshold}</p>
+                  <p style={{ fontSize: 30, fontWeight: 700, color: C.warning, margin: 0 }}>{threshold}</p>
                   <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>{t('nuclearStats.thresholdDesc')}</p>
                 </div>
               </div>

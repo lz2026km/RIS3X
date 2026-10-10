@@ -510,7 +510,7 @@ export default function QcAnalyticsPage() {
         destroyOnClose
       >
         {createDefect && (
-          <div style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 8, padding: '10px 12px', fontSize: 13, marginBottom: 12, color: '#7f1d1d' }}>
+          <div style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 8, padding: '10px 12px', fontSize: 12, marginBottom: 12, color: '#7f1d1d' }}>
             <Space size={6}><Bug size={13} /> {createDefect.message}</Space>
             <div style={{ color: '#94a3b8', fontSize: 12, marginTop: 4 }}>{createDefect.reportId} · {createDefect.department} · {sourceLabel(createDefect.source)}</div>
           </div>
@@ -609,7 +609,7 @@ export default function QcAnalyticsPage() {
                 <Tag color={detail.source === 'qc-v2' ? 'cyan' : 'blue'}>{sourceLabel(detail.source)}</Tag>
                 <Tag color={LOOP_STATUS_META[detail.status]?.color}>{loopStatusLabel(detail.status)}</Tag>
               </Space>
-              <div style={{ marginTop: 10, color: '#475569', fontSize: 13, lineHeight: 1.8 }}>
+              <div style={{ marginTop: 10, color: '#475569', fontSize: 12, lineHeight: 1.8 }}>
                 <div><b>{t('qcAnalytics.fldReport')}</b> {detail.reportId} · <b>{t('qcAnalytics.fldDept')}</b> {detail.department}</div>
                 <div><b>{t('qcAnalytics.fldOwner')}</b> {detail.assigneeName} · <b>{t('qcAnalytics.fldCreated')}</b> {fmtDate(detail.createdAt)}{detail.closedAt ? t('qcAnalytics.closedAt', { date: fmtDate(detail.closedAt) }) : ''}</div>
                 {detail.fixNote && <div><b>{t('qcAnalytics.fldFixNote2')}</b> {detail.fixNote}</div>}
@@ -627,7 +627,7 @@ export default function QcAnalyticsPage() {
                     children: (
                       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
                         <div>
-                          <div style={{ fontSize: 13 }}>{h.note}</div>
+                          <div style={{ fontSize: 12 }}>{h.note}</div>
                           <div style={{ color: '#94a3b8', fontSize: 11, marginTop: 2 }}>{h.actor}</div>
                         </div>
                         <span style={{ color: '#94a3b8', fontSize: 11, flexShrink: 0 }}>{fmtDate(h.at)}</span>

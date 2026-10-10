@@ -185,7 +185,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '6px',
-    fontSize: '13px',
+    fontSize: '12px',
     transition: 'all 0.2s',
   },
   content: {
@@ -259,7 +259,7 @@ const styles = {
     color: '#fff',
   }),
   statValue: {
-    fontSize: '28px',
+    fontSize: '30px',
     fontWeight: 700,
     color: COLORS.textDark,
   },
@@ -285,14 +285,14 @@ const styles = {
     padding: '12px 16px',
     textAlign: 'left' as const,
     fontWeight: 600,
-    fontSize: '13px',
+    fontSize: '12px',
     color: COLORS.textMuted,
     borderBottom: `1px solid ${COLORS.border}`,
   },
   td: {
     padding: '12px 16px',
     borderBottom: `1px solid ${COLORS.border}`,
-    fontSize: '13px',
+    fontSize: '12px',
   },
   badge: (color: string, bgColor: string) => ({
     padding: '4px 10px',
@@ -335,7 +335,7 @@ const styles = {
     padding: '8px 16px',
     borderRadius: '6px',
     cursor: 'pointer',
-    fontSize: '13px',
+    fontSize: '12px',
     display: 'flex',
     alignItems: 'center',
     gap: '6px',
@@ -348,7 +348,7 @@ const styles = {
     padding: '8px 16px',
     borderRadius: '6px',
     cursor: 'pointer',
-    fontSize: '13px',
+    fontSize: '12px',
     display: 'flex',
     alignItems: 'center',
     gap: '6px',
@@ -1071,7 +1071,7 @@ const Patient360View = () => {
                       backgroundColor: COLORS.bgGray,
                       borderRadius: '6px',
                       marginBottom: '8px',
-                      fontSize: '13px',
+                      fontSize: '12px',
                     }}>
                       <div style={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: '8px' }}>
                         {d.diagnosis}
@@ -1089,7 +1089,7 @@ const Patient360View = () => {
             {activePatientTab === 'timeline' && (
               <div>
                 <div style={{ marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ fontSize: '13px', color: COLORS.textMuted }}>
+                  <div style={{ fontSize: '12px', color: COLORS.textMuted }}>
                     {t('clinicalData.timelineCount', { count: timelineEvents.length })}
                   </div>
                   <div style={{ display: 'flex', gap: '4px' }}>
@@ -1157,7 +1157,7 @@ const Patient360View = () => {
                       {/* 内容 */}
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                          <span style={{ fontWeight: 600, fontSize: '13px' }}>{event.title}</span>
+                          <span style={{ fontWeight: 600, fontSize: '12px' }}>{event.title}</span>
                           <DataSourceBadge source={event.source} />
                         </div>
                         <div style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '4px' }}>
@@ -1188,7 +1188,7 @@ const Patient360View = () => {
                       <span style={styles.badge(COLORS.secondary, COLORS.cyanLight)}>{exam.modality}</span>
                     </div>
                     <div style={{ fontSize: '12px', color: COLORS.textMuted }}>{t('clinicalData.examDate', { date: exam.date })}</div>
-                    <div style={{ fontSize: '13px', marginTop: '6px' }}>{exam.result}</div>
+                    <div style={{ fontSize: '12px', marginTop: '6px' }}>{exam.result}</div>
                   </div>
                 ))}
               </div>
@@ -1421,22 +1421,22 @@ const CrossSystemSync = () => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '16px' }}>
           <div style={{ padding: '12px', backgroundColor: COLORS.successLight, borderRadius: '8px', textAlign: 'center' }}>
             <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('clinicalData.onlineSystems')}</div>
-            <div style={{ fontSize: '28px', fontWeight: 700, color: COLORS.success }}>{connectionStats.online}</div>
+            <div style={{ fontSize: '30px', fontWeight: 700, color: COLORS.success }}>{connectionStats.online}</div>
             <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>{t('clinicalData.ofTotal', { count: systemConnections.length })}</div>
           </div>
           <div style={{ padding: '12px', backgroundColor: COLORS.warningLight, borderRadius: '8px', textAlign: 'center' }}>
             <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('clinicalData.degradedSystems')}</div>
-            <div style={{ fontSize: '28px', fontWeight: 700, color: COLORS.warning }}>{connectionStats.degraded}</div>
+            <div style={{ fontSize: '30px', fontWeight: 700, color: COLORS.warning }}>{connectionStats.degraded}</div>
             <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>{t('clinicalData.needAttention')}</div>
           </div>
           <div style={{ padding: '12px', backgroundColor: COLORS.dangerLight, borderRadius: '8px', textAlign: 'center' }}>
             <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('clinicalData.offlineSystems')}</div>
-            <div style={{ fontSize: '28px', fontWeight: 700, color: COLORS.danger }}>{connectionStats.offline}</div>
+            <div style={{ fontSize: '30px', fontWeight: 700, color: COLORS.danger }}>{connectionStats.offline}</div>
             <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>{t('clinicalData.needAction')}</div>
           </div>
           <div style={{ padding: '12px', backgroundColor: 'var(--color-info-bg)', borderRadius: '8px', textAlign: 'center' }}>
             <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>{t('clinicalData.syncRecords')}</div>
-            <div style={{ fontSize: '28px', fontWeight: 700, color: COLORS.primary }}>{connectionStats.totalRecords.toLocaleString()}</div>
+            <div style={{ fontSize: '30px', fontWeight: 700, color: COLORS.primary }}>{connectionStats.totalRecords.toLocaleString()}</div>
             <div style={{ fontSize: '10px', color: connectionStats.totalErrors > 0 ? COLORS.danger : COLORS.textMuted, marginTop: '2px' }}>
               {t('clinicalData.errorCount', { count: connectionStats.totalErrors })}
             </div>
@@ -1464,7 +1464,7 @@ const CrossSystemSync = () => {
               }}>
                 <Server size={16} color="#fff" />
               </div>
-              <div style={{ fontWeight: 600, fontSize: '13px', marginBottom: '4px', textAlign: 'center' }}>{sys.type}</div>
+              <div style={{ fontWeight: 600, fontSize: '12px', marginBottom: '4px', textAlign: 'center' }}>{sys.type}</div>
               <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '8px', textAlign: 'center' }}>{sys.name}</div>
               <div style={{ marginBottom: '8px' }}>
                 <ConnectionStatusIndicator status={sys.status} />
@@ -1743,7 +1743,7 @@ const DataQualityMonitor = () => {
               
               <div style={{ marginBottom: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                  <span style={{ fontSize: '28px', fontWeight: 700, color: colors.color }}>
+                  <span style={{ fontSize: '30px', fontWeight: 700, color: colors.color }}>
                     {dim.score}
                   </span>
                   <span style={{ fontSize: '14px', color: COLORS.textMuted }}>{t('clinicalData.scoreUnit')}</span>
@@ -1868,8 +1868,8 @@ const DataQualityMonitor = () => {
               {pieData.map(item => (
                 <div key={item.name} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                   <div style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: item.color }} />
-                  <span style={{ fontSize: '13px', width: '30px' }}>{item.name}</span>
-                  <span style={{ fontSize: '13px', color: COLORS.textMuted }}>{t('clinicalData.itemsCount', { count: item.value })}</span>
+                  <span style={{ fontSize: '12px', width: '30px' }}>{item.name}</span>
+                  <span style={{ fontSize: '12px', color: COLORS.textMuted }}>{t('clinicalData.itemsCount', { count: item.value })}</span>
                 </div>
               ))}
             </div>
@@ -1908,7 +1908,7 @@ const DataQualityMonitor = () => {
               textAlign: 'center',
             }}>
               <div style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '8px' }}>{cat.category}</div>
-              <div style={{ fontSize: '28px', fontWeight: 700, color: cat.avgScore >= 95 ? COLORS.success : cat.avgScore >= 90 ? COLORS.primaryLight : cat.avgScore >= 85 ? COLORS.warning : COLORS.danger }}>
+              <div style={{ fontSize: '30px', fontWeight: 700, color: cat.avgScore >= 95 ? COLORS.success : cat.avgScore >= 90 ? COLORS.primaryLight : cat.avgScore >= 85 ? COLORS.warning : COLORS.danger }}>
                 {cat.avgScore}
               </div>
               <div style={{ fontSize: '11px', color: COLORS.textMuted, marginTop: '4px' }}>
@@ -2084,7 +2084,7 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
             style={{
               ...styles.input,
               paddingLeft: '44px',
-              fontSize: '15px',
+              fontSize: '14px',
               height: '48px',
             }}
             placeholder={t('clinicalData.searchPlaceholder')}
@@ -2123,7 +2123,7 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
             padding: '12px',
             backgroundColor: COLORS.warningLight,
             borderRadius: '8px',
-            fontSize: '13px',
+            fontSize: '12px',
             color: COLORS.warning,
             marginBottom: '16px',
           }}>
@@ -2280,7 +2280,7 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
                   padding: '8px 14px',
                   backgroundColor: COLORS.bgGray,
                   borderRadius: '16px',
-                  fontSize: '13px',
+                  fontSize: '12px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',

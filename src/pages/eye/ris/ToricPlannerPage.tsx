@@ -250,7 +250,7 @@ export const ToricPlannerPage: React.FC = () => {
                               color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
                               flexDirection: 'column',
                             }}>
-                              <div style={{ fontSize: 22, fontWeight: 700 }}>{r.power}</div>
+                              <div style={{ fontSize: 20, fontWeight: 700 }}>{r.power}</div>
                               <div style={{ fontSize: 10 }}>D</div>
                             </div>
                           }

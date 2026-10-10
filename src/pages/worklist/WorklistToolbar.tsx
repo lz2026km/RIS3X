@@ -162,7 +162,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
             onChange={e => updateFilter('search', e.target.value)}
             placeholder={t('worklistToolbar.searchPlaceholder')}
             style={{
-              border: 'none', fontSize: 13,
+              border: 'none', fontSize: 12,
               color: 'var(--text-primary)',
               width: '100%',
               background: 'transparent',
@@ -459,7 +459,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
         alignItems: 'center',
         gap: 8,
         color: '#fff',
-        fontSize: 13,
+        fontSize: 12,
         fontWeight: 600,
       }}>
         <CheckSquare size={16} style={{ color: '#4ade80' }} />
@@ -764,7 +764,7 @@ export function CheckInBar({ onCheckIn, onPrintLabel, lastScanned, isProcessing 
         placeholder={t('worklistToolbar.scanPlaceholder')}
         style={{
           flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border-color)',
-          fontSize: 13, background: 'var(--bg-card)', fontFamily: 'monospace',
+          fontSize: 12, background: 'var(--bg-card)', fontFamily: 'monospace',
         }}
       />
       <button

@@ -422,7 +422,7 @@ export default function VoiceWorkstationPage() {
             {recording ? <Square size={30} color="#dc2626" /> : transcribing ? <RefreshCw size={28} color="#d97706" style={{ animation: 'spin 1s linear infinite' }} /> : <Mic size={30} color="#3b82f6" />}
           </div>
           <div style={{ flex: 1, minWidth: 200 }}>
-            <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary, #1e293b)', marginBottom: 4 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary, #1e293b)', marginBottom: 4 }}>
               {recording ? `${t('voiceWs.recording')} ${recordSec}s` : transcribing ? t('voiceWs.transcribing') : t('voiceWs.dictation')}
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)', lineHeight: 1.7 }}>
@@ -458,7 +458,7 @@ export default function VoiceWorkstationPage() {
       {transcribing && (
         <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', textAlign: 'center' }}>
           <RefreshCw size={24} color="#3b82f6" style={{ animation: 'spin 1s linear infinite' }} />
-          <div style={{ marginTop: 8, color: 'var(--text-secondary, #475569)', fontSize: 13 }}>{t('voiceWs.transcribingLex')}</div>
+          <div style={{ marginTop: 8, color: 'var(--text-secondary, #475569)', fontSize: 12 }}>{t('voiceWs.transcribingLex')}</div>
         </div>
       )}
 
@@ -512,7 +512,7 @@ export default function VoiceWorkstationPage() {
             value={editingText}
             onChange={(e) => setEditingText(e.target.value)}
             rows={7}
-            style={{ width: '100%', padding: 12, border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, fontFamily: 'monospace', lineHeight: 1.7, resize: 'vertical' }}
+            style={{ width: '100%', padding: 12, border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, fontFamily: 'monospace', lineHeight: 1.7, resize: 'vertical' }}
             placeholder={t('voiceWs.transcriptPlaceholder')}
           />
 
@@ -549,7 +549,7 @@ export default function VoiceWorkstationPage() {
               <div style={{ width: 38, height: 38, borderRadius: 10, background: card.bg, color: card.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{card.icon}</div>
               <div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)' }}>{card.label}</div>
-                <div style={{ fontSize: 22, fontWeight: 700, color: card.color }}>{card.value}</div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: card.color }}>{card.value}</div>
               </div>
             </div>
           ))}
@@ -559,7 +559,7 @@ export default function VoiceWorkstationPage() {
       {/* 词库分布 */}
       {stats && (
         <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-          <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary, #1e293b)', margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <h3 style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary, #1e293b)', margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Database size={15} color="#10b981" />{t('voiceWs.lexiconDistribution')}
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -665,7 +665,7 @@ export default function VoiceWorkstationPage() {
 
       {/* 词库表格 */}
       <div style={{ overflowX: 'auto', maxHeight: 460, overflowY: 'auto', border: '1px solid var(--border-default, rgba(0,0,0,0.12))', borderRadius: 8 }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
           <thead style={{ position: 'sticky', top: 0, background: 'var(--bg-primary, #f8fafc)', zIndex: 1 }}>
             <tr>
               {[t('voiceWs.colTerm'), t('voiceWs.colCategory'), t('voiceWs.colPriority'), t('voiceWs.colAliases'), t('voiceWs.colActions')].map((h) => (
@@ -731,7 +731,7 @@ export default function VoiceWorkstationPage() {
                 <Headphones size={15} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div style={{ fontSize: 12, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {t('voiceWs.reportLabel')} {s.reportId} <span style={{ color: 'var(--text-muted, #94a3b8)', fontWeight: 400 }}>· {s.doctorId}</span>
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginTop: 2 }}>
@@ -796,7 +796,7 @@ export default function VoiceWorkstationPage() {
                   <Tag color={auto ? 'geekblue' : 'gold'} style={{ margin: 0 }}>{auto ? t('voiceWs.autoCorrection') : t('voiceWs.manualFeedback')}</Tag>
                   <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)', marginLeft: 'auto' }}>{fmtTime(fb.createdAt)}</span>
                 </div>
-                <div style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <s style={{ color: '#dc2626', fontWeight: 600 }}>{fb.original}</s>
                   <span style={{ color: 'var(--text-muted, #94a3b8)' }}>→</span>
                   <b style={{ color: '#059669' }}>{fb.corrected}</b>
@@ -859,7 +859,7 @@ export default function VoiceWorkstationPage() {
             </div>
             <div style={{ background: 'var(--bg-primary, #f8fafc)', borderRadius: 8, padding: 14, border: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary, #475569)', marginBottom: 8 }}>{t('voiceWs.transcriptContent')}</div>
-              <div style={{ fontSize: 13, lineHeight: 1.8, color: '#334155', whiteSpace: 'pre-wrap' }}>
+              <div style={{ fontSize: 12, lineHeight: 1.8, color: '#334155', whiteSpace: 'pre-wrap' }}>
                 {sessionTranscripts[viewSession.id] ?? t('voiceWs.sessionArchived', { reportId: viewSession.reportId })}
               </div>
             </div>
@@ -886,7 +886,7 @@ export default function VoiceWorkstationPage() {
         width={460}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 8 }}>
-          <div style={{ fontSize: 13, color: '#475569' }}>
+          <div style={{ fontSize: 12, color: '#475569' }}>
             {t('voiceWs.insertTranscriptHint')}
           </div>
           <div style={{ background: 'var(--bg-primary, #f8fafc)', border: '1px solid var(--border-default, rgba(0,0,0,0.12))', borderRadius: 8, padding: 10, fontSize: 12, color: '#334155', maxHeight: 120, overflowY: 'auto', lineHeight: 1.7 }}>

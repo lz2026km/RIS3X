@@ -86,7 +86,7 @@ function TabButton({ label, icon, isActive, onClick, badge }: TabButtonProps) {
         borderBottom: isActive ? "3px solid #1e40af" : "3px solid transparent",
         background: "none",
         cursor: "pointer",
-        fontSize: 13,
+        fontSize: 12,
         fontWeight: isActive ? 700 : 500,
         color: isActive ? "#1e40af" : "#64748b",
       }}
@@ -1124,7 +1124,7 @@ export default function PatientPage() {
                 autoFocus
                 style={{
                   flex: 1,
-                  border: "none", fontSize: 15,
+                  border: "none", fontSize: 14,
                   background: "transparent",
                 }}
               />
@@ -1278,7 +1278,7 @@ export default function PatientPage() {
                 <div style={{ textAlign: "center" }}>
                   <div
                     style={{
-                      fontSize: 28,
+                      fontSize: 30,
                       fontWeight: 700,
                       color:
                         result.confidence >= 90
@@ -1498,7 +1498,7 @@ export default function PatientPage() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 22,
+              fontSize: 20,
               fontWeight: 700,
               color: "#fff",
             }}
@@ -1528,7 +1528,7 @@ export default function PatientPage() {
           <div style={{ textAlign: "center" }}>
             <div
               style={{
-                fontSize: 28,
+                fontSize: 30,
                 fontWeight: 700,
                 color:
                   result.confidence >= 90
@@ -1647,7 +1647,7 @@ export default function PatientPage() {
           }}
         >
           <Gauge size={24} color="#3b82f6" style={{ marginBottom: 8 }} />
-          <div style={{ fontSize: 28, fontWeight: 700, color: "#1e40af" }}>
+          <div style={{ fontSize: 30, fontWeight: 700, color: "#1e40af" }}>
             {result.examStats.totalExams}
           </div>
           <AppText size="xs" color="secondary" as="div">{t('patientPage.totalExamTimes')}</AppText>
@@ -1663,7 +1663,7 @@ export default function PatientPage() {
           <Percent size={24} color="#16a34a" style={{ marginBottom: 8 }} />
           <div
             style={{
-              fontSize: 28,
+              fontSize: 30,
               fontWeight: 700,
               color: result.examStats.positiveRate > 30 ? "#dc2626" : "#16a34a",
             }}
@@ -2387,7 +2387,7 @@ export default function PatientPage() {
             >
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <Upload size={18} color="#fff" />
-                <span style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>
                   {t('patientPage.batchImportTitle')}
                 </span>
               </div>
@@ -2471,7 +2471,7 @@ export default function PatientPage() {
                     background: importResult.errors.length > 0 ? "#fffbeb" : "#f0fdf4",
                   }}
                 >
-                  <div style={{ fontSize: 13, fontWeight: 700, color: importResult.errors.length > 0 ? "#92400e" : "#166534" }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: importResult.errors.length > 0 ? "#92400e" : "#166534" }}>
                     {t('patientPage.importComplete')}: {t('patientPage.success')} {importResult.imported} / {t('patientPage.importSkip')} {importResult.skipped} / {t('patientPage.importFail')} {importResult.errors.length}
                   </div>
                   {importResult.errors.length > 0 && (

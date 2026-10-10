@@ -117,7 +117,7 @@ const PostProcessingPage: React.FC = () => {
     <div style={{ background: '#020617', color: '#cbd5e1', padding: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Layers size={18} color={BLUE} />
-        <span style={{ fontSize: 15, fontWeight: 700 }}>{t('w9d.postproc.title')}</span>
+        <span style={{ fontSize: 14, fontWeight: 700 }}>{t('w9d.postproc.title')}</span>
         <Tag color="cyan">{t('w9d.postproc.tag')}</Tag>
         <Tag color="gold">{t('w9d.postproc.demoTag')}</Tag>
         {/* [G005 W7] 明确的「演示模拟」徽标 (合成影像 + 确定性噪声) */}

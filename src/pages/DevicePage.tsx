@@ -388,7 +388,7 @@ function AETitleConfigPanel() {
                       <ActionButton action="edit" variant="text" size="compact" onClick={() => handleEdit(ae)}>{t('devicePage.edit')}</ActionButton>
                     </div>
                     <div style={{ fontSize: 12, color: C.textMid, fontFamily: 'monospace' }}>{ae.aeTitle}</div>
-                    <div style={{ fontSize: 12.5, color: C.textLight, marginTop: 2 }}>{ae.ip}:{ae.port} {t('devicePage.lastCecho', { time: ae.lastCecho })}</div>
+                    <div style={{ fontSize: 12, color: C.textLight, marginTop: 2 }}>{ae.ip}:{ae.port} {t('devicePage.lastCecho', { time: ae.lastCecho })}</div>
                     <div style={{ marginTop: 6 }}>
                       {cechoResults[ae.id] === 'idle' || !cechoResults[ae.id] ? (
                         <ActionButton action="refresh" size="compact" onClick={() => handleCecho(ae)}>{t('devicePage.cechoTest')}</ActionButton>
@@ -424,8 +424,8 @@ function AETitleConfigPanel() {
                 background: `${item.color}0d`, borderRadius: 8, padding: '10px 12px',
                 border: `1px solid ${item.color}25`, textAlign: 'center'
               }}>
-                <div style={{ fontSize: 26, fontWeight: 700, color: item.color }}>{item.value}</div>
-                <div style={{ fontSize: 12.5, color: C.textLight, marginTop: 2 }}>{item.label}</div>
+                <div style={{ fontSize: 24, fontWeight: 700, color: item.color }}>{item.value}</div>
+                <div style={{ fontSize: 12, color: C.textLight, marginTop: 2 }}>{item.label}</div>
               </div>
             ))}
           </div>
@@ -437,7 +437,7 @@ function AETitleConfigPanel() {
               t('devicePage.hintTimeout'),
               t('devicePage.hintReject'),
             ].map((hint, i) => (
-              <div key={i} style={{ fontSize: 12.5, color: C.textMid, padding: '6px 8px', background: 'var(--bg-card)', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div key={i} style={{ fontSize: 12, color: C.textMid, padding: '6px 8px', background: 'var(--bg-card)', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <AlertCircle size={10} color={C.warning} /> {hint}
               </div>
             ))}
@@ -473,7 +473,7 @@ function QATestPlannerPanel() {
           <button key={tab.id} onClick={() => setActiveQATab(tab.id as any)} style={{
             display: 'flex', alignItems: 'center', gap: 4,
             padding: '6px 14px', borderRadius: 8, border: 'none', cursor: 'pointer',
-            fontSize: 12.5, fontWeight: activeQATab === tab.id ? 700 : 500,
+            fontSize: 12, fontWeight: activeQATab === tab.id ? 700 : 500,
             background: activeQATab === tab.id ? C.primary : 'var(--bg-primary)',
             color: activeQATab === tab.id ? '#fff' : C.textMid,
             transition: 'all 0.2s'
@@ -528,7 +528,7 @@ function QATestPlannerPanel() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6 }}>
             {[t('devicePage.qaDayMon'), t('devicePage.qaDayTue'), t('devicePage.qaDayWed'), t('devicePage.qaDayThu'), t('devicePage.qaDayFri'), t('devicePage.qaDaySat'), t('devicePage.qaDaySun')].map(d => (
-              <div key={d} style={{ textAlign: 'center', fontSize: 12.5, fontWeight: 700, color: C.textLight, padding: 4 }}>{d}</div>
+              <div key={d} style={{ textAlign: 'center', fontSize: 12, fontWeight: 700, color: C.textLight, padding: 4 }}>{d}</div>
             ))}
             {Array.from({ length: 31 }, (_, i) => i + 1).map(day => {
               const dayTests = QA_TEST_PLANS.filter(p => {
@@ -545,7 +545,7 @@ function QATestPlannerPanel() {
                   <span style={{ fontSize: 12, fontWeight: day === 2 ? 700 : 400, color: C.textDark }}>{day}</span>
                   {dayTests.slice(0, 2).map(t => (
                     <span key={t.id} style={{
-                      fontSize: 7, fontWeight: 700, padding: '0 3px', borderRadius: 3,
+                      fontSize: 10, fontWeight: 700, padding: '0 3px', borderRadius: 3,
                       background: t.lastResult === 'pass' ? `${C.success}20` : `${C.danger}20`,
                       color: t.lastResult === 'pass' ? C.success : C.danger,
                       whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%'
@@ -595,7 +595,7 @@ function QATestPlannerPanel() {
               ))}
             </div>
             <div style={{ marginTop: 12, padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 8 }}>
-              <span style={{ fontSize: 12.5, color: C.textMid }}>{t('devicePage.qaOverallRate')}<strong style={{ color: C.success }}>{(complianceData.reduce((s, d) => s + d.value, 0) / complianceData.length).toFixed(1)}%</strong></span>
+              <span style={{ fontSize: 12, color: C.textMid }}>{t('devicePage.qaOverallRate')}<strong style={{ color: C.success }}>{(complianceData.reduce((s, d) => s + d.value, 0) / complianceData.length).toFixed(1)}%</strong></span>
             </div>
           </div>
         </div>
@@ -1006,8 +1006,8 @@ export default function DevicePage() {
               <CheckCircle size={22} color={C.success} />
             </div>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{stats.inUse}</div>
-              <div style={{ fontSize: 12.5, color: C.textLight }}>{t('devicePage.statInUse')}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>{stats.inUse}</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.statInUse')}</div>
             </div>
           </div>
         </div>
@@ -1020,8 +1020,8 @@ export default function DevicePage() {
               <Clock size={22} color={C.accent} />
             </div>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{stats.idle}</div>
-              <div style={{ fontSize: 12.5, color: C.textLight }}>{t('devicePage.statIdle')}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>{stats.idle}</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.statIdle')}</div>
             </div>
           </div>
         </div>
@@ -1034,8 +1034,8 @@ export default function DevicePage() {
               <AlertTriangle size={22} color={C.warning} />
             </div>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{stats.maint + stats.fault}</div>
-              <div style={{ fontSize: 12.5, color: C.textLight }}>{t('devicePage.statMaintFault')}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>{stats.maint + stats.fault}</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.statMaintFault')}</div>
             </div>
           </div>
         </div>
@@ -1048,8 +1048,8 @@ export default function DevicePage() {
               <Activity size={22} color={C.info} />
             </div>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{stats.totalTodayExams}</div>
-              <div style={{ fontSize: 12.5, color: C.textLight }}>{t('devicePage.statTodayExams')}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>{stats.totalTodayExams}</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.statTodayExams')}</div>
             </div>
           </div>
         </div>
@@ -1078,7 +1078,7 @@ export default function DevicePage() {
                   <div style={{ color: item.color }}>{item.icon}</div>
                   <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{item.label}</span>
                 </div>
-                <span style={{ fontSize: 26, fontWeight: 700, color: item.color }}>{item.count}</span>
+                <span style={{ fontSize: 24, fontWeight: 700, color: item.color }}>{item.count}</span>
               </div>
             ))}
           </div>
@@ -1244,7 +1244,7 @@ export default function DevicePage() {
               <Calendar size={20} color={C.warning} />
             </div>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{maintenancePlans.length}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>{maintenancePlans.length}</div>
               <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.maintPending')}</div>
             </div>
           </div>
@@ -1255,7 +1255,7 @@ export default function DevicePage() {
               <Bell size={20} color={C.danger} />
             </div>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>
                 {duePlans.length}
               </div>
               <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.due30')}</div>
@@ -1268,7 +1268,7 @@ export default function DevicePage() {
               <Wrench size={20} color={C.accent} />
             </div>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{MAINTENANCE_RECORDS.length}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>{MAINTENANCE_RECORDS.length}</div>
               <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.maintRecords')}</div>
             </div>
           </div>
@@ -1279,7 +1279,7 @@ export default function DevicePage() {
               <DollarSign size={20} color={C.success} />
             </div>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>
                 ¥{(MAINTENANCE_RECORDS.reduce((s, r) => s + r.cost, 0) / 10000).toFixed(1)}{t('devicePage.unitWan')}
               </div>
               <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.totalMaintCost')}</div>
@@ -1296,7 +1296,7 @@ export default function DevicePage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Bell size={16} color={C.danger} />
-            <span style={{ fontSize: 13, fontWeight: 700, color: C.danger }}>{t('devicePage.maintDueReminder')}</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: C.danger }}>{t('devicePage.maintDueReminder')}</span>
           </div>
           <span style={{ fontSize: 12, color: C.danger }}>{t('devicePage.dueCount', { count: duePlans.length })}</span>
         </div>
@@ -1310,7 +1310,7 @@ export default function DevicePage() {
                   border: `1px solid ${daysLeft <= 7 ? `${C.danger}40` : `${C.warning}40`}`
                 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 2 }}>{plan.deviceName.split('（')[0]}</div>
-                  <div style={{ fontSize: 12.5, color: C.textMid, marginBottom: 3 }}>{plan.content}</div>
+                  <div style={{ fontSize: 12, color: C.textMid, marginBottom: 3 }}>{plan.content}</div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: 12, color: C.textLight }}>{plan.planDate}</span>
                     <span style={{
@@ -1373,7 +1373,7 @@ export default function DevicePage() {
               <Gauge size={20} color={C.accent} />
             </div>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{stats.avgUtil}%</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>{stats.avgUtil}%</div>
               <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.avgUtilization')}</div>
             </div>
           </div>
@@ -1384,7 +1384,7 @@ export default function DevicePage() {
               <Power size={20} color={C.success} />
             </div>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>96.1%</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>96.1%</div>
               <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.avgUptime')}</div>
             </div>
           </div>
@@ -1395,7 +1395,7 @@ export default function DevicePage() {
               <AlertTriangle size={20} color={C.warning} />
             </div>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{stats.fault}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>{stats.fault}</div>
               <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.faultDevices')}</div>
             </div>
           </div>
@@ -1498,10 +1498,10 @@ export default function DevicePage() {
           rowKey="code"
           showPagination={false}
           columns={[
-            { title: t('devicePage.thFaultCode'), dataIndex: 'code', key: 'code', width: 90, sorter: (a, b) => a.code.localeCompare(b.code), render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12.5, color: C.textMid }}>{v}</span> },
+            { title: t('devicePage.thFaultCode'), dataIndex: 'code', key: 'code', width: 90, sorter: (a, b) => a.code.localeCompare(b.code), render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12, color: C.textMid }}>{v}</span> },
             { title: t('devicePage.thCategory'), dataIndex: 'category', key: 'category', width: 110, align: 'center', render: (v: string) => (<span style={{ padding: '2px 6px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: `${C.primary}10`, color: C.primary }}>{v}</span>) },
             { title: t('devicePage.thDesc'), dataIndex: 'description', key: 'description', render: (v: string) => <span style={{ color: C.textDark, fontWeight: 600, fontSize: 12 }}>{v}</span> },
-            { title: t('devicePage.thSeverity'), dataIndex: 'severity', key: 'severity', width: 100, align: 'center', sorter: (a, b) => a.severity.localeCompare(b.severity), render: (v: string) => (<span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 12.5, fontWeight: 700, background: v === 'critical' ? `${C.danger}15` : v === 'major' ? `${C.warning}15` : `${C.info}15`, color: v === 'critical' ? C.danger : v === 'major' ? C.warning : C.info }}>{v === 'critical' ? t('devicePage.sevCritical') : v === 'major' ? t('devicePage.sevMajor') : t('devicePage.sevMinor')}</span>) },
+            { title: t('devicePage.thSeverity'), dataIndex: 'severity', key: 'severity', width: 100, align: 'center', sorter: (a, b) => a.severity.localeCompare(b.severity), render: (v: string) => (<span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 12, fontWeight: 700, background: v === 'critical' ? `${C.danger}15` : v === 'major' ? `${C.warning}15` : `${C.info}15`, color: v === 'critical' ? C.danger : v === 'major' ? C.warning : C.info }}>{v === 'critical' ? t('devicePage.sevCritical') : v === 'major' ? t('devicePage.sevMajor') : t('devicePage.sevMinor')}</span>) },
             { title: t('devicePage.thMtbf'), dataIndex: 'mtbf', key: 'mtbf', width: 90, align: 'center', sorter: (a, b) => a.mtbf - b.mtbf, render: (v: number) => <span style={{ color: C.textMid }}>{v}</span> },
             { title: t('devicePage.thCount'), dataIndex: 'count', key: 'count', width: 90, align: 'center', sorter: (a, b) => a.count - b.count, render: (v: number) => <span style={{ fontWeight: 700, color: v >= 4 ? C.danger : v >= 2 ? C.warning : C.success }}>{v}</span> },
             { title: t('devicePage.thDevices'), dataIndex: 'devices', key: 'devices', width: 160, align: 'center', render: (v: string[]) => <span style={{ color: C.textMid }}>{v.join(', ')}</span> },
@@ -1509,9 +1509,9 @@ export default function DevicePage() {
           dataSource={FAULT_CODES}
         />
         <div style={{ display: 'flex', gap: 16, marginTop: 10, padding: '8px 12px', background: 'var(--bg-card)', borderRadius: 8 }}>
-          <span style={{ fontSize: 12.5, color: C.textMid }}>{t('devicePage.avgMtbf')}<strong style={{ color: C.info }}>{t('devicePage.daysSuffix', { count: Math.round(FAULT_CODES.reduce((s, f) => s + f.mtbf, 0) / FAULT_CODES.length) })}</strong></span>
-          <span style={{ fontSize: 12.5, color: C.textMid }}>{t('devicePage.totalFaults')}<strong style={{ color: C.danger }}>{t('devicePage.faultCountSuffix', { count: FAULT_CODES.reduce((s, f) => s + f.count, 0) })}</strong></span>
-          <span style={{ fontSize: 12.5, color: C.textMid }}>{t('devicePage.criticalShare')}<strong style={{ color: C.danger }}>{(FAULT_CODES.filter(f => f.severity === 'critical').reduce((s, f) => s + f.count, 0) / FAULT_CODES.reduce((s, f) => s + f.count, 0) * 100).toFixed(0)}%</strong></span>
+          <span style={{ fontSize: 12, color: C.textMid }}>{t('devicePage.avgMtbf')}<strong style={{ color: C.info }}>{t('devicePage.daysSuffix', { count: Math.round(FAULT_CODES.reduce((s, f) => s + f.mtbf, 0) / FAULT_CODES.length) })}</strong></span>
+          <span style={{ fontSize: 12, color: C.textMid }}>{t('devicePage.totalFaults')}<strong style={{ color: C.danger }}>{t('devicePage.faultCountSuffix', { count: FAULT_CODES.reduce((s, f) => s + f.count, 0) })}</strong></span>
+          <span style={{ fontSize: 12, color: C.textMid }}>{t('devicePage.criticalShare')}<strong style={{ color: C.danger }}>{(FAULT_CODES.filter(f => f.severity === 'critical').reduce((s, f) => s + f.count, 0) / FAULT_CODES.reduce((s, f) => s + f.count, 0) * 100).toFixed(0)}%</strong></span>
         </div>
       </div>
     </div>
@@ -1530,7 +1530,7 @@ export default function DevicePage() {
               <TrendingUp size={20} color={C.success} />
             </div>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>¥{(REVENUE_DATA.reduce((s, d) => s + d.total, 0) / 100000000).toFixed(2)}{t('devicePage.unitYi')}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>¥{(REVENUE_DATA.reduce((s, d) => s + d.total, 0) / 100000000).toFixed(2)}{t('devicePage.unitYi')}</div>
               <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.halfYearRevenue')}</div>
             </div>
           </div>
@@ -1541,7 +1541,7 @@ export default function DevicePage() {
               <Activity size={20} color={C.accent} />
             </div>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{examTrendData.reduce((s, d) => s + d.ct + d.mr + d.dr + d.dsa, 0)}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>{examTrendData.reduce((s, d) => s + d.ct + d.mr + d.dr + d.dsa, 0)}</div>
               <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.halfYearExams')}</div>
             </div>
           </div>
@@ -1552,7 +1552,7 @@ export default function DevicePage() {
               <AlertCircle size={20} color={C.danger} />
             </div>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{totalFaultCount}{t('devicePage.unitTimes')}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>{totalFaultCount}{t('devicePage.unitTimes')}</div>
               <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.faultTimes')}</div>
             </div>
           </div>
@@ -1563,7 +1563,7 @@ export default function DevicePage() {
               <DollarSign size={20} color={C.warning} />
             </div>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>¥{(totalDowntimeLoss / 10000).toFixed(0)}{t('devicePage.unitWan')}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>¥{(totalDowntimeLoss / 10000).toFixed(0)}{t('devicePage.unitWan')}</div>
               <div style={{ fontSize: 12, color: C.textLight }}>{t('devicePage.downtimeLoss')}</div>
             </div>
           </div>
@@ -1632,7 +1632,7 @@ export default function DevicePage() {
               background: `${item.color}0d`, borderRadius: 10, padding: '12px 14px',
               border: `1px solid ${item.color}25`, textAlign: 'center'
             }}>
-              <div style={{ fontSize: 26, fontWeight: 700, color: item.color }}>{item.value}</div>
+              <div style={{ fontSize: 24, fontWeight: 700, color: item.color }}>{item.value}</div>
               <div style={{ fontSize: 12, color: C.textLight, marginTop: 3 }}>{item.label}</div>
             </div>
           ))}
@@ -1888,12 +1888,12 @@ export default function DevicePage() {
   return (
     <PageTemplate container={false} showHeader={false} testId="device-page" style={{ padding: '0 24px 24px', background: C.bg }}>
       {loading && (
-        <div style={{ padding: 8, margin: 12, background: 'var(--color-info-bg)', color: '#1e40af', borderRadius: 6, fontSize: 13 }}>
+        <div style={{ padding: 8, margin: 12, background: 'var(--color-info-bg)', color: '#1e40af', borderRadius: 6, fontSize: 12 }}>
           {t('devicePage.loadingStats')}
         </div>
       )}
       {loadError && !loading && (
-        <div style={{ padding: 8, margin: 12, background: 'var(--color-warning-bg)', color: '#92400e', borderRadius: 6, fontSize: 13 }}>
+        <div style={{ padding: 8, margin: 12, background: 'var(--color-warning-bg)', color: '#92400e', borderRadius: 6, fontSize: 12 }}>
           {loadError}
         </div>
       )}
@@ -1959,7 +1959,7 @@ export default function DevicePage() {
             style={{
               display: 'flex', alignItems: 'center', gap: 6,
               padding: '10px 18px', border: 'none', cursor: 'pointer',
-              fontSize: 13, fontWeight: activeTab === i ? 700 : 500,
+              fontSize: 12, fontWeight: activeTab === i ? 700 : 500,
               background: 'transparent',
               color: activeTab === i ? C.primary : C.textMid,
               borderBottom: `3px solid ${activeTab === i ? C.primary : 'transparent'}`,
@@ -1990,7 +1990,7 @@ export default function DevicePage() {
         {activeTab === 8 && (
           <>
             {/* [G005 W1-Controls P1-7] 设备故障记录 + 生命周期 (deviceMgmtApi 真实数据) */}
-            <div style={{ fontSize: 13, fontWeight: 700, color: C.textDark, margin: '12px 0 8px' }}>{t('w1Controls.device.faultsTitle')}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.textDark, margin: '12px 0 8px' }}>{t('w1Controls.device.faultsTitle')}</div>
             <DataTable<any>
               rowKey="id"
               dataSource={deviceFaults}
@@ -2005,7 +2005,7 @@ export default function DevicePage() {
               scroll={{ x: 'max-content' }}
             />
             <div style={{ height: 16 }} />
-            <div style={{ fontSize: 13, fontWeight: 700, color: C.textDark, margin: '12px 0 8px' }}>{t('w1Controls.device.lifecycleTitle')}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.textDark, margin: '12px 0 8px' }}>{t('w1Controls.device.lifecycleTitle')}</div>
             <DataTable<any>
               rowKey="id"
               dataSource={equipmentLifecycle}

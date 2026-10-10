@@ -82,7 +82,7 @@ export function StickyActionBar({
     border: theme === "primary" || theme === "warning" ? "1px solid rgba(255,255,255,0.3)" : "1px solid #cbd5e1",
     borderRadius: 6,
     padding: "6px 14px",
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: 600,
     cursor: "pointer",
     display: "inline-flex",

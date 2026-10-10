@@ -161,7 +161,7 @@ export default function BenchmarkAiDiagnosisPage() {
               {t('benchmarkAi.title')}
               <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f5f3ff', color: '#9333ea', border: '1px solid #e9d5ff', fontWeight: 600 }}>{t('benchmarkAi.demoData')}</span>
             </h2>
-            <span style={{ color: '#94a3b8', fontSize: 13 }}>{t('benchmarkAi.subtitle')} <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: '#fef3c7', color: '#d97706', fontWeight: 600 }}>{t('benchmarkAi.demoNote')}</span></span>
+            <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('benchmarkAi.subtitle')} <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: '#fef3c7', color: '#d97706', fontWeight: 600 }}>{t('benchmarkAi.demoNote')}</span></span>
           </div>
         </Space>
       </div>

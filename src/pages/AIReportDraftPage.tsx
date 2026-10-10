@@ -409,7 +409,7 @@ export default function AIReportDraftPage() {
                 {patientSource === 'api' ? t('aiDraft.realDataHint') : t('aiDraft.demoDataHint')}
               </span>
             </h1>
-            <p style={{ fontSize: 13, margin: '4px 0 0', opacity: 0.9 }}>
+            <p style={{ fontSize: 12, margin: '4px 0 0', opacity: 0.9 }}>
               {t('aiDraft.subtitle')}
             </p>
           </div>
@@ -619,7 +619,7 @@ export default function AIReportDraftPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Sparkles size={16} color="#7c3aed" />
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#5b21b6' }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#5b21b6' }}>
                       {t('aiDraft.scenarioLabel')}{generatedDraft.scenario}
                     </div>
                     <div style={{ fontSize: 12, color: '#6b21a8', marginTop: 2 }}>

@@ -7,7 +7,9 @@ import {
 import { deviceMgmtApi, type EquipmentLifecycle } from '../services/api/deviceMgmtApi'
 import { oeeApi } from '../services/api/oeeApi'
 import { Card, message } from 'antd'
+import type { TableColumnsType } from 'antd'
 import { PageHeader } from '../components/common/PageHeader'
+import { DataTable } from '../components/common'
 import { ChartContainer } from '../components/charts'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { t } from '../i18n/appI18n'
@@ -55,12 +57,12 @@ const mockMaintPlans = [
 // ===== 样式 =====
 const s = {
   root: { padding: 32 },
-  title: { fontSize: 22, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 24 },
+  title: { fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 24 },
   // 统计卡片区
   statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16, marginBottom: 24 },
   statCard: { background: 'var(--bg-card)', borderRadius: 10, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', border: '1px solid var(--border-color)' },
-  statLabel: { fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 },
-  statValue: { fontSize: 28, fontWeight: 700, color: 'var(--color-primary-800)' },
+  statLabel: { fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 },
+  statValue: { fontSize: 30, fontWeight: 700, color: 'var(--color-primary-800)' },
   statSub: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 },
   statGreen: { color: '#16a34a' },
   statOrange: { color: '#d97706' },
@@ -69,9 +71,9 @@ const s = {
   // 操作区
   toolbar: { display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' as const, alignItems: 'center' },
   searchBox: { display: 'flex', alignItems: 'center', gap: 8, background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '8px 14px', flex: '0 0 280px' },
-  searchInput: { border: 'none', fontSize: 15, flex: 1, background: 'transparent' },
+  searchInput: { border: 'none', fontSize: 14, flex: 1, background: 'transparent' },
   select: { background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '8px 12px', fontSize: 14,},
-  btn: { padding: '10px 18px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.2s', minHeight: 44 },
+  btn: { padding: '10px 18px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.2s', minHeight: 44 },
   btnPrimary: { background: 'var(--color-primary-700)', color: '#fff' },
   btnSuccess: { background: '#16a34a', color: '#fff' },
   btnWarning: { background: '#d97706', color: '#fff' },
@@ -95,8 +97,8 @@ const s = {
   detailGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 },
   detailItem: { padding: '10px 14px', background: 'var(--bg-card)', borderRadius: 8 },
   detailLabel: { fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 },
-  detailValue: { fontSize: 15, fontWeight: 600, color: 'var(--color-primary-800)' },
-  sectionTitle: { fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginTop: 20, marginBottom: 12, paddingBottom: 8, borderBottom: '2px solid var(--border-color)' },
+  detailValue: { fontSize: 14, fontWeight: 600, color: 'var(--color-primary-800)' },
+  sectionTitle: { fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginTop: 20, marginBottom: 12, paddingBottom: 8, borderBottom: '2px solid var(--border-color)' },
   progressBar: { height: 8, borderRadius: 4, background: '#e2e8f0', overflow: 'hidden', marginTop: 6 },
   progressFill: { height: '100%', borderRadius: 4, transition: 'width 0.5s' },
   costRow: { display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-light)', fontSize: 14 },
@@ -109,9 +111,9 @@ const s = {
   alertDate: { fontSize: 12, color: '#dc2626', fontWeight: 600, marginTop: 4 },
   // 标签页
   tabs: { display: 'flex', gap: 0, marginBottom: 20, borderBottom: '2px solid var(--border-color)' },
-  tab: { padding: '10px 24px', cursor: 'pointer', fontSize: 15, fontWeight: 600, color: 'var(--text-secondary)', borderBottom: '3px solid transparent', transition: 'all 0.2s' },
+  tab: { padding: '10px 24px', cursor: 'pointer', fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', borderBottom: '3px solid transparent', transition: 'all 0.2s' },
   tabActive: { color: 'var(--color-primary-800)', borderBottomColor: 'var(--color-primary-800)' },
-  empty: { textAlign: 'center' as const, padding: 40, color: 'var(--text-secondary)', fontSize: 15 },
+  empty: { textAlign: 'center' as const, padding: 40, color: 'var(--text-secondary)', fontSize: 14 },
 } as const
 
 function StatusBadge({ status }: { status: string }) {
@@ -633,6 +635,127 @@ export default function EquipmentLifecyclePage() {
     }))
   }, [lifecycleRows])
 
+  const deviceColumns: TableColumnsType<any> = [
+    { title: t('equipLifecycle.thDeviceId'), dataIndex: 'id', key: 'id', render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--text-secondary)' }}>{v}</span> },
+    { title: t('equipLifecycle.thDeviceName'), dataIndex: 'name', key: 'name', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+    { title: t('equipLifecycle.thModel'), dataIndex: 'model', key: 'model' },
+    { title: t('equipLifecycle.thDept'), dataIndex: 'dept', key: 'dept' },
+    { title: t('equipLifecycle.thStatus'), dataIndex: 'status', key: 'status', render: (v: string) => <StatusBadge status={v} /> },
+    { title: t('equipLifecycle.thUseCount'), dataIndex: 'useCount', key: 'useCount', render: (v: number) => v > 0 ? v.toLocaleString() : '-' },
+    {
+      title: t('equipLifecycle.thNextMaint'), dataIndex: 'nextMaint', key: 'nextMaint',
+      render: (v: string, d: any) => v === '-' ? '-' : (
+        <span style={{ color: soonExpire.includes(d) ? '#dc2626' : '#334155', fontWeight: soonExpire.includes(d) ? 600 : 400 }}>
+          {v}
+        </span>
+      ),
+    },
+    {
+      title: t('equipLifecycle.thUsageRate'), dataIndex: 'deptRate', key: 'deptRate',
+      render: (v: number) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 80 }}>
+            <ProgressBar value={v} color={v >= 80 ? '#16a34a' : v >= 50 ? '#d97706' : '#94a3b8'} />
+          </div>
+          <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v}%</span>
+        </div>
+      ),
+    },
+    {
+      title: t('equipLifecycle.thActions'), key: 'actions',
+      render: (_v: unknown, d: any) => (
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button style={{ ...s.btn, ...s.btnGhost, fontSize: 12, padding: '6px 12px' }} onClick={() => setSelectedDevice(d)}><Eye size={14} />{t('equipLifecycle.detail')}</button>
+          {d.status !== '已报废' && (
+            <button style={{ ...s.btn, ...s.btnGhost, fontSize: 12, padding: '6px 12px' }} onClick={() => { setDeviceToScrap(d); setShowScrap(true) }}>{t('equipLifecycle.retire')}</button>
+          )}
+        </div>
+      ),
+    },
+  ]
+
+  const planColumns: TableColumnsType<any> = [
+    { title: t('equipLifecycle.thPlanName'), dataIndex: 'name', key: 'name', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+    { title: t('equipLifecycle.thPlanModel'), dataIndex: 'model', key: 'model' },
+    { title: t('equipLifecycle.thPlanType'), dataIndex: 'type', key: 'type', render: (v: string) => <StatusBadge status={v === '故障维修' ? '维保中' : '在用'} /> },
+    { title: t('equipLifecycle.thPlanDate'), dataIndex: 'date', key: 'date' },
+    {
+      title: t('equipLifecycle.thDaysLeft'), dataIndex: 'days', key: 'days',
+      render: (v: number) => (
+        <span style={{ color: v <= 7 ? '#dc2626' : v <= 30 ? '#d97706' : '#334155', fontWeight: v <= 7 ? 700 : 400 }}>
+          {v <= 7 ? t('equipLifecycle.daysAfterWarn', { n: v }) : t('equipLifecycle.daysAfter', { n: v })}
+        </span>
+      ),
+    },
+    { title: t('equipLifecycle.thVendor'), dataIndex: 'vendor', key: 'vendor', render: (v: string) => v || '-' },
+    { title: t('equipLifecycle.thCost'), dataIndex: 'cost', key: 'cost', render: (v: number) => v > 0 ? `¥${Number(v).toLocaleString()}` : '-' },
+    { title: t('equipLifecycle.thPlanStatus'), dataIndex: 'status', key: 'planStatus', render: (v: string) => <StatusBadge status={v === 'COMPLETED' ? '已报废' : v === 'CANCELLED' ? '已报废' : '在用'} /> },
+    {
+      title: t('equipLifecycle.thActions'), key: 'actions',
+      render: (_v: unknown, m: any) => (
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button style={{ ...s.btn, ...s.btnGhost, fontSize: 12, padding: '6px 12px' }}
+            onClick={() => void markPlanCompleted(m.id)}><CheckCircle size={14} />{t('equipLifecycle.confirm')}</button>
+          <button style={{ ...s.btn, ...s.btnGhost, fontSize: 12, padding: '6px 12px' }}
+            onClick={() => setMaintEditForm({ id: m.id, deviceName: m.name, type: m.type, maintenanceDate: m.date, assignee: m.vendor, estimatedCost: m.cost })}><Edit3 size={14} />{t('equipLifecycle.edit')}</button>
+          <button style={{ ...s.btn, ...s.btnGhost, fontSize: 12, padding: '6px 12px', color: '#dc2626' }}
+            onClick={() => void deleteMaintPlan(m.id)}><Trash2 size={14} />{t('equipLifecycle.delete')}</button>
+        </div>
+      ),
+    },
+  ]
+
+  const recordColumns: TableColumnsType<any> = [
+    { title: t('equipLifecycle.thRecordDate'), dataIndex: 'date', key: 'date' },
+    { title: t('equipLifecycle.thRecordDeviceId'), dataIndex: 'device', key: 'device', render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--text-secondary)' }}>{v}</span> },
+    { title: t('equipLifecycle.thRecordDeviceName'), key: 'deviceName', render: (_v: unknown, r: any) => r.name || mockDevices.find(d => d.id === r.device)?.name || r.device },
+    { title: t('equipLifecycle.thRecordType'), dataIndex: 'type', key: 'type', render: (v: string) => <StatusBadge status={v === '故障维修' ? '维保中' : '在用'} /> },
+    { title: t('equipLifecycle.thRecordCost'), dataIndex: 'cost', key: 'cost', render: (v: number) => v > 0 ? `¥${Number(v).toLocaleString()}` : '-' },
+    { title: t('equipLifecycle.thRecordVendor'), dataIndex: 'vendor', key: 'vendor' },
+    {
+      title: t('equipLifecycle.thRecordResult'), dataIndex: 'result', key: 'result',
+      render: (v: string) => (
+        <span style={{ ...s.badge, ...(v === '合格' || v === '已修复' || v === '已完成' ? s.badgeGreen : v === '建议报废' ? s.badgeRed : s.badgeOrange) }}>
+          {v}
+        </span>
+      ),
+    },
+    {
+      title: t('equipLifecycle.thActions'), key: 'actions',
+      render: (_v: unknown, r: any) => (
+        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 12, padding: '6px 12px' }} onClick={() => { setSelectedMaintRecord(r); setSelectedDevice(mockDevices.find(d => d.id === r.device) || null); }}><Eye size={14} />{t('equipLifecycle.detail')}</button>
+      ),
+    },
+  ]
+
+  const costColumns: TableColumnsType<any> = [
+    { title: t('equipLifecycle.thModality'), dataIndex: 'name', key: 'name', render: (v: string) => <b style={{ color: '#1e40af' }}>{v}</b> },
+    { title: t('equipLifecycle.thPurchaseTotal'), dataIndex: 'purchase', key: 'purchase', render: (v: number) => `¥${v.toLocaleString()}` },
+    { title: t('equipLifecycle.thMaintTotal'), dataIndex: 'maint', key: 'maint', render: (v: number) => `¥${v.toLocaleString()}` },
+    { title: t('equipLifecycle.thDeprec'), dataIndex: 'depreciation', key: 'depreciation', render: (v: number) => `¥${v.toLocaleString()}` },
+    {
+      title: t('equipLifecycle.thMaintRatio'), key: 'ratio',
+      render: (_v: unknown, m: any) => {
+        const ratio = m.purchase > 0 ? Math.round((m.maint / m.purchase) * 100) : 0
+        return <span style={{ color: ratio > 12 ? '#dc2626' : '#059669', fontWeight: 700 }}>{ratio}%</span>
+      },
+    },
+    {
+      title: t('equipLifecycle.thShare'), key: 'share', width: 180,
+      render: (_v: unknown, m: any) => {
+        const pct = costAnalysis.totals.purchase > 0 ? Math.round((m.purchase / costAnalysis.totals.purchase) * 100) : 0
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ flex: 1, height: 6, background: '#e2e8f0', borderRadius: 3, overflow: 'hidden' }}>
+              <div style={{ width: `${pct}%`, height: '100%', background: '#1e40af', borderRadius: 3 }} />
+            </div>
+            <span style={{ fontSize: 11, color: 'var(--text-secondary)', width: 40, textAlign: 'right' }}>{pct}%</span>
+          </div>
+        )
+      },
+    },
+  ]
+
   useEffect(() => {
     void loadOee()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -718,12 +841,12 @@ export default function EquipmentLifecyclePage() {
                     <div key={d.id} style={s.alertCard}>
                       <div>
                         <div style={s.alertName}>{d.name}</div>
-                        <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{d.id} · {d.dept}</div>
+                        <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{d.id} · {d.dept}</div>
                         <div style={s.alertDate}>{t('equipLifecycle.daysLeft', { n: days })}</div>
                       </div>
                       <div style={{ display: 'flex', gap: 6 }}>
-                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => setShowMaintPlanModal(true)}><Plus size={14} />{t('equipLifecycle.bookMaint')}</button>
-                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => { setSelectedDevice(d); setActiveTab('维保记录') }}><ClipboardList size={14} />{t('equipLifecycle.recordsBtn')}</button>
+                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 12, padding: '6px 12px' }} onClick={() => setShowMaintPlanModal(true)}><Plus size={14} />{t('equipLifecycle.bookMaint')}</button>
+                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 12, padding: '6px 12px' }} onClick={() => { setSelectedDevice(d); setActiveTab('维保记录') }}><ClipboardList size={14} />{t('equipLifecycle.recordsBtn')}</button>
                       </div>
                     </div>
                   )
@@ -752,53 +875,12 @@ export default function EquipmentLifecyclePage() {
           </div>
 
           {/* 表格 */}
-          <div style={{ overflowX: "auto" }}><table style={s.table}>
-            <thead>
-              <tr>
-                {[t('equipLifecycle.thDeviceId'), t('equipLifecycle.thDeviceName'), t('equipLifecycle.thModel'), t('equipLifecycle.thDept'), t('equipLifecycle.thStatus'), t('equipLifecycle.thUseCount'), t('equipLifecycle.thNextMaint'), t('equipLifecycle.thUsageRate'), t('equipLifecycle.thActions')].map(h => (
-                  <th key={h} style={s.th}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 && (
-                <tr><td colSpan={9} style={s.empty}>{t('equipLifecycle.noDevices')}</td></tr>
-              )}
-              {filtered.map(d => (
-                <tr key={d.id} style={{ background: d.status === '已报废' ? '#f8fafc' : '#fff' }}>
-                  <td style={s.td}><span style={{ fontFamily: 'monospace', fontSize: 13, color: 'var(--text-secondary)' }}>{d.id}</span></td>
-                  <td style={s.td}><span style={{ fontWeight: 600 }}>{d.name}</span></td>
-                  <td style={s.td}>{d.model}</td>
-                  <td style={s.td}>{d.dept}</td>
-                  <td style={s.td}><StatusBadge status={d.status} /></td>
-                  <td style={s.td}>{d.useCount > 0 ? d.useCount.toLocaleString() : '-'}</td>
-                  <td style={s.td}>
-                    {d.nextMaint === '-' ? '-' : (
-                      <span style={{ color: soonExpire.includes(d) ? '#dc2626' : '#334155', fontWeight: soonExpire.includes(d) ? 600 : 400 }}>
-                        {d.nextMaint}
-                      </span>
-                    )}
-                  </td>
-                  <td style={s.td}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ width: 80 }}>
-                        <ProgressBar value={d.deptRate} color={d.deptRate >= 80 ? '#16a34a' : d.deptRate >= 50 ? '#d97706' : '#94a3b8'} />
-                      </div>
-                      <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{d.deptRate}%</span>
-                    </div>
-                  </td>
-                  <td style={s.td}>
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => setSelectedDevice(d)}><Eye size={14} />{t('equipLifecycle.detail')}</button>
-                      {d.status !== '已报废' && (
-                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => { setDeviceToScrap(d); setShowScrap(true) }}>{t('equipLifecycle.retire')}</button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table></div>
+          <DataTable<any>
+            columns={deviceColumns}
+            dataSource={filtered}
+            rowKey="id"
+            emptyText={t('equipLifecycle.noDevices')}
+          />
         </>
       )}
 
@@ -822,48 +904,12 @@ export default function EquipmentLifecyclePage() {
                 ? t('equipLifecycle.maintPlansCountReal', { n: planRows.length })
                 : t('equipLifecycle.maintPlansCountMock', { n: mockDevices.filter(d => d.status !== '已报废').length })}
             </div>
-            <div style={{ overflowX: "auto" }}><table style={s.table}>
-              <thead>
-                <tr>
-                  {[t('equipLifecycle.thPlanName'), t('equipLifecycle.thPlanModel'), t('equipLifecycle.thPlanType'), t('equipLifecycle.thPlanDate'), t('equipLifecycle.thDaysLeft'), t('equipLifecycle.thVendor'), t('equipLifecycle.thCost'), t('equipLifecycle.thPlanStatus'), t('equipLifecycle.thActions')].map(h => (
-                    <th key={h} style={s.th}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {planRows.length === 0 && (
-                  <tr><td colSpan={9} style={s.empty}>{t('equipLifecycle.noMaintPlans')}</td></tr>
-                )}
-                {planRows.map((m, i) => (
-                  <tr key={m.id ?? i}>
-                    <td style={s.td}><span style={{ fontWeight: 600 }}>{m.name}</span></td>
-                    <td style={s.td}>{m.model}</td>
-                    <td style={s.td}><StatusBadge status={m.type === '故障维修' ? '维保中' : '在用'} /></td>
-                    <td style={s.td}>{m.date}</td>
-                    <td style={s.td}>
-                      <span style={{ color: m.days <= 7 ? '#dc2626' : m.days <= 30 ? '#d97706' : '#334155', fontWeight: m.days <= 7 ? 700 : 400 }}>
-                        {m.days <= 7 ? t('equipLifecycle.daysAfterWarn', { n: m.days }) : t('equipLifecycle.daysAfter', { n: m.days })}
-                      </span>
-                    </td>
-                    <td style={s.td}>{m.vendor || '-'}</td>
-                    <td style={s.td}>{m.cost > 0 ? `¥${Number(m.cost).toLocaleString()}` : '-'}</td>
-                    <td style={s.td}>
-                      <StatusBadge status={m.status === 'COMPLETED' ? '已报废' : m.status === 'CANCELLED' ? '已报废' : '在用'} />
-                    </td>
-                    <td style={s.td}>
-                      <div style={{ display: 'flex', gap: 6 }}>
-                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }}
-                          onClick={() => void markPlanCompleted(m.id)}><CheckCircle size={14} />{t('equipLifecycle.confirm')}</button>
-                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }}
-                          onClick={() => setMaintEditForm({ id: m.id, deviceName: m.name, type: m.type, maintenanceDate: m.date, assignee: m.vendor, estimatedCost: m.cost })}><Edit3 size={14} />{t('equipLifecycle.edit')}</button>
-                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px', color: '#dc2626' }}
-                          onClick={() => void deleteMaintPlan(m.id)}><Trash2 size={14} />{t('equipLifecycle.delete')}</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table></div>
+            <DataTable<any>
+              columns={planColumns}
+              dataSource={planRows}
+              rowKey={(r: any, i) => String(r.id ?? i)}
+              emptyText={t('equipLifecycle.noMaintPlans')}
+            />
           </Card>
         </div>
       )}
@@ -878,41 +924,12 @@ export default function EquipmentLifecyclePage() {
               <span style={{ ...s.badge, ...s.badgeOrange }}>{t('equipLifecycle.demoMaintRecordBadge')}</span>
             )}
           </div>
-          <div style={{ overflowX: "auto" }}><table style={s.table}>
-            <thead>
-              <tr>
-                {[t('equipLifecycle.thRecordDate'), t('equipLifecycle.thRecordDeviceId'), t('equipLifecycle.thRecordDeviceName'), t('equipLifecycle.thRecordType'), t('equipLifecycle.thRecordCost'), t('equipLifecycle.thRecordVendor'), t('equipLifecycle.thRecordResult'), t('equipLifecycle.thActions')].map(h => (
-                  <th key={h} style={s.th}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {recordRows.length === 0 && (
-                <tr><td colSpan={8} style={s.empty}>{t('equipLifecycle.noMaintRecords')}</td></tr>
-              )}
-              {recordRows.map((r, i) => {
-                const dev = mockDevices.find(d => d.id === r.device)
-                return (
-                  <tr key={r.id ?? i}>
-                    <td style={s.td}>{r.date}</td>
-                    <td style={s.td}><span style={{ fontFamily: 'monospace', fontSize: 13, color: 'var(--text-secondary)' }}>{r.device}</span></td>
-                    <td style={s.td}>{r.name || dev?.name || r.device}</td>
-                    <td style={s.td}><StatusBadge status={r.type === '故障维修' ? '维保中' : '在用'} /></td>
-                    <td style={s.td}>{r.cost > 0 ? `¥${Number(r.cost).toLocaleString()}` : '-'}</td>
-                    <td style={s.td}>{r.vendor}</td>
-                    <td style={s.td}>
-                      <span style={{ ...s.badge, ...(r.result === '合格' || r.result === '已修复' || r.result === '已完成' ? s.badgeGreen : r.result === '建议报废' ? s.badgeRed : s.badgeOrange) }}>
-                        {r.result}
-                      </span>
-                    </td>
-                    <td style={s.td}>
-                      <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => { setSelectedMaintRecord(r); setSelectedDevice(mockDevices.find(d => d.id === r.device) || null); }}><Eye size={14} />{t('equipLifecycle.detail')}</button>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table></div>
+          <DataTable<any>
+            columns={recordColumns}
+            dataSource={recordRows}
+            rowKey={(r: any, i) => String(r.id ?? i)}
+            emptyText={t('equipLifecycle.noMaintRecords')}
+          />
           {/* 成本汇总 */}
           <Card bordered={false} style={{ marginTop: 24, background: 'var(--bg-card)', borderRadius: 10, padding: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }} styles={{ body: { padding: 0 } }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}>{t('equipLifecycle.costSummaryTitle')}</div>
@@ -925,7 +942,7 @@ export default function EquipmentLifecyclePage() {
               ].map(item => (
                 <div key={item.label} style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, textAlign: 'center' as const }}>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{item.label}</div>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: item.color }}>{item.value}</div>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: item.color }}>{item.value}</div>
                 </div>
               ))}
             </div>
@@ -947,7 +964,7 @@ export default function EquipmentLifecyclePage() {
           <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
               <Monitor size={16} /> {t('equipLifecycle.oeeTitle')}
-              <select style={{ ...s.select, marginLeft: 'auto', padding: '4px 10px', fontSize: 13 }} value={oeeSelectedDevice} onChange={e => setOeeSelectedDevice(e.target.value)}>
+              <select style={{ ...s.select, marginLeft: 'auto', padding: '4px 10px', fontSize: 12 }} value={oeeSelectedDevice} onChange={e => setOeeSelectedDevice(e.target.value)}>
                 {oeeList.map((d: any) => <option key={d.id} value={d.id}>{d.name} ({d.id})</option>)}
               </select>
             </div>
@@ -972,7 +989,7 @@ export default function EquipmentLifecyclePage() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginTop: 12 }}>
                   {oeeRank.slice(0, 6).map((d: any, i: number) => (
                     <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
-                      <span style={{ fontSize: 13, fontWeight: 800, color: i < 3 ? '#d97706' : '#94a3b8', minWidth: 22 }}>#{i + 1}</span>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: i < 3 ? '#d97706' : '#94a3b8', minWidth: 22 }}>#{i + 1}</span>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--color-primary-800)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.name}</div>
                         <div style={{ height: 5, background: '#e2e8f0', borderRadius: 3, overflow: 'hidden', marginTop: 3 }}>
@@ -1004,7 +1021,7 @@ export default function EquipmentLifecyclePage() {
                 return (
                   <div key={d.id} style={{ padding: '12px 16px', background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                      <span style={{ fontWeight: 700, color: 'var(--color-primary-800)', fontSize: 13 }}>{d.name}</span>
+                      <span style={{ fontWeight: 700, color: 'var(--color-primary-800)', fontSize: 12 }}>{d.name}</span>
                       <code style={{ fontSize: 11, color: 'var(--text-secondary)', fontFamily: 'monospace' }}>{d.id}</code>
                       <span style={{ marginLeft: 'auto', padding: '2px 10px', borderRadius: 999, fontSize: 11, fontWeight: 600, background: d.isRetired ? 'var(--bg-card)' : d.isMaint ? 'var(--color-warning-bg)' : 'var(--color-success-bg)', color: d.isRetired ? 'var(--text-secondary)' : d.isMaint ? '#92400e' : '#15803d' }}>
                         {d.status}
@@ -1098,47 +1115,17 @@ export default function EquipmentLifecyclePage() {
               ))}
             </div>
             <div style={{ overflowX: 'auto' }}>
-              <table style={s.table}>
-                <thead>
-                  <tr>
-                    <th style={s.th}>{t('equipLifecycle.thModality')}</th>
-                    <th style={s.th}>{t('equipLifecycle.thPurchaseTotal')}</th>
-                    <th style={s.th}>{t('equipLifecycle.thMaintTotal')}</th>
-                    <th style={s.th}>{t('equipLifecycle.thDeprec')}</th>
-                    <th style={s.th}>{t('equipLifecycle.thMaintRatio')}</th>
-                    <th style={{ ...s.th, width: 180 }}>{t('equipLifecycle.thShare')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {costAnalysis.list.map((m: any) => {
-                    const ratio = m.purchase > 0 ? Math.round((m.maint / m.purchase) * 100) : 0
-                    const pct = costAnalysis.totals.purchase > 0 ? Math.round((m.purchase / costAnalysis.totals.purchase) * 100) : 0
-                    return (
-                      <tr key={m.name} style={{ borderBottom: '1px solid var(--border-light)' }}>
-                        <td style={s.td}><b style={{ color: '#1e40af' }}>{m.name}</b></td>
-                        <td style={s.td}>¥{m.purchase.toLocaleString()}</td>
-                        <td style={s.td}>¥{m.maint.toLocaleString()}</td>
-                        <td style={s.td}>¥{m.depreciation.toLocaleString()}</td>
-                        <td style={s.td}><span style={{ color: ratio > 12 ? '#dc2626' : '#059669', fontWeight: 700 }}>{ratio}%</span></td>
-                        <td style={s.td}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <div style={{ flex: 1, height: 6, background: '#e2e8f0', borderRadius: 3, overflow: 'hidden' }}>
-                              <div style={{ width: `${pct}%`, height: '100%', background: '#1e40af', borderRadius: 3 }} />
-                            </div>
-                            <span style={{ fontSize: 11, color: 'var(--text-secondary)', width: 40, textAlign: 'right' }}>{pct}%</span>
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
+              <DataTable<any>
+                columns={costColumns}
+                dataSource={costAnalysis.list}
+                rowKey="name"
+              />
             </div>
           </Card>
           {/* E7. 状态构成 + E5. 设备年龄分布 + E6. 维保费用趋势 */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.2fr', gap: 16, marginTop: 20 }}>
             <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Monitor size={15} /> {t('equipLifecycle.statusComposition')}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -1148,7 +1135,7 @@ export default function EquipmentLifecyclePage() {
                     <div style={{ flex: 1, height: 8, background: '#e2e8f0', borderRadius: 999, overflow: 'hidden' }}>
                       <div style={{ width: `${Math.round((st.count / Math.max(1, lifecycleRows.length)) * 100)}%`, height: '100%', background: st.color, borderRadius: 999 }} />
                     </div>
-                    <b style={{ fontSize: 13, color: st.color, width: 22, textAlign: 'right' }}>{st.count}</b>
+                    <b style={{ fontSize: 12, color: st.color, width: 22, textAlign: 'right' }}>{st.count}</b>
                   </div>
                 ))}
               </div>
@@ -1159,7 +1146,7 @@ export default function EquipmentLifecyclePage() {
             </Card>
 
             <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Clock size={15} /> {t('equipLifecycle.ageDistTitle')}
               </div>
               {ageDistribution.length === 0 ? (
@@ -1172,7 +1159,7 @@ export default function EquipmentLifecyclePage() {
                       <div style={{ flex: 1, height: 8, background: '#e2e8f0', borderRadius: 999, overflow: 'hidden' }}>
                         <div style={{ width: `${a.pct}%`, height: '100%', background: Number(a.year) >= 2022 ? '#059669' : Number(a.year) >= 2020 ? '#d97706' : '#dc2626', borderRadius: 999 }} />
                       </div>
-                      <b style={{ fontSize: 13, color: 'var(--text-primary)', width: 22, textAlign: 'right' }}>{a.count}</b>
+                      <b style={{ fontSize: 12, color: 'var(--text-primary)', width: 22, textAlign: 'right' }}>{a.count}</b>
                     </div>
                   ))}
                 </div>
@@ -1184,7 +1171,7 @@ export default function EquipmentLifecyclePage() {
             </Card>
 
             <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Wrench size={15} /> {t('equipLifecycle.maintCostTrendTitle')}
               </div>
               {maintCostTrend.length === 0 ? (
@@ -1224,7 +1211,7 @@ export default function EquipmentLifecyclePage() {
             </div>
             {/* [v3.0.6.11-104 Wave 2A] /device-mgmt/equipment-lifecycle/:id 实时详情 */}
             {lifecycleDetailLoading && (
-              <div style={{ fontSize: 12.5, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('deviceMgmtBoard.loading')}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('deviceMgmtBoard.loading')}</div>
             )}
             {!lifecycleDetailLoading && lifecycleDetail && (
               <>
@@ -1346,7 +1333,7 @@ export default function EquipmentLifecyclePage() {
               <AlertTriangle size={28} color="#dc2626" />
               <div style={s.modalTitle}>{t('equipLifecycle.confirmRetireTitle')}</div>
             </div>
-            <div style={{ fontSize: 15, color: 'var(--text-primary)', marginBottom: 20 }}>
+            <div style={{ fontSize: 14, color: 'var(--text-primary)', marginBottom: 20 }}>
               {t('equipLifecycle.confirmRetireMsg')}<br />
               <strong>{deviceToScrap.name}</strong>（{deviceToScrap.id}）
             </div>

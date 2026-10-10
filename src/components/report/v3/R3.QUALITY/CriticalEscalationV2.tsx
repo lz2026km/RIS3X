@@ -429,7 +429,7 @@ export const CriticalEscalationV2: React.FC = () => {
             <Col xs={24} md={8} key={l.level}>
               <Card size="small" style={{ borderLeft: `4px solid ${LEVEL_META[l.level]?.color}` }}>
                 <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <strong style={{ fontSize: 13 }}>{l.levelName}</strong>
+                  <strong style={{ fontSize: 12 }}>{l.levelName}</strong>
                   <Tag color={LEVEL_META[l.level]?.color}>{l.count} {t('criticalEscalation.times')}</Tag>
                 </Space>
                 <div style={{ marginTop: 6, fontSize: 12, color: '#64748b' }}>

@@ -535,7 +535,7 @@ export const DentalImplant3DPage: React.FC = () => {
                     <div>
                       <Tag color="purple">FDI #{p.toothNo}</Tag>
                       <Tag color="blue">{p.brandName || p.brand}</Tag>
-                      <span style={{ fontSize: 13 }}>
+                      <span style={{ fontSize: 12 }}>
                         {p.patientName} - {p.assignedDentist}
                       </span>
                     </div>
@@ -867,7 +867,7 @@ export const DentalImplant3DPage: React.FC = () => {
                 <Statistic
                   title={t('dentalImplant3d.boneQuality')}
                   value={boneData?.overallQuality || "D2/D3"}
-                  styles={{ content: {  color: "#2563eb", fontSize: 13  } }}
+                  styles={{ content: {  color: "#2563eb", fontSize: 12  } }}
                 />
                 <div style={{ display: "flex", gap: 4, marginTop: 8 }}>
                   {boneData?.measurements
@@ -886,7 +886,7 @@ export const DentalImplant3DPage: React.FC = () => {
                         <div style={{ fontSize: 10, color: "var(--text-secondary)" }}>
                           {m.region}
                         </div>
-                        <div style={{ fontWeight: 600, fontSize: 13 }}>
+                        <div style={{ fontWeight: 600, fontSize: 12 }}>
                           {m.hu}HU
                         </div>
                       </div>

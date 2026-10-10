@@ -612,7 +612,7 @@ export default function ImagingComparePage() {
       {/* ── 顶栏 ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
         <Columns2 size={18} color={BLUE} />
-        <span style={{ fontSize: 15, fontWeight: 700 }}>{t('nav.imagingCompare')}</span>
+        <span style={{ fontSize: 14, fontWeight: 700 }}>{t('nav.imagingCompare')}</span>
         {groupTypeTag}
         <span style={{ fontSize: 11, color: '#64748b' }}>{t('imagingCompare.subtitle')}</span>
         <div style={{ flex: 1 }} />
@@ -857,7 +857,7 @@ export default function ImagingComparePage() {
           <div style={{ background: PANEL_BG, borderRadius: 6, padding: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
               <MonitorUp size={14} color={CYAN} />
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0' }}>{t('imagingCompare.diffPanel')}</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0' }}>{t('imagingCompare.diffPanel')}</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -890,7 +890,7 @@ export default function ImagingComparePage() {
               <>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, marginBottom: 6 }}>
                   <span style={{ fontSize: 11, fontWeight: 700, color: '#e2e8f0' }}>{t('imagingCompare.hotRegion')}</span>
-                  <span style={{ fontSize: 22, fontWeight: 800, color: diffMetrics.hotRegionRatio > 0.3 ? '#ef4444' : diffMetrics.hotRegionRatio > 0.1 ? '#facc15' : '#22c55e' }}>
+                  <span style={{ fontSize: 20, fontWeight: 800, color: diffMetrics.hotRegionRatio > 0.3 ? '#ef4444' : diffMetrics.hotRegionRatio > 0.1 ? '#facc15' : '#22c55e' }}>
                     {(diffMetrics.hotRegionRatio * 100).toFixed(2)}%
                   </span>
                   <div style={{ flex: 1 }} />

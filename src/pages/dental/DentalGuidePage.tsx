@@ -269,7 +269,7 @@ export const DentalGuidePage: React.FC = () => {
                             <div>
                               <Tag color="purple">FDI #{g.toothNo}</Tag>
                               <Tag color="blue">{g.type}</Tag>
-                              <span style={{ fontSize: 13 }}>
+                              <span style={{ fontSize: 12 }}>
                                 {g.patientName} - {g.createdBy}
                               </span>
                             </div>
@@ -428,7 +428,7 @@ export const DentalGuidePage: React.FC = () => {
         confirmLoading={sleeveModal.saving}
         width={400}
       >
-        <div style={{ fontSize: 13, marginBottom: 8 }}>
+        <div style={{ fontSize: 12, marginBottom: 8 }}>
           {t('dentalGuide.guideLabel')}: {sleeveModal.guide?.patientName ?? '-'} · FDI #{sleeveModal.guide?.toothNo ?? '-'}
         </div>
         <Select
@@ -466,7 +466,7 @@ export const DentalGuidePage: React.FC = () => {
                 <text x="160" y="178" textAnchor="middle" fill="#94a3b8" fontSize="11">FDI #{previewGuide.toothNo ?? '-'} · {previewGuide.type}</text>
               </svg>
             </div>
-            <div style={{ marginTop: 12, fontSize: 13, lineHeight: 1.9, color: 'var(--text-primary)' }}>
+            <div style={{ marginTop: 12, fontSize: 12, lineHeight: 1.9, color: 'var(--text-primary)' }}>
               <div>{t('dentalGuide.guideLabel')}: {previewGuide.patientName ?? '-'} - {previewGuide.createdBy ?? '-'}</div>
               <div>{t('dentalGuide.guideType')}: {previewGuide.type}</div>
               <div>{t('dentalGuide.material')}: {previewGuide.material}</div>

@@ -209,8 +209,8 @@ export default function ChargeItemPage() {
           <span style={{ fontSize: 12, padding: '2px 8px', background: 'rgba(255,255,255,0.2)', borderRadius: 4 }}>{t('chargeItem.apiConnected')}</span>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" onClick={() => void load()} style={{ padding: '8px 14px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><RefreshCw size={14} />{t('chargeItem.refresh')}</button>
-          <button type="button" onClick={openCreate} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', background: 'var(--color-success-500, #22c55e)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600 }}><Plus size={14} />{t('chargeItem.newItem')}</button>
+          <button type="button" onClick={() => void load()} style={{ padding: '8px 14px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}><RefreshCw size={14} />{t('chargeItem.refresh')}</button>
+          <button type="button" onClick={openCreate} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', background: 'var(--color-success-500, #22c55e)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600 }}><Plus size={14} />{t('chargeItem.newItem')}</button>
         </div>
       </div>
 
@@ -219,21 +219,21 @@ export default function ChargeItemPage() {
           <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
             <div style={{ position: 'relative' }}>
               <Search size={16} style={{ position: 'absolute', left: 10, top: 10, color: '#6e7681' }} />
-              <input type="text" placeholder={t('chargeItem.searchPlaceholder')} value={searchText} onChange={e => setSearchText(e.target.value)} style={{ padding: '8px 12px 8px 34px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, width: 240,}} />
+              <input type="text" placeholder={t('chargeItem.searchPlaceholder')} value={searchText} onChange={e => setSearchText(e.target.value)} style={{ padding: '8px 12px 8px 34px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12, width: 240,}} />
             </div>
-            <button type="button" onClick={() => setCategoryFilter('all')} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, background: categoryFilter === 'all' ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: categoryFilter === 'all' ? '#fff' : 'var(--text-muted, #8b949e)' }}><List size={14} />{t('chargeItem.all')}</button>
+            <button type="button" onClick={() => setCategoryFilter('all')} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, background: categoryFilter === 'all' ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: categoryFilter === 'all' ? '#fff' : 'var(--text-muted, #8b949e)' }}><List size={14} />{t('chargeItem.all')}</button>
             {CATEGORY_OPTIONS.map(cat => (
-              <button key={cat} type="button" onClick={() => setCategoryFilter(cat)} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: categoryFilter === cat ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: categoryFilter === cat ? '#fff' : 'var(--text-muted, #8b949e)' }}>{cat}</button>
+              <button key={cat} type="button" onClick={() => setCategoryFilter(cat)} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: categoryFilter === cat ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: categoryFilter === cat ? '#fff' : 'var(--text-muted, #8b949e)' }}>{cat}</button>
             ))}
-            <button type="button" onClick={() => setShowInactive(!showInactive)} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, background: showInactive ? '#f59e0b20' : 'var(--bg-secondary, #21262d)', color: showInactive ? '#f59e0b' : 'var(--text-muted, #8b949e)' }}>
+            <button type="button" onClick={() => setShowInactive(!showInactive)} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, background: showInactive ? '#f59e0b20' : 'var(--bg-secondary, #21262d)', color: showInactive ? '#f59e0b' : 'var(--text-muted, #8b949e)' }}>
               {showInactive ? <ToggleRight size={14} /> : <ToggleLeft size={14} />}{t('chargeItem.showInactive')}
             </button>
           </div>
-          <span style={{ fontSize: 13, color: '#6e7681' }}>{t('chargeItem.total', { filtered: filteredItems.length, total: items.length })}</span>
+          <span style={{ fontSize: 12, color: '#6e7681' }}>{t('chargeItem.total', { filtered: filteredItems.length, total: items.length })}</span>
         </div>
 
         {error && (
-          <div style={{ padding: 12, borderRadius: 6, background: '#ef444420', border: '1px solid #ef4444', color: '#fca5a5', marginBottom: 16, fontSize: 13 }}>
+          <div style={{ padding: 12, borderRadius: 6, background: '#ef444420', border: '1px solid #ef4444', color: '#fca5a5', marginBottom: 16, fontSize: 12 }}>
             {t('chargeItem.loadFailed')}:{error}
             <button onClick={() => void load()} style={{ marginLeft: 12, padding: '2px 10px', borderRadius: 4, border: 'none', background: '#ef4444', color: '#fff', cursor: 'pointer', fontSize: 12 }}>{t('chargeItem.retry')}</button>
           </div>
@@ -275,11 +275,11 @@ export default function ChargeItemPage() {
             <Input.TextArea value={editor.description} onChange={e => setEditor({ ...editor, description: e.target.value })} rows={2} placeholder={t('chargeItem.descriptionPlaceholder')} />
           </div>
           <div style={{ display: 'flex', gap: 24 }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12 }}>
               <input type="checkbox" checked={editor.insuranceEligible} onChange={e => setEditor({ ...editor, insuranceEligible: e.target.checked })} style={{ width: 15, height: 15 }} />
               {t('chargeItem.insuranceEligible')}
             </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12 }}>
               <input type="checkbox" checked={editor.active} onChange={e => setEditor({ ...editor, active: e.target.checked })} style={{ width: 15, height: 15 }} />
               {t('chargeItem.enabled')}
             </label>

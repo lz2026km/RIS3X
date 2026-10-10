@@ -4,6 +4,7 @@ import { loadCardiacAiAnalyses } from "./cardiacAiAdapter";
 import { message, Spin, Alert, Button } from "antd";
 import { Search, Download, Database, Eye, RefreshCw } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
+import { DataTable } from "../../components/common";
 
 type CvModality = "CCTA" | "CMR" | "Echo" | "Cath" | "Vascular";
 type CvAnatomy =
@@ -291,142 +292,90 @@ export default function CvDatabasePage() {
             overflow: "hidden",
           }}
         >
-          <table
-            style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}
-          >
-            <thead>
-              <tr
-                style={{
-                  background: "var(--bg-primary)",
-                  borderBottom: "2px solid #e2e8f0",
-                }}
-              >
-                <th style={{ padding: "10px 12px", textAlign: "left" }}>
-                  病例 ID
-                </th>
-                <th style={{ padding: "10px 12px", textAlign: "left" }}>
-                  患者
-                </th>
-                <th style={{ padding: "10px 12px", textAlign: "left" }}>
-                  设备
-                </th>
-                <th style={{ padding: "10px 12px", textAlign: "left" }}>
-                  部位
-                </th>
-                <th style={{ padding: "10px 12px", textAlign: "left" }}>
-                  日期
-                </th>
-                <th style={{ padding: "10px 12px", textAlign: "left" }}>
-                  诊断
-                </th>
-                <th style={{ padding: "10px 12px", textAlign: "center" }}>
-                  病变数
-                </th>
-                <th style={{ padding: "10px 12px", textAlign: "center" }}>
-                  SR
-                </th>
-                <th style={{ padding: "10px 12px", textAlign: "center" }}>
-                  操作
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((c) => (
-                <tr key={c.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                  <td style={{ padding: "10px 12px", fontWeight: 500 }}>
-                    {c.id}
-                  </td>
-                  <td style={{ padding: "10px 12px" }}>
+          <DataTable
+            rowKey="id"
+            dataSource={filtered}
+            showPagination={false}
+            showExport={false}
+            showDensity={false}
+            emptyText="未找到病例。"
+            columns={[
+              { title: "病例 ID", dataIndex: "id", key: "id", render: (v: string) => <span style={{ fontWeight: 500 }}>{v}</span> },
+              {
+                title: "患者", key: "patient",
+                render: (_: unknown, c: CvCase) => (
+                  <>
                     {c.patientName}
                     <br />
                     <span style={{ fontSize: 12, color: "#94a3b8" }}>
                       {c.patientId}
                       {c.age ? ` | ${c.age}岁 ${c.gender ?? ""}` : ""}
                     </span>
-                  </td>
-                  <td style={{ padding: "10px 12px" }}>
-                    <span
-                      style={{
-                        background: COLORS[c.modality] ?? "#64748b",
-                        color: "#fff",
-                        padding: "2px 8px",
-                        borderRadius: 4,
-                        fontSize: 12,
-                        fontWeight: 600,
-                      }}
-                    >
-                      {c.modality}
-                    </span>
-                  </td>
-                  <td
+                  </>
+                ),
+              },
+              {
+                title: "设备", dataIndex: "modality", key: "modality",
+                render: (v: string) => (
+                  <span
                     style={{
-                      padding: "10px 12px",
-                      textTransform: "capitalize",
+                      background: COLORS[v] ?? "#64748b",
+                      color: "#fff",
+                      padding: "2px 8px",
+                      borderRadius: 4,
+                      fontSize: 12,
+                      fontWeight: 600,
                     }}
                   >
-                    {c.anatomy}
-                  </td>
-                  <td style={{ padding: "10px 12px", color: "#64748b" }}>
-                    {c.studyDate}
-                  </td>
-                  <td
+                    {v}
+                  </span>
+                ),
+              },
+              {
+                title: "部位", dataIndex: "anatomy", key: "anatomy",
+                render: (v: string) => <span style={{ textTransform: "capitalize" }}>{v}</span>,
+              },
+              { title: "日期", dataIndex: "studyDate", key: "studyDate", render: (v: string) => <span style={{ color: "#64748b" }}>{v}</span> },
+              {
+                title: "诊断", dataIndex: "diagnosis", key: "diagnosis",
+                render: (v: string) => (
+                  <span style={{ display: "inline-block", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", verticalAlign: "bottom" }}>{v}</span>
+                ),
+              },
+              { title: "病变数", dataIndex: "lesionCount", key: "lesionCount", align: "center" },
+              {
+                title: "SR", key: "hasSrReport", align: "center",
+                render: (_: unknown, c: CvCase) =>
+                  c.hasSrReport ? (
+                    <span style={{ color: "#16a34a" }}></span>
+                  ) : (
+                    <span style={{ color: "#94a3b8" }}>—</span>
+                  ),
+              },
+              {
+                title: "操作", key: "actions", align: "center",
+                render: (_: unknown, c: CvCase) => (
+                  <button
+                    onClick={() => setSelectedCase(c)}
                     style={{
-                      padding: "10px 12px",
-                      maxWidth: 200,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
+                      padding: "4px 10px",
+                      background: "#eff6ff",
+                      color: "#1e40af",
+                      border: "1px solid #bfdbfe",
+                      borderRadius: 4,
+                      cursor: "pointer",
+                      fontSize: 12,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 4,
                     }}
                   >
-                    {c.diagnosis}
-                  </td>
-                  <td style={{ padding: "10px 12px", textAlign: "center" }}>
-                    {c.lesionCount}
-                  </td>
-                  <td style={{ padding: "10px 12px", textAlign: "center" }}>
-                    {c.hasSrReport ? (
-                      <span style={{ color: "#16a34a" }}></span>
-                    ) : (
-                      <span style={{ color: "#94a3b8" }}>—</span>
-                    )}
-                  </td>
-                  <td style={{ padding: "10px 12px", textAlign: "center" }}>
-                    <button
-                      onClick={() => setSelectedCase(c)}
-                      style={{
-                        padding: "4px 10px",
-                        background: "#eff6ff",
-                        color: "#1e40af",
-                        border: "1px solid #bfdbfe",
-                        borderRadius: 4,
-                        cursor: "pointer",
-                        fontSize: 12,
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 4,
-                      }}
-                    >
-                      <Eye size={14} /> 查看
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {!loading && filtered.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={9}
-                    style={{
-                      padding: 24,
-                      textAlign: "center",
-                      color: "#94a3b8",
-                    }}
-                  >
-                    未找到病例。
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                    <Eye size={14} /> 查看
+                  </button>
+                ),
+              },
+            ]}
+          />
         </div>
       </Spin>
 

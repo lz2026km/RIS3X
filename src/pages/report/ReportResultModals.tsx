@@ -32,10 +32,10 @@ export function ReviewResultModal({ show, reportId, result, suggestion, onClose 
         </div>
         <div style={{ background: BG, borderRadius: 8, padding: '12px 16px', marginBottom: 16 }}>
           <div style={{ fontSize: 12, color: GRAY, marginBottom: 4 }}>{t('reportResult.reviewComment')}</div>
-          <div style={{ fontSize: 13, color: '#334155' }}>{suggestion}</div>
+          <div style={{ fontSize: 12, color: '#334155' }}>{suggestion}</div>
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <button onClick={onClose} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>{t('common.action.close')}</button>
+          <button onClick={onClose} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>{t('common.action.close')}</button>
         </div>
       </div>
     </div>
@@ -63,10 +63,10 @@ export function BatchResultModal({ show, title, message, type, onClose }: BatchR
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           {type === 'success' ? <CheckCircle size={32} color={SUCCESS} /> : <AlertTriangle size={32} color={DANGER} />}
-          <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.5 }}>{message}</div>
+          <div style={{ fontSize: 12, color: '#334155', lineHeight: 1.5 }}>{message}</div>
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <button onClick={onClose} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>{t('common.action.close')}</button>
+          <button onClick={onClose} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>{t('common.action.close')}</button>
         </div>
       </div>
     </div>
@@ -92,10 +92,10 @@ export function PrintModal({ show, title, message, onClose, onPrint }: PrintModa
           <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: PRIMARY }}>{title}</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
         </div>
-        <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.5, marginBottom: 16 }}>{message}</div>
+        <div style={{ fontSize: 12, color: '#334155', lineHeight: 1.5, marginBottom: 16 }}>{message}</div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-          <button onClick={onClose} style={{ padding: '8px 20px', border: '1px solid #e2e8f0', background: WHITE, color: GRAY, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('common.action.cancel')}</button>
-          <button onClick={onPrint} style={{ padding: '8px 20px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Printer size={13} />{t('reportResult.print')}</button>
+          <button onClick={onClose} style={{ padding: '8px 20px', border: '1px solid #e2e8f0', background: WHITE, color: GRAY, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('common.action.cancel')}</button>
+          <button onClick={onPrint} style={{ padding: '8px 20px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Printer size={13} />{t('reportResult.print')}</button>
         </div>
       </div>
     </div>
@@ -168,9 +168,9 @@ export function BulkActionModal({ show, action, count, loading, onClose, onConfi
           </div>
         )}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-          <button onClick={onClose} style={{ padding: '8px 20px', border: '1px solid #e2e8f0', background: WHITE, color: GRAY, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('common.action.cancel')}</button>
+          <button onClick={onClose} style={{ padding: '8px 20px', border: '1px solid #e2e8f0', background: WHITE, color: GRAY, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('common.action.cancel')}</button>
           <button onClick={onConfirm} disabled={loading}
-            style={{ padding: '8px 20px', border: 'none', background: isDelete ? DANGER : SUCCESS, color: WHITE, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 5, opacity: loading ? 0.6 : 1 }}>
+            style={{ padding: '8px 20px', border: 'none', background: isDelete ? DANGER : SUCCESS, color: WHITE, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 5, opacity: loading ? 0.6 : 1 }}>
             {loading ? <><RefreshCw size={13} style={{ animation: 'spin 1s linear infinite' }} /> {t('reportResult.processing')}</> : <>{t('reportResult.confirmVerb', { verb: VERB })}</>}
           </button>
         </div>

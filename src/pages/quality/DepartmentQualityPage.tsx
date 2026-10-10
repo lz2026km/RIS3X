@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { reportQualityApi } from '../../services/api'
 import { ErrorBanner } from '../../components/feedback'
+import { DataTable } from '../../components/common'
 import { t } from '../../i18n/appI18n'
 
 const SCORE_TREND = [
@@ -96,7 +97,7 @@ export default function DepartmentQualityPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <CheckCircle size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>科室质量管理</span>
         </div>
-        <button onClick={handleExportQualityReport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+        <button onClick={handleExportQualityReport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
           <Download size={14} />导出质量报告
         </button>
       </div>
@@ -115,7 +116,7 @@ export default function DepartmentQualityPage() {
                 <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{k.title}</span>
                 <k.icon size={20} style={{ color: k.color }} />
               </div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--text-primary, #f0f6fc)' }}>
+              <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--text-primary, #f0f6fc)' }}>
                 {k.value}<span style={{ fontSize: 14, fontWeight: 400, color: '#6e7681', marginLeft: 4 }}>{k.unit}</span>
               </div>
             </div>
@@ -188,11 +189,11 @@ export default function DepartmentQualityPage() {
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
               <AlertTriangle size={16} color="#ef4444" />提醒
             </div>
-            <div style={{ fontSize: 13, color: 'var(--text-muted, #8b949e)', marginBottom: 12 }}>近期未通过检查 ({totalFailed}) 项需复查</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 12 }}>近期未通过检查 ({totalFailed}) 项需复查</div>
             {RECENT_CHECKS.filter(c => !c.passed).slice(0, 3).map(c => (
               <div key={c.id} style={{ padding: '10px 0', borderBottom: '1px solid var(--bg-secondary, #21262d)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontSize: 13, color: 'var(--text-primary, #f0f6fc)' }}>{c.examId}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-primary, #f0f6fc)' }}>{c.examId}</div>
                   <div style={{ fontSize: 12, color: '#6e7681' }}>{c.modality} · {c.date}</div>
                 </div>
                 <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: c.severity === 'critical' ? '#ef444420' : '#f59e0b20', color: c.severity === 'critical' ? '#ef4444' : '#f59e0b' }}>
@@ -205,36 +206,28 @@ export default function DepartmentQualityPage() {
 
         <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, overflow: 'hidden' }}>
           <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--bg-secondary, #21262d)', fontSize: 14, fontWeight: 600, color: 'var(--text-primary, #f0f6fc)' }}>最近检查记录</div>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-            <thead>
-              <tr>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>编号</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>检查ID</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>设备</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>评分</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>结果</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>检查人</th>
-                <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>日期</th>
-              </tr>
-            </thead>
-            <tbody>
-              {RECENT_CHECKS.map(c => (
-                <tr key={c.id}>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: '#6e7681', fontSize: 12 }}>{c.id}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>{c.examId}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{c.modality}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', fontWeight: 600, color: c.score >= 80 ? '#22c55e' : c.score >= 60 ? '#f59e0b' : '#ef4444' }}>{c.score}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: c.passed ? '#22c55e' : '#ef4444', fontSize: 12 }}>
-                      {c.passed ? <CheckCircle size={12} /> : <XCircle size={12} />}{c.passed ? '通过' : '未通过'}
-                    </span>
-                  </td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{c.checkedBy}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{c.date}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable
+            rowKey="id"
+            dataSource={RECENT_CHECKS}
+            columns={[
+              { title: '编号', dataIndex: 'id', key: 'id', render: (v: string) => <span style={{ color: '#6e7681', fontSize: 12 }}>{v}</span> },
+              { title: '检查ID', dataIndex: 'examId', key: 'examId' },
+              { title: '设备', dataIndex: 'modality', key: 'modality', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
+              { title: '评分', dataIndex: 'score', key: 'score', render: (v: number) => <span style={{ fontWeight: 600, color: v >= 80 ? '#22c55e' : v >= 60 ? '#f59e0b' : '#ef4444' }}>{v}</span> },
+              {
+                title: '结果',
+                dataIndex: 'passed',
+                key: 'passed',
+                render: (v: boolean) => (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: v ? '#22c55e' : '#ef4444', fontSize: 12 }}>
+                    {v ? <CheckCircle size={12} /> : <XCircle size={12} />}{v ? '通过' : '未通过'}
+                  </span>
+                ),
+              },
+              { title: '检查人', dataIndex: 'checkedBy', key: 'checkedBy', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
+              { title: '日期', dataIndex: 'date', key: 'date', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
+            ]}
+          />
         </div>
       </div>
     </div>

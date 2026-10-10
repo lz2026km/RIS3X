@@ -353,7 +353,7 @@ export default function TeachingCaseLibraryPage() {
               onClick={() => setActiveTab(tab.key)}
               style={{
                 display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', border: 'none', background: 'none',
-                cursor: 'pointer', fontSize: 13, fontWeight: activeTab === tab.key ? 600 : 400,
+                cursor: 'pointer', fontSize: 12, fontWeight: activeTab === tab.key ? 600 : 400,
                 color: activeTab === tab.key ? '#1677ff' : 'var(--text-secondary, #475569)',
                 borderBottom: activeTab === tab.key ? '2px solid #1677ff' : '2px solid transparent',
               }}
@@ -369,7 +369,7 @@ export default function TeachingCaseLibraryPage() {
           <div style={{ display: 'flex', gap: 14 }}>
             {/* 分类树 */}
             <div style={{ width: 250, flexShrink: 0, borderRight: '1px solid var(--border-default, rgba(0,0,0,0.12))', paddingRight: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Filter size={13} />
                 {t('categories', '分类')}
               </div>
@@ -420,7 +420,7 @@ export default function TeachingCaseLibraryPage() {
                               <Scan size={26} />
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontWeight: 600, fontSize: 13, color: '#0f172a', lineHeight: 1.4 }}>{c.title}</div>
+                              <div style={{ fontWeight: 600, fontSize: 12, color: '#0f172a', lineHeight: 1.4 }}>{c.title}</div>
                               <div style={{ display: 'flex', gap: 4, marginTop: 4, flexWrap: 'wrap' }}>
                                 <Tag color={DIFFICULTY_COLORS[c.difficulty] ?? undefined} style={{ fontSize: 11, marginInlineEnd: 0 }}>{c.difficulty}</Tag>
                                 <Tag style={{ fontSize: 11, marginInlineEnd: 0 }}>{c.disease}</Tag>
@@ -466,9 +466,9 @@ export default function TeachingCaseLibraryPage() {
           <div>
             <Card size="small" style={{ marginBottom: 12 }}>
               <Space wrap>
-                <span style={{ fontSize: 13 }}>{t('examCount', '抽题数量')}</span>
+                <span style={{ fontSize: 12 }}>{t('examCount', '抽题数量')}</span>
                 <InputNumber min={2} max={20} value={examConfig.count} onChange={(v) => setExamConfig((prev) => ({ ...prev, count: v ?? 5 }))} />
-                <span style={{ fontSize: 13 }}>{t('examDifficulty', '难度')}</span>
+                <span style={{ fontSize: 12 }}>{t('examDifficulty', '难度')}</span>
                 <Select
                   style={{ width: 100 }}
                   value={examConfig.difficulty}
@@ -497,7 +497,7 @@ export default function TeachingCaseLibraryPage() {
                   <Col><Progress type="circle" percent={examResult.score} size={72} status={examResult.passed ? 'success' : 'exception'} /></Col>
                   <Col>
                     <Statistic title={t('examCorrect', '答对题数')} value={`${examResult.correct}/${examResult.total}`} />
-                    <div style={{ color: examResult.passed ? '#52c41a' : '#f5222d', fontSize: 13, fontWeight: 600 }}>
+                    <div style={{ color: examResult.passed ? '#52c41a' : '#f5222d', fontSize: 12, fontWeight: 600 }}>
                       {examResult.passed ? t('examPassed', '通过 (≥60分)') : t('examFailed', '未通过 (≥60分)')}
                     </div>
                   </Col>
@@ -516,7 +516,7 @@ export default function TeachingCaseLibraryPage() {
             {paper && !examResult && (
               <Space direction="vertical" style={{ width: '100%' }} size={12}>
                 {paper.questions.map((q, qi) => (
-                  <Card key={q.caseId} size="small" title={<span style={{ fontSize: 13 }}>{qi + 1}. {q.title}</span>}>
+                  <Card key={q.caseId} size="small" title={<span style={{ fontSize: 12 }}>{qi + 1}. {q.title}</span>}>
                     <div style={{ fontSize: 12, color: '#475569', background: 'var(--bg-primary, #f8fafc)', padding: 10, borderRadius: 6, marginBottom: 10, whiteSpace: 'pre-wrap' }}>
                       {q.findings}
                     </div>
@@ -526,7 +526,7 @@ export default function TeachingCaseLibraryPage() {
                     >
                       <Space direction="vertical">
                         {q.options.map((opt, oi) => (
-                          <Radio key={oi} value={oi} style={{ fontSize: 13 }}>{String.fromCharCode(65 + oi)}. {opt}</Radio>
+                          <Radio key={oi} value={oi} style={{ fontSize: 12 }}>{String.fromCharCode(65 + oi)}. {opt}</Radio>
                         ))}
                       </Space>
                     </Radio.Group>
@@ -541,7 +541,7 @@ export default function TeachingCaseLibraryPage() {
         {activeTab === 'wrong' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-              <div style={{ fontSize: 13, color: 'var(--text-secondary, #475569)' }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)' }}>
                 {t('wrongCount', '错题数量')}: <b>{wrongBook.length}</b>
               </div>
               <Popconfirm title={t('wrongClearConfirm', '确定清空错题本？')} onConfirm={() => void handleClearWrongBook()}>
@@ -556,7 +556,7 @@ export default function TeachingCaseLibraryPage() {
                   <Card key={w.caseId} size="small">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
-                        <span style={{ fontWeight: 600, fontSize: 13 }}>{w.title}</span>
+                        <span style={{ fontWeight: 600, fontSize: 12 }}>{w.title}</span>
                         <Tag style={{ marginLeft: 8, fontSize: 11 }}>{w.disease}</Tag>
                       </div>
                       <Tag color="red" style={{ fontSize: 11 }}>{t('wrongTimes', '错 {{count}} 次', { count: w.wrongCount })}</Tag>
@@ -660,7 +660,7 @@ export default function TeachingCaseLibraryPage() {
                 <span style={{ fontWeight: 600, fontSize: 12, color: '#1677ff' }}>{cm.user}</span>
                 <span style={{ fontSize: 11, color: 'var(--text-muted, #94a3b8)' }}>{cm.time}</span>
               </div>
-              <div style={{ fontSize: 13, color: '#334155', marginTop: 2 }}>{cm.content}</div>
+              <div style={{ fontSize: 12, color: '#334155', marginTop: 2 }}>{cm.content}</div>
             </div>
           ))}
         </div>

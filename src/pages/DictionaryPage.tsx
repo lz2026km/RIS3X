@@ -4,7 +4,9 @@
 // ============================================================
 import { useState, useMemo, useEffect } from 'react'
 import { Card,  message } from 'antd'
+import type { TableColumnsType } from 'antd'
 import { PageHeader } from '../components/common/PageHeader'
+import { DataTable } from '../components/common'
 import { termApi, type TermDto } from '../services/api/termApi'
 import { dictionaryApi } from '../services/api/dictionaryApi'
 import { t } from '../i18n/appI18n'
@@ -42,23 +44,23 @@ const s: Record<string, React.CSSProperties> = {
   },
   select: {
     border: '1px solid var(--border-color)', borderRadius: 8, padding: '9px 14px',
-    fontSize: 13, color: 'var(--text-secondary)', background: 'var(--content-bg)', cursor: 'pointer', minHeight: 44,
+    fontSize: 12, color: 'var(--text-secondary)', background: 'var(--content-bg)', cursor: 'pointer', minHeight: 44,
   },
   btnPrimary: {
     display: 'flex', alignItems: 'center', gap: 6,
     background: '#1e40af', color: '#fff', border: 'none', borderRadius: 8,
-    padding: '10px 18px', fontSize: 13, cursor: 'pointer', minHeight: 44,
+    padding: '10px 18px', fontSize: 12, cursor: 'pointer', minHeight: 44,
     boxShadow: '0 2px 6px rgba(30,58,95,0.25)',
   },
   btnDanger: {
     display: 'flex', alignItems: 'center', gap: 4,
     background: 'var(--color-error-bg)', color: '#dc2626', border: 'none', borderRadius: 8,
-    padding: '8px 12px', fontSize: 13, cursor: 'pointer', minHeight: 44,
+    padding: '8px 12px', fontSize: 12, cursor: 'pointer', minHeight: 44,
   },
   btnIcon: {
     display: 'flex', alignItems: 'center', gap: 4,
     background: 'var(--content-bg)', color: 'var(--text-secondary)', border: 'none', borderRadius: 8,
-    padding: '8px 12px', fontSize: 13, cursor: 'pointer', minHeight: 44,
+    padding: '8px 12px', fontSize: 12, cursor: 'pointer', minHeight: 44,
   },
   table: {
     width: '100%', borderCollapse: 'collapse', background: 'var(--bg-card)',
@@ -69,7 +71,7 @@ const s: Record<string, React.CSSProperties> = {
     fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-color)',
   },
   td: {
-    padding: '12px 14px', fontSize: 13, color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-light)',
+    padding: '12px 14px', fontSize: 12, color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-light)',
   },
   badge: {
     display: 'inline-block', padding: '3px 10px', borderRadius: 12, fontSize: 12,
@@ -83,12 +85,12 @@ const s: Record<string, React.CSSProperties> = {
     marginTop: 16, padding: '12px 16px', background: 'var(--bg-card)',
     borderRadius: 10, boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
   },
-  pageInfo: { fontSize: 13, color: 'var(--text-secondary)' },
+  pageInfo: { fontSize: 12, color: 'var(--text-secondary)' },
   pageBtns: { display: 'flex', gap: 4 },
   pageBtn: {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     width: 34, height: 34, borderRadius: 8, border: '1px solid var(--border-color)',
-    background: 'var(--bg-card)', cursor: 'pointer', fontSize: 13, color: 'var(--text-secondary)',
+    background: 'var(--bg-card)', cursor: 'pointer', fontSize: 12, color: 'var(--text-secondary)',
   },
   pageBtnActive: {
     background: '#1e40af', color: '#fff', border: '1px solid #1e40af',
@@ -109,7 +111,7 @@ const s: Record<string, React.CSSProperties> = {
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
     background: '#1e40af',
   },
-  modalTitle: { fontSize: 15, fontWeight: 700, color: '#fff' },
+  modalTitle: { fontSize: 14, fontWeight: 700, color: '#fff' },
   modalClose: {
     background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 6,
     cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center',
@@ -161,7 +163,7 @@ const s: Record<string, React.CSSProperties> = {
     margin: '0 auto 16px',
   },
   emptyTitle: { fontSize: 16, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8 },
-  emptyDesc: { fontSize: 13, color: 'var(--text-secondary)', marginBottom: 20 },
+  emptyDesc: { fontSize: 12, color: 'var(--text-secondary)', marginBottom: 20 },
   infoTip: {
     fontSize: 12, color: 'var(--text-secondary)', marginTop: 4,
   },
@@ -178,7 +180,7 @@ const s: Record<string, React.CSSProperties> = {
   },
   statItem: {
     display: 'flex', alignItems: 'center', gap: 6,
-    fontSize: 13, color: 'var(--text-secondary)',
+    fontSize: 12, color: 'var(--text-secondary)',
   },
   statNum: { fontWeight: 800, color: '#1e40af', fontSize: 16 },
   categoryTag: {
@@ -195,7 +197,7 @@ const s: Record<string, React.CSSProperties> = {
     padding: '8px 12px', borderRadius: 10, boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
   },
   tab: {
-    padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+    padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 600,
     cursor: 'pointer', border: 'none', transition: 'all 0.15s',
   },
   tabActive: { background: '#1e40af', color: '#fff' },
@@ -536,6 +538,74 @@ export default function DictionaryPage() {
     setModalMode('delete')
   }
 
+  const dictionaryColumns: TableColumnsType<DictionaryItem> = [
+    {
+      title: t('dictionary.category'), dataIndex: 'category', key: 'category',
+      render: (v: string) => (
+        <span style={{ ...s.categoryTag, ...(categoryColors[v ?? ''] || { backgroundColor: 'var(--content-bg)', color: 'var(--text-secondary)' }) }}>
+          {v ?? ''}
+        </span>
+      ),
+    },
+    {
+      title: t('dictionary.code'), dataIndex: 'code', key: 'code',
+      render: (v: string) => (
+        <code style={{ fontFamily: 'monospace', fontSize: 12, background: 'var(--content-bg)', padding: '2px 6px', borderRadius: 4, color: 'var(--text-secondary)' }}>
+          {v ?? ''}
+        </code>
+      ),
+    },
+    {
+      title: t('dictionary.name'), dataIndex: 'name', key: 'name',
+      render: (v: string, d) => (
+        <>
+          <div style={{ fontWeight: 600, color: '#1e40af' }}>{v ?? ''}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'monospace' }}>{d.id}</div>
+        </>
+      ),
+    },
+    {
+      title: t('dictionary.modality'), dataIndex: 'modality', key: 'modality',
+      render: (v: string[]) => (
+        <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+          {(v ?? []).map(m => (
+            <span key={m} style={{ ...s.modalityBadge, backgroundColor: modalityColors[m]?.bg || '#f1f5f9', color: modalityColors[m]?.color || '#475569' }}>
+              {m}
+            </span>
+          ))}
+        </div>
+      ),
+    },
+    { title: t('dictionary.bodyPart'), dataIndex: 'bodyPart', key: 'bodyPart', render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v || '-'}</span> },
+    { title: t('dictionary.pinyin'), dataIndex: 'pinyin', key: 'pinyin', render: (v: string) => <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{v || '-'}</span> },
+    { title: t('dictionary.sortOrder'), dataIndex: 'sortOrder', key: 'sortOrder', render: (v: number) => <span style={{ color: 'var(--text-secondary)', fontFamily: 'monospace' }}>{v ?? 0}</span> },
+    {
+      title: t('dictionary.status'), dataIndex: 'isActive', key: 'isActive',
+      render: (v: boolean) => (
+        <span style={{ ...s.badge, ...(v ? s.badgeActive : s.badgeInactive) }}>
+          {v ? t('dictionary.enabled') : t('dictionary.disabled')}
+        </span>
+      ),
+    },
+    {
+      title: t('dictionary.notes'), dataIndex: 'notes', key: 'notes',
+      render: (v: string) => (
+        <div style={{ maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-secondary)', fontSize: 12 }} title={v}>
+          {v || '-'}
+        </div>
+      ),
+    },
+    {
+      title: t('dictionary.actions'), key: 'actions',
+      render: (_v: unknown, d: DictionaryItem) => (
+        <div style={s.actions}>
+          <button style={{ ...s.btnIcon, minHeight: 32, padding: '6px 10px' }} onClick={() => openEdit(d)} title={t('dictionary.edit')}><Edit2 size={14} /> {t('dictionary.edit')}</button>
+          <button style={{ ...s.btnDanger, minHeight: 32, padding: '6px 10px' }} onClick={() => openDelete(d)} title={t('dictionary.delete')}><Trash2 size={14} /> {t('dictionary.delete')}</button>
+        </div>
+      ),
+    },
+  ]
+
   const closeModal = () => setModalMode(null)
 
   const handleSubmit = async () => {
@@ -686,12 +756,12 @@ export default function DictionaryPage() {
       </div>
 
       {dictLoading && (
-        <div style={{ background: 'var(--color-info-bg)', border: '1px solid #bfdbfe', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 13, color: '#1e40af' }}>
+        <div style={{ background: 'var(--color-info-bg)', border: '1px solid #bfdbfe', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 12, color: '#1e40af' }}>
           {t('dictionary.loading')}
         </div>
       )}
       {dictLoadError && !dictLoading && (
-        <div style={{ background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 13, color: '#b91c1c' }}>
+        <div style={{ background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 12, color: '#b91c1c' }}>
           {t('dictionary.loadFailed')}: {dictLoadError} ({t('dictionary.loadFailedHint')})
         </div>
       )}
@@ -706,73 +776,12 @@ export default function DictionaryPage() {
           </div>
         </Card>
       ) : (
-        <div style={{ overflowX: "auto" }}><table style={s.table}>
-          <thead>
-            <tr>
-              <th style={s.th}>{t('dictionary.category')}</th>
-              <th style={s.th}>{t('dictionary.code')}</th>
-              <th style={s.th}>{t('dictionary.name')}</th>
-              <th style={s.th}>{t('dictionary.modality')}</th>
-              <th style={s.th}>{t('dictionary.bodyPart')}</th>
-              <th style={s.th}>{t('dictionary.pinyin')}</th>
-              <th style={s.th}>{t('dictionary.sortOrder')}</th>
-              <th style={s.th}>{t('dictionary.status')}</th>
-              <th style={s.th}>{t('dictionary.notes')}</th>
-              <th style={s.th}>{t('dictionary.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paged.map(d => (
-              <tr key={d.id} style={{ background: 'var(--bg-card)', transition: 'background 0.1s' }}
-                onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#fafbff'}
-                onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = 'var(--bg-card)'}
-              >
-                <td style={s.td}>
-                  <span style={{ ...s.categoryTag, ...(categoryColors[(d.category ?? '')] || { backgroundColor: 'var(--content-bg)', color: 'var(--text-secondary)' }) }}>
-                    {d.category ?? ''}
-                  </span>
-                </td>
-                <td style={s.td}>
-                  <code style={{ fontFamily: 'monospace', fontSize: 12, background: 'var(--content-bg)', padding: '2px 6px', borderRadius: 4, color: 'var(--text-secondary)' }}>
-                    {d.code ?? ''}
-                  </code>
-                </td>
-                <td style={s.td}>
-                  <div style={{ fontWeight: 600, color: '#1e40af' }}>{d.name ?? ''}</div>
-                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'monospace' }}>{d.id}</div>
-                </td>
-                <td style={s.td}>
-                  <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-                    {(d.modality ?? []).map(m => (
-                      <span key={m} style={{ ...s.modalityBadge, backgroundColor: modalityColors[m]?.bg || '#f1f5f9', color: modalityColors[m]?.color || '#475569' }}>
-                        {m}
-                      </span>
-                    ))}
-                  </div>
-                </td>
-                <td style={s.td}><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{d.bodyPart || '-'}</span></td>
-                <td style={s.td}><span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{d.pinyin || '-'}</span></td>
-                <td style={s.td}><span style={{ color: 'var(--text-secondary)', fontFamily: 'monospace' }}>{d.sortOrder ?? 0}</span></td>
-                <td style={s.td}>
-                  <span style={{ ...s.badge, ...(d.isActive ? s.badgeActive : s.badgeInactive) }}>
-                    {d.isActive ? t('dictionary.enabled') : t('dictionary.disabled')}
-                  </span>
-                </td>
-                <td style={s.td}>
-                  <div style={{ maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-secondary)', fontSize: 12 }} title={d.notes}>
-                    {d.notes || '-'}
-                  </div>
-                </td>
-                <td style={s.td}>
-                  <div style={s.actions}>
-                    <button style={{ ...s.btnIcon, minHeight: 32, padding: '6px 10px' }} onClick={() => openEdit(d)} title={t('dictionary.edit')}><Edit2 size={14} /> {t('dictionary.edit')}</button>
-                    <button style={{ ...s.btnDanger, minHeight: 32, padding: '6px 10px' }} onClick={() => openDelete(d)} title={t('dictionary.delete')}><Trash2 size={14} /> {t('dictionary.delete')}</button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table></div>
+        <DataTable<DictionaryItem>
+          columns={dictionaryColumns}
+          dataSource={paged}
+          rowKey="id"
+          showPagination={false}
+        />
       )}
 
       <div style={s.pagination}>
@@ -828,6 +837,37 @@ export default function DictionaryPage() {
       setTimeout(() => setShowImportMapping(false), 2000)
     }
 
+    const mappingColumns: TableColumnsType<MappingEntry> = [
+      { title: t('dictionary.sourceCode'), dataIndex: 'sourceCode', key: 'sourceCode', render: (v: string) => <code style={{ fontFamily: 'monospace', fontSize: 12, background: 'var(--content-bg)', padding: '2px 6px', borderRadius: 4 }}>{v}</code> },
+      { title: t('dictionary.sourceSystem'), dataIndex: 'sourceSystem', key: 'sourceSystem', render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v}</span> },
+      { title: t('dictionary.targetCode'), dataIndex: 'targetCode', key: 'targetCode', render: (v: string) => <code style={{ fontFamily: 'monospace', fontSize: 12, background: 'var(--color-info-bg)', padding: '2px 6px', borderRadius: 4, color: '#2563eb' }}>{v}</code> },
+      { title: t('dictionary.targetSystem'), dataIndex: 'targetSystem', key: 'targetSystem' },
+      {
+        title: t('dictionary.accuracy'), dataIndex: 'accuracy', key: 'accuracy',
+        render: (v: number) => (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ width: 60, height: 6, background: '#e2e8f0', borderRadius: 3 }}>
+              <div style={{ width: `${v * 100}%`, height: 6, background: v > 0.9 ? '#16a34a' : v > 0.8 ? '#f59e0b' : '#dc2626', borderRadius: 3 }} />
+            </div>
+            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{Math.round(v * 100)}%</span>
+          </div>
+        ),
+      },
+      {
+        title: t('dictionary.status'), dataIndex: 'status', key: 'status',
+        render: (v: MappingEntry['status']) => (
+          <span style={{
+            ...s.badge,
+            background: v === 'verified' ? '#dcfce7' : v === 'unverified' ? '#fef3c7' : '#fee2e2',
+            color: v === 'verified' ? '#16a34a' : v === 'unverified' ? '#d97706' : '#dc2626',
+          }}>
+            {v === 'verified' ? t('dictionary.verified') : v === 'unverified' ? t('dictionary.unverified') : t('dictionary.conflict')}
+          </span>
+        ),
+      },
+      { title: t('dictionary.lastVerified'), dataIndex: 'lastVerified', key: 'lastVerified', render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v}</span> },
+    ]
+
     return (
       <div>
         <div style={s.chartCard}>
@@ -851,47 +891,11 @@ export default function DictionaryPage() {
               <span style={{ fontSize: 12, color: '#92400e' }}>{t('dictionary.unmappedFound', { count: unmapped.length })} <button style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setMappingSearch('UNMAPPED')}>{t('dictionary.viewReport')}</button></span>
             </div>
           )}
-          <div style={{ overflowX: "auto" }}><table style={s.table}>
-            <thead>
-              <tr>
-                <th style={s.th}>{t('dictionary.sourceCode')}</th>
-                <th style={s.th}>{t('dictionary.sourceSystem')}</th>
-                <th style={s.th}>{t('dictionary.targetCode')}</th>
-                <th style={s.th}>{t('dictionary.targetSystem')}</th>
-                <th style={s.th}>{t('dictionary.accuracy')}</th>
-                <th style={s.th}>{t('dictionary.status')}</th>
-                <th style={s.th}>{t('dictionary.lastVerified')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredMappings.map(m => (
-                <tr key={m.id}>
-                  <td style={s.td}><code style={{ fontFamily: 'monospace', fontSize: 12, background: 'var(--content-bg)', padding: '2px 6px', borderRadius: 4 }}>{m.sourceCode}</code></td>
-                  <td style={s.td}><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{m.sourceSystem}</span></td>
-                  <td style={s.td}><code style={{ fontFamily: 'monospace', fontSize: 12, background: 'var(--color-info-bg)', padding: '2px 6px', borderRadius: 4, color: '#2563eb' }}>{m.targetCode}</code></td>
-                  <td style={s.td}>{m.targetSystem}</td>
-                  <td style={s.td}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <div style={{ width: 60, height: 6, background: '#e2e8f0', borderRadius: 3 }}>
-                        <div style={{ width: `${m.accuracy * 100}%`, height: 6, background: m.accuracy > 0.9 ? '#16a34a' : m.accuracy > 0.8 ? '#f59e0b' : '#dc2626', borderRadius: 3 }} />
-                      </div>
-                      <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{Math.round(m.accuracy * 100)}%</span>
-                    </div>
-                  </td>
-                  <td style={s.td}>
-                    <span style={{
-                      ...s.badge,
-                      background: m.status === 'verified' ? '#dcfce7' : m.status === 'unverified' ? '#fef3c7' : '#fee2e2',
-                      color: m.status === 'verified' ? '#16a34a' : m.status === 'unverified' ? '#d97706' : '#dc2626',
-                    }}>
-                      {m.status === 'verified' ? t('dictionary.verified') : m.status === 'unverified' ? t('dictionary.unverified') : t('dictionary.conflict')}
-                    </span>
-                  </td>
-                  <td style={s.td}><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{m.lastVerified}</span></td>
-                </tr>
-              ))}
-            </tbody>
-          </table></div>
+          <DataTable<MappingEntry>
+            columns={mappingColumns}
+            dataSource={filteredMappings}
+            rowKey="id"
+          />
           <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text-secondary)' }}>{t('dictionary.mappingsTotal', { count: filteredMappings.length })}</div>
         </div>
       </div>
@@ -1027,6 +1031,94 @@ export default function DictionaryPage() {
     const dictVersions = versions.filter(v => v.dictionaryId === selectedDict)
     const dictOptions = [...new Set(versions.map(v => v.dictionaryId))]
 
+    const versionColumns: TableColumnsType<VersionEntry> = [
+      { title: t('dictionary.versionNumber'), dataIndex: 'version', key: 'version', render: (v: string) => <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#1e40af' }}>{v}</span> },
+      {
+        title: t('dictionary.status'), dataIndex: 'status', key: 'status',
+        render: (v: VersionEntry['status']) => (
+          <span style={{
+            ...s.badge,
+            background: v === 'published' ? '#dcfce7' : v === 'review' ? '#fef3c7' : '#f1f5f9',
+            color: v === 'published' ? '#16a34a' : v === 'review' ? '#d97706' : '#94a3b8',
+          }}>
+            {v === 'published' ? t('dictionary.published') : v === 'review' ? t('dictionary.reviewing') : t('dictionary.draft')}
+          </span>
+        ),
+      },
+      { title: t('dictionary.changedBy'), dataIndex: 'changedBy', key: 'changedBy', render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v}</span> },
+      { title: t('dictionary.changedAt'), dataIndex: 'changedAt', key: 'changedAt', render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v}</span> },
+      { title: t('dictionary.changeDesc'), dataIndex: 'changes', key: 'changes', render: (v: string) => <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v}</span> },
+      {
+        title: t('dictionary.actions'), key: 'actions',
+        render: (_v: unknown, v: VersionEntry) => (
+          <div style={{ display: 'flex', gap: 4 }}>
+            <button style={s.btnIcon} onClick={() => setDiffView(diffView === v.id ? null : v.id)}>
+              <Eye size={14} /> {diffView === v.id ? t('dictionary.collapse') : t('dictionary.view')}
+            </button>
+            {v.status === 'draft' && (
+              <button style={{ ...s.btnPrimary, padding: '6px 10px', minHeight: 32 }}
+                onClick={async () => {
+                  try {
+                    const payload: TermUpdatePayload = { status: 'review' };
+                    const res = await termApi.update(v.id, payload);
+                    if (res.success) {
+                      message.success(t('w9a.dictionary.versionSubmittedReview', { version: v.version }));
+                    } else {
+                      message.error(res.error?.message || t('dictionary.submitReviewFailed'));
+                    }
+                  } catch (e: any) {
+                    message.error(t('w9a.dictionary.submitReviewFailedPrefix') + (e?.message || String(e)));
+                  }
+                }}
+              >
+                <Shield size={14} /> {t('dictionary.submitReview')}
+              </button>
+            )}
+            {v.status === 'review' && (
+              <button style={{ ...s.btnPrimary, background: '#16a34a', padding: '6px 10px', minHeight: 32 }}
+                onClick={async () => {
+                  try {
+                    const payload: TermUpdatePayload = { status: 'published' };
+                    const res = await termApi.update(v.id, payload);
+                    if (res.success) {
+                      message.success(t('w9a.dictionary.versionApprovedPublished', { version: v.version }));
+                    } else {
+                      message.error(res.error?.message || t('dictionary.publishFailed'));
+                    }
+                  } catch (e: any) {
+                    message.error(t('w9a.dictionary.publishFailedPrefix') + (e?.message || String(e)));
+                  }
+                }}
+              >
+                <CheckCircle2 size={14} /> {t('dictionary.approvePublish')}
+              </button>
+            )}
+            {v.status === 'published' && (
+              <button
+                style={{ ...s.btnIcon, color: '#d97706' }}
+                onClick={async () => {
+                  try {
+                    const payload: TermUpdatePayload = { ...v.snapshot, notes: `已回滚到 ${v.version} @ ${new Date().toISOString()}` };
+                    const res = await termApi.update(v.id, payload);
+                    if (res.success) {
+                      message.success(`已回滚字典版本 ${v.version}`);
+                      setDictionaries(prev => prev.map(d => d.id === v.dictionaryId ? { ...d, ...(v.snapshot as Partial<DictionaryItem>) } : d));
+                    } else {
+                      message.error(res.error?.message || t('dictionary.rollbackFailed'));
+                    }
+                  } catch (e: any) {
+                    message.error(t('w9a.dictionary.rollbackFailedPrefix') + (e?.message || String(e)));
+                  }
+                }}
+              >
+                <RotateCcw size={14} /> {t('dictionary.rollback')}
+              </button>
+            )}
+          </div>
+        ),
+      },
+    ]
+
     return (
       <div>
         <div style={s.chartCard}>
@@ -1037,103 +1129,11 @@ export default function DictionaryPage() {
             </select>
             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('dictionary.versionsTotal', { count: dictVersions.length })}</span>
           </div>
-          <div style={{ overflowX: "auto" }}><table style={s.table}>
-            <thead>
-              <tr>
-                <th style={s.th}>{t('dictionary.versionNumber')}</th>
-                <th style={s.th}>{t('dictionary.status')}</th>
-                <th style={s.th}>{t('dictionary.changedBy')}</th>
-                <th style={s.th}>{t('dictionary.changedAt')}</th>
-                <th style={s.th}>{t('dictionary.changeDesc')}</th>
-                <th style={s.th}>{t('dictionary.actions')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {dictVersions.map(v => (
-                <tr key={v.id}>
-                  <td style={s.td}><span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#1e40af' }}>{v.version}</span></td>
-                  <td style={s.td}>
-                    <span style={{
-                      ...s.badge,
-                      background: v.status === 'published' ? '#dcfce7' : v.status === 'review' ? '#fef3c7' : '#f1f5f9',
-                      color: v.status === 'published' ? '#16a34a' : v.status === 'review' ? '#d97706' : '#94a3b8',
-                    }}>
-                      {v.status === 'published' ? t('dictionary.published') : v.status === 'review' ? t('dictionary.reviewing') : t('dictionary.draft')}
-                    </span>
-                  </td>
-                  <td style={s.td}><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v.changedBy}</span></td>
-                  <td style={s.td}><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v.changedAt}</span></td>
-                  <td style={s.td}><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v.changes}</span></td>
-                  <td style={s.td}>
-                    <div style={{ display: 'flex', gap: 4 }}>
-                      <button style={s.btnIcon} onClick={() => setDiffView(diffView === v.id ? null : v.id)}>
-                        <Eye size={14} /> {diffView === v.id ? t('dictionary.collapse') : t('dictionary.view')}
-                      </button>
-                      {v.status === 'draft' && (
-                        <button style={{ ...s.btnPrimary, padding: '6px 10px', minHeight: 32 }}
-                          onClick={async () => {
-                            try {
-                              const payload: TermUpdatePayload = { status: 'review' };
-                              const res = await termApi.update(v.id, payload);
-                              if (res.success) {
-                                message.success(t('w9a.dictionary.versionSubmittedReview', { version: v.version }));
-                              } else {
-                                message.error(res.error?.message || t('dictionary.submitReviewFailed'));
-                              }
-                            } catch (e: any) {
-                              message.error(t('w9a.dictionary.submitReviewFailedPrefix') + (e?.message || String(e)));
-                            }
-                          }}
-                        >
-                          <Shield size={14} /> {t('dictionary.submitReview')}
-                        </button>
-                      )}
-                      {v.status === 'review' && (
-                        <button style={{ ...s.btnPrimary, background: '#16a34a', padding: '6px 10px', minHeight: 32 }}
-                          onClick={async () => {
-                            try {
-                              const payload: TermUpdatePayload = { status: 'published' };
-                              const res = await termApi.update(v.id, payload);
-                              if (res.success) {
-                                message.success(t('w9a.dictionary.versionApprovedPublished', { version: v.version }));
-                              } else {
-                                message.error(res.error?.message || t('dictionary.publishFailed'));
-                              }
-                            } catch (e: any) {
-                              message.error(t('w9a.dictionary.publishFailedPrefix') + (e?.message || String(e)));
-                            }
-                          }}
-                        >
-                          <CheckCircle2 size={14} /> {t('dictionary.approvePublish')}
-                        </button>
-                      )}
-                      {v.status === 'published' && (
-                        <button
-                          style={{ ...s.btnIcon, color: '#d97706' }}
-                          onClick={async () => {
-                            try {
-                              const payload: TermUpdatePayload = { ...v.snapshot, notes: `已回滚到 ${v.version} @ ${new Date().toISOString()}` };
-                              const res = await termApi.update(v.id, payload);
-                              if (res.success) {
-                                message.success(`已回滚字典版本 ${v.version}`);
-                                setDictionaries(prev => prev.map(d => d.id === v.dictionaryId ? { ...d, ...(v.snapshot as Partial<DictionaryItem>) } : d));
-                              } else {
-                                message.error(res.error?.message || t('dictionary.rollbackFailed'));
-                              }
-                            } catch (e: any) {
-                              message.error(t('w9a.dictionary.rollbackFailedPrefix') + (e?.message || String(e)));
-                            }
-                          }}
-                        >
-                          <RotateCcw size={14} /> {t('dictionary.rollback')}
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table></div>
+          <DataTable<VersionEntry>
+            columns={versionColumns}
+            dataSource={dictVersions}
+            rowKey="id"
+          />
           {diffView && (
             <div style={{ marginTop: 12, background: 'var(--content-bg)', borderRadius: 8, padding: 12, border: '1px solid var(--border-color)' }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>{t('dictionary.diffViewTitle')}</div>
@@ -1227,7 +1227,7 @@ export default function DictionaryPage() {
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.getElementById('importFileInput')?.click() } }}
                   >
                     <FileSpreadsheet size={32} color="var(--text-secondary)" style={{ marginBottom: 8 }} />
-                    <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{t('dictionary.clickSelectFile')}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('dictionary.clickSelectFile')}</div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('dictionary.supportedFormats')}</div>
                     <input id="importFileInput" type="file" accept=".csv,.xlsx,.json" style={{ display: 'none' }} onChange={e => { setImportFile(e.target.files?.[0] || null) }} />
                   </div>
@@ -1273,7 +1273,7 @@ export default function DictionaryPage() {
                   <div style={{ background: importResult.errors > 0 ? '#fef3c7' : '#dcfce7', borderRadius: 8, padding: '12px 14px', marginBottom: 12 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                       {importResult.errors > 0 ? <AlertTriangle size={15} color="#d97706" /> : <CheckCircle2 size={15} color="#16a34a" />}
-                      <span style={{ fontSize: 13, fontWeight: 600, color: importResult.errors > 0 ? '#92400e' : '#166534' }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: importResult.errors > 0 ? '#92400e' : '#166534' }}>
                         {t('dictionary.importDone', { success: importResult.success, errors: importResult.errors })}
                       </span>
                     </div>
@@ -1336,7 +1336,7 @@ export default function DictionaryPage() {
                     <div style={{ fontSize: 12, fontWeight: 600, color: '#1e40af' }}>{u.termName}</div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{u.department}</div>
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#059669' }}>{u.usageCount}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#059669' }}>{u.usageCount}</span>
                 </div>
               ))}
             </div>
@@ -1409,21 +1409,21 @@ export default function DictionaryPage() {
           <div style={s.statCard}>
             <BookOpen size={15} color="var(--text-secondary)" />
             <div>
-              <div style={{ fontSize: 15, fontWeight: 800, color: '#1e40af' }}>{stats.total}</div>
+              <div style={{ fontSize: 14, fontWeight: 800, color: '#1e40af' }}>{stats.total}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('dictionary.entries')}</div>
             </div>
           </div>
           <div style={s.statCard}>
             <Activity size={15} color="#16a34a" />
             <div>
-              <div style={{ fontSize: 15, fontWeight: 800, color: '#16a34a' }}>{stats.active}</div>
+              <div style={{ fontSize: 14, fontWeight: 800, color: '#16a34a' }}>{stats.active}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('dictionary.statusActive')}</div>
             </div>
           </div>
           <div style={s.statCard}>
             <Filter size={15} color="#7c3aed" />
             <div>
-              <div style={{ fontSize: 15, fontWeight: 800, color: '#7c3aed' }}>{stats.catCount}</div>
+              <div style={{ fontSize: 14, fontWeight: 800, color: '#7c3aed' }}>{stats.catCount}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('dictionary.categoryCount')}</div>
             </div>
           </div>
@@ -1530,7 +1530,7 @@ export default function DictionaryPage() {
                       </div>
                     </div>
                     <div style={{ ...s.formGroup, ...s.formGroupFull }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: 'var(--text-secondary)' }} onClick={() => handleField('isActive', !editingDictionary.isActive)}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: 'var(--text-secondary)' }} onClick={() => handleField('isActive', !editingDictionary.isActive)}>
                         <div style={{ width: 16, height: 16, borderRadius: 4, border: `2px solid ${editingDictionary.isActive ? '#16a34a' : '#cbd5e1'}`, background: editingDictionary.isActive ? '#16a34a' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           {editingDictionary.isActive && <span style={{ color: '#fff', fontSize: 12 }}></span>}
                         </div>

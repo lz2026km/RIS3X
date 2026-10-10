@@ -224,7 +224,7 @@ const AiTriagePage: React.FC = () => {
             ))}
           </Card>
           <Card size="small" title={t('aiTriage.reasoning')} style={{ marginBottom: 16 }}>
-            <p style={{ color: '#666', fontSize: 13, margin: 0 }}>{selectedItem.reasoning}</p>
+            <p style={{ color: '#666', fontSize: 12, margin: 0 }}>{selectedItem.reasoning}</p>
           </Card>
           <Space wrap>
             {selectedItem.suggestedDoctor && <Tag icon={<UserCheck size={12} />} color="purple">{t('aiTriage.suggestAssign')}: {selectedItem.suggestedDoctor}</Tag>}

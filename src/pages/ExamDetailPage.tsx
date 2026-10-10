@@ -228,7 +228,7 @@ export default function ExamDetailPage() {
             borderRadius: 8,
             background: "rgba(255,255,255,0.12)",
             color: "#fff",
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: 600,
             cursor: "pointer",
           }}
@@ -263,7 +263,7 @@ export default function ExamDetailPage() {
             borderRadius: 8,
             background: "rgba(255,255,255,0.12)",
             color: "#fff",
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: 600,
             cursor: exam ? "pointer" : "not-allowed",
             opacity: exam ? 1 : 0.5,
@@ -287,7 +287,7 @@ export default function ExamDetailPage() {
             borderRadius: 8,
             background: "rgba(255,255,255,0.12)",
             color: "#fff",
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: 600,
             cursor: exam ? "pointer" : "not-allowed",
             opacity: exam ? 1 : 0.5,
@@ -307,7 +307,7 @@ export default function ExamDetailPage() {
             justifyContent: "center",
             gap: 8,
             color: "var(--text-secondary)",
-            fontSize: 13,
+            fontSize: 12,
           }}
         >
           <MonitorPlay size={18} /> 正在加载检查详情...
@@ -322,7 +322,7 @@ export default function ExamDetailPage() {
             justifyContent: "center",
             gap: 12,
             color: "#dc2626",
-            fontSize: 13,
+            fontSize: 12,
           }}
         >
           <div>{loadError ?? "检查详情不可用"}</div>
@@ -387,7 +387,7 @@ export default function ExamDetailPage() {
                         <div key={`${ev.type}-${i}`} style={{ position: "relative", paddingBottom: 14 }}>
                           <div style={{ position: "absolute", left: -20, top: 3, width: 10, height: 10, borderRadius: "50%", background: color, boxShadow: `0 0 0 3px ${color}22` }} />
                           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>{ev.label}</span>
+                            <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>{ev.label}</span>
                             {ev.actor && <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>{ev.actor}</span>}
                             <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-muted, #94a3b8)", fontFamily: "monospace" }}>
                               {String(ev.timestamp).slice(0, 16).replace("T", " ")}
@@ -418,7 +418,7 @@ export default function ExamDetailPage() {
                 <button
                   onClick={() => void handleSaveNotes()}
                   disabled={savingNote}
-                  style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 6, border: "none", background: "#1e40af", color: "#fff", fontSize: 13, fontWeight: 600, cursor: savingNote ? "not-allowed" : "pointer", opacity: savingNote ? 0.6 : 1 }}
+                  style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 6, border: "none", background: "#1e40af", color: "#fff", fontSize: 12, fontWeight: 600, cursor: savingNote ? "not-allowed" : "pointer", opacity: savingNote ? 0.6 : 1 }}
                 >
                   <Send size={13} /> {savingNote ? t("examPage.savingNotes") : t("examPage.saveNotes")}
                 </button>

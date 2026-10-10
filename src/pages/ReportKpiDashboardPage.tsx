@@ -303,7 +303,7 @@ export default function ReportKpiDashboardPage() {
       </KpiCardGrid>
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)', marginTop: 12 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
           <BarChart3 size={13} /> {t('w1tables.kpi.title')}
         </div>
         <DataTable dataSource={kpiRows} rowKey="kpiId" columns={kpiColumns} pagination={{ pageSize: 20, showSizeChanger: false }} emptyText={t('w1tables.noData')} />

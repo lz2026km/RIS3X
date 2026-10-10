@@ -186,14 +186,14 @@ const KanbanCard = React.memo(function KanbanCard({
                 <div style={{ width: 5, height: 5, borderRadius: '50%', background: sla.color }} />
                 {sla.elapsedMinutes}m
               </span>
-              <span style={{ fontSize: 8, padding: '1px 4px', borderRadius: 2, background: autoPri.bg, color: autoPri.color, fontWeight: 600 }}>
+              <span style={{ fontSize: 10, padding: '1px 4px', borderRadius: 2, background: autoPri.bg, color: autoPri.color, fontWeight: 600 }}>
                 {autoPri.level}
               </span>
               {smart && (
                 <span
                   title={`AI 评分 ${smart.score.toFixed(1)} / 100 · ${smart.reasons.join('; ')}`}
                   data-testid="smart-priority-badge"
-                  style={{ fontSize: 8, padding: '1px 4px', borderRadius: 2, background: smartBg, color: smartColor, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 2 }}
+                  style={{ fontSize: 10, padding: '1px 4px', borderRadius: 2, background: smartBg, color: smartColor, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 2 }}
                 >
                   <Sparkles size={8} /> AI {smartLabel} {smart.score.toFixed(0)}
                 </span>

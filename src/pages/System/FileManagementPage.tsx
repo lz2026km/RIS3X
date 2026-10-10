@@ -10,7 +10,7 @@ import {
   filesApi, isSupportedFile, sha256Hex,
   type UploadedFileRecord,
 } from '../../services/api/filesApi'
-import { PageContainer, PageHeader } from '../../components/common'
+import { DataTable, PageContainer, PageHeader } from '../../components/common'
 
 const C = {
   primary: '#1a365d',
@@ -220,7 +220,7 @@ export default function FileManagementPage() {
             background: '#ebf4ff',
             color: C.primaryLight,
             cursor: 'pointer',
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: 600,
           }}>
             <FolderOpen size={16} />
@@ -304,61 +304,52 @@ export default function FileManagementPage() {
             <div>暂无上传记录，请选择文件上传</div>
           </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-              <thead>
-                <tr style={{ borderBottom: `2px solid ${C.border}`, background: C.bg }}>
-                  {['文件名', '类型', '大小', '上传时间', '校验和', '操作'].map((h) => (
-                    <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: C.textMid, fontSize: 12, whiteSpace: 'nowrap' }}>
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {files.map((f, idx) => (
-                  <tr
-                    key={f.id}
-                    style={{ borderBottom: `1px solid ${C.border}`, background: idx % 2 === 0 ? C.white : C.bg }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = '#f0f7ff')}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = idx % 2 === 0 ? C.white : C.bg)}
+          <DataTable
+            rowKey="id"
+            dataSource={files}
+            columns={[
+              {
+                title: '文件名',
+                dataIndex: 'name',
+                key: 'name',
+                render: (v: string) => (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: C.textDark }}>
+                    <FileText size={15} color={C.primaryLighter} /> {v}
+                  </span>
+                ),
+              },
+              { title: '类型', dataIndex: 'contentType', key: 'contentType', render: (v: string) => <span style={{ color: C.textMid }}>{v}</span> },
+              { title: '大小', dataIndex: 'size', key: 'size', render: (v: number) => <span style={{ color: C.textDark }}>{formatSize(v)}</span> },
+              { title: '上传时间', dataIndex: 'uploadedAt', key: 'uploadedAt', render: (v: string) => <span style={{ color: C.textMid, whiteSpace: 'nowrap' }}>{formatTime(v)}</span> },
+              { title: '校验和', dataIndex: 'checksum', key: 'checksum', render: (v: string) => <span style={{ color: C.textLight, fontFamily: 'monospace', fontSize: 12 }}>{shortChecksum(v)}</span> },
+              {
+                title: '操作',
+                key: 'actions',
+                render: (_v, f) => (
+                  <button
+                    onClick={() => handleDownload(f)}
+                    disabled={busy}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '6px 14px',
+                      borderRadius: 6,
+                      border: 'none',
+                      background: C.primaryLight,
+                      color: C.white,
+                      cursor: busy ? 'not-allowed' : 'pointer',
+                      fontSize: 12,
+                      opacity: busy ? 0.6 : 1,
+                    }}
                   >
-                    <td style={{ padding: '10px 12px', color: C.textDark }}>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                        <FileText size={15} color={C.primaryLighter} /> {f.name}
-                      </span>
-                    </td>
-                    <td style={{ padding: '10px 12px', color: C.textMid }}>{f.contentType}</td>
-                    <td style={{ padding: '10px 12px', color: C.textDark }}>{formatSize(f.size)}</td>
-                    <td style={{ padding: '10px 12px', color: C.textMid, whiteSpace: 'nowrap' }}>{formatTime(f.uploadedAt)}</td>
-                    <td style={{ padding: '10px 12px', color: C.textLight, fontFamily: 'monospace', fontSize: 12 }}>{shortChecksum(f.checksum)}</td>
-                    <td style={{ padding: '10px 12px' }}>
-                      <button
-                        onClick={() => handleDownload(f)}
-                        disabled={busy}
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 6,
-                          padding: '6px 14px',
-                          borderRadius: 6,
-                          border: 'none',
-                          background: C.primaryLight,
-                          color: C.white,
-                          cursor: busy ? 'not-allowed' : 'pointer',
-                          fontSize: 13,
-                          opacity: busy ? 0.6 : 1,
-                        }}
-                      >
-                        {downloadingId === f.id ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
-                        下载
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    {downloadingId === f.id ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+                    下载
+                  </button>
+                ),
+              },
+            ]}
+          />
         )}
       </div>
     </PageContainer>
@@ -409,7 +400,7 @@ const sectionTitle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   gap: 8,
-  fontSize: 15,
+  fontSize: 14,
   fontWeight: 700,
   color: C.textDark,
   marginBottom: 12,
@@ -422,7 +413,7 @@ const errorBanner: React.CSSProperties = {
   background: 'var(--color-error-bg)',
   border: `1px solid #fecaca`,
   color: C.danger,
-  fontSize: 13,
+  fontSize: 12,
   display: 'flex',
   alignItems: 'center',
   gap: 8,
@@ -439,7 +430,7 @@ function btnPrimary(disabled: boolean): React.CSSProperties {
     background: C.primary,
     color: C.white,
     cursor: disabled ? 'not-allowed' : 'pointer',
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: 600,
     opacity: disabled ? 0.6 : 1,
   }
@@ -456,7 +447,7 @@ function btnSecondary(disabled: boolean): React.CSSProperties {
     background: C.white,
     color: C.textMid,
     cursor: disabled ? 'not-allowed' : 'pointer',
-    fontSize: 13,
+    fontSize: 12,
     opacity: disabled ? 0.5 : 1,
   }
 }

@@ -42,7 +42,7 @@ export function StatCard({ label, value, icon, color, sub, onClick }: ReportStat
         <div style={{ color }}>{icon}</div>
       </div>
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 26, fontWeight: 700, color: PRIMARY, lineHeight: 1, marginBottom: 3 }}>{value}</div>
+        <div style={{ fontSize: 24, fontWeight: 700, color: PRIMARY, lineHeight: 1, marginBottom: 3 }}>{value}</div>
         <div style={{ fontSize: 12, color: GRAY, fontWeight: 500 }}>{label}</div>
         {sub && <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{sub}</div>}
       </div>

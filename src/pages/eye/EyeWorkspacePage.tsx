@@ -199,7 +199,7 @@ const EyeWorkspacePage: React.FC = () => {
                 color: '#fff',
                 border: 'none',
                 borderRadius: 6,
-                fontSize: 13,
+                fontSize: 12,
                 cursor: 'pointer',
               }}
             >

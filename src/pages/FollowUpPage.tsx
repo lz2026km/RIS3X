@@ -791,7 +791,7 @@ export default function FollowUpPage() {
   };
 
   const statValueStyle: React.CSSProperties = {
-    fontSize: '32px',
+    fontSize: '30px',
     fontWeight: '600',
     color: '#1890ff'
   };
@@ -1262,20 +1262,20 @@ export default function FollowUpPage() {
         </div>
 
         {reminderLoading && !reminderQueue ? (
-          <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-secondary)', fontSize: 13 }}>
+          <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-secondary)', fontSize: 12 }}>
             <Loader2 size={14} style={{ verticalAlign: 'text-bottom' }} /> {t('followup.reminderQueue.loading')}
           </div>
         ) : reminderError ? (
           <div style={{
             padding: '12px 16px', borderRadius: 8, backgroundColor: 'var(--color-error-bg)',
-            border: '1px solid #ffa39e', fontSize: 13, color: '#cf1322',
+            border: '1px solid #ffa39e', fontSize: 12, color: '#cf1322',
             display: 'flex', alignItems: 'center', gap: 8,
           }}>
             <AlertTriangle size={14} /> {reminderError}
             <button style={{ ...cancelButtonStyle, padding: '2px 10px', fontSize: 12 }} onClick={() => void loadReminderQueue()}>{t('followup.reminderQueue.retry')}</button>
           </div>
         ) : !reminderQueue || reminderQueue.total === 0 ? (
-          <div style={{ textAlign: 'center', padding: 24, color: 'var(--text-secondary)', fontSize: 13, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+          <div style={{ textAlign: 'center', padding: 24, color: 'var(--text-secondary)', fontSize: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
             <CheckCircle size={26} color="#52c41a" />
             {t('followup.reminderQueue.empty')}
           </div>
@@ -1288,7 +1288,7 @@ export default function FollowUpPage() {
             ] as Array<{ key: string; label: string; count: number; color: string; list: FollowUpPlan[] }>).map(g => (
               <div key={g.key} style={{ border: '1px solid var(--border-color)', borderRadius: 8, padding: 12, background: 'var(--bg-card)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: g.color }}>{g.label}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: g.color }}>{g.label}</span>
                   <span style={{ fontSize: 18, fontWeight: 700, color: g.color }}>{g.count}</span>
                 </div>
                 {g.list.length === 0 ? (
@@ -1337,7 +1337,7 @@ export default function FollowUpPage() {
         <div style={{
           marginBottom: '16px', padding: '12px 16px', borderRadius: '8px',
           backgroundColor: '#f9731622', border: '1px solid #ffd591',
-          fontSize: '13px', color: '#ad6800'
+          fontSize: '12px', color: '#ad6800'
         }}>
           <strong><BellRing size={14} style={{ verticalAlign: 'text-bottom' }} /> {t('followUp.dueBanner', { count: dueList.length })}</strong>
           {dueList.slice(0, 5).map(p => `${p.patientName}(${p.nextDate.slice(0, 10)})`).join('、')}
@@ -1355,7 +1355,7 @@ export default function FollowUpPage() {
         <div style={{
           marginBottom: '16px', padding: '12px 16px', borderRadius: '8px',
           backgroundColor: 'var(--color-error-bg)', border: '1px solid #ffa39e',
-          fontSize: '13px', color: '#cf1322'
+          fontSize: '12px', color: '#cf1322'
         }}>
           <AlertTriangle size={14} style={{ verticalAlign: 'text-bottom' }} /> {loadError}
         </div>
@@ -1390,7 +1390,7 @@ export default function FollowUpPage() {
             key={key}
             onClick={() => setViewMode(key)}
             style={{
-              padding: '7px 16px', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 600,
+              padding: '7px 16px', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600,
               background: viewMode === key ? '#1890ff' : 'var(--bg-card)',
               color: viewMode === key ? '#fff' : 'var(--text-secondary)',
               border: `1px solid ${viewMode === key ? '#1890ff' : 'var(--border-color)'}`,
@@ -1408,7 +1408,7 @@ export default function FollowUpPage() {
       {viewMode === 'calendar' && (
         <div style={{ ...tableStyle, padding: 16, marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-            <div style={{ fontSize: 15, fontWeight: 600, color: '#1a1a1a' }}>{t('followUp.calendarTitle', { month: calendarMonth })}</div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a' }}>{t('followUp.calendarTitle', { month: calendarMonth })}</div>
             <div style={{ display: 'flex', gap: 8 }}>
               <button
                 style={actionButtonStyle}
@@ -1489,7 +1489,7 @@ export default function FollowUpPage() {
                             </span>
                           ))}
                           {plans.length > 3 && (
-                            <span style={{ fontSize: 9, color: 'var(--text-secondary)' }}>+{plans.length - 3} {t('followUp.itemSuffix')}</span>
+                            <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>+{plans.length - 3} {t('followUp.itemSuffix')}</span>
                           )}
                         </div>
                       </>
@@ -1517,7 +1517,7 @@ export default function FollowUpPage() {
       {viewMode === 'grouped' && (
         <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
           {groupedByPatient.length === 0 && (
-            <div style={{ textAlign: 'center', padding: 32, color: 'var(--text-secondary)', fontSize: 13 }}>{t('followUp.noMatchPlans')}</div>
+            <div style={{ textAlign: 'center', padding: 32, color: 'var(--text-secondary)', fontSize: 12 }}>{t('followUp.noMatchPlans')}</div>
           )}
           {groupedByPatient.map(g => {
             const expanded = expandedPatients.has(g.patientId)
@@ -1540,7 +1540,7 @@ export default function FollowUpPage() {
                     width: 38, height: 38, borderRadius: '50%', flexShrink: 0,
                     background: 'linear-gradient(135deg, #1890ff, #36cfc9)',
                     color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 15, fontWeight: 700,
+                    fontSize: 14, fontWeight: 700,
                   }}>
                     {g.patientName.slice(0, 1)}
                   </div>
@@ -1582,7 +1582,7 @@ export default function FollowUpPage() {
                         borderBottom: '1px solid var(--border-color)',
                       }}>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>
+                          <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)' }}>
                             {item.notes || item.followUpType || t('followUp.planLabel')}
                             {item.examType && <span style={{ marginLeft: 8, fontSize: 11, color: 'var(--text-secondary)' }}>{item.examType}</span>}
                           </div>
@@ -1779,7 +1779,7 @@ export default function FollowUpPage() {
             {newPlan.examId && (
               <div style={formGroupStyle}>
                 <label style={labelStyle}>{t('followUp.sourceExam')}</label>
-                <div style={{ fontSize: '13px', color: '#1677ff', background: '#e6f4ff', padding: '8px 12px', borderRadius: '4px' }}>
+                <div style={{ fontSize: '12px', color: '#1677ff', background: '#e6f4ff', padding: '8px 12px', borderRadius: '4px' }}>
                   examId: {newPlan.examId}
                 </div>
               </div>
@@ -1787,7 +1787,7 @@ export default function FollowUpPage() {
             {newPlan.reportId && (
               <div style={formGroupStyle}>
                 <label style={labelStyle}>{t('followUp.sourceReport')}</label>
-                <div style={{ fontSize: '13px', color: '#1677ff', background: '#e6f4ff', padding: '8px 12px', borderRadius: '4px' }}>
+                <div style={{ fontSize: '12px', color: '#1677ff', background: '#e6f4ff', padding: '8px 12px', borderRadius: '4px' }}>
                   reportId: {newPlan.reportId}
                 </div>
               </div>
@@ -1841,7 +1841,7 @@ export default function FollowUpPage() {
               <div style={{
                 marginBottom: '12px', padding: '10px 14px', borderRadius: '6px',
                 backgroundColor: 'var(--color-error-bg)', border: '1px solid #ffa39e',
-                fontSize: '13px', color: '#cf1322'
+                fontSize: '12px', color: '#cf1322'
               }}>
                 <AlertTriangle size={13} style={{ verticalAlign: 'text-bottom' }} /> {tplError}
               </div>
@@ -1928,7 +1928,7 @@ export default function FollowUpPage() {
 
             {/* 模板列表 */}
             {tplLoading && !templates.length ? (
-              <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '13px' }}>
+              <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '12px' }}>
                 <Loader2 size={14} style={{ verticalAlign: 'text-bottom' }} /> {t('followUp.loadingTemplates')}
               </div>
             ) : (
@@ -1965,7 +1965,7 @@ export default function FollowUpPage() {
                   </div>
                 ))}
                 {templates.length === 0 && (
-                  <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '13px' }}>
+                  <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '12px' }}>
                     {t('followUp.noTemplates')}
                   </div>
                 )}

@@ -274,7 +274,7 @@ const s = {
   measureItem: { display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: 'var(--bg-primary)', borderRadius: 8, marginBottom: 6, border: '1px solid var(--border-color)' } as React.CSSProperties,
   measureItemColor: { width: 10, height: 10, borderRadius: '50%', flexShrink: 0 } as React.CSSProperties,
   measureItemInfo: { flex: 1, minWidth: 0 } as React.CSSProperties,
-  measureItemValue: { fontSize: 13, fontWeight: 700, color: 'var(--text-primary, #1e293b)' } as React.CSSProperties,
+  measureItemValue: { fontSize: 12, fontWeight: 700, color: 'var(--text-primary, #1e293b)' } as React.CSSProperties,
   measureItemType: { fontSize: 12, color: 'var(--text-muted, #94a3b8)', textTransform: 'capitalize' as const } as React.CSSProperties,
   measureListItem: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))' } as React.CSSProperties,
   measureListItemLeft: { display: 'flex', alignItems: 'center', gap: 8 } as React.CSSProperties,

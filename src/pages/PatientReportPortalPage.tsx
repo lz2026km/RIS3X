@@ -432,7 +432,7 @@ export default function PatientReportPortalPage() {
                 {(educationDetail.category ? `${t('patientPortal.categoryLabel')}: ${educationDetail.category} · ` : '') + (educationDetail.contentType ? `${t('patientPortal.typeLabel')}: ${educationDetail.contentType}` : '')}
               </span>
             </div>
-            <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.8, whiteSpace: 'pre-wrap', maxHeight: 360, overflowY: 'auto' }}>
+            <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.8, whiteSpace: 'pre-wrap', maxHeight: 360, overflowY: 'auto' }}>
               {educationDetail.content ?? educationDetail.value ?? t('patientPortal.noContent')}
             </div>
             {educationDetail.updatedAt && <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-secondary)' }}>{t('patientPortal.updated')}: {String(educationDetail.updatedAt).slice(0, 10)}</div>}
@@ -726,6 +726,6 @@ const InfoCell: React.FC<{ icon: any; label: string; value: number | string; col
 const DetailBlock: React.FC<{ label: string; value: string }> = ({ label, value }) => (
   <div style={{ marginBottom: 10 }}>
     <div style={{ fontSize: 12, fontWeight: 600, color: '#1e40af', marginBottom: 4 }}>{label}</div>
-    <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.7, background: 'var(--bg-card)', padding: 8, borderRadius: 6, border: '1px solid var(--border-color)', whiteSpace: 'pre-wrap' }}>{value}</div>
+    <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.7, background: 'var(--bg-card)', padding: 8, borderRadius: 6, border: '1px solid var(--border-color)', whiteSpace: 'pre-wrap' }}>{value}</div>
   </div>
 );

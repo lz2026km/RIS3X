@@ -6,6 +6,7 @@ import {
   Grid3x3, Calendar, AlertTriangle, RefreshCw
 } from 'lucide-react'
 import { oeeApi } from '../services/api/oeeApi'
+import { DataTable } from '../components/common'
 import { biApi } from '../services/api/biApi'
 import { statsApi } from '../services/api/statsApi'
 import { deviceMgmtApi } from '../services/api/deviceMgmtApi'
@@ -560,7 +561,7 @@ const HeatmapChart: React.FC = () => {
             pointerEvents: 'none',
           }}
         >
-          <p style={{ margin: 0, color: C.textDark, fontWeight: 600, fontSize: 13 }}>{tooltip.data.deviceName}</p>
+          <p style={{ margin: 0, color: C.textDark, fontWeight: 600, fontSize: 12 }}>{tooltip.data.deviceName}</p>
           <p style={{ margin: '4px 0 0', color: C.textLight, fontSize: 12 }}>{tooltip.data.date}</p>
           <p style={{ margin: '6px 0 0', color: C.primary, fontSize: 14, fontWeight: 600 }}>
             {t('equipEfficiency.usage')}: {tooltip.data.utilization}%
@@ -702,7 +703,7 @@ const BookingRateChart: React.FC = () => {
           {sortedData.map(item => (
             <div key={item.deviceId} style={{ textAlign: 'center' }}>
               <p style={{ margin: 0, color: C.textLight, fontSize: 12 }}>{item.deviceName}</p>
-              <p style={{ margin: '4px 0 0', color: C.primary, fontSize: 28, fontWeight: 700 }}>
+              <p style={{ margin: '4px 0 0', color: C.primary, fontSize: 30, fontWeight: 700 }}>
                 {item.fullDays}
               </p>
               <p style={{ margin: 0, color: C.textLight, fontSize: 12 }}>{t('equipEfficiency.timesFull')}</p>
@@ -796,10 +797,10 @@ const FailureStatsChart: React.FC<{ records: FailureRecord[] }> = ({ records }) 
                     backgroundColor: segment.color,
                   }}
                 />
-                <span style={{ color: C.textMid, fontSize: 13 }}>{segment.label}</span>
+                <span style={{ color: C.textMid, fontSize: 12 }}>{segment.label}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span style={{ color: C.textDark, fontSize: 15, fontWeight: 600 }}>
+                <span style={{ color: C.textDark, fontSize: 14, fontWeight: 600 }}>
                   {segment.value} {t('equipEfficiency.units')}
                 </span>
                 <span style={{ color: C.textLight, fontSize: 12, minWidth: 40, textAlign: 'right' }}>
@@ -818,63 +819,42 @@ const FailureStatsChart: React.FC<{ records: FailureRecord[] }> = ({ records }) 
           {t('equipEfficiency.failureRecords')}
         </h4>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-            <thead>
-              <tr style={{ borderBottom: `1px solid ${C.border}` }}>
-                <th style={{ padding: '10px 12px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.device')}</th>
-                <th style={{ padding: '10px 12px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.date')}</th>
-                <th style={{ padding: '10px 12px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.faultType')}</th>
-                <th style={{ padding: '10px 12px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.repairCost')}</th>
-                <th style={{ padding: '10px 12px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.repairDuration')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {records.map((record, idx) => (
-                <tr
-                  key={record.id}
+        <DataTable
+          dataSource={records}
+          rowKey="id"
+          pagination={false}
+          columns={[
+            { title: t('equipEfficiency.device'), dataIndex: 'deviceName', render: (v: string) => <span style={{ color: C.textDark, fontWeight: 500 }}>{v}</span> },
+            { title: t('equipEfficiency.date'), dataIndex: 'date', render: (v: string) => <span style={{ color: C.textLight, fontFamily: 'monospace', fontSize: 12 }}>{v}</span> },
+            {
+              title: t('equipEfficiency.faultType'), dataIndex: 'type',
+              render: (v: FailureRecord['type']) => (
+                <span
                   style={{
-                    borderBottom: `1px solid ${C.border}`,
-                    backgroundColor: idx % 2 === 0 ? 'transparent' : `${C.bg}40`,
+                    display: 'inline-block',
+                    padding: '3px 8px',
+                    borderRadius: 4,
+                    fontSize: 12,
+                    backgroundColor:
+                      v === '硬件故障' ? `${C.danger}20` :
+                      v === '软件故障' ? `${C.info}20` :
+                      v === '紧急维修' ? `${C.warning}20` :
+                      `${C.success}20`,
+                    color:
+                      v === '硬件故障' ? C.danger :
+                      v === '软件故障' ? C.info :
+                      v === '紧急维修' ? C.warning :
+                      C.success,
                   }}
                 >
-                  <td style={{ padding: '12px', color: C.textDark, fontWeight: 500 }}>
-                    {record.deviceName}
-                  </td>
-                  <td style={{ padding: '12px', color: C.textLight, fontFamily: 'monospace', fontSize: 12 }}>
-                    {record.date}
-                  </td>
-                  <td style={{ padding: '12px' }}>
-                    <span
-                      style={{
-                        display: 'inline-block',
-                        padding: '3px 8px',
-                        borderRadius: 4,
-                        fontSize: 12,
-                        backgroundColor:
-                          record.type === '硬件故障' ? `${C.danger}20` :
-                          record.type === '软件故障' ? `${C.info}20` :
-                          record.type === '紧急维修' ? `${C.warning}20` :
-                          `${C.success}20`,
-                        color:
-                          record.type === '硬件故障' ? C.danger :
-                          record.type === '软件故障' ? C.info :
-                          record.type === '紧急维修' ? C.warning :
-                          C.success,
-                      }}
-                    >
-                      {record.type}
-                    </span>
-                  </td>
-                  <td style={{ padding: '12px', textAlign: 'right', color: C.textDark }}>
-                    {record.cost > 0 ? '¥' + record.cost.toLocaleString() : '—'}
-                  </td>
-                  <td style={{ padding: '12px', textAlign: 'right', color: C.textDark }}>
-                    {record.duration > 0 ? record.duration + ' 小时' : '—'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  {v}
+                </span>
+              ),
+            },
+            { title: t('equipEfficiency.repairCost'), dataIndex: 'cost', align: 'right', render: (v: number) => <span style={{ color: C.textDark }}>{v > 0 ? '¥' + v.toLocaleString() : '—'}</span> },
+            { title: t('equipEfficiency.repairDuration'), dataIndex: 'duration', align: 'right', render: (v: number) => <span style={{ color: C.textDark }}>{v > 0 ? v + ' 小时' : '—'}</span> },
+          ]}
+        />
         </div>
       </div>
     </div>
@@ -1122,7 +1102,7 @@ export default function EquipmentEfficiencyPage() {
       </div>
 
       {error && (
-        <div style={{ marginBottom: 16, padding: '10px 16px', borderRadius: 8, background: '#ef444420', border: `1px solid ${C.danger}`, color: C.dangerLight, fontSize: 13 }}>
+        <div style={{ marginBottom: 16, padding: '10px 16px', borderRadius: 8, background: '#ef444420', border: `1px solid ${C.danger}`, color: C.dangerLight, fontSize: 12 }}>
           {error}
           <button onClick={() => void load()} style={{ marginLeft: 12, padding: '3px 10px', borderRadius: 4, border: `1px solid ${C.danger}`, background: 'transparent', color: C.dangerLight, cursor: 'pointer', fontSize: 12 }}>重试</button>
         </div>
@@ -1351,7 +1331,7 @@ export default function EquipmentEfficiencyPage() {
           </div>
           <div>
             <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>{t('equipEfficiency.avgOee')} {isLive && <span style={{ color: C.success }}>· {t('equipEfficiency.realtime')}</span>}</p>
-            <p style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>
+            <p style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>
               {EFFICIENCY_METRICS.avgExamTime}
               <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>%</span>
             </p>
@@ -1384,7 +1364,7 @@ export default function EquipmentEfficiencyPage() {
           </div>
           <div>
             <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>{t('equipEfficiency.maxOee')} {isLive && <span style={{ color: C.success }}>· {t('equipEfficiency.realtime')}</span>}</p>
-            <p style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>
+            <p style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>
               {EFFICIENCY_METRICS.dailyMax}
               <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>%</span>
             </p>
@@ -1417,7 +1397,7 @@ export default function EquipmentEfficiencyPage() {
           </div>
           <div>
             <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>{t('equipEfficiency.minOee')} {isLive && <span style={{ color: C.success }}>· {t('equipEfficiency.realtime')}</span>}</p>
-            <p style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>
+            <p style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>
               {EFFICIENCY_METRICS.bedTurnover}
               <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>%</span>
             </p>
@@ -1450,7 +1430,7 @@ export default function EquipmentEfficiencyPage() {
           </div>
           <div>
             <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>{t('equipEfficiency.monitoredDevices')} {isLive && <span style={{ color: C.success }}>· {t('equipEfficiency.realtime')}</span>}</p>
-            <p style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>
+            <p style={{ fontSize: 30, fontWeight: 700, color: C.textDark }}>
               {EFFICIENCY_METRICS.standbyHours}
               <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>{t('equipEfficiency.unitsShort')}</span>
             </p>
@@ -1482,7 +1462,7 @@ export default function EquipmentEfficiencyPage() {
                 padding: '10px 18px',
                 borderRadius: 8,
                 border: 'none',
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: 500,
                 cursor: 'pointer',
                 backgroundColor: isActive ? C.primary : 'transparent',
@@ -1639,122 +1619,99 @@ export default function EquipmentEfficiencyPage() {
             </div>
 
             <div style={{ overflowX: 'auto' }}>
-              <table
-                style={{
-                  width: '100%',
-                  borderCollapse: 'collapse',
-                  fontSize: 13,
-                }}
-              >
-                <thead>
-                  <tr style={{ borderBottom: `1px solid ${C.border}` }}>
-                    <th style={{ padding: '12px 16px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.rank')}</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.deviceId')}</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.deviceName')}</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.totalExams')}</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.avgUtilization')}</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.avgWaitTime')}</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'center', color: C.textLight, fontWeight: 500 }}>{t('equipEfficiency.overallScore')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {LOAD_RANKING.map((item, idx) => (
-                    <tr
-                      key={item.deviceId}
-                      style={{
-                        borderBottom: `1px solid ${C.border}`,
-                        backgroundColor: idx === 0 ? `${C.primary}08` : 'transparent',
-                      }}
-                    >
-                      <td style={{ padding: '14px 16px' }}>
+              <DataTable
+                dataSource={LOAD_RANKING}
+                rowKey="deviceId"
+                pagination={false}
+                columns={[
+                  {
+                    title: t('equipEfficiency.rank'), dataIndex: 'rank',
+                    render: (v: number, _record: (typeof LOAD_RANKING)[number], idx: number) => (
+                      <div
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: 28,
+                          height: 28,
+                          borderRadius: '50%',
+                          backgroundColor:
+                            idx === 0 ? C.primary : idx === 1 ? C.warning : idx === 2 ? C.info : C.border,
+                          color: idx < 3 ? C.bg : C.textLight,
+                          fontWeight: 600,
+                          fontSize: 12,
+                        }}
+                      >
+                        {v}
+                      </div>
+                    ),
+                  },
+                  { title: t('equipEfficiency.deviceId'), dataIndex: 'deviceId', render: (v: string) => <span style={{ color: C.textLight, fontFamily: 'monospace', fontSize: 12 }}>{v}</span> },
+                  { title: t('equipEfficiency.deviceName'), dataIndex: 'deviceName', render: (v: string) => <span style={{ color: C.textDark, fontWeight: 500 }}>{v}</span> },
+                  { title: t('equipEfficiency.totalExams'), dataIndex: 'totalExams', align: 'right', render: (v: number) => <span style={{ color: C.textDark }}>{v > 0 ? v.toLocaleString() + ' 例' : '—'}</span> },
+                  {
+                    title: t('equipEfficiency.avgUtilization'), dataIndex: 'avgUtilization', align: 'right',
+                    render: (v: number) => (
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          padding: '4px 10px',
+                          borderRadius: 4,
+                          backgroundColor:
+                            v >= 85 ? `${C.success}20` :
+                            v >= 70 ? `${C.primary}20` : `${C.warning}20`,
+                          color:
+                            v >= 85 ? C.success :
+                            v >= 70 ? C.primary : C.warning,
+                          fontSize: 12,
+                          fontWeight: 500,
+                        }}
+                      >
+                        {v}%
+                      </span>
+                    ),
+                  },
+                  { title: t('equipEfficiency.avgWaitTime'), dataIndex: 'avgWaitTime', align: 'right', render: (v: number) => <span style={{ color: C.textDark }}>{v > 0 ? v + ' 分钟' : '—'}</span> },
+                  {
+                    title: t('equipEfficiency.overallScore'), dataIndex: 'score', align: 'center',
+                    render: (v: number) => (
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                         <div
                           style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: 28,
-                            height: 28,
-                            borderRadius: '50%',
-                            backgroundColor:
-                              idx === 0 ? C.primary : idx === 1 ? C.warning : idx === 2 ? C.info : C.border,
-                            color: idx < 3 ? C.bg : C.textLight,
-                            fontWeight: 600,
-                            fontSize: 12,
+                            width: 100,
+                            height: 6,
+                            backgroundColor: C.border,
+                            borderRadius: 3,
+                            overflow: 'hidden',
                           }}
                         >
-                          {item.rank}
-                        </div>
-                      </td>
-                      <td style={{ padding: '14px 16px', color: C.textLight, fontFamily: 'monospace', fontSize: 12 }}>
-                        {item.deviceId}
-                      </td>
-                      <td style={{ padding: '14px 16px', color: C.textDark, fontWeight: 500 }}>
-                        {item.deviceName}
-                      </td>
-                      <td style={{ padding: '14px 16px', textAlign: 'right', color: C.textDark }}>
-                        {item.totalExams > 0 ? item.totalExams.toLocaleString() + ' 例' : '—'}
-                      </td>
-                      <td style={{ padding: '14px 16px', textAlign: 'right' }}>
-                        <span
-                          style={{
-                            display: 'inline-block',
-                            padding: '4px 10px',
-                            borderRadius: 4,
-                            backgroundColor:
-                              item.avgUtilization >= 85 ? `${C.success}20` :
-                              item.avgUtilization >= 70 ? `${C.primary}20` : `${C.warning}20`,
-                            color:
-                              item.avgUtilization >= 85 ? C.success :
-                              item.avgUtilization >= 70 ? C.primary : C.warning,
-                            fontSize: 12,
-                            fontWeight: 500,
-                          }}
-                        >
-                          {item.avgUtilization}%
-                        </span>
-                      </td>
-                      <td style={{ padding: '14px 16px', textAlign: 'right', color: C.textDark }}>
-                        {item.avgWaitTime > 0 ? item.avgWaitTime + ' 分钟' : '—'}
-                      </td>
-                      <td style={{ padding: '14px 16px', textAlign: 'center' }}>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                           <div
                             style={{
-                              width: 100,
-                              height: 6,
-                              backgroundColor: C.border,
+                              width: `${v}%`,
+                              height: '100%',
+                              backgroundColor:
+                                v >= 90 ? C.success :
+                                v >= 75 ? C.primary : C.warning,
                               borderRadius: 3,
-                              overflow: 'hidden',
                             }}
-                          >
-                            <div
-                              style={{
-                                width: `${item.score}%`,
-                                height: '100%',
-                                backgroundColor:
-                                  item.score >= 90 ? C.success :
-                                  item.score >= 75 ? C.primary : C.warning,
-                                borderRadius: 3,
-                              }}
-                            />
-                          </div>
-                          <span
-                            style={{
-                              fontWeight: 600,
-                              color:
-                                item.score >= 90 ? C.success :
-                                item.score >= 75 ? C.primary : C.warning,
-                              fontSize: 13,
-                            }}
-                          >
-                            {item.score}
-                          </span>
+                          />
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                        <span
+                          style={{
+                            fontWeight: 600,
+                            color:
+                              v >= 90 ? C.success :
+                              v >= 75 ? C.primary : C.warning,
+                            fontSize: 12,
+                          }}
+                        >
+                          {v}
+                        </span>
+                      </div>
+                    ),
+                  },
+                ]}
+              />
             </div>
 
             {/* 底部统计 */}

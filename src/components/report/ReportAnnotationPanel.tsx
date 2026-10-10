@@ -244,7 +244,7 @@ export const ReportAnnotationPanel: React.FC<ReportAnnotationPanelProps> = ({
       <div style={{ padding: '8px 12px', borderBottom: '1px solid #e2e8f0', background: 'var(--bg-card)' }}>
         <Space>
           <MessageSquareText size={14} color="#3b82f6" />
-          <strong style={{ fontSize: 13 }}>{t('reportAnnotation.title')}</strong>
+          <strong style={{ fontSize: 12 }}>{t('reportAnnotation.title')}</strong>
           {stats ? (
             <Space size={2}>
               <Tag color="blue" style={{ fontSize: 12, marginInline: 0 }}>{stats.total} {t('reportAnnotation.total')}</Tag>

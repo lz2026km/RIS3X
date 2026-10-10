@@ -142,7 +142,7 @@ const styles = {
     padding: '8px 16px',
     borderRadius: '6px',
     cursor: 'pointer',
-    fontSize: '13px',
+    fontSize: '12px',
     display: 'flex',
     alignItems: 'center',
     gap: '6px',
@@ -180,7 +180,7 @@ const styles = {
     gap: '6px',
   },
   statValue: {
-    fontSize: '28px',
+    fontSize: '30px',
     fontWeight: 700,
     color: COLORS.primary,
   },
@@ -255,13 +255,13 @@ const styles = {
     padding: '8px 12px',
     borderRadius: '6px',
     border: '1px solid var(--border-color)',
-    fontSize: '13px',
+    fontSize: '12px',
     width: '240px', },
   selectInput: {
     padding: '8px 12px',
     borderRadius: '6px',
     border: '1px solid var(--border-color)',
-    fontSize: '13px', backgroundColor: 'var(--bg-card)',
+    fontSize: '12px', backgroundColor: 'var(--bg-card)',
     minWidth: '140px',
   },
   button: {
@@ -269,7 +269,7 @@ const styles = {
     borderRadius: '6px',
     border: 'none',
     cursor: 'pointer',
-    fontSize: '13px',
+    fontSize: '12px',
     display: 'flex',
     alignItems: 'center',
     gap: '6px',
@@ -320,7 +320,7 @@ const styles = {
   th: {
     padding: '12px 16px',
     textAlign: 'left' as const,
-    fontSize: '13px',
+    fontSize: '12px',
     fontWeight: 600,
     color: COLORS.textMuted,
     borderBottom: '1px solid var(--border-color)',
@@ -328,7 +328,7 @@ const styles = {
   },
   td: {
     padding: '12px 16px',
-    fontSize: '13px',
+    fontSize: '12px',
     borderBottom: '1px solid var(--border-light)',
     color: COLORS.textDark,
   },
@@ -370,7 +370,7 @@ const styles = {
     borderTop: '1px solid var(--border-color)',
   },
   paginationInfo: {
-    fontSize: '13px',
+    fontSize: '12px',
     color: COLORS.textMuted,
   },
   paginationButtons: {
@@ -383,7 +383,7 @@ const styles = {
     border: '1px solid var(--border-color)',
     backgroundColor: 'var(--bg-card)',
     cursor: 'pointer',
-    fontSize: '13px',
+    fontSize: '12px',
     color: COLORS.textDark,
   },
   pageButtonActive: {
@@ -1152,19 +1152,19 @@ export default function StatsReportPage() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, padding: '0 0 12px' }}>
             <div style={{ padding: 14, background: COLORS.bgGray, borderRadius: 8, textAlign: 'center' }}>
-              <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.primary }}>{weekly.totalExams}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: COLORS.primary }}>{weekly.totalExams}</div>
               <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>{t('statsReport.totalExamsShort')}</div>
             </div>
             <div style={{ padding: 14, background: COLORS.bgGray, borderRadius: 8, textAlign: 'center' }}>
-              <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.success }}>{weekly.totalReports}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: COLORS.success }}>{weekly.totalReports}</div>
               <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>{t('statsReport.totalReportsShort')}</div>
             </div>
             <div style={{ padding: 14, background: COLORS.bgGray, borderRadius: 8, textAlign: 'center' }}>
-              <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.danger }}>{weekly.totalCritical}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: COLORS.danger }}>{weekly.totalCritical}</div>
               <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>{t('statsReport.criticalValues')}</div>
             </div>
             <div style={{ padding: 14, background: COLORS.bgGray, borderRadius: 8, textAlign: 'center' }}>
-              <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.secondary }}>{weekly.avgExamsPerDay}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: COLORS.secondary }}>{weekly.avgExamsPerDay}</div>
               <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 4 }}>{t('statsReport.avgDailyExams')}</div>
             </div>
           </div>
@@ -1250,7 +1250,7 @@ export default function StatsReportPage() {
                           borderRadius: '4px 4px 0 0',
                         }} />
                       </div>
-                      <div style={{ fontSize: 9, color: COLORS.textMuted, marginTop: 4 }}>{(p.date ?? '').slice(5)}</div>
+                      <div style={{ fontSize: 10, color: COLORS.textMuted, marginTop: 4 }}>{(p.date ?? '').slice(5)}</div>
                     </div>
                   )
                 })
@@ -1268,7 +1268,7 @@ export default function StatsReportPage() {
                 </div>
               </div>
               <div style={{ padding: 16 }}>
-                <div style={{ fontSize: 28, fontWeight: 700, color: (utilization.current ?? 0) >= (utilization.target ?? 0) ? COLORS.success : COLORS.warning }}>
+                <div style={{ fontSize: 30, fontWeight: 700, color: (utilization.current ?? 0) >= (utilization.target ?? 0) ? COLORS.success : COLORS.warning }}>
                   {(utilization.current ?? 0).toFixed(1)}%
                 </div>
                 <div style={{ height: 10, background: COLORS.bgGray, borderRadius: 5, overflow: 'hidden', marginTop: 10 }}>
@@ -1292,8 +1292,8 @@ export default function StatsReportPage() {
                 </div>
               </div>
               <div style={{ padding: 16 }}>
-                <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.primary }}>{accuracy.value?.toFixed(1)}%</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, fontSize: 13, color: (accuracy.previous ?? 0) <= accuracy.value ? COLORS.success : COLORS.danger }}>
+                <div style={{ fontSize: 30, fontWeight: 700, color: COLORS.primary }}>{accuracy.value?.toFixed(1)}%</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, fontSize: 12, color: (accuracy.previous ?? 0) <= accuracy.value ? COLORS.success : COLORS.danger }}>
                   {accuracy.previous != null && (
                     <>
                       {(accuracy.previous ?? 0) <= accuracy.value ? <TrendingUp size={15} /> : <TrendingDown size={15} />}
@@ -1396,7 +1396,7 @@ export default function StatsReportPage() {
           </div>
           
           <div style={styles.toolbarRight}>
-            <span style={{ fontSize: '13px', color: COLORS.textMuted }}>
+            <span style={{ fontSize: '12px', color: COLORS.textMuted }}>
               {t('statsReport.totalDataPrefix')}{filteredData.length} {t('statsReport.totalDataSuffix')}
               {selectedRows.length > 0 && ` · 已选择 ${selectedRows.length} 条`}
             </span>
@@ -1691,7 +1691,7 @@ export default function StatsReportPage() {
                 borderRadius: '8px',
                 border: '1px solid var(--border-color)'
               }}>
-                <div style={{ fontSize: '13px', color: COLORS.textMuted, marginBottom: '8px' }}>
+                <div style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '8px' }}>
                   {t('statsReport.exportPreview')}
                 </div>
                 <div style={{ fontSize: '14px' }}>

@@ -9,6 +9,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { message } from "antd";
 import { StatCard } from "../components/common/StatCard";
 import { AppText } from "../components/common/AppText";
+import { DataTable } from "../components/common";
 import { ChevronLeft, Save, Eye, Plus, Trash2, GripVertical, Type, Hash, Calendar, ToggleLeft, ListChecks, Sliders, Calculator, FileText, ChevronDown, Copy, Settings, Image as ImageIcon, Tag, ListOrdered, FileSpreadsheet, Code, Info, Check, X, Sparkles, Maximize2, Minimize2, GitMerge, Activity, ArrowUp, ArrowDown, Braces, Layers } from 'lucide-react';
 import type { LucideIcon } from "lucide-react";
 import {
@@ -1200,7 +1201,7 @@ e.currentTarget.style.borderColor = `${meta.color}30`;
                       <ChevronDown size={12} color={section.color} />
                       <span
                         style={{
-                          fontSize: 13,
+                          fontSize: 12,
                           fontWeight: 700,
                           color: section.color,
                         }}
@@ -1883,171 +1884,132 @@ e.currentTarget.style.background = "var(--bg-card)";
                     </select>
                   </div>
                   {totalFields > 0 ? (
-                    <table
-                      style={{
-                        width: "100%",
-                        borderCollapse: "collapse",
-                        fontSize: 12,
-                      }}
-                    >
-                      <thead>
-                        <tr style={{ background: "var(--content-bg)" }}>
-                          <th
-                            style={{
-                              padding: "6px 8px",
-                              textAlign: "left",
-                              fontWeight: 600,
-                              color: "var(--text-secondary)",
-                              borderBottom: "1px solid var(--border-color)",
-                            }}
-                          >
-                            {t("templateDesigner.colField")}
-                          </th>
-                          <th
-                            style={{
-                              padding: "6px 8px",
-                              textAlign: "left",
-                              fontWeight: 600,
-                              color: "var(--text-secondary)",
-                              borderBottom: "1px solid var(--border-color)",
-                            }}
-                          >
-                            {t("templateDesigner.colSrTemplate")}
-                          </th>
-                          <th
-                            style={{
-                              padding: "6px 8px",
-                              textAlign: "left",
-                              fontWeight: 600,
-                              color: "var(--text-secondary)",
-                              borderBottom: "1px solid var(--border-color)",
-                            }}
-                          >
-                            {t("templateDesigner.colStatus")}
-                          </th>
-                          <th
-                            style={{
-                              padding: "6px 8px",
-                              textAlign: "center",
-                              fontWeight: 600,
-                              color: "var(--text-secondary)",
-                              borderBottom: "1px solid var(--border-color)",
-                            }}
-                          >
-                            {t("templateDesigner.colActions")}
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {allFields.map((f) => {
-                          const mapping = srMappings.find(
-                            (m) => m.fieldId === f.id,
-                          );
-                          return (
-                            <tr
-                              key={f.id}
-                              style={{ borderBottom: "1px solid var(--border-light)" }}
+                    <DataTable
+                      rowKey="id"
+                      dataSource={allFields}
+                      pagination={false}
+                      showExport={false}
+                      showDensity={false}
+                      columns={[
+                        {
+                          title: t("templateDesigner.colField"),
+                          dataIndex: "fieldLabel",
+                          key: "fieldLabel",
+                          render: (v: string) => (
+                            <span
+                              style={{ fontWeight: 600, color: "var(--text-primary)" }}
                             >
-                              <td style={{ padding: "6px 8px" }}>
-                                <span
-                                  style={{ fontWeight: 600, color: "var(--text-primary)" }}
-                                >
-                                  {f.fieldLabel}
-                                </span>
-                              </td>
-                              <td style={{ padding: "6px 8px" }}>
-                                {mapping ? (
-                                  <span
-                                    style={{ fontSize: 12, color: "#0891b2" }}
-                                  >
-                                    {mapping.srTemplateId}
-                                  </span>
-                                ) : (
-                                  <select
-                                    value=""
-                                    onChange={(e) =>
-                                      handleMapFieldToSr(
-                                        f.id,
-                                        e.target.value,
-                                        "",
-                                      )
-                                    }
-                                    style={{
-                                      padding: "2px 4px",
-                                      border: "1px solid var(--border-color)",
-                                      borderRadius: 3,
-                                      fontSize: 12,
-                                      width: "100%",
-                                    }}
-                                  >
-                                    <option value="">{t("templateDesigner.unmapped")}</option>
-                                    {IHE_RR_TEMPLATES.map((sr) => (
-                                      <option key={sr.id} value={sr.id}>
-                                        {sr.id}
-                                      </option>
-                                    ))}
-                                  </select>
-                                )}
-                              </td>
-                              <td style={{ padding: "6px 8px" }}>
-                                {mapping ? (
-                                  <span
-                                    style={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                      gap: 2,
-                                      padding: "1px 4px",
-                                      borderRadius: 3,
-                                      fontSize: 12,
-                                      fontWeight: 600,
-                                      background:
-                                        mapping.complianceStatus === "compliant"
-                                          ? "var(--color-success-bg)"
-                                          : "var(--color-warning-bg)",
-                                      color:
-                                        mapping.complianceStatus === "compliant"
-                                          ? "#16a34a"
-                                          : "#d97706",
-                                    }}
-                                  >
-                                    {mapping.complianceStatus === "compliant"
-                                      ? t("templateDesigner.compliant")
-                                      : t("templateDesigner.partial")}
-                                  </span>
-                                ) : (
-                                  <span
-                                    style={{ color: "var(--text-secondary)", fontSize: 12 }}
-                                  >
-                                    —
-                                  </span>
-                                )}
-                              </td>
-                              <td
+                              {v}
+                            </span>
+                          ),
+                        },
+                        {
+                          title: t("templateDesigner.colSrTemplate"),
+                          key: "srTemplate",
+                          render: (_v, f) => {
+                            const mapping = srMappings.find(
+                              (m) => m.fieldId === f.id,
+                            );
+                            return mapping ? (
+                              <span
+                                style={{ fontSize: 12, color: "#0891b2" }}
+                              >
+                                {mapping.srTemplateId}
+                              </span>
+                            ) : (
+                              <select
+                                value=""
+                                onChange={(e) =>
+                                  handleMapFieldToSr(
+                                    f.id,
+                                    e.target.value,
+                                    "",
+                                  )
+                                }
                                 style={{
-                                  padding: "6px 8px",
-                                  textAlign: "center",
+                                  padding: "2px 4px",
+                                  border: "1px solid var(--border-color)",
+                                  borderRadius: 3,
+                                  fontSize: 12,
+                                  width: "100%",
                                 }}
                               >
-                                {mapping && (
-                                  <button
-                                    onClick={() => removeSrMapping(f.id)}
-                                    style={{
-                                      padding: 2,
-                                      border: "none",
-                                      background: "transparent",
-                                      color: "#dc2626",
-                                      cursor: "pointer",
-                                    }}
-                                  >
-                                    <X size={9} />
-                                  </button>
-                                )}
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+                                <option value="">{t("templateDesigner.unmapped")}</option>
+                                {IHE_RR_TEMPLATES.map((sr) => (
+                                  <option key={sr.id} value={sr.id}>
+                                    {sr.id}
+                                  </option>
+                                ))}
+                              </select>
+                            );
+                          },
+                        },
+                        {
+                          title: t("templateDesigner.colStatus"),
+                          key: "complianceStatus",
+                          render: (_v, f) => {
+                            const mapping = srMappings.find(
+                              (m) => m.fieldId === f.id,
+                            );
+                            return mapping ? (
+                              <span
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 2,
+                                  padding: "1px 4px",
+                                  borderRadius: 3,
+                                  fontSize: 12,
+                                  fontWeight: 600,
+                                  background:
+                                    mapping.complianceStatus === "compliant"
+                                      ? "var(--color-success-bg)"
+                                      : "var(--color-warning-bg)",
+                                  color:
+                                    mapping.complianceStatus === "compliant"
+                                      ? "#16a34a"
+                                      : "#d97706",
+                                }}
+                              >
+                                {mapping.complianceStatus === "compliant"
+                                  ? t("templateDesigner.compliant")
+                                  : t("templateDesigner.partial")}
+                              </span>
+                            ) : (
+                              <span
+                                style={{ color: "var(--text-secondary)", fontSize: 12 }}
+                              >
+                                —
+                              </span>
+                            );
+                          },
+                        },
+                        {
+                          title: t("templateDesigner.colActions"),
+                          key: "actions",
+                          align: "center",
+                          render: (_v, f) => {
+                            const mapping = srMappings.find(
+                              (m) => m.fieldId === f.id,
+                            );
+                            return mapping ? (
+                              <button
+                                onClick={() => removeSrMapping(f.id)}
+                                style={{
+                                  padding: 2,
+                                  border: "none",
+                                  background: "transparent",
+                                  color: "#dc2626",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                <X size={9} />
+                              </button>
+                            ) : null;
+                          },
+                        },
+                      ]}
+                    />
                   ) : (
                     <div
                       style={{
@@ -2962,7 +2924,7 @@ const VisualDesignerBody: React.FC<{
                 background: "var(--content-bg)",
                 borderRadius: 6,
                 padding: 12,
-                fontSize: 13,
+                fontSize: 12,
                 lineHeight: 1.9,
                 whiteSpace: "pre-wrap",
                 color: "var(--text-primary)",

@@ -301,7 +301,7 @@ export default function DoctorWorkloadPage() {
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('dw2.overallRanking')}</div>
-                  <div style={{ fontSize: 28, fontWeight: 700, color: '#7c3aed' }}>#{selected.ranking}</div>
+                  <div style={{ fontSize: 30, fontWeight: 700, color: '#7c3aed' }}>#{selected.ranking}</div>
                 </div>
               </div>
             </div>
@@ -321,7 +321,7 @@ export default function DoctorWorkloadPage() {
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('dw2.bonusDetail')}</div>
-                <div style={{ fontSize: 22, fontWeight: 700, color: '#059669' }}>
+                <div style={{ fontSize: 20, fontWeight: 700, color: '#059669' }}>
                   ¥{Number(bonusByDoctor[selected.doctorName]?.bonus ?? 0).toLocaleString()}
                   <span style={{ fontSize: 12, fontWeight: 600, marginLeft: 8, color: '#15803d' }}>×{bonusByDoctor[selected.doctorName]?.coefficient ?? 1}{t('dw2.qualityInlinePrefix')}{bonusByDoctor[selected.doctorName]?.qualityScore ?? selected.qualityScore}{t('dw2.unitScore')}</span>
                 </div>
@@ -390,7 +390,7 @@ const BigKpi: React.FC<{ icon: any; label: string; value: number | string; sub: 
       <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</span>
     </div>
     <div>
-      <span style={{ fontSize: 28, fontWeight: 700, color }}>{value}</span>
+      <span style={{ fontSize: 30, fontWeight: 700, color }}>{value}</span>
       <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 4 }}>{sub}</span>
     </div>
   </div>

@@ -486,7 +486,7 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
                   justifyContent: "center",
                   height: "100%",
                   color: "#64748b",
-                  fontSize: 13,
+                  fontSize: 12,
                 }}
               >
                 {peerConnected

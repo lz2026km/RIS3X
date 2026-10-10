@@ -602,7 +602,7 @@ const CrossInstitutionQuery: React.FC = () => {
                 border: "1px solid var(--border-default)",
                 borderRadius: 6,
                 color: "var(--text-primary)",
-                fontSize: 13,
+                fontSize: 12,
               }}
               value={selectedInstitution}
               onChange={(e) => setSelectedInstitution(e.target.value)}
@@ -634,7 +634,7 @@ const CrossInstitutionQuery: React.FC = () => {
                 border: "1px solid var(--border-default)",
                 borderRadius: 6,
                 color: "var(--text-primary)",
-                fontSize: 13,
+                fontSize: 12,
               }}
               value={queryType}
               onChange={(e) => setQueryType(e.target.value)}
@@ -663,7 +663,7 @@ const CrossInstitutionQuery: React.FC = () => {
                 border: "1px solid var(--border-default)",
                 borderRadius: 6,
                 color: "var(--text-primary)",
-                fontSize: 13,
+                fontSize: 12,
                 boxSizing: "border-box",
               }}
               placeholder={t('regionalImaging.queryValuePlaceholder')}
@@ -680,7 +680,7 @@ const CrossInstitutionQuery: React.FC = () => {
                 border: "none",
                 borderRadius: 6,
                 cursor: "pointer",
-                fontSize: 13,
+                fontSize: 12,
               }}
               onClick={handleQuery}
             >
@@ -691,7 +691,7 @@ const CrossInstitutionQuery: React.FC = () => {
       </div>
       {queried && (
         <div>
-          <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8 }}>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 8 }}>
             查询结果: {results.length} 条检查记录 (来自{" "}
             {institutions.find((i) => i.id === selectedInstitution)?.name})
           </div>
@@ -839,7 +839,7 @@ const XDSIntegration: React.FC = () => {
       >
         <div
           style={{
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: 600,
             color: "var(--text-primary)",
             marginBottom: 12,
@@ -874,7 +874,7 @@ const XDSIntegration: React.FC = () => {
                 border: "1px solid var(--border-default)",
                 borderRadius: 6,
                 color: "var(--text-primary)",
-                fontSize: 13,
+                fontSize: 12,
                 boxSizing: "border-box",
               }}
               value={patientId}
@@ -890,7 +890,7 @@ const XDSIntegration: React.FC = () => {
               border: "none",
               borderRadius: 6,
               cursor: "pointer",
-              fontSize: 13,
+              fontSize: 12,
             }}
             onClick={handleQueryRegistry}
           >
@@ -904,7 +904,7 @@ const XDSIntegration: React.FC = () => {
               border: "1px solid var(--border-default)",
               borderRadius: 6,
               cursor: "pointer",
-              fontSize: 13,
+              fontSize: 12,
             }}
             onClick={handlePixQuery}
           >
@@ -924,7 +924,7 @@ const XDSIntegration: React.FC = () => {
             <div style={{ fontSize: 12, color: "var(--color-primary)", marginBottom: 8 }}>
               {t('regionalImaging.pixResultTitle')}
             </div>
-            <div style={{ fontSize: 13 }}>
+            <div style={{ fontSize: 12 }}>
               本地ID: {pixResult.local} → 远程ID:{" "}
               <strong style={{ color: "var(--color-success)" }}>{pixResult.remote}</strong>
             </div>
@@ -933,7 +933,7 @@ const XDSIntegration: React.FC = () => {
       </div>
       {queried && (
         <div style={{ marginBottom: 20 }}>
-          <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8 }}>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 8 }}>
             文档条目: {docs.length} 条
           </div>
           <DataTable
@@ -975,7 +975,7 @@ const XDSIntegration: React.FC = () => {
       >
         <div
           style={{
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: 600,
             color: "var(--text-primary)",
             marginBottom: 12,
@@ -1012,7 +1012,7 @@ const XDSIntegration: React.FC = () => {
             style={{ background: "var(--bg-primary)", border: "1px solid var(--border-default)", borderRadius: 10, width: "100%", maxWidth: 720, maxHeight: "85vh", overflow: "auto", padding: 20, color: "var(--text-primary)" }}
           >
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-              <div style={{ fontSize: 15, fontWeight: 700 }}>{t('w1Controls.regional.retrieveTitle')}</div>
+              <div style={{ fontSize: 14, fontWeight: 700 }}>{t('w1Controls.regional.retrieveTitle')}</div>
               <button onClick={() => setRetrieveOpen(false)} style={{ padding: "4px 12px", borderRadius: 6, border: "1px solid var(--border-default)", background: "transparent", color: "var(--text-muted)", cursor: "pointer", fontSize: 12 }}>{t('w1Controls.regional.close')}</button>
             </div>
             {retrieving ? (
@@ -1028,9 +1028,9 @@ const XDSIntegration: React.FC = () => {
                   <div style={{ gridColumn: "1 / -1" }}><span style={{ color: "var(--text-muted)" }}>{t('w1Controls.regional.studyUid')}: </span><code style={{ fontSize: 11 }}>{retrievedDoc.studyUid}</code></div>
                 </div>
                 <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-muted)", marginBottom: 6 }}>{t('w1Controls.regional.content')}</div>
-                <pre style={{ whiteSpace: "pre-wrap", background: "var(--bg-card)", border: "1px solid var(--border-default)", borderRadius: 8, padding: 14, fontSize: 13, lineHeight: 1.7, margin: 0 }}>{retrievedDoc.content}</pre>
+                <pre style={{ whiteSpace: "pre-wrap", background: "var(--bg-card)", border: "1px solid var(--border-default)", borderRadius: 8, padding: 14, fontSize: 12, lineHeight: 1.7, margin: 0 }}>{retrievedDoc.content}</pre>
                 <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
-                  <button onClick={handleDownloadDoc} style={{ padding: "8px 20px", borderRadius: 6, border: "none", background: "var(--color-success)", color: "var(--text-inverse)", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>{t('w1Controls.regional.download')}</button>
+                  <button onClick={handleDownloadDoc} style={{ padding: "8px 20px", borderRadius: 6, border: "none", background: "var(--color-success)", color: "var(--text-inverse)", cursor: "pointer", fontSize: 12, fontWeight: 600 }}>{t('w1Controls.regional.download')}</button>
                 </div>
               </div>
             ) : (
@@ -1097,7 +1097,7 @@ const RegionalSharing: React.FC = () => {
     <div style={styles.section}>
       <div style={styles.sectionHeader}>
         <h3 style={styles.sectionTitle}>{t('regionalImaging.sharing')}</h3>
-        <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+        <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
           医联体成员机构影像工作量与质量统计{loading ? " (加载中...)" : ` (${items.length} 条)`}
         </span>
       </div>
@@ -1389,7 +1389,7 @@ const IntegrationStatus: React.FC = () => {
     <div style={styles.section}>
       <div style={styles.sectionHeader}>
         <h3 style={styles.sectionTitle}>{t('regionalImaging.integrationStatus')}</h3>
-        <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+        <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
           FHIR / IHE XDS-I / HL7 MLLP 通道健康检查{loading ? " (加载中...)" : ""}
         </span>
       </div>
@@ -1415,7 +1415,7 @@ const IntegrationStatus: React.FC = () => {
                   {statusLabel(st?.status)}
                 </StatusTag>
               </div>
-              <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                 上次同步: {st?.lastSync ? new Date(st.lastSync).toLocaleString("zh-CN") : "—"}
               </div>
               {st?.error && <div style={{ fontSize: 12, color: "var(--color-error)", marginTop: 6 }}>{st.error}</div>}
@@ -1683,7 +1683,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: "var(--text-secondary)",
     border: "1px solid var(--border-default)",
     borderRadius: "6px",
-    fontSize: "13px",
+    fontSize: "12px",
     cursor: "pointer",
   },
   toolBtnActive: {
@@ -1733,7 +1733,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   viewerInfo: {
     display: "flex",
     justifyContent: "space-between",
-    fontSize: "13px",
+    fontSize: "12px",
     color: "var(--text-secondary)",
   },
 };

@@ -5,6 +5,7 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { Select } from 'antd'
 import { ActionButton } from '../components/common/ActionButton'
+import { DataTable } from '../components/common'
 import { templatesApi, type TemplateApprovalStatus } from '../services/api/templatesApi'
 import TemplatePendingSection from './TemplatePendingSection'
 // [v3.0.6.11-104 Wave 5C] 模板中心: ReportTemplateManagerPage + EmrTemplatesPage 内嵌为 Tab (旧路由 /report-templates, /emr-templates redirect)
@@ -446,7 +447,7 @@ export default function TemplateManagementPage() {
   }
 
   const renderTab = (key: string, label: string, icon: React.ReactNode) => (
-    <button key={key} onClick={() => setActiveTab(key as any)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none', background: activeTab === key ? C.primary : 'transparent', color: activeTab === key ? '#fff' : C.textMid }}>
+    <button key={key} onClick={() => setActiveTab(key as any)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: 'none', background: activeTab === key ? C.primary : 'transparent', color: activeTab === key ? '#fff' : C.textMid }}>
       {icon} {label}
     </button>
   )
@@ -496,7 +497,7 @@ export default function TemplateManagementPage() {
           <History size={20} color={C.primary} />
           <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t9('templateMgmt.versionMgmt')}</span>
           <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>{t9('templateMgmt.demoDataVersion')}</span>
-          <select value={selectedTemplateId} onChange={e => setSelectedTemplateId(e.target.value)} style={{ marginLeft: 'auto', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, color: C.textDark, background: 'var(--bg-card)', cursor: 'pointer' }}>
+          <select value={selectedTemplateId} onChange={e => setSelectedTemplateId(e.target.value)} style={{ marginLeft: 'auto', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, color: C.textDark, background: 'var(--bg-card)', cursor: 'pointer' }}>
             {templates.map(t => <option key={t.id} value={t.id}>{t.name} ({t.version})</option>)}
           </select>
           {draftVersion && (
@@ -509,61 +510,56 @@ export default function TemplateManagementPage() {
           {publishedVersion && (
             <div style={{ flex: 1, background: C.successLight, borderRadius: 8, padding: '12px 14px', border: `1px solid ${C.success}` }}>
               <div style={{ fontSize: 12, color: C.success, fontWeight: 600 }}>{t9('templateMgmt.productionVersion')}</div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.success }}>{publishedVersion.version}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.success }}>{publishedVersion.version}</div>
               <div style={{ fontSize: 12, color: C.textMid }}>{publishedVersion.changedAt} · {publishedVersion.changedBy}</div>
             </div>
           )}
           {draftVersion && (
             <div style={{ flex: 1, background: C.warningLight, borderRadius: 8, padding: '12px 14px', border: `1px solid ${C.warning}` }}>
               <div style={{ fontSize: 12, color: C.warning, fontWeight: 600 }}>{t9('templateMgmt.draftVersion')}</div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.warning }}>{draftVersion.version}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.warning }}>{draftVersion.version}</div>
               <div style={{ fontSize: 12, color: C.textMid }}>{draftVersion.changedAt} · {draftVersion.changedBy}</div>
             </div>
           )}
         </div>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-          <thead>
-            <tr style={{ background: C.bgLight }}>
-              <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.verVersion')}</th>
-              <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.verStatus')}</th>
-              <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.verChangedBy')}</th>
-              <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.verChangedAt')}</th>
-              <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.verChangelog')}</th>
-              <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.verActions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {templateVersions.map(v => (
-              <tr key={v.id} style={{ borderBottom: `1px solid ${C.borderLight}` }}>
-                <td style={{ padding: '10px 14px' }}><span style={{ fontFamily: 'monospace', fontWeight: 700, color: C.primary }}>{v.version}</span></td>
-                <td style={{ padding: '10px 14px' }}>
-                  <span style={{
-                    display: 'inline-block', padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-                    background: v.status === 'published' ? C.successLight : v.status === 'draft' ? C.warningLight : v.status === 'review' ? C.infoLight : C.bgLight,
-                    color: v.status === 'published' ? C.success : v.status === 'draft' ? C.warning : v.status === 'review' ? C.info : C.textLight,
-                  }}>
-                    {v.status === 'published' ? t9('templateMgmt.verPublished') : v.status === 'draft' ? t9('templateMgmt.verDraft') : v.status === 'review' ? t9('templateMgmt.verReviewing') : t9('templateMgmt.verArchived')}
-                  </span>
-                </td>
-                <td style={{ padding: '10px 14px', color: C.textMid }}>{v.changedBy}</td>
-                <td style={{ padding: '10px 14px', color: C.textMid }}>{v.changedAt}</td>
-                <td style={{ padding: '10px 14px', color: C.textDark }}>{v.changeLog}</td>
-                <td style={{ padding: '10px 14px' }}>
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    <button onClick={() => setDiffView(diffView === v.id ? null : v.id)} style={{ padding: '4px 8px', background: C.bgLight, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 3 }}>
-                      <Eye size={14} /> {diffView === v.id ? t9('templateMgmt.collapse') : t9('templateMgmt.compare')}
+        <DataTable
+          dataSource={templateVersions}
+          rowKey="id"
+          pagination={false}
+          columns={[
+            { title: t9('templateMgmt.verVersion'), dataIndex: 'version', render: (v: string) => <span style={{ fontFamily: 'monospace', fontWeight: 700, color: C.primary }}>{v}</span> },
+            {
+              title: t9('templateMgmt.verStatus'), dataIndex: 'status',
+              render: (v: TemplateVersion['status']) => (
+                <span style={{
+                  display: 'inline-block', padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600,
+                  background: v === 'published' ? C.successLight : v === 'draft' ? C.warningLight : v === 'review' ? C.infoLight : C.bgLight,
+                  color: v === 'published' ? C.success : v === 'draft' ? C.warning : v === 'review' ? C.info : C.textLight,
+                }}>
+                  {v === 'published' ? t9('templateMgmt.verPublished') : v === 'draft' ? t9('templateMgmt.verDraft') : v === 'review' ? t9('templateMgmt.verReviewing') : t9('templateMgmt.verArchived')}
+                </span>
+              ),
+            },
+            { title: t9('templateMgmt.verChangedBy'), dataIndex: 'changedBy', render: (v: string) => <span style={{ color: C.textMid }}>{v}</span> },
+            { title: t9('templateMgmt.verChangedAt'), dataIndex: 'changedAt', render: (v: string) => <span style={{ color: C.textMid }}>{v}</span> },
+            { title: t9('templateMgmt.verChangelog'), dataIndex: 'changeLog', render: (v: string) => <span style={{ color: C.textDark }}>{v}</span> },
+            {
+              title: t9('templateMgmt.verActions'), key: 'actions',
+              render: (_: unknown, v: TemplateVersion) => (
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <button onClick={() => setDiffView(diffView === v.id ? null : v.id)} style={{ padding: '4px 8px', background: C.bgLight, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <Eye size={14} /> {diffView === v.id ? t9('templateMgmt.collapse') : t9('templateMgmt.compare')}
+                  </button>
+                  {v.status === 'published' && (
+                    <button onClick={() => void handleRollback(v)} style={{ padding: '4px 8px', background: C.warningLight, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, color: C.warning, display: 'flex', alignItems: 'center', gap: 3 }}>
+                      <RotateCcw size={14} /> {t9('templateMgmt.rollback')}
                     </button>
-                    {v.status === 'published' && (
-                      <button onClick={() => void handleRollback(v)} style={{ padding: '4px 8px', background: C.warningLight, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, color: C.warning, display: 'flex', alignItems: 'center', gap: 3 }}>
-                        <RotateCcw size={14} /> {t9('templateMgmt.rollback')}
-                      </button>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  )}
+                </div>
+              ),
+            },
+          ]}
+        />
         {diffView && (
           <div style={{ marginTop: 12, background: C.bgLight, borderRadius: 8, padding: 12, border: `1px solid ${C.borderLight}` }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 8 }}>{t9('templateMgmt.versionDiff')}</div>
@@ -592,7 +588,7 @@ export default function TemplateManagementPage() {
                 {usageTrend.map((v, i) => (
                   <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
                     <div style={{ width: '100%', height: `${(v / 200) * 160}px`, background: `hsl(${220 + i * 5}, 70%, ${50 + i * 2}%)`, borderRadius: '3px 3px 0 0', minHeight: 4 }} />
-                    <span style={{ fontSize: 8, color: C.textLight }}>{i + 1}{t9('templateMgmt.monthSuffix')}</span>
+                    <span style={{ fontSize: 10, color: C.textLight }}>{i + 1}{t9('templateMgmt.monthSuffix')}</span>
                   </div>
                 ))}
               </div>
@@ -607,7 +603,7 @@ export default function TemplateManagementPage() {
                 <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: `1px solid ${C.borderLight}` }}>
                   <span style={{ fontSize: 14, fontWeight: 800, color: i < 3 ? C.warning : C.textLight, minWidth: 24 }}>#{i + 1}</span>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark }}>{t.name}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{t.name}</div>
                     <div style={{ fontSize: 12, color: C.textMid }}>{t.modality} · {t.author}</div>
                   </div>
                   <span style={{ fontSize: 16, fontWeight: 700, color: C.success }}>{t.usageCount}</span>
@@ -624,19 +620,19 @@ export default function TemplateManagementPage() {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div style={{ background: C.primaryLighter, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
-                  <div style={{ fontSize: 28, fontWeight: 700, color: C.primary }}>{templates.length}</div>
+                  <div style={{ fontSize: 30, fontWeight: 700, color: C.primary }}>{templates.length}</div>
                   <div style={{ fontSize: 12, color: C.textMid }}>{t9('templateMgmt.totalTemplates')}</div>
                 </div>
                 <div style={{ background: C.successLight, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
-                  <div style={{ fontSize: 28, fontWeight: 700, color: C.success }}>{totalUsage}</div>
+                  <div style={{ fontSize: 30, fontWeight: 700, color: C.success }}>{totalUsage}</div>
                   <div style={{ fontSize: 12, color: C.textMid }}>{t9('templateMgmt.totalUsage')}</div>
                 </div>
                 <div style={{ background: C.warningLight, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
-                  <div style={{ fontSize: 28, fontWeight: 700, color: C.warning }}>{Math.round(totalUsage / templates.length)}</div>
+                  <div style={{ fontSize: 30, fontWeight: 700, color: C.warning }}>{Math.round(totalUsage / templates.length)}</div>
                   <div style={{ fontSize: 12, color: C.textMid }}>{t9('templateMgmt.avgUsage')}</div>
                 </div>
                 <div style={{ background: C.infoLight, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
-                  <div style={{ fontSize: 28, fontWeight: 700, color: C.info }}>{templates.filter(t => t.status === 'active').length}</div>
+                  <div style={{ fontSize: 30, fontWeight: 700, color: C.info }}>{templates.filter(t => t.status === 'active').length}</div>
                   <div style={{ fontSize: 12, color: C.textMid }}>{t9('templateMgmt.activeTemplates')}</div>
                 </div>
               </div>
@@ -648,7 +644,7 @@ export default function TemplateManagementPage() {
                 <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t9('templateMgmt.satisfaction')}</span>
               </div>
               <div style={{ textAlign: 'center', padding: '10px 0' }}>
-                <div style={{ fontSize: 26, fontWeight: 700, color: C.warning }}>4.5</div>
+                <div style={{ fontSize: 24, fontWeight: 700, color: C.warning }}>4.5</div>
                 <div style={{ fontSize: 12, color: C.textLight }}>/ 5.0</div>
                 <div style={{ display: 'flex', gap: 2, justifyContent: 'center', margin: '6px 0' }}>
                   {[1, 2, 3, 4, 5].map(s => <Star key={s} size={16} style={{ color: s <= 4 ? C.warning : C.border, fill: s <= 4 ? C.warning : 'transparent' }} />)}
@@ -697,7 +693,7 @@ export default function TemplateManagementPage() {
           <Share2 size={20} color={C.accent} />
           <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t9('templateMgmt.shareCollab')}</span>
           <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>{t9('templateMgmt.demoDataShare')}</span>
-          <select value={selectedTemplateId} onChange={e => setSelectedTemplateId(e.target.value)} style={{ marginLeft: 'auto', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, color: C.textDark, background: 'var(--bg-card)', cursor: 'pointer' }}>
+          <select value={selectedTemplateId} onChange={e => setSelectedTemplateId(e.target.value)} style={{ marginLeft: 'auto', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, color: C.textDark, background: 'var(--bg-card)', cursor: 'pointer' }}>
             <option value="全部">{t9('templateMgmt.allTemplates')}</option>
             {templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
@@ -705,49 +701,43 @@ export default function TemplateManagementPage() {
         </div>
         <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
           <div style={{ flex: 1, background: C.primaryLighter, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
-            <div style={{ fontSize: 28, fontWeight: 700, color: C.primary }}>{entries.length}</div>
+            <div style={{ fontSize: 30, fontWeight: 700, color: C.primary }}>{entries.length}</div>
             <div style={{ fontSize: 12, color: C.textMid }}>{t9('templateMgmt.shareTotal')}</div>
           </div>
           <div style={{ flex: 1, background: C.successLight, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
-            <div style={{ fontSize: 28, fontWeight: 700, color: C.success }}>{new Set(entries.map(e => e.sharedWith)).size}</div>
+            <div style={{ fontSize: 30, fontWeight: 700, color: C.success }}>{new Set(entries.map(e => e.sharedWith)).size}</div>
             <div style={{ fontSize: 12, color: C.textMid }}>{t9('templateMgmt.collabDeptUser')}</div>
           </div>
           <div style={{ flex: 1, background: C.warningLight, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
-            <div style={{ fontSize: 28, fontWeight: 700, color: C.warning }}>{entries.filter(e => e.permission === 'admin').length}</div>
+            <div style={{ fontSize: 30, fontWeight: 700, color: C.warning }}>{entries.filter(e => e.permission === 'admin').length}</div>
             <div style={{ fontSize: 12, color: C.textMid }}>{t9('templateMgmt.adminPerm')}</div>
           </div>
         </div>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-          <thead><tr style={{ background: C.bgLight }}>
-            <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.shTemplate')}</th>
-            <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.shSharedWith')}</th>
-            <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.shPermission')}</th>
-            <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.shSharedBy')}</th>
-            <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.shTime')}</th>
-            <th style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 600, color: C.textMid, borderBottom: `1px solid ${C.borderLight}` }}>{t9('templateMgmt.shDept')}</th>
-          </tr></thead>
-          <tbody>
-            {filteredEntries.map((e, i) => (
-              <tr key={i} style={{ borderBottom: `1px solid ${C.borderLight}` }}>
-                <td style={{ padding: '10px 14px' }}><span style={{ fontWeight: 600, color: C.textDark }}>{templates.find(t => t.id === e.templateId)?.name}</span></td>
-                <td style={{ padding: '10px 14px' }}><span style={{ display: 'flex', alignItems: 'center', gap: 4, color: C.textDark }}><Users size={14} color={C.textMid} /> {e.sharedWith}</span></td>
-                <td style={{ padding: '10px 14px' }}>
-                  <span style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600,
-                    background: e.permission === 'admin' ? C.dangerLight : e.permission === 'edit' ? C.warningLight : C.infoLight,
-                    color: e.permission === 'admin' ? C.danger : e.permission === 'edit' ? C.warning : C.info,
-                  }}>
-                    {e.permission === 'admin' ? <Shield size={10} /> : e.permission === 'edit' ? <Edit2 size={10} /> : <Eye size={10} />}
-                    {e.permission === 'admin' ? t9('templateMgmt.permManage') : e.permission === 'edit' ? t9('templateMgmt.permEdit') : t9('templateMgmt.permView')}
-                  </span>
-                </td>
-                <td style={{ padding: '10px 14px', color: C.textMid }}>{e.sharedBy}</td>
-                <td style={{ padding: '10px 14px', color: C.textMid }}>{e.sharedAt}</td>
-                <td style={{ padding: '10px 14px' }}><span style={{ fontSize: 12, color: C.textLight }}>{e.department}</span></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataTable
+          dataSource={filteredEntries}
+          rowKey={(_, index) => String(index ?? 0)}
+          pagination={false}
+          columns={[
+            { title: t9('templateMgmt.shTemplate'), key: 'template', render: (_: unknown, e: ShareEntry) => <span style={{ fontWeight: 600, color: C.textDark }}>{templates.find(t => t.id === e.templateId)?.name}</span> },
+            { title: t9('templateMgmt.shSharedWith'), key: 'sharedWith', render: (_: unknown, e: ShareEntry) => <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: C.textDark }}><Users size={14} color={C.textMid} /> {e.sharedWith}</span> },
+            {
+              title: t9('templateMgmt.shPermission'), key: 'permission',
+              render: (_: unknown, e: ShareEntry) => (
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600,
+                  background: e.permission === 'admin' ? C.dangerLight : e.permission === 'edit' ? C.warningLight : C.infoLight,
+                  color: e.permission === 'admin' ? C.danger : e.permission === 'edit' ? C.warning : C.info,
+                }}>
+                  {e.permission === 'admin' ? <Shield size={10} /> : e.permission === 'edit' ? <Edit2 size={10} /> : <Eye size={10} />}
+                  {e.permission === 'admin' ? t9('templateMgmt.permManage') : e.permission === 'edit' ? t9('templateMgmt.permEdit') : t9('templateMgmt.permView')}
+                </span>
+              ),
+            },
+            { title: t9('templateMgmt.shSharedBy'), dataIndex: 'sharedBy', render: (v: string) => <span style={{ color: C.textMid }}>{v}</span> },
+            { title: t9('templateMgmt.shTime'), dataIndex: 'sharedAt', render: (v: string) => <span style={{ color: C.textMid }}>{v}</span> },
+            { title: t9('templateMgmt.shDept'), dataIndex: 'department', render: (v: string) => <span style={{ fontSize: 12, color: C.textLight }}>{v}</span> },
+          ]}
+        />
         <div style={{ marginTop: 16, padding: '12px 14px', background: C.infoLight, borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Globe size={16} color={C.info} />
           <span style={{ fontSize: 12, color: C.textDark }}>{t9('templateMgmt.shareFooter')}</span>
@@ -762,13 +752,13 @@ export default function TemplateManagementPage() {
               <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 6 }}>{t9('templateMgmt.shTemplate')}</label>
-                  <select value={shareForm.templateId} onChange={e => setShareForm({ ...shareForm, templateId: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, color: C.textDark, background: 'var(--bg-card)' }}>
+                  <select value={shareForm.templateId} onChange={e => setShareForm({ ...shareForm, templateId: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, color: C.textDark, background: 'var(--bg-card)' }}>
                     {templates.map(t => <option key={t.id} value={t.id}>{t.name} ({t.version})</option>)}
                   </select>
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 6 }}>{t9('templateMgmt.shareToLabel')}</label>
-                  <input value={shareForm.sharedWith} onChange={e => setShareForm({ ...shareForm, sharedWith: e.target.value })} placeholder={t9('templateMgmt.shareToPlaceholder')} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, boxSizing: 'border-box' }} />
+                  <input value={shareForm.sharedWith} onChange={e => setShareForm({ ...shareForm, sharedWith: e.target.value })} placeholder={t9('templateMgmt.shareToPlaceholder')} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, boxSizing: 'border-box' }} />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 6 }}>{t9('templateMgmt.shPermission')}</label>
@@ -779,8 +769,8 @@ export default function TemplateManagementPage() {
                   </div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
-                  <button onClick={() => setShowShareModal(false)} style={{ padding: '8px 20px', border: `1px solid ${C.border}`, borderRadius: 6, background: 'var(--bg-card)', color: C.textMid, fontSize: 13, cursor: 'pointer' }}>{t9('templateMgmt.cancel')}</button>
-                  <button onClick={handleCreateShare} disabled={!shareForm.sharedWith.trim()} style={{ padding: '8px 20px', border: 'none', borderRadius: 6, background: shareForm.sharedWith.trim() ? C.primary : '#94a3b8', color: '#fff', fontSize: 13, fontWeight: 600, cursor: shareForm.sharedWith.trim() ? 'pointer' : 'not-allowed' }}>{t9('templateMgmt.confirmShare')}</button>
+                  <button onClick={() => setShowShareModal(false)} style={{ padding: '8px 20px', border: `1px solid ${C.border}`, borderRadius: 6, background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer' }}>{t9('templateMgmt.cancel')}</button>
+                  <button onClick={handleCreateShare} disabled={!shareForm.sharedWith.trim()} style={{ padding: '8px 20px', border: 'none', borderRadius: 6, background: shareForm.sharedWith.trim() ? C.primary : '#94a3b8', color: '#fff', fontSize: 12, fontWeight: 600, cursor: shareForm.sharedWith.trim() ? 'pointer' : 'not-allowed' }}>{t9('templateMgmt.confirmShare')}</button>
                 </div>
               </div>
             </div>
@@ -806,13 +796,13 @@ export default function TemplateManagementPage() {
         <ActionButton action="export" style={{ marginLeft: 8 }} loading={exporting} onClick={() => void handleExportTemplates()}>
           {exporting ? t9('templateMgmt.exporting') : t9('templateMgmt.batchExport')}
         </ActionButton>
-        <button onClick={() => navigate('/template-designer')} style={{ marginLeft: 8, padding: '8px 14px', background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, boxShadow: '0 2px 4px rgba(124, 58, 237, 0.3)' }}>
+        <button onClick={() => navigate('/template-designer')} style={{ marginLeft: 8, padding: '8px 14px', background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, boxShadow: '0 2px 4px rgba(124, 58, 237, 0.3)' }}>
           <Wand2 size={16} /><span>{t9('templateMgmt.visualDesigner')}</span>
         </button>
-        <button onClick={() => navigate('/template-inheritance')} style={{ marginLeft: 8, padding: '8px 14px', background: 'var(--bg-card)', color: '#1e40af', border: '1px solid #3b82f6', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button onClick={() => navigate('/template-inheritance')} style={{ marginLeft: 8, padding: '8px 14px', background: 'var(--bg-card)', color: '#1e40af', border: '1px solid #3b82f6', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
           <GitBranch size={16} /><span>{t9('templateMgmt.inheritClone')}</span>
         </button>
-        <button onClick={() => navigate('/template-category')} style={{ marginLeft: 8, padding: '8px 14px', background: 'var(--bg-card)', color: '#0891b2', border: '1px solid #0891b2', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button onClick={() => navigate('/template-category')} style={{ marginLeft: 8, padding: '8px 14px', background: 'var(--bg-card)', color: '#0891b2', border: '1px solid #0891b2', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
           <FolderTree size={16} /><span>{t9('templateMgmt.categoryTree')}</span>
         </button>
       </div>
@@ -857,7 +847,7 @@ export default function TemplateManagementPage() {
           <button
             onClick={() => { setFilterStatus(prev => prev === 'pending' ? 'all' : 'pending'); setCurrentPage(1); }}
             style={{
-              display: 'flex', alignItems: 'center', gap: 5, padding: '8px 14px', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 5, padding: '8px 14px', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer',
               border: filterStatus === 'pending' ? '1px solid #d97706' : '1px solid #d97706',
               background: filterStatus === 'pending' ? C.warningLight : 'var(--bg-card)',
               color: filterStatus === 'pending' ? C.warning : C.warning,
@@ -867,7 +857,7 @@ export default function TemplateManagementPage() {
             {filterStatus === 'pending' && <span style={{ background: C.warning, color: '#fff', borderRadius: 10, fontSize: 10, padding: '0 6px' }}>{templates.filter(t => t.status === 'pending').length}</span>}
           </button>
           {/* [v3.0.6.11-98 Wave2A P1] 我的模板筛选 (医生个人模板库) */}
-          <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, color: C.textDark, cursor: 'pointer' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: C.textDark, cursor: 'pointer' }}>
             <input type="checkbox" checked={myOnly} onChange={(e) => setMyOnly(e.target.checked)} style={{ width: 15, height: 15, accentColor: C.primary, cursor: 'pointer' }} />
             <Users size={14} color={C.accent} /> {t9('templateMgmt.myTemplates')}
           </label>
@@ -895,78 +885,68 @@ export default function TemplateManagementPage() {
           </div>
 
           <div style={styles.tableWrapper}>
-            <table style={styles.table}>
-              <thead><tr style={styles.theadTr}>
-                <th style={{ ...styles.th, ...styles.thCode }}>{t9('templateMgmt.thCode')}</th>
-                <th style={{ ...styles.th, ...styles.thName }}>{t9('templateMgmt.thName')}</th>
-                <th style={{ ...styles.th, ...styles.thModality }}>{t9('templateMgmt.thModality')}</th>
-                <th style={{ ...styles.th, ...styles.thCategory }}>{t9('templateMgmt.thCategory')}</th>
-                <th style={{ ...styles.th, ...styles.thTags }}>{t9('templateMgmt.thTags')}</th>
-                <th style={{ ...styles.th, ...styles.thUsage }}>{t9('templateMgmt.thUsage')}</th>
-                <th style={{ ...styles.th, ...styles.thStatus }}>{t9('templateMgmt.thStatus')}</th>
-                <th style={{ ...styles.th, ...styles.thActions }}>{t9('templateMgmt.thActions')}</th>
-              </tr></thead>
-              <tbody>
-                {paginatedTemplates.map((tpl, idx) => (
-                  <tr key={tpl.id} style={{ ...styles.tr, backgroundColor: idx % 2 === 0 ? 'var(--bg-card)' : C.bgLight }}>
-                    <td style={styles.td}><code style={styles.code}>{tpl.code}</code></td>
-                    <td style={styles.td}><div style={styles.nameCell}><span style={styles.name}>{tpl.name}</span><span style={styles.version}>{tpl.version}</span></div></td>
-                    <td style={styles.td}><div style={styles.modalityCell}>{getModalityIcon(tpl.modality)}<span style={styles.modalityText}>{tpl.modality}</span></div></td>
-                    <td style={styles.td}><span style={styles.categoryText}>{tpl.category}</span><span style={styles.subCategoryText}> / {tpl.subCategory}</span></td>
-                    <td style={styles.td}><div style={styles.tagsCell}>{tpl.tags.slice(0, 3).map(tag => <span key={tag} style={styles.tag}>{tag}</span>)}{tpl.tags.length > 3 && <span style={styles.tagMore}>+{tpl.tags.length - 3}</span>}</div></td>
-                    <td style={styles.td}><span style={styles.usageCount}>{tpl.usageCount}</span></td>
-                    <td style={styles.td}>
-                      {/* [v3.0.6.11-98 Wave2A P1] 审批状态 Tag (草稿/待审批/已批准/已驳回) */}
-                      {(() => {
-                        const m = STATUS_META[tpl.status] ?? { labelKey: tpl.status, color: C.textLight, bg: C.bgLight };
-                        return <span style={{ ...styles.statusBadge, backgroundColor: m.bg, color: m.color }}>{t9(m.labelKey)}</span>;
-                      })()}
-                    </td>
-                    <td style={styles.td}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                        <div style={styles.actionsCell}>
-                          <button style={styles.actionBtn} onClick={() => handlePreview(tpl)} title={t9('templateMgmt.actionPreview')}><Eye size={16} /></button>
-                          <ActionButton action="edit" onClick={() => handleEdit(tpl)} />
-                          <ActionButton action="delete" onClick={() => void handleDelete(tpl.id)} />
-                        </div>
-                        {/* [v3.0.6.11-98 Wave2A P1] 模板审批流操作 */}
-                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                          {(tpl.status === 'draft' || tpl.status === 'rejected') && (
-                            <button onClick={() => void handleSubmitApproval(tpl)}
-                              style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', background: '#f59e0b20', color: '#d97706', border: 'none', borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
-                              <Send size={11} /> {t9('templateMgmt.submitApproval')}
-                            </button>
-                          )}
-                          {tpl.status === 'pending' && !canApprove && (
-                            <span style={{ fontSize: 11, color: '#d97706', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
-                              <Clock3 size={11} /> {t9('templateMgmt.pendingReview')}
-                            </span>
-                          )}
-                          {tpl.status === 'pending' && canApprove && (
-                            <>
-                              <button onClick={() => void handleApprove(tpl)}
-                                style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', background: '#22c55e20', color: '#059669', border: 'none', borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
-                                <ShieldCheck size={11} /> {t9('templateMgmt.approve')}
-                              </button>
-                              <button onClick={() => { setRejectTarget(tpl); setRejectReason(''); }}
-                                style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', background: '#ef444420', color: '#dc2626', border: 'none', borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
-                                <XCircle size={11} /> {t9('templateMgmt.reject')}
-                              </button>
-                            </>
-                          )}
-                          {tpl.status === 'rejected' && tpl.rejectedReason && (
-                            <span style={{ fontSize: 11, color: '#dc2626' }} title={tpl.rejectedReason}>{t9('templateMgmt.rejectedPrefix')}{String(tpl.rejectedReason).slice(0, 8)}…</span>
-                          )}
-                        </div>
+            <DataTable
+              dataSource={paginatedTemplates}
+              rowKey="id"
+              pagination={false}
+              emptyText={t9('templateMgmt.empty')}
+              columns={[
+                { title: t9('templateMgmt.thCode'), dataIndex: 'code', render: (v: string) => <code style={styles.code}>{v}</code> },
+                { title: t9('templateMgmt.thName'), key: 'name', render: (_: unknown, tpl: TemplateRecord) => <div style={styles.nameCell}><span style={styles.name}>{tpl.name}</span><span style={styles.version}>{tpl.version}</span></div> },
+                { title: t9('templateMgmt.thModality'), key: 'modality', render: (_: unknown, tpl: TemplateRecord) => <div style={styles.modalityCell}>{getModalityIcon(tpl.modality)}<span style={styles.modalityText}>{tpl.modality}</span></div> },
+                { title: t9('templateMgmt.thCategory'), key: 'category', render: (_: unknown, tpl: TemplateRecord) => <><span style={styles.categoryText}>{tpl.category}</span><span style={styles.subCategoryText}> / {tpl.subCategory}</span></> },
+                { title: t9('templateMgmt.thTags'), key: 'tags', render: (_: unknown, tpl: TemplateRecord) => <div style={styles.tagsCell}>{tpl.tags.slice(0, 3).map(tag => <span key={tag} style={styles.tag}>{tag}</span>)}{tpl.tags.length > 3 && <span style={styles.tagMore}>+{tpl.tags.length - 3}</span>}</div> },
+                { title: t9('templateMgmt.thUsage'), dataIndex: 'usageCount', render: (v: number) => <span style={styles.usageCount}>{v}</span> },
+                {
+                  title: t9('templateMgmt.thStatus'), dataIndex: 'status',
+                  render: (v: TemplateRecord['status']) => {
+                    const m = STATUS_META[v] ?? { labelKey: v, color: C.textLight, bg: C.bgLight };
+                    return <span style={{ ...styles.statusBadge, backgroundColor: m.bg, color: m.color }}>{t9(m.labelKey)}</span>;
+                  },
+                },
+                {
+                  title: t9('templateMgmt.thActions'), key: 'actions',
+                  render: (_: unknown, tpl: TemplateRecord) => (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <div style={styles.actionsCell}>
+                        <button style={styles.actionBtn} onClick={() => handlePreview(tpl)} title={t9('templateMgmt.actionPreview')}><Eye size={16} /></button>
+                        <ActionButton action="edit" onClick={() => handleEdit(tpl)} />
+                        <ActionButton action="delete" onClick={() => void handleDelete(tpl.id)} />
                       </div>
-                    </td>
-                  </tr>
-                ))}
-                {paginatedTemplates.length === 0 && (
-                  <tr><td colSpan={8} style={styles.emptyCell}><ClipboardList size={48} style={{ color: C.textLight }} /><p style={styles.emptyText}>{t9('templateMgmt.empty')}</p></td></tr>
-                )}
-              </tbody>
-            </table>
+                      {/* [v3.0.6.11-98 Wave2A P1] 模板审批流操作 */}
+                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                        {(tpl.status === 'draft' || tpl.status === 'rejected') && (
+                          <button onClick={() => void handleSubmitApproval(tpl)}
+                            style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', background: '#f59e0b20', color: '#d97706', border: 'none', borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                            <Send size={11} /> {t9('templateMgmt.submitApproval')}
+                          </button>
+                        )}
+                        {tpl.status === 'pending' && !canApprove && (
+                          <span style={{ fontSize: 11, color: '#d97706', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
+                            <Clock3 size={11} /> {t9('templateMgmt.pendingReview')}
+                          </span>
+                        )}
+                        {tpl.status === 'pending' && canApprove && (
+                          <>
+                            <button onClick={() => void handleApprove(tpl)}
+                              style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', background: '#22c55e20', color: '#059669', border: 'none', borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                              <ShieldCheck size={11} /> {t9('templateMgmt.approve')}
+                            </button>
+                            <button onClick={() => { setRejectTarget(tpl); setRejectReason(''); }}
+                              style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 8px', background: '#ef444420', color: '#dc2626', border: 'none', borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                              <XCircle size={11} /> {t9('templateMgmt.reject')}
+                            </button>
+                          </>
+                        )}
+                        {tpl.status === 'rejected' && tpl.rejectedReason && (
+                          <span style={{ fontSize: 11, color: '#dc2626' }} title={tpl.rejectedReason}>{t9('templateMgmt.rejectedPrefix')}{String(tpl.rejectedReason).slice(0, 8)}…</span>
+                        )}
+                      </div>
+                    </div>
+                  ),
+                },
+              ]}
+            />
           </div>
 
           {totalPages > 1 && (
@@ -1080,7 +1060,7 @@ export default function TemplateManagementPage() {
               <button style={styles.modalClose} onClick={() => { if (!actionBusy) { setRejectTarget(null); setRejectReason('') } }}><X size={20} /></button>
             </div>
             <div style={{ padding: '20px 24px' }}>
-              <div style={{ fontSize: 13, color: C.textDark, marginBottom: 6 }}>
+              <div style={{ fontSize: 12, color: C.textDark, marginBottom: 6 }}>
                 {t9('templateMgmt.rejectPromptPrefix')}<b>{rejectTarget.name}</b>{t9('templateMgmt.rejectPromptSuffix')}
               </div>
               <textarea
@@ -1088,7 +1068,7 @@ export default function TemplateManagementPage() {
                 onChange={(e) => setRejectReason(e.target.value)}
                 rows={4}
                 placeholder={t9('templateMgmt.rejectReasonPlaceholder')}
-                style={{ width: '100%', boxSizing: 'border-box', padding: '10px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, resize: 'vertical', fontFamily: 'inherit' }}
+                style={{ width: '100%', boxSizing: 'border-box', padding: '10px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, resize: 'vertical', fontFamily: 'inherit' }}
               />
             </div>
             <div style={styles.modalFooter}>
@@ -1127,10 +1107,10 @@ const styles: Record<string, React.CSSProperties> = {
   tableWrapper: { backgroundColor: 'var(--bg-card)', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden' },
   table: { width: '100%', borderCollapse: 'collapse' },
   theadTr: { backgroundColor: C.primaryLighter },
-  th: { padding: '12px 16px', textAlign: 'left', fontSize: '13px', fontWeight: 600, color: C.primary, borderBottom: `2px solid ${C.primaryLight}` },
+  th: { padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: C.primary, borderBottom: `2px solid ${C.primaryLight}` },
   thCode: { width: '130px' }, thName: { width: '180px' }, thModality: { width: '90px' }, thCategory: { width: '120px' }, thTags: { width: '150px' }, thUsage: { width: '80px' }, thStatus: { width: '70px' }, thActions: { width: '120px' },
   tr: { transition: 'background-color 0.15s' },
-  td: { padding: '12px 16px', fontSize: '13px', color: C.textDark, borderBottom: `1px solid ${C.borderLight}` },
+  td: { padding: '12px 16px', fontSize: '12px', color: C.textDark, borderBottom: `1px solid ${C.borderLight}` },
   code: { fontFamily: '"Consolas", "Monaco", monospace', fontSize: '12px', backgroundColor: C.bgLight, padding: '2px 6px', borderRadius: '4px', color: C.primary },
   nameCell: { display: 'flex', flexDirection: 'column', gap: '2px' },
   name: { fontWeight: 500 },
@@ -1150,9 +1130,9 @@ const styles: Record<string, React.CSSProperties> = {
   emptyCell: { textAlign: 'center', padding: '60px 20px', color: C.textLight },
   emptyText: { marginTop: '12px', fontSize: '14px' },
   pagination: { display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginTop: '20px', padding: '14px', backgroundColor: 'var(--bg-card)', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' },
-  pageBtn: { padding: '8px 16px', backgroundColor: C.primary, color: C.white, border: 'none', borderRadius: '6px', fontSize: '13px', cursor: 'pointer' },
+  pageBtn: { padding: '8px 16px', backgroundColor: C.primary, color: C.white, border: 'none', borderRadius: '6px', fontSize: '12px', cursor: 'pointer' },
   pageBtnDisabled: { backgroundColor: C.borderLight, color: C.textLight, cursor: 'not-allowed' },
-  pageInfo: { fontSize: '13px', color: C.textMid },
+  pageInfo: { fontSize: '12px', color: C.textMid },
   pageCurrent: { fontWeight: 600, color: C.primary },
   pageDivider: { margin: '0 8px', color: C.border },
   modalOverlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
@@ -1164,15 +1144,15 @@ const styles: Record<string, React.CSSProperties> = {
   modalBody: { padding: '20px 24px', overflowY: 'auto', flex: 1 },
   formRow: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' },
   formGroup: { marginBottom: '16px' },
-  label: { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 500, color: C.textDark, marginBottom: '6px' },
+  label: { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 500, color: C.textDark, marginBottom: '6px' },
   required: { color: C.danger },
   input: { width: '100%', padding: '10px 12px', border: `1px solid ${C.border}`, borderRadius: '6px', fontSize: '14px', color: C.textDark, boxSizing: 'border-box' },
   textarea: { width: '100%', padding: '10px 12px', border: `1px solid ${C.border}`, borderRadius: '6px', fontSize: '14px', color: C.textDark, fontFamily: '"Consolas", "Monaco", monospace', resize: 'vertical', boxSizing: 'border-box' },
   tagInput: { display: 'flex', gap: '8px' },
   tagInputField: { flex: 1, padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: '6px', fontSize: '14px',},
-  tagAddBtn: { padding: '8px 16px', backgroundColor: C.primaryLighter, color: C.primary, border: 'none', borderRadius: '6px', fontSize: '13px', cursor: 'pointer' },
+  tagAddBtn: { padding: '8px 16px', backgroundColor: C.primaryLighter, color: C.primary, border: 'none', borderRadius: '6px', fontSize: '12px', cursor: 'pointer' },
   tagsList: { display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '10px' },
-  tagItem: { display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', backgroundColor: C.primaryLighter, color: C.primary, borderRadius: '14px', fontSize: '13px' },
+  tagItem: { display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', backgroundColor: C.primaryLighter, color: C.primary, borderRadius: '14px', fontSize: '12px' },
   tagRemove: { backgroundColor: 'transparent', border: 'none', color: C.primary, cursor: 'pointer', fontSize: '16px', lineHeight: 1, padding: 0 },
   radioGroup: { display: 'flex', gap: '20px' },
   radioLabel: { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', color: C.textDark, cursor: 'pointer' },
@@ -1182,9 +1162,9 @@ const styles: Record<string, React.CSSProperties> = {
   saveBtn: { display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 20px', backgroundColor: C.primary, color: C.white, border: 'none', borderRadius: '6px', fontSize: '14px', cursor: 'pointer' },
   copyBtn: { display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 20px', backgroundColor: C.accent, color: C.white, border: 'none', borderRadius: '6px', fontSize: '14px', cursor: 'pointer' },
   previewMeta: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '16px 24px', backgroundColor: C.bgLight, borderBottom: `1px solid ${C.borderLight}` },
-  previewMetaItem: { fontSize: '13px', color: C.textMid },
+  previewMetaItem: { fontSize: '12px', color: C.textMid },
   previewMetaLabel: { fontWeight: 500, color: C.textDark },
   previewContent: { padding: '20px 24px', flex: 1, overflowY: 'auto' },
-  previewText: { fontFamily: '"Consolas", "Monaco", monospace', fontSize: '13px', lineHeight: 1.8, color: C.textDark, whiteSpace: 'pre-wrap', margin: 0 },
+  previewText: { fontFamily: '"Consolas", "Monaco", monospace', fontSize: '12px', lineHeight: 1.8, color: C.textDark, whiteSpace: 'pre-wrap', margin: 0 },
   previewTags: { display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '12px 24px', borderTop: `1px solid ${C.borderLight}` },
 }

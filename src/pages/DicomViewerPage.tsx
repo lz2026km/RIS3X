@@ -704,7 +704,7 @@ export default function DicomViewerPage() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, marginBottom: 12 }}>
               {['序列1-层面1', '序列1-层面2', '序列2-层面1', '序列2-层面2'].map((label, i) => (
                 <div key={i} style={{ background: '#222', borderRadius: 4, padding: '40px 20px', textAlign: 'center', color: '#666', fontSize: 12 }}>
-                  <div style={{ fontSize: 40, marginBottom: 8, opacity: 0.3 }}>▣</div>{label}
+                  <div style={{ fontSize: 36, marginBottom: 8, opacity: 0.3 }}>▣</div>{label}
                 </div>
               ))}
             </div>
@@ -713,10 +713,10 @@ export default function DicomViewerPage() {
               <span>{exam.examItemName} | {exam.deviceName?.split('（')[0]}</span>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 16, padding: '12px 0 0', fontSize: 13 }}>
+          <div style={{ display: 'flex', gap: 16, padding: '12px 0 0', fontSize: 12 }}>
             <label style={{ color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 6 }}>
               {t('dicomViewer.filmSize')}
-              <select value={printFilmSpec} onChange={e => setPrintFilmSpec(e.target.value as typeof printFilmSpec)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #334155', background: '#1e293b', color: '#e2e8f0', fontSize: 13 }}>
+              <select value={printFilmSpec} onChange={e => setPrintFilmSpec(e.target.value as typeof printFilmSpec)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #334155', background: '#1e293b', color: '#e2e8f0', fontSize: 12 }}>
                 <option value="14x17">{t('dicomViewer.film14x17')}</option>
                 <option value="10x12">{t('dicomViewer.film10x12')}</option>
                 <option value="8x10">{t('dicomViewer.film8x10')}</option>
@@ -724,7 +724,7 @@ export default function DicomViewerPage() {
             </label>
             <label style={{ color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 6 }}>
               {t('dicomViewer.copies')}
-              <input type="number" min={1} max={5} value={printCopies} onChange={e => setPrintCopies(Math.max(1, Math.min(5, Number(e.target.value) || 1)))} style={{ width: 60, padding: '4px 8px', borderRadius: 4, border: '1px solid #334155', background: '#1e293b', color: '#e2e8f0', fontSize: 13 }} />
+              <input type="number" min={1} max={5} value={printCopies} onChange={e => setPrintCopies(Math.max(1, Math.min(5, Number(e.target.value) || 1)))} style={{ width: 60, padding: '4px 8px', borderRadius: 4, border: '1px solid #334155', background: '#1e293b', color: '#e2e8f0', fontSize: 12 }} />
             </label>
           </div>
         </AppModal>
@@ -750,13 +750,13 @@ export default function DicomViewerPage() {
           {similarLoading ? (
             <div style={{ textAlign: 'center', padding: 32 }}><div style={{ display: 'inline-block', width: 28, height: 28, border: '3px solid #334155', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />                <div style={{ marginTop: 12, color: '#64748b', fontSize: 12 }}>{t('dicomViewer.searchingSimilar')}</div></div>
           ) : similarResults.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8', fontSize: 13 }}>{t('dicomViewer.noSimilarRetry')}</div>
+            <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8', fontSize: 12 }}>{t('dicomViewer.noSimilarRetry')}</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 420, overflow: 'auto' }}>
               {similarResults.map((r) => (
                 <div key={r.id} style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 12 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#1e293b' }}>
                       {r.modality} · {r.bodyPart}
                       <span style={{ marginLeft: 8, fontSize: 12, color: '#94a3b8' }}>{r.gender} {r.age}{t('dicomViewer.yearsOld')} · {r.studyDate}</span>
                     </span>
@@ -779,7 +779,7 @@ export default function DicomViewerPage() {
 
         {/* Toast 提示 */}
         {toastVisible && (
-          <div style={{ position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)', background: '#22c55e', color: '#fff', padding: '10px 20px', borderRadius: 8, fontSize: 13, fontWeight: 600, boxShadow: '0 4px 16px rgba(34,197,94,0.4)', zIndex: 9999, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)', background: '#22c55e', color: '#fff', padding: '10px 20px', borderRadius: 8, fontSize: 12, fontWeight: 600, boxShadow: '0 4px 16px rgba(34,197,94,0.4)', zIndex: 9999, display: 'flex', alignItems: 'center', gap: 8 }}>
             <CheckCircle size={16} />{toastMsg}
           </div>
         )}

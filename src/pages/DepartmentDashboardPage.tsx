@@ -139,7 +139,7 @@ const DepartmentDashboardPage: React.FC = () => {
       boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
     },
     statValue: {
-      fontSize: '32px',
+      fontSize: '30px',
       fontWeight: '700',
       color: 'var(--text-primary)',
       marginBottom: '4px',
@@ -401,7 +401,7 @@ const DepartmentDashboardPage: React.FC = () => {
         boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
         textAlign: 'center',
         color: 'var(--text-secondary)',
-        fontSize: '13px',
+        fontSize: '12px',
       }}>
         {t('deptDash.footer')}
       </div>

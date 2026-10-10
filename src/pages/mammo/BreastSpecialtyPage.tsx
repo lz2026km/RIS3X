@@ -15,6 +15,8 @@ import { dbtApi, type DbtStudyDto } from '@/services/api/dbtApi';
 import { dualReadApi, type DualReadAssignment } from '@/services/api/dualReadApi';
 import { t } from '../../i18n/appI18n';
 import { SeverityTag } from '../../components/common/SeverityTag';
+import { DataTable } from '../../components/common';
+import type { TableColumnsType } from 'antd';
 import { uniqueId } from '../../utils/uniqueId';
 
 const BIRADS_COLORS: Record<string, string> = { 0: '#94a3b8', 1: '#16a34a', 2: '#16a34a', 3: '#ca8a04', '4A': '#ea580c', '4B': '#dc2626', 4: '#dc2626', 5: '#dc2626', 6: '#7c3aed' };
@@ -331,6 +333,93 @@ const BreastSpecialtyPage = () => {
   const recalls = screeningList.filter(r => r.recall).length;
   const suspicious = screeningList.filter(r => ['4A', '4B', 4, 5].includes(String(r.biRads))).length;
 
+  const screeningColumns: TableColumnsType<any> = [
+    { title: t('breastSpecialty.colId'), dataIndex: 'id', key: 'id' },
+    { title: t('breastSpecialty.colPatient'), dataIndex: 'patientName', key: 'patientName', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+    { title: t('breastSpecialty.colAge'), dataIndex: 'age', key: 'age' },
+    { title: t('breastSpecialty.colDensity'), dataIndex: 'density', key: 'density', render: (v: string) => t(DENSITY_LABELS[v] ?? '') },
+    { title: 'BI-RADS', dataIndex: 'biRads', key: 'biRads', render: (v: string | number) => <BiradsTag v={v} /> },
+    { title: t('breastSpecialty.colResult'), dataIndex: 'outcome', key: 'outcome', render: (v: string) => t(OUTCOME_LABELS[v] ?? '') },
+    { title: t('breastSpecialty.colDate'), dataIndex: 'date', key: 'date', render: (v: string) => <span style={{ color: 'var(--text-secondary)' }}>{v}</span> },
+    {
+      title: t('breastSpecialty.colActions'), key: 'actions',
+      render: (_v: unknown, r: any) => (
+        <button onClick={() => gotoDbt(r.id)} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #fbcfe8', background: '#ec489922', color: '#be185d', fontSize: 12, cursor: 'pointer', whiteSpace: 'nowrap' }}>{t('breastSpecialty.dbtRead')}</button>
+      ),
+    },
+  ]
+
+  const densityColumns: TableColumnsType<any> = [
+    { title: t('breastSpecialty.colStudyId'), dataIndex: 'id', key: 'id' },
+    { title: t('breastSpecialty.colPatient'), dataIndex: 'patientName', key: 'patientName', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+    { title: t('breastSpecialty.colDensity'), dataIndex: 'density', key: 'density', render: (v: string) => t(DENSITY_LABELS[v] ?? '') },
+    { title: 'BI-RADS', dataIndex: 'biRads', key: 'biRads', render: (v: string | number) => <BiradsTag v={v} /> },
+    { title: t('breastSpecialty.colDate'), dataIndex: 'date', key: 'date', render: (v: string) => <span style={{ color: 'var(--text-secondary)' }}>{v}</span> },
+    {
+      title: t('breastSpecialty.colActions'), key: 'actions',
+      render: (_v: unknown, r: any) => (
+        <button onClick={() => gotoDbt(r.id)} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #fbcfe8', background: '#ec489922', color: '#be185d', fontSize: 12, cursor: 'pointer', whiteSpace: 'nowrap' }}>{t('breastSpecialty.dbtRead')}</button>
+      ),
+    },
+  ]
+
+  const cadColumns: TableColumnsType<BreastCadResult> = [
+    { title: t('breastSpecialty.colId'), dataIndex: 'id', key: 'id' },
+    { title: t('breastSpecialty.colPatient'), dataIndex: 'patientName', key: 'patientName', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+    { title: t('breastSpecialty.colModality'), dataIndex: 'modality', key: 'modality' },
+    { title: t('breastSpecialty.colLesionCount'), dataIndex: 'lesionCount', key: 'lesionCount' },
+    { title: 'BI-RADS', dataIndex: 'overallBiRads', key: 'overallBiRads', render: (v: string | number) => <BiradsTag v={v} /> },
+    {
+      title: t('breastSpecialty.colStatus'), dataIndex: 'status', key: 'status',
+      render: (v: string) => v === 'confirmed' ? t('breastSpecialty.statusConfirmed') : v === 'reviewed' ? t('breastSpecialty.statusReviewed') : t('breastSpecialty.statusPendingReview'),
+    },
+    { title: t('breastSpecialty.colDate'), dataIndex: 'createdAt', key: 'createdAt', render: (v: string) => <span style={{ color: 'var(--text-secondary)' }}>{(v ?? '').slice(0, 10)}</span> },
+    {
+      title: t('breastSpecialty.colActions'), key: 'actions',
+      render: (_v: unknown, r: BreastCadResult) => (
+        <button onClick={e => { e.stopPropagation(); setCadDetail(r) }} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #fbcfe8', background: '#ec489922', color: '#be185d', fontSize: 12, cursor: 'pointer' }}>{t('breastSpecialty.detail')}</button>
+      ),
+    },
+  ]
+
+  const dualColumns: TableColumnsType<DualReadAssignment> = [
+    { title: t('breastSpecialty.colStudyId'), dataIndex: 'studyId', key: 'studyId' },
+    { title: t('breastSpecialty.colPatient'), dataIndex: 'patientName', key: 'patientName', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+    { title: t('breastSpecialty.colModality'), dataIndex: 'modality', key: 'modality' },
+    { title: t('breastSpecialty.colReaders'), key: 'readers', render: (_v: unknown, a: DualReadAssignment) => `${a.reader1Name} / ${a.reader2Name}` },
+    {
+      title: t('breastSpecialty.colStatus'), key: 'status',
+      render: (_v: unknown, a: DualReadAssignment) => {
+        const st = DUAL_STATUS_LABELS[a.status] ?? { label: a.status, color: '#64748b' };
+        return (
+          <>
+            <SeverityTag tone={{ bg: `${st.color}18`, border: `${st.color}40`, color: st.color, dot: st.color }}>{t(st.label)}</SeverityTag>
+            {a.status === 'arbitrated' && <span style={{ fontSize: 11, color: 'var(--text-secondary)', marginLeft: 6 }}>{t('breastSpecialty.arbitrationBy')}: {a.arbitratorName}</span>}
+          </>
+        );
+      },
+    },
+    { title: t('breastSpecialty.colDiscrepancy'), key: 'discrepancy', render: (_v: unknown, a: DualReadAssignment) => a.discrepancyScore != null ? `${(a.discrepancyScore * 100).toFixed(0)}%` : '-' },
+    {
+      title: t('breastSpecialty.colActions'), key: 'actions',
+      render: (_v: unknown, a: DualReadAssignment) => (
+        a.status === 'both_done'
+          ? <button onClick={() => { setArbitrateTarget(a); setArbitrateReport('') }} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #ddd6fe', background: '#8b5cf622', color: '#7c3aed', fontSize: 12, cursor: 'pointer' }}>{t('breastSpecialty.arbitrate')}</button>
+          : a.status === 'arbitrated'
+            ? <span style={{ fontSize: 12, color: '#16a34a' }}>{t('breastSpecialty.completed')}</span>
+            : <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>—</span>
+      ),
+    },
+  ]
+
+  const lesionColumns: TableColumnsType<BreastLesion> = [
+    { title: t('breastSpecialty.colLesionType'), dataIndex: 'type', key: 'type' },
+    { title: t('breastSpecialty.colShape'), dataIndex: 'shape', key: 'shape' },
+    { title: t('breastSpecialty.colMargin'), dataIndex: 'margin', key: 'margin' },
+    { title: 'BI-RADS', dataIndex: 'biRads', key: 'biRads', render: (v: string | number) => <BiradsTag v={v} /> },
+    { title: t('breastSpecialty.colMalignancyRisk'), dataIndex: 'malignancyRisk', key: 'malignancyRisk', render: (v: number) => <span style={{ color: v > 0.5 ? '#dc2626' : '#64748b', fontWeight: 600 }}>{(v * 100).toFixed(0)}%</span> },
+  ]
+
   const handleCreateScreening = async () => {
     if (!newForm.patientName.trim() || !newForm.patientId.trim()) { alert(t('breastSpecialty.fillPatientFields')); return; }
     setSaving(true);
@@ -400,9 +489,9 @@ const BreastSpecialtyPage = () => {
       <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Heart size={24} color="#be185d" /> {t('breastSpecialty.title')} <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: dataSource === 'real' ? '#16a34a' : '#be185d', border: `1px solid ${dataSource === 'real' ? '#bbf7d0' : '#fbcfe8'}` }}>{dataSource === 'real' ? t('breastSpecialty.sourceRealtime') : t('breastSpecialty.sourceDemoFallback')}</span></h1>
-          <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>{t('breastSpecialty.subtitle')}</p>
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('breastSpecialty.subtitle')}</p>
         </div>
-        <button onClick={() => setShowNewModal(true)} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>{t('breastSpecialty.newScreening')}</button>
+        <button onClick={() => setShowNewModal(true)} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 500 }}>{t('breastSpecialty.newScreening')}</button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 20 }}>
@@ -415,7 +504,7 @@ const BreastSpecialtyPage = () => {
         ].map((k, i) => (
           <div key={i} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '18px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <div style={{ width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, background: k.bg }}><k.icon size={20} color={k.color} /></div>
-            <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-primary-800)' }}>{k.value}</div>
+            <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-primary-800)' }}>{k.value}</div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{k.label}</div>
           </div>
         ))}
@@ -423,54 +512,31 @@ const BreastSpecialtyPage = () => {
 
       <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
         {[{ key: 'screening', label: t('breastSpecialty.tabScreening') }, { key: 'density', label: t('breastSpecialty.tabDensity') }, { key: 'workflow', label: t('breastSpecialty.tabWorkflow') }, { key: 'stats', label: t('breastSpecialty.tabStats') }, { key: 'cad', label: t('breastSpecialty.tabCad') }, { key: 'dual', label: t('breastSpecialty.tabDual') }].map(tabItem => (
-          <button key={tabItem.key} onClick={() => setTab(tabItem.key as any)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, background: tab === tabItem.key ? '#be185d' : 'var(--bg-card)', color: tab === tabItem.key ? '#fff' : '#64748b' }}>{tabItem.label}</button>
+          <button key={tabItem.key} onClick={() => setTab(tabItem.key as any)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, background: tab === tabItem.key ? '#be185d' : 'var(--bg-card)', color: tab === tabItem.key ? '#fff' : '#64748b' }}>{tabItem.label}</button>
         ))}
       </div>
 
       {tab === 'screening' && (
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}><Stethoscope size={16} color="#be185d" /> {t('breastSpecialty.screeningList')}
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}><Stethoscope size={16} color="#be185d" /> {t('breastSpecialty.screeningList')}
               <SrcBadge real={screeningSource === 'real'} label={t('breastSpecialty.sourceScreeningRealtime')} demoLabel={t('breastSpecialty.sourceDemoFallbackShort')} />
               {screeningLoading && <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('breastSpecialty.loading')}</span>}
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-card)', borderRadius: 8, padding: '4px 12px' }}>
                 <Search size={16} color="var(--text-secondary)" />
-                <input placeholder={t('breastSpecialty.searchPatient')} value={search} onChange={e => setSearch(e.target.value)} style={{ border: 'none', background: 'transparent', marginLeft: 8, fontSize: 13, width: 160 }} />
+                <input placeholder={t('breastSpecialty.searchPatient')} value={search} onChange={e => setSearch(e.target.value)} style={{ border: 'none', background: 'transparent', marginLeft: 8, fontSize: 12, width: 160 }} />
               </div>
             </div>
           </div>
           <div style={{ maxHeight: 320, overflowY: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-              <thead><tr>
-                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colId')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colPatient')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colAge')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colDensity')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>BI-RADS</th>
-                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colResult')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colDate')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colActions')}</th>
-              </tr></thead>
-              <tbody>
-                {filtered.map(r => (
-                  <tr key={r.id}>
-                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{r.id}</td>
-                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)', fontWeight: 600 }}>{r.patientName}</td>
-                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{r.age}</td>
-                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{t(DENSITY_LABELS[r.density] ?? '')}</td>
-                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}><BiradsTag v={r.biRads} /></td>
-                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{t(OUTCOME_LABELS[r.outcome] ?? '')}</td>
-                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)', color: 'var(--text-secondary)' }}>{r.date}</td>
-                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>
-                      {/* [v3.0.6.11-96 Wave3B G-21 P2] DBT 联动: 跳{t('breastSpecialty.dbtRead')} (带 studyId) */}
-                      <button onClick={() => gotoDbt(r.id)} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #fbcfe8', background: '#ec489922', color: '#be185d', fontSize: 12, cursor: 'pointer', whiteSpace: 'nowrap' }}>{t('breastSpecialty.dbtRead')}</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable<any>
+              columns={screeningColumns}
+              dataSource={filtered}
+              rowKey="id"
+              showPagination={false}
+            />
           </div>
         </div>
       )}
@@ -478,7 +544,7 @@ const BreastSpecialtyPage = () => {
       {tab === 'density' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Activity size={16} color="#be185d" /> {t('breastSpecialty.densityDistribution')}
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Activity size={16} color="#be185d" /> {t('breastSpecialty.densityDistribution')}
               <SrcBadge real={densitySource === 'real'} label={`dbtApi 实时 (${dbtCount} 例)`} demoLabel={t('breastSpecialty.sourceNoDensityEndpoint')} />
               {densityLoading && <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('breastSpecialty.loading')}</span>}
             </div>
@@ -488,14 +554,14 @@ const BreastSpecialtyPage = () => {
               const pct = Math.round((count / Math.max(base.length, 1)) * 100);
               return (
                 <div key={d} style={{ marginBottom: 12 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}><span>{t(DENSITY_LABELS[d] ?? '')}</span><span style={{ fontWeight: 700 }}>{t('breastSpecialty.caseCount', { count, pct })}</span></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}><span>{t(DENSITY_LABELS[d] ?? '')}</span><span style={{ fontWeight: 700 }}>{t('breastSpecialty.caseCount', { count, pct })}</span></div>
                   <div style={{ height: 8, background: 'var(--bg-card)', borderRadius: 4, overflow: 'hidden' }}><div style={{ height: '100%', width: `${pct}%`, background: '#be185d', borderRadius: 4 }} /></div>
                 </div>
               );
             })}
           </div>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><Microscope size={16} color="#7c3aed" /> {t('breastSpecialty.biradsDistribution')}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><Microscope size={16} color="#7c3aed" /> {t('breastSpecialty.biradsDistribution')}</div>
             {[1, 2, 3, '4A', '4B', 4, 5].map(b => {
               const base = densitySource === 'real' && densityRows.length > 0 ? densityRows : mockScreening;
               const count = base.filter(r => r.biRads === b || r.biRads === Number(b)).length;
@@ -514,44 +580,25 @@ const BreastSpecialtyPage = () => {
 
       {tab === 'density' && (
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', marginTop: 16 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Stethoscope size={16} color="#be185d" /> {t('breastSpecialty.dbtStudies')}
             <SrcBadge real={densitySource === 'real'} label={`dbtApi 实时 (${dbtCount} 例)`} demoLabel={t('breastSpecialty.sourceDemoFallbackShort')} />
             {densityLoading && <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('breastSpecialty.loading')}</span>}
           </div>
           <div style={{ maxHeight: 280, overflowY: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-              <thead><tr>
-                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colStudyId')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colPatient')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colDensity')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>BI-RADS</th>
-                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colDate')}</th>
-                <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colActions')}</th>
-              </tr></thead>
-              <tbody>
-                {(densitySource === 'real' && densityRows.length > 0 ? densityRows : mockScreening).map(r => (
-                  <tr key={r.id}>
-                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{r.id}</td>
-                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)', fontWeight: 600 }}>{r.patientName}</td>
-                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{t(DENSITY_LABELS[r.density] ?? '')}</td>
-                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}><BiradsTag v={r.biRads} /></td>
-                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)', color: 'var(--text-secondary)' }}>{r.date}</td>
-                    <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>
-                      {/* [v3.0.6.11-96 Wave3B G-21 P2] DBT 联动: 跳{t('breastSpecialty.dbtRead')} (带 studyId) */}
-                      <button onClick={() => gotoDbt(r.id)} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #fbcfe8', background: '#ec489922', color: '#be185d', fontSize: 12, cursor: 'pointer', whiteSpace: 'nowrap' }}>{t('breastSpecialty.dbtRead')}</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable<any>
+              columns={densityColumns}
+              dataSource={densitySource === 'real' && densityRows.length > 0 ? densityRows : mockScreening}
+              rowKey="id"
+              showPagination={false}
+            />
           </div>
         </div>
       )}
 
       {tab === 'workflow' && (
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Activity size={16} color="#be185d" /> {t('breastSpecialty.workflow')}
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Activity size={16} color="#be185d" /> {t('breastSpecialty.workflow')}
             <SrcBadge
               real={densitySource === 'real' || dataSource === 'real'}
               label={t('breastSpecialty.sourceDbtCadRealtime')}
@@ -575,7 +622,7 @@ const BreastSpecialtyPage = () => {
                 <div key={i} style={{ padding: 16, background: w.status === 'active' ? 'var(--color-error-bg)' : 'var(--bg-card)', borderRadius: 10, border: `1px solid ${w.status === 'active' ? '#fbcfe8' : '#e2e8f0'}` }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                     {w.status === 'done' ? <CheckCircle size={16} color="#16a34a" /> : w.status === 'active' ? <Clock size={16} color="#be185d" /> : <span style={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid var(--border-color)', display: 'inline-block' }} />}
-                    <span style={{ fontSize: 13, fontWeight: 700, color: w.status === 'active' ? '#be185d' : 'var(--text-primary)' }}>{w.step}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: w.status === 'active' ? '#be185d' : 'var(--text-primary)' }}>{w.step}</span>
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{w.desc}</div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('breastSpecialty.estimated')}: {w.time}</div>
@@ -589,7 +636,7 @@ const BreastSpecialtyPage = () => {
       {tab === 'stats' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><BarChart3 size={16} color="#be185d" /> {t('breastSpecialty.monthlyScreeningStats')}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><BarChart3 size={16} color="#be185d" /> {t('breastSpecialty.monthlyScreeningStats')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8, textAlign: 'center' }}>
               {[t('breastSpecialty.month1'), t('breastSpecialty.month2'), t('breastSpecialty.month3'), t('breastSpecialty.month4'), t('breastSpecialty.month5'), t('breastSpecialty.month6')].map((m, i) => {
                 const val = [120, 98, 135, 110, 142, 128][i] ?? 0;
@@ -606,7 +653,7 @@ const BreastSpecialtyPage = () => {
             </div>
           </div>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><AlertTriangle size={16} color="#dc2626" /> {t('breastSpecialty.recallTrend')}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><AlertTriangle size={16} color="#dc2626" /> {t('breastSpecialty.recallTrend')}</div>
             {[{ month: '2026-07', rate: 8.5, cases: 11 }, { month: '2026-06', rate: 7.2, cases: 9 }, { month: '2026-05', rate: 9.1, cases: 13 }, { month: '2026-04', rate: 6.8, cases: 7 }].map(t => (
               <div key={t.month} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
                 <span style={{ width: 80, fontSize: 12, color: 'var(--text-secondary)' }}>{t.month}</span>
@@ -621,7 +668,7 @@ const BreastSpecialtyPage = () => {
       {tab === 'cad' && (
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
               <BrainCircuit size={16} color="#be185d" /> {t('breastSpecialty.cadList')}
               {dataSource === 'real'
                 ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: '#16a34a', border: '1px solid #bbf7d0' }}>{t('breastSpecialty.sourceCadRealtime')}</span>
@@ -630,39 +677,18 @@ const BreastSpecialtyPage = () => {
             <button onClick={() => setTab('stats' as any)} style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', fontSize: 12, color: 'var(--text-secondary)' }}>{t('breastSpecialty.viewStats')}</button>
           </div>
           {cadLoading ? (
-            <div style={{ padding: 32, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 13 }}>{t('breastSpecialty.cadLoading')}</div>
+            <div style={{ padding: 32, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>{t('breastSpecialty.cadLoading')}</div>
           ) : cadError && cadResults.length === 0 ? (
-            <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 13 }}>{cadError}</div>
+            <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>{cadError}</div>
           ) : (
             <div style={{ maxHeight: 360, overflowY: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-                <thead><tr>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colId')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colPatient')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colModality')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colLesionCount')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>BI-RADS</th>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colStatus')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colDate')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colActions')}</th>
-                </tr></thead>
-                <tbody>
-                  {cadResults.map(r => (
-                    <tr key={r.id} style={{ cursor: 'pointer' }} onClick={() => setCadDetail(r)}>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{r.id}</td>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)', fontWeight: 600 }}>{r.patientName}</td>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{r.modality}</td>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{r.lesionCount}</td>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}><BiradsTag v={r.overallBiRads} /></td>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{r.status === 'confirmed' ? t('breastSpecialty.statusConfirmed') : r.status === 'reviewed' ? t('breastSpecialty.statusReviewed') : t('breastSpecialty.statusPendingReview')}</td>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)', color: 'var(--text-secondary)' }}>{(r.createdAt ?? '').slice(0, 10)}</td>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>
-                        <button onClick={e => { e.stopPropagation(); setCadDetail(r) }} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #fbcfe8', background: '#ec489922', color: '#be185d', fontSize: 12, cursor: 'pointer' }}>{t('breastSpecialty.detail')}</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <DataTable<BreastCadResult>
+                columns={cadColumns}
+                dataSource={cadResults}
+                rowKey="id"
+                showPagination={false}
+                onRow={(record) => ({ onClick: () => setCadDetail(record), style: { cursor: 'pointer' } })}
+              />
             </div>
           )}
         </div>
@@ -671,12 +697,12 @@ const BreastSpecialtyPage = () => {
       {tab === 'dual' && (
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}>
               <GitBranch size={16} color="#be185d" /> {t('breastSpecialty.dualTasks')}
               <SrcBadge real={dualSource === 'real'} label={t('breastSpecialty.sourceDualRealtime')} demoLabel={t('breastSpecialty.sourceDemoFallbackShort')} />
               {dualLoading && <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('breastSpecialty.loading')}</span>}
             </div>
-            <button onClick={() => setShowAssignModal(true)} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}><UserCheck size={14} /> {t('breastSpecialty.assignDualRead')}</button>
+            <button onClick={() => setShowAssignModal(true)} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', cursor: 'pointer', fontSize: 12, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}><UserCheck size={14} /> {t('breastSpecialty.assignDualRead')}</button>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
             {[
@@ -686,49 +712,18 @@ const BreastSpecialtyPage = () => {
               { label: t('breastSpecialty.dualArbitratedLabel'), value: dualList.filter(a => a.status === 'arbitrated').length, color: '#16a34a', bg: '#22c55e22' },
             ].map((k, i) => (
               <div key={i} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '14px 12px', border: '1px solid var(--border-light)' }}>
-                <div style={{ fontSize: 22, fontWeight: 700, color: k.color }}>{k.value}</div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: k.color }}>{k.value}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{k.label}</div>
               </div>
             ))}
           </div>
           <div style={{ maxHeight: 360, overflowY: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-                <thead><tr>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colStudyId')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colPatient')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colModality')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colReaders')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colStatus')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colDiscrepancy')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('breastSpecialty.colActions')}</th>
-                </tr></thead>
-              <tbody>
-                {dualList.map(a => {
-                  const st = DUAL_STATUS_LABELS[a.status] ?? { label: a.status, color: '#64748b' };
-                  return (
-                    <tr key={a.id}>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{a.studyId}</td>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)', fontWeight: 600 }}>{a.patientName}</td>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{a.modality}</td>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{a.reader1Name} / {a.reader2Name}</td>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>
-                        <SeverityTag tone={{ bg: `${st.color}18`, border: `${st.color}40`, color: st.color, dot: st.color }}>{t(st.label)}</SeverityTag>
-                        {a.status === 'arbitrated' && <span style={{ fontSize: 11, color: 'var(--text-secondary)', marginLeft: 6 }}>{t('breastSpecialty.arbitrationBy')}: {a.arbitratorName}</span>}
-                      </td>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>{a.discrepancyScore != null ? `${(a.discrepancyScore * 100).toFixed(0)}%` : '-'}</td>
-                      <td style={{ padding: '10px 8px', borderBottom: '1px solid var(--border-light)' }}>
-                        {/* [v3.0.6.11-96 Wave3B G-21 P2] 裁决: 双方完成可仲裁 (复用 DualReadPage 能力) */}
-                        {a.status === 'both_done'
-                          ? <button onClick={() => { setArbitrateTarget(a); setArbitrateReport('') }} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #ddd6fe', background: '#8b5cf622', color: '#7c3aed', fontSize: 12, cursor: 'pointer' }}>{t('breastSpecialty.arbitrate')}</button>
-                          : a.status === 'arbitrated'
-                            ? <span style={{ fontSize: 12, color: '#16a34a' }}>{t('breastSpecialty.completed')}</span>
-                            : <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>—</span>}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <DataTable<DualReadAssignment>
+              columns={dualColumns}
+              dataSource={dualList}
+              rowKey="id"
+              showPagination={false}
+            />
           </div>
         </div>
       )}
@@ -741,20 +736,20 @@ const BreastSpecialtyPage = () => {
               <button onClick={() => setArbitrateTarget(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
-              <div style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-light)', fontSize: 13 }}>
+              <div style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-light)', fontSize: 12 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#be185d', marginBottom: 6 }}>{t('breastSpecialty.reader1')} · {arbitrateTarget.reader1Name}</div>
                 <div style={{ color: 'var(--text-secondary)' }}>{arbitrateTarget.report1 || t('breastSpecialty.none')}</div>
               </div>
-              <div style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-light)', fontSize: 13 }}>
+              <div style={{ padding: 12, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-light)', fontSize: 12 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#be185d', marginBottom: 6 }}>{t('breastSpecialty.reader2')} · {arbitrateTarget.reader2Name}</div>
                 <div style={{ color: 'var(--text-secondary)' }}>{arbitrateTarget.report2 || t('breastSpecialty.none')}</div>
               </div>
             </div>
             <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.arbitrationReport')} *</label>
-            <textarea value={arbitrateReport} onChange={e => setArbitrateReport(e.target.value)} rows={4} placeholder={t('breastSpecialty.arbitrationPlaceholder')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit' }} />
+            <textarea value={arbitrateReport} onChange={e => setArbitrateReport(e.target.value)} rows={4} placeholder={t('breastSpecialty.arbitrationPlaceholder')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit' }} />
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 14 }}>
-              <button onClick={() => setArbitrateTarget(null)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('breastSpecialty.cancel')}</button>
-              <button onClick={() => void handleArbitrate()} disabled={arbitrateSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', fontSize: 13, fontWeight: 600, cursor: arbitrateSaving ? 'wait' : 'pointer' }}>{arbitrateSaving ? t('breastSpecialty.submitting') : t('breastSpecialty.confirmArbitration')}</button>
+              <button onClick={() => setArbitrateTarget(null)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('breastSpecialty.cancel')}</button>
+              <button onClick={() => void handleArbitrate()} disabled={arbitrateSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', fontSize: 12, fontWeight: 600, cursor: arbitrateSaving ? 'wait' : 'pointer' }}>{arbitrateSaving ? t('breastSpecialty.submitting') : t('breastSpecialty.confirmArbitration')}</button>
             </div>
           </div>
         </div>
@@ -768,15 +763,15 @@ const BreastSpecialtyPage = () => {
               <button onClick={() => setShowAssignModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.studyIdLabel')} *</label><input value={assignForm.studyId} onChange={e => setAssignForm({ ...assignForm, studyId: e.target.value })} placeholder={t('breastSpecialty.studyIdExample')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box',}} /></div>
-              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.patientNameLabel')} *</label><input value={assignForm.patientName} onChange={e => setAssignForm({ ...assignForm, patientName: e.target.value })} placeholder={t('breastSpecialty.enterName')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box',}} /></div>
-              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.patientIdLabel')} *</label><input value={assignForm.patientId} onChange={e => setAssignForm({ ...assignForm, patientId: e.target.value })} placeholder={t('breastSpecialty.patientIdExample')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box',}} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.studyIdLabel')} *</label><input value={assignForm.studyId} onChange={e => setAssignForm({ ...assignForm, studyId: e.target.value })} placeholder={t('breastSpecialty.studyIdExample')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.patientNameLabel')} *</label><input value={assignForm.patientName} onChange={e => setAssignForm({ ...assignForm, patientName: e.target.value })} placeholder={t('breastSpecialty.enterName')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.patientIdLabel')} *</label><input value={assignForm.patientId} onChange={e => setAssignForm({ ...assignForm, patientId: e.target.value })} placeholder={t('breastSpecialty.patientIdExample')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
               <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.colModality')}</label><div style={{ display: 'flex', gap: 8 }}>{(['MG', 'DBT', 'US'] as const).map(m => (
-                <button key={m} onClick={() => setAssignForm({ ...assignForm, modality: m })} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: `1px solid ${assignForm.modality === m ? '#be185d' : '#e2e8f0'}`, background: assignForm.modality === m ? 'var(--color-error-bg)' : 'var(--bg-card)', color: assignForm.modality === m ? '#be185d' : '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{m}</button>
+                <button key={m} onClick={() => setAssignForm({ ...assignForm, modality: m })} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: `1px solid ${assignForm.modality === m ? '#be185d' : '#e2e8f0'}`, background: assignForm.modality === m ? 'var(--color-error-bg)' : 'var(--bg-card)', color: assignForm.modality === m ? '#be185d' : '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{m}</button>
               ))}</div></div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
-                <button onClick={() => setShowAssignModal(false)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('breastSpecialty.cancel')}</button>
-                <button onClick={() => void handleAssignDual()} disabled={assignSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', fontSize: 13, fontWeight: 600, cursor: assignSaving ? 'wait' : 'pointer' }}>{assignSaving ? t('breastSpecialty.assigning') : t('breastSpecialty.confirmAssign')}</button>
+                <button onClick={() => setShowAssignModal(false)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('breastSpecialty.cancel')}</button>
+                <button onClick={() => void handleAssignDual()} disabled={assignSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', fontSize: 12, fontWeight: 600, cursor: assignSaving ? 'wait' : 'pointer' }}>{assignSaving ? t('breastSpecialty.assigning') : t('breastSpecialty.confirmAssign')}</button>
               </div>
             </div>
           </div>
@@ -791,36 +786,24 @@ const BreastSpecialtyPage = () => {
               <button onClick={() => setCadDetail(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
-              <div style={{ padding: 10, background: 'var(--bg-card)', borderRadius: 8, fontSize: 13 }}><span style={{ color: 'var(--text-secondary)' }}>{t('breastSpecialty.colId')}: </span>{cadDetail.id}</div>
-              <div style={{ padding: 10, background: 'var(--bg-card)', borderRadius: 8, fontSize: 13 }}><span style={{ color: 'var(--text-secondary)' }}>{t('breastSpecialty.studyIdLabel')}: </span>{cadDetail.studyId}</div>
-              <div style={{ padding: 10, background: 'var(--bg-card)', borderRadius: 8, fontSize: 13 }}><span style={{ color: 'var(--text-secondary)' }}>{t('breastSpecialty.overallBirads')}: </span><BiradsTag v={cadDetail.overallBiRads} /></div>
-              <div style={{ padding: 10, background: 'var(--bg-card)', borderRadius: 8, fontSize: 13 }}><span style={{ color: 'var(--text-secondary)' }}>{t('breastSpecialty.model')}: </span>{cadDetail.modelVersion}</div>
+              <div style={{ padding: 10, background: 'var(--bg-card)', borderRadius: 8, fontSize: 12 }}><span style={{ color: 'var(--text-secondary)' }}>{t('breastSpecialty.colId')}: </span>{cadDetail.id}</div>
+              <div style={{ padding: 10, background: 'var(--bg-card)', borderRadius: 8, fontSize: 12 }}><span style={{ color: 'var(--text-secondary)' }}>{t('breastSpecialty.studyIdLabel')}: </span>{cadDetail.studyId}</div>
+              <div style={{ padding: 10, background: 'var(--bg-card)', borderRadius: 8, fontSize: 12 }}><span style={{ color: 'var(--text-secondary)' }}>{t('breastSpecialty.overallBirads')}: </span><BiradsTag v={cadDetail.overallBiRads} /></div>
+              <div style={{ padding: 10, background: 'var(--bg-card)', borderRadius: 8, fontSize: 12 }}><span style={{ color: 'var(--text-secondary)' }}>{t('breastSpecialty.model')}: </span>{cadDetail.modelVersion}</div>
             </div>
             {cadDetail.recommendation && (
-              <div style={{ marginBottom: 16, padding: 12, background: '#f9731622', borderRadius: 8, border: '1px solid #fed7aa', fontSize: 13, color: '#9a3412' }}>{cadDetail.recommendation}</div>
+              <div style={{ marginBottom: 16, padding: 12, background: '#f9731622', borderRadius: 8, border: '1px solid #fed7aa', fontSize: 12, color: '#9a3412' }}>{cadDetail.recommendation}</div>
             )}
             <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 10 }}>{t('breastSpecialty.lesionList', { count: cadDetail.lesions.length })}</div>
             <div style={{ maxHeight: 300, overflowY: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-                <thead><tr>
-                  <th style={{ textAlign: 'left', padding: '8px 6px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)' }}>{t('breastSpecialty.colLesionType')}</th>
-                  <th style={{ textAlign: 'left', padding: '8px 6px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)' }}>{t('breastSpecialty.colShape')}</th>
-                  <th style={{ textAlign: 'left', padding: '8px 6px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)' }}>{t('breastSpecialty.colMargin')}</th>
-                  <th style={{ textAlign: 'left', padding: '8px 6px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)' }}>BI-RADS</th>
-                  <th style={{ textAlign: 'left', padding: '8px 6px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)' }}>{t('breastSpecialty.colMalignancyRisk')}</th>
-                </tr></thead>
-                <tbody>
-                  {cadDetail.lesions.map((l: BreastLesion) => (
-                    <tr key={l.id}>
-                      <td style={{ padding: '8px 6px', borderBottom: '1px solid var(--border-light)' }}>{l.type}</td>
-                      <td style={{ padding: '8px 6px', borderBottom: '1px solid var(--border-light)' }}>{l.shape}</td>
-                      <td style={{ padding: '8px 6px', borderBottom: '1px solid var(--border-light)' }}>{l.margin}</td>
-                      <td style={{ padding: '8px 6px', borderBottom: '1px solid var(--border-light)' }}><BiradsTag v={l.biRads} /></td>
-                      <td style={{ padding: '8px 6px', borderBottom: '1px solid var(--border-light)', color: l.malignancyRisk > 0.5 ? '#dc2626' : '#64748b', fontWeight: 600 }}>{(l.malignancyRisk * 100).toFixed(0)}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <DataTable<BreastLesion>
+                columns={lesionColumns}
+                dataSource={cadDetail.lesions}
+                rowKey="id"
+                showPagination={false}
+                showExport={false}
+                showDensity={false}
+              />
             </div>
           </div>
         </div>
@@ -834,16 +817,16 @@ const BreastSpecialtyPage = () => {
               <button onClick={() => setShowNewModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}><X size={18} /></button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.patientIdLabel')} *</label><input value={newForm.patientId} onChange={e => setNewForm({ ...newForm, patientId: e.target.value })} placeholder={t('breastSpecialty.patientIdExample')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box',}} /></div>
-              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.patientNameLabel')} *</label><input value={newForm.patientName} onChange={e => setNewForm({ ...newForm, patientName: e.target.value })} placeholder={t('breastSpecialty.enterName')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box',}} /></div>
-              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.colAge')}</label><input type="number" value={newForm.age} onChange={e => setNewForm({ ...newForm, age: Number(e.target.value) })} min={18} max={90} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box',}} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.patientIdLabel')} *</label><input value={newForm.patientId} onChange={e => setNewForm({ ...newForm, patientId: e.target.value })} placeholder={t('breastSpecialty.patientIdExample')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.patientNameLabel')} *</label><input value={newForm.patientName} onChange={e => setNewForm({ ...newForm, patientName: e.target.value })} placeholder={t('breastSpecialty.enterName')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.colAge')}</label><input type="number" value={newForm.age} onChange={e => setNewForm({ ...newForm, age: Number(e.target.value) })} min={18} max={90} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
               <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.riskStratification')}</label><div style={{ display: 'flex', gap: 8 }}>{([['average', t('breastSpecialty.riskAverage')], ['intermediate', t('breastSpecialty.riskIntermediate')], ['high', t('breastSpecialty.riskHigh')]] as const).map(([v, l]) => (
-                <button key={v} onClick={() => setNewForm({ ...newForm, risk: v })} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: `1px solid ${newForm.risk === v ? '#be185d' : '#e2e8f0'}`, background: newForm.risk === v ? 'var(--color-error-bg)' : 'var(--bg-card)', color: newForm.risk === v ? '#be185d' : '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{l}</button>
+                <button key={v} onClick={() => setNewForm({ ...newForm, risk: v })} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: `1px solid ${newForm.risk === v ? '#be185d' : '#e2e8f0'}`, background: newForm.risk === v ? 'var(--color-error-bg)' : 'var(--bg-card)', color: newForm.risk === v ? '#be185d' : '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{l}</button>
               ))}</div></div>
-              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.examDate')}</label><input type="date" value={newForm.date} onChange={e => setNewForm({ ...newForm, date: e.target.value })} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box',}} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('breastSpecialty.examDate')}</label><input type="date" value={newForm.date} onChange={e => setNewForm({ ...newForm, date: e.target.value })} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} /></div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
-                <button onClick={() => setShowNewModal(false)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('breastSpecialty.cancel')}</button>
-                <button onClick={() => void handleCreateScreening()} disabled={saving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', fontSize: 13, fontWeight: 600, cursor: saving ? 'wait' : 'pointer' }}>{saving ? t('breastSpecialty.saving') : t('breastSpecialty.createScreening')}</button>
+                <button onClick={() => setShowNewModal(false)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('breastSpecialty.cancel')}</button>
+                <button onClick={() => void handleCreateScreening()} disabled={saving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', fontSize: 12, fontWeight: 600, cursor: saving ? 'wait' : 'pointer' }}>{saving ? t('breastSpecialty.saving') : t('breastSpecialty.createScreening')}</button>
               </div>
             </div>
           </div>

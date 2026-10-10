@@ -184,7 +184,7 @@ const styles = {
     padding: '8px 16px',
     borderRadius: '6px',
     cursor: 'pointer',
-    fontSize: '13px',
+    fontSize: '12px',
     fontWeight: 500,
     display: 'flex',
     alignItems: 'center',
@@ -217,7 +217,7 @@ const styles = {
   table: {
     width: '100%',
     borderCollapse: 'collapse' as const,
-    fontSize: '13px',
+    fontSize: '12px',
   },
   th: {
     padding: '10px 12px',
@@ -237,7 +237,7 @@ const styles = {
     padding: '8px 16px',
     borderRadius: '6px',
     cursor: 'pointer',
-    fontSize: '13px',
+    fontSize: '12px',
     fontWeight: 500,
     display: 'inline-flex',
     alignItems: 'center',
@@ -277,7 +277,7 @@ const styles = {
     padding: '8px 12px',
     borderRadius: '6px',
     border: '1px solid var(--border-color)',
-    fontSize: '13px', transition: 'border-color 0.2s',
+    fontSize: '12px', transition: 'border-color 0.2s',
   },
   // 模态框
   modal: {
@@ -328,7 +328,7 @@ const styles = {
     display: 'block',
     marginBottom: '6px',
     fontWeight: 500,
-    fontSize: '13px',
+    fontSize: '12px',
     color: COLORS.textDark,
   },
   // 小标签
@@ -808,7 +808,7 @@ const FHIRReportPanel = () => {
           <FileJson size={48} color={COLORS.primary} style={{ marginBottom: 12 }} />
           <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>{t('nationalReport.fhirExportTitle')}</div>
           <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 16 }}>{t('nationalReport.fhirExportDesc')}</div>
-          <button onClick={handleFHIRExport} style={{ padding: '10px 24px', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+          <button onClick={handleFHIRExport} style={{ padding: '10px 24px', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
             <Download size={16} /> {t('nationalReport.fhirExportBtn')}
           </button>
           {exportSuccess && <div style={{ marginTop: 12, color: COLORS.success, fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}><CheckCircle size={14} /> {t('nationalReport.fhirExportSuccess')}</div>}
@@ -855,7 +855,7 @@ const MultiRegulatorPanel = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 8, background: 'var(--color-info-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: COLORS.primary }}><reg.icon size={20} /></div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{reg.name}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{reg.name}</div>
                   <div style={{ fontSize: 12, color: COLORS.textMuted }}>{reg.shortName} · {reg.format}</div>
                 </div>
                 <div style={{
@@ -900,7 +900,7 @@ const PreSubmissionValidation = () => {
             <circle cx="60" cy="60" r="54" fill="none" stroke={score >= 90 ? COLORS.success : score >= 70 ? COLORS.warning : COLORS.danger} strokeWidth="8" strokeDasharray={`${(score / 100) * 339.292} 339.292`} transform="rotate(-90 60 60)" />
           </svg>
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: 28, fontWeight: 800, color: score >= 90 ? COLORS.success : score >= 70 ? COLORS.warning : COLORS.danger }}>{score}</span>
+            <span style={{ fontSize: 30, fontWeight: 800, color: score >= 90 ? COLORS.success : score >= 70 ? COLORS.warning : COLORS.danger }}>{score}</span>
           </div>
         </div>
         <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{t('nationalReport.validateScore')}</div>
@@ -1091,7 +1091,7 @@ const ScheduledReportsPanel = () => {
                 display: 'flex', alignItems: 'center', justifyContent: 'center', color: s.enabled ? COLORS.primary : COLORS.textMuted
               }}><FileText size={18} /></div>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{s.name}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{s.name}</div>
                 <div style={{ fontSize: 12, color: COLORS.textMuted }}>{s.type} · {scheduleLabels[s.schedule]} · {s.format}</div>
               </div>
             </div>
@@ -1152,24 +1152,24 @@ const ScheduledReportsPanel = () => {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowCreateModal(false)}>
           <Card bordered={false} style={{ background: 'var(--bg-card)', borderRadius: 12, width: 'min(460px, calc(100vw - 32px))', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()} styles={{ body: { padding: 0 } }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}><Calendar size={16} color={COLORS.primary} /> {t('nationalReport.newPlanTitle')}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}><Calendar size={16} color={COLORS.primary} /> {t('nationalReport.newPlanTitle')}</div>
               <button onClick={() => setShowCreateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: 18, padding: 4 }}>×</button>
             </div>
             <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('nationalReport.planNameRequired')}</label>
-                <input value={planForm.name} onChange={e => setPlanForm({ ...planForm, name: e.target.value })} placeholder={t('nationalReport.placeholderPlanName')} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13, boxSizing: 'border-box' }} />
+                <input value={planForm.name} onChange={e => setPlanForm({ ...planForm, name: e.target.value })} placeholder={t('nationalReport.placeholderPlanName')} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, boxSizing: 'border-box' }} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('nationalReport.planType')}</label>
-                  <select value={planForm.type} onChange={e => setPlanForm({ ...planForm, type: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13 }}>
+                  <select value={planForm.type} onChange={e => setPlanForm({ ...planForm, type: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12 }}>
                     {[{v: '国家数据报告', l: t('nationalReport.planTypeNational')}, {v: '科室数据报告', l: t('nationalReport.planTypeDept')}, {v: '影像质量报告', l: t('nationalReport.planTypeQuality')}, {v: '剂量监测报告', l: t('nationalReport.planTypeDose')}].map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
                   </select>
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('nationalReport.scheduleFreq')}</label>
-                  <select value={planForm.schedule} onChange={e => setPlanForm({ ...planForm, schedule: e.target.value as ScheduledReportConfig['schedule'] })} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13 }}>
+                  <select value={planForm.schedule} onChange={e => setPlanForm({ ...planForm, schedule: e.target.value as ScheduledReportConfig['schedule'] })} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12 }}>
                     {Object.entries(scheduleLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                   </select>
                 </div>
@@ -1177,18 +1177,18 @@ const ScheduledReportsPanel = () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('nationalReport.exportFormat')}</label>
-                  <select value={planForm.format} onChange={e => setPlanForm({ ...planForm, format: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13 }}>
+                  <select value={planForm.format} onChange={e => setPlanForm({ ...planForm, format: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12 }}>
                     {['PDF', 'CSV', 'Excel', 'XML'].map(f => <option key={f} value={f}>{f}</option>)}
                   </select>
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('nationalReport.recipientsLabel')}</label>
-                  <input value={planForm.recipients} onChange={e => setPlanForm({ ...planForm, recipients: e.target.value })} placeholder={t('nationalReportPage.recipientsPlaceholder')} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13, boxSizing: 'border-box' }} />
+                  <input value={planForm.recipients} onChange={e => setPlanForm({ ...planForm, recipients: e.target.value })} placeholder={t('nationalReportPage.recipientsPlaceholder')} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, boxSizing: 'border-box' }} />
                 </div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
-                <button onClick={() => setShowCreateModal(false)} style={{ padding: '8px 20px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer' }}>{t('nationalReport.cancel')}</button>
-                <button onClick={() => void handleCreateSchedule()} disabled={!planForm.name.trim() || saving} style={{ padding: '8px 20px', border: 'none', borderRadius: 6, background: planForm.name.trim() && !saving ? COLORS.primary : '#9ca3af', color: '#fff', fontSize: 13, fontWeight: 600, cursor: planForm.name.trim() && !saving ? 'pointer' : 'not-allowed' }}>{saving ? t('nationalReport.creating') : t('nationalReport.createPlan')}</button>
+                <button onClick={() => setShowCreateModal(false)} style={{ padding: '8px 20px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}>{t('nationalReport.cancel')}</button>
+                <button onClick={() => void handleCreateSchedule()} disabled={!planForm.name.trim() || saving} style={{ padding: '8px 20px', border: 'none', borderRadius: 6, background: planForm.name.trim() && !saving ? COLORS.primary : '#9ca3af', color: '#fff', fontSize: 12, fontWeight: 600, cursor: planForm.name.trim() && !saving ? 'pointer' : 'not-allowed' }}>{saving ? t('nationalReport.creating') : t('nationalReport.createPlan')}</button>
               </div>
             </div>
           </Card>
@@ -1587,7 +1587,7 @@ export default function NationalReportPage() {
               >
                 <item.icon size={18} color={activeTab === item.key ? COLORS.primary : COLORS.textMuted} />
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '13px', fontWeight: 500 }}>{item.label}</div>
+                  <div style={{ fontSize: '12px', fontWeight: 500 }}>{item.label}</div>
                   <div style={{ fontSize: '11px', color: COLORS.textMuted }}>{t('nationalReport.countSuffix', { count: item.count })}</div>
                 </div>
                 {activeTab === item.key && <ChevronRight size={16} color={COLORS.primary} />}
@@ -1936,7 +1936,7 @@ export default function NationalReportPage() {
                 </div>
               ) : (
                 <div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px', fontSize: 13 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px', fontSize: 12 }}>
                     {detailType === 'national' ? (
                       <>
                         <div><span style={{ color: COLORS.textMuted }}>{t('nationalReport.fMonth')}</span><b>{detailItem.reportMonth ?? '-'}</b></div>
@@ -1967,7 +1967,7 @@ export default function NationalReportPage() {
                     )}
                   </div>
                   {(detailItem.commonIssues?.length > 0 || detailItem.improvementMeasures?.length > 0) && (
-                    <div style={{ marginTop: 16, padding: 12, background: 'var(--bg-card)', borderRadius: 8, fontSize: 13 }}>
+                    <div style={{ marginTop: 16, padding: 12, background: 'var(--bg-card)', borderRadius: 8, fontSize: 12 }}>
                       {detailItem.commonIssues?.length > 0 && (
                         <div style={{ marginBottom: 8 }}>
                           <div style={{ fontWeight: 600, color: COLORS.warning, marginBottom: 4 }}>{t('nationalReport.commonIssues')}</div>
@@ -2118,14 +2118,14 @@ export default function NationalReportPage() {
             </div>
             <div style={styles.modalBody}>
               <div style={{ marginBottom: '16px', padding: '16px', background: 'var(--bg-card)', borderRadius: '8px' }}>
-                <div style={{ fontSize: '13px', marginBottom: '8px' }}>
+                <div style={{ fontSize: '12px', marginBottom: '8px' }}>
                   <strong>{t('nationalReport.confirmType')}</strong>
                   {submitType === 'exam' ? t('nationalReport.navExam') : submitType === 'dose' ? t('nationalReport.navDose') : t('nationalReport.navQuality')}
                 </div>
-                <div style={{ fontSize: '13px', marginBottom: '8px' }}>
+                <div style={{ fontSize: '12px', marginBottom: '8px' }}>
                   <strong>{t('nationalReport.confirmCycle')}</strong>{selectedMonth}
                 </div>
-                <div style={{ fontSize: '13px' }}>
+                <div style={{ fontSize: '12px' }}>
                   <strong>{t('nationalReport.confirmContent')}</strong>
                   {submitType === 'exam' ? t('nationalReport.confirmExamCount', { count: examStats.length }) :
                     submitType === 'dose' ? t('nationalReport.confirmDoseCount', { count: doseData.filter(d => d.reportMonth === selectedMonth).length }) :

@@ -201,7 +201,7 @@ export const DentalSchedulePage: React.FC = () => {
           <Col span={4} key={c.id}>
             <Card size="small" hoverable onClick={() => setSelectedChair(c.id)}
               style={{ cursor:'pointer', borderColor: selectedChair === c.id ? '#2563eb' : '#d9d9d9', borderLeft: `4px solid ${chairColors[c.status] || '#999'}` }}>
-              <Space><Armchair size={14}/><span style={{fontSize:13}}>{c.name}</span></Space>
+              <Space><Armchair size={14}/><span style={{fontSize:12}}>{c.name}</span></Space>
               <Tag style={{fontSize:10,margin:0}} color={chairColors[c.status]}>{({online:t('dentalSchedule.chairOnline'), offline:t('dentalSchedule.chairOffline'), maintenance:t('dentalSchedule.chairMaintenance')} as any)[c.status] || c.status}</Tag>
             </Card>
           </Col>

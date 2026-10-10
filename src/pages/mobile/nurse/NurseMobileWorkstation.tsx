@@ -207,7 +207,7 @@ export default function NurseMobileWorkstation() {
 
       <div style={s.searchBar}>
         <Search size={16} color="#94a3b8" />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('nurse.searchPlaceholder')} style={{ border: 'none', fontSize: 13, color: 'var(--text-primary)', width: '100%', background: 'transparent' }} />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('nurse.searchPlaceholder')} style={{ border: 'none', fontSize: 12, color: 'var(--text-primary)', width: '100%', background: 'transparent' }} />
         <Bell size={16} color="#94a3b8" style={{ cursor: 'pointer' }} />
       </div>
 
@@ -280,7 +280,7 @@ export default function NurseMobileWorkstation() {
                 </span>
                 <span style={{ fontSize: 12, color: '#94a3b8' }}>{c.modality ?? ''} {c.accessionNumber ?? ''}</span>
               </div>
-              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.5 }}>{c.description}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.5 }}>{c.description}</div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>{c.createdAt ? new Date(c.createdAt).toLocaleString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : ''} · {c.notifiedTo ?? t('nurse.notNotified')}</span>
                 {isAcked(c) ? (
@@ -299,7 +299,7 @@ export default function NurseMobileWorkstation() {
               </div>
             </div>
           ))}
-          {criticals.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 13 }}>{t('nurse.noCriticals')}</div>}
+          {criticals.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 12 }}>{t('nurse.noCriticals')}</div>}
         </div>
       ) : (
         <div style={{ padding: 16 }}>
@@ -311,7 +311,7 @@ export default function NurseMobileWorkstation() {
             <div style={{ display: 'grid', gap: 8 }}>
               {appointments.filter(a => a.contrastRequired || a.medications.length > 0).map(item => (
                 <div key={item.id} style={{ padding: '10px 12px', background: 'var(--bg-card)', borderRadius: 8 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{item.patientName} - {item.examItem}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{item.patientName} - {item.examItem}</div>
                   <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
                     {item.contrastRequired && <span>{t('nurse.needsContrastPrefix')}{item.medications.join(', ')}</span>}
                     {!item.contrastRequired && <span>{t('nurse.noContrast')}</span>}
@@ -328,7 +328,7 @@ export default function NurseMobileWorkstation() {
           </div>
           {medRecords.length > 0 && (
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-color)', marginTop: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 10 }}>{t('nurse.medRecordsTitle')} ({medRecords.length})</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 10 }}>{t('nurse.medRecordsTitle')} ({medRecords.length})</div>
               <div style={{ display: 'grid', gap: 8 }}>
                 {medRecords.map(r => (
                   <div key={r.id} style={{ padding: '10px 12px', background: 'rgba(124,58,237,0.12)', borderRadius: 8, fontSize: 12 }}>

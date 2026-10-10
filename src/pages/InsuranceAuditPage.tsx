@@ -2481,13 +2481,13 @@ const styles: Record<string, React.CSSProperties> = {
     flexShrink: 0,
   },
   kpiValue: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: 700,
     color: "var(--color-primary-800)",
     lineHeight: 1.2,
   },
   kpiLabel: {
-    fontSize: 13,
+    fontSize: 12,
     color: "var(--text-secondary)",
     marginTop: 2,
   },
@@ -2499,7 +2499,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   tab: {
     padding: "12px 24px",
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: 600,
     color: "var(--text-secondary)",
     background: "none",
@@ -2552,7 +2552,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "8px 12px",
     borderRadius: 6,
     border: "1px solid var(--border-color)",
-    fontSize: 13,
+    fontSize: 12,
     fontFamily: "inherit",
     boxSizing: "border-box", background: "var(--content-bg)",
     color: "var(--text-primary)",
@@ -2597,7 +2597,7 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: "center",
     gap: 8,
     marginBottom: 8,
-    fontSize: 13,
+    fontSize: 12,
     color: "var(--text-secondary)",
   },
   cardDrug: {
@@ -2732,12 +2732,12 @@ const styles: Record<string, React.CSSProperties> = {
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
   },
   statTitle: {
-    fontSize: 13,
+    fontSize: 12,
     color: "var(--text-secondary)",
     marginBottom: 8,
   },
   statValue: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: 700,
     color: "var(--color-primary-800)",
   },
@@ -2749,7 +2749,7 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: 16,
   },
   chartTitle: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: 600,
     color: "var(--color-primary-800)",
     marginBottom: 16,
@@ -2779,13 +2779,13 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
     color: "var(--text-secondary)",
     borderBottom: "1px solid var(--border-color)",
-    fontSize: 13,
+    fontSize: 12,
   },
   drugTd: {
     padding: "10px 12px",
     borderBottom: "1px solid var(--border-light)",
     color: "var(--text-secondary)",
-    fontSize: 13,
+    fontSize: 12,
   },
   emptyState: {
     textAlign: "center",
@@ -2805,7 +2805,7 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: 4,
   },
   voucherCardSubtitle: {
-    fontSize: 13,
+    fontSize: 12,
     opacity: 0.9,
   },
   voucherStatsRow: {
@@ -2818,7 +2818,7 @@ const styles: Record<string, React.CSSProperties> = {
     flexDirection: "column",
   },
   voucherStatValue: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: 700,
   },
   voucherStatLabel: {
@@ -2841,7 +2841,7 @@ const styles: Record<string, React.CSSProperties> = {
   voucherFilterBtn: {
     padding: "6px 16px",
     borderRadius: 8,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: 600,
     cursor: "pointer",
     transition: "all 0.2s",
@@ -2870,13 +2870,13 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
     color: "var(--color-primary)",
     borderBottom: "1px solid var(--color-info-bg)",
-    fontSize: 13,
+    fontSize: 12,
   },
   voucherTd: {
     padding: "12px 16px",
     borderBottom: "1px solid var(--border-light)",
     color: "var(--text-secondary)",
-    fontSize: 13,
+    fontSize: 12,
   },
   voucherStatusBadge: {
     display: "inline-flex",
@@ -3020,13 +3020,13 @@ const styles: Record<string, React.CSSProperties> = {
     flexShrink: 0,
   },
   fundKpiValue: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: 700,
     color: "var(--color-primary-800)",
     lineHeight: 1.2,
   },
   fundKpiLabel: {
-    fontSize: 13,
+    fontSize: 12,
     color: "var(--text-secondary)",
     marginTop: 2,
   },
@@ -3084,7 +3084,7 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: 4,
   },
   violationType: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: 600,
   },
   violationTime: {
@@ -4819,7 +4819,7 @@ export default function InsuranceAuditPage() {
                   <div
                     style={{
                       width: 50,
-                      fontSize: 13,
+                      fontSize: 12,
                       color: "var(--text-secondary)",
                       textAlign: "right",
                     }}
@@ -4945,7 +4945,7 @@ export default function InsuranceAuditPage() {
               textAlign: "center",
               padding: "16px",
               color: "var(--text-secondary)",
-              fontSize: 13,
+              fontSize: 12,
             }}
           >
             {t("insuranceAudit.showing")} {Math.min(50, filteredVouchers.length)} /{" "}
@@ -5093,7 +5093,7 @@ export default function InsuranceAuditPage() {
           >
             <h3
               style={{
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: 700,
                 color: PRIMARY,
                 margin: "0 0 12px",
@@ -5188,7 +5188,7 @@ export default function InsuranceAuditPage() {
                 </div>
                 <div>
                   <div
-                    style={{ fontSize: 28, fontWeight: 700, color: card.color }}
+                    style={{ fontSize: 30, fontWeight: 700, color: card.color }}
                   >
                     {card.value}
                   </div>
@@ -5300,7 +5300,7 @@ export default function InsuranceAuditPage() {
             >
               <h3
                 style={{
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 700,
                   color: PRIMARY,
                   margin: "0 0 12px",
@@ -5434,7 +5434,7 @@ export default function InsuranceAuditPage() {
                 </div>
                 <div>
                   <div
-                    style={{ fontSize: 28, fontWeight: 700, color: card.color }}
+                    style={{ fontSize: 30, fontWeight: 700, color: card.color }}
                   >
                     {card.value}
                   </div>
@@ -5752,7 +5752,7 @@ export default function InsuranceAuditPage() {
                 </div>
                 <div>
                   <div
-                    style={{ fontSize: 28, fontWeight: 700, color: card.color }}
+                    style={{ fontSize: 30, fontWeight: 700, color: card.color }}
                   >
                     {card.value}
                   </div>
@@ -5820,7 +5820,7 @@ export default function InsuranceAuditPage() {
           >
             <h3
               style={{
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: 700,
                 color: PRIMARY,
                 margin: "0 0 12px",
@@ -5870,7 +5870,7 @@ export default function InsuranceAuditPage() {
             <div style={{ flex: 1 }}>
               <h3
                 style={{
-                  fontSize: 15,
+                  fontSize: 14,
                   fontWeight: 600,
                   color: "var(--color-primary-800)",
                   margin: "0 0 12px 0",
@@ -5930,7 +5930,7 @@ export default function InsuranceAuditPage() {
               <div style={styles.ruleHeader}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <span
-                    style={{ fontSize: 15, fontWeight: 600, color: "var(--color-primary-800)" }}
+                    style={{ fontSize: 14, fontWeight: 600, color: "var(--color-primary-800)" }}
                   >
                     {rule.examName}
                   </span>
@@ -5967,7 +5967,7 @@ export default function InsuranceAuditPage() {
                   </PermissionGate>
                 </div>
               </div>
-              <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8 }}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 8 }}>
                 <Pill size={14} style={{ marginRight: 6 }} />
                 <strong>{t("insuranceAudit.drugLabel")}</strong> {rule.drugName}
               </div>
@@ -5993,7 +5993,7 @@ export default function InsuranceAuditPage() {
           <div style={{ marginTop: 24 }}>
             <h3
               style={{
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: 600,
                 color: "var(--color-primary-800)",
                 marginBottom: 12,
@@ -6065,7 +6065,7 @@ export default function InsuranceAuditPage() {
               {t("insuranceAudit.auditDetailTitle")}
             </div>
             {auditDetailLoading ? (
-              <div style={{ padding: "32px 0", textAlign: "center", color: "var(--text-secondary)", fontSize: 13 }}>
+              <div style={{ padding: "32px 0", textAlign: "center", color: "var(--text-secondary)", fontSize: 12 }}>
                 {t("insuranceAudit.detailLoading")}
               </div>
             ) : auditDetail ? (
@@ -6075,7 +6075,7 @@ export default function InsuranceAuditPage() {
                     display: "grid",
                     gridTemplateColumns: "1fr 1fr",
                     gap: "10px 16px",
-                    fontSize: 13,
+                    fontSize: 12,
                   }}
                 >
                   <div>
@@ -6142,7 +6142,7 @@ export default function InsuranceAuditPage() {
                       padding: 12,
                       background: "var(--bg-card)",
                       borderRadius: 8,
-                      fontSize: 13,
+                      fontSize: 12,
                     }}
                   >
                     <div style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: 4 }}>
@@ -6155,7 +6155,7 @@ export default function InsuranceAuditPage() {
                 )}
               </div>
             ) : (
-              <div style={{ padding: "32px 0", textAlign: "center", color: "var(--text-secondary)", fontSize: 13 }}>
+              <div style={{ padding: "32px 0", textAlign: "center", color: "var(--text-secondary)", fontSize: 12 }}>
                 {t("insuranceAudit.recordNotFound")}
               </div>
             )}
@@ -6190,7 +6190,7 @@ export default function InsuranceAuditPage() {
               rows={3}
               style={{
                 width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid var(--border-color)",
-                fontSize: 13, fontFamily: "inherit", boxSizing: "border-box", marginBottom: 12, resize: "vertical",
+                fontSize: 12, fontFamily: "inherit", boxSizing: "border-box", marginBottom: 12, resize: "vertical",
               }}
             />
             <div style={styles.modalActions}>
@@ -6275,7 +6275,7 @@ export default function InsuranceAuditPage() {
               <Plus size={16} style={{ marginRight: 6, verticalAlign: "middle" }} />
               {t("insuranceAudit.newRecordTitle")}
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 16px", fontSize: 13 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 16px", fontSize: 12 }}>
               <div>
                 <div style={{ color: "var(--text-secondary)", marginBottom: 4 }}>{t("insuranceAudit.patientIdRequired")}</div>
                 <input

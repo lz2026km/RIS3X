@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Printer, Download } from 'lucide-react'
 import { Spin, Alert, message, Tabs, Tag, Rate, Select, Input, Empty, Descriptions, Statistic, Drawer, Card } from 'antd'
+import type { TableColumnsType } from 'antd'
 import {
   patientPortalApi,
   type PortalPatientDto,
@@ -15,7 +16,7 @@ import {
 import { followupApi, type FollowUpPlan } from '../../services/api/followupApi'
 import { selfRegistrationApi, type SelfIdentifyResultDto, type SelfPatientDto, type SelfCheckInResultDto, type SelfQueueNumberDto } from '../../services/api/w12PatientApi'
 import { t } from '../../i18n/appI18n'
-import { StatCard, StatCardGrid } from '../../components/common'
+import { StatCard, StatCardGrid, DataTable } from '../../components/common'
 
 // ===== Types =====
 export type { PortalPatientDto as PatientPortalUser, ExamHistoryItemDto as ExamHistoryItem, ImagePreviewDto as ImagePreview }
@@ -71,7 +72,7 @@ const styles = {
   value: { fontSize: 14, color: 'var(--text-primary)' },
   table: { width: '100%', borderCollapse: 'collapse' as const },
   th: { padding: '10px 12px', fontSize: 12, fontWeight: 600, color: '#64748b', textAlign: 'left' as const, borderBottom: '2px solid var(--border-color)' },
-  td: { padding: '10px 12px', fontSize: 13, color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-color)' },
+  td: { padding: '10px 12px', fontSize: 12, color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-color)' },
   badge: (status: string) => ({
     padding: '3px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600,
     background: status === '已出报告' || status === '已发布' ? 'var(--color-success-bg)' : status === '审核中' ? 'var(--color-warning-bg)' : 'var(--bg-card)',
@@ -156,7 +157,7 @@ function MiniCalendar(props: {
               disabled={disabled}
               onClick={() => onSelect(cell)}
               style={{
-                padding: '8px 0', borderRadius: 8, fontSize: 13, cursor: disabled ? 'not-allowed' : 'pointer',
+                padding: '8px 0', borderRadius: 8, fontSize: 12, cursor: disabled ? 'not-allowed' : 'pointer',
                 border: isSelected ? '2px solid #1e40af' : isToday ? '2px solid #93c5fd' : '1px solid var(--border-color)',
                 background: isSelected ? '#1e40af' : isToday ? 'var(--color-info-bg)' : 'var(--bg-card)',
                 color: isSelected ? '#fff' : disabled ? '#cbd5e1' : 'var(--text-secondary)',
@@ -691,7 +692,7 @@ export default function SelfServicePortal() {
       <div style={styles.container}>
         <Card bordered={false} style={{ ...styles.card, maxWidth: 400, margin: '80px auto', textAlign: 'center' }} styles={{ body: { padding: 0 } }}>
           <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>{t('selfService.login.title')}</h2>
-          <p style={{ fontSize: 13, color: '#64748b', marginBottom: 24 }}>{t('selfService.login.hint')}</p>
+          <p style={{ fontSize: 12, color: '#64748b', marginBottom: 24 }}>{t('selfService.login.hint')}</p>
           <input
             placeholder={t('selfService.login.placeholder')}
             value={loginId}
@@ -699,7 +700,7 @@ export default function SelfServicePortal() {
             onKeyDown={e => e.key === 'Enter' && !loginLoading && void handleLogin()}
             style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, marginBottom: 16, boxSizing: 'border-box' as const }}
           />
-          <button style={{ ...styles.btn, width: '100%', padding: '12px', fontSize: 15 }} onClick={() => void handleLogin()} disabled={loginLoading}>
+          <button style={{ ...styles.btn, width: '100%', padding: '12px', fontSize: 14 }} onClick={() => void handleLogin()} disabled={loginLoading}>
             {loginLoading ? t('selfService.login.searching') : t('selfService.login.search')}
           </button>
           {loginError && <Alert type="error" showIcon message={loginError} style={{ marginTop: 16, textAlign: 'left' }} />}
@@ -781,6 +782,55 @@ export default function SelfServicePortal() {
     }
   }
 
+  const portalReportColumns: TableColumnsType<PortalReportDto> = [
+    { title: t('selfService.reports.col.examItem'), dataIndex: 'modality', key: 'modality', render: (v: string) => v ?? '-' },
+    { title: t('selfService.reports.col.bodyPart'), dataIndex: 'bodyPart', key: 'bodyPart', render: (v: string) => v ?? '-' },
+    { title: t('selfService.reports.col.examDate'), dataIndex: 'examDate', key: 'examDate', render: (v: string) => fmtDateTime(v) },
+    { title: t('selfService.reports.col.status'), dataIndex: 'state', key: 'state', render: (v: string) => <span style={styles.badge(REPORT_STATE_LABEL[v] ?? v)}>{REPORT_STATE_LABEL[v] ?? v}</span> },
+    { title: t('selfService.reports.col.signedAt'), dataIndex: 'signedAt', key: 'signedAt', render: (v: string) => fmtDateTime(v) },
+    {
+      title: t('selfService.reports.col.actions'), key: 'actions',
+      render: (_v: unknown, r: PortalReportDto) => (
+        <button style={{ ...styles.btn, background: '#0d9488' }} onClick={() => setExpandedReport(expandedReport === r.id ? null : r.id)}>
+          {expandedReport === r.id ? t('selfService.reports.collapse') : t('selfService.reports.viewReport')}
+        </button>
+      ),
+    },
+  ]
+
+  const portalImageColumns: TableColumnsType<ExamHistoryItemDto> = [
+    { title: t('selfService.reports.col.examItem'), dataIndex: 'examItem', key: 'examItem', render: (v: string) => v },
+    { title: t('ssp.images.date'), dataIndex: 'examDate', key: 'examDate', render: (v: string) => v },
+    { title: t('selfService.reports.col.bodyPart'), dataIndex: 'bodyPart', key: 'bodyPart', render: (v: string) => v },
+    { title: t('selfService.reports.col.status'), dataIndex: 'reportStatus', key: 'reportStatus', render: (v: string) => <span style={styles.badge(v)}>{v}</span> },
+    {
+      title: t('selfService.reports.col.actions'), key: 'actions',
+      render: (_v: unknown, exam: ExamHistoryItemDto) => (
+        <>
+          <button style={styles.btn} onClick={() => setSelectedExam(selectedExam?.id === exam.id ? null : exam)}>
+            {selectedExam?.id === exam.id ? t('selfService.images.collapse') : t('selfService.images.viewImage')}
+          </button>
+          <button style={{ ...styles.btnGreen, marginLeft: 8 }} onClick={() => openViewer(exam)}>{t('selfService.images.openViewer')}</button>
+        </>
+      ),
+    },
+  ]
+
+  const portalClinicalColumns: TableColumnsType<PortalClinicalDataDto> = [
+    { title: t('selfService.reports.col.examItem'), dataIndex: 'examType', key: 'examType', render: (v: string) => v ?? '-' },
+    { title: t('selfService.reports.col.bodyPart'), dataIndex: 'bodyPart', key: 'bodyPart', render: (v: string) => v ?? '-' },
+    { title: t('ssp.images.date'), dataIndex: 'examDate', key: 'examDate', render: (v: string) => v ?? '-' },
+    { title: t('selfService.reports.col.status'), dataIndex: 'reportStatus', key: 'reportStatus', render: (v: string) => <span style={styles.badge(v ?? '')}>{v ?? '-'}</span> },
+    {
+      title: t('selfService.reports.col.actions'), key: 'actions',
+      render: (_v: unknown, d: PortalClinicalDataDto) => (
+        <button style={{ ...styles.btn, background: '#0d9488' }} onClick={() => void openClinicalDetail(d.id)}>
+          {t('ssp.clinical.viewDetail')}
+        </button>
+      ),
+    },
+  ]
+
   const tabItems = [
     {
       key: 'home',
@@ -831,7 +881,7 @@ export default function SelfServicePortal() {
               <h3 style={styles.subTitle}>{t('selfService.home.recentAppointments')}</h3>
               {upcomingAppointments.slice(0, 3).map(a => (
                 <div key={a.id} style={styles.todoItem}>
-                  <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{a.modality} · {a.bodyPart ?? '-'}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{a.modality} · {a.bodyPart ?? '-'}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 12, color: '#64748b' }}>{fmtDateTime(a.scheduledAt)}</span>
                     <Tag color={stateColor(a.state)}>{APPOINTMENT_STATE_LABEL[a.state] ?? a.state}</Tag>
@@ -869,7 +919,7 @@ export default function SelfServicePortal() {
                   type="button"
                   onClick={() => setBooking({ ...booking, modality: m.value, bodyPart: undefined })}
                   style={{
-                    padding: '16px 8px', borderRadius: 10, cursor: 'pointer', fontSize: 13,
+                    padding: '16px 8px', borderRadius: 10, cursor: 'pointer', fontSize: 12,
                     border: booking.modality === m.value ? '2px solid #1e40af' : '1px solid var(--border-color)',
                     background: booking.modality === m.value ? 'var(--color-info-bg)' : 'var(--bg-card)',
                     color: booking.modality === m.value ? '#1e40af' : '#475569',
@@ -892,7 +942,7 @@ export default function SelfServicePortal() {
                     type="button"
                     onClick={() => setBooking({ ...booking, bodyPart: p })}
                     style={{
-                      padding: '8px 18px', borderRadius: 8, cursor: 'pointer', fontSize: 13,
+                      padding: '8px 18px', borderRadius: 8, cursor: 'pointer', fontSize: 12,
                       border: booking.bodyPart === p ? '2px solid #0d9488' : '1px solid var(--border-color)',
                       background: booking.bodyPart === p ? 'rgba(13,148,136,0.12)' : 'var(--bg-card)',
                       color: booking.bodyPart === p ? '#0f766e' : '#475569',
@@ -924,7 +974,7 @@ export default function SelfServicePortal() {
                     type="button"
                     onClick={() => setBooking({ ...booking, slot: s })}
                     style={{
-                      padding: '7px 14px', borderRadius: 8, cursor: 'pointer', fontSize: 13,
+                      padding: '7px 14px', borderRadius: 8, cursor: 'pointer', fontSize: 12,
                       border: booking.slot === s ? '2px solid #1e40af' : '1px solid var(--border-color)',
                       background: booking.slot === s ? 'var(--color-info-bg)' : 'var(--bg-card)',
                       color: booking.slot === s ? '#1e40af' : '#475569',
@@ -961,28 +1011,11 @@ export default function SelfServicePortal() {
             {reports.length === 0 ? (
               <Empty description={t('selfService.reports.noReports')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
             ) : (
-              <table style={styles.table}>
-                <thead><tr>
-                  <th style={styles.th}>{t('selfService.reports.col.examItem')}</th><th style={styles.th}>{t('selfService.reports.col.bodyPart')}</th><th style={styles.th}>{t('selfService.reports.col.examDate')}</th>
-                  <th style={styles.th}>{t('selfService.reports.col.status')}</th><th style={styles.th}>{t('selfService.reports.col.signedAt')}</th><th style={styles.th}>{t('selfService.reports.col.actions')}</th>
-                </tr></thead>
-                <tbody>
-                  {reports.map(r => (
-                    <tr key={r.id}>
-                      <td style={styles.td}>{r.modality ?? '-'}</td>
-                      <td style={styles.td}>{r.bodyPart ?? '-'}</td>
-                      <td style={styles.td}>{fmtDateTime(r.examDate)}</td>
-                      <td style={styles.td}><span style={styles.badge(REPORT_STATE_LABEL[r.state] ?? r.state)}>{REPORT_STATE_LABEL[r.state] ?? r.state}</span></td>
-                      <td style={styles.td}>{fmtDateTime(r.signedAt)}</td>
-                      <td style={styles.td}>
-                        <button style={{ ...styles.btn, background: '#0d9488' }} onClick={() => setExpandedReport(expandedReport === r.id ? null : r.id)}>
-                          {expandedReport === r.id ? t('selfService.reports.collapse') : t('selfService.reports.viewReport')}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <DataTable<PortalReportDto>
+                columns={portalReportColumns}
+                dataSource={reports}
+                rowKey="id"
+              />
             )}
           </Card>
           {selectedReport && (
@@ -1044,7 +1077,7 @@ export default function SelfServicePortal() {
                 const exam = exams.find(e => e.id === expandedReport)
                 if (!exam?.reportContent) return null
                 return (
-                  <div style={{ marginTop: 16, padding: 16, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', whiteSpace: 'pre-wrap', fontSize: 13, lineHeight: 1.7, color: 'var(--text-secondary)' }}>
+                  <div style={{ marginTop: 16, padding: 16, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', whiteSpace: 'pre-wrap', fontSize: 12, lineHeight: 1.7, color: 'var(--text-secondary)' }}>
                     {exam.reportContent}
                     {exam.diagnosis && <div style={{ marginTop: 12 }}><div style={styles.label}>{t('selfService.reports.diagnosisLabel')}</div><div style={styles.value}>{exam.diagnosis}</div></div>}
                     {exam.recommendations && <div style={{ marginTop: 8 }}><div style={styles.label}>{t('selfService.reports.recommendationsLabel')}</div><div style={styles.value}>{exam.recommendations}</div></div>}
@@ -1066,28 +1099,11 @@ export default function SelfServicePortal() {
             {viewableExams.length === 0 ? (
               <Empty description={t('selfService.images.noImages')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
             ) : (
-              <table style={styles.table}>
-                <thead><tr>
-                  <th style={styles.th}>{t('selfService.reports.col.examItem')}</th><th style={styles.th}>{t('ssp.images.date')}</th><th style={styles.th}>{t('selfService.reports.col.bodyPart')}</th>
-                  <th style={styles.th}>{t('selfService.reports.col.status')}</th><th style={styles.th}>{t('selfService.reports.col.actions')}</th>
-                </tr></thead>
-                <tbody>
-                  {viewableExams.map(exam => (
-                    <tr key={exam.id}>
-                      <td style={styles.td}>{exam.examItem}</td>
-                      <td style={styles.td}>{exam.examDate}</td>
-                      <td style={styles.td}>{exam.bodyPart}</td>
-                      <td style={styles.td}><span style={styles.badge(exam.reportStatus)}>{exam.reportStatus}</span></td>
-                      <td style={styles.td}>
-                        <button style={styles.btn} onClick={() => setSelectedExam(selectedExam?.id === exam.id ? null : exam)}>
-                          {selectedExam?.id === exam.id ? t('selfService.images.collapse') : t('selfService.images.viewImage')}
-                        </button>
-                        <button style={{ ...styles.btnGreen, marginLeft: 8 }} onClick={() => openViewer(exam)}>{t('selfService.images.openViewer')}</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <DataTable<ExamHistoryItemDto>
+                columns={portalImageColumns}
+                dataSource={viewableExams}
+                rowKey="id"
+              />
             )}
           </Card>
           {selectedExam && (
@@ -1109,7 +1125,7 @@ export default function SelfServicePortal() {
               <div style={styles.imageGrid}>
                 {images.map(img => (
                   <div key={img.id} style={styles.imageCard}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>{img.label}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>{img.label}</div>
                     <div style={{ ...styles.imagePlaceholder, filter: getImageFilter(img), background: '#1e293b' }}>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8,1fr)', gap: 1, padding: 8, width: '100%', height: '100%', boxSizing: 'border-box' as const }}>
                         {Array.from({ length: 64 }).map((_, i) => (
@@ -1132,12 +1148,12 @@ export default function SelfServicePortal() {
           )}
           <Card bordered={false} style={{ ...styles.card, textAlign: 'center' }} styles={{ body: { padding: 0 } }}>
             <h3 style={{ ...styles.subTitle, textAlign: 'left' }}>{t('selfService.voucher.title')}</h3>
-            <p style={{ fontSize: 13, color: '#64748b', marginBottom: 16 }}>{t('selfService.voucher.hint')}</p>
+            <p style={{ fontSize: 12, color: '#64748b', marginBottom: 16 }}>{t('selfService.voucher.hint')}</p>
             {!voucherCode ? (
               <button style={styles.voucherBtn} onClick={generateVoucher}>{t('selfService.voucher.generate')}</button>
             ) : (
               <div>
-                <div style={{ fontSize: 13, color: '#64748b', marginBottom: 8 }}>{t('selfService.voucher.yourVoucher')}：</div>
+                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>{t('selfService.voucher.yourVoucher')}：</div>
                 <div style={styles.voucherCode}>{voucherCode}</div>
                 <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>{t('selfService.voucher.validity')}</div>
               </div>
@@ -1184,7 +1200,7 @@ export default function SelfServicePortal() {
                       )}
                     </div>
                     {isOpen && body && (
-                      <div style={{ marginTop: 12, padding: 16, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', whiteSpace: 'pre-wrap', fontSize: 13, lineHeight: 1.7, color: 'var(--text-secondary)' }}>
+                      <div style={{ marginTop: 12, padding: 16, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', whiteSpace: 'pre-wrap', fontSize: 12, lineHeight: 1.7, color: 'var(--text-secondary)' }}>
                         {body}
                         {edu.duration && <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>{t('ssp.education.readTimePrefix')}{edu.duration}{t('ssp.education.readTimeSuffix')}</div>}
                       </div>
@@ -1207,27 +1223,11 @@ export default function SelfServicePortal() {
             {clinicalData.length === 0 ? (
               <Empty description={t('selfService.clinical.noData')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
             ) : (
-              <table style={styles.table}>
-                <thead><tr>
-                  <th style={styles.th}>{t('selfService.reports.col.examItem')}</th><th style={styles.th}>{t('selfService.reports.col.bodyPart')}</th><th style={styles.th}>{t('ssp.images.date')}</th>
-                  <th style={styles.th}>{t('selfService.reports.col.status')}</th><th style={styles.th}>{t('selfService.reports.col.actions')}</th>
-                </tr></thead>
-                <tbody>
-                  {clinicalData.map(d => (
-                    <tr key={d.id}>
-                      <td style={styles.td}>{d.examType ?? '-'}</td>
-                      <td style={styles.td}>{d.bodyPart ?? '-'}</td>
-                      <td style={styles.td}>{d.examDate ?? '-'}</td>
-                      <td style={styles.td}><span style={styles.badge(d.reportStatus ?? '')}>{d.reportStatus ?? '-'}</span></td>
-                      <td style={styles.td}>
-                        <button style={{ ...styles.btn, background: '#0d9488' }} onClick={() => void openClinicalDetail(d.id)}>
-                          {t('ssp.clinical.viewDetail')}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <DataTable<PortalClinicalDataDto>
+                columns={portalClinicalColumns}
+                dataSource={clinicalData}
+                rowKey="id"
+              />
             )}
           </Card>
         </div>
@@ -1259,13 +1259,13 @@ export default function SelfServicePortal() {
                   { title: t('selfService.contacts.tech'), color: '#7c3aed', users: techContacts },
                 ].map(group => (
                   <div key={group.title} style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', padding: 14 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: group.color, marginBottom: 10 }}>{group.title}（{group.users.length}）</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: group.color, marginBottom: 10 }}>{group.title}（{group.users.length}）</div>
                     {group.users.length === 0 ? (
                       <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('selfService.contacts.noContacts')}</div>
                     ) : (
                       group.users.map(u => (
                         <div key={u.id} style={{ padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{u.name}</div>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{u.name}</div>
                           <div style={{ fontSize: 12, color: '#64748b' }}>{u.title ?? u.role} · {u.department ?? '-'}</div>
                           <div style={{ fontSize: 12, color: '#0d9488', fontFamily: 'monospace' }}>{u.phone ?? '-'}</div>
                         </div>
@@ -1302,7 +1302,7 @@ export default function SelfServicePortal() {
                 {followups.map(p => (
                   <div key={p.id} style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', padding: 14, borderLeft: `4px solid ${p.status === 'COMPLETED' ? '#059669' : p.status === 'OVERDUE' ? '#dc2626' : p.status === 'IN_PROGRESS' ? '#0d9488' : '#d97706'}` }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{p.note || t('ssp.followup.defaultPlan')}</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{p.note || t('ssp.followup.defaultPlan')}</div>
                       <Tag color={p.status === 'COMPLETED' ? 'success' : p.status === 'OVERDUE' ? 'error' : p.status === 'IN_PROGRESS' ? 'processing' : 'warning'}>
                         {FOLLOWUP_STATE_LABEL[p.status] ?? p.status}
                       </Tag>
@@ -1324,7 +1324,7 @@ export default function SelfServicePortal() {
                     </div>
                     {p.status !== 'COMPLETED' && (
                       <button
-                        style={{ width: '100%', padding: '8px 0', borderRadius: 8, border: 'none', background: '#0d9488', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+                        style={{ width: '100%', padding: '8px 0', borderRadius: 8, border: 'none', background: '#0d9488', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
                         onClick={() => void completeFollowup(p)}
                         disabled={followupCompletingId === p.id}
                       >
@@ -1358,7 +1358,7 @@ export default function SelfServicePortal() {
               <Input.TextArea rows={2} maxLength={200} showCount value={followupForm.note} onChange={e => setFollowupForm({ ...followupForm, note: e.target.value })} placeholder={t('selfService.followup.notePlaceholder')} />
             </div>
             <div style={{ marginTop: 16 }}>
-              <button style={{ ...styles.btn, padding: '10px 28px', fontSize: 13 }} onClick={() => void submitFollowup()} disabled={followupCreating}>
+              <button style={{ ...styles.btn, padding: '10px 28px', fontSize: 12 }} onClick={() => void submitFollowup()} disabled={followupCreating}>
                 {followupCreating ? t('selfService.followup.submitting') : t('selfService.followup.submit')}
               </button>
             </div>
@@ -1373,13 +1373,13 @@ export default function SelfServicePortal() {
       children: (
         <Card bordered={false} style={styles.card} styles={{ body: { padding: 0 } }}>
           <h3 style={styles.subTitle}>{t('selfService.feedback.title')}</h3>
-          <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>{t('ssp.feedback.intro')}</p>
+          <p style={{ fontSize: 12, color: '#64748b', marginBottom: 20 }}>{t('ssp.feedback.intro')}</p>
           <div style={{ marginBottom: 24 }}>
             <div style={styles.label}>{t('selfService.feedback.overallSatisfaction')}</div>
             <Rate
               value={rating}
               onChange={setRating}
-              style={{ fontSize: 28 }}
+              style={{ fontSize: 30 }}
             />
             {rating > 0 && (
               <div style={{ marginTop: 6, fontSize: 12, color: '#1e40af' }}>
@@ -1468,7 +1468,7 @@ export default function SelfServicePortal() {
                 )}
               </div>
               {srCheckIn && srCheckIn.blockers.length > 0 && (
-                <div style={{ marginTop: 12, color: '#dc2626', fontSize: 13 }}>
+                <div style={{ marginTop: 12, color: '#dc2626', fontSize: 12 }}>
                   {t('w12Patient.sr.blockers')}: {srCheckIn.blockers.join('、')}
                 </div>
               )}
@@ -1551,7 +1551,7 @@ export default function SelfServicePortal() {
             {(clinicalDetail as any).labValues && (
               <div style={{ marginTop: 16, padding: 12, background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid var(--color-success-border)' }}>
                 <div style={styles.label}>{t('selfService.clinicalDrawer.labValues')}</div>
-                <div style={{ ...styles.value, fontSize: 13, lineHeight: 1.7 }}>{(clinicalDetail as any).labValues}</div>
+                <div style={{ ...styles.value, fontSize: 12, lineHeight: 1.7 }}>{(clinicalDetail as any).labValues}</div>
               </div>
             )}
           </div>

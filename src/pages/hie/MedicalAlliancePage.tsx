@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Plus, Wifi, WifiOff, RefreshCw, ArrowRight, Activity, ShieldCheck, Image as ImageIcon, AlertTriangle, Clock } from 'lucide-react'
 import { Pagination } from 'antd'
+import { DataTable } from '../../components/common'
 import { regionalApi } from '../../services/api/regionalApi'
 import { usePagination } from '../../hooks/usePagination'
 import { t } from '../../i18n/appI18n'
@@ -279,44 +280,41 @@ const MedicalAlliancePage: React.FC = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <h2 style={{ fontSize: 16, fontWeight: 600 }}>{t('medicalAlliance.membersTitle', { count: allianceMembers.length })}</h2>
           </div>
-          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-            <thead>
-              <tr style={{ background: 'var(--bg-card)', borderBottom: '2px solid var(--border-color)' }}>
-                <th style={thStyle}>{t('medicalAlliance.orgName')}</th>
-                <th style={thStyle}>{t('medicalAlliance.levelType')}</th>
-                <th style={thStyle}>{t('medicalAlliance.region')}</th>
-                <th style={thStyle}>{t('medicalAlliance.contact')}</th>
-                <th style={thStyle}>{t('medicalAlliance.status')}</th>
-                <th style={thStyle}>{t('medicalAlliance.joinedAt')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {memberPager.pageData.map(m => (
-                <tr key={m.id} style={{ borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>
-                  <td style={tdStyle}>{m.name}</td>
-                  <td style={tdStyle}>{m.level} / {m.type}</td>
-                  <td style={tdStyle}>{m.region}</td>
-                  <td style={tdStyle}>{m.contactPerson}<br /><small>{m.contactPhone}</small></td>
-                  <td style={tdStyle}>
-                    <span style={{ padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 500, background: m.status === 'active' ? 'var(--color-success-bg)' : m.status === 'pending' ? 'var(--color-warning-bg)' : 'var(--bg-card)', color: m.status === 'active' ? 'var(--color-success)' : m.status === 'pending' ? 'var(--color-warning)' : 'var(--text-secondary)' }}>
-                      {m.status === 'active' ? t('medicalAlliance.joined') : m.status === 'pending' ? t('medicalAlliance.pendingApproval') : t('medicalAlliance.inactive')}
+          <div style={{ overflowX: "auto" }}>
+            <DataTable
+              dataSource={memberPager.pageData}
+              rowKey="id"
+              pagination={false}
+              columns={[
+                { title: t('medicalAlliance.orgName'), dataIndex: 'name' },
+                { title: t('medicalAlliance.levelType'), key: 'levelType', render: (_: unknown, m: AllianceMember) => `${m.level} / ${m.type}` },
+                { title: t('medicalAlliance.region'), dataIndex: 'region' },
+                {
+                  title: t('medicalAlliance.contact'), key: 'contact',
+                  render: (_: unknown, m: AllianceMember) => <>{m.contactPerson}<br /><small>{m.contactPhone}</small></>,
+                },
+                {
+                  title: t('medicalAlliance.status'), dataIndex: 'status',
+                  render: (v: AllianceMember['status']) => (
+                    <span style={{ padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 500, background: v === 'active' ? 'var(--color-success-bg)' : v === 'pending' ? 'var(--color-warning-bg)' : 'var(--bg-card)', color: v === 'active' ? 'var(--color-success)' : v === 'pending' ? 'var(--color-warning)' : 'var(--text-secondary)' }}>
+                      {v === 'active' ? t('medicalAlliance.joined') : v === 'pending' ? t('medicalAlliance.pendingApproval') : t('medicalAlliance.inactive')}
                     </span>
-                  </td>
-                  <td style={tdStyle}>{m.joinedAt}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table></div>
+                  ),
+                },
+                { title: t('medicalAlliance.joinedAt'), dataIndex: 'joinedAt' },
+              ]}
+            />
+          </div>
           <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}>
             <Pagination size="small" {...memberPager.pagination} />
           </div>
           <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
             <div style={{ flex: 1, padding: 16, background: 'var(--color-info-bg)', borderRadius: 8, border: '1px solid var(--color-info-border)' }}>
-              <div style={{ fontSize: 13, color: '#1e40af' }}>{t('medicalAlliance.sharedResources')}</div>
+              <div style={{ fontSize: 12, color: '#1e40af' }}>{t('medicalAlliance.sharedResources')}</div>
               <div style={{ fontSize: 20, fontWeight: 600, color: '#1e40af' }}>{t('medicalAlliance.sharedResourcesValue')}</div>
             </div>
             <div style={{ flex: 1, padding: 16, background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid var(--color-success-border)' }}>
-              <div style={{ fontSize: 13, color: '#166534' }}>{t('medicalAlliance.coverageArea')}</div>
+              <div style={{ fontSize: 12, color: '#166534' }}>{t('medicalAlliance.coverageArea')}</div>
               <div style={{ fontSize: 20, fontWeight: 600, color: '#166534' }}>{t('medicalAlliance.coverageAreaValue')}</div>
             </div>
           </div>
@@ -329,43 +327,47 @@ const MedicalAlliancePage: React.FC = () => {
             <h2 style={{ fontSize: 16, fontWeight: 600 }}>{t('medicalAlliance.referralsTitle', { count: allianceReferrals.length })}</h2>
                 <button onClick={handleCreateReferral} style={{ padding: '8px 16px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Plus size={14} />{t('medicalAlliance.newReferral')}</button>
           </div>
-          <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-            <thead>
-              <tr style={{ background: 'var(--bg-card)', borderBottom: '2px solid var(--border-color)' }}>
-                <th style={thStyle}>{t('medicalAlliance.patient')}</th>
-                <th style={thStyle}>{t('medicalAlliance.fromOrg')}</th>
-                <th style={thStyle}>{t('medicalAlliance.toOrg')}</th>
-                <th style={thStyle}>{t('medicalAlliance.diagnosis')}</th>
-                <th style={thStyle}>{t('medicalAlliance.priority')}</th>
-                <th style={thStyle}>{t('medicalAlliance.status')}</th>
-                <th style={thStyle}>{t('medicalAlliance.actions')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {referralPager.pageData.map(r => (
-                <tr key={r.id} style={{ borderBottom: '1px solid var(--border-default, rgba(0,0,0,0.12))' }}>
-                  <td style={tdStyle}><strong>{r.patientName}</strong><br /><small>{r.patientId}</small></td>
-                  <td style={tdStyle}>{r.fromMemberName}</td>
-                  <td style={tdStyle}>{r.toMemberName}</td>
-                  <td style={tdStyle}>{r.diagnosis}</td>
-                  <td style={tdStyle}>
-                    <span style={{ padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 500, background: r.priority === 'urgent' ? 'var(--color-error-bg)' : 'var(--bg-card)', color: r.priority === 'urgent' ? 'var(--color-error)' : 'var(--text-secondary)' }}>
-                      {r.priority === 'urgent' ? t('medicalAlliance.urgent') : t('medicalAlliance.normal')}
+          <div style={{ overflowX: "auto" }}>
+            <DataTable
+              dataSource={referralPager.pageData}
+              rowKey="id"
+              pagination={false}
+              columns={[
+                {
+                  title: t('medicalAlliance.patient'), key: 'patient',
+                  render: (_: unknown, r: AllianceReferral) => <><strong>{r.patientName}</strong><br /><small>{r.patientId}</small></>,
+                },
+                { title: t('medicalAlliance.fromOrg'), dataIndex: 'fromMemberName' },
+                { title: t('medicalAlliance.toOrg'), dataIndex: 'toMemberName' },
+                { title: t('medicalAlliance.diagnosis'), dataIndex: 'diagnosis' },
+                {
+                  title: t('medicalAlliance.priority'), dataIndex: 'priority',
+                  render: (v: AllianceReferral['priority']) => (
+                    <span style={{ padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 500, background: v === 'urgent' ? 'var(--color-error-bg)' : 'var(--bg-card)', color: v === 'urgent' ? 'var(--color-error)' : 'var(--text-secondary)' }}>
+                      {v === 'urgent' ? t('medicalAlliance.urgent') : t('medicalAlliance.normal')}
                     </span>
-                  </td>
-                  <td style={tdStyle}>
-                    <span style={{ padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 500, background: r.status === 'completed' ? 'var(--color-success-bg)' : r.status === 'accepted' ? 'var(--color-info-bg)' : r.status === 'cancelled' ? 'var(--bg-card)' : 'var(--color-warning-bg)', color: r.status === 'completed' ? 'var(--color-success)' : r.status === 'accepted' ? 'var(--color-info)' : r.status === 'cancelled' ? 'var(--text-secondary)' : 'var(--color-warning)' }}>
-                      {r.status === 'pending' ? t('medicalAlliance.pendingAccept') : r.status === 'accepted' ? t('medicalAlliance.accepted') : r.status === 'completed' ? t('medicalAlliance.completed') : t('medicalAlliance.cancelled')}
+                  ),
+                },
+                {
+                  title: t('medicalAlliance.status'), dataIndex: 'status',
+                  render: (v: AllianceReferral['status']) => (
+                    <span style={{ padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 500, background: v === 'completed' ? 'var(--color-success-bg)' : v === 'accepted' ? 'var(--color-info-bg)' : v === 'cancelled' ? 'var(--bg-card)' : 'var(--color-warning-bg)', color: v === 'completed' ? 'var(--color-success)' : v === 'accepted' ? 'var(--color-info)' : v === 'cancelled' ? 'var(--text-secondary)' : 'var(--color-warning)' }}>
+                      {v === 'pending' ? t('medicalAlliance.pendingAccept') : v === 'accepted' ? t('medicalAlliance.accepted') : v === 'completed' ? t('medicalAlliance.completed') : t('medicalAlliance.cancelled')}
                     </span>
-                  </td>
-                  <td style={tdStyle}>
-                    {r.status === 'pending' && <button onClick={() => handleAcceptReferral(r.id)} style={{ padding: '4px 12px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', marginRight: 4 }}>{t('medicalAlliance.accept')}</button>}
-                    {r.status === 'accepted' && <button onClick={() => handleCompleteReferral(r.id)} style={{ padding: '4px 12px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}>{t('medicalAlliance.complete')}</button>}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table></div>
+                  ),
+                },
+                {
+                  title: t('medicalAlliance.actions'), key: 'actions',
+                  render: (_: unknown, r: AllianceReferral) => (
+                    <>
+                      {r.status === 'pending' && <button onClick={() => handleAcceptReferral(r.id)} style={{ padding: '4px 12px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', marginRight: 4 }}>{t('medicalAlliance.accept')}</button>}
+                      {r.status === 'accepted' && <button onClick={() => handleCompleteReferral(r.id)} style={{ padding: '4px 12px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}>{t('medicalAlliance.complete')}</button>}
+                    </>
+                  ),
+                },
+              ]}
+            />
+          </div>
           <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}>
             <Pagination size="small" {...referralPager.pagination} />
           </div>
@@ -383,17 +385,17 @@ const MedicalAlliancePage: React.FC = () => {
               { label: t('medicalAlliance.referralCompletion'), value: '87.5%', color: '#f59e0b' },
             ].map((card, i) => (
               <div key={i} style={{ padding: 20, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', textAlign: 'center' }}>
-                <div style={{ fontSize: 26, fontWeight: 700, color: card.color }}>{card.value}</div>
-                <div style={{ fontSize: 13, color: '#6b7280', marginTop: 4 }}>{card.label}</div>
+                <div style={{ fontSize: 24, fontWeight: 700, color: card.color }}>{card.value}</div>
+                <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>{card.label}</div>
               </div>
             ))}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-              <h3 style={{ fontSize: 15, fontWeight: 500, marginBottom: 12 }}>{t('medicalAlliance.resourceDistributionTitle')}</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 500, marginBottom: 12 }}>{t('medicalAlliance.resourceDistributionTitle')}</h3>
               {['CT', 'MR', t('medicalAlliance.ultrasound'), t('medicalAlliance.xray'), 'PET-CT'].map((res, i) => (
                 <div key={i} style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ width: 80, fontSize: 13 }}>{res}</span>
+                  <span style={{ width: 80, fontSize: 12 }}>{res}</span>
                   <div style={{ flex: 1, height: 8, background: '#f3f4f6', borderRadius: 4 }}>
                     <div style={{ width: `${60 + i * 8}%`, height: 8, background: '#3b82f6', borderRadius: 4 }} />
                   </div>
@@ -402,10 +404,10 @@ const MedicalAlliancePage: React.FC = () => {
               ))}
             </div>
             <div style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-              <h3 style={{ fontSize: 15, fontWeight: 500, marginBottom: 12 }}>{t('medicalAlliance.recentTrendTitle')}</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 500, marginBottom: 12 }}>{t('medicalAlliance.recentTrendTitle')}</h3>
               {[{ month: '2026-03', count: 5 }, { month: '2026-04', count: 7 }, { month: '2026-05', count: 8 }].map((item, i) => (
                 <div key={i} style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ width: 80, fontSize: 13 }}>{item.month}</span>
+                  <span style={{ width: 80, fontSize: 12 }}>{item.month}</span>
                   <div style={{ flex: 1, height: 8, background: '#f3f4f6', borderRadius: 4 }}>
                     <div style={{ width: `${(item.count / 10) * 100}%`, height: 8, background: '#10b981', borderRadius: 4 }} />
                   </div>
@@ -445,7 +447,7 @@ const MedicalAlliancePage: React.FC = () => {
               { label: t('medicalAlliance.syncLagOrgs'), value: siteSummary.syncLag, color: '#d97706', bg: 'var(--color-warning-bg)' },
             ].map(c => (
               <div key={c.label} style={{ padding: 14, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', textAlign: 'center' }}>
-                <div style={{ fontSize: 26, fontWeight: 800, color: c.color }}>{c.value}</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: c.color }}>{c.value}</div>
                 <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>{c.label}</div>
               </div>
             ))}
@@ -465,7 +467,7 @@ const MedicalAlliancePage: React.FC = () => {
                 <div key={s.id} style={{ padding: 14, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: `1px solid ${st.color}22` }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                     {s.status === 'offline' ? <WifiOff size={15} color="#dc2626" /> : <Wifi size={15} color="#16a34a" />}
-                    <b style={{ fontSize: 13, color: 'var(--text-primary, #1e293b)' }}>{s.name}</b>
+                    <b style={{ fontSize: 12, color: 'var(--text-primary, #1e293b)' }}>{s.name}</b>
                     {s.primary && <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 999, background: '#dbeafe', color: '#1e40af', fontWeight: 700 }}>{t('medicalAlliance.mainSite')}</span>}
                     <span style={{ marginLeft: 'auto', padding: '2px 10px', borderRadius: 999, fontSize: 11, fontWeight: 700, background: st.bg, color: st.color }}>{st.label}</span>
                   </div>
@@ -487,11 +489,11 @@ const MedicalAlliancePage: React.FC = () => {
 
           {/* F2. 转诊流向图 (机构间) */}
           <div style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: 16 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
               <ArrowRight size={15} color="#3b82f6" /> {t('medicalAlliance.referralFlowTitle')}
             </h3>
             {referralFlow.length === 0 ? (
-              <div style={{ padding: 20, textAlign: 'center', color: '#6b7280', fontSize: 13 }}>
+              <div style={{ padding: 20, textAlign: 'center', color: '#6b7280', fontSize: 12 }}>
                 {t('medicalAlliance.noFlowData')}
               </div>
             ) : (
@@ -512,7 +514,7 @@ const MedicalAlliancePage: React.FC = () => {
                         </div>
                       </div>
                       <span style={{ width: 130, fontSize: 12, fontWeight: 600, color: 'var(--text-primary, #1e293b)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.to}</span>
-                      <b style={{ width: 46, fontSize: 13, color: '#1e40af', textAlign: 'right' }}>{t('medicalAlliance.caseCount', { count: f.count })}</b>
+                      <b style={{ width: 46, fontSize: 12, color: '#1e40af', textAlign: 'right' }}>{t('medicalAlliance.caseCount', { count: f.count })}</b>
                       <span style={{ width: 52, fontSize: 11, color: rate >= 80 ? '#16a34a' : '#d97706', textAlign: 'right' }}>{t('medicalAlliance.closureRate', { rate })}</span>
                     </div>
                   )
@@ -525,7 +527,7 @@ const MedicalAlliancePage: React.FC = () => {
           {/* F3. 共享检查统计 + F4. SLA 达成率卡 */}
           <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 16 }}>
             <div style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-              <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <ImageIcon size={15} color="#8b5cf6" /> {t('medicalAlliance.sharedStatsTitle')}
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -547,7 +549,7 @@ const MedicalAlliancePage: React.FC = () => {
             </div>
 
             <div style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-              <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <ShieldCheck size={15} color="#16a34a" /> {t('medicalAlliance.slaTitle')}
               </h3>
               <div style={{ textAlign: 'center', marginBottom: 14 }}>
@@ -595,7 +597,7 @@ const MedicalAlliancePage: React.FC = () => {
 
           {/* F6. 月度转诊趋势 */}
           <div style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginTop: 16 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Activity size={15} color="#10b981" /> {t('medicalAlliance.monthlyTrendTitle')}
               <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 400, color: '#6b7280' }}>
                 {t('medicalAlliance.peakLabel')} <b style={{ color: '#d97706' }}>{trendPeak.month}</b> {t('medicalAlliance.caseCount', { count: trendPeak.count })}
@@ -628,7 +630,7 @@ const MedicalAlliancePage: React.FC = () => {
           {/* F5. 同步事件流 */}
           <div style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginTop: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, margin: 0 }}>
+              <h3 style={{ fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, margin: 0 }}>
                 <RefreshCw size={15} color="#3b82f6" /> {t('medicalAlliance.syncEventStream')}
               </h3>
               <span style={{ marginLeft: 12, fontSize: 11, padding: '2px 10px', borderRadius: 999, background: syncEventsReal ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: syncEventsReal ? '#15803d' : '#92400e' }}>
@@ -664,7 +666,7 @@ const MedicalAlliancePage: React.FC = () => {
           {/* F7. 机构健康度评分 */}
           <div style={{ padding: 16, background: 'var(--bg-card)', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginTop: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, margin: 0 }}>
+              <h3 style={{ fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, margin: 0 }}>
                 <AlertTriangle size={15} color="#d97706" /> {t('medicalAlliance.healthScoreTitle')}
               </h3>
               <span style={{ marginLeft: 'auto', fontSize: 11, color: '#6b7280' }}>
@@ -705,8 +707,5 @@ const MedicalAlliancePage: React.FC = () => {
     </div>
   )
 }
-
-const thStyle: React.CSSProperties = { padding: '10px 12px', textAlign: 'left', fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }
-const tdStyle: React.CSSProperties = { padding: '10px 12px', fontSize: 13, color: 'var(--text-primary)' }
 
 export default MedicalAlliancePage

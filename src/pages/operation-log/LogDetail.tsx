@@ -16,7 +16,7 @@ function renderDiff(log: OperationLog) {
 
   return (
     <div style={{ marginTop: 12 }}>
-      <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 8, fontSize: 13 }}>{t('logDetail.dataCompare')}</div>
+      <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 8, fontSize: 12 }}>{t('logDetail.dataCompare')}</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
           <div style={{ background: 'var(--color-error-bg)', padding: '8px 12px', fontWeight: 600, fontSize: 12, color: DANGER, borderBottom: '1px solid #fecaca' }}>
@@ -72,11 +72,11 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 20 }}>
             <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>{t('logDetail.logId')}</div>
-              <div style={{ color: PRIMARY, fontSize: 13, fontWeight: 600 }}>{log.id}</div>
+              <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{log.id}</div>
             </div>
             <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>{t('logDetail.opTime')}</div>
-              <div style={{ color: PRIMARY, fontSize: 13, fontWeight: 600 }}>{formatDateTime(log.timestamp)}</div>
+              <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{formatDateTime(log.timestamp)}</div>
             </div>
             <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>{t('logDetail.opType')}</div>
@@ -92,53 +92,53 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
             </div>
             <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>{t('logDetail.opUser')}</div>
-              <div style={{ color: PRIMARY, fontSize: 13, fontWeight: 600 }}>{log.userName}</div>
+              <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{log.userName}</div>
             </div>
             <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>{t('logDetail.userId')}</div>
-              <div style={{ color: PRIMARY, fontSize: 13, fontWeight: 600 }}>{log.userId}</div>
+              <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{log.userId}</div>
             </div>
             <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>{t('logDetail.opModule')}</div>
-              <div style={{ color: PRIMARY, fontSize: 13, fontWeight: 600 }}>{log.module}</div>
+              <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{log.module}</div>
             </div>
           </div>
 
           <div style={{ background: 'var(--bg-card)', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 16 }}>
-            <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 10, fontSize: 13 }}>{t('logDetail.opTarget')}</div>
+            <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 10, fontSize: 12 }}>{t('logDetail.opTarget')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 12 }}>
               <div>
                 <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>{t('logDetail.targetId')}</div>
-                <div style={{ color: PRIMARY, fontSize: 13 }}>{log.targetId}</div>
+                <div style={{ color: PRIMARY, fontSize: 12 }}>{log.targetId}</div>
               </div>
               <div>
                 <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>{t('logDetail.targetDesc')}</div>
-                <div style={{ color: PRIMARY, fontSize: 13 }}>{log.targetDesc}</div>
+                <div style={{ color: PRIMARY, fontSize: 12 }}>{log.targetDesc}</div>
               </div>
             </div>
             {log.patientId && (
               <div style={{ marginTop: 8 }}>
                 <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>{t('logDetail.patientId')}</div>
-                <div style={{ color: PRIMARY, fontSize: 13 }}>{log.patientId}</div>
+                <div style={{ color: PRIMARY, fontSize: 12 }}>{log.patientId}</div>
               </div>
             )}
           </div>
 
           <div style={{ background: 'var(--bg-card)', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 16 }}>
-            <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 10, fontSize: 13 }}>{t('logDetail.envInfo')}</div>
+            <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 10, fontSize: 12 }}>{t('logDetail.envInfo')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Globe size={14} color={GRAY} />
                 <div>
                   <div style={{ color: GRAY, fontSize: 12 }}>{t('logDetail.ipAddress')}</div>
-                  <div style={{ color: PRIMARY, fontSize: 13 }}>{log.ipAddress}</div>
+                  <div style={{ color: PRIMARY, fontSize: 12 }}>{log.ipAddress}</div>
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <MonitorSmartphone size={14} color={GRAY} />
                 <div>
                   <div style={{ color: GRAY, fontSize: 12 }}>{t('logDetail.device')}</div>
-                  <div style={{ color: PRIMARY, fontSize: 13 }}>{log.device}</div>
+                  <div style={{ color: PRIMARY, fontSize: 12 }}>{log.device}</div>
                 </div>
               </div>
             </div>
@@ -151,7 +151,7 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
               border: `1px solid ${log.complianceLevel === 'critical' ? '#fecaca' : log.complianceLevel === 'warning' ? '#fde68a' : '#a7f3d0'}`,
               marginBottom: 16
             }}>
-              <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 10, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 10, fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Shield size={16} />
                 {t('logDetail.hipaaStatus')}
                 <span style={{
@@ -187,7 +187,7 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
         <div style={{ padding: '12px 20px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
           <button onClick={onClose} style={{
             padding: '8px 20px', borderRadius: 6, border: '1px solid #e2e8f0',
-            background: WHITE, color: GRAY, fontSize: 13, cursor: 'pointer',
+            background: WHITE, color: GRAY, fontSize: 12, cursor: 'pointer',
           }}>
             {t('common.action.close')}
           </button>

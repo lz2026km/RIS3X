@@ -362,11 +362,11 @@ export default function DepartmentFinancePage() {
         <div style={{ display: 'flex', gap: 8 }}>
           {(['monthly', 'quarterly', 'yearly'] as const).map(p => (
             <button key={p} onClick={() => setPeriod(p)}
-              style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: period === p ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.1)', color: 'var(--text-inverse)' }}>
+              style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: period === p ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.1)', color: 'var(--text-inverse)' }}>
               {p === 'monthly' ? t('deptFinance.periodMonthly') : p === 'quarterly' ? t('deptFinance.periodQuarterly') : t('deptFinance.periodYearly')}
             </button>
           ))}
-          <button onClick={handleExport} disabled={exportRows.length === 0} title={exportRows.length === 0 ? t('deptFinance.noDataCannotExport') : `${t('deptFinance.export')} ${exportRows.length} ${t('deptFinance.records')}`} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: exportRows.length === 0 ? 'not-allowed' : 'pointer', fontSize: 13, background: exportRows.length === 0 ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.15)', color: exportRows.length === 0 ? 'rgba(255,255,255,0.45)' : 'var(--text-inverse)', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button onClick={handleExport} disabled={exportRows.length === 0} title={exportRows.length === 0 ? t('deptFinance.noDataCannotExport') : `${t('deptFinance.export')} ${exportRows.length} ${t('deptFinance.records')}`} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: exportRows.length === 0 ? 'not-allowed' : 'pointer', fontSize: 12, background: exportRows.length === 0 ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.15)', color: exportRows.length === 0 ? 'rgba(255,255,255,0.45)' : 'var(--text-inverse)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Download size={14} />{t('deptFinance.export')}
           </button>
         </div>
@@ -380,7 +380,7 @@ export default function DepartmentFinancePage() {
           { key: 'reports', label: t('deptFinance.tabReports'), icon: FileText },
         ] as const).map(tabItem => (
           <button key={tabItem.key} onClick={() => setTab(tabItem.key)}
-            style={{ padding: '9px 18px', borderRadius: '6px 6px 0 0', border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, background: tab === tabItem.key ? 'var(--bg-card)' : 'transparent', color: tab === tabItem.key ? 'var(--text-primary)' : 'var(--text-secondary)', borderTop: tab === tabItem.key ? '2px solid var(--color-primary)' : '2px solid transparent', fontWeight: tab === tabItem.key ? 600 : 400 }}>
+            style={{ padding: '9px 18px', borderRadius: '6px 6px 0 0', border: 'none', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, background: tab === tabItem.key ? 'var(--bg-card)' : 'transparent', color: tab === tabItem.key ? 'var(--text-primary)' : 'var(--text-secondary)', borderTop: tab === tabItem.key ? '2px solid var(--color-primary)' : '2px solid transparent', fontWeight: tab === tabItem.key ? 600 : 400 }}>
             <tabItem.icon size={14} />{tabItem.label}
           </button>
         ))}
@@ -402,7 +402,7 @@ export default function DepartmentFinancePage() {
                   <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{k.title}</span>
                   <k.icon size={20} style={{ color: k.color }} />
                 </div>
-                <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--text-primary)' }}>{k.unit}{k.value}</div>
+                <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--text-primary)' }}>{k.unit}{k.value}</div>
               </div>
             ))}
           </div>
@@ -441,7 +441,7 @@ export default function DepartmentFinancePage() {
                   )}
                 </>
               ) : (
-                <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>{t('w1Controls.deptFinance.noApiData')}</div>
+                <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>{t('w1Controls.deptFinance.noApiData')}</div>
               )}
             </div>
 
@@ -468,7 +468,7 @@ export default function DepartmentFinancePage() {
                           <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{fmtMoney(c.value)}</span>
                         </div>
                       ))}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-default)', paddingTop: 6, marginTop: 4, fontSize: 13, fontWeight: 700 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-default)', paddingTop: 6, marginTop: 4, fontSize: 12, fontWeight: 700 }}>
                         <span style={{ color: 'var(--text-secondary)' }}>{t('w1Controls.deptFinance.costTotal')}</span>
                         <span>{fmtMoney(apiCostTotal)}</span>
                       </div>
@@ -476,7 +476,7 @@ export default function DepartmentFinancePage() {
                   </div>
                 </>
               ) : (
-                <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>{t('w1Controls.deptFinance.noApiData')}</div>
+                <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>{t('w1Controls.deptFinance.noApiData')}</div>
               )}
             </div>
           </div>
@@ -559,7 +559,7 @@ export default function DepartmentFinancePage() {
               </div>
               {INSURANCE_MIX.map((im, i) => (
                 <div key={i} style={{ marginBottom: 16 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
                     <span style={{ color: 'var(--text-secondary)' }}>{im.type}</span>
                     <span style={{ color: 'var(--text-primary)' }}>{im.percent}%</span>
                   </div>
@@ -585,7 +585,7 @@ export default function DepartmentFinancePage() {
           </div>
 
           {invError && (
-            <div style={{ padding: 12, borderRadius: 6, background: 'color-mix(in srgb, var(--color-error) 14%, transparent)', border: '1px solid var(--color-error)', color: 'var(--color-error)', marginBottom: 16, fontSize: 13 }}>
+            <div style={{ padding: 12, borderRadius: 6, background: 'color-mix(in srgb, var(--color-error) 14%, transparent)', border: '1px solid var(--color-error)', color: 'var(--color-error)', marginBottom: 16, fontSize: 12 }}>
               {t('deptFinance.loadFailed')}:{invError}
               <button onClick={() => void loadInvoices()} style={{ marginLeft: 12, padding: '2px 10px', borderRadius: 4, border: 'none', background: 'var(--color-error)', color: 'var(--text-inverse)', cursor: 'pointer', fontSize: 12 }}>{t('deptFinance.retry')}</button>
             </div>
@@ -599,7 +599,7 @@ export default function DepartmentFinancePage() {
           <Modal
             open={detailOpen}
             title={t('deptFinance.invoiceDetail')}
-            footer={<button onClick={() => setDetailOpen(false)} style={{ padding: '6px 18px', borderRadius: 6, border: '1px solid var(--border-default)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: 13 }}>{t('deptFinance.close')}</button>}
+            footer={<button onClick={() => setDetailOpen(false)} style={{ padding: '6px 18px', borderRadius: 6, border: '1px solid var(--border-default)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: 12 }}>{t('deptFinance.close')}</button>}
             onCancel={() => setDetailOpen(false)}
             width={520}
             styles={modalStyle}
@@ -634,8 +634,8 @@ export default function DepartmentFinancePage() {
                   </div>
                 )}
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-secondary)' }}>{t('deptFinance.colTotal')}</span><span style={{ fontWeight: 700, fontSize: 15 }}>{fmtMoney(detail.totalAmount)}</span></div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-secondary)' }}>{t('deptFinance.colTotal')}</span><span style={{ fontWeight: 700, fontSize: 14 }}>{fmtMoney(detail.totalAmount)}</span></div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-secondary)' }}>{t('deptFinance.paidAmount')}</span><span style={{ color: 'var(--color-success)' }}>{fmtMoney(detail.paidAmount)}</span></div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-secondary)' }}>{t('deptFinance.insuranceCover')}</span><span style={{ color: 'var(--color-primary)' }}>{fmtMoney(detail.insuranceCovered)}</span></div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-secondary)' }}>{t('deptFinance.selfPayAmount')}</span><span style={{ color: 'var(--color-warning)' }}>{fmtMoney(detail.selfPayAmount)}</span></div>
@@ -662,7 +662,7 @@ export default function DepartmentFinancePage() {
           >
             {payInvoice && (
               <div style={{ marginTop: 8 }}>
-                <div style={{ fontSize: 13, marginBottom: 4 }}>
+                <div style={{ fontSize: 12, marginBottom: 4 }}>
                   {t('deptFinance.invoice')} <span style={{ color: 'var(--color-primary-300)', fontFamily: 'monospace' }}>{payInvoice.id}</span> · {payInvoice.patientName}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>
@@ -702,7 +702,7 @@ export default function DepartmentFinancePage() {
           </div>
 
           {repError && (
-            <div style={{ padding: 12, borderRadius: 6, background: 'color-mix(in srgb, var(--color-error) 14%, transparent)', border: '1px solid var(--color-error)', color: 'var(--color-error)', marginBottom: 16, fontSize: 13 }}>
+            <div style={{ padding: 12, borderRadius: 6, background: 'color-mix(in srgb, var(--color-error) 14%, transparent)', border: '1px solid var(--color-error)', color: 'var(--color-error)', marginBottom: 16, fontSize: 12 }}>
               {t('deptFinance.loadFailed')}:{repError}
               <button onClick={() => void loadReports()} style={{ marginLeft: 12, padding: '2px 10px', borderRadius: 4, border: 'none', background: 'var(--color-error)', color: 'var(--text-inverse)', cursor: 'pointer', fontSize: 12 }}>{t('deptFinance.retry')}</button>
             </div>
@@ -711,10 +711,10 @@ export default function DepartmentFinancePage() {
           {repLoading ? (
             <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>
               <Spin size="large" />
-              <div style={{ marginTop: 12, fontSize: 13 }}>{t('deptFinance.loadingReports')}</div>
+              <div style={{ marginTop: 12, fontSize: 12 }}>{t('deptFinance.loadingReports')}</div>
             </div>
           ) : summary.total === 0 ? (
-            <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>{t('deptFinance.noReportsData')}</div>
+            <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>{t('deptFinance.noReportsData')}</div>
           ) : (
             <>
               {/* 汇总 KPI */}
@@ -747,7 +747,7 @@ export default function DepartmentFinancePage() {
                     )
                   })}
                   {Object.keys(summary.byStatus).length === 0 && (
-                    <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>{t('deptFinance.noStatusStats')}</div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: 12 }}>{t('deptFinance.noStatusStats')}</div>
                   )}
                 </div>
               </div>
@@ -758,7 +758,7 @@ export default function DepartmentFinancePage() {
                   <TrendingUp size={16} color="var(--color-success)" />{t('deptFinance.monthlyRevenueTrend')}
                 </div>
                 {trendData.length === 0 ? (
-                  <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>{t('deptFinance.noTrendData')}</div>
+                  <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>{t('deptFinance.noTrendData')}</div>
                 ) : (
                   <ChartContainer height={260}>
                     <LineChart data={trendData}>

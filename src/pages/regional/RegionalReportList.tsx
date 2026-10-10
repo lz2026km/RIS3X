@@ -67,7 +67,7 @@ export const InstitutionList: React.FC<InstitutionListProps> = ({ selectedInstit
           onMouseEnter={e => { if (selectedInstitution !== 'all') e.currentTarget.style.backgroundColor = 'var(--bg-card)' }}
           onMouseLeave={e => { if (selectedInstitution !== 'all') e.currentTarget.style.backgroundColor = 'transparent' }}>
           <Building size={16} style={{ color: COLORS.primary }} />
-          <div style={{ flex: 1 }}><div style={{ fontWeight: 500, fontSize: '13px' }}>{t('regionalReport.allInstitutions')}</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>{t('regionalReport.allHospitals')}</div></div>
+          <div style={{ flex: 1 }}><div style={{ fontWeight: 500, fontSize: '12px' }}>{t('regionalReport.allInstitutions')}</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>{t('regionalReport.allHospitals')}</div></div>
           <span style={{ ...styles.badge, backgroundColor: 'var(--color-info-bg)', color: COLORS.primary }}>{institutions.reduce((sum, i) => sum + i.reportCount, 0)}</span>
         </div>
         {institutions.map(inst => (
@@ -79,7 +79,7 @@ export const InstitutionList: React.FC<InstitutionListProps> = ({ selectedInstit
             onMouseEnter={e => { if (selectedInstitution !== inst.id) e.currentTarget.style.backgroundColor = 'var(--bg-card)' }}
             onMouseLeave={e => { if (selectedInstitution !== inst.id) e.currentTarget.style.backgroundColor = 'transparent' }}>
             <Building2 size={16} style={{ color: COLORS.secondary }} />
-            <div style={{ flex: 1 }}><div style={{ fontWeight: 500, fontSize: '13px' }}>{inst.name}</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>{inst.level} {inst.type}</div></div>
+            <div style={{ flex: 1 }}><div style={{ fontWeight: 500, fontSize: '12px' }}>{inst.name}</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>{inst.level} {inst.type}</div></div>
             <div style={{ textAlign: 'right' }}>
               <span style={{ ...styles.badge, backgroundColor: 'var(--bg-card)', color: COLORS.textMuted }}>{inst.reportCount}</span>
               {inst.pendingCount > 0 && <div style={{ fontSize: '10px', color: COLORS.warning, marginTop: '2px' }}>{t('regionalReport.pendingReview')} {inst.pendingCount}</div>}
@@ -590,7 +590,7 @@ export const ReportSharingSection: React.FC = () => {
             <div style={styles.modalBody}>
               <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.reportIdLabel')}</label><input style={{ ...styles.input, width: '100%' }} value={shareForm.reportId} onChange={e => setShareForm({ ...shareForm, reportId: e.target.value })} placeholder={t('regionalReport.inputReportId')} /></div>
               <div style={styles.formGroup}><label style={styles.formLabel}>{t('regionalReport.targetInstitution')}</label><Select style={{ width: '100%' }} value={shareForm.targetInstitution || undefined} placeholder={t('regionalReportList.pleaseSelect')} onChange={v => setShareForm({ ...shareForm, targetInstitution: v })} options={institutions.map(i => ({ value: i.name, label: i.name }))} /></div>
-              <div style={styles.formGroup}><label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}><input type="checkbox" checked={shareForm.consent} onChange={e => setShareForm({ ...shareForm, consent: e.target.checked })} /> <span style={{ fontSize: 13 }}>{t('regionalReport.consentObtainedLabel')}</span></label></div>
+              <div style={styles.formGroup}><label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}><input type="checkbox" checked={shareForm.consent} onChange={e => setShareForm({ ...shareForm, consent: e.target.checked })} /> <span style={{ fontSize: 12 }}>{t('regionalReport.consentObtainedLabel')}</span></label></div>
             </div>
             <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={() => setShowShareModal(false)}>{t('regionalReportList.cancel')}</button><button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={handleShare}><Share2 size={14} /> {t('regionalReport.share')}</button></div>
           </div>
@@ -684,17 +684,17 @@ export const RegionalStatsDashboard: React.FC = () => {
       <div style={{ flex: 1, overflow: 'auto', padding: '16px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '20px' }}>
           <div style={{ background: '#f0f9ff', padding: '16px', borderRadius: '8px', textAlign: 'center', borderLeft: '4px solid #3b82f6' }}>
-            <div style={{ fontSize: '28px', fontWeight: 700, color: '#3b82f6' }}>{institutions.reduce((s, i) => s + i.reportCount, 0).toLocaleString()}</div>
+            <div style={{ fontSize: '30px', fontWeight: 700, color: '#3b82f6' }}>{institutions.reduce((s, i) => s + i.reportCount, 0).toLocaleString()}</div>
             <div style={{ fontSize: '12px', color: '#64748b' }}>{t('regionalReport.regionalTotalExams')}</div>
             <div style={{ fontSize: '11px', color: '#16a34a', marginTop: '4px' }}><TrendingUp size={11} /> +8.2% {t('regionalReportList.vsLastMonth')}</div>
           </div>
           <div style={{ background: '#ecfdf5', padding: '16px', borderRadius: '8px', textAlign: 'center', borderLeft: '4px solid #10b981' }}>
-            <div style={{ fontSize: '28px', fontWeight: 700, color: '#10b981' }}>18 {t('regionalReport.minutesUnit')}</div>
+            <div style={{ fontSize: '30px', fontWeight: 700, color: '#10b981' }}>18 {t('regionalReport.minutesUnit')}</div>
             <div style={{ fontSize: '12px', color: '#64748b' }}>{t('regionalReport.avgReportTat')}</div>
             <div style={{ fontSize: '11px', color: '#10b981', marginTop: '4px' }}><TrendingDown size={11} /> -5% {t('regionalReportList.vsLastMonth')}</div>
           </div>
           <div style={{ background: 'var(--color-warning-bg)', padding: '16px', borderRadius: '8px', textAlign: 'center', borderLeft: '4px solid #f59e0b' }}>
-            <div style={{ fontSize: '28px', fontWeight: 700, color: '#f59e0b' }}>96.8%</div>
+            <div style={{ fontSize: '30px', fontWeight: 700, color: '#f59e0b' }}>96.8%</div>
             <div style={{ fontSize: '12px', color: '#64748b' }}>{t('regionalReport.regionalAvgQuality')}</div>
             <div style={{ fontSize: '11px', color: '#16a34a', marginTop: '4px' }}><TrendingUp size={11} /> +0.3% {t('regionalReportList.vsLastMonth')}</div>
           </div>
@@ -703,7 +703,7 @@ export const RegionalStatsDashboard: React.FC = () => {
           <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>{t('regionalReport.institutionExamCompare')}</div>
           {institutions.map(inst => { const maxVal = Math.max(...institutions.map(i => i.reportCount)); const pct = maxVal > 0 ? (inst.reportCount / maxVal) * 100 : 0; return (
             <div key={inst.id} style={{ marginBottom: '10px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '4px' }}><span>{inst.name}</span><span style={{ fontWeight: 600 }}>{inst.reportCount}</span></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '4px' }}><span>{inst.name}</span><span style={{ fontWeight: 600 }}>{inst.reportCount}</span></div>
               <div style={styles.progressBar}><div style={{ ...styles.progressFill, width: `${pct}%`, backgroundColor: COLORS.primary }} /></div>
             </div>
           )})}
@@ -712,7 +712,7 @@ export const RegionalStatsDashboard: React.FC = () => {
           <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>{t('regionalReport.institutionAvgTat')}</div>
           {institutions.map(inst => { const tat = 15 + Math.floor(Math.random() * 30); return (
             <div key={inst.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', borderBottom: '1px solid var(--border-color)' }}>
-              <span style={{ fontSize: '13px' }}>{inst.name}</span>
+              <span style={{ fontSize: '12px' }}>{inst.name}</span>
               <span style={{ fontWeight: 600, color: tat <= 30 ? COLORS.success : tat <= 45 ? COLORS.warning : COLORS.danger }}>{tat} {t('regionalReport.minutesUnit')}</span>
             </div>
           )})}

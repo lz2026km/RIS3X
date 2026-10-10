@@ -223,7 +223,7 @@ const VrPage: React.FC = () => {
     <div style={{ background: '#020617', color: '#cbd5e1', padding: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Box size={18} color={BLUE} />
-        <span style={{ fontSize: 15, fontWeight: 700 }}>{t('vr.title')}</span>
+        <span style={{ fontSize: 14, fontWeight: 700 }}>{t('vr.title')}</span>
         <Tag color="cyan">{t('vr.tag.volumeRendering')}</Tag>
         {mode === 'real' && <Tag color="green">{t('vr.tag.realDicom')}</Tag>}
         {mode === 'synthetic' && <Tag>{t('vr.tag.synthetic')}</Tag>}

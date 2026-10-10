@@ -87,7 +87,7 @@ export function SmartSortPanel({
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <Brain size={18} color={enabled ? "#7c3aed" : "#94a3b8"} />
-          <span style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
             智能排序
           </span>
         </div>

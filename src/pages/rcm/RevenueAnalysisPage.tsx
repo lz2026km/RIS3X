@@ -247,7 +247,7 @@ export default function RevenueAnalysisPage() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <ActionButton action="refresh" onClick={() => setReloadTick(n => n + 1)}>{t('w1tables.refresh')}</ActionButton>
-          <button onClick={handleExport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />{t('w9e.revenueAnalysis.exportReport')}</button>
+          <button onClick={handleExport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}><Download size={14} />{t('w9e.revenueAnalysis.exportReport')}</button>
         </div>
       </div>
       {error && (
@@ -262,7 +262,7 @@ export default function RevenueAnalysisPage() {
             <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.revenueAnalysis.monthlyRevenue')}</span>
             <DollarSign size={16} color="#22c55e" />
           </div>
-          <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-success-500, #22c55e)', marginTop: 4 }}>{latest.revenue.toLocaleString()}</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-success-500, #22c55e)', marginTop: 4 }}>{latest.revenue.toLocaleString()}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: momRevenue >= 0 ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)', marginTop: 4 }}>
             {momRevenue >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{momRevenue >= 0 ? '+' : ''}{momRevenue.toFixed(1)}% {t('w9e.revenueAnalysis.momSuffix')}
           </div>
@@ -272,7 +272,7 @@ export default function RevenueAnalysisPage() {
             <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.revenueAnalysis.monthlyProfit')}</span>
             <Activity size={16} color="#f59e0b" />
           </div>
-          <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-warning-500, #f59e0b)', marginTop: 4 }}>{latest.profit.toLocaleString()}</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-warning-500, #f59e0b)', marginTop: 4 }}>{latest.profit.toLocaleString()}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: momProfit >= 0 ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)', marginTop: 4 }}>
             {momProfit >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{momProfit >= 0 ? '+' : ''}{momProfit.toFixed(1)}% {t('w9e.revenueAnalysis.momSuffix')}
           </div>
@@ -282,7 +282,7 @@ export default function RevenueAnalysisPage() {
             <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.revenueAnalysis.monthlyExams')}</span>
             <Users size={16} color="#3b82f6" />
           </div>
-          <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-primary-500, #3b82f6)', marginTop: 4 }}>{latest.exams.toLocaleString()}</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-primary-500, #3b82f6)', marginTop: 4 }}>{latest.exams.toLocaleString()}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: momExams >= 0 ? 'var(--color-success-500, #22c55e)' : 'var(--color-error-500, #ef4444)', marginTop: 4 }}>
             {momExams >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}{momExams >= 0 ? '+' : ''}{momExams.toFixed(1)}% {t('w9e.revenueAnalysis.momSuffix')}
           </div>
@@ -292,7 +292,7 @@ export default function RevenueAnalysisPage() {
             <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{t('w9e.revenueAnalysis.avgRevenue')}</span>
             <TrendingUp size={16} color="#8b5cf6" />
           </div>
-          <div style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-modality-mr, #8b5cf6)', marginTop: 4 }}>{(latest.revenue * 10000 / Math.max(latest.exams, 1)).toFixed(0)}</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--color-modality-mr, #8b5cf6)', marginTop: 4 }}>{(latest.revenue * 10000 / Math.max(latest.exams, 1)).toFixed(0)}</div>
           <div style={{ fontSize: 12, color: '#6e7681', marginTop: 4 }}>{t('w9e.revenueAnalysis.revenueCapacity')}</div>
         </div>
       </div>
@@ -300,7 +300,7 @@ export default function RevenueAnalysisPage() {
       <div style={{ padding: '0 24px 24px' }}>
         <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
           {(['trend', 'modality', 'payer', 'doctor'] as const).map(tab => (
-            <button key={tab} onClick={() => setView(tab)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: view === tab ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: view === tab ? '#fff' : 'var(--text-muted, #8b949e)', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button key={tab} onClick={() => setView(tab)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: view === tab ? '#1e40af' : 'var(--bg-secondary, #21262d)', color: view === tab ? '#fff' : 'var(--text-muted, #8b949e)', display: 'flex', alignItems: 'center', gap: 6 }}>
               {tab === 'trend' ? <BarChart3 size={14} /> : tab === 'modality' ? <Monitor size={14} /> : tab === 'payer' ? <Building2 size={14} /> : <Users size={14} />}
               {tab === 'trend' ? t('w9e.revenueAnalysis.tabTrend') : tab === 'modality' ? t('w9e.revenueAnalysis.tabModality') : tab === 'payer' ? t('w9e.revenueAnalysis.tabPayer') : t('w9e.revenueAnalysis.tabDoctor')}
             </button>
@@ -376,7 +376,7 @@ export default function RevenueAnalysisPage() {
                 {payerData.map(d => (
                   <div key={d.name} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
                     <div style={{ width: 12, height: 12, borderRadius: 2, background: d.color }} />
-                    <span style={{ flex: 1, fontSize: 13 }}>{d.name}</span>
+                    <span style={{ flex: 1, fontSize: 12 }}>{d.name}</span>
                     <span style={{ fontSize: 14, fontWeight: 600 }}>¥{d.value}万</span>
                     <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{((d.value / payerData.reduce((s, x) => s + x.value, 0)) * 100).toFixed(1)}%</span>
                   </div>

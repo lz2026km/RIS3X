@@ -55,7 +55,7 @@ export function DeviceFilter({
           <button key={cat} onClick={() => onFilterTypeChange(cat)} style={{
             padding: '5px 12px', borderRadius: 20, border: `1px solid ${filterType === cat ? C.accent : C.border}`,
             background: filterType === cat ? `${C.accent}10` : 'transparent',
-            color: filterType === cat ? C.accent : C.textMid, fontSize: 12.5, fontWeight: filterType === cat ? 700 : 500,
+            color: filterType === cat ? C.accent : C.textMid, fontSize: 12, fontWeight: filterType === cat ? 700 : 500,
             cursor: 'pointer', transition: 'all 0.15s'
           }}>{cat}</button>
         ))}
@@ -72,7 +72,7 @@ export function DeviceFilter({
       }}>
         {manufacturers.map(m => <option key={m}>{m}</option>)}
       </select>
-      <span style={{ fontSize: 12.5, color: C.textLight, marginLeft: 'auto' }}>
+      <span style={{ fontSize: 12, color: C.textLight, marginLeft: 'auto' }}>
         共 {deviceCount} 台设备
       </span>
     </div>

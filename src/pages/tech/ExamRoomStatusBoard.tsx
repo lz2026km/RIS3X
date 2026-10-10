@@ -175,7 +175,7 @@ export default function ExamRoomStatusBoard() {
 
                   {room.currentExam ? (
                     <div style={{ background: 'var(--content-bg)', borderRadius: 8, padding: '10px 12px', border: '1px solid var(--border-color)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, fontSize: 13, color: '#1e293b' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, fontSize: 12, color: '#1e293b' }}>
                         <UserRound size={13} color="#3b82f6" />
                         {room.currentExam.patientName}
                       </div>

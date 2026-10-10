@@ -10,6 +10,7 @@ import {
   Cell,
 } from "recharts";
 import ChartContainer from "../../components/charts/ChartContainer";
+import { DataTable } from "../../components/common";
 import { ErrorBanner } from "../../components/feedback";
 import { AAPM_EU_REFERENCES } from "./mockData";
 import { rdsrApi } from "../../services/api/rdsrApi";
@@ -166,7 +167,7 @@ export default function AAPMEUReferenceComparison() {
         }}
       >
         <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
             AAPM/欧盟 CT剂量参考值对比
           </div>
           <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
@@ -256,103 +257,44 @@ export default function AAPMEUReferenceComparison() {
         >
           CT剂量参考值对比表
         </div>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ background: "var(--bg-primary)" }}>
-              {[
-                "检查类型",
-                "AAPM参考值",
-                "欧盟参考值",
-                "本院平均值",
-                "超标比例",
-              ].map((h) => (
-                <th
-                  key={h}
-                  style={{
-                    padding: "10px 12px",
-                    textAlign: "center",
-                    fontSize: 12,
-                    fontWeight: 700,
-                    color: "#64748b",
-                    borderBottom: "2px solid #e2e8f0",
-                  }}
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {refs.map((ref, i) => {
-              const isExceed = ref.exceedRate > 0;
-              return (
-                <tr
-                  key={ref.examType}
-                  style={{ background: i % 2 === 0 ? "var(--bg-card)" : "var(--bg-primary)" }}
-                >
-                  <td
+        <DataTable
+          rowKey="examType"
+          dataSource={refs}
+          showPagination={false}
+          showExport={false}
+          showDensity={false}
+          columns={[
+            { title: "检查类型", dataIndex: "examType", key: "examType", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "#1e40af" }}>{v}</span> },
+            { title: "AAPM参考值", dataIndex: "aapmRef", key: "aapmRef", align: "center", render: (v: number) => <span style={{ color: "#334155" }}>{v} mGy</span> },
+            { title: "欧盟参考值", dataIndex: "euRef", key: "euRef", align: "center", render: (v: number) => <span style={{ color: "#334155" }}>{v} mGy</span> },
+            {
+              title: "本院平均值", dataIndex: "hospitalAvg", key: "hospitalAvg", align: "center",
+              render: (v: number, ref: AAPMReference) => (
+                <span style={{ fontWeight: 700, color: ref.exceedRate > 0 ? "#dc2626" : "#16a34a" }}>{v} mGy</span>
+              ),
+            },
+            {
+              title: "超标比例", dataIndex: "exceedRate", key: "exceedRate", align: "center",
+              render: (_v: number, ref: AAPMReference) => {
+                const isExceed = ref.exceedRate > 0;
+                return (
+                  <span
                     style={{
-                      padding: "10px 12px",
-                      fontSize: 12,
-                      fontWeight: 600,
-                      color: "#1e40af",
-                      textAlign: "center",
-                    }}
-                  >
-                    {ref.examType}
-                  </td>
-                  <td
-                    style={{
-                      padding: "10px 12px",
-                      fontSize: 12,
-                      color: "#334155",
-                      textAlign: "center",
-                    }}
-                  >
-                    {ref.aapmRef} mGy
-                  </td>
-                  <td
-                    style={{
-                      padding: "10px 12px",
-                      fontSize: 12,
-                      color: "#334155",
-                      textAlign: "center",
-                    }}
-                  >
-                    {ref.euRef} mGy
-                  </td>
-                  <td
-                    style={{
-                      padding: "10px 12px",
+                      padding: "3px 8px",
+                      background: isExceed ? "#fef2f2" : "#f0fdf4",
+                      color: isExceed ? "#dc2626" : "#16a34a",
+                      borderRadius: 4,
                       fontSize: 12,
                       fontWeight: 700,
-                      color: isExceed ? "#dc2626" : "#16a34a",
-                      textAlign: "center",
                     }}
                   >
-                    {ref.hospitalAvg} mGy
-                  </td>
-                  <td style={{ padding: "10px 12px", textAlign: "center" }}>
-                    <span
-                      style={{
-                        padding: "3px 8px",
-                        background: isExceed ? "#fef2f2" : "#f0fdf4",
-                        color: isExceed ? "#dc2626" : "#16a34a",
-                        borderRadius: 4,
-                        fontSize: 12,
-                        fontWeight: 700,
-                      }}
-                    >
-                      {isExceed
-                        ? `${(ref.exceedRate * 100).toFixed(0)}%`
-                        : "0%"}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                    {isExceed ? `${(ref.exceedRate * 100).toFixed(0)}%` : "0%"}
+                  </span>
+                );
+              },
+            },
+          ]}
+        />
       </div>
 
       {/* 告警说明 */}

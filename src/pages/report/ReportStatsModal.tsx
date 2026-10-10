@@ -117,7 +117,7 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
       onClick={() => setSection(key)}
       style={{
         flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-        padding: '8px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13,
+        padding: '8px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12,
         fontWeight: section === key ? 700 : 500, transition: 'all 0.15s',
         background: section === key ? '#1e40af' : 'transparent',
         color: section === key ? '#fff' : '#64748b',
@@ -145,7 +145,7 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
       {loadError && !loading && <ErrorBanner message={loadError} />}
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 48 }}><Spin /> <span style={{ marginLeft: 10, color: '#94a3b8', fontSize: 13 }}>{t('reportStats.loading')}</span></div>
+        <div style={{ textAlign: 'center', padding: 48 }}><Spin /> <span style={{ marginLeft: 10, color: '#94a3b8', fontSize: 12 }}>{t('reportStats.loading')}</span></div>
       ) : section === 'overview' ? (
         <div>
           {overview ? (
@@ -176,7 +176,7 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
                   </div>
                 ))}
               </div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary, #0f172a)', marginBottom: 8 }}>{t('reportStats.byStatus')}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary, #0f172a)', marginBottom: 8 }}>{t('reportStats.byStatus')}</div>
               {statusEntries.length === 0 ? (
                 <Empty description={t('reportStats.noData')} />
               ) : (
@@ -209,10 +209,10 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
               {doctors.map((d) => (
                 <div key={d.id} style={{ background: 'var(--bg-card, #fff)', border: '1px solid var(--border-color, #e2e8f0)', borderRadius: 10, padding: '10px 14px' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, alignItems: 'center', marginBottom: 6 }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>{d.name}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{d.name}</span>
                     <span style={{ fontSize: 14, fontWeight: 700 }}>{d.total}</span>
-                    <span style={{ fontSize: 13, color: '#059669', fontWeight: 600 }}>{d.published}</span>
-                    <span style={{ fontSize: 13, color: '#ea580c', fontWeight: 600 }}>{d.pending}</span>
+                    <span style={{ fontSize: 12, color: '#059669', fontWeight: 600 }}>{d.published}</span>
+                    <span style={{ fontSize: 12, color: '#ea580c', fontWeight: 600 }}>{d.pending}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <div style={{ flex: 1, height: 8, background: 'var(--bg-secondary, #f1f5f9)', borderRadius: 4, overflow: 'hidden' }}>
@@ -244,7 +244,7 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
                       <div style={{ width: 6, height: `${(d.published / maxTrend) * 180}px`, background: '#059669', borderRadius: '2px 2px 0 0' }} title={`${d.date} 发布 ${d.published}`} />
                       <div style={{ width: 6, height: `${(d.signed / maxTrend) * 180}px`, background: '#7c3aed', borderRadius: '2px 2px 0 0' }} title={`${d.date} 签署 ${d.signed}`} />
                     </div>
-                    <span style={{ fontSize: 9, color: '#94a3b8', transform: 'rotate(-60deg)', whiteSpace: 'nowrap', position: 'absolute', bottom: 0 }}>{d.date.slice(5)}</span>
+                    <span style={{ fontSize: 10, color: '#94a3b8', transform: 'rotate(-60deg)', whiteSpace: 'nowrap', position: 'absolute', bottom: 0 }}>{d.date.slice(5)}</span>
                   </div>
                 ))}
               </div>

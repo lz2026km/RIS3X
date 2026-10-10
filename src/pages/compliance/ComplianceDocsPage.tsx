@@ -400,7 +400,7 @@ export const ComplianceDocsPage: React.FC = () => {
               <Descriptions.Item label={t('complianceDocs.archivedAt')}>{fmt(detail.archivedAt)}</Descriptions.Item>
             </Descriptions>
             <Typography.Title level={5} style={{ marginTop: 16 }}>{t('complianceDocs.docContent')}</Typography.Title>
-            <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: 'var(--bg-card)', padding: 12, borderRadius: 8, fontSize: 13, lineHeight: 1.7 }}>
+            <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: 'var(--bg-card)', padding: 12, borderRadius: 8, fontSize: 12, lineHeight: 1.7 }}>
               {detail.content || t('complianceDocs.noContent')}
             </pre>
           </>
@@ -424,7 +424,7 @@ export const ComplianceDocsPage: React.FC = () => {
                 <Descriptions.Item label={t('w2Orphans.standard')}>{report.complianceStandard}</Descriptions.Item>
               </Descriptions>
               <Typography.Title level={5} style={{ marginTop: 16 }}>{t('w2Orphans.summary')}</Typography.Title>
-              <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: 'var(--bg-card)', padding: 12, borderRadius: 8, fontSize: 13, lineHeight: 1.7 }}>
+              <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: 'var(--bg-card)', padding: 12, borderRadius: 8, fontSize: 12, lineHeight: 1.7 }}>
                 {JSON.stringify(report.summary, null, 2)}
               </pre>
               {report.checklist && report.checklist.length > 0 && (
@@ -432,7 +432,7 @@ export const ComplianceDocsPage: React.FC = () => {
                   <Typography.Title level={5} style={{ marginTop: 16 }}>{t('w2Orphans.checklist')}</Typography.Title>
                   <Space direction="vertical" size={4} style={{ width: '100%' }}>
                     {report.checklist.map((c) => (
-                      <div key={c.item} style={{ fontSize: 13 }}>
+                      <div key={c.item} style={{ fontSize: 12 }}>
                         <Tag color={c.status === '通过' ? 'green' : 'red'}>{c.status}</Tag>
                         {c.item} — {c.detail}
                       </div>

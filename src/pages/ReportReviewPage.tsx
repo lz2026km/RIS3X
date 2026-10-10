@@ -310,7 +310,7 @@ export default function ReportReviewPage() {
       title: t('reportReviewPage.patientLabel'), dataIndex: 'patientName', key: 'patientName',
       render: (_: unknown, task) => (
         <div style={{ minWidth: 160 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>{task.patientName} · {task.modality} {task.bodyPart}</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>{task.patientName} · {task.modality} {task.bodyPart}</div>
           <div style={{ display: 'flex', gap: 2 }}>
             {['initial', 'final', 'sign'].map(s => {
               const idx = ['initial', 'final', 'sign'];
@@ -403,7 +403,7 @@ export default function ReportReviewPage() {
                 padding: '10px 16px', border: 'none', background: 'transparent',
                 color: stage === tab.key ? '#1e40af' : '#64748b',
                 fontWeight: stage === tab.key ? 700 : 500,
-                fontSize: 13, cursor: 'pointer',
+                fontSize: 12, cursor: 'pointer',
                 borderBottom: `2px solid ${stage === tab.key ? '#3b82f6' : 'transparent'}`,
                 display: 'flex', alignItems: 'center', gap: 6,
               }}
@@ -651,7 +651,7 @@ const ReviewTaskDetail: React.FC<{
           border: '1px solid var(--border-color)',
         }} data-testid="review-diff-view">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
               <History size={14} /> {t('w12.review.modificationView')}
               <Tag color="green" style={{ margin: 0 }}>{task.reportId}</Tag>
             </div>
@@ -691,7 +691,7 @@ const ReviewTaskDetail: React.FC<{
           background: 'var(--bg-card)', borderRadius: 8, padding: 16, marginBottom: 12,
           border: '1px solid var(--border-color)',
         }} data-testid="post-publish-panel">
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
             <ShieldCheck size={14} /> {t('w12.review.postPublish')}
           </div>
           <div style={{ marginBottom: 10 }}>
@@ -703,7 +703,7 @@ const ReviewTaskDetail: React.FC<{
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Siren size={16} color="#dc2626" />
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#b91c1c' }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#b91c1c' }}>
                       {t('w12.review.criticalDetected')}: {criticalHits.join('、')}
                     </div>
                     <div style={{ fontSize: 12, color: '#7f1d1d' }}>{t('w12.review.criticalDetectedHint')}</div>
@@ -748,7 +748,7 @@ const ReviewTaskDetail: React.FC<{
           <div>
             <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
               {task.patientName}
-              <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 400 }}>· {task.modality} {task.bodyPart}</span>
+              <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 400 }}>· {task.modality} {task.bodyPart}</span>
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{t('reportReviewPage.reportIdLabel')}：{task.reportId}</div>
           </div>
@@ -818,7 +818,7 @@ const ReviewTaskDetail: React.FC<{
         border: '1px solid var(--border-color)',
       }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
               <FileText size={14} /> {t('reportReviewPage.reportContent')}
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -875,7 +875,7 @@ const ReviewTaskDetail: React.FC<{
         width="100%"
         styles={{ body: { maxHeight: '85vh', overflowY: 'auto' } }}
       >
-        <div style={{ fontSize: 13, lineHeight: 2, color: 'var(--text-primary)' }}>
+        <div style={{ fontSize: 12, lineHeight: 2, color: 'var(--text-primary)' }}>
           <div style={{ marginBottom: 16, padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, fontSize: 12 }}>
               <div><span style={{ color: 'var(--text-secondary)' }}>{t('reportReviewPage.patientLabel')}</span>{task.patientName}</div>
@@ -907,7 +907,7 @@ const ReviewTaskDetail: React.FC<{
           background: 'var(--bg-card)', borderRadius: 8, padding: 16, marginBottom: 12,
           border: '1px solid var(--border-color)',
         }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
             <History size={14} /> {t('reportReviewPage.auditHistory')}
           </div>
           {task.initialAuditCompletedAt && (
@@ -959,7 +959,7 @@ const ReviewTaskDetail: React.FC<{
           background: 'var(--bg-card)', borderRadius: 8, padding: 16,
           border: '1px solid var(--border-color)',
         }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Edit2 size={14} /> {stageConf.label}{t('reportReviewPage.actions')}
           </div>
 
@@ -1040,7 +1040,7 @@ const ReviewTaskDetail: React.FC<{
                 flex: 1, padding: 10, border: 'none', borderRadius: 6,
                 background: auditDecision === 'approve' ? '#10b981' : '#d1fae5',
                 color: auditDecision === 'approve' ? '#fff' : '#047857',
-                fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                fontSize: 12, fontWeight: 700, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                 borderBottom: auditDecision === 'approve' ? 'none' : '2px solid #10b981',
               }}
@@ -1053,7 +1053,7 @@ const ReviewTaskDetail: React.FC<{
                 flex: 1, padding: 10, border: 'none', borderRadius: 6,
                 background: auditDecision === 'reject' ? '#dc2626' : 'var(--color-error-bg)',
                 color: auditDecision === 'reject' ? '#fff' : '#b91c1c',
-                fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                fontSize: 12, fontWeight: 700, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                 borderBottom: auditDecision === 'reject' ? 'none' : '2px solid #dc2626',
               }}

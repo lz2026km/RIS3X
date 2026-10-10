@@ -73,12 +73,12 @@ export default function RadPathTrackerPage() {
           <Search size={14} /> {loading ? t('radpath.searching') : t('radpath.search')}
         </button>
       </div>
-      {error && <div style={{ padding: 10, background: 'var(--color-error-bg)', color: 'var(--color-error)', borderRadius: 6, marginBottom: 12, fontSize: 13 }}>{error}</div>}
+      {error && <div style={{ padding: 10, background: 'var(--color-error-bg)', color: 'var(--color-error)', borderRadius: 6, marginBottom: 12, fontSize: 12 }}>{error}</div>}
 
       {/* 记录表格 */}
       {record && (
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', overflow: 'hidden', marginBottom: 16 }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
             <thead><tr style={{ background: 'var(--bg-card)', color: '#64748b', fontWeight: 600 }}>
               <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>{t('radpath.colReportId')}</th>
               <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>{t('radpath.colPathId')}</th>
@@ -114,7 +114,7 @@ export default function RadPathTrackerPage() {
       {stats && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
               <TrendingUp size={13} /> {t('radpath.trendTitle')}
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 120, padding: '0 4px' }}>
@@ -131,7 +131,7 @@ export default function RadPathTrackerPage() {
           </div>
 
           <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
               <PieChart size={13} /> {t('radpath.distributionTitle')}
             </div>
             <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>

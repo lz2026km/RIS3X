@@ -138,7 +138,7 @@ export default function BusinessContinuityPage() {
           <Space size={16}>
             <Shield size={36} color="#fff" />
             <div>
-              <div style={{ fontSize: 22, fontWeight: 800 }}>{t("businessContinuity.title")}</div>
+              <div style={{ fontSize: 20, fontWeight: 800 }}>{t("businessContinuity.title")}</div>
               <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>
                 {t("businessContinuity.subtitle")}
               </div>

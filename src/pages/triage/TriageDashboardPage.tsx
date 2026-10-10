@@ -395,7 +395,7 @@ const TriageDashboardPage: React.FC = () => {
           <Text strong>{t('triage.scoreFactors')}</Text>
           {scoreResult.factors.map((f: TriageFactor) => (
             <div key={f.name} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-              <Text style={{ width: 100, fontSize: 13 }}>{f.name}</Text>
+              <Text style={{ width: 100, fontSize: 12 }}>{f.name}</Text>
               <Progress percent={Math.min((f.contribution / 10) * 100, 100)} size="small" style={{ flex: 1, margin: 0 }} />
               <Tag color={scoreColor(f.contribution)}>{f.contribution}</Tag>
             </div>

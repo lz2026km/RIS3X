@@ -344,7 +344,7 @@ export default function ReportExportPage() {
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                     <span style={{ fontSize: 18 }}>{tpl.icon}</span>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', flex: 1 }}>{tpl.name}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', flex: 1 }}>{tpl.name}</span>
                     {isSelected && <CheckCircle2 size={14} color="#dc2626" />}
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{tpl.description}</div>
@@ -371,7 +371,7 @@ export default function ReportExportPage() {
                     width: 56, height: 56, borderRadius: 12,
                     background: `${selectedTemplate.color}15`, color: selectedTemplate.color,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 28,
+                    fontSize: 30,
                   }}>{selectedTemplate.icon}</div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>{selectedTemplate.name}</div>
@@ -453,7 +453,7 @@ export default function ReportExportPage() {
                 )}
                 {batchDownloads.length > 0 && !exporting && (
                   <div style={{ marginBottom: 12, padding: 12, background: 'var(--color-success-bg)', borderRadius: 6, border: '1px solid #bbf7d0' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 13, fontWeight: 700, color: '#15803d' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 12, fontWeight: 700, color: '#15803d' }}>
                       <CheckCircle2 size={14} /> {t('rex.batchDone', { count: batchDownloads.length })}
                       <button
                         onClick={() => { batchDownloads.forEach(d => void downloadBatchFile(d)); }}
@@ -525,7 +525,7 @@ export default function ReportExportPage() {
 
               {/* 模板对比 */}
               <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Sparkles size={13} /> {t('rex.templateQuickRef')}
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>

@@ -292,7 +292,7 @@ export const TeleConferencePage: React.FC = () => {
                       onMouseEnter={e => { if (!selectedStudies.includes(s.uid)) e.currentTarget.style.background = '#1e293b' }}
                       onMouseLeave={e => { if (!selectedStudies.includes(s.uid)) e.currentTarget.style.background = 'transparent' }}
                     >
-                      <div style={{ fontWeight: 600, fontSize: 13, color: '#e2e8f0' }}>{s.patientName}</div>
+                      <div style={{ fontWeight: 600, fontSize: 12, color: '#e2e8f0' }}>{s.patientName}</div>
                       <div style={{ fontSize: 11, color: '#94a3b8' }}>{s.modality} | {s.date} | {s.description}</div>
                       <div style={{ fontSize: 10, color: '#64748b' }}>ID: {s.patientId} | UID: {s.uid.slice(0, 20)}...</div>
                     </div>

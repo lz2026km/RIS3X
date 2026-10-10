@@ -88,7 +88,7 @@ export default function LogFilter({
             value={searchText}
             onChange={e => onSearchChange(e.target.value)}
             placeholder="搜索用户 / 目标 / 日志ID..."
-            style={{ border: 'none', fontSize: 13, width: '100%', background: 'transparent' }}
+            style={{ border: 'none', fontSize: 12, width: '100%', background: 'transparent' }}
           />
           {searchText && (
             <button onClick={() => onSearchChange('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>

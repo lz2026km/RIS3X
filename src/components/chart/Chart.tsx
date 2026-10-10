@@ -63,7 +63,7 @@ function CustomTooltip({ active, payload, label }: TooltipProps<number, string> 
       borderRadius: 6,
       padding: '8px 12px',
       boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-      fontSize: 13,
+      fontSize: 12,
     }}>
       <div style={{ fontWeight: 600, marginBottom: 4, color: '#1e293b' }}>{label}</div>
       {payload.map((entry, i) => (
@@ -323,9 +323,9 @@ export function Chart({
   return (
     <div style={{ ...containerStyle, position: expanded ? 'fixed' : 'relative', inset: expanded ? 16 : undefined, zIndex: expanded ? 1000 : undefined }}>
       <div style={headerStyle}>
-        {title && <Text strong style={{ fontSize: 15 }}>{title}</Text>}
+        {title && <Text strong style={{ fontSize: 14 }}>{title}</Text>}
         <Space size={4}>
-          <Dropdown menu={{ items: exportItems.map((item) => ({ key: item.key, label: <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>{item.icon}{item.label}</span>, onClick: item.onClick })) }} trigger={['click']}>
+          <Dropdown menu={{ items: exportItems.map((item) => ({ key: item.key, label: <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>{item.icon}{item.label}</span>, onClick: item.onClick })) }} trigger={['click']}>
             <Button size="small" icon={<Download size={14} />}>导出</Button>
           </Dropdown>
           <Button size="small" icon={expanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />} onClick={() => setExpanded((v) => !v)} />

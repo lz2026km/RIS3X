@@ -3,6 +3,7 @@ import { FileText, CheckCircle, AlertTriangle, Loader2 } from "lucide-react";
 import { dicomSRRecords } from "./mockData";
 import type { DICOMSRRecord } from "./types";
 import { rdsrApi, type RdsrResult } from "../../services/api/rdsrApi";
+import { DataTable } from "../../components/common";
 import { t } from "../../i18n/appI18n";
 
 const pickNumber = (json: Record<string, unknown>, keys: string[]): number | undefined => {
@@ -119,7 +120,7 @@ export default function DICOMSRParser() {
           }}
         >
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
               DICOM SR RDSR 解析
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
@@ -237,7 +238,7 @@ export default function DICOMSRParser() {
       >
         <div
           style={{
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: 700,
             color: "#1e40af",
             marginBottom: 16,
@@ -246,99 +247,42 @@ export default function DICOMSRParser() {
           RDSR 解析结果 {parsed.length > 0 ? `(新解析 ${parsed.length} 条)` : ''}
         </div>
         <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ background: "var(--bg-primary)" }}>
-                {[
-                  "患者",
-                  "检查日期",
-                  "设备",
-                  "检查项目",
-                  "CTDIvol",
-                  "DLP",
-                  "总剂量",
-                  "DRL参考值",
-                  "DRL合规",
-                ].map((h) => (
-                  <th
-                    key={h}
+          <DataTable
+            rowKey="id"
+            dataSource={rows}
+            showPagination={false}
+            showExport={false}
+            showDensity={false}
+            columns={[
+              { title: "患者", dataIndex: "patientName", key: "patientName", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "#1e40af" }}>{v}</span> },
+              { title: "检查日期", dataIndex: "studyDate", key: "studyDate", align: "center", render: (v: string) => <span style={{ color: "#94a3b8" }}>{v}</span> },
+              { title: "设备", dataIndex: "device", key: "device", align: "center", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
+              { title: "检查项目", dataIndex: "examItem", key: "examItem", align: "center", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
+              { title: "CTDIvol", dataIndex: "ctdivol", key: "ctdivol", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "#1e40af" }}>{v || "-"}</span> },
+              { title: "DLP", dataIndex: "dlp", key: "dlp", align: "center", render: (v: number) => <span style={{ fontWeight: 700, color: "#1e40af" }}>{v || "-"}</span> },
+              { title: "总剂量", key: "totalDose", align: "center", render: (_: unknown, r: DICOMSRRecord) => <span style={{ color: "#334155" }}>{r.totalDose} {r.doseUnit}</span> },
+              { title: "DRL参考值", dataIndex: "drlReference", key: "drlReference", align: "center", render: (v: number) => <span style={{ color: "#94a3b8" }}>{v || "-"}</span> },
+              {
+                title: "DRL合规", dataIndex: "drlCompliant", key: "drlCompliant", align: "center",
+                render: (v: boolean) => (
+                  <span
                     style={{
-                      padding: "10px 12px",
-                      textAlign: "center",
+                      padding: "2px 8px",
+                      background: v ? "#f0fdf4" : "#fef2f2",
+                      color: v ? "#16a34a" : "#dc2626",
+                      borderRadius: 4,
                       fontSize: 12,
                       fontWeight: 700,
-                      color: "#64748b",
-                      borderBottom: "2px solid #e2e8f0",
                     }}
                   >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r, i) => (
-                <tr
-                  key={r.id}
-                  style={{ background: i % 2 === 0 ? "var(--bg-card)" : "var(--bg-primary)" }}
-                >
-                  <td style={cellPrimary}>{r.patientName}</td>
-                  <td style={cellMuted}>{r.studyDate}</td>
-                  <td style={cellSecondary}>{r.device}</td>
-                  <td style={cellSecondary}>{r.examItem}</td>
-                  <td style={cellBold}>{r.ctdivol || "-"}</td>
-                  <td style={cellBold}>{r.dlp || "-"}</td>
-                  <td style={cellSecondary}>
-                    {r.totalDose} {r.doseUnit}
-                  </td>
-                  <td style={cellMuted}>{r.drlReference || "-"}</td>
-                  <td style={{ padding: "10px 12px", textAlign: "center" }}>
-                    <span
-                      style={{
-                        padding: "2px 8px",
-                        background: r.drlCompliant ? "#f0fdf4" : "#fef2f2",
-                        color: r.drlCompliant ? "#16a34a" : "#dc2626",
-                        borderRadius: 4,
-                        fontSize: 12,
-                        fontWeight: 700,
-                      }}
-                    >
-                      {r.drlCompliant ? "合格" : "超标"}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    {v ? "合格" : "超标"}
+                  </span>
+                ),
+              },
+            ]}
+          />
         </div>
       </div>
     </div>
   );
 }
-
-const cellPrimary: React.CSSProperties = {
-  padding: "10px 12px",
-  fontSize: 12,
-  fontWeight: 600,
-  color: "#1e40af",
-  textAlign: "center",
-};
-const cellSecondary: React.CSSProperties = {
-  padding: "10px 12px",
-  fontSize: 12,
-  color: "#334155",
-  textAlign: "center",
-};
-const cellMuted: React.CSSProperties = {
-  padding: "10px 12px",
-  fontSize: 12,
-  color: "#94a3b8",
-  textAlign: "center",
-};
-const cellBold: React.CSSProperties = {
-  padding: "10px 12px",
-  fontSize: 12,
-  fontWeight: 700,
-  color: "#1e40af",
-  textAlign: "center",
-};

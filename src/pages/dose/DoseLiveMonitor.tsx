@@ -112,7 +112,7 @@ function StatCard({
     <div style={{ ...card, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px" }}>
       <div>
         <div style={{ fontSize: 12, color: "#64748b" }}>{label}</div>
-        <div style={{ fontSize: 22, fontWeight: 800, color: "#1e40af", marginTop: 4, lineHeight: 1.2 }}>
+        <div style={{ fontSize: 20, fontWeight: 800, color: "#1e40af", marginTop: 4, lineHeight: 1.2 }}>
           {value}
           {sub && <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 400 }}> {sub}</span>}
         </div>
@@ -403,7 +403,7 @@ export default function DoseLiveMonitor() {
 
   if (loading) {
     return (
-      <div style={{ ...card, textAlign: "center", padding: 40, color: "#94a3b8", fontSize: 13 }}>
+      <div style={{ ...card, textAlign: "center", padding: 40, color: "#94a3b8", fontSize: 12 }}>
         {t('doseLive.loadingRealtime')}
       </div>
     );

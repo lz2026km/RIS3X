@@ -149,7 +149,7 @@ export const FhirBulkExportPage: React.FC = () => {
                 {polling && <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> {t('fhirExport.polling')}</>}
               </Space>
             }>
-              <div style={{ fontFamily: 'monospace', fontSize: 13, marginBottom: 8 }}>Job ID: {job.jobId}</div>
+              <div style={{ fontFamily: 'monospace', fontSize: 12, marginBottom: 8 }}>Job ID: {job.jobId}</div>
               {job.transactionTime && <div style={{ fontSize: 12, color: '#999', marginBottom: 8 }}>Transaction Time: {job.transactionTime}</div>}
               {job.error && <Alert type="error" title={job.error} showIcon style={{ marginBottom: 8 }} />}
               {job.files && (

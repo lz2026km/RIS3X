@@ -3,6 +3,7 @@
 // 科室主任/院长驾驶舱 - 放射科实时数据监控
 // ============================================================
 import { useState, useEffect, useCallback } from 'react'
+import type { TableColumnsType } from 'antd'
 import {
   Activity, AlertTriangle, ArrowUp, ArrowDown, Bell,
   Clock, TrendingUp,
@@ -23,6 +24,7 @@ import { deviceMgmtApi } from '../services/api/deviceMgmtApi'
 import { emergencyChannelApi, type EmergencyTriggerRecord } from '../services/api/emergencyChannelApi'
 import { worklistApi } from '../services/api/worklistApi'
 import { t } from '../i18n/appI18n'
+import { DataTable } from '../components/common'
 
 // ==================== 模拟数据 ====================
 const KPI_DATA = [
@@ -272,7 +274,7 @@ const s: Record<string, React.CSSProperties> = {
     marginBottom: 8,
   },
   callingRoom: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: 700,
     color: '#4ade80',
   },
@@ -369,7 +371,7 @@ const s: Record<string, React.CSSProperties> = {
     borderRadius: 2,
   },
   pieLegendText: {
-    fontSize: 13,
+    fontSize: 12,
     color: 'var(--text-secondary)',
     flex: 1,
   },
@@ -382,7 +384,7 @@ const s: Record<string, React.CSSProperties> = {
   table: {
     width: '100%',
     borderCollapse: 'collapse',
-    fontSize: 13,
+    fontSize: 12,
   },
   th: {
     textAlign: 'left',
@@ -428,7 +430,7 @@ const s: Record<string, React.CSSProperties> = {
     margin: '0 auto 8px',
   },
   qualityValue: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: 700,
     color: '#f1f5f9',
   },
@@ -444,7 +446,7 @@ const s: Record<string, React.CSSProperties> = {
   progressLabel: {
     display: 'flex',
     justifyContent: 'space-between',
-    fontSize: 13,
+    fontSize: 12,
     color: 'var(--text-secondary)',
     marginBottom: 6,
   },
@@ -1161,7 +1163,7 @@ export default function OperationsCenterPage() {
             onClick={() => setActiveSection(tab.key)}
             style={{
               padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600,
+              display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600,
               background: activeSection === tab.key ? '#3b82f6' : 'transparent',
               color: activeSection === tab.key ? '#fff' : 'var(--text-secondary)',
             }}
@@ -1212,7 +1214,7 @@ export default function OperationsCenterPage() {
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {alerts.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '20px 0', color: '#4ade80', fontSize: 13 }}>
+          <div style={{ textAlign: 'center', padding: '20px 0', color: '#4ade80', fontSize: 12 }}>
             <CheckCircle size={20} style={{ marginBottom: 6 }} /> {t('opsCenter.noAlerts')}
           </div>
         )}
@@ -1231,7 +1233,7 @@ export default function OperationsCenterPage() {
               {a.type === 'device' ? <WifiOff size={18} /> : a.type === 'queue' ? <TimerReset size={18} /> : <AlertTriangle size={18} />}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#f1f5f9', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#f1f5f9', display: 'flex', alignItems: 'center', gap: 8 }}>
                 {a.title}
                 <span style={{
                   padding: '1px 8px', borderRadius: 999, fontSize: 11, fontWeight: 600,
@@ -1258,6 +1260,117 @@ export default function OperationsCenterPage() {
     </div>
   )
 
+  const deviceBoardColumns: TableColumnsType<any> = [
+    { title: t('opsCenter.thDevice'), dataIndex: 'name', key: 'name', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+    { title: t('opsCenter.thModality'), dataIndex: 'modality', key: 'modality' },
+    {
+      title: t('opsCenter.thStatus'), dataIndex: 'status', key: 'status',
+      render: (v: string) => (
+        <span style={{
+          padding: '2px 10px', borderRadius: 999, fontSize: 12, fontWeight: 600,
+          background: v === '运行中' || v === 'online' || v === '正常' ? 'rgba(34,197,94,0.15)' : v === '故障' || v === 'fault' || v === '离线' ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)',
+          color: v === '运行中' || v === 'online' || v === '正常' ? '#4ade80' : v === '故障' || v === 'fault' || v === '离线' ? '#ef4444' : '#fbbf24',
+        }}>{v}</span>
+      ),
+    },
+    {
+      title: t('opsCenter.thUtilization'), dataIndex: 'utilization', key: 'utilization',
+      render: (v: number) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 80, height: 6, background: 'rgba(51,65,85,0.8)', borderRadius: 3, overflow: 'hidden' }}>
+            <div style={{ width: `${Math.min(100, v)}%`, height: '100%', background: v >= 80 ? '#4ade80' : v >= 50 ? '#fbbf24' : '#3b82f6', borderRadius: 3 }} />
+          </div>
+          <span style={{ fontSize: 12 }}>{v}%</span>
+        </div>
+      ),
+    },
+    { title: t('opsCenter.thFaultCount'), dataIndex: 'faultCount', key: 'faultCount', render: (v: number) => <span style={{ color: v > 0 ? '#ef4444' : 'inherit' }}>{v}</span> },
+    { title: t('opsCenter.thHeartbeat'), dataIndex: 'lastHeartbeat', key: 'lastHeartbeat' },
+  ]
+
+  const manpowerColumns: TableColumnsType<any> = [
+    { title: t('opsCenter.thPerson'), dataIndex: 'name', key: 'name', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+    {
+      title: t('opsCenter.thRole'), dataIndex: 'role', key: 'role',
+      render: (v: string) => (
+        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, background: v === t('opsCenter.roleTech') ? 'rgba(139,92,246,0.15)' : 'rgba(59,130,246,0.15)', color: v === t('opsCenter.roleTech') ? '#a78bfa' : '#60a5fa' }}>
+          {v}
+        </span>
+      ),
+    },
+    { title: t('opsCenter.thCompletedToday'), dataIndex: 'completedCount', key: 'completedCount', render: (v: number) => `${v} ${t('opsCenter.unitExam')}` },
+    {
+      title: t('opsCenter.thAvgDuration'), key: 'avgDuration',
+      render: (_v: unknown, m: any) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 80, height: 6, background: 'rgba(51,65,85,0.8)', borderRadius: 3, overflow: 'hidden' }}>
+            <div style={{
+              width: `${Math.min(100, m.avgDurationMin ? (30 / m.avgDurationMin) * 100 : 50)}%`,
+              height: '100%', borderRadius: 3,
+              background: m.avgDurationMin && m.avgDurationMin <= 20 ? '#4ade80' : m.avgDurationMin && m.avgDurationMin <= 30 ? '#fbbf24' : '#ef4444',
+            }} />
+          </div>
+          <span style={{ fontSize: 12 }}>{m.avgDurationMin || '—'} {t('opsCenter.unitMinute')}</span>
+        </div>
+      ),
+    },
+    {
+      title: t('opsCenter.thStatus'), key: 'online',
+      render: (_v: unknown, m: any) => (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: m.online ? '#4ade80' : '#fbbf24' }}>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: m.online ? '#4ade80' : '#fbbf24' }} />
+          {m.online ? t('opsCenter.statusOnline') : t('opsCenter.statusOffline')}
+        </span>
+      ),
+    },
+  ]
+
+  const channelColumns: TableColumnsType<any> = [
+    {
+      title: t('opsCenter.thPriority'), dataIndex: 'priority', key: 'priority',
+      render: (v: number) => (
+        <span style={{
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          width: 24, height: 24, borderRadius: '50%', fontSize: 12, fontWeight: 700,
+          background: v === 1 ? 'rgba(239,68,68,0.2)' : v <= 3 ? 'rgba(245,158,11,0.2)' : 'rgba(59,130,246,0.2)',
+          color: v === 1 ? '#ef4444' : v <= 3 ? '#fbbf24' : '#60a5fa',
+        }}>
+          {v}
+        </span>
+      ),
+    },
+    { title: t('opsCenter.thChannel'), dataIndex: 'label', key: 'label', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+    { title: t('opsCenter.thTargetRole'), dataIndex: 'targetRole', key: 'targetRole', render: (v: string) => v || '—' },
+    {
+      title: t('opsCenter.thStatus'), dataIndex: 'enabled', key: 'enabled',
+      render: (v: boolean) => (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: v ? '#4ade80' : '#94a3b8' }}>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: v ? '#4ade80' : '#94a3b8' }} />
+          {v ? t('opsCenter.ecEnabled') : t('opsCenter.ecDisabled')}
+        </span>
+      ),
+    },
+  ]
+
+  const doctorRankingColumns: TableColumnsType<any> = [
+    {
+      title: '#', key: 'rank', width: 40,
+      render: (_v: unknown, _doc: any, idx: number) => (
+        <span style={{
+          ...s.rankBadge,
+          background: idx === 0 ? '#fbbf24' : idx === 1 ? '#94a3b8' : idx === 2 ? '#cd7c32' : 'rgba(71, 85, 105, 0.5)',
+          color: idx < 3 ? '#0f172a' : '#94a3b8'
+        }}>
+          {_doc.rank}
+        </span>
+      ),
+    },
+    { title: t('opsCenter.thDoctor'), dataIndex: 'name', key: 'name', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+    { title: t('opsCenter.thReports'), dataIndex: 'exams', key: 'exams' },
+    { title: t('opsCenter.thCritical'), dataIndex: 'reports', key: 'reports' },
+    { title: t('opsCenter.thQcScore'), dataIndex: 'rate', key: 'rate', render: (v: number) => <span style={{ color: v >= 90 ? '#4ade80' : v >= 80 ? '#fbbf24' : '#ef4444' }}>{v}%</span> },
+  ]
+
   // 渲染: 设备维度看板
   const renderEquipmentView = () => (
     <div style={s.panel}>
@@ -1273,49 +1386,15 @@ export default function OperationsCenterPage() {
           {t('opsCenter.equipmentNoData')}
         </div>
       ) : (
-        <table style={s.table}>
-          <thead>
-            <tr>
-              <th style={s.th}>{t('opsCenter.thDevice')}</th>
-              <th style={s.th}>{t('opsCenter.thModality')}</th>
-              <th style={s.th}>{t('opsCenter.thStatus')}</th>
-              <th style={s.th}>{t('opsCenter.thUtilization')}</th>
-              <th style={s.th}>{t('opsCenter.thFaultCount')}</th>
-              <th style={s.th}>{t('opsCenter.thHeartbeat')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {deviceBoard.map(d => (
-              <tr key={d.id}>
-                <td style={{ ...s.td, fontWeight: 600 }}>{d.name}</td>
-                <td style={s.td}>{d.modality}</td>
-                <td style={s.td}>
-                  <span style={{
-                    padding: '2px 10px', borderRadius: 999, fontSize: 12, fontWeight: 600,
-                    background: d.status === '运行中' || d.status === 'online' || d.status === '正常' ? 'rgba(34,197,94,0.15)' : d.status === '故障' || d.status === 'fault' || d.status === '离线' ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)',
-                    color: d.status === '运行中' || d.status === 'online' || d.status === '正常' ? '#4ade80' : d.status === '故障' || d.status === 'fault' || d.status === '离线' ? '#ef4444' : '#fbbf24',
-                  }}>
-                    {d.status}
-                  </span>
-                </td>
-                <td style={s.td}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{ width: 80, height: 6, background: 'rgba(51,65,85,0.8)', borderRadius: 3, overflow: 'hidden' }}>
-                      <div style={{ width: `${Math.min(100, d.utilization)}%`, height: '100%', background: d.utilization >= 80 ? '#4ade80' : d.utilization >= 50 ? '#fbbf24' : '#3b82f6', borderRadius: 3 }} />
-                    </div>
-                    <span style={{ fontSize: 12 }}>{d.utilization}%</span>
-                  </div>
-                </td>
-                <td style={{ ...s.td, color: d.faultCount > 0 ? '#ef4444' : 'inherit' }}>{d.faultCount}</td>
-                <td style={s.td}>{d.lastHeartbeat}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataTable<any>
+          columns={deviceBoardColumns}
+          dataSource={deviceBoard}
+          rowKey="id"
+        />
       )}
       {/* [v3.0.6.11-99 Wave10B] 开机率/利用率 7 日趋势 (oeeApi dailyTrend 回退演示) */}
       <div style={{ marginTop: 16 }}>
-        <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Zap size={14} color="#fbbf24" /> {t('opsCenter.uptimeTrend')}
         </div>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 14, height: 130 }}>
@@ -1371,48 +1450,11 @@ export default function OperationsCenterPage() {
           {t('opsCenter.manpowerNoData')}
         </div>
       ) : (
-        <table style={s.table}>
-          <thead>
-            <tr>
-              <th style={s.th}>{t('opsCenter.thPerson')}</th>
-              <th style={s.th}>{t('opsCenter.thRole')}</th>
-              <th style={s.th}>{t('opsCenter.thCompletedToday')}</th>
-              <th style={s.th}>{t('opsCenter.thAvgDuration')}</th>
-              <th style={s.th}>{t('opsCenter.thStatus')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {manpowerBoard.map(m => (
-              <tr key={m.id}>
-                <td style={{ ...s.td, fontWeight: 600 }}>{m.name}</td>
-                <td style={s.td}>
-                  <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, background: m.role === t('opsCenter.roleTech') ? 'rgba(139,92,246,0.15)' : 'rgba(59,130,246,0.15)', color: m.role === t('opsCenter.roleTech') ? '#a78bfa' : '#60a5fa' }}>
-                    {m.role}
-                  </span>
-                </td>
-                <td style={s.td}>{m.completedCount} {t('opsCenter.unitExam')}</td>
-                <td style={s.td}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{ width: 80, height: 6, background: 'rgba(51,65,85,0.8)', borderRadius: 3, overflow: 'hidden' }}>
-                      <div style={{
-                        width: `${Math.min(100, m.avgDurationMin ? (30 / m.avgDurationMin) * 100 : 50)}%`,
-                        height: '100%', borderRadius: 3,
-                        background: m.avgDurationMin && m.avgDurationMin <= 20 ? '#4ade80' : m.avgDurationMin && m.avgDurationMin <= 30 ? '#fbbf24' : '#ef4444',
-                      }} />
-                    </div>
-                    <span style={{ fontSize: 12 }}>{m.avgDurationMin || '—'} {t('opsCenter.unitMinute')}</span>
-                  </div>
-                </td>
-                <td style={s.td}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: m.online ? '#4ade80' : '#fbbf24' }}>
-                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: m.online ? '#4ade80' : '#fbbf24' }} />
-                    {m.online ? t('opsCenter.statusOnline') : t('opsCenter.statusOffline')}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataTable<any>
+          columns={manpowerColumns}
+          dataSource={manpowerBoard}
+          rowKey="id"
+        />
       )}
     </div>
   )
@@ -1465,7 +1507,7 @@ export default function OperationsCenterPage() {
             { label: t('opsCenter.qTechEfficiency'), value: kpiExt[1]!.value > 0 && kpiExt[1]!.value <= 25 ? 100 : 80, color: '#fbbf24' },
           ].map(item => (
             <div key={item.label}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>
                 <span>{item.label}</span>
                 <span style={{ color: item.color, fontWeight: 700 }}>{item.value}%</span>
               </div>
@@ -1515,7 +1557,7 @@ export default function OperationsCenterPage() {
             background: emergencyConfig.autoTrigger ? 'rgba(34,197,94,0.1)' : 'rgba(148,163,184,0.1)',
             border: `1px solid ${emergencyConfig.autoTrigger ? 'rgba(34,197,94,0.3)' : 'rgba(148,163,184,0.3)'}`,
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: '#f1f5f9' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 600, color: '#f1f5f9' }}>
               <HeartPulse size={16} color={emergencyConfig.autoTrigger ? '#4ade80' : '#94a3b8'} />
               {t('opsCenter.ecAutoTrigger')}
               <span style={{ marginLeft: 'auto', fontSize: 12, color: emergencyConfig.autoTrigger ? '#4ade80' : '#94a3b8' }}>
@@ -1552,7 +1594,7 @@ export default function OperationsCenterPage() {
           </span>
         </div>
         {emergencyRecords.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)', fontSize: 13 }}>
+          <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)', fontSize: 12 }}>
             <CheckCircle size={28} color="#4ade80" style={{ margin: '0 auto 10px', display: 'block' }} />
             {t('opsCenter.ecNoRecords')}
             <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>{t('opsCenter.ecNoRecordsSub')}</div>
@@ -1573,7 +1615,7 @@ export default function OperationsCenterPage() {
                   {r.status === 'completed' ? <CheckCircle size={18} /> : r.status === 'acknowledged' ? <Bell size={18} /> : <AlertTriangle size={18} />}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#f1f5f9' }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#f1f5f9' }}>
                     {r.patientName || r.patientId}
                     <span style={{ marginLeft: 8, fontSize: 11, color: '#ef4444', background: 'rgba(239,68,68,0.15)', padding: '1px 8px', borderRadius: 999 }}>{r.type}</span>
                   </div>
@@ -1605,43 +1647,11 @@ export default function OperationsCenterPage() {
             <Bell size={18} color="#60a5fa" />
             {t('opsCenter.ecChannelsTitle')}
           </div>
-          <table style={s.table}>
-            <thead>
-              <tr>
-                <th style={s.th}>{t('opsCenter.thPriority')}</th>
-                <th style={s.th}>{t('opsCenter.thChannel')}</th>
-                <th style={s.th}>{t('opsCenter.thTargetRole')}</th>
-                <th style={s.th}>{t('opsCenter.thStatus')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {channelDetail.map(c => (
-                <tr key={c.type}>
-                  <td style={s.td}>
-                    <span style={{
-                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      width: 24, height: 24, borderRadius: '50%', fontSize: 12, fontWeight: 700,
-                      background: c.priority === 1 ? 'rgba(239,68,68,0.2)' : c.priority <= 3 ? 'rgba(245,158,11,0.2)' : 'rgba(59,130,246,0.2)',
-                      color: c.priority === 1 ? '#ef4444' : c.priority <= 3 ? '#fbbf24' : '#60a5fa',
-                    }}>
-                      {c.priority}
-                    </span>
-                  </td>
-                  <td style={{ ...s.td, fontWeight: 600 }}>{c.label}</td>
-                  <td style={s.td}>{c.targetRole || '—'}</td>
-                  <td style={s.td}>
-                    <span style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12,
-                      color: c.enabled ? '#4ade80' : '#94a3b8',
-                    }}>
-                      <span style={{ width: 7, height: 7, borderRadius: '50%', background: c.enabled ? '#4ade80' : '#94a3b8' }} />
-                      {c.enabled ? t('opsCenter.ecEnabled') : t('opsCenter.ecDisabled')}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable<any>
+            columns={channelColumns}
+            dataSource={channelDetail}
+            rowKey="type"
+          />
           <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
             {t('opsCenter.ecEscalationDesc')}
           </div>
@@ -1652,7 +1662,7 @@ export default function OperationsCenterPage() {
             {t('opsCenter.ecTypeDist')}
           </div>
           {emergencySummary.byType.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-secondary)', fontSize: 13 }}>
+            <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-secondary)', fontSize: 12 }}>
               {t('opsCenter.ecNoTypeData')}
             </div>
           ) : (
@@ -1661,7 +1671,7 @@ export default function OperationsCenterPage() {
                 const maxType = Math.max(1, ...emergencySummary.byType.map(([, c]) => c))
                 return (
                   <div key={type}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--text-secondary)', marginBottom: 6 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>
                       <span>{type}</span>
                       <span style={{ color: '#ef4444', fontWeight: 700 }}>{count} {t('opsCenter.ecUnit')}</span>
                     </div>
@@ -1795,19 +1805,19 @@ export default function OperationsCenterPage() {
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginTop: 24 }}>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
-              <div style={{ fontSize: 28, fontWeight: 700, color: '#4ade80' }}>{todayTotal}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: '#4ade80' }}>{todayTotal}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.todayTotal')}</div>
             </div>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
-              <div style={{ fontSize: 28, fontWeight: 700, color: '#3b82f6' }}>{yesterdayTotal}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: '#3b82f6' }}>{yesterdayTotal}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.yesterdayTotal')}</div>
             </div>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
-              <div style={{ fontSize: 28, fontWeight: 700, color: '#4ade80' }}>{growthText}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: '#4ade80' }}>{growthText}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.momGrowth')}</div>
             </div>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
-              <div style={{ fontSize: 28, fontWeight: 700, color: '#fbbf24' }}>{(peakText.split('(')[0] ?? '').replace(t('opsCenter.peakDayPrefix'), '').replace(t('opsCenter.peakHourPrefix'), '').trim()}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: '#fbbf24' }}>{(peakText.split('(')[0] ?? '').replace(t('opsCenter.peakDayPrefix'), '').replace(t('opsCenter.peakHourPrefix'), '').trim()}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.peakPeriod')}</div>
             </div>
           </div>
@@ -1820,38 +1830,11 @@ export default function OperationsCenterPage() {
             {t('opsCenter.workloadRanking')}
           </div>
           
-          <table style={s.table}>
-            <thead>
-              <tr>
-                <th style={{ ...s.th, width: 40 }}>#</th>
-                <th style={s.th}>{t('opsCenter.thDoctor')}</th>
-                <th style={s.th}>{t('opsCenter.thReports')}</th>
-                <th style={s.th}>{t('opsCenter.thCritical')}</th>
-                <th style={s.th}>{t('opsCenter.thQcScore')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {doctorRanking.map((doc, idx) => (
-                <tr key={idx}>
-                  <td style={s.td}>
-                    <span style={{
-                      ...s.rankBadge,
-                      background: idx === 0 ? '#fbbf24' : idx === 1 ? '#94a3b8' : idx === 2 ? '#cd7c32' : 'rgba(71, 85, 105, 0.5)',
-                      color: idx < 3 ? '#0f172a' : '#94a3b8'
-                    }}>
-                      {doc.rank}
-                    </span>
-                  </td>
-                  <td style={{ ...s.td, fontWeight: 600 }}>{doc.name}</td>
-                  <td style={s.td}>{doc.exams}</td>
-                  <td style={s.td}>{doc.reports}</td>
-                  <td style={{ ...s.td, color: doc.rate >= 90 ? '#4ade80' : doc.rate >= 80 ? '#fbbf24' : '#ef4444' }}>
-                    {doc.rate}%
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable<any>
+            columns={doctorRankingColumns}
+            dataSource={doctorRanking}
+            rowKey="rank"
+          />
 
           <div style={{ marginTop: 24 }}>
             <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('opsCenter.projectDistribution')}</div>
@@ -1878,15 +1861,15 @@ export default function OperationsCenterPage() {
             <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('opsCenter.todayOverview')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 28, fontWeight: 700, color: '#4ade80' }}>{summaryOverview.adverse}</div>
+                <div style={{ fontSize: 30, fontWeight: 700, color: '#4ade80' }}>{summaryOverview.adverse}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.adverseEvents')}</div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 28, fontWeight: 700, color: '#3b82f6' }}>{summaryOverview.normal}</div>
+                <div style={{ fontSize: 30, fontWeight: 700, color: '#3b82f6' }}>{summaryOverview.normal}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.normalExams')}</div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 28, fontWeight: 700, color: '#fbbf24' }}>{summaryOverview.safety}%</div>
+                <div style={{ fontSize: 30, fontWeight: 700, color: '#fbbf24' }}>{summaryOverview.safety}%</div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.safetyRate')}</div>
               </div>
             </div>
@@ -1907,12 +1890,12 @@ export default function OperationsCenterPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginTop: 8 }}>
             <div style={{ padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8, textAlign: 'center' }}>
               <Clock size={20} color="#fbbf24" style={{ marginBottom: 8 }} />
-              <div style={{ fontSize: 28, fontWeight: 700, color: '#f1f5f9' }}>{efficiencyData.avgExamTime}</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: '#f1f5f9' }}>{efficiencyData.avgExamTime}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.avgExamTime')}</div>
             </div>
             <div style={{ padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8, textAlign: 'center' }}>
               <CheckCircle size={20} color="#4ade80" style={{ marginBottom: 8 }} />
-              <div style={{ fontSize: 28, fontWeight: 700, color: '#4ade80' }}>{efficiencyData.reportTimelyRate}%</div>
+              <div style={{ fontSize: 30, fontWeight: 700, color: '#4ade80' }}>{efficiencyData.reportTimelyRate}%</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opsCenter.progressReportTimely')}</div>
             </div>
           </div>

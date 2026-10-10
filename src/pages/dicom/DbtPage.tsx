@@ -540,7 +540,7 @@ const DbtPage: React.FC = () => {
     <div style={{ background: '#020617', color: '#cbd5e1', padding: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
         <Layers size={18} color={BLUE} />
-        <span style={{ fontSize: 15, fontWeight: 700 }}>{t('dbtPage.title')}</span>
+        <span style={{ fontSize: 14, fontWeight: 700 }}>{t('dbtPage.title')}</span>
         <Tag color="cyan">{t('dbtPage.subtitle')}</Tag>
         {selectedStudy && (
           <>
@@ -806,7 +806,7 @@ const DbtPage: React.FC = () => {
               </div>
               <Alert type={biradsResult.category === '5' || biradsResult.category.startsWith('4') ? 'warning' : biradsResult.category === '3' ? 'info' : 'success'} showIcon message={<b>{t('dbtPage.recommendation')}</b>} description={biradsResult.recommendation} style={{ marginBottom: 10 }} />
               <Divider style={{ margin: '8px 0' }} />
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{t('dbtPage.basis', { count: biradsResult.basis.length })}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{t('dbtPage.basis', { count: biradsResult.basis.length })}</div>
               <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: '#334155' }}>
                 {biradsResult.basis.map((b, i) => <li key={i} style={{ marginBottom: 3 }}>{b}</li>)}
               </ul>

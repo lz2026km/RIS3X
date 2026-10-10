@@ -365,7 +365,7 @@ const CommitteeRoomPage: React.FC = () => {
               <Empty
                 image={<Landmark size={64} style={{ opacity: 0.25 }} />}
                 description={
-                  <div style={{ fontSize: 13, color: "#64748b" }}>
+                  <div style={{ fontSize: 12, color: "#64748b" }}>
                     {t("committeeRoom.selectHint")}
                     {reportIdParam && (
                       <div style={{ marginTop: 8, fontSize: 12 }}>
@@ -456,7 +456,7 @@ const CommitteeRoomPage: React.FC = () => {
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <Avatar size="small" style={{ background: "#1e40af" }}>{m.name.slice(0, 1)}</Avatar>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 13, fontWeight: 700 }}>{m.name}</div>
+                          <div style={{ fontSize: 12, fontWeight: 700 }}>{m.name}</div>
                           <div style={{ fontSize: 11, color: "#64748b" }}>
                             {m.title ?? t("committeeRoom.doctor")} · {m.department ?? "—"}
                           </div>
@@ -498,7 +498,7 @@ const CommitteeRoomPage: React.FC = () => {
                 <div style={{ background: "var(--color-success-bg)", border: "1px solid var(--color-success-border)", borderRadius: 8, padding: 12 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
                     <BadgeCheck size={15} color="#10b981" />
-                    <strong style={{ color: "#047857", fontSize: 13 }}>{t("committeeRoom.resolutionGeneratedLabel")}</strong>
+                    <strong style={{ color: "#047857", fontSize: 12 }}>{t("committeeRoom.resolutionGeneratedLabel")}</strong>
                     <span style={{ fontSize: 11, color: "#94a3b8" }}>
                       {new Date(detail.resolution.generatedAt).toLocaleString()}
                       {detail.resolution.appendedToReport && (
@@ -506,7 +506,7 @@ const CommitteeRoomPage: React.FC = () => {
                       )}
                     </span>
                   </div>
-                  <div style={{ fontSize: 13, color: "#334155", lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{detail.resolution.resolution}</div>
+                  <div style={{ fontSize: 12, color: "#334155", lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{detail.resolution.resolution}</div>
                 </div>
               ) : (
                 <Empty

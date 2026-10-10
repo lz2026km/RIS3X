@@ -102,7 +102,7 @@ export const VisitPage: React.FC = () => {
               <Descriptions.Item label={t('iheVisit.colLocation')}>{visit.assignedLocation}</Descriptions.Item>
             </Descriptions>
 
-            <Divider titlePlacement="left" style={{ fontSize: 13 }}>{t('iheVisit.badges')}</Divider>
+            <Divider titlePlacement="left" style={{ fontSize: 12 }}>{t('iheVisit.badges')}</Divider>
             <Space wrap>
               {Object.entries(STATE_TAGS).map(([k, v]) => (
                 <Tag key={k} color={k === currentState ? v.color : 'default'}
@@ -112,7 +112,7 @@ export const VisitPage: React.FC = () => {
               ))}
             </Space>
 
-            <Divider titlePlacement="left" style={{ fontSize: 13 }}>{t('iheVisit.timestamps')}</Divider>
+            <Divider titlePlacement="left" style={{ fontSize: 12 }}>{t('iheVisit.timestamps')}</Divider>
             <Descriptions column={2} size="small">
               <Descriptions.Item label={t('iheVisit.admitTime')}>{visit.admitDateTime ?? '-'}</Descriptions.Item>
               <Descriptions.Item label={t('iheVisit.startTime')}>{visit.inProgressAt ?? '-'}</Descriptions.Item>

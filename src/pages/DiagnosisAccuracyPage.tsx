@@ -105,9 +105,9 @@ export default function DiagnosisAccuracyPage() {
         </div>
       </div>
 
-      {loading && <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--text-secondary)', fontSize: 13 }}>数据加载中...</div>}
+      {loading && <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>数据加载中...</div>}
       {error && (
-        <div style={{ marginBottom: 12, padding: '10px 14px', background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 6, fontSize: 13, color: '#b91c1c', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ marginBottom: 12, padding: '10px 14px', background: 'var(--color-error-bg)', border: '1px solid #fecaca', borderRadius: 6, fontSize: 12, color: '#b91c1c', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span>加载失败：{error}</span>
           <button onClick={fetchAccuracy} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #fca5a5', background: 'var(--bg-card)', color: '#b91c1c', cursor: 'pointer', fontSize: 12 }}>重试</button>
         </div>
@@ -125,7 +125,7 @@ export default function DiagnosisAccuracyPage() {
       {/* 确认来源统计 */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Microscope size={13} /> 确认来源分布
           </div>
           {[
@@ -153,7 +153,7 @@ export default function DiagnosisAccuracyPage() {
         </div>
 
         <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Database size={13} /> 按设备符合率
           </div>
           {data.byModality.map(m => {
@@ -175,7 +175,7 @@ export default function DiagnosisAccuracyPage() {
 
       {/* 按病种符合率 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Sparkles size={13} /> 按疾病符合率
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
@@ -200,7 +200,7 @@ export default function DiagnosisAccuracyPage() {
 
       {/* 病种符合率明细表 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)', marginTop: 12 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Sparkles size={13} /> {t('w1tables.dx.title')}
         </div>
         <DataTable dataSource={data.byDisease} rowKey="disease" columns={dxColumns} pagination={{ pageSize: 10, showSizeChanger: false }} emptyText={t('w1tables.noData')} />
@@ -219,7 +219,7 @@ const BigKpi: React.FC<{ icon: any; label: string; value: number; suffix: string
     </div>
     <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{label}</div>
     <div>
-      <span style={{ fontSize: 28, fontWeight: 700, color }}>{value}</span>
+      <span style={{ fontSize: 30, fontWeight: 700, color }}>{value}</span>
       <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{suffix}</span>
     </div>
   </div>

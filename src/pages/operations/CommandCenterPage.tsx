@@ -160,7 +160,7 @@ export const CommandCenterPage: React.FC = () => {
                   <List.Item>
                     <Space>
                       <Badge status={(TYPE_COLOR[n.type] ?? 'default') as any} />
-                      <span style={{ fontSize: 13, color: n.type === 'CRITICAL' ? '#ff4d4f' : '#666' }}>{n.title}</span>
+                      <span style={{ fontSize: 12, color: n.type === 'CRITICAL' ? '#ff4d4f' : '#666' }}>{n.title}</span>
                       {n.category && <Tag color="blue">{n.category}</Tag>}
                       <Text type="secondary" style={{ fontSize: 11 }}>{new Date(n.createdAt).toLocaleString()}</Text>
                     </Space>

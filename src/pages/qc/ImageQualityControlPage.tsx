@@ -225,7 +225,7 @@ export default function ImageQualityControlPage() {
       <div style={{ marginBottom: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         {['all', 'CT', 'MR', 'DR', 'US', 'MG', 'DSA'].map((m) => (
           <button key={m} onClick={() => setModality(m)}
-            style={{ padding: '6px 14px', background: modality === m ? '#1e40af' : 'var(--bg-card)', color: modality === m ? '#fff' : '#475569', border: '1px solid ' + (modality === m ? '#1e40af' : 'var(--border-color)'), borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
+            style={{ padding: '6px 14px', background: modality === m ? '#1e40af' : 'var(--bg-card)', color: modality === m ? '#fff' : '#475569', border: '1px solid ' + (modality === m ? '#1e40af' : 'var(--border-color)'), borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
             {m === 'all' ? t('imageQualityControl.all') : m}
           </button>
         ))}
@@ -286,39 +286,39 @@ export default function ImageQualityControlPage() {
       </Row>
 
       <Card size="small" title={t('imageQualityControl.deviceDetailCard')} style={{ marginTop: 16 }}>
-        <table style={{ width: '100%', fontSize: 12 }}>
-          <thead>
-            <tr style={{ background: 'var(--bg-card)' }}>
-              {[t('imageQualityControl.thDeviceId'), t('imageQualityControl.thType'), t('imageQualityControl.thBrandModel'), t('imageQualityControl.thImageGrade'), t('imageQualityControl.thDoseCompliance'), t('imageQualityControl.thMonthlyScans'), t('imageQualityControl.thDefectRate')].map((h) => (
-                <th key={h} style={{ padding: 10, textAlign: 'left', fontWeight: 600, color: '#475569', borderBottom: '2px solid var(--border-color)' }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {DEVICE_MASTER.slice(0, 30).map((d) => (
-              <tr key={d.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                <td style={{ padding: 10, fontFamily: 'monospace', fontSize: 11 }}>{d.id}</td>
-                <td style={{ padding: 10 }}>{d.modality}</td>
-                <td style={{ padding: 10 }}>{d.brand} {d.model}</td>
-                <td style={{ padding: 10 }}>
-                  <span style={{ padding: '3px 10px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: d.imageQualityGrade === 'A' ? 'var(--color-success-bg)' : d.imageQualityGrade === 'D' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: d.imageQualityGrade === 'A' ? '#065f46' : d.imageQualityGrade === 'D' ? '#991b1b' : '#92400e' }}>
-                    {t('imageQualityControl.gradeSuffix', { grade: d.imageQualityGrade })}
-                  </span>
-                </td>
-                <td style={{ padding: 10 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <div style={{ width: 60, height: 6, background: 'var(--border-color)', borderRadius: 3, overflow: 'hidden' }}>
-                      <div style={{ width: `${d.doseComplianceRate}%`, height: '100%', background: d.doseComplianceRate >= 90 ? '#10b981' : d.doseComplianceRate >= 80 ? '#f59e0b' : '#dc2626' }} />
-                    </div>
-                    <span style={{ fontSize: 11, color: '#475569' }}>{d.doseComplianceRate}%</span>
+        <DataTable
+          rowKey="id"
+          dataSource={DEVICE_MASTER.slice(0, 30)}
+          showPagination={false}
+          showExport={false}
+          showDensity={false}
+          columns={[
+            { title: t('imageQualityControl.thDeviceId'), dataIndex: 'id', key: 'id', render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 11 }}>{v}</span> },
+            { title: t('imageQualityControl.thType'), dataIndex: 'modality', key: 'modality' },
+            { title: t('imageQualityControl.thBrandModel'), key: 'brandModel', render: (_: unknown, d) => <>{d.brand} {d.model}</> },
+            {
+              title: t('imageQualityControl.thImageGrade'), dataIndex: 'imageQualityGrade', key: 'imageQualityGrade',
+              render: (v: string) => (
+                <span style={{ padding: '3px 10px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: v === 'A' ? 'var(--color-success-bg)' : v === 'D' ? 'var(--color-error-bg)' : 'var(--color-warning-bg)', color: v === 'A' ? '#065f46' : v === 'D' ? '#991b1b' : '#92400e' }}>
+                  {t('imageQualityControl.gradeSuffix', { grade: v })}
+                </span>
+              ),
+            },
+            {
+              title: t('imageQualityControl.thDoseCompliance'), dataIndex: 'doseComplianceRate', key: 'doseComplianceRate',
+              render: (v: number) => (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ width: 60, height: 6, background: 'var(--border-color)', borderRadius: 3, overflow: 'hidden' }}>
+                    <div style={{ width: `${v}%`, height: '100%', background: v >= 90 ? '#10b981' : v >= 80 ? '#f59e0b' : '#dc2626' }} />
                   </div>
-                </td>
-                <td style={{ padding: 10 }}>{d.monthlyScans}</td>
-                <td style={{ padding: 10 }}>{d.defectRate}%</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  <span style={{ fontSize: 11, color: '#475569' }}>{v}%</span>
+                </div>
+              ),
+            },
+            { title: t('imageQualityControl.thMonthlyScans'), dataIndex: 'monthlyScans', key: 'monthlyScans' },
+            { title: t('imageQualityControl.thDefectRate'), dataIndex: 'defectRate', key: 'defectRate', render: (v: number) => <>{v}%</> },
+          ]}
+        />
       </Card>
 
       {/* [v3.0.6.11-100 Wave 1B] 重拍登记确认 Modal: 原因下拉 (retakeReason) */}

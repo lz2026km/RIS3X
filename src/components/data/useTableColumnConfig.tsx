@@ -255,7 +255,7 @@ export function useTableColumnConfig<T extends ColumnLike>(
   const columnPanel = (
     <div style={{ width: 300, maxHeight: 380, overflowY: "auto" }} data-testid="column-config-panel">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-        <span style={{ fontWeight: 700, fontSize: 13 }}>{t("w14Ux.columns.title")}</span>
+        <span style={{ fontWeight: 700, fontSize: 12 }}>{t("w14Ux.columns.title")}</span>
         <Button type="link" size="small" icon={<RotateCcw size={12} />} onClick={resetColumns}>
           {t("w14Ux.columns.reset")}
         </Button>
@@ -283,7 +283,7 @@ export function useTableColumnConfig<T extends ColumnLike>(
                 setVisibility((prev) => ({ ...prev, [k]: e.target.checked }))
               }
             />
-            <span style={{ flex: 1, fontSize: 12.5, color: "var(--text-primary, #1e293b)" }}>
+            <span style={{ flex: 1, fontSize: 12, color: "var(--text-primary, #1e293b)" }}>
               {titleOf(k)}
             </span>
             <Tooltip title={t("w14Ux.columns.moveUp")}>
@@ -315,7 +315,7 @@ export function useTableColumnConfig<T extends ColumnLike>(
       <div style={{ borderTop: "1px solid var(--border-subtle, rgba(0,0,0,0.08))", marginTop: 10, paddingTop: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
           <Bookmark size={13} style={{ color: "var(--color-primary-600, #2563eb)" }} />
-          <span style={{ fontWeight: 700, fontSize: 13 }}>{t("w14Ux.views.title")}</span>
+          <span style={{ fontWeight: 700, fontSize: 12 }}>{t("w14Ux.views.title")}</span>
         </div>
         <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
           <Input

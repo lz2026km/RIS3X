@@ -1,10 +1,12 @@
 // [G005 W7-Exec] MWL 管理页: Modality Worklist 查询 / 工作列表项 / MPPS 状态联动
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import type { HTMLAttributes } from 'react'
 import { Button, Empty, Input, Select, Spin, Tag, message } from 'antd'
 import { Activity, ClipboardList, RefreshCw, RadioTower, Search } from 'lucide-react'
 import { PageContainer } from '../../components/common/PageContainer'
 import { PageHeader } from '../../components/common/PageHeader'
 import { StatCard, StatCardGrid } from '../../components/common/StatCard'
+import { DataTable } from '../../components/common'
 import { t } from '../../i18n/appI18n'
 import { mwlApi, type MwlItemState, type MwlWorklistItemDto } from '../../services/api/execApi'
 
@@ -151,56 +153,56 @@ export default function MwlManagerPage() {
         ) : items.length === 0 ? (
           <Empty description={t('w7exec.empty')} style={{ padding: 40 }} />
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 1080, fontSize: 12.5 }} data-testid="mwl-table">
-              <thead>
-                <tr style={{ color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-color)', background: 'var(--content-bg)' }}>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('w7exec.accession')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('w7exec.patient')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('w7exec.queryModality')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('w7exec.requestedProcedure')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('w7exec.station')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('w7exec.scheduledAt')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('w7exec.contrast')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('w7exec.state')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('w7exec.mppsStatus')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px' }}>{t('w7exec.query')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item) => {
+          <DataTable
+            rowKey="id"
+            dataSource={items}
+            data-testid="mwl-table"
+            onRow={() => ({ 'data-testid': 'mwl-row' }) as HTMLAttributes<HTMLElement>}
+            columns={[
+              { title: t('w7exec.accession'), dataIndex: 'accessionNumber', key: 'accessionNumber', render: (v: string) => <span style={{ fontFamily: 'monospace' }}>{v}</span> },
+              { title: t('w7exec.patient'), dataIndex: 'patientName', key: 'patientName', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+              { title: t('w7exec.queryModality'), dataIndex: 'modality', key: 'modality', render: (v: string) => <Tag color="geekblue">{v}</Tag> },
+              { title: t('w7exec.requestedProcedure'), dataIndex: 'requestedProcedureDescription', key: 'requestedProcedureDescription' },
+              { title: t('w7exec.station'), dataIndex: 'scheduledStationAeTitle', key: 'scheduledStationAeTitle', render: (v: string) => <span style={{ color: 'var(--text-secondary)' }}>{v || '--'}</span> },
+              { title: t('w7exec.scheduledAt'), key: 'scheduledAt', render: (_v, item) => <span style={{ color: 'var(--text-secondary)' }}>{item.scheduledDate} {item.scheduledTime}</span> },
+              {
+                title: t('w7exec.contrast'),
+                dataIndex: 'contrast',
+                key: 'contrast',
+                render: (v: boolean) => <Tag color={v ? 'volcano' : 'default'}>{v ? t('w7exec.contrastYes') : t('w7exec.contrastNo')}</Tag>,
+              },
+              {
+                title: t('w7exec.state'),
+                key: 'state',
+                render: (_v, item) => {
+                  const effective = item.mppsStatus ?? item.state
+                  return <Tag color={STATE_COLOR[effective] ?? 'default'}>{stateLabel(effective)}</Tag>
+                },
+              },
+              {
+                title: t('w7exec.mppsStatus'),
+                key: 'mppsStatus',
+                render: (_v, item) => item.mppsStatus ? <Tag color={STATE_COLOR[item.mppsStatus]}>{stateLabel(item.mppsStatus)}</Tag> : '--',
+              },
+              {
+                title: t('w7exec.query'),
+                key: 'actions',
+                render: (_v, item) => {
                   const effective = item.mppsStatus ?? item.state
                   return (
-                    <tr key={item.id} style={{ borderBottom: '1px solid var(--border-color)' }} data-testid="mwl-row">
-                      <td style={{ padding: '10px 12px', fontFamily: 'monospace' }}>{item.accessionNumber}</td>
-                      <td style={{ padding: '10px 12px', fontWeight: 600 }}>{item.patientName}</td>
-                      <td style={{ padding: '10px 12px' }}><Tag color="geekblue">{item.modality}</Tag></td>
-                      <td style={{ padding: '10px 12px' }}>{item.requestedProcedureDescription}</td>
-                      <td style={{ padding: '10px 12px', color: 'var(--text-secondary)' }}>{item.scheduledStationAeTitle || '--'}</td>
-                      <td style={{ padding: '10px 12px', color: 'var(--text-secondary)' }}>{item.scheduledDate} {item.scheduledTime}</td>
-                      <td style={{ padding: '10px 12px' }}>
-                        <Tag color={item.contrast ? 'volcano' : 'default'}>{item.contrast ? t('w7exec.contrastYes') : t('w7exec.contrastNo')}</Tag>
-                      </td>
-                      <td style={{ padding: '10px 12px' }}><Tag color={STATE_COLOR[effective] ?? 'default'}>{stateLabel(effective)}</Tag></td>
-                      <td style={{ padding: '10px 12px' }}>
-                        {item.mppsStatus ? <Tag color={STATE_COLOR[item.mppsStatus]}>{stateLabel(item.mppsStatus)}</Tag> : '--'}
-                      </td>
-                      <td style={{ padding: '10px 12px' }}>
-                        <div style={{ display: 'flex', gap: 6 }}>
-                          <Button size="small" disabled={busyId === item.id || effective === 'IN_PROGRESS' || effective === 'COMPLETED'} onClick={() => void updateMpps(item, 'IN_PROGRESS')}>
-                            {t('w7exec.stateInProgress')}
-                          </Button>
-                          <Button size="small" type="primary" disabled={busyId === item.id || effective === 'COMPLETED'} onClick={() => void updateMpps(item, 'COMPLETED')}>
-                            {t('w7exec.stateCompleted')}
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <Button size="small" disabled={busyId === item.id || effective === 'IN_PROGRESS' || effective === 'COMPLETED'} onClick={() => void updateMpps(item, 'IN_PROGRESS')}>
+                        {t('w7exec.stateInProgress')}
+                      </Button>
+                      <Button size="small" type="primary" disabled={busyId === item.id || effective === 'COMPLETED'} onClick={() => void updateMpps(item, 'COMPLETED')}>
+                        {t('w7exec.stateCompleted')}
+                      </Button>
+                    </div>
                   )
-                })}
-              </tbody>
-            </table>
-          </div>
+                },
+              },
+            ]}
+          />
         )}
       </div>
     </PageContainer>

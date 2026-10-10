@@ -232,10 +232,10 @@ export default function LoginPage() {
           <h1 style={{ margin: '24px 0 8px', fontSize: 30, fontWeight: 800, letterSpacing: '1px', color: '#fff' }}>
             {t('login.systemName')}
           </h1>
-          <p style={{ margin: 0, fontSize: 17, fontWeight: 500, color: 'rgba(255,255,255,0.92)' }}>
+          <p style={{ margin: 0, fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,0.92)' }}>
             {t('login.tagline')}
           </p>
-          <p style={{ margin: '10px 0 32px', fontSize: 13, lineHeight: 1.8, maxWidth: 480, color: 'rgba(255,255,255,0.66)' }}>
+          <p style={{ margin: '10px 0 32px', fontSize: 12, lineHeight: 1.8, maxWidth: 480, color: 'rgba(255,255,255,0.66)' }}>
             {t('login.description')}
           </p>
           <div
@@ -248,7 +248,7 @@ export default function LoginPage() {
                   <f.icon size={18} color="currentColor" />
                 </div>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 4 }}>{f.title}</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', marginBottom: 4 }}>{f.title}</div>
                   <div style={{ fontSize: 12, lineHeight: 1.6, color: 'rgba(255,255,255,0.7)' }}>{f.desc}</div>
                 </div>
               </div>
@@ -360,7 +360,7 @@ export default function LoginPage() {
               border: 'none',
               background: 'var(--color-accent)',
               color: 'var(--text-inverse)',
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: 700,
               cursor: _submitting ? 'wait' : 'pointer',
               display: 'flex',

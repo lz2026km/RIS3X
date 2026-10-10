@@ -212,7 +212,7 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
                 padding: '10px 12px',
                 marginBottom: 10,
               }}>
-                <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: 13, marginBottom: 6 }}>
+                <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: 12, marginBottom: 6 }}>
                   {exam.examItemName}
                 </div>
                 <div style={{
@@ -298,7 +298,7 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
               border: '1px solid #1e40af',
               borderRadius: 8,
               cursor: 'pointer',
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: 600,
             }}
           >

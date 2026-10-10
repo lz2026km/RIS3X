@@ -112,7 +112,7 @@ export const QualityDashboard: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('qualityDashboard.pendingEvaluation')}</span>}
               value={dashboard.realtime.pendingEvaluation}
-              styles={{ content: {  color: '#fff', fontSize: 22  } }}
+              styles={{ content: {  color: '#fff', fontSize: 20  } }}
               prefix={<Layers size={16} />}
             />
           </Col>
@@ -120,7 +120,7 @@ export const QualityDashboard: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('qualityDashboard.completedToday')}</span>}
               value={dashboard.realtime.completedToday}
-              styles={{ content: {  color: '#bbf7d0', fontSize: 22  } }}
+              styles={{ content: {  color: '#bbf7d0', fontSize: 20  } }}
               prefix={<CheckCircle2 size={16} />}
             />
           </Col>
@@ -128,7 +128,7 @@ export const QualityDashboard: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>{t('qualityDashboard.inProgress')}</span>}
               value={dashboard.realtime.inProgressEvaluation}
-              styles={{ content: {  color: '#fff', fontSize: 22  } }}
+              styles={{ content: {  color: '#fff', fontSize: 20  } }}
               prefix={<Zap size={16} />}
             />
           </Col>
@@ -138,7 +138,7 @@ export const QualityDashboard: React.FC = () => {
               value={dashboard.realtime.criticalMissedToday}
               styles={{ content: { 
                 color: dashboard.realtime.criticalMissedToday > 0 ? '#fca5a5' : '#bbf7d0',
-                fontSize: 22,
+                fontSize: 20,
                } }}
               prefix={<AlertTriangle size={16} />}
             />

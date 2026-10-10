@@ -8,6 +8,7 @@ import {
   RefreshCw, Siren, TrendingUp, User, Users, Zap,
 } from 'lucide-react'
 import { techOverviewApi } from '../../services/api/techOverviewApi'
+import { DataTable } from '../../components/common'
 import type {
   AppointmentAttendance, AppointmentDistribution, AppointmentPeak, DashboardOverview,
   DistributionBucket, PeakAnalysis, RoomStatus, RoomStatusEvent, RoomStatusStream,
@@ -563,7 +564,7 @@ function RoomGrid({ rooms }: { rooms: RoomStatus[] }) {
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontWeight: 700, fontSize: 15 }}>{r.roomName}</span>
+              <span style={{ fontWeight: 700, fontSize: 14 }}>{r.roomName}</span>
               <Tag color={MODALITY_COLORS[r.modality]} style={{ marginRight: 0 }}>{r.modality}</Tag>
             </div>
             <span style={{
@@ -584,7 +585,7 @@ function RoomGrid({ rooms }: { rooms: RoomStatus[] }) {
           {r.currentExam ? (
             <div style={{ background: 'var(--bg-primary, #0d1117)', border: `1px solid ${C.border}`, borderRadius: 8, padding: '8px 10px' }}>
               <div style={{ fontSize: 11, color: C.textLight, marginBottom: 4 }}>{t('techOverview.inProgressExam', { time: fmtMin(r.currentExam.startedAt) })}</div>
-              <div style={{ fontSize: 13, marginBottom: 6 }}>
+              <div style={{ fontSize: 12, marginBottom: 6 }}>
                 <span style={{ color: C.text, fontWeight: 600 }}>{r.currentExam.patientName}</span>
                 <span style={{ color: C.textMid, marginLeft: 6 }}>{r.currentExam.examItem}</span>
               </div>
@@ -721,7 +722,7 @@ export default function TechOverviewPage() {
             <span style={{ fontSize: 12, color: C.textMid }}>{kpi.title}</span>
             <span style={{ color: kpi.color }}>{kpi.icon}</span>
           </div>
-          <div style={{ fontSize: 26, fontWeight: 700 }}>{kpi.value}</div>
+          <div style={{ fontSize: 24, fontWeight: 700 }}>{kpi.value}</div>
           <div style={{ fontSize: 11, color: C.textLight, marginTop: 2 }}>{kpi.sub}</div>
         </div>
       ))}
@@ -797,37 +798,29 @@ export default function TechOverviewPage() {
           <span style={{ fontSize: 12, color: C.textLight }}>{t('techOverview.attHint')}</span>
         </div>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 720, fontSize: 12 }}>
-            <thead>
-              <tr style={{ color: C.textMid, borderBottom: `1px solid ${C.border}` }}>
-                <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOverview.thExamType')}</th>
-                <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOverview.thApptCount')}</th>
-                <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOverview.thAttended')}</th>
-                <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOverview.thNoShow')}</th>
-                <th style={{ textAlign: 'left', padding: '6px 10px' }}>{t('techOverview.thCancelled')}</th>
-                <th style={{ textAlign: 'left', padding: '6px 10px', minWidth: 180 }}>{t('techOverview.thNoShowRate')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(att?.byModality ?? []).map((m) => (
-                <tr key={m.key} style={{ borderBottom: `1px solid ${C.border}` }}>
-                  <td style={{ padding: '8px 10px', fontWeight: 600, color: MODALITY_COLORS[m.key] ?? C.text }}>{m.key}</td>
-                  <td style={{ padding: '8px 10px', color: C.text }}>{m.total}</td>
-                  <td style={{ padding: '8px 10px', color: C.green }}>{m.attended}</td>
-                  <td style={{ padding: '8px 10px', color: m.noShow > 0 ? C.orange : C.textMid }}>{m.noShow}</td>
-                  <td style={{ padding: '8px 10px', color: C.textMid }}>{m.cancelled}</td>
-                  <td style={{ padding: '8px 10px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ flex: 1, background: C.bg, borderRadius: 4, height: 8, overflow: 'hidden', minWidth: 90 }}>
-                        <div style={{ width: `${m.noShowRate}%`, height: 8, background: m.noShowRate >= 15 ? C.red : m.noShowRate >= 10 ? C.orange : C.green, borderRadius: 4 }} />
-                      </div>
-                      <span style={{ fontWeight: 700, color: m.noShowRate >= 15 ? C.red : m.noShowRate >= 10 ? C.orange : C.green, width: 42, textAlign: 'right' }}>{m.noShowRate}%</span>
+          <DataTable
+            dataSource={att?.byModality ?? []}
+            rowKey="key"
+            pagination={false}
+            columns={[
+              { title: t('techOverview.thExamType'), dataIndex: 'key', render: (v: string) => <span style={{ fontWeight: 600, color: MODALITY_COLORS[v] ?? C.text }}>{v}</span> },
+              { title: t('techOverview.thApptCount'), dataIndex: 'total', render: (v: number) => <span style={{ color: C.text }}>{v}</span> },
+              { title: t('techOverview.thAttended'), dataIndex: 'attended', render: (v: number) => <span style={{ color: C.green }}>{v}</span> },
+              { title: t('techOverview.thNoShow'), dataIndex: 'noShow', render: (v: number) => <span style={{ color: v > 0 ? C.orange : C.textMid }}>{v}</span> },
+              { title: t('techOverview.thCancelled'), dataIndex: 'cancelled', render: (v: number) => <span style={{ color: C.textMid }}>{v}</span> },
+              {
+                title: t('techOverview.thNoShowRate'), dataIndex: 'noShowRate',
+                render: (v: number) => (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ flex: 1, background: C.bg, borderRadius: 4, height: 8, overflow: 'hidden', minWidth: 90 }}>
+                      <div style={{ width: `${v}%`, height: 8, background: v >= 15 ? C.red : v >= 10 ? C.orange : C.green, borderRadius: 4 }} />
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <span style={{ fontWeight: 700, color: v >= 15 ? C.red : v >= 10 ? C.orange : C.green, width: 42, textAlign: 'right' }}>{v}%</span>
+                  </div>
+                ),
+              },
+            ]}
+          />
         </div>
       </div>
     </div>
@@ -848,7 +841,7 @@ export default function TechOverviewPage() {
               <span style={{ fontSize: 12, color: C.textMid }}>{kpi.title}</span>
               <span style={{ color: kpi.color }}>{kpi.icon}</span>
             </div>
-            <div style={{ fontSize: 26, fontWeight: 700 }}>{kpi.value}</div>
+            <div style={{ fontSize: 24, fontWeight: 700 }}>{kpi.value}</div>
             <div style={{ fontSize: 11, color: C.textLight, marginTop: 2 }}>{kpi.sub}</div>
           </div>
         ))}

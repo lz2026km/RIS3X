@@ -1800,7 +1800,7 @@ export default function WorklistPage() {
          styles={{ body: { padding: 0 } }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#1e40af', lineHeight: 1 }}>{stats.total}</div>
+              <div style={{ fontSize: 30, fontWeight: 800, color: '#1e40af', lineHeight: 1 }}>{stats.total}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('worklistPage.stats.totalExams')}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
                 {t('worklistPage.stats.waiting')}: {stats.waiting}
@@ -1822,7 +1822,7 @@ export default function WorklistPage() {
          styles={{ body: { padding: 0 } }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#dc2626', lineHeight: 1 }}>{stats.critical}</div>
+              <div style={{ fontSize: 30, fontWeight: 800, color: '#dc2626', lineHeight: 1 }}>{stats.critical}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('worklistPage.stats.criticalUrgent')}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
                 {t('worklistPage.stats.slaOverdue')}: {slaCriticalExams.length}
@@ -1844,7 +1844,7 @@ export default function WorklistPage() {
          styles={{ body: { padding: 0 } }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#d97706', lineHeight: 1 }}>{stats.pending}</div>
+              <div style={{ fontSize: 30, fontWeight: 800, color: '#d97706', lineHeight: 1 }}>{stats.pending}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('worklistPage.stats.pending')}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
                 {t('worklistPage.stats.avgWait')}: {avgWaitMinutes}min
@@ -1866,7 +1866,7 @@ export default function WorklistPage() {
          styles={{ body: { padding: 0 } }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#059669', lineHeight: 1 }}>{stats.completed}</div>
+              <div style={{ fontSize: 30, fontWeight: 800, color: '#059669', lineHeight: 1 }}>{stats.completed}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('worklistPage.stats.completed')}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
                 {t('worklistPage.stats.inProgress')}: {stats.inProgress}{t('worklistPage.stats.items')}
@@ -1888,7 +1888,7 @@ export default function WorklistPage() {
           background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Clock size={13} /> {t('worklistPage.sla.title')}
             </div>
             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
@@ -1898,7 +1898,7 @@ export default function WorklistPage() {
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 18, height: 96 }}>
             {slaBuckets.map(b => (
               <div key={b.name} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: b.color }}>{b.value}</span>
+                <span style={{ fontSize: 12, fontWeight: 800, color: b.color }}>{b.value}</span>
                 <div style={{
                   width: '70%', height: `${Math.max(6, b.value)}px`, minHeight: 4, maxHeight: 60,
                   background: b.color, borderRadius: '4px 4px 0 0', transition: 'height 0.3s',
@@ -1926,7 +1926,7 @@ export default function WorklistPage() {
                     width: '72%', height: Math.max(2, Math.round((d.rate / 100) * 28)), borderRadius: 2,
                     background: d.rate > 50 ? '#dc2626' : d.rate > 25 ? '#d97706' : '#22c55e',
                   }} />
-                  <span style={{ fontSize: 9, color: 'var(--text-secondary)' }}>{d.day}</span>
+                  <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{d.day}</span>
                 </div>
               ))}
             </div>
@@ -1937,10 +1937,10 @@ export default function WorklistPage() {
         <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
           background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
         }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
             <CheckCircle2 size={13} /> {t('worklistPage.todayProgress.title')}
           </div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: '#059669', lineHeight: 1 }}>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#059669', lineHeight: 1 }}>
             {todayProgress.percent}%
           </div>
           <div style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '6px 0 10px' }}>
@@ -1959,7 +1959,7 @@ export default function WorklistPage() {
         <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
           background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
         }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
             <UserCheck size={13} /> {t('worklistPage.todayBatch.title')}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 10, marginBottom: 12 }}>
@@ -1995,7 +1995,7 @@ export default function WorklistPage() {
         <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
           background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
         }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Monitor size={13} /> {t('worklistPage.modalitySla.title')}
           </div>
           {modalitySla.length === 0 ? (
@@ -2026,7 +2026,7 @@ export default function WorklistPage() {
         <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
           background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
         }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
             <ClipboardList size={13} /> {t('worklistPage.hourly.title')} {t('worklistPage.hourRange')}
             {todayHourly.peakCount > 0 && (
               <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>
@@ -2057,7 +2057,7 @@ export default function WorklistPage() {
           background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
               <History size={13} /> {t('worklistPage.batchActivity.title')}
             </div>
             {batchActivity.length > 0 && (
@@ -2145,7 +2145,7 @@ export default function WorklistPage() {
           <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
             background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
           }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
               <LayoutDashboard size={13} /> {t('worklist.overview.title')}
               {overview?.date && (
                 <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>{overview.date}</span>
@@ -2203,7 +2203,7 @@ export default function WorklistPage() {
           <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
             background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
           }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Table2 size={13} /> {t('worklist.byModality.title')}
               <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>
                 GET /worklist/by-modality
@@ -2241,7 +2241,7 @@ export default function WorklistPage() {
           <Card bordered={false} styles={{ body: { padding: 0 } }} style={{
             background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: '14px 18px',
           }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Users size={13} /> {t('worklist.technicianStats.title')}
               <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>
                 GET /worklist/technician-stats
@@ -2512,7 +2512,7 @@ export default function WorklistPage() {
                 onClick={() => setDeviceSelectModalExam(null)}
               />
             </div>
-            <div style={{ marginBottom: 16, color: 'var(--text-secondary)', fontSize: 13 }}>{t('worklistPage.deviceSelect.currentExam')}{deviceSelectModalExam.examItemName}</div>
+            <div style={{ marginBottom: 16, color: 'var(--text-secondary)', fontSize: 12 }}>{t('worklistPage.deviceSelect.currentExam')}{deviceSelectModalExam.examItemName}</div>
             <div style={{ display: 'grid', gap: 8 }}>
               {initialModalityDevices.filter(d => d.modality === deviceSelectModalExam.modality).map(device => (
                 <div
@@ -2525,7 +2525,7 @@ export default function WorklistPage() {
                   display: 'flex', alignItems: 'center', gap: 8
                 }} onClick={() => void assignDevice(deviceSelectModalExam, device.id)}>
                   <Monitor size={16} style={{ color: '#1e40af' }} />
-                  <span style={{ fontSize: 13 }}>{device.name}</span>
+                  <span style={{ fontSize: 12 }}>{device.name}</span>
                   <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 'auto' }}>{device.status}</span>
                 </div>
               ))}
@@ -2558,7 +2558,7 @@ export default function WorklistPage() {
                 onClick={() => setDoctorSelectModalExam(null)}
               />
             </div>
-            <div style={{ marginBottom: 16, color: 'var(--text-secondary)', fontSize: 13 }}>
+            <div style={{ marginBottom: 16, color: 'var(--text-secondary)', fontSize: 12 }}>
               {t('worklistPage.doctorSelect.currentExam')}{doctorSelectModalExam.examItemName}（{doctorSelectModalExam.patientName}）
               <span style={{ marginLeft: 8, color: 'var(--text-secondary)', fontSize: 12 }}>
                 {t('worklistPage.doctorSelect.currentDoctor')}{doctorSelectModalExam.radiologistName || (doctorSelectModalExam.radiologistId ? doctorSelectModalExam.radiologistId : t('worklistPage.unassigned'))}
@@ -2587,7 +2587,7 @@ export default function WorklistPage() {
                       background: isAssigned ? '#f0f7ff' : '#fff',
                     }} onClick={() => void assignDoctor(doctorSelectModalExam, doctor.id)}>
                     <Stethoscope size={16} style={{ color: '#1e40af' }} />
-                    <span style={{ fontSize: 13, fontWeight: 600 }}>{doctor.name}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600 }}>{doctor.name}</span>
                     <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 'auto' }}>
                       {doctor.title || t('worklistPage.doctorSelect.radioDoctor')}
                       {isAssigned ? ` · ${t('worklistPage.doctorSelect.assigned')}` : ''}
@@ -2702,7 +2702,7 @@ export default function WorklistPage() {
             <div style={{ marginBottom: 16, padding: 16, background: 'var(--color-success-bg)', borderRadius: 8, border: '1px solid #bbf7d0' }}>
               <CheckCircle size={20} style={{ color: '#22c55e', marginBottom: 8 }} />
               <div style={{ fontSize: 14, color: '#166534' }}>{t('worklistPage.batchResult.done')}</div>
-              <div style={{ fontSize: 13, color: '#15803d', marginTop: 4 }}>{batchResultModalData.results[0]}</div>
+              <div style={{ fontSize: 12, color: '#15803d', marginTop: 4 }}>{batchResultModalData.results[0]}</div>
               {batchResultModalData.results.length > 1 && (
                 <div style={{ marginTop: 8, fontSize: 12, color: '#b45309', maxHeight: 120, overflow: 'auto' }}>
                   {batchResultModalData.results.slice(1).map((r, i) => <div key={i}>{r}</div>)}
@@ -2740,12 +2740,12 @@ export default function WorklistPage() {
                 onClick={() => setPrintPreviewModalData(null)}
               />
             </div>
-            <div style={{ marginBottom: 16, fontSize: 13, color: 'var(--text-secondary)' }}>
+            <div style={{ marginBottom: 16, fontSize: 12, color: 'var(--text-secondary)' }}>
               {t('worklistPage.printPreview.count', { count: printPreviewModalData.examIds.length })}
             </div>
             <div style={{ background: 'var(--content-bg)', padding: 16, borderRadius: 8, border: '1px solid var(--border-color)', marginBottom: 16 }}>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{t('worklistPage.printPreview.content')}</div>
-              <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                 {t('worklistPage.printPreview.reportList')}: {printPreviewModalData.examIds.join(', ')}
               </div>
             </div>
@@ -2829,7 +2829,7 @@ export default function WorklistPage() {
                   <label key={c.key} style={{
                     display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 8,
                     border: `1px solid ${isOn ? '#bfdbfe' : 'var(--border-color)'}`,
-                    background: isOn ? '#eff6ff' : 'var(--bg-card)', cursor: 'pointer', fontSize: 13,
+                    background: isOn ? '#eff6ff' : 'var(--bg-card)', cursor: 'pointer', fontSize: 12,
                   }}>
                     <input
                       type="checkbox"

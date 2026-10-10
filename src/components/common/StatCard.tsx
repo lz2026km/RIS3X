@@ -301,7 +301,7 @@ export function StatCard({
                 )}
                 {formattedValue}
                 {suffix !== undefined && (
-                <span style={{ fontSize: 13, fontWeight: 600, marginLeft: 2, color: "var(--text-secondary)" }}>
+                <span style={{ fontSize: 12, fontWeight: 600, marginLeft: 2, color: "var(--text-secondary)" }}>
                   {suffix}
                 </span>
               )}

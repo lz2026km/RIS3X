@@ -245,7 +245,7 @@ const RegionalCollaborationPage: React.FC = () => {
       <Space>
         <Building2 size={15} color="#1e40af" />
         <div>
-          <div style={{ fontWeight: 600, fontSize: 13 }}>{n}</div>
+          <div style={{ fontWeight: 600, fontSize: 12 }}>{n}</div>
           <Text type="secondary" style={{ fontSize: 11 }}>{r.aeTitle}</Text>
         </div>
       </Space>

@@ -105,7 +105,7 @@ const AiReviewPage: React.FC = () => {
               onChange={e => setReportText(e.target.value)}
               rows={12}
               placeholder={t('aiReviewPage.placeholder')}
-              style={{ fontFamily: 'monospace', fontSize: 13, lineHeight: 1.6, marginBottom: 12 }}
+              style={{ fontFamily: 'monospace', fontSize: 12, lineHeight: 1.6, marginBottom: 12 }}
             />
             {/* [G005 W1-Controls P1-9] 检查所见 / 诊断意见 (独立输入, 参与 AI 审核) */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
@@ -156,7 +156,7 @@ const AiReviewPage: React.FC = () => {
                       title={t('aiReviewPage.overallScore')}
                       value={result.overallScore}
                       suffix="/ 100"
-                      styles={{ content: {  color: scoreColor(result.overallScore), fontSize: 28  } }}
+                      styles={{ content: {  color: scoreColor(result.overallScore), fontSize: 30  } }}
                     />
                     <Progress
                       percent={result.overallScore}
@@ -183,7 +183,7 @@ const AiReviewPage: React.FC = () => {
                         <Tag color={severityColor(issue.severity)}>{severityLabel(issue.severity)}</Tag>
                         <Tag>{issue.category}</Tag>
                       </Space>
-                      <div style={{ marginTop: 4, fontSize: 13 }}>{issue.message}</div>
+                      <div style={{ marginTop: 4, fontSize: 12 }}>{issue.message}</div>
                       <div style={{ marginTop: 2, fontSize: 12, color: '#52c41a' }}>{t('aiReviewPage.suggestion')}：{issue.suggestion}</div>
                     </div>
                   ))}
@@ -193,7 +193,7 @@ const AiReviewPage: React.FC = () => {
               {result.suggestions.length > 0 && (
                 <Card title={<Space><ThumbsUp size={14} color="#52c41a" />{t('aiReviewPage.improvements')}</Space>} size="small">
                   {result.suggestions.map((s, idx) => (
-                    <div key={idx} style={{ padding: '6px 0', fontSize: 13 }}>
+                    <div key={idx} style={{ padding: '6px 0', fontSize: 12 }}>
                       <CheckCircle size={12} color="#52c41a" style={{ marginRight: 6 }} />
                       {s}
                     </div>

@@ -589,7 +589,7 @@ export default function CustomReportPage() {
               <div style={{ width: 38, height: 38, borderRadius: 10, background: card.bg, color: card.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{card.icon}</div>
               <div>
                 <div style={{ fontSize: 12, color: '#64748b' }}>{card.label}</div>
-                <div style={{ fontSize: 22, fontWeight: 700, color: card.color }}>{card.value}</div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: card.color }}>{card.value}</div>
               </div>
             </div>
           ))}

@@ -87,7 +87,7 @@ export default function NlpCheckPage() {
 
     return (
       <div style={{ marginTop: 12, padding: 12, background: "var(--bg-primary)", borderRadius: 8, border: "1px solid #e2e8f0" }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: "#1e293b", marginBottom: 8 }}>{t("highlightedText")}</div>
+        <div style={{ fontSize: 12, fontWeight: 600, color: "#1e293b", marginBottom: 8 }}>{t("highlightedText")}</div>
         <div style={{ lineHeight: 1.8 }}>
           {parts.map((p, i) =>
             p.highlight ? (
@@ -108,30 +108,30 @@ export default function NlpCheckPage() {
       <PageHeader icon={<FileText size={20} color="#3b82f6" />} title={t("title")} subtitle={t("subtitle")} />
       <div style={{ padding: 24 }}>
         <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-          <button onClick={() => setActiveTab("spell")} style={{ padding: "6px 16px", background: activeTab === "spell" ? "#1e40af" : "#fff", color: activeTab === "spell" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "spell" ? "#1e40af" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+          <button onClick={() => setActiveTab("spell")} style={{ padding: "6px 16px", background: activeTab === "spell" ? "#1e40af" : "#fff", color: activeTab === "spell" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "spell" ? "#1e40af" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
             <SpellCheck size={14} />{t("spellCheck")}
           </button>
-          <button onClick={() => setActiveTab("term")} style={{ padding: "6px 16px", background: activeTab === "term" ? "#1e40af" : "#fff", color: activeTab === "term" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "term" ? "#1e40af" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+          <button onClick={() => setActiveTab("term")} style={{ padding: "6px 16px", background: activeTab === "term" ? "#1e40af" : "#fff", color: activeTab === "term" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "term" ? "#1e40af" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
             <BookOpen size={14} />{t("terminology")}
           </button>
         </div>
 
         <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-          <label style={{ fontSize: 13, fontWeight: 600, color: "#1e293b", marginBottom: 8, display: "block" }}>{t("inputText")}</label>
+          <label style={{ fontSize: 12, fontWeight: 600, color: "#1e293b", marginBottom: 8, display: "block" }}>{t("inputText")}</label>
           <textarea
             value={text}
             onChange={e => setText(e.target.value)}
             rows={8}
-            style={{ width: "100%", padding: 12, border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 13, resize: "vertical", fontFamily: "monospace", lineHeight: 1.6 }}
+            style={{ width: "100%", padding: 12, border: "1px solid #cbd5e1", borderRadius: 6, fontSize: 12, resize: "vertical", fontFamily: "monospace", lineHeight: 1.6 }}
             placeholder={t("inputPlaceholder")}
           />
           {renderHighlighted()}
           <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
-            <button onClick={handleCheck} disabled={loading || !text.trim()} style={{ padding: "8px 20px", background: "#1e40af", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+            <button onClick={handleCheck} disabled={loading || !text.trim()} style={{ padding: "8px 20px", background: "#1e40af", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
               <CheckCircle size={14} />{loading ? t("checking") : t("check")}
             </button>
             {(spellResult || termResult) && (
-              <button onClick={applyAll} style={{ padding: "8px 20px", background: "#10b981", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+              <button onClick={applyAll} style={{ padding: "8px 20px", background: "#10b981", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
                 <Replace size={14} />{t("replaceAll")}
               </button>
             )}

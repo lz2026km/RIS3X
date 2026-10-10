@@ -280,7 +280,7 @@ const OctViewerPage: React.FC = () => {
                       background: selectedId === s.id ? 'var(--color-info-bg)' : 'var(--bg-card)',
                     }}
                   >
-                    <div style={{ fontSize: 13, fontWeight: 600 }}>{s.patientName} <Tag style={{ margin: 0, fontSize: 10 }}>{s.eyeSide}</Tag></div>
+                    <div style={{ fontSize: 12, fontWeight: 600 }}>{s.patientName} <Tag style={{ margin: 0, fontSize: 10 }}>{s.eyeSide}</Tag></div>
                     <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{s.id} · {s.studyDate ? s.studyDate.slice(0, 10) : '-'}</div>
                     <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{t('octViewer.frameCount', { count: s.images?.length ?? 0 })} · {s.device ?? ''}</div>
                   </div>

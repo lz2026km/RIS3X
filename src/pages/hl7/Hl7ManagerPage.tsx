@@ -164,7 +164,7 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
         <Col span={4}>
           <Card size="small" title={<Space><Activity size={14} />{t('hl7Page.mllpChannel')}</Space>}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: mllp?.running ? '#16a34a' : '#dc2626' }}>
+              <div style={{ fontSize: 30, fontWeight: 800, color: mllp?.running ? '#16a34a' : '#dc2626' }}>
                 {mllp?.running ? t('hl7Page.running') : t('hl7Page.stopped')}
               </div>
               <div style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>
@@ -179,7 +179,7 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
         <Col span={5}>
           <Card size="small" title={<Space><TrendingUp size={14} />{t('hl7Page.successRate24h')}</Space>}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: successRate >= 95 ? '#16a34a' : '#d97706' }}>{successRate}%</div>
+              <div style={{ fontSize: 30, fontWeight: 800, color: successRate >= 95 ? '#16a34a' : '#d97706' }}>{successRate}%</div>
               <div style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>
                 {t('hl7Page.success')} <b style={{ color: '#16a34a' }}>{health24h.success}</b> · {t('hl7Page.failed')} <b style={{ color: '#dc2626' }}>{health24h.failed}</b> · {t('hl7Page.pending')} <b style={{ color: '#d97706' }}>{health24h.pending}</b>
               </div>
@@ -189,7 +189,7 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
         <Col span={5}>
           <Card size="small" title={<Space><Send size={14} />{t('hl7Page.flow24h')}</Space>}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#2563eb' }}>{health24h.total}</div>
+              <div style={{ fontSize: 30, fontWeight: 800, color: '#2563eb' }}>{health24h.total}</div>
               <div style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>
                 {t('hl7Page.outbound')} <b style={{ color: '#2563eb' }}>{health24h.outbound}</b> · {t('hl7Page.inbound')} <b style={{ color: '#d97706' }}>{health24h.inbound}</b>
               </div>
@@ -199,7 +199,7 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
         <Col span={5}>
           <Card size="small" title={<Space><AlertTriangle size={14} />{t('hl7Page.errorMessages')}</Space>}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: errorTotal > 0 ? '#dc2626' : '#16a34a' }}>{errorTotal}</div>
+              <div style={{ fontSize: 30, fontWeight: 800, color: errorTotal > 0 ? '#dc2626' : '#16a34a' }}>{errorTotal}</div>
               <div style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>
                 {t('hl7Page.retryTotal')} <b style={{ color: '#d97706' }}>{errorTop.reduce((s, e) => s + e.retrySum, 0)}</b> {t('hl7Page.times')} · {t('hl7Page.typesUnit')} {errorTop.length} {t('hl7Page.classUnit')}
               </div>

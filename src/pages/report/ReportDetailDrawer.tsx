@@ -291,7 +291,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
         <div className="no-print" style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
           <FileText size={18} style={{ color: PRIMARY }} />
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: PRIMARY }}>{t('reportDetail.title')}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>{t('reportDetail.title')}</div>
             <div style={{ fontSize: 12, color: GRAY, marginTop: 1 }}>{report.reportId} · {report.accessionNumber}</div>
           </div>
           <StatusBadge status={reportStatus} size="md" />
@@ -338,7 +338,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
               style={{
                 padding: '10px 16px', border: 'none', background: 'transparent',
                 color: tab === tb.key ? PRIMARY : GRAY, fontWeight: tab === tb.key ? 700 : 500,
-                fontSize: 13, cursor: 'pointer',
+                fontSize: 12, cursor: 'pointer',
                 borderBottom: `2px solid ${tab === tb.key ? PRIMARY : 'transparent'}`,
                 display: 'flex', alignItems: 'center', gap: 6, marginBottom: -1,
               }}>
@@ -405,15 +405,15 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                 <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: '14px 16px', border: '1px solid var(--border-color)' }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>{t('reportDetail.examFindings')}</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>{highlightAnomalies(report.examFindings) || t('reportDetail.notFilled')}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>{highlightAnomalies(report.examFindings) || t('reportDetail.notFilled')}</div>
                 </div>
                 <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: '14px 16px', border: '1px solid var(--border-color)' }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>{t('reportDetail.diagnosis')}</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.8, whiteSpace: 'pre-wrap', fontWeight: 600 }}>{highlightAnomalies(report.diagnosis) || t('reportDetail.notFilled')}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.8, whiteSpace: 'pre-wrap', fontWeight: 600 }}>{highlightAnomalies(report.diagnosis) || t('reportDetail.notFilled')}</div>
                   {report.impression && report.impression !== report.diagnosis && (
                     <>
                       <div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, marginTop: 12, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>{t('reportDetail.impression')}</div>
-                      <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>{highlightAnomalies(report.impression)}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>{highlightAnomalies(report.impression)}</div>
                     </>
                   )}
                 </div>
@@ -458,7 +458,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
                 <History size={15} style={{ color: PRIMARY }} />
-                <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{t('reportDetail.historyVersions')}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{t('reportDetail.historyVersions')}</span>
                 <span style={{ fontSize: 12, color: GRAY }}>{t('reportDetail.versionCount', { count: historyVersions.length })}</span>
                 {/* [G005 W1-Controls P1-10] 历史版本显示/隐藏切换 */}
                 <button
@@ -482,7 +482,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
                       <div style={{ width: 32, height: 32, borderRadius: '50%', background: i === 0 ? PRIMARY : 'var(--border-color)', border: `2px solid ${i === 0 ? PRIMARY : 'var(--border-color)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: WHITE, fontSize: 12, fontWeight: 700, flexShrink: 0, zIndex: 1 }}>{i + 1}</div>
                       <div style={{ flex: 1, background: 'var(--bg-card)', borderRadius: 8, padding: '12px 16px', border: '1px solid var(--border-color)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                          <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{v.version}</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{v.version}</span>
                           <span style={{ fontSize: 12, color: GRAY, marginLeft: 'auto' }}>{v.time}</span>
                           <span style={{ fontSize: 12, color: GRAY }}>by {v.doctor}</span>
                         </div>
@@ -513,7 +513,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
               {/* [G005 Wave 8] 报告→危急值反向引用: 关联危急值列表 (级别/状态/时间 + 点击跳转 /critical-value) */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
                 <Zap size={15} style={{ color: DANGER }} />
-                <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{t('reportDetail.linkedCritical')}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{t('reportDetail.linkedCritical')}</span>
                 <span style={{ fontSize: 12, color: GRAY }}>{t('reportDetail.reverseRefCount', { count: linkedCritical.length })}</span>
               </div>
               {criticalLoading ? (
@@ -540,7 +540,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
                     >
                       <Zap size={15} style={{ color: DANGER, flexShrink: 0 }} />
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {cv.description || cv.finding || t('reportDetail.notFilledDesc')}
                         </div>
                         <div style={{ fontSize: 11, color: GRAY, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
@@ -565,7 +565,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
               {/* [v3.0.6.11-103 Wave 2A] 报告关联病灶列表 (GET /reports/:id/lesions) */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
                 <Target size={15} style={{ color: '#7c3aed' }} />
-                <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{t('reportDetail.lesionsTitle')}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{t('reportDetail.lesionsTitle')}</span>
                 <span style={{ fontSize: 12, color: GRAY }}>{t('reportDetail.reverseRefCount', { count: lesionItems.length })}</span>
               </div>
               {lesionLoading ? (
@@ -588,7 +588,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
                       <div key={String(l?.id ?? i)} style={{ padding: '10px 14px', borderRadius: 8, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                           <Target size={13} style={{ color: '#7c3aed', flexShrink: 0 }} />
-                          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{name}</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{name}</span>
                           {type && <span style={{ fontSize: 11, padding: '1px 6px', borderRadius: 4, background: 'rgba(124,58,237,0.1)', color: '#7c3aed', fontWeight: 600 }}>{type}</span>}
                           {status && <span style={{ fontSize: 11, padding: '1px 6px', borderRadius: 4, background: 'var(--color-info-bg)', color: 'var(--color-info)', fontWeight: 600, marginLeft: 'auto' }}>{status}</span>}
                         </div>
@@ -609,7 +609,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
               {/* [v3.0.6.11-103 Wave 2A] 报告关联信息 (GET /reports/:id/related: 检查/患者/既往报告/随访/危急值) */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
                 <Link2 size={15} style={{ color: '#0891b2' }} />
-                <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{t('reportDetail.relatedTitle')}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{t('reportDetail.relatedTitle')}</span>
                 <span style={{ fontSize: 12, color: GRAY }}>{t('reportDetail.relatedSub')}</span>
               </div>
               {relatedLoading ? (
@@ -708,7 +708,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
               <Printer size={48} style={{ color: '#cbd5e1', marginBottom: 16 }} />
               <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 8 }}>{t('reportDetail.printPreview')}</div>
               <p style={{ fontSize: 12, color: GRAY, marginBottom: 16 }}>{t('reportDetail.printHint')}</p>
-              <button onClick={() => onPrint(report)} style={{ padding: '10px 32px', borderRadius: 8, border: 'none', background: PRIMARY, color: WHITE, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+              <button onClick={() => onPrint(report)} style={{ padding: '10px 32px', borderRadius: 8, border: 'none', background: PRIMARY, color: WHITE, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
                 <Printer size={14} style={{ marginRight: 6, verticalAlign: 'middle' }} /> {t('reportDetail.print')}
               </button>
             </div>
@@ -718,7 +718,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
         <div className="no-print" style={{ padding: '12px 20px', borderTop: '1px solid var(--border-color)', display: 'flex', gap: 8, justifyContent: 'flex-end', flexShrink: 0 }}>
           {/* [v3.0.6.11-95 Wave2B P1] 报告列表 → 书写页入口 (可写态: 继续书写; 已发布/已签署: 查看) */}
           {onWrite && (
-            <button onClick={() => onWrite(report)} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#1e40af', color: WHITE, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button onClick={() => onWrite(report)} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#1e40af', color: WHITE, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Edit3 size={14} /> {isReportWritable(toEnState(report.status)) ? t('reportDetail.continueWriting') : t('reportDetail.view')}
             </button>
           )}
@@ -729,16 +729,16 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
             </button>
           )}
           {toEnState(report.status) === 'WRITING' && (
-            <button onClick={async () => { await useReportStore.getState().submit(report.id); onClose(); }} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#3182ce', color: WHITE, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button onClick={async () => { await useReportStore.getState().submit(report.id); onClose(); }} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#3182ce', color: WHITE, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
               <CheckCircle size={14} /> {t('reportDetail.submitReview')}
             </button>
           )}
           {['SUBMITTED', 'INITIAL_REVIEW'].includes(toEnState(report.status)) && (
-            <button onClick={() => { setPendingReviewReport(report); setShowMfa(true); }} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#6d28d9', color: WHITE, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button onClick={() => { setPendingReviewReport(report); setShowMfa(true); }} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#6d28d9', color: WHITE, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
               <ShieldCheck size={14} /> {t('reportDetail.reviewReport')}
             </button>
           )}
-          <button onClick={() => onExportPDF(report)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button onClick={() => onExportPDF(report)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Download size={14} /> {t('reportDetail.exportPdf')}
           </button>
           {/* [v3.0.6.11-99 Wave7B] 离线报告包: 保存 HTML 快照 (断网可浏览) */}
@@ -748,7 +748,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
             </button>
           )}
           {onGenerateSr && (
-            <button onClick={() => onGenerateSr(report)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid #0891b2', background: 'var(--color-info-bg)', color: 'var(--color-info)', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button onClick={() => onGenerateSr(report)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid #0891b2', background: 'var(--color-info-bg)', color: 'var(--color-info)', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
               <FileCheck2 size={14} /> {t('reportDetail.generateSr')}
             </button>
           )}
@@ -820,10 +820,10 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
               <Users size={13} /> {t('reportDetail.startCommittee')}
             </button>
           )}
-          <button onClick={() => onPrint(report)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button onClick={() => onPrint(report)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Printer size={14} /> {t('reportDetail.print')}
           </button>
-          <button onClick={onClose} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('reportDetail.close')}</button>
+          <button onClick={onClose} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('reportDetail.close')}</button>
         </div>
       </div>
       {showMfa && pendingReviewReport && (
@@ -841,34 +841,34 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, width: 440, maxWidth: '100%', padding: 20, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
               <Archive size={16} style={{ color: '#1e40af' }} />
-              <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>{t('reportDetail.archivePolicyTitle')}</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{t('reportDetail.archivePolicyTitle')}</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
                 <input type="checkbox" checked={policyForm.enabled} onChange={(e) => setPolicyForm(f => ({ ...f, enabled: e.target.checked }))} />
                 {t('reportDetail.archiveEnabled')}
               </label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
                 <span style={{ width: 90, color: 'var(--text-secondary, #475569)' }}>{t('reportDetail.archiveDays')}</span>
-                <input type="number" min={1} max={36500} value={policyForm.archiveAfterDays} onChange={(e) => setPolicyForm(f => ({ ...f, archiveAfterDays: Number(e.target.value) || 1 }))} style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13 }} />
+                <input type="number" min={1} max={36500} value={policyForm.archiveAfterDays} onChange={(e) => setPolicyForm(f => ({ ...f, archiveAfterDays: Number(e.target.value) || 1 }))} style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12 }} />
                 <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{t('reportDetail.daysUnit')}</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
                 <span style={{ width: 90, color: 'var(--text-secondary, #475569)' }}>{t('reportDetail.archiveTier')}</span>
-                <select value={policyForm.targetTier} onChange={(e) => setPolicyForm(f => ({ ...f, targetTier: e.target.value as 'archive' | 'cold' }))} style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, background: 'var(--bg-card)' }}>
+                <select value={policyForm.targetTier} onChange={(e) => setPolicyForm(f => ({ ...f, targetTier: e.target.value as 'archive' | 'cold' }))} style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)' }}>
                   <option value="archive">{t('reportDetail.tierArchive')}</option>
                   <option value="cold">{t('reportDetail.tierCold')}</option>
                 </select>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
                 <span style={{ width: 90, color: 'var(--text-secondary, #475569)' }}>{t('reportDetail.archiveDeleteDays')}</span>
-                <input type="number" min={0} value={policyForm.deleteSourceAfterDays ?? 0} onChange={(e) => setPolicyForm(f => ({ ...f, deleteSourceAfterDays: Number(e.target.value) > 0 ? Number(e.target.value) : null }))} style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13 }} />
+                <input type="number" min={0} value={policyForm.deleteSourceAfterDays ?? 0} onChange={(e) => setPolicyForm(f => ({ ...f, deleteSourceAfterDays: Number(e.target.value) > 0 ? Number(e.target.value) : null }))} style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12 }} />
                 <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{t('reportDetail.daysAfterNoDelete')}</span>
               </div>
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 18 }}>
-              <button onClick={() => setPolicyEditOpen(false)} style={{ padding: '6px 16px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary, #475569)', fontSize: 13, cursor: 'pointer' }}>{t('reportDetail.cancel')}</button>
-              <button onClick={() => void savePolicy()} disabled={policySaving} style={{ padding: '6px 16px', borderRadius: 6, border: 'none', background: '#1e40af', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }} data-testid="save-archive-policy">
+              <button onClick={() => setPolicyEditOpen(false)} style={{ padding: '6px 16px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary, #475569)', fontSize: 12, cursor: 'pointer' }}>{t('reportDetail.cancel')}</button>
+              <button onClick={() => void savePolicy()} disabled={policySaving} style={{ padding: '6px 16px', borderRadius: 6, border: 'none', background: '#1e40af', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }} data-testid="save-archive-policy">
                 {policySaving ? t('reportDetail.archiveSaving') : t('reportDetail.archiveSave')}
               </button>
             </div>

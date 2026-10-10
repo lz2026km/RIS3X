@@ -205,7 +205,7 @@ export const Scan3DViewerPage: React.FC = () => {
       <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
         <div style={{ width: 260, background: '#0f172a', padding: 12, overflow: 'auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <span style={{ color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600 }}>{t('scan3d.scanRecords')}</span>
+            <span style={{ color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600 }}>{t('scan3d.scanRecords')}</span>
             <Button size="small" icon={<RefreshCw size={11} />} onClick={() => void loadScans()} />
           </div>
           {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 8, fontSize: 12 }} />}
@@ -225,7 +225,7 @@ export const Scan3DViewerPage: React.FC = () => {
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <b style={{ color: '#e2e8f0', fontSize: 13 }}>{s.patientName}</b>
+                  <b style={{ color: '#e2e8f0', fontSize: 12 }}>{s.patientName}</b>
                   <Badge status={s.status === 'archived' ? 'default' : 'processing'} />
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
@@ -255,7 +255,7 @@ export const Scan3DViewerPage: React.FC = () => {
           )}
           {study && (
             <div style={{ position: 'absolute', left: 12, bottom: 12, width: 280, background: 'rgba(15,23,42,0.88)', border: '1px solid #1e293b', borderRadius: 8, padding: 12, color: '#e2e8f0' }}>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t('scan3d.modelInfo')}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>{t('scan3d.modelInfo')}</div>
               <Descriptions column={1} size="small" colon={false}>
                 <Descriptions.Item label={t('scan3d.patient')}><span style={{ fontSize: 12 }}>{study.patientName}</span></Descriptions.Item>
                 <Descriptions.Item label={t('scan3d.scanType')}><span style={{ fontSize: 12 }}>{study.scanType ?? study.modality}</span></Descriptions.Item>

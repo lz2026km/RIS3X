@@ -15,6 +15,7 @@ import { breastDoseRecords } from "./mockData";
 import { getAlertBadge } from "./utils";
 import type { BreastDoseRecord } from "./types";
 import { rdsrApi } from "../../services/api/rdsrApi";
+import { DataTable } from "../../components/common";
 import { LoadingBanner, ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
 import ChartContainer from "../../components/charts/ChartContainer";
@@ -121,7 +122,7 @@ export default function BreastDoseTracking() {
           }}
         >
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
               乳腺摄影AGD剂量追踪
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
@@ -203,7 +204,7 @@ export default function BreastDoseTracking() {
       >
         <div
           style={{
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: 700,
             color: "#1e40af",
             marginBottom: 16,
@@ -212,107 +213,57 @@ export default function BreastDoseTracking() {
           乳腺剂量检查记录
         </div>
         <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ background: "var(--bg-primary)" }}>
-                {[
-                  "患者姓名",
-                  "年龄",
-                  "检查日期",
-                  "AGD(mGy)",
-                  "参考值",
-                  "状态",
-                  "召回状态",
-                  "设备",
-                ].map((h) => (
-                  <th
-                    key={h}
-                    style={{
-                      padding: "10px 12px",
-                      textAlign: "center",
-                      fontSize: 12,
-                      fontWeight: 700,
-                      color: "#64748b",
-                      borderBottom: "2px solid #e2e8f0",
-                    }}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {records.map((record: BreastDoseRecord, i: number) => {
-                const badge = getAlertBadge(record.alertLevel);
-                return (
-                  <tr
-                    key={record.id}
-                    style={{ background: i % 2 === 0 ? "var(--bg-card)" : "var(--bg-primary)" }}
-                  >
-                    <td style={tdPrimary}>{record.patientName}</td>
-                    <td style={tdSecondary}>{record.age}</td>
-                    <td style={tdMuted}>{record.examDate}</td>
-                    <td
+          <DataTable
+            rowKey="id"
+            dataSource={records}
+            showPagination={false}
+            showExport={false}
+            showDensity={false}
+            columns={[
+              { title: "患者姓名", dataIndex: "patientName", key: "patientName", align: "center", render: (v: string) => <span style={{ fontWeight: 600, color: "#1e40af" }}>{v}</span> },
+              { title: "年龄", dataIndex: "age", key: "age", align: "center", render: (v: number) => <span style={{ color: "#334155" }}>{v}</span> },
+              { title: "检查日期", dataIndex: "examDate", key: "examDate", align: "center", render: (v: string) => <span style={{ color: "#64748b" }}>{v}</span> },
+              {
+                title: "AGD(mGy)", dataIndex: "agd", key: "agd", align: "center",
+                render: (v: number, record: BreastDoseRecord) => (
+                  <span style={{ fontWeight: 700, color: record.agd > 6 ? "#dc2626" : "#16a34a" }}>{v}</span>
+                ),
+              },
+              { title: "参考值", dataIndex: "referenceValue", key: "referenceValue", align: "center", render: (v: number) => <span style={{ color: "#64748b" }}>{v}</span> },
+              {
+                title: "状态", dataIndex: "alertLevel", key: "alertLevel", align: "center",
+                render: (v: BreastDoseRecord["alertLevel"]) => {
+                  const badge = getAlertBadge(v);
+                  return (
+                    <span
                       style={{
-                        ...tdSecondary,
+                        padding: "2px 8px",
+                        background: badge.bg,
+                        color: badge.color,
+                        borderRadius: 4,
+                        fontSize: 12,
                         fontWeight: 700,
-                        color: record.agd > 6 ? "#dc2626" : "#16a34a",
                       }}
                     >
-                      {record.agd}
-                    </td>
-                    <td style={tdMuted}>{record.referenceValue}</td>
-                    <td style={{ padding: "10px 12px", textAlign: "center" }}>
-                      <span
-                        style={{
-                          padding: "2px 8px",
-                          background: badge.bg,
-                          color: badge.color,
-                          borderRadius: 4,
-                          fontSize: 12,
-                          fontWeight: 700,
-                        }}
-                      >
-                        {badge.label}级
-                      </span>
-                    </td>
-                    <td style={{ padding: "10px 12px", textAlign: "center" }}>
-                      {record.recallStatus === "none" ? (
-                        <span style={{ fontSize: 12, color: "#16a34a" }}>无需召回</span>
-                      ) : record.recallStatus === "recalled" ? (
-                        <span
-                          style={{
-                            padding: "2px 8px",
-                            background: "#fffbeb",
-                            color: "#d97706",
-                            borderRadius: 4,
-                            fontSize: 12,
-                            fontWeight: 600,
-                          }}
-                        >
-                          待重拍
-                        </span>
-                      ) : (
-                        <span
-                          style={{
-                            padding: "2px 8px",
-                            background: "#f0fdf4",
-                            color: "#16a34a",
-                            borderRadius: 4,
-                            fontSize: 12,
-                            fontWeight: 600,
-                          }}
-                        >
-                          已完成
-                        </span>
-                      )}
-                    </td>
-                    <td style={tdSecondary}>{record.device}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      {badge.label}级
+                    </span>
+                  );
+                },
+              },
+              {
+                title: "召回状态", dataIndex: "recallStatus", key: "recallStatus", align: "center",
+                render: (v: BreastDoseRecord["recallStatus"]) =>
+                  v === "none" ? (
+                    <span style={{ fontSize: 12, color: "#16a34a" }}>无需召回</span>
+                  ) : v === "recalled" ? (
+                    <span style={{ padding: "2px 8px", background: "#fffbeb", color: "#d97706", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>待重拍</span>
+                  ) : (
+                    <span style={{ padding: "2px 8px", background: "#f0fdf4", color: "#16a34a", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>已完成</span>
+                  ),
+              },
+              { title: "设备", dataIndex: "device", key: "device", align: "center", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
+            ]}
+          />
         </div>
       </div>
     </div>
@@ -351,25 +302,3 @@ const Legend = ({ color, label }: { color: string; label: string }) => (
     <span style={{ fontSize: 12, color: "#64748b" }}>{label}</span>
   </div>
 );
-
-const tdPrimary: React.CSSProperties = {
-  padding: "10px 12px",
-  fontSize: 12,
-  fontWeight: 600,
-  color: "#1e40af",
-  textAlign: "center",
-};
-
-const tdSecondary: React.CSSProperties = {
-  padding: "10px 12px",
-  fontSize: 12,
-  color: "#334155",
-  textAlign: "center",
-};
-
-const tdMuted: React.CSSProperties = {
-  padding: "10px 12px",
-  fontSize: 12,
-  color: "#64748b",
-  textAlign: "center",
-};

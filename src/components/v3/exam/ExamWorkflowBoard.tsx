@@ -144,7 +144,7 @@ export const ExamWorkflowBoard: React.FC<ExamWorkflowBoardProps> = ({ items, onA
               <div style={{ marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Space size={4}>
                   {s.icon}
-                  <span style={{ fontWeight: 600, fontSize: 13 }}>{s.title}</span>
+                  <span style={{ fontWeight: 600, fontSize: 12 }}>{s.title}</span>
                   <Badge count={list.length} showZero color={s.color} />
                 </Space>
               </div>
@@ -168,7 +168,7 @@ export const ExamWorkflowBoard: React.FC<ExamWorkflowBoardProps> = ({ items, onA
                         <Tag color={p.color}>{p.label}</Tag>
                         {i.critical && <Tag color="red" icon={<AlertCircle size={10} />}>{t('w9e.examWorkflow.critical')}</Tag>}
                       </Space>
-                      <div style={{ fontWeight: 500, fontSize: 13, marginTop: 4 }}>{i.patientName}</div>
+                      <div style={{ fontWeight: 500, fontSize: 12, marginTop: 4 }}>{i.patientName}</div>
                       <div style={{ fontSize: 12, color: '#94a3b8' }}>{i.patientId}</div>
                       {i.device && (
                         <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>

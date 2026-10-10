@@ -27,7 +27,7 @@ export default function DoseTrendChart({
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 16 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", marginBottom: 16 }}>
             {t("doseTrack.trend.overview") || "各类设备剂量趋势（本周DLP合计）"}
           </div>
           <ChartContainer height={220} state={doseHistoryData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无剂量趋势数据">
@@ -45,7 +45,7 @@ export default function DoseTrendChart({
         </div>
 
         <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 16 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", marginBottom: 16 }}>
             {t("doseTrack.ctdiTrend.title")}
           </div>
           <ChartContainer height={220} state={ctdivolTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无CTDI趋势数据">
@@ -65,7 +65,7 @@ export default function DoseTrendChart({
       <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>{t("doseTrack.deviceDap.title")}</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>{t("doseTrack.deviceDap.title")}</div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{t("doseTrack.deviceDap.subtitle")}</div>
           </div>
         </div>
@@ -82,7 +82,7 @@ export default function DoseTrendChart({
       </div>
 
       <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 16 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", marginBottom: 16 }}>
           {t("doseTrack.device.statusLabel") || "设备今日剂量状态"}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>

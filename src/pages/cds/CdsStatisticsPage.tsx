@@ -24,7 +24,7 @@ function StatCard({ title, value, unit, icon: Icon, trend, trendValue, color }: 
         <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{title}</span>
         <Icon size={20} style={{ color }} />
       </div>
-      <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--text-primary, #f0f6fc)', marginBottom: 4 }}>
+      <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--text-primary, #f0f6fc)', marginBottom: 4 }}>
         {value}{unit && <span style={{ fontSize: 14, fontWeight: 400, color: '#6e7681', marginLeft: 4 }}>{unit}</span>}
       </div>
       {trend && (
@@ -103,12 +103,12 @@ export default function CdsStatisticsPage() {
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           {PERIOD_OPTIONS.map(opt => (
-            <button key={opt.value} onClick={() => setPeriod(opt.value)} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: period === opt.value ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.1)', color: '#fff' }}>
+            <button key={opt.value} onClick={() => setPeriod(opt.value)} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: period === opt.value ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.1)', color: '#fff' }}>
               {t(opt.label)}
             </button>
           ))}
           <ActionButton action="refresh" onClick={() => setReloadTick(n => n + 1)}>{t('w1tables.refresh')}</ActionButton>
-          <button onClick={() => { const csv = 'CDS统计报表\n总规则数,采纳率,覆盖次数,路径完成率\n' + overview.totalRules + ',' + (overview.suggestionAcceptanceRate * 100).toFixed(0) + '%,' + overview.totalOverrides + ',' + (overview.pathwayCompletionRate * 100).toFixed(0) + '%'; const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'CDS统计报表.csv'; a.click(); URL.revokeObjectURL(url); }} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: 'rgba(255,255,255,0.15)', color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button onClick={() => { const csv = 'CDS统计报表\n总规则数,采纳率,覆盖次数,路径完成率\n' + overview.totalRules + ',' + (overview.suggestionAcceptanceRate * 100).toFixed(0) + '%,' + overview.totalOverrides + ',' + (overview.pathwayCompletionRate * 100).toFixed(0) + '%'; const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'CDS统计报表.csv'; a.click(); URL.revokeObjectURL(url); }} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: 'rgba(255,255,255,0.15)', color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Download size={14} />{t('cdsStats.export')}
           </button>
         </div>
@@ -146,7 +146,7 @@ export default function CdsStatisticsPage() {
               <div key={r.ruleId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < 2 ? '1px solid var(--bg-secondary, #21262d)' : 'none' }}>
                 <span style={{ width: 24, height: 24, borderRadius: '50%', background: i === 0 ? '#ef4444' : i === 1 ? '#f59e0b' : '#3b82f6', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 600 }}>{i + 1}</span>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, color: 'var(--text-primary, #f0f6fc)' }}>{r.ruleName}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-primary, #f0f6fc)' }}>{r.ruleName}</div>
                   <div style={{ fontSize: 12, color: '#6e7681' }}>{r.ruleId}</div>
                 </div>
                 <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary, #f0f6fc)' }}>{r.count}</span>
@@ -162,7 +162,7 @@ export default function CdsStatisticsPage() {
               <div key={p.pathwayId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < 1 ? '1px solid var(--bg-secondary, #21262d)' : 'none' }}>
                 <RouteIcon color="var(--color-success-500, #22c55e)" />
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, color: 'var(--text-primary, #f0f6fc)' }}>{p.pathwayName}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-primary, #f0f6fc)' }}>{p.pathwayName}</div>
                   <div style={{ fontSize: 12, color: '#6e7681' }}>{p.pathwayId}</div>
                 </div>
                 <span style={{ fontSize: 16, fontWeight: 700, color: '#22c55e' }}>{p.activationCount}</span>
@@ -181,7 +181,7 @@ export default function CdsStatisticsPage() {
                 { label: 'cdsStats.pathwayCompletionRate', value: `${(overview.pathwayCompletionRate * 100).toFixed(0)}%`, color: '#22c55e' },
               ].map(item => (
                 <div key={item.label} style={{ padding: '12px', background: 'var(--bg-primary, #0d1117)', borderRadius: 6, textAlign: 'center' }}>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: item.color }}>{item.value}</div>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: item.color }}>{item.value}</div>
                   <div style={{ fontSize: 12, color: '#6e7681', marginTop: 4 }}>{t(item.label)}</div>
                 </div>
               ))}

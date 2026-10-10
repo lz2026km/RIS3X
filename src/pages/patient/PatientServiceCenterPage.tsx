@@ -806,7 +806,7 @@ export default function PatientServiceCenterPage() {
         <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? t('w12Patient.sourceApi') : t('w12Patient.sourceDemo')}</Tag>
         <Button icon={<RefreshCw size={14} />} loading={loading} onClick={() => void loadAll()}>{t('w12Patient.refresh')}</Button>
       </Space>
-      <div style={{ marginBottom: 16, color: 'var(--text-secondary)', fontSize: 13 }}>{t('w12Patient.subtitle')}</div>
+      <div style={{ marginBottom: 16, color: 'var(--text-secondary)', fontSize: 12 }}>{t('w12Patient.subtitle')}</div>
 
       <Tabs activeKey={tab} onChange={setTab} items={[
         { key: 'wechat', label: t('w12Patient.tab.wechat'), children: wechatTab },

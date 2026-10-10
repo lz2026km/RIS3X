@@ -5,7 +5,7 @@ import {
   Award, Edit3, Save, UserPlus, Eye,
   Megaphone, CalendarClock, Pin, PinOff, Trash2,
 } from "lucide-react";
-import { PageContainer } from "../components/common";
+import { PageContainer, DataTable } from "../components/common";
 import { message } from "antd";
 // [W2-A] 真实 API: userApi(员工/资质) + deviceApi(设备) + criticalExtApi(危急值规则) + statsApi(质控)
 import { userApi } from "../services/api/userApi";
@@ -394,7 +394,7 @@ export default function DepartmentPage() {
   const panel = { background: C.white, borderRadius: 8, boxShadow: "0 1px 3px rgba(0,0,0,0.1)", border: `1px solid ${C.borderLight}`, overflow: "hidden" };
   const pH = { padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}`, fontSize: 14, fontWeight: 600, color: C.textDark, display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--bg-card)" };
   const pB = { padding: 16 };
-  const tb = (a: boolean) => ({ padding: "10px 16px", border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: a ? 600 : 400, color: a ? C.primary : C.textMid, borderBottom: a ? `2px solid ${C.primary}` : "2px solid transparent", marginBottom: -1 });
+  const tb = (a: boolean) => ({ padding: "10px 16px", border: "none", background: "none", cursor: "pointer", fontSize: 12, fontWeight: a ? 600 : 400, color: a ? C.primary : C.textMid, borderBottom: a ? `2px solid ${C.primary}` : "2px solid transparent", marginBottom: -1 });
   // [G005 Wave3A P2] 公告/值班 tab 内嵌小按钮与表头样式
   const miniBtn = (color: string) => ({ padding: "3px 10px", borderRadius: 4, border: `1px solid ${color}55`, background: `${color}14`, color, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 });
   const thStyle = { padding: "8px 10px", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 };
@@ -410,7 +410,7 @@ export default function DepartmentPage() {
         <div onClick={() => { setSelectedOrg(node); if (hasChildren) toggleOrg(node.id); }} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", marginLeft: depth * 20, cursor: "pointer", borderRadius: 6, background: selectedOrg?.id === node.id ? C.primaryLighter : "transparent", border: `1px solid ${selectedOrg?.id === node.id ? C.primary : "transparent"}`, transition: "all 0.15s" }}>
           {hasChildren ? (isExp ? <ChevronDown size={14} color={C.textMid} /> : <ChevronRight size={14} color={C.textMid} />) : <div style={{ width: 14 }} />}
           <div style={{ width: 8, height: 8, borderRadius: 2, background: tColors[node.type] }} />
-          <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{node.name}</div><div style={{ fontSize: 12, color: C.textLight }}>{node.type === "hospital" ? t("deptPage.hospital") : node.type === "department" ? t("deptPage.department") : node.type === "section" ? t("deptPage.section") : t("deptPage.group")}{node.headName && ` · ${node.headName}`}{node.staffCount && ` · ${node.staffCount}人`}</div></div>
+          <div style={{ flex: 1 }}><div style={{ fontSize: 12, fontWeight: 500, color: C.textDark }}>{node.name}</div><div style={{ fontSize: 12, color: C.textLight }}>{node.type === "hospital" ? t("deptPage.hospital") : node.type === "department" ? t("deptPage.department") : node.type === "section" ? t("deptPage.section") : t("deptPage.group")}{node.headName && ` · ${node.headName}`}{node.staffCount && ` · ${node.staffCount}人`}</div></div>
         </div>
         {hasChildren && isExp && node.children?.map((child) => renderOrgNode(child, depth + 1))}
       </div>
@@ -528,7 +528,7 @@ export default function DepartmentPage() {
       {activeAnnouncements.length > 0 && (
         <div data-testid="dept-active-announcements" style={{ display: "flex", flexDirection: "column", gap: 6, margin: "0 16px 12px", padding: "10px 14px", background: "var(--color-warning-bg)", border: "1px solid var(--color-warning-border)", borderRadius: 8 }}>
           {activeAnnouncements.slice(0, 3).map((a) => (
-            <div key={a.id} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+            <div key={a.id} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
               {a.pinned ? <Pin size={13} color={C.warning} /> : <Megaphone size={13} color={C.info} />}
               <strong style={{ color: C.textDark, whiteSpace: "nowrap" }}>{a.title}</strong>
               <span style={{ color: C.textMid, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.content}</span>
@@ -593,24 +593,24 @@ export default function DepartmentPage() {
             <div style={panel}>
               <div style={pH}><span>{t("deptPage.qcConfig")}</span><span style={{ fontSize: 12, color: C.success }}>{dataSource === 'api' ? t("deptPage.apiLive") : t("deptPage.demoData")} · {t("deptPage.allPass")}</span></div>
               <div style={pB}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-                  <thead><tr style={{ background: "var(--bg-card)" }}><th style={{ padding: "8px 10px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>{t("deptPage.metric")}</th><th style={{ padding: "8px 10px", textAlign: "center", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>{t("deptPage.target")}</th><th style={{ padding: "8px 10px", textAlign: "center", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>{t("deptPage.current")}</th><th style={{ padding: "8px 10px", textAlign: "center", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>{t("deptPage.status")}</th></tr></thead>
-                  <tbody>{qcStandards.map((qc) => (
-                    <tr key={qc.id} style={{ borderBottom: `1px solid ${C.borderLight}` }}>
-                      <td style={{ padding: "8px 10px", color: C.textDark }}>{qc.item}</td>
-                      <td style={{ padding: "8px 10px", textAlign: "center", color: C.textMid }}>{qc.target}</td>
-                      <td style={{ padding: "8px 10px", textAlign: "center", color: C.textDark, fontWeight: 500 }}>{qc.current}</td>
-                      <td style={{ padding: "8px 10px", textAlign: "center" }}><span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 12, background: C.successBg, color: C.success }}>{t("deptPage.pass")}</span></td>
-                    </tr>
-                  ))}</tbody>
-                </table>
+                <DataTable
+                  dataSource={qcStandards}
+                  rowKey="id"
+                  pagination={false}
+                  columns={[
+                    { title: t("deptPage.metric"), dataIndex: "item", render: (v: string) => <span style={{ color: C.textDark }}>{v}</span> },
+                    { title: t("deptPage.target"), dataIndex: "target", align: "center", render: (v: string) => <span style={{ color: C.textMid }}>{v}</span> },
+                    { title: t("deptPage.current"), dataIndex: "current", align: "center", render: (v: string) => <span style={{ color: C.textDark, fontWeight: 500 }}>{v}</span> },
+                    { title: t("deptPage.status"), key: "status", align: "center", render: () => <span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 12, background: C.successBg, color: C.success }}>{t("deptPage.pass")}</span> },
+                  ]}
+                />
               </div>
             </div>
             <div style={panel}>
               <div style={pH}><span>{t("deptPage.criticalValueConfig")}</span><span style={{ fontSize: 12, color: C.textLight }}>{dataSource === 'api' ? t("deptPage.criticalApiLive") : t("deptPage.demoData")}</span></div>
               <div style={pB}>{criticalValues.map((cv) => (
                 <div key={cv.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", background: "var(--bg-card)", borderRadius: 6, marginBottom: 8, borderLeft: `3px solid ${cv.alertLevel === "critical" ? C.danger : C.warning}` }}>
-                  <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{cv.type}</div><div style={{ fontSize: 12, color: C.textMid }}>{cv.modality ? `${cv.modality} · ` : ''}{t("deptPage.threshold")}: {cv.threshold} · {cv.description}</div></div>
+                  <div style={{ flex: 1 }}><div style={{ fontSize: 12, fontWeight: 500, color: C.textDark }}>{cv.type}</div><div style={{ fontSize: 12, color: C.textMid }}>{cv.modality ? `${cv.modality} · ` : ''}{t("deptPage.threshold")}: {cv.threshold} · {cv.description}</div></div>
                   <span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 12, background: cv.alertLevel === "critical" ? C.dangerBg : C.warningBg, color: cv.alertLevel === "critical" ? C.danger : C.warning }}>{cv.alertLevel === "critical" ? t("deptPage.criticalShort") : t("deptPage.urgentShort")}</span>
                 </div>
               ))}</div>
@@ -629,16 +629,16 @@ export default function DepartmentPage() {
               <div>
                 <div style={{ fontSize: 18, fontWeight: 700, color: C.textDark, marginBottom: 8 }}>{selectedOrg.name}</div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
-                  <div><span style={{ color: C.textMid, fontSize: 12 }}>{t("deptPage.typeLabel")}</span><span style={{ fontSize: 13, color: C.textDark }}>{selectedOrg.type === "hospital" ? t("deptPage.hospital") : selectedOrg.type === "department" ? t("deptPage.department") : selectedOrg.type === "section" ? t("deptPage.section") : t("deptPage.group")}</span></div>
-                  <div><span style={{ color: C.textMid, fontSize: 12 }}>{t("deptPage.ownerLabel")}</span><span style={{ fontSize: 13, color: C.textDark }}>{selectedOrg.headName || "-"}</span></div>
-                  <div><span style={{ color: C.textMid, fontSize: 12 }}>{t("deptPage.staffCountLabel")}</span><span style={{ fontSize: 13, color: C.textDark }}>{selectedOrg.staffCount || "-"}</span></div>
-                  <div><span style={{ color: C.textMid, fontSize: 12 }}>{t("deptPage.nodeIdLabel")}</span><span style={{ fontSize: 13, color: C.textLight }}>{selectedOrg.id}</span></div>
+                  <div><span style={{ color: C.textMid, fontSize: 12 }}>{t("deptPage.typeLabel")}</span><span style={{ fontSize: 12, color: C.textDark }}>{selectedOrg.type === "hospital" ? t("deptPage.hospital") : selectedOrg.type === "department" ? t("deptPage.department") : selectedOrg.type === "section" ? t("deptPage.section") : t("deptPage.group")}</span></div>
+                  <div><span style={{ color: C.textMid, fontSize: 12 }}>{t("deptPage.ownerLabel")}</span><span style={{ fontSize: 12, color: C.textDark }}>{selectedOrg.headName || "-"}</span></div>
+                  <div><span style={{ color: C.textMid, fontSize: 12 }}>{t("deptPage.staffCountLabel")}</span><span style={{ fontSize: 12, color: C.textDark }}>{selectedOrg.staffCount || "-"}</span></div>
+                  <div><span style={{ color: C.textMid, fontSize: 12 }}>{t("deptPage.nodeIdLabel")}</span><span style={{ fontSize: 12, color: C.textLight }}>{selectedOrg.id}</span></div>
                 </div>
                 {selectedOrg.children && selectedOrg.children.length > 0 && (
                   <div style={{ padding: 12, background: C.bgLight, borderRadius: 6, border: `1px solid ${C.border}` }}>
                     <div style={{ fontSize: 12, color: C.textMid, marginBottom: 8 }}>{t("deptPage.childNodes", { count: orderedChildren.length })}</div>
                     {orderedChildren.map((child, idx) => (
-                      <div key={child.id} style={{ padding: "6px 4px", borderBottom: `1px solid ${C.borderLight}`, fontSize: 13, color: C.textDark, display: "flex", alignItems: "center", gap: 8 }}>
+                      <div key={child.id} style={{ padding: "6px 4px", borderBottom: `1px solid ${C.borderLight}`, fontSize: 12, color: C.textDark, display: "flex", alignItems: "center", gap: 8 }}>
                         <span style={{ width: 18, color: C.textLight, fontSize: 11 }}>{idx + 1}.</span>
                         <span style={{ flex: 1 }}>{child.name}</span>
                         <button onClick={() => moveChild(idx, -1)} disabled={idx === 0} title={t("deptPage.moveUp")} style={{ border: `1px solid ${C.border}`, background: idx === 0 ? C.bgLight : C.white, color: idx === 0 ? C.textLight : C.textDark, cursor: idx === 0 ? "not-allowed" : "pointer", borderRadius: 4, padding: "2px 6px" }}><ChevronUp size={12} /></button>
@@ -662,7 +662,7 @@ export default function DepartmentPage() {
               {(deptStaff.length > 0 ? deptStaff : [selectedStaff || { id: "S001", name: "张伟明", title: "主任医师" }]).map((s) => (
                 <div key={s.id} onClick={() => setSelectedCredStaff(s)} style={{ padding: "10px 12px", borderRadius: 6, cursor: "pointer", background: selectedCredStaff?.id === s.id ? C.primaryLighter : C.white, border: `1px solid ${selectedCredStaff?.id === s.id ? C.primary : C.borderLight}`, display: "flex", alignItems: "center", gap: 10 }}>
                   <div style={{ width: 32, height: 32, borderRadius: "50%", background: C.primaryLight, color: C.white, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 600 }}>{s.name.charAt(0)}</div>
-                  <div><div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{s.name}</div><div style={{ fontSize: 12, color: C.textMid }}>{s.title}</div></div>
+                  <div><div style={{ fontSize: 12, fontWeight: 500, color: C.textDark }}>{s.name}</div><div style={{ fontSize: 12, color: C.textMid }}>{s.title}</div></div>
                 </div>
               ))}
             </div></div>
@@ -690,7 +690,7 @@ export default function DepartmentPage() {
               )}
               {credentials.filter((c) => getExpiryStatus(c.expiryDate).label !== t("deptPage.valid")).length > 0 && (
                 <div style={{ marginTop: 16, padding: 12, background: C.dangerBg, borderRadius: 6, border: `1px solid ${C.danger}30` }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}><AlertTriangle size={14} color={C.danger} /><span style={{ fontSize: 13, fontWeight: 500, color: C.danger }}>{t("deptPage.expiryReminder")}</span></div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}><AlertTriangle size={14} color={C.danger} /><span style={{ fontSize: 12, fontWeight: 500, color: C.danger }}>{t("deptPage.expiryReminder")}</span></div>
                   {credentials.filter((c) => getExpiryStatus(c.expiryDate).label !== t("deptPage.valid")).slice(0, 5).map((c) => (
                     <div key={c.id} style={{ fontSize: 12, color: C.textMid, padding: "4px 0", borderBottom: `1px solid ${C.danger}20` }}>{c.name}（{c.expiryDate}）</div>
                   ))}
@@ -710,7 +710,7 @@ export default function DepartmentPage() {
               {reviews.map((r) => (
                 <div key={r.id} style={{ padding: 14, borderBottom: `1px solid ${C.borderLight}`, borderLeft: `4px solid ${r.status === "completed" ? C.success : C.warning}` }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                    <div><div style={{ fontSize: 13, fontWeight: 600, color: C.textDark }}>{r.targetName}</div><div style={{ fontSize: 12, color: C.textMid }}>{r.caseType} · {r.caseId}</div></div>
+                    <div><div style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{r.targetName}</div><div style={{ fontSize: 12, color: C.textMid }}>{r.caseType} · {r.caseId}</div></div>
                     <span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 12, background: r.status === "completed" ? C.successBg : C.warningBg, color: r.status === "completed" ? C.success : C.warning }}>{r.status === "completed" ? `评分${r.score}` : t("deptPage.pendingReview")}</span>
                   </div>
                   <div style={{ fontSize: 12, color: C.textLight, marginTop: 4 }}>{r.reviewerName} · {r.status === "completed" ? r.reviewDate : t("deptPage.notCompleted")}</div>
@@ -730,7 +730,7 @@ export default function DepartmentPage() {
             <div style={pH}><span>{t("deptPage.reviewerPerformance")}</span></div>
             <div style={pB}>{REVIEWER_METRICS.map((rm, i) => (
               <div key={i} style={{ padding: 12, background: C.bgLight, borderRadius: 6, border: `1px solid ${C.borderLight}`, marginBottom: 8 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}><span style={{ fontSize: 13, fontWeight: 600, color: C.textDark }}>{rm.name}</span><span style={{ fontSize: 12, color: C.primary }}>{t("deptPage.avgScore", { score: rm.avgScore })}</span></div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}><span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{rm.name}</span><span style={{ fontSize: 12, color: C.primary }}>{t("deptPage.avgScore", { score: rm.avgScore })}</span></div>
                 <div style={{ fontSize: 12, color: C.textMid }}>{t("deptPage.completedCount", { completed: rm.completed, total: rm.totalCases })} · {t("deptPage.acceptance", { rate: rm.acceptance })}</div>
                 <div style={{ marginTop: 6, background: C.white, height: 4, borderRadius: 2, overflow: "hidden" }}><div style={{ width: `${(rm.completed / rm.totalCases) * 100}%`, height: "100%", background: C.primary, borderRadius: 2 }} /></div>
               </div>
@@ -764,7 +764,7 @@ export default function DepartmentPage() {
                         {a.pinned && <span style={{ padding: "1px 8px", borderRadius: 4, fontSize: 11, background: C.warningBg, color: C.warning }}>{t("deptPage.pinnedBadge")}</span>}
                         <span style={{ fontSize: 12, color: C.textLight, marginLeft: "auto" }}>{a.author} · {String(a.createdAt).slice(0, 16).replace("T", " ")} · {t("deptPage.until")} {a.expiresAt}</span>
                       </div>
-                      <div style={{ fontSize: 13, color: C.textMid, marginTop: 6 }}>{a.content}</div>
+                      <div style={{ fontSize: 12, color: C.textMid, marginTop: 6 }}>{a.content}</div>
                       <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
                         <button onClick={() => void handleAnnounceTogglePin(a)} style={miniBtn(a.pinned ? C.warning : C.info)}><PinOff size={11} /> {a.pinned ? t("deptPage.unpin") : t("deptPage.pin")}</button>
                         <button onClick={() => openAnnounceEdit(a)} style={miniBtn(C.primary)}><Edit3 size={11} /> {t("deptPage.edit")}</button>
@@ -791,7 +791,7 @@ export default function DepartmentPage() {
               </div>
             </div>
             <div style={pB}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
                 <thead>
                   <tr style={{ background: "var(--bg-card)" }}>
                     <th style={{ ...thStyle, textAlign: "left" }}>{t("deptPage.date")}</th>
@@ -850,7 +850,7 @@ export default function DepartmentPage() {
               <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t("deptPage.addStaff")}</div>
               <button onClick={() => setShowAddModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button>
             </div>
-            {addError && <div style={{ padding: "8px 12px", background: C.dangerBg, border: `1px solid ${C.danger}30`, color: C.danger, borderRadius: 6, fontSize: 13, marginBottom: 12 }}>{addError}</div>}
+            {addError && <div style={{ padding: "8px 12px", background: C.dangerBg, border: `1px solid ${C.danger}30`, color: C.danger, borderRadius: 6, fontSize: 12, marginBottom: 12 }}>{addError}</div>}
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {[
                 { label: t("deptPage.name"), key: "name", placeholder: t("deptPage.namePlaceholder") },
@@ -858,20 +858,20 @@ export default function DepartmentPage() {
                 { label: t("deptPage.dept"), key: "dept", placeholder: t("deptPage.deptPlaceholder") },
               ].map((f) => (
                 <div key={f.key}>
-                  <label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{f.label}</label>
-                  <input type="text" value={addForm[f.key as keyof typeof addForm]} onChange={(e) => setAddForm({ ...addForm, [f.key as keyof typeof addForm]: e.target.value })} placeholder={f.placeholder} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}} />
+                  <label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{f.label}</label>
+                  <input type="text" value={addForm[f.key as keyof typeof addForm]} onChange={(e) => setAddForm({ ...addForm, [f.key as keyof typeof addForm]: e.target.value })} placeholder={f.placeholder} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12,}} />
                 </div>
               ))}
               <div>
-                <label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t("deptPage.role")}</label>
-                <select value={addForm.role} onChange={(e) => setAddForm({ ...addForm, role: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}}>
+                <label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.role")}</label>
+                <select value={addForm.role} onChange={(e) => setAddForm({ ...addForm, role: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12,}}>
                   {[["physician", t("deptPage.rolePhysician")], ["technician", t("deptPage.roleTechnician")], ["nurse", t("deptPage.roleNurse")], ["director", t("deptPage.roleDirector")], ["vice_director", t("deptPage.roleViceDirector")], ["intern", t("deptPage.roleIntern")]].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
               </div>
               <div style={{ fontSize: 12, color: C.textLight, padding: 8, background: C.bgLight, borderRadius: 6 }}>{t("deptPage.addStaffHint")}</div>
               <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 8 }}>
-                <button onClick={() => setShowAddModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>{t("deptPage.cancel")}</button>
-                <button onClick={() => void handleAddStaff()} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 4 }}><UserPlus size={13} /> {t("deptPage.save")}</button>
+                <button onClick={() => setShowAddModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>{t("deptPage.cancel")}</button>
+                <button onClick={() => void handleAddStaff()} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><UserPlus size={13} /> {t("deptPage.save")}</button>
               </div>
             </div>
           </div>
@@ -886,9 +886,9 @@ export default function DepartmentPage() {
             </div>
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
               {exportDone ? (
-                <button onClick={() => setShowExportModal(false)} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>{t("deptPage.close")}</button>
+                <button onClick={() => setShowExportModal(false)} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>{t("deptPage.close")}</button>
               ) : (
-                <button onClick={() => setShowExportModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>{t("deptPage.cancel")}</button>
+                <button onClick={() => setShowExportModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>{t("deptPage.cancel")}</button>
               )}
             </div>
           </div>
@@ -908,19 +908,19 @@ export default function DepartmentPage() {
                 { label: t("deptPage.dept"), key: "dept", placeholder: t("deptPage.deptPlaceholder") },
               ].map((f) => (
                 <div key={f.key}>
-                  <label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{f.label}</label>
-                  <input type="text" value={editForm[f.key as keyof typeof editForm]} onChange={(e) => setEditForm({ ...editForm, [f.key as keyof typeof editForm]: e.target.value })} placeholder={f.placeholder} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}} />
+                  <label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{f.label}</label>
+                  <input type="text" value={editForm[f.key as keyof typeof editForm]} onChange={(e) => setEditForm({ ...editForm, [f.key as keyof typeof editForm]: e.target.value })} placeholder={f.placeholder} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12,}} />
                 </div>
               ))}
               <div>
-                <label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t("deptPage.role")}</label>
-                <select value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}}>
+                <label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.role")}</label>
+                <select value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12,}}>
                   {[["physician", t("deptPage.rolePhysician")], ["technician", t("deptPage.roleTechnician")], ["nurse", t("deptPage.roleNurse")], ["director", t("deptPage.roleDirector")], ["vice_director", t("deptPage.roleViceDirector")], ["intern", t("deptPage.roleIntern")]].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
               </div>
               <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 8 }}>
-                <button onClick={() => setShowEditModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>{t("deptPage.cancel")}</button>
-                <button onClick={handleEditStaff} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 4 }}><Edit3 size={13} /> {t("deptPage.save")}</button>
+                <button onClick={() => setShowEditModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>{t("deptPage.cancel")}</button>
+                <button onClick={handleEditStaff} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Edit3 size={13} /> {t("deptPage.save")}</button>
               </div>
             </div>
           </div>
@@ -931,17 +931,17 @@ export default function DepartmentPage() {
           <div style={{ background: C.white, borderRadius: 8, padding: 24, minWidth: 400, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}><div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{t("deptPage.assignReviewTask")}</div><button onClick={() => setShowReviewModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button></div>
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t("deptPage.reviewee")}</label>
-                <select value={reviewForm.targetId} onChange={(e) => setReviewForm({ ...reviewForm, targetId: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13 }}>
+              <div><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.reviewee")}</label>
+                <select value={reviewForm.targetId} onChange={(e) => setReviewForm({ ...reviewForm, targetId: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }}>
                   <option value="">{t("deptPage.selectStaff")}</option>{staffForReview.filter((s) => s.role === "physician").map((s) => <option key={s.id} value={s.id}>{s.name}（{s.title}）</option>)}
                 </select>
               </div>
-              <div><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t("deptPage.caseType")}</label>
-                <select value={reviewForm.caseType} onChange={(e) => setReviewForm({ ...reviewForm, caseType: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13 }}><option value="CT">CT</option><option value="MR">MR</option><option value="DR">DR</option></select>
+              <div><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.caseType")}</label>
+                <select value={reviewForm.caseType} onChange={(e) => setReviewForm({ ...reviewForm, caseType: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }}><option value="CT">CT</option><option value="MR">MR</option><option value="DR">DR</option></select>
               </div>
               <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 8 }}>
-                <button onClick={() => setShowReviewModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>{t("deptPage.cancel")}</button>
-                <button onClick={handleAssignReview} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>{t("deptPage.assign")}</button>
+                <button onClick={() => setShowReviewModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>{t("deptPage.cancel")}</button>
+                <button onClick={handleAssignReview} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>{t("deptPage.assign")}</button>
               </div>
             </div>
           </div>
@@ -955,31 +955,31 @@ export default function DepartmentPage() {
               <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{announceEditId ? t("deptPage.editAnnouncement") : t("deptPage.publishAnnouncement")}</div>
               <button onClick={() => setShowAnnounceModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button>
             </div>
-            {announceError && <div style={{ padding: "8px 12px", background: C.dangerBg, border: `1px solid ${C.danger}30`, color: C.danger, borderRadius: 6, fontSize: 13, marginBottom: 12 }}>{announceError}</div>}
+            {announceError && <div style={{ padding: "8px 12px", background: C.dangerBg, border: `1px solid ${C.danger}30`, color: C.danger, borderRadius: 6, fontSize: 12, marginBottom: 12 }}>{announceError}</div>}
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t("deptPage.titleRequired")}</label>
-                <input type="text" value={announceForm.title} onChange={(e) => setAnnounceForm({ ...announceForm, title: e.target.value })} placeholder={t("deptPage.announceTitlePlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}} />
+              <div><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.titleRequired")}</label>
+                <input type="text" value={announceForm.title} onChange={(e) => setAnnounceForm({ ...announceForm, title: e.target.value })} placeholder={t("deptPage.announceTitlePlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12,}} />
               </div>
-              <div><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t("deptPage.contentRequired")}</label>
-                <textarea rows={4} value={announceForm.content} onChange={(e) => setAnnounceForm({ ...announceForm, content: e.target.value })} placeholder={t("deptPage.announceContentPlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, resize: "vertical" }} />
+              <div><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.contentRequired")}</label>
+                <textarea rows={4} value={announceForm.content} onChange={(e) => setAnnounceForm({ ...announceForm, content: e.target.value })} placeholder={t("deptPage.announceContentPlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, resize: "vertical" }} />
               </div>
               <div style={{ display: "flex", gap: 12 }}>
-                <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t("deptPage.category")}</label>
-                  <select value={announceForm.category} onChange={(e) => setAnnounceForm({ ...announceForm, category: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13 }}>
+                <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.category")}</label>
+                  <select value={announceForm.category} onChange={(e) => setAnnounceForm({ ...announceForm, category: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }}>
                     {[["notice", t("deptPage.announceNotice")], ["meeting", t("deptPage.announceMeeting")], ["policy", t("deptPage.announcePolicy")], ["urgent", t("deptPage.announceUrgent")], ["other", t("deptPage.announceOther")]].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                   </select>
                 </div>
-                <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t("deptPage.expiresAt")}</label>
-                  <input type="date" value={announceForm.expiresAt} onChange={(e) => setAnnounceForm({ ...announceForm, expiresAt: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13 }} />
+                <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.expiresAt")}</label>
+                  <input type="date" value={announceForm.expiresAt} onChange={(e) => setAnnounceForm({ ...announceForm, expiresAt: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }} />
                 </div>
               </div>
-              <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: C.textMid }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: C.textMid }}>
                 <input type="checkbox" checked={announceForm.pinned} onChange={(e) => setAnnounceForm({ ...announceForm, pinned: e.target.checked })} style={{ width: 15, height: 15 }} />
                 {t("deptPage.pinnedDisplay")}
               </label>
               <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 8 }}>
-                <button onClick={() => setShowAnnounceModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>{t("deptPage.cancel")}</button>
-                <button onClick={() => void handleAnnounceSave()} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 4 }}><Save size={13} /> {t("deptPage.save")}</button>
+                <button onClick={() => setShowAnnounceModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>{t("deptPage.cancel")}</button>
+                <button onClick={() => void handleAnnounceSave()} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Save size={13} /> {t("deptPage.save")}</button>
               </div>
             </div>
           </div>
@@ -993,32 +993,32 @@ export default function DepartmentPage() {
               <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{onCallEditId ? t("deptPage.editOnCall") : t("deptPage.addOnCallTitle")}</div>
               <button onClick={() => setShowOnCallModal(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={18} color={C.textMid} /></button>
             </div>
-            {onCallError && <div style={{ padding: "8px 12px", background: C.dangerBg, border: `1px solid ${C.danger}30`, color: C.danger, borderRadius: 6, fontSize: 13, marginBottom: 12 }}>{onCallError}</div>}
+            {onCallError && <div style={{ padding: "8px 12px", background: C.dangerBg, border: `1px solid ${C.danger}30`, color: C.danger, borderRadius: 6, fontSize: 12, marginBottom: 12 }}>{onCallError}</div>}
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div style={{ display: "flex", gap: 12 }}>
-                <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t("deptPage.dateRequired")}</label>
-                  <input type="date" value={onCallForm.date} onChange={(e) => setOnCallForm({ ...onCallForm, date: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13 }} />
+                <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.dateRequired")}</label>
+                  <input type="date" value={onCallForm.date} onChange={(e) => setOnCallForm({ ...onCallForm, date: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }} />
                 </div>
-                <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t("deptPage.shiftRequired")}</label>
-                  <select value={onCallForm.shift} onChange={(e) => setOnCallForm({ ...onCallForm, shift: e.target.value as OnCallShiftType })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13 }}>
+                <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.shiftRequired")}</label>
+                  <select value={onCallForm.shift} onChange={(e) => setOnCallForm({ ...onCallForm, shift: e.target.value as OnCallShiftType })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }}>
                     <option value="DAY">{t("deptPage.dayShift")}</option><option value="NIGHT">{t("deptPage.nightShift")}</option><option value="WEEKEND">{t("deptPage.weekendShift")}</option>
                   </select>
                 </div>
               </div>
               <div style={{ display: "flex", gap: 12 }}>
-                <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t("deptPage.doctorIdRequired")}</label>
-                  <input type="text" value={onCallForm.doctorId} onChange={(e) => setOnCallForm({ ...onCallForm, doctorId: e.target.value })} placeholder={t("deptPage.doctorIdPlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}} />
+                <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.doctorIdRequired")}</label>
+                  <input type="text" value={onCallForm.doctorId} onChange={(e) => setOnCallForm({ ...onCallForm, doctorId: e.target.value })} placeholder={t("deptPage.doctorIdPlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12,}} />
                 </div>
-                <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t("deptPage.doctorNameRequired")}</label>
-                  <input type="text" value={onCallForm.doctorName} onChange={(e) => setOnCallForm({ ...onCallForm, doctorName: e.target.value })} placeholder={t("deptPage.doctorNamePlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}} />
+                <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.doctorNameRequired")}</label>
+                  <input type="text" value={onCallForm.doctorName} onChange={(e) => setOnCallForm({ ...onCallForm, doctorName: e.target.value })} placeholder={t("deptPage.doctorNamePlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12,}} />
                 </div>
               </div>
-              <div><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t("deptPage.role")}</label>
-                <input type="text" value={onCallForm.role} onChange={(e) => setOnCallForm({ ...onCallForm, role: e.target.value })} placeholder={t("deptPage.rolePlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}} />
+              <div><label style={{ display: "block", fontSize: 12, color: C.textMid, marginBottom: 6 }}>{t("deptPage.role")}</label>
+                <input type="text" value={onCallForm.role} onChange={(e) => setOnCallForm({ ...onCallForm, role: e.target.value })} placeholder={t("deptPage.rolePlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12,}} />
               </div>
               <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 8 }}>
-                <button onClick={() => setShowOnCallModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>{t("deptPage.cancel")}</button>
-                <button onClick={() => void handleOnCallSave()} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 4 }}><Save size={13} /> {t("deptPage.save")}</button>
+                <button onClick={() => setShowOnCallModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12 }}>{t("deptPage.cancel")}</button>
+                <button onClick={() => void handleOnCallSave()} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Save size={13} /> {t("deptPage.save")}</button>
               </div>
             </div>
           </div>

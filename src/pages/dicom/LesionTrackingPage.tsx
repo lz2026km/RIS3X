@@ -669,7 +669,7 @@ const LesionTrackingPage: React.FC = () => {
                 </Row>
                 {compareResult && (
                   <div style={{ marginTop: 12, padding: 12, background: '#111c33', border: '1px solid #1e2b45', borderRadius: 8 }} data-testid="lt-compare-result">
-                    <div style={{ fontSize: 13, color: '#e2e8f0', marginBottom: 6 }}>
+                    <div style={{ fontSize: 12, color: '#e2e8f0', marginBottom: 6 }}>
                       {compareResult.sizeA.toFixed(1)}mm → {compareResult.sizeB.toFixed(1)}mm
                       <b style={{ color: compareResult.changeMm > 0 ? severityColor('critical') : compareResult.changeMm < 0 ? severityColor('success') : '#94a3b8', marginLeft: 8 }}>
                         {compareResult.changeMm > 0 ? '+' : ''}{compareResult.changeMm}mm ({compareResult.changePercent > 0 ? '+' : ''}{compareResult.changePercent}%)

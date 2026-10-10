@@ -2,6 +2,7 @@ import { t } from "../../i18n/appI18n";
 import { Info, User } from "lucide-react";
 import type { PatientDoseRecord } from "./types";
 import { getAlertBadge } from "./utils";
+import { DataTable } from "../../components/common";
 
 interface DoseTrackingTableProps {
   filteredPatientRecords: PatientDoseRecord[];
@@ -33,7 +34,7 @@ export default function DoseTrackingTable({
             alignItems: "center",
           }}
         >
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
             {t("doseTrack.table.title")}
           </div>
           <div
@@ -49,81 +50,53 @@ export default function DoseTrackingTable({
             <span>{t("doseTrack.table.info")}</span>
           </div>
         </div>
-        <div style={{ overflowX: "auto", maxHeight: 500, overflowY: "auto" }}>
-          <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead style={{ position: "sticky", top: 0, background: "var(--bg-primary)" }}>
-              <tr>
-                {[t("doseTrack.table.patientName"), t("doseTrack.table.gender"), t("doseTrack.table.age"), t("doseTrack.table.modality"), t("doseTrack.table.examItem"), t("doseTrack.table.examDate"), t("doseTrack.table.doseValue"), t("doseTrack.table.alertLevel"), t("doseTrack.table.actions")].map((h) => (
-                  <th
-                    key={h}
-                    style={{
-                      padding: "10px 12px",
-                      textAlign: "left",
-                      fontSize: 12,
-                      fontWeight: 700,
-                      color: "#64748b",
-                      whiteSpace: "nowrap",
-                    }}
+        <div style={{ overflowX: "auto" }}>
+          <DataTable
+            rowKey="id"
+            dataSource={filteredPatientRecords}
+            showPagination={false}
+            showExport={false}
+            showDensity={false}
+            fixedHeader={500}
+            onRow={(r) => ({ onClick: () => setSelectedPatient(r), style: { cursor: "pointer" } })}
+            columns={[
+              { title: t("doseTrack.table.patientName"), dataIndex: "patientName", key: "patientName", render: (v: string) => <span style={{ fontWeight: 600, color: "#1e40af" }}>{v}</span> },
+              { title: t("doseTrack.table.gender"), dataIndex: "gender", key: "gender", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
+              { title: t("doseTrack.table.age"), dataIndex: "age", key: "age", render: (v: number) => <span style={{ color: "#334155" }}>{v}</span> },
+              {
+                title: t("doseTrack.table.modality"), dataIndex: "modality", key: "modality",
+                render: (v: string) => <span style={{ padding: "2px 8px", background: "#eff6ff", color: "#2563eb", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{v}</span>,
+              },
+              { title: t("doseTrack.table.examItem"), dataIndex: "examItem", key: "examItem", render: (v: string) => <span style={{ color: "#334155" }}>{v}</span> },
+              { title: t("doseTrack.table.examDate"), dataIndex: "examDate", key: "examDate", render: (v: string) => <span style={{ color: "#64748b" }}>{v}</span> },
+              {
+                title: t("doseTrack.table.doseValue"), key: "doseValue",
+                render: (_: unknown, r: PatientDoseRecord) => (
+                  <span style={{ fontWeight: 700, color: r.alertLevel === "critical" ? "#dc2626" : r.alertLevel === "warning" ? "#d97706" : "#1e40af" }}>
+                    {r.doseValue} <span style={{ fontSize: 12, fontWeight: 400 }}>{r.doseUnit}</span>
+                  </span>
+                ),
+              },
+              {
+                title: t("doseTrack.table.alertLevel"), dataIndex: "alertLevel", key: "alertLevel",
+                render: (v: PatientDoseRecord["alertLevel"]) => {
+                  const badge = getAlertBadge(v);
+                  return <span style={{ padding: "2px 8px", background: badge.bg, color: badge.color, borderRadius: 4, fontSize: 12, fontWeight: 700 }}>{badge.label}级</span>;
+                },
+              },
+              {
+                title: t("doseTrack.table.actions"), key: "actions",
+                render: (_: unknown, r: PatientDoseRecord) => (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setSelectedPatient(r); }}
+                    style={{ padding: "4px 10px", background: "#eff6ff", color: "#2563eb", border: "none", borderRadius: 4, fontSize: 12, cursor: "pointer" }}
                   >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPatientRecords.map((r, i) => {
-                const badge = getAlertBadge(r.alertLevel);
-                return (
-                  <tr
-                    key={r.id}
-                    style={{
-                      borderBottom: "1px solid #f8fafc",
-                      background: i % 2 === 0 ? "var(--bg-card)" : "var(--bg-primary)",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => setSelectedPatient(r)}
-                  >
-                    <td style={{ padding: "10px 12px", fontSize: 12, fontWeight: 600, color: "#1e40af" }}>
-                      {r.patientName}
-                    </td>
-                    <td style={{ padding: "10px 12px", fontSize: 12, color: "#334155" }}>
-                      {r.gender}
-                    </td>
-                    <td style={{ padding: "10px 12px", fontSize: 12, color: "#334155" }}>
-                      {r.age}
-                    </td>
-                    <td style={{ padding: "10px 12px", fontSize: 12, color: "#334155" }}>
-                      <span style={{ padding: "2px 8px", background: "#eff6ff", color: "#2563eb", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>
-                        {r.modality}
-                      </span>
-                    </td>
-                    <td style={{ padding: "10px 12px", fontSize: 12, color: "#334155" }}>
-                      {r.examItem}
-                    </td>
-                    <td style={{ padding: "10px 12px", fontSize: 12, color: "#64748b" }}>
-                      {r.examDate}
-                    </td>
-                    <td style={{ padding: "10px 12px", fontSize: 12, fontWeight: 700, color: r.alertLevel === "critical" ? "#dc2626" : r.alertLevel === "warning" ? "#d97706" : "#1e40af" }}>
-                      {r.doseValue}{" "}
-                      <span style={{ fontSize: 12, fontWeight: 400 }}>{r.doseUnit}</span>
-                    </td>
-                    <td style={{ padding: "10px 12px" }}>
-                      <span style={{ padding: "2px 8px", background: badge.bg, color: badge.color, borderRadius: 4, fontSize: 12, fontWeight: 700 }}>
-                        {badge.label}?                      </span>
-                    </td>
-                    <td style={{ padding: "10px 12px" }}>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setSelectedPatient(r); }}
-                        style={{ padding: "4px 10px", background: "#eff6ff", color: "#2563eb", border: "none", borderRadius: 4, fontSize: 12, cursor: "pointer" }}
-                      >
-                         {t("doseTrack.table.details")}
-                        </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table></div>
+                    {t("doseTrack.table.details")}
+                  </button>
+                ),
+              },
+            ]}
+          />
         </div>
       </div>
 

@@ -42,7 +42,7 @@ export default function ReportCriticalModal({ report, submitting, onClose, onSub
         <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 10, background: '#dc2626', borderRadius: '14px 14px 0 0' }}>
           <Zap size={18} style={{ color: '#fff' }} />
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>危急值一键转入</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>危急值一键转入</div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 1 }}>
               {report.reportId} · {report.patientName} · {report.examItemName}
             </div>
@@ -110,13 +110,13 @@ export default function ReportCriticalModal({ report, submitting, onClose, onSub
         </div>
 
         <div style={{ padding: '12px 20px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-          <button onClick={onClose} style={{ padding: '8px 20px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+          <button onClick={onClose} style={{ padding: '8px 20px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>取消</button>
           <button
             onClick={() => onSubmit(severity, description.trim() || (report.diagnosis || report.examFindings || '危急值报告'), method)}
             disabled={submitting}
             style={{
               padding: '8px 24px', border: 'none', background: submitting ? '#f87171' : '#dc2626',
-              color: '#fff', borderRadius: 8, fontSize: 13, fontWeight: 700,
+              color: '#fff', borderRadius: 8, fontSize: 12, fontWeight: 700,
               cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 6, opacity: submitting ? 0.7 : 1,
             }}
           >

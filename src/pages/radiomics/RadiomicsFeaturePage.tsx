@@ -194,7 +194,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
         }}>{t('radiomics.exportCsv')}</Button>}>
           {Object.entries(groupedFeatures).map(([category, feats]) => (
             <div key={category} style={{ marginBottom: 16 }}>
-              <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 13, color: '#2563eb' }}>{category}</div>
+              <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 12, color: '#2563eb' }}>{category}</div>
               <DataTable dataSource={feats} columns={featureColumns} rowKey="name" pagination={false} scroll={{ x: 'max-content' }} />
             </div>
           ))}

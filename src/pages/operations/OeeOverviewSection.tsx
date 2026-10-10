@@ -165,7 +165,7 @@ export function OeeOverviewSection() {
                 />
               </>
             ) : (
-              <div style={{ color: 'var(--text-secondary)', fontSize: 13, textAlign: 'center', padding: '24px 0' }}>
+              <div style={{ color: 'var(--text-secondary)', fontSize: 12, textAlign: 'center', padding: '24px 0' }}>
                 {t('oeeExt.selectDevice')}
               </div>
             )}

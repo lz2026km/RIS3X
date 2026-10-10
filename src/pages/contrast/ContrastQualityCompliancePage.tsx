@@ -112,10 +112,10 @@ export default function ContrastQualityCompliancePage() {
           )}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={handleExportReport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+          <button onClick={handleExportReport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
             <Download size={14} />导出报告
           </button>
-          <button onClick={handleGenerateCompliance} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+          <button onClick={handleGenerateCompliance} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
             <FileText size={14} />生成合规报告
           </button>
         </div>
@@ -148,8 +148,8 @@ export default function ContrastQualityCompliancePage() {
                 </span>
               </div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 8 }}>
-                <span style={{ fontSize: 28, fontWeight: 700 }}>{m.currentValue}</span>
-                <span style={{ fontSize: 13, color: 'var(--text-muted, #8b949e)' }}>{m.unit}</span>
+                <span style={{ fontSize: 30, fontWeight: 700 }}>{m.currentValue}</span>
+                <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{m.unit}</span>
                 <span style={{ fontSize: 12, color: '#6e7681' }}>/ 目标 {m.targetValue}{m.unit}</span>
               </div>
               <div style={{ height: 4, background: 'var(--bg-primary, #0d1117)', borderRadius: 2, marginBottom: 8, overflow: 'hidden' }}>
@@ -170,7 +170,7 @@ export default function ContrastQualityCompliancePage() {
               <div key={check.checkId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', background: 'var(--bg-primary, #0d1117)', borderRadius: 6 }}>
                 {check.status === 'pass' ? <CheckCircle size={16} style={{ color: '#22c55e' }} /> : check.status === 'fail' ? <XCircle size={16} style={{ color: '#ef4444' }} /> : <AlertTriangle size={16} style={{ color: '#f59e0b' }} />}
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13 }}>{check.name}</div>
+                  <div style={{ fontSize: 12 }}>{check.name}</div>
                   <div style={{ fontSize: 12, color: '#6e7681' }}>{check.regulation}</div>
                 </div>
                 <span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{check.details}</span>

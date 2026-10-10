@@ -403,7 +403,7 @@ export default function ReportSearchPage() {
             />
             {query && <X size={14} onClick={() => setQuery('')} style={{ cursor: 'pointer', color: 'var(--text-secondary)' }} />}
           </div>
-          <button onClick={handleSearch} disabled={loading} style={{ padding: '10px 18px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: loading ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <button onClick={handleSearch} disabled={loading} style={{ padding: '10px 18px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: loading ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 4 }}>
             <Search size={13} />
             {loading ? t('reportSearch.searching') : t('reportSearch.search')}
           </button>
@@ -558,7 +558,7 @@ export default function ReportSearchPage() {
           {showFavorites && (
             <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 12 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 5 }}>
                   <Star size={13} /> {t('reportSearch.favoritesPanel')} ({favorites.length})
                 </span>
                 <button onClick={() => setShowFavorites(false)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}><X size={13} /></button>
@@ -586,7 +586,7 @@ export default function ReportSearchPage() {
           {showHistoryPanel && (
             <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 12 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 5 }}>
                   <History size={13} /> {t('reportSearch.searchHistoryPanel')} ({searchHistory.length})
                 </span>
                 <div style={{ display: 'flex', gap: 6 }}>
@@ -690,7 +690,7 @@ export default function ReportSearchPage() {
       {(hotKeywords.length > 0 || reportFavs.length > 0) && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 12, marginBottom: 12 }} data-testid="search-hot-and-report-favs">
           <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 12 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 5 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 5 }}>
               <Search size={13} /> {t('reportSearch.hotKeywords')}
             </div>
             {hotKeywords.length === 0 ? (
@@ -713,7 +713,7 @@ export default function ReportSearchPage() {
           </div>
           <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 5 }}>
                 <Star size={13} /> {t('reportSearch.favoritedReports')} ({reportFavs.length})
               </span>
               {reportFavs.length > 0 && (
@@ -749,7 +749,7 @@ export default function ReportSearchPage() {
       {/* 结果列表 */}
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>
             {t('reportSearch.searchResults')} ({total} {t('reportSearch.itemsCount')})
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
@@ -785,7 +785,7 @@ export default function ReportSearchPage() {
         ) : !searched ? (
           <Empty image={<SearchX size={56} style={{opacity:0.4}}/>} description={t('reportSearch.searchHint')} style={{ padding: 40 }} />
         ) : results.length === 0 ? (
-          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 13 }}>
+          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>
             <Search size={32} style={{ opacity: 0.3, marginBottom: 8 }} />
             <div>{t('reportSearch.noResults')}</div>
           </div>

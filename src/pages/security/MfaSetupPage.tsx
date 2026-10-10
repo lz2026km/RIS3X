@@ -160,7 +160,7 @@ export default function MfaSetupPage() {
             marginBottom: 16,
           }}
         >
-          <Text strong style={{ fontSize: 15 }}>
+          <Text strong style={{ fontSize: 14 }}>
             {t("mfaSetup.enableDisableMfa")}
           </Text>
           <Switch checked={enabled} onChange={handleToggle} />

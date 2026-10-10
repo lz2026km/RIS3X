@@ -12,6 +12,7 @@ import { Activity, AlertTriangle, CalendarDays, Gauge, Monitor, Server, Trending
 import { DashboardCard } from '../../components/dashboard/DashboardCard'
 import { TrendChart } from '../../components/dashboard/TrendChart'
 import { StatCard, StatCardGrid } from '../../components/common/StatCard'
+import { DataTable } from '../../components/common'
 import { t } from '../../i18n/appI18n'
 import {
   deviceMgmtApi,
@@ -182,34 +183,20 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
               style={{ border: '1px solid var(--border-color, #e2e8f0)' }}
             >
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
-                  <thead>
-                    <tr style={{ background: 'var(--bg-primary)' }}>
-                      {[t('deviceMgmtBoard.room'), t('deviceMgmtBoard.deviceCount'), t('deviceMgmtBoard.onlineCount'), t('deviceMgmtBoard.examsCount')].map((h) => (
-                        <th key={h} style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary, #475569)', borderBottom: '2px solid var(--border-color, #e2e8f0)' }}>
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(rooms?.items ?? []).map((r) => (
-                      <tr key={r.room} style={{ borderBottom: '1px solid var(--border-color, #f1f5f9)' }}>
-                        <td style={{ padding: '9px 12px', fontWeight: 600, color: 'var(--text-primary)' }}>{r.room}</td>
-                        <td style={{ padding: '9px 12px' }}>{NUM(r.devices)}</td>
-                        <td style={{ padding: '9px 12px', color: '#16a34a', fontWeight: 600 }}>{NUM(r.online)}</td>
-                        <td style={{ padding: '9px 12px' }}>{NUM(r.todayExams)}</td>
-                      </tr>
-                    ))}
-                    {(rooms?.items ?? []).length === 0 && (
-                      <tr>
-                        <td colSpan={4} style={{ padding: 20, textAlign: 'center', color: 'var(--text-secondary, #94a3b8)' }}>
-                          {t('deviceMgmtBoard.noData')}
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                <DataTable
+                  rowKey="room"
+                  dataSource={rooms?.items ?? []}
+                  showPagination={false}
+                  showExport={false}
+                  showDensity={false}
+                  emptyText={t('deviceMgmtBoard.noData')}
+                  columns={[
+                    { title: t('deviceMgmtBoard.room'), dataIndex: 'room', key: 'room', render: (v: string) => <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{v}</span> },
+                    { title: t('deviceMgmtBoard.deviceCount'), dataIndex: 'devices', key: 'devices', render: (v: number) => NUM(v), align: 'right' },
+                    { title: t('deviceMgmtBoard.onlineCount'), dataIndex: 'online', key: 'online', render: (v: number) => <span style={{ color: '#16a34a', fontWeight: 600 }}>{NUM(v)}</span>, align: 'right' },
+                    { title: t('deviceMgmtBoard.examsCount'), dataIndex: 'todayExams', key: 'todayExams', render: (v: number) => NUM(v), align: 'right' },
+                  ]}
+                />
               </div>
             </DashboardCard>
           </div>
@@ -246,7 +233,7 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
                           borderRadius: 6,
                           background: 'var(--bg-primary)',
                           marginBottom: 4,
-                          fontSize: 12.5,
+                          fontSize: 12,
                         }}
                       >
                         <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{item.deviceName}</span>
@@ -274,7 +261,7 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
               <select
                 value={selectedDeviceId}
                 onChange={(e) => setSelectedDeviceId(e.target.value)}
-                style={{ width: '100%', padding: '7px 10px', borderRadius: 6, border: '1px solid var(--border-color, #e2e8f0)', fontSize: 13, marginBottom: 12, background: 'var(--bg-card)' }}
+                style={{ width: '100%', padding: '7px 10px', borderRadius: 6, border: '1px solid var(--border-color, #e2e8f0)', fontSize: 12, marginBottom: 12, background: 'var(--bg-card)' }}
               >
                 <option value="">{t('deviceMgmtBoard.selectDevice')}</option>
                 {devices.map((d) => (
@@ -284,10 +271,10 @@ export function DeviceMgmtDashboard({ defaultDays = 30 }: DeviceMgmtDashboardPro
                 ))}
               </select>
 
-              {detailLoading && <div style={{ fontSize: 12.5, color: 'var(--text-secondary, #64748b)' }}>{t('deviceMgmtBoard.loading')}</div>}
+              {detailLoading && <div style={{ fontSize: 12, color: 'var(--text-secondary, #64748b)' }}>{t('deviceMgmtBoard.loading')}</div>}
 
               {!detailLoading && detail && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12.5 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
                   {[
                     [t('deviceMgmtBoard.fieldCode'), detail.code ?? '—'],
                     [t('deviceMgmtBoard.fieldModality'), detail.modality ?? '—'],

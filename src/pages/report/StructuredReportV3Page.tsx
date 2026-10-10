@@ -95,12 +95,12 @@ export default function StructuredReportV3Page() {
       <PageHeader icon={<FileCheck2 size={20} color="#2563eb" />} title={t('w17.srPage.title')} subtitle={t('w17.srPage.subtitle')} />
       <div style={{ padding: 24 }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
-          <label style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>{t('w17.srPage.reportIdLabel')}</label>
+          <label style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>{t('w17.srPage.reportIdLabel')}</label>
           <input
             value={reportId}
             onChange={(e) => { setReportId(e.target.value); setSaved(false) }}
             placeholder={t('w17.srPage.reportIdPlaceholder')}
-            style={{ flex: 1, minWidth: 260, maxWidth: 420, padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13,}}
+            style={{ flex: 1, minWidth: 260, maxWidth: 420, padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12,}}
           />
           <Button
             loading={validating}
@@ -132,7 +132,7 @@ export default function StructuredReportV3Page() {
 
         {unlockLog.length > 0 && (
           <div style={{ marginTop: 14, background: 'var(--bg-card)', borderRadius: 10, padding: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b', marginBottom: 8 }}>{t('w17.srPage.unlockLogTitle')}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', marginBottom: 8 }}>{t('w17.srPage.unlockLogTitle')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {unlockLog.map((entry, i) => (
                 <div key={i} style={{ fontSize: 12, color: '#64748b' }}>
@@ -161,7 +161,7 @@ export default function StructuredReportV3Page() {
             />
             {validation.errors.length > 0 && (
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#b91c1c', marginBottom: 6 }}>{t('w4a.validate.errors')} ({validation.errors.length})</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#b91c1c', marginBottom: 6 }}>{t('w4a.validate.errors')} ({validation.errors.length})</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   {validation.errors.map((e, i) => (
                     <div key={i} style={{ fontSize: 12, color: '#7f1d1d' }}>• {e.label}: {e.message}</div>
@@ -171,7 +171,7 @@ export default function StructuredReportV3Page() {
             )}
             {validation.warnings.length > 0 && (
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#b45309', marginBottom: 6 }}>{t('w4a.validate.warnings')} ({validation.warnings.length})</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#b45309', marginBottom: 6 }}>{t('w4a.validate.warnings')} ({validation.warnings.length})</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   {validation.warnings.map((e, i) => (
                     <div key={i} style={{ fontSize: 12, color: '#92400e' }}>• {e.label}: {e.message}</div>

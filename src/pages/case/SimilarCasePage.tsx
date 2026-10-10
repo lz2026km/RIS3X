@@ -140,7 +140,7 @@ function ImageSearchTab() {
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} />}
       {loading ? (
         <div style={{ textAlign: 'center', padding: 48 }}>
-          <Spin size="large" indicator={<Loader2 className="animate-spin" style={{ fontSize: 28 }} />} />
+          <Spin size="large" indicator={<Loader2 className="animate-spin" style={{ fontSize: 30 }} />} />
           <div style={{ marginTop: 12 }}><Text type="secondary">{t('similarCase.extractingFeatures')}</Text></div>
         </div>
       ) : results.length === 0 ? (
@@ -295,7 +295,7 @@ function HybridSearchTab() {
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} />}
       {loading ? (
         <div style={{ textAlign: 'center', padding: 48 }}>
-          <Spin size="large" indicator={<Loader2 className="animate-spin" style={{ fontSize: 28 }} />} />
+          <Spin size="large" indicator={<Loader2 className="animate-spin" style={{ fontSize: 30 }} />} />
           <div style={{ marginTop: 12 }}><Text type="secondary">{t('similarCase.hybridSearching')}</Text></div>
         </div>
       ) : results.length === 0 ? (
@@ -483,7 +483,7 @@ const SimilarCasePage: React.FC = () => {
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: 48 }}>
-          <Spin size="large" indicator={<Loader2 className="animate-spin" style={{ fontSize: 28 }} />} />
+          <Spin size="large" indicator={<Loader2 className="animate-spin" style={{ fontSize: 30 }} />} />
           <div style={{ marginTop: 12 }}><Text type="secondary">{t('similarCase.searchingSimilar')}</Text></div>
         </div>
       ) : results.length === 0 ? (

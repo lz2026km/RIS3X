@@ -187,7 +187,7 @@ const Metric = ({
     }}
   >
     <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>{label}</div>
-    <div style={{ fontSize: 22, fontWeight: 800, color: "#1e40af" }}>{value}</div>
+    <div style={{ fontSize: 20, fontWeight: 800, color: "#1e40af" }}>{value}</div>
     <div style={{ fontSize: 12, color: "#94a3b8" }}>{unit}</div>
   </div>
 );

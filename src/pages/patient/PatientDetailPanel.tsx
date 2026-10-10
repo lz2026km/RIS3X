@@ -20,6 +20,8 @@ import { useAuth } from '../../hooks/useAuth'
 import { t } from '../../i18n/appI18n'
 import { StatusTag } from '../../components/common/StatusTag'
 import { SeverityTag } from '../../components/common/SeverityTag'
+import { DataTable } from '../../components/common'
+import type { TableColumnsType } from 'antd'
 
 const TIMELINE_ICONS: Record<string, React.ReactNode> = {
   exam: <Image size={14} />,
@@ -113,7 +115,7 @@ function PatientTimeline({ events }: PatientTimelineProps) {
                 onMouseLeave={(e) => { if (evt.link) (e.currentTarget as HTMLDivElement).style.background = 'var(--content-bg)' }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{ fontWeight: 600, color: '#1e40af', fontSize: 13 }}>
+                  <span style={{ fontWeight: 600, color: '#1e40af', fontSize: 12 }}>
                     {evt.type === 'exam' && ''}
                     {evt.type === 'report' && ''}
                     {evt.type === 'appointment' && ''}
@@ -138,7 +140,7 @@ function PatientTimeline({ events }: PatientTimelineProps) {
         )
       })}
       {sorted.length === 0 && (
-        <div style={{ padding: 32, textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>{t('patientDetailPanel.noTimelineEvents')}</div>
+        <div style={{ padding: 32, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>{t('patientDetailPanel.noTimelineEvents')}</div>
       )}
     </div>
   )
@@ -401,7 +403,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
       <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 60, textAlign: 'center' }}>
         <User size={48} color="#cbd5e1" style={{ marginBottom: 16 }} />
         <div style={{ fontSize: 14, color: '#64748b' }}>{t('patientDetailPanel.selectPatientHint')}</div>
-        <button onClick={onBack} style={{ marginTop: 16, padding: '8px 20px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+        <button onClick={onBack} style={{ marginTop: 16, padding: '8px 20px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
           {t('patientDetailPanel.backToPatientList')}
         </button>
       </div>
@@ -409,6 +411,164 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
   }
 
   const patientExams = localExams
+
+  const examColumns: TableColumnsType<PatientExamRow> = [
+    { title: t('patientDetailPanel.colExamDate'), key: 'examDate', render: (_v, ex) => <span style={{ color: 'var(--text-secondary)' }}>{normalizeDate(ex.scheduledAt || ex.examDate)}</span> },
+    {
+      title: t('patientDetailPanel.colExamItem'), key: 'examItem',
+      render: (_v, ex) => {
+        const itemName = ex.examItemName || ex.examItem || `${ex.modality} ${ex.bodyPart}`
+        return (
+          <>
+            <div style={{ fontWeight: 600, color: '#1e40af' }}>{itemName}</div>
+            <div style={{ fontSize: 12, color: '#94a3b8' }}>{ex.modality} · {ex.bodyPart}</div>
+          </>
+        )
+      },
+    },
+    { title: t('patientDetailPanel.colDevice'), key: 'device', render: (_v, ex) => <span style={{ color: '#64748b', fontSize: 12 }}>{ex.deviceName || ex.deviceModel || '-'}</span> },
+    { title: t('patientDetailPanel.colExamType'), key: 'patientType', render: (_v, ex) => <StatusTag status="neutral" size="md">{ex.patientType || t('patientDetailPanel.outpatient')}</StatusTag> },
+    {
+      title: t('patientDetailPanel.colPriority'), key: 'priority',
+      render: (_v, ex) => (
+        <StatusTag status={ex.priority === '危重' || ex.priority === '紧急' ? 'critical' : 'success'} size="md" style={{ fontWeight: 700 }}>
+          {ex.priority || t('patientDetailPanel.normal')}
+        </StatusTag>
+      ),
+    },
+    {
+      title: t('patientDetailPanel.colStatus'), key: 'status',
+      render: (_v, ex) => (
+        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: 'var(--color-info-bg)', color: 'var(--color-info)' }}>
+          {normalizeStatus(ex.status)}
+        </span>
+      ),
+    },
+    {
+      title: t('patientDetailPanel.colReportResult'), key: 'result',
+      render: (_v, ex) => (
+        ex.hasCriticalValue ? (
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#dc2626', fontWeight: 600 }}>
+            <AlertCircle size={14} />{t('patientDetailPanel.positive')}
+          </span>
+        ) : (
+          <span style={{ color: '#16a34a' }}>{t('patientDetailPanel.normalResult')}</span>
+        )
+      ),
+    },
+    { title: t('patientDetailPanel.colActions'), key: 'actions', render: () => <span style={{ color: '#2563eb', fontSize: 12, fontWeight: 600 }}>{t('patientDetailPanel.viewImagesArrow')}</span> },
+  ]
+
+  const criticalColumns: TableColumnsType<CriticalValueDto> = [
+    { title: t('patientDetailPanel.colTriggeredAt'), key: 'triggeredAt', render: (_v, cv) => <span style={{ color: 'var(--text-secondary)', fontFamily: 'monospace', fontSize: 12 }}>{String(cv.triggeredAt ?? cv.createdAt ?? '').slice(0, 16) || '-'}</span> },
+    { title: t('patientDetailPanel.colType'), key: 'finding', render: (_v, cv) => <span style={{ fontWeight: 600, color: '#1e40af' }}>{cv.finding || cv.description || cv.category || '-'}</span> },
+    {
+      title: t('patientDetailPanel.colSeverity'), key: 'severity',
+      render: (_v, cv) => (
+        <SeverityTag level={cv.severity || 'neutral'} size="md" style={{ fontWeight: 700 }}>
+          {cv.severity || '-'}
+        </SeverityTag>
+      ),
+    },
+    { title: t('patientDetailPanel.colStatus'), key: 'state', render: (_v, cv) => <StatusTag status="neutral" size="md">{normalizeStatus(cv.state ?? cv.status)}</StatusTag> },
+    {
+      title: t('patientDetailPanel.colClosedState'), key: 'closed',
+      render: (_v, cv) => (
+        criticalClosed(cv) ? (
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#16a34a', fontWeight: 600 }}>
+            <CheckCircle size={14} />{t('patientDetailPanel.closedLoop')}
+          </span>
+        ) : (
+          <span style={{ color: '#d97706', fontWeight: 600 }}>{t('patientDetailPanel.processing')}</span>
+        )
+      ),
+    },
+    { title: t('patientDetailPanel.colActions'), key: 'actions', render: () => <span style={{ color: '#2563eb', fontSize: 12, fontWeight: 600 }}>{t('patientDetailPanel.detailArrow')}</span> },
+  ]
+
+  const reportColumns: TableColumnsType<ReportDto> = [
+    { title: t('patientDetailPanel.colReportId'), key: 'reportId', render: (_v, r) => <span style={{ fontFamily: 'monospace', color: '#64748b', fontSize: 12 }}>{r.reportId || r.id}</span> },
+    { title: t('patientDetailPanel.colExamItem'), key: 'examItem', render: (_v, r) => <span style={{ fontWeight: 600, color: '#1e40af' }}>{r.modality} {r.bodyPart}</span> },
+    { title: t('patientDetailPanel.colStatus'), key: 'status', render: (_v, r) => <StatusTag status="info" size="md">{normalizeStatus(r.status)}</StatusTag> },
+    { title: t('patientDetailPanel.colIssuedAt'), key: 'issuedAt', render: (_v, r) => <span style={{ color: '#64748b' }}>{String(r.createdTime ?? r.updatedTime ?? '').slice(0, 16) || '-'}</span> },
+    { title: t('patientDetailPanel.colReportDoctor'), key: 'doctorId', render: (_v, r) => <span style={{ color: '#64748b' }}>{r.doctorId || '-'}</span> },
+    {
+      title: t('patientDetailPanel.colActions'), key: 'actions',
+      render: (_v, r) => (
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button
+            onClick={() => navigate(`/reports?reportId=${encodeURIComponent(r.reportId || r.id)}`)}
+            style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 10px', background: 'var(--color-info-bg)', color: 'var(--color-info)', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+          >
+            <Eye size={14} />{t('patientDetailPanel.view')}
+          </button>
+          <button
+            onClick={() => handleExportReport(r)}
+            disabled={exportingId === (r.reportId || r.id)}
+            style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 10px', background: 'var(--color-success-bg)', color: 'var(--color-success)', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+          >
+            <Download size={14} />{exportingId === (r.reportId || r.id) ? t('patientDetailPanel.exporting') : t('patientDetailPanel.download')}
+          </button>
+        </div>
+      ),
+    },
+  ]
+
+  const invoiceColumns: TableColumnsType<InvoiceDto> = [
+    {
+      title: t('patientDetailPanel.colInvoiceNo'), key: 'invoiceNo',
+      render: (_v, inv) => {
+        const invAny = inv as unknown as { invoiceNo?: string; invoiceId?: string }
+        return <span style={{ fontFamily: 'monospace', color: '#64748b', fontSize: 12 }}>{invAny.invoiceNo || invAny.invoiceId || inv.id}</span>
+      },
+    },
+    {
+      title: t('patientDetailPanel.colExamItem'), key: 'examItem',
+      render: (_v, inv) => {
+        const invAny = inv as unknown as { examItem?: string }
+        return <span style={{ fontWeight: 600, color: '#1e40af' }}>{invAny.examItem || inv.items?.map(i => i.itemName).join('、') || '-'}</span>
+      },
+    },
+    {
+      title: t('patientDetailPanel.colDate'), key: 'date',
+      render: (_v, inv) => {
+        const invAny = inv as unknown as { examDate?: string; issuedAt?: string }
+        return <span style={{ color: '#64748b' }}>{normalizeDate(invAny.examDate || inv.createdAt || invAny.issuedAt)}</span>
+      },
+    },
+    { title: t('patientDetailPanel.colTotalAmount'), key: 'total', render: (_v, inv) => <span style={{ fontWeight: 700, color: '#1e40af' }}>¥{Number(inv.totalAmount ?? 0).toFixed(2)}</span> },
+    {
+      title: t('patientDetailPanel.colPaid'), key: 'paid',
+      render: (_v, inv) => {
+        const total = Number(inv.totalAmount ?? 0)
+        const paid = Number(inv.paidAmount ?? (inv.status === 'PAID' ? total : 0))
+        return <span style={{ color: '#16a34a' }}>¥{paid.toFixed(2)}</span>
+      },
+    },
+    {
+      title: t('patientDetailPanel.colBalance'), key: 'balance',
+      render: (_v, inv) => {
+        const invAny = inv as unknown as { balance?: number }
+        const total = Number(inv.totalAmount ?? 0)
+        const paid = Number(inv.paidAmount ?? (inv.status === 'PAID' ? total : 0))
+        const balance = Number(invAny.balance ?? Math.max(0, total - paid))
+        return <span style={{ color: balance > 0 ? '#dc2626' : '#94a3b8', fontWeight: 600 }}>¥{balance.toFixed(2)}</span>
+      },
+    },
+    {
+      title: t('patientDetailPanel.colStatus'), key: 'status',
+      render: (_v, inv) => {
+        const total = Number(inv.totalAmount ?? 0)
+        const paid = Number(inv.paidAmount ?? (inv.status === 'PAID' ? total : 0))
+        const status = inv.status || (Math.max(0, total - paid) > 0 ? 'UNPAID' : 'PAID')
+        return (
+          <StatusTag status={status === 'PAID' ? 'success' : status === 'PARTIAL' ? 'warning' : 'failed'} size="md">
+            {status === 'PAID' ? t('patientDetailPanel.settled') : status === 'PARTIAL' ? t('patientDetailPanel.partialPaid') : t('patientDetailPanel.unpaid')}
+          </StatusTag>
+        )
+      },
+    },
+  ]
 
   return (
     <>
@@ -441,7 +601,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
       )}
 
       {toast.show && (
-        <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999, padding: '10px 18px', borderRadius: 8, fontSize: 13, fontWeight: 500, background: toast.type === 'success' ? '#059669' : toast.type === 'error' ? '#dc2626' : '#2563eb', color: '#fff', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+        <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999, padding: '10px 18px', borderRadius: 8, fontSize: 12, fontWeight: 500, background: toast.type === 'success' ? '#059669' : toast.type === 'error' ? '#dc2626' : '#2563eb', color: '#fff', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
           {toast.message}
         </div>
       )}
@@ -449,11 +609,11 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
       <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', padding: 24, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
           <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg, #1e40af, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: 28, fontWeight: 700, color: '#fff' }}>{selectedPatient.name.slice(0, 1)}</span>
+            <span style={{ fontSize: 30, fontWeight: 700, color: '#fff' }}>{selectedPatient.name.slice(0, 1)}</span>
           </div>
           <div>
             <div style={{ fontSize: 20, fontWeight: 700, color: '#1e40af' }}>{selectedPatient.name}</div>
-            <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>{selectedPatient.gender} · {selectedPatient.age}{t('patientDetailPanel.ageSuffix')} · {selectedPatient.patientType}</div>
+            <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{selectedPatient.gender} · {selectedPatient.age}{t('patientDetailPanel.ageSuffix')} · {selectedPatient.patientType}</div>
             <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>ID: {selectedPatient.id}</div>
           </div>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
@@ -507,7 +667,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                 <span style={{ color: '#94a3b8' }}>{item.icon}</span>
                 <span style={{ fontSize: 12, color: '#94a3b8' }}>{item.label}</span>
               </div>
-              <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>{item.value}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>{item.value}</div>
             </div>
           ))}
         </div>
@@ -518,14 +678,14 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
               <AlertTriangle size={14} color={selectedPatient.allergyHistory && selectedPatient.allergyHistory !== t('patientDetailPanel.none') ? '#dc2626' : '#94a3b8'} />
               <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{t('patientDetailPanel.allergyHistory')}</span>
             </div>
-            <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{selectedPatient.allergyHistory || t('patientDetailPanel.none')}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{selectedPatient.allergyHistory || t('patientDetailPanel.none')}</div>
           </div>
           <div style={{ padding: 16, background: 'var(--content-bg)', border: '1px solid var(--border-color)', borderRadius: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
               <Clock size={14} color="#94a3b8" />
               <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{t('patientDetailPanel.medicalHistory')}</span>
             </div>
-            <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{selectedPatient.medicalHistory || t('patientDetailPanel.none')}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{selectedPatient.medicalHistory || t('patientDetailPanel.none')}</div>
           </div>
         </div>
       </div>
@@ -540,7 +700,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
           </div>
         </div>
         {!summary ? (
-          <div style={{ textAlign: 'center', padding: 24, color: '#94a3b8', fontSize: 13 }}>{t('patientPage.summaryEmpty')}</div>
+          <div style={{ textAlign: 'center', padding: 24, color: '#94a3b8', fontSize: 12 }}>{t('patientPage.summaryEmpty')}</div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12 }}>
             {[
@@ -565,17 +725,17 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
           <div style={{ textAlign: 'center', padding: 16, background: 'var(--color-info-bg)', borderRadius: 8 }}>
             <Activity size={24} color="#3b82f6" style={{ marginBottom: 8 }} />
-            <div style={{ fontSize: 28, fontWeight: 800, color: '#1e40af' }}>{stats.totalExams}</div>
+            <div style={{ fontSize: 30, fontWeight: 800, color: '#1e40af' }}>{stats.totalExams}</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>{t('patientDetailPanel.totalExamCount')}</div>
           </div>
           <div style={{ textAlign: 'center', padding: 16, background: 'var(--color-error-bg)', borderRadius: 8 }}>
             <AlertTriangle size={24} color="#dc2626" style={{ marginBottom: 8 }} />
-            <div style={{ fontSize: 28, fontWeight: 800, color: '#dc2626' }}>{stats.positiveCount}</div>
+            <div style={{ fontSize: 30, fontWeight: 800, color: '#dc2626' }}>{stats.positiveCount}</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>{t('patientDetailPanel.positiveCritical')}</div>
           </div>
           <div style={{ textAlign: 'center', padding: 16, background: 'var(--color-success-bg)', borderRadius: 8 }}>
             <CheckCircle size={24} color="#16a34a" style={{ marginBottom: 8 }} />
-            <div style={{ fontSize: 28, fontWeight: 800, color: '#16a34a' }}>{stats.negativeCount}</div>
+            <div style={{ fontSize: 30, fontWeight: 800, color: '#16a34a' }}>{stats.negativeCount}</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>{t('patientDetailPanel.negativeNormal')}</div>
           </div>
           <div style={{ textAlign: 'center', padding: 16, background: 'var(--content-bg)', borderRadius: 8 }}>
@@ -595,58 +755,16 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
           <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>{t('patientDetailPanel.noExamRecords')}</div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-              <thead>
-                <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid var(--border-color)' }}>
-                  {[t('patientDetailPanel.colExamDate'), t('patientDetailPanel.colExamItem'), t('patientDetailPanel.colDevice'), t('patientDetailPanel.colExamType'), t('patientDetailPanel.colPriority'), t('patientDetailPanel.colStatus'), t('patientDetailPanel.colReportResult'), t('patientDetailPanel.colActions')].map(h => (
-                    <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#475569', fontSize: 12 }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {patientExams.map((ex, idx) => {
-                  const itemName = ex.examItemName || ex.examItem || `${ex.modality} ${ex.bodyPart}`
-                  const deviceName = ex.deviceName || ex.deviceModel || '-'
-                  return (
-                    <tr key={ex.id ?? idx} style={{ borderBottom: '1px solid var(--border-color)', background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--content-bg)', cursor: 'pointer' }}
-                      onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(ex.id ?? '')}`)}
-                      title={t('patientDetailPanel.clickViewImages')}>
-                      <td style={{ padding: '10px 12px', color: 'var(--text-secondary)' }}>{normalizeDate(ex.scheduledAt || ex.examDate)}</td>
-                      <td style={{ padding: '10px 12px' }}>
-                        <div style={{ fontWeight: 600, color: '#1e40af' }}>{itemName}</div>
-                        <div style={{ fontSize: 12, color: '#94a3b8' }}>{ex.modality} · {ex.bodyPart}</div>
-                      </td>
-                      <td style={{ padding: '10px 12px', color: '#64748b', fontSize: 12 }}>{deviceName}</td>
-                      <td style={{ padding: '10px 12px' }}>
-                        <StatusTag status="neutral" size="md">{ex.patientType || t('patientDetailPanel.outpatient')}</StatusTag>
-                      </td>
-                      <td style={{ padding: '10px 12px' }}>
-                        <StatusTag status={ex.priority === '危重' || ex.priority === '紧急' ? 'critical' : 'success'} size="md" style={{ fontWeight: 700 }}>
-                          {ex.priority || t('patientDetailPanel.normal')}
-                        </StatusTag>
-                      </td>
-                      <td style={{ padding: '10px 12px' }}>
-                        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: 'var(--color-info-bg)', color: 'var(--color-info)' }}>
-                          {normalizeStatus(ex.status)}
-                        </span>
-                      </td>
-                      <td style={{ padding: '10px 12px' }}>
-                        {ex.hasCriticalValue ? (
-                          <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#dc2626', fontWeight: 600 }}>
-                            <AlertCircle size={14} />{t('patientDetailPanel.positive')}
-                          </span>
-                        ) : (
-                          <span style={{ color: '#16a34a' }}>{t('patientDetailPanel.normalResult')}</span>
-                        )}
-                      </td>
-                      <td style={{ padding: '10px 12px' }}>
-                        <span style={{ color: '#2563eb', fontSize: 12, fontWeight: 600 }}>{t('patientDetailPanel.viewImagesArrow')}</span>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table></div>
+            <DataTable<PatientExamRow>
+              columns={examColumns}
+              dataSource={patientExams}
+              rowKey={(ex, idx) => String(ex.id ?? idx)}
+              onRow={(ex) => ({
+                onClick: () => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(ex.id ?? '')}`),
+                title: t('patientDetailPanel.clickViewImages'),
+                style: { cursor: 'pointer' },
+              })}
+            />
           </div>
         )}
       </div>
@@ -663,47 +781,16 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
           <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8' }}>{t('patientDetailPanel.noCriticalRecords')}</div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-              <thead>
-                <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid var(--border-color)' }}>
-                  {[t('patientDetailPanel.colTriggeredAt'), t('patientDetailPanel.colType'), t('patientDetailPanel.colSeverity'), t('patientDetailPanel.colStatus'), t('patientDetailPanel.colClosedState'), t('patientDetailPanel.colActions')].map(h => (
-                    <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#475569', fontSize: 12 }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {criticalValues.map((cv, idx) => (
-                  <tr key={cv.id} style={{ borderBottom: '1px solid var(--border-color)', background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--content-bg)', cursor: 'pointer' }}
-                    onClick={() => navigate(`/critical-value?cvId=${encodeURIComponent(cv.id)}`)}
-                    title={t('patientDetailPanel.clickViewCriticalDetail')}>
-                    <td style={{ padding: '10px 12px', color: 'var(--text-secondary)', fontFamily: 'monospace', fontSize: 12 }}>{String(cv.triggeredAt ?? cv.createdAt ?? '').slice(0, 16) || '-'}</td>
-                    <td style={{ padding: '10px 12px', fontWeight: 600, color: '#1e40af' }}>{cv.finding || cv.description || cv.category || '-'}</td>
-                    <td style={{ padding: '10px 12px' }}>
-                      <SeverityTag level={cv.severity || 'neutral'} size="md" style={{ fontWeight: 700 }}>
-                        {cv.severity || '-'}
-                      </SeverityTag>
-                    </td>
-                    <td style={{ padding: '10px 12px' }}>
-                      <StatusTag status="neutral" size="md">
-                        {normalizeStatus(cv.state ?? cv.status)}
-                      </StatusTag>
-                    </td>
-                    <td style={{ padding: '10px 12px' }}>
-                      {criticalClosed(cv) ? (
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#16a34a', fontWeight: 600 }}>
-                          <CheckCircle size={14} />{t('patientDetailPanel.closedLoop')}
-                        </span>
-                      ) : (
-                        <span style={{ color: '#d97706', fontWeight: 600 }}>{t('patientDetailPanel.processing')}</span>
-                      )}
-                    </td>
-                    <td style={{ padding: '10px 12px' }}>
-                      <span style={{ color: '#2563eb', fontSize: 12, fontWeight: 600 }}>{t('patientDetailPanel.detailArrow')}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table></div>
+            <DataTable<CriticalValueDto>
+              columns={criticalColumns}
+              dataSource={criticalValues}
+              rowKey="id"
+              onRow={(cv) => ({
+                onClick: () => navigate(`/critical-value?cvId=${encodeURIComponent(cv.id)}`),
+                title: t('patientDetailPanel.clickViewCriticalDetail'),
+                style: { cursor: 'pointer' },
+              })}
+            />
           </div>
         )}
       </div>
@@ -720,47 +807,11 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
           <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8' }}>{t('patientDetailPanel.noReports')}</div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-              <thead>
-                <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid var(--border-color)' }}>
-                  {[t('patientDetailPanel.colReportId'), t('patientDetailPanel.colExamItem'), t('patientDetailPanel.colStatus'), t('patientDetailPanel.colIssuedAt'), t('patientDetailPanel.colReportDoctor'), t('patientDetailPanel.colActions')].map(h => (
-                    <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#475569', fontSize: 12 }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {reports.map((r, idx) => (
-                  <tr key={r.reportId || r.id} style={{ borderBottom: '1px solid var(--border-color)', background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--content-bg)' }}>
-                    <td style={{ padding: '10px 12px', fontFamily: 'monospace', color: '#64748b', fontSize: 12 }}>{r.reportId || r.id}</td>
-                    <td style={{ padding: '10px 12px', fontWeight: 600, color: '#1e40af' }}>{r.modality} {r.bodyPart}</td>
-                    <td style={{ padding: '10px 12px' }}>
-                      <StatusTag status="info" size="md">
-                        {normalizeStatus(r.status)}
-                      </StatusTag>
-                    </td>
-                    <td style={{ padding: '10px 12px', color: '#64748b' }}>{String(r.createdTime ?? r.updatedTime ?? '').slice(0, 16) || '-'}</td>
-                    <td style={{ padding: '10px 12px', color: '#64748b' }}>{r.doctorId || '-'}</td>
-                    <td style={{ padding: '10px 12px' }}>
-                      <div style={{ display: 'flex', gap: 6 }}>
-                        <button
-                          onClick={() => navigate(`/reports?reportId=${encodeURIComponent(r.reportId || r.id)}`)}
-                          style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 10px', background: 'var(--color-info-bg)', color: 'var(--color-info)', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
-                        >
-                          <Eye size={14} />{t('patientDetailPanel.view')}
-                        </button>
-                        <button
-                          onClick={() => handleExportReport(r)}
-                          disabled={exportingId === (r.reportId || r.id)}
-                          style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 10px', background: 'var(--color-success-bg)', color: 'var(--color-success)', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
-                        >
-                          <Download size={14} />{exportingId === (r.reportId || r.id) ? t('patientDetailPanel.exporting') : t('patientDetailPanel.download')}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table></div>
+            <DataTable<ReportDto>
+              columns={reportColumns}
+              dataSource={reports}
+              rowKey={(r) => String(r.reportId || r.id)}
+            />
           </div>
         )}
       </div>
@@ -777,39 +828,11 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
           <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8' }}>{t('patientDetailPanel.noInvoices')}</div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-              <thead>
-                <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid var(--border-color)' }}>
-                  {[t('patientDetailPanel.colInvoiceNo'), t('patientDetailPanel.colExamItem'), t('patientDetailPanel.colDate'), t('patientDetailPanel.colTotalAmount'), t('patientDetailPanel.colPaid'), t('patientDetailPanel.colBalance'), t('patientDetailPanel.colStatus')].map(h => (
-                    <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#475569', fontSize: 12 }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {invoices.map((inv, idx) => {
-                  const invAny = inv as unknown as { balance?: number; examItem?: string; examDate?: string; invoiceNo?: string; invoiceId?: string; issuedAt?: string; insurancePaid?: number; selfPaid?: number }
-                  const total = Number(inv.totalAmount ?? 0)
-                  const paid = Number(inv.paidAmount ?? (inv.status === 'PAID' ? total : 0))
-                  const balance = Number(invAny.balance ?? Math.max(0, total - paid))
-                  const status = inv.status || (balance > 0 ? 'UNPAID' : 'PAID')
-                  return (
-                    <tr key={inv.id ?? invAny.invoiceId} style={{ borderBottom: '1px solid var(--border-color)', background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--content-bg)' }}>
-                      <td style={{ padding: '10px 12px', fontFamily: 'monospace', color: '#64748b', fontSize: 12 }}>{invAny.invoiceNo || invAny.invoiceId || inv.id}</td>
-                      <td style={{ padding: '10px 12px', fontWeight: 600, color: '#1e40af' }}>{invAny.examItem || inv.items?.map(i => i.itemName).join('、') || '-'}</td>
-                      <td style={{ padding: '10px 12px', color: '#64748b' }}>{normalizeDate(invAny.examDate || inv.createdAt || invAny.issuedAt)}</td>
-                      <td style={{ padding: '10px 12px', fontWeight: 700, color: '#1e40af' }}>¥{total.toFixed(2)}</td>
-                      <td style={{ padding: '10px 12px', color: '#16a34a' }}>¥{paid.toFixed(2)}</td>
-                      <td style={{ padding: '10px 12px', color: balance > 0 ? '#dc2626' : '#94a3b8', fontWeight: 600 }}>¥{balance.toFixed(2)}</td>
-                      <td style={{ padding: '10px 12px' }}>
-                        <StatusTag status={status === 'PAID' ? 'success' : status === 'PARTIAL' ? 'warning' : 'failed'} size="md">
-                          {status === 'PAID' ? t('patientDetailPanel.settled') : status === 'PARTIAL' ? t('patientDetailPanel.partialPaid') : t('patientDetailPanel.unpaid')}
-                        </StatusTag>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table></div>
+            <DataTable<InvoiceDto>
+              columns={invoiceColumns}
+              dataSource={invoices}
+              rowKey={(inv) => String(inv.id ?? (inv as unknown as { invoiceId?: string }).invoiceId)}
+            />
           </div>
         )}
       </div>
@@ -870,7 +893,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <GitMerge size={22} color="#fff" />
                 <div>
-                  <div style={{ fontSize: 17, fontWeight: 700, color: '#fff' }}>{t('patientDetailPanel.mergeModalTitle')}</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>{t('patientDetailPanel.mergeModalTitle')}</div>
                   <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>{t('patientDetailPanel.mergeModalDesc', { name: selectedPatient.name, id: selectedPatient.id })}</div>
                 </div>
               </div>
@@ -899,13 +922,13 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
               )}
             </div>
             <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-              <button onClick={() => setShowMergeModal(false)} disabled={mergeLoading} style={{ padding: '8px 20px', background: 'var(--bg-card)', color: '#64748b', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+              <button onClick={() => setShowMergeModal(false)} disabled={mergeLoading} style={{ padding: '8px 20px', background: 'var(--bg-card)', color: '#64748b', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                 {t('patientDetailPanel.cancel')}
               </button>
               <button
                 onClick={handleMerge}
                 disabled={mergeLoading || !mergeTargetId.trim()}
-                style={{ padding: '8px 20px', background: mergeLoading ? '#fca5a5' : '#dc2626', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: mergeLoading || !mergeTargetId.trim() ? 'not-allowed' : 'pointer' }}
+                style={{ padding: '8px 20px', background: mergeLoading ? '#fca5a5' : '#dc2626', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: mergeLoading || !mergeTargetId.trim() ? 'not-allowed' : 'pointer' }}
               >
                 {mergeLoading ? t('patientDetailPanel.merging') : t('patientDetailPanel.confirmMerge')}
               </button>

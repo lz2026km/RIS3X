@@ -523,22 +523,22 @@ export const DefectRemediationTracker: React.FC = () => {
             </Space>
             <div>
               <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('defectRemediation.defect')}</div>
-              <div style={{ fontSize: 13 }}>{detailModal.defectName}</div>
+              <div style={{ fontSize: 12 }}>{detailModal.defectName}</div>
             </div>
             <div>
               <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('defectRemediation.description')}</div>
-              <div style={{ fontSize: 13 }}>{detailModal.description}</div>
+              <div style={{ fontSize: 12 }}>{detailModal.description}</div>
             </div>
             <div>
               <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('defectRemediation.suggestedFix')}</div>
-              <div style={{ fontSize: 13, color: '#0891b2' }}>{detailModal.suggestedFix}</div>
+              <div style={{ fontSize: 12, color: '#0891b2' }}>{detailModal.suggestedFix}</div>
             </div>
             {detailModal.rectifiedNote && (
               <div>
                 <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('defectRemediation.rectifyNote')}</div>
                 <div
                   style={{
-                    fontSize: 13,
+                    fontSize: 12,
                     padding: 6,
                     background: '#f0fdf4',
                     borderRadius: 4,

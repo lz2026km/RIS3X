@@ -324,13 +324,13 @@ const SrReportPage: React.FC = () => {
         </Tag>
         <div>
           <Space size={6}>
-            <Text style={{ fontSize: 13, fontWeight: 500 }}>{item.conceptName.meaning}</Text>
+            <Text style={{ fontSize: 12, fontWeight: 500 }}>{item.conceptName.meaning}</Text>
             {renderConcept(item.conceptName)}
             {item.relationshipType !== "CONTAINS" && (
               <Tag style={{ fontSize: 10 }}>{item.relationshipType}</Tag>
             )}
           </Space>
-          {item.value && <div style={{ fontSize: 13, color: "var(--text-primary)" }}>{item.value}</div>}
+          {item.value && <div style={{ fontSize: 12, color: "var(--text-primary)" }}>{item.value}</div>}
           {item.valueType === "CODE" && item.code && (
             <div style={{ marginTop: 2 }}>
               <Tag color="geekblue" style={{ fontSize: 10 }}>
@@ -647,7 +647,7 @@ const SrReportPage: React.FC = () => {
                   scroll={{ x: "max-content" }}
                 />
               )}
-              <div style={{ fontSize: 13, color: "#334155", lineHeight: 1.8, background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: 8, padding: "12px 14px", whiteSpace: "pre-wrap" }}>
+              <div style={{ fontSize: 12, color: "#334155", lineHeight: 1.8, background: "var(--bg-card)", border: "1px solid var(--border-color)", borderRadius: 8, padding: "12px 14px", whiteSpace: "pre-wrap" }}>
                 {backfillData.paragraph}
               </div>
             </>

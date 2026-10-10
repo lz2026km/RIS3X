@@ -12,7 +12,7 @@ import TechnicianRankingTable from '../../components/worklist/TechnicianRankingT
 import { ChartContainer } from '../../components/charts'
 import { PageHeader } from '../../components/common/PageHeader'
 import { AppText } from '../../components/common/AppText'
-import { ActionButton, ExportButton } from '../../components/common'
+import { ActionButton, DataTable, ExportButton } from '../../components/common'
 import { THEME_TOKENS } from '../../components/common/ThemeTokens'
 import { t } from '../../i18n/appI18n'
 
@@ -214,29 +214,20 @@ export default function TechnicianKpiDashboardPage() {
             padding: '14px 18px', overflow: 'auto',
           }} data-testid="tech-kpi-detail-table">
             <AppText size="sm" weight={700} style={{ color: THEME_TOKENS.textPrimary, display: 'block', marginBottom: 10 }}>技师明细 ({data?.technicians.length ?? 0})</AppText>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 860 }}>
-              <thead>
-                <tr style={{ color: 'var(--text-secondary)' }}>
-                  {['技师', '完成数', '平均时长', '重拍数', '重拍率', '平均等待', '设备占用率', '按时签到率'].map((h) => (
-                    <th key={h} style={{ textAlign: 'left', padding: '8px 10px', borderBottom: '1px solid var(--border-color)', fontWeight: 600, whiteSpace: 'nowrap' }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {(data?.technicians ?? []).map((t) => (
-                  <tr key={t.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
-                    <td style={{ padding: '8px 10px', fontWeight: 700 }}>{t.name}</td>
-                    <td style={{ padding: '8px 10px', fontWeight: 600, color: '#059669' }}>{t.completedCount}</td>
-                    <td style={{ padding: '8px 10px' }}>{t.avgDurationMin} min</td>
-                    <td style={{ padding: '8px 10px' }}>{t.retakeCount}</td>
-                    <td style={{ padding: '8px 10px', color: t.retakeRate > 20 ? '#dc2626' : 'var(--text-primary)' }}>{t.retakeRate}%</td>
-                    <td style={{ padding: '8px 10px' }}>{t.avgWaitTime} min</td>
-                    <td style={{ padding: '8px 10px' }}>{t.deviceUtilization}%</td>
-                    <td style={{ padding: '8px 10px', color: t.onTimeRate >= 80 ? '#059669' : t.onTimeRate >= 60 ? '#d97706' : '#dc2626' }}>{t.onTimeRate}%</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable
+              rowKey="id"
+              dataSource={data?.technicians ?? []}
+              columns={[
+                { title: '技师', dataIndex: 'name', key: 'name', render: (v: string) => <span style={{ fontWeight: 700 }}>{v}</span> },
+                { title: '完成数', dataIndex: 'completedCount', key: 'completedCount', render: (v: number) => <span style={{ fontWeight: 600, color: '#059669' }}>{v}</span> },
+                { title: '平均时长', dataIndex: 'avgDurationMin', key: 'avgDurationMin', render: (v: number) => `${v} min` },
+                { title: '重拍数', dataIndex: 'retakeCount', key: 'retakeCount' },
+                { title: '重拍率', dataIndex: 'retakeRate', key: 'retakeRate', render: (v: number) => <span style={{ color: v > 20 ? '#dc2626' : 'var(--text-primary)' }}>{v}%</span> },
+                { title: '平均等待', dataIndex: 'avgWaitTime', key: 'avgWaitTime', render: (v: number) => `${v} min` },
+                { title: '设备占用率', dataIndex: 'deviceUtilization', key: 'deviceUtilization', render: (v: number) => `${v}%` },
+                { title: '按时签到率', dataIndex: 'onTimeRate', key: 'onTimeRate', render: (v: number) => <span style={{ color: v >= 80 ? '#059669' : v >= 60 ? '#d97706' : '#dc2626' }}>{v}%</span> },
+              ]}
+            />
           </div>
         </>
       )}

@@ -277,7 +277,7 @@ export default function MobileApprovalPage() {
               <div style={{ width: 38, height: 38, borderRadius: 10, background: card.bg, color: card.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{card.icon}</div>
               <div>
                 <div style={{ fontSize: 12, color: '#64748b' }}>{card.label}</div>
-                <div style={{ fontSize: 22, fontWeight: 700, color: card.color }}>{card.value}</div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: card.color }}>{card.value}</div>
               </div>
             </div>
           ))}
@@ -385,13 +385,13 @@ export default function MobileApprovalPage() {
       >
         {acting && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 8 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#475569' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#475569' }}>
               <Tag color={TYPE_COLORS[acting.type] ?? 'default'} icon={TYPE_ICONS[acting.type]} style={{ margin: 0 }}>{acting.type}</Tag>
               <span>{acting.applicant} · {t('mobileApproval.submittedAt')} {fmtTime(acting.submittedAt)}</span>
             </div>
             {modalKind === 'approve' && (
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{t('mobileApproval.approveComment')}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{t('mobileApproval.approveComment')}</div>
                 <Input.TextArea
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
@@ -404,7 +404,7 @@ export default function MobileApprovalPage() {
             )}
             {modalKind === 'reject' && (
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{t('mobileApproval.rejectReason')} <span style={{ color: '#dc2626' }}>*</span></div>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{t('mobileApproval.rejectReason')} <span style={{ color: '#dc2626' }}>*</span></div>
                 <Input.TextArea
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
@@ -417,7 +417,7 @@ export default function MobileApprovalPage() {
             )}
             {modalKind === 'delegate' && (
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{t('mobileApproval.delegateTo')} <span style={{ color: '#dc2626' }}>*</span></div>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{t('mobileApproval.delegateTo')} <span style={{ color: '#dc2626' }}>*</span></div>
                 <Select
                   value={toUserId}
                   onChange={setToUserId}

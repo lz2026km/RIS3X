@@ -333,7 +333,7 @@ const MontagePage: React.FC = () => {
                         <span style={{ opacity: 0.75, fontSize: 11 }}>{s.patientName}</span>
                         <span style={{ opacity: 0.6, fontSize: 10 }}>{formatDate(s.acquisitionDate)}</span>
                         {s.status === "reported" && (
-                          <Tag color="green" style={{ position: "absolute", top: 4, right: 4, fontSize: 9, margin: 0 }}>
+                          <Tag color="green" style={{ position: "absolute", top: 4, right: 4, fontSize: 10, margin: 0 }}>
                             {t("montage.reported")}
                           </Tag>
                         )}

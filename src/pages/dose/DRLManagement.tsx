@@ -320,7 +320,7 @@ export default function DRLManagement() {
 
       <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", display: "flex", alignItems: "center", gap: 8 }}>
             <Zap size={16} color="#2563eb" />
             {t('drl.thresholdConfigTitle')}
           </div>
@@ -337,7 +337,7 @@ export default function DRLManagement() {
       </div>
 
       <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
           <AlertTriangle size={16} color="#dc2626" />
           {t('drl.loopCheckTitle')}
         </div>
@@ -371,7 +371,7 @@ export default function DRLManagement() {
       </div>
 
       <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
           <ShieldAlert size={16} color="#16a34a" />
           {t('drl.alertHistoryTitle')}
         </div>

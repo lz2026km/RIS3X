@@ -156,7 +156,7 @@ export function ExportDialog({ reportId, open, onCancel }: ExportDialogProps) {
                 display: "block",
                 marginBottom: 8,
                 fontWeight: 500,
-                fontSize: 13,
+                fontSize: 12,
               }}
             >
               {isZh ? "导出格式" : "Export Format"}
@@ -203,7 +203,7 @@ export function ExportDialog({ reportId, open, onCancel }: ExportDialogProps) {
                     display: "block",
                     marginBottom: 8,
                     fontWeight: 500,
-                    fontSize: 13,
+                    fontSize: 12,
                   }}
                 >
                   {isZh ? "纸张大小" : "Paper Size"}
@@ -229,7 +229,7 @@ export function ExportDialog({ reportId, open, onCancel }: ExportDialogProps) {
                     display: "block",
                     marginBottom: 8,
                     fontWeight: 500,
-                    fontSize: 13,
+                    fontSize: 12,
                   }}
                 >
                   {isZh ? "方向" : "Orientation"}
@@ -259,7 +259,7 @@ export function ExportDialog({ reportId, open, onCancel }: ExportDialogProps) {
                       display: "block",
                       marginBottom: 6,
                       fontWeight: 500,
-                      fontSize: 13,
+                      fontSize: 12,
                     }}
                   >
                     {isZh ? "包含影像" : "Include Images"}
@@ -278,7 +278,7 @@ export function ExportDialog({ reportId, open, onCancel }: ExportDialogProps) {
                       display: "block",
                       marginBottom: 6,
                       fontWeight: 500,
-                      fontSize: 13,
+                      fontSize: 12,
                     }}
                   >
                     {isZh ? "包含二维码" : "Include QR Code"}

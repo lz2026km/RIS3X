@@ -16,10 +16,10 @@ export default function DepartmentHeader({ onExport, onAdd }: DepartmentHeaderPr
       icon={<Briefcase style={{ width: 24, height: 24, color: C.primary }} />}
       actions={
         <>
-          <button onClick={onExport} style={{ padding: "8px 16px", background: C.white, border: `1px solid ${C.border}`, borderRadius: 6, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
+          <button onClick={onExport} style={{ padding: "8px 16px", background: C.white, border: `1px solid ${C.border}`, borderRadius: 6, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 6 }}>
             <Download style={{ width: 14, height: 14 }} /> {t('w9e.departmentHeader.exportReport')}
           </button>
-          <button onClick={onAdd} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
+          <button onClick={onAdd} style={{ padding: "8px 16px", background: C.primary, color: C.white, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 6 }}>
             <Plus style={{ width: 14, height: 14 }} /> {t('w9e.departmentHeader.addStaff')}
           </button>
         </>

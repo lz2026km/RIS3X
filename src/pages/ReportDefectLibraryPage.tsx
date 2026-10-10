@@ -957,18 +957,18 @@ export default function ReportDefectLibraryPage() {
             </div>
             <div>
               <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 4 }}>{t('reportDefect.description')}</div>
-              <div style={{ fontSize: 13, lineHeight: 1.7, color: "var(--text-primary)" }}>{libraryDetail.description}</div>
+              <div style={{ fontSize: 12, lineHeight: 1.7, color: "var(--text-primary)" }}>{libraryDetail.description}</div>
             </div>
             {libraryDetail.standard && (
               <div>
                 <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 4 }}>{t('w4a.defect.standard')}</div>
-                <div style={{ fontSize: 13, color: "var(--text-primary)" }}>{libraryDetail.standard}</div>
+                <div style={{ fontSize: 12, color: "var(--text-primary)" }}>{libraryDetail.standard}</div>
               </div>
             )}
             {libraryDetail.checkMethod && (
               <div>
                 <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 4 }}>{t('w4a.defect.checkMethod')}</div>
-                <div style={{ fontSize: 13, color: "var(--text-primary)" }}>{libraryDetail.checkMethod}</div>
+                <div style={{ fontSize: 12, color: "var(--text-primary)" }}>{libraryDetail.checkMethod}</div>
               </div>
             )}
           </div>
@@ -996,7 +996,7 @@ export default function ReportDefectLibraryPage() {
                 background: "var(--bg-card)",
                 color: "var(--text-secondary)",
                 borderRadius: 8,
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: 600,
                 cursor: "pointer",
               }}
@@ -1011,7 +1011,7 @@ export default function ReportDefectLibraryPage() {
                 background: "#3b82f6",
                 color: "#fff",
                 borderRadius: 8,
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: 600,
                 cursor: "pointer",
                 display: "inline-flex",
@@ -1050,7 +1050,7 @@ export default function ReportDefectLibraryPage() {
                 background: "var(--bg-card)",
                 color: "var(--text-secondary)",
                 borderRadius: 8,
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: 600,
                 cursor: "pointer",
               }}
@@ -1065,7 +1065,7 @@ export default function ReportDefectLibraryPage() {
                 background: "#3b82f6",
                 color: "#fff",
                 borderRadius: 8,
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: 600,
                 cursor: "pointer",
                 display: "inline-flex",
@@ -1106,7 +1106,7 @@ export default function ReportDefectLibraryPage() {
                 marginBottom: 12,
               }}
             >
-              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-primary)" }}>
                 {selectedDefect.name}
               </div>
               <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
@@ -1189,7 +1189,7 @@ export default function ReportDefectLibraryPage() {
             color: "#fff",
             padding: "10px 20px",
             borderRadius: 8,
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: 600,
             boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
             zIndex: "var(--z-toast, 800)",

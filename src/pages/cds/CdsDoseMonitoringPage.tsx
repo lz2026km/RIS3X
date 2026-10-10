@@ -125,7 +125,7 @@ export default function CdsDoseMonitoringPage() {
           <Gauge size={24} />
           <span style={{ fontSize: 20, fontWeight: 600 }}>{t('cdsDose.title')}</span>
         </div>
-        <button onClick={() => { fetchData() }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+        <button onClick={() => { fetchData() }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
           <RefreshCw size={14} />{t('cdsDose.refresh')}
         </button>
       </div>
@@ -134,20 +134,20 @@ export default function CdsDoseMonitoringPage() {
         <div style={{ display: 'flex', gap: 16, marginBottom: 20, flexWrap: 'wrap' }}>
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 180 }}>
             <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 8 }}>{t('cdsDose.stat.recordCount')}</div>
-            <div style={{ fontSize: 26, fontWeight: 700 }}>{data.records.length}</div>
+            <div style={{ fontSize: 24, fontWeight: 700 }}>{data.records.length}</div>
           </div>
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 180 }}>
             <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 8 }}>{t('cdsDose.stat.avgDlp')}</div>
-            <div style={{ fontSize: 26, fontWeight: 700 }}>{avgDlp}</div>
+            <div style={{ fontSize: 24, fontWeight: 700 }}>{avgDlp}</div>
           </div>
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid #ef444455', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 180 }}>
             <div style={{ fontSize: 12, color: 'var(--color-error-400, #f87171)', marginBottom: 8 }}>{t('cdsDose.stat.exceeded')}</div>
-            <div style={{ fontSize: 26, fontWeight: 700, color: exceeded.length ? 'var(--color-error-500, #ef4444)' : 'var(--text-primary, #f0f6fc)' }}>{exceeded.length}</div>
+            <div style={{ fontSize: 24, fontWeight: 700, color: exceeded.length ? 'var(--color-error-500, #ef4444)' : 'var(--text-primary, #f0f6fc)' }}>{exceeded.length}</div>
           </div>
         </div>
 
         {error && (
-          <div style={{ padding: '12px 16px', borderRadius: 6, border: '1px solid #ef444455', background: '#ef444410', color: '#f87171', fontSize: 13, marginBottom: 16 }}>
+          <div style={{ padding: '12px 16px', borderRadius: 6, border: '1px solid #ef444455', background: '#ef444410', color: '#f87171', fontSize: 12, marginBottom: 16 }}>
             {t('cdsDose.loadFailed')}: {error}
           </div>
         )}

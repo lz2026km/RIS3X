@@ -170,7 +170,7 @@ export const PatientProfile360: React.FC<PatientProfile360Props> = ({
                           dot: e.icon,
                           children: (
                             <div>
-                              <div style={{ fontSize: 13, fontWeight: 500 }}>{e.title}</div>
+                              <div style={{ fontSize: 12, fontWeight: 500 }}>{e.title}</div>
                               <div style={{ fontSize: 12, color: '#64748b' }}>{e.description}</div>
                               <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{e.at}</div>
                             </div>
@@ -265,7 +265,7 @@ export const PatientProfile360: React.FC<PatientProfile360Props> = ({
                       }
                       description={
                         <div>
-                          <div style={{ fontSize: 13, color: '#475569' }}>{r.conclusion.slice(0, 120)}{r.conclusion.length > 120 ? '...' : ''}</div>
+                          <div style={{ fontSize: 12, color: '#475569' }}>{r.conclusion.slice(0, 120)}{r.conclusion.length > 120 ? '...' : ''}</div>
                           <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('w9e.patientProfile360.reportAuthor', { name: r.author })} · {r.reportDate}</div>
                         </div>
                       }

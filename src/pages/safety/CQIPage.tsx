@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { ChartContainer } from '../../components/charts'
 import { StateView } from '../../components/common/StateView'
+import { DataTable } from '../../components/common'
 import { TrendingUp, CheckCircle, Target, Plus, BarChart3, Activity } from 'lucide-react'
 import {
   getCqiDashboard, createCqiProject, closeCqiProject,
@@ -77,7 +78,7 @@ export default function CQIPage() {
             startDate: new Date().toISOString().slice(0, 10),
             targetEndDate: '',
           }).then(() => getCqiDashboard().then(setProjects))
-        }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+        }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
           <Plus size={14} />{t('cqi.newProject')}
         </button>
       </div>
@@ -92,7 +93,7 @@ export default function CQIPage() {
           ].map((k, i) => (
             <div key={i} style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 140 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}><span style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)' }}>{k.title}</span><k.icon size={20} style={{ color: k.color }} /></div>
-              <div style={{ fontSize: 28, fontWeight: 700 }}>{k.value}</div>
+              <div style={{ fontSize: 30, fontWeight: 700 }}>{k.value}</div>
             </div>
           ))}
         </div>
@@ -106,7 +107,7 @@ export default function CQIPage() {
               </div>
               <span style={{ padding: '4px 12px', borderRadius: 4, fontSize: 12, background: `${STATUS_COLORS[selectedProject.status]}20`, color: STATUS_COLORS[selectedProject.status] }}>{t(STATUS_LABELS[selectedProject.status])}</span>
             </div>
-            <div style={{ marginBottom: 16, color: 'var(--text-muted, #8b949e)', fontSize: 13 }}>{selectedProject.description}</div>
+            <div style={{ marginBottom: 16, color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{selectedProject.description}</div>
             <div style={{ marginBottom: 16, padding: '10px 14px', background: 'var(--bg-primary, #0d1117)', borderRadius: 6, border: '1px solid var(--bg-secondary, #21262d)' }}>
               <div style={{ fontSize: 12, color: 'var(--text-muted, #8b949e)', marginBottom: 4 }}>{t('cqi.aim')}</div>
               <div style={{ fontSize: 14, color: 'var(--text-primary, #f0f6fc)' }}>{selectedProject.aim}</div>
@@ -132,7 +133,7 @@ export default function CQIPage() {
               {selectedProject.pdsaCycles.length > 0 ? selectedProject.pdsaCycles.map((pd, i) => (
                 <div key={i} style={{ background: 'var(--bg-primary, #0d1117)', borderRadius: 6, padding: 12, border: '1px solid var(--bg-secondary, #21262d)', marginBottom: 8 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <span style={{ fontSize: 13, fontWeight: 600 }}>PDSA #{pd.cycle}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600 }}>PDSA #{pd.cycle}</span>
                     <span style={{ fontSize: 12, color: '#6e7681' }}>{pd.startDate} ~ {pd.endDate}</span>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
@@ -146,7 +147,7 @@ export default function CQIPage() {
                   </div>
                 </div>
               )) : (
-                <div style={{ color: 'var(--text-muted, #8b949e)', fontSize: 13 }}>{t('cqi.noPdsa')}</div>
+                <div style={{ color: 'var(--text-muted, #8b949e)', fontSize: 12 }}>{t('cqi.noPdsa')}</div>
               )}
             </div>
 
@@ -157,10 +158,10 @@ export default function CQIPage() {
                   const data = await getCqiDashboard()
                   setProjects(data)
                   setSelectedProject(null)
-                }} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#0891b2', color: '#fff', cursor: 'pointer', fontSize: 13 }}>
+                }} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#0891b2', color: '#fff', cursor: 'pointer', fontSize: 12 }}>
                   {t('cqi.closeProject')}
                 </button>
-                <button onClick={() => setSelectedProject(null)} style={{ marginLeft: 8, padding: '8px 16px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 13 }}>
+                <button onClick={() => setSelectedProject(null)} style={{ marginLeft: 8, padding: '8px 16px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: 'var(--text-muted, #8b949e)', cursor: 'pointer', fontSize: 12 }}>
                   {t('cqi.back')}
                 </button>
               </div>
@@ -190,7 +191,7 @@ export default function CQIPage() {
                 <ChartContainer height={200} state={indicatorData.length === 0 ? 'empty' : 'ready'} emptyDescription={t('cqi.noIndicatorData')}>
                   <BarChart data={indicatorData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default, #30363d)" />
-                    <XAxis dataKey="indicator" tick={{ fontSize: 8, fill: 'var(--text-muted, #8b949e)' }} />
+                    <XAxis dataKey="indicator" tick={{ fontSize: 10, fill: 'var(--text-muted, #8b949e)' }} />
                     <YAxis tick={{ fontSize: 12, fill: 'var(--text-muted, #8b949e)' }} />
                     <Tooltip contentStyle={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 4, fontSize: 12 }} />
                     <Legend wrapperStyle={{ fontSize: 12 }} />
@@ -219,38 +220,32 @@ export default function CQIPage() {
               skeletonRows={5}
             >
             <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, overflow: 'hidden' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-                <thead>
-                  <tr>
-                    <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('cqi.colProject')}</th>
-                    <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('cqi.colAim')}</th>
-                    <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('cqi.colStatus')}</th>
-                    <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>PDSA</th>
-                    <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('cqi.colIndicators')}</th>
-                    <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('cqi.colOwner')}</th>
-                    <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('cqi.colActions')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map(p => (
-                    <tr key={p.id}>
-                      <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>{p.title}</td>
-                      <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)', fontSize: 12, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.aim}</td>
-                      <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
-                        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${STATUS_COLORS[p.status]}20`, color: STATUS_COLORS[p.status] }}>{t(STATUS_LABELS[p.status])}</span>
-                      </td>
-                      <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>{p.pdsaCycles.length}</td>
-                      <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>{p.indicators.length}</td>
-                      <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{p.sponsor}</td>
-                      <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
-                        <button onClick={() => setSelectedProject(p)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: '#3b82f6', cursor: 'pointer', fontSize: 12 }}>
-                          {t('cqi.view')}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <DataTable
+                rowKey="id"
+                dataSource={filtered}
+                columns={[
+                  { title: t('cqi.colProject'), dataIndex: 'title', key: 'title' },
+                  { title: t('cqi.colAim'), dataIndex: 'aim', key: 'aim', ellipsis: true },
+                  {
+                    title: t('cqi.colStatus'),
+                    dataIndex: 'status',
+                    key: 'status',
+                    render: (v: CqiStatus) => <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${STATUS_COLORS[v]}20`, color: STATUS_COLORS[v] }}>{t(STATUS_LABELS[v])}</span>,
+                  },
+                  { title: 'PDSA', key: 'pdsaCycles', render: (_v, p) => p.pdsaCycles.length },
+                  { title: t('cqi.colIndicators'), key: 'indicators', render: (_v, p) => p.indicators.length },
+                  { title: t('cqi.colOwner'), dataIndex: 'sponsor', key: 'sponsor', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
+                  {
+                    title: t('cqi.colActions'),
+                    key: 'actions',
+                    render: (_v, p) => (
+                      <button onClick={() => setSelectedProject(p)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid var(--border-default, #30363d)', background: 'transparent', color: '#3b82f6', cursor: 'pointer', fontSize: 12 }}>
+                        {t('cqi.view')}
+                      </button>
+                    ),
+                  },
+                ]}
+              />
             </div>
             </StateView>
           </>

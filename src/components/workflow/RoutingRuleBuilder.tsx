@@ -169,7 +169,7 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <GripVertical size={12} color="#94a3b8" />
-                <span style={{ fontWeight: 600, color: '#1e40af', fontSize: 13, flex: 1 }}>{rule.name}</span>
+                <span style={{ fontWeight: 600, color: '#1e40af', fontSize: 12, flex: 1 }}>{rule.name}</span>
                 <span style={{ fontSize: 12, color: rule.active ? '#059669' : '#94a3b8' }}>
                   {rule.active ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
                 </span>
@@ -327,7 +327,7 @@ function flatten(group: RuleConditionGroup): RuleCondition[] {
 const labelStyle: React.CSSProperties = { display: 'block', fontSize: 12, color: '#475569', fontWeight: 600, marginBottom: 4 };
 const inputStyle: React.CSSProperties = { width: '100%', padding: '6px 10px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, color: '#1e40af', background: 'var(--bg-card)' };
 const sectionStyle: React.CSSProperties = { marginTop: 16, padding: 12, background: 'var(--bg-card)', borderRadius: 8 };
-const sectionTitleStyle: React.CSSProperties = { fontWeight: 700, color: '#1e40af', fontSize: 13 };
+const sectionTitleStyle: React.CSSProperties = { fontWeight: 700, color: '#1e40af', fontSize: 12 };
 const addBtnStyle: React.CSSProperties = { background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: '#1e40af', padding: '4px 10px', borderRadius: 6, fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 };
 
 const tabBtnStyle = (active: boolean): React.CSSProperties => ({

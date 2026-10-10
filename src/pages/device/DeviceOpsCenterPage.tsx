@@ -420,7 +420,7 @@ export default function DeviceOpsCenterPage() {
           <Space size={16}>
             <Wrench size={34} color="#fff" />
             <div>
-              <div style={{ fontSize: 22, fontWeight: 800 }}>{t('w11Device.title')}</div>
+              <div style={{ fontSize: 20, fontWeight: 800 }}>{t('w11Device.title')}</div>
               <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>{t('w11Device.subtitle')}</div>
             </div>
           </Space>

@@ -231,7 +231,7 @@ export default function CostDrgPage() {
           <Space size={16}>
             <BarChart3 size={34} color="#fff" />
             <div>
-              <div style={{ fontSize: 22, fontWeight: 800 }}>{t('costDrg.title')}</div>
+              <div style={{ fontSize: 20, fontWeight: 800 }}>{t('costDrg.title')}</div>
               <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>{t('costDrg.subtitle')}</div>
             </div>
           </Space>

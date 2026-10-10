@@ -27,17 +27,29 @@ let viewportHeight = 0;
 let hexTotal = 0;
 let mojibake = 0;
 let clickableNoRole = 0;
+let nativeTable = 0;
+let offScaleFont = 0;
+const FONT_SCALE = new Set(["10", "11", "12", "14", "16", "18", "20", "24", "30", "36", "48"]);
 
 for (const f of pages) {
   const c = readFileSync(f, "utf8");
   antdTable += (c.match(/<Table\b/g) || []).length;
+  nativeTable += (c.match(/<table\b/g) || []).length;
   outlineNone += (c.match(/outline:\s*['"]none['"]/g) || []).length;
   viewportHeight += (c.match(/minHeight:\s*['"]100vh['"]/g) || []).length;
   hexTotal += (c.match(/#[0-9a-fA-F]{6}\b/g) || []).length;
-  const tagRe = /<(div|span)[^>]*?onClick=[^>]*?>/g;
-  let m;
-  while ((m = tagRe.exec(c))) {
-    if (!/role=/.test(m[0])) clickableNoRole++;
+  // 行级判定: 含 <div/<span + onClick 且同一行无 role, 排除 stopPropagation 包装
+  for (const line of c.split("\n")) {
+    if (!/onClick=/.test(line)) continue;
+    if (!/<(div|span)\b/.test(line)) continue;
+    if (/role=/.test(line)) continue;
+    if (/stopPropagation/.test(line)) continue;
+    clickableNoRole++;
+  }
+  const fRe = /fontSize:\s*(\d+(?:\.\d+)?)/g;
+  let fm;
+  while ((fm = fRe.exec(c))) {
+    if (!FONT_SCALE.has(fm[1])) offScaleFont++;
   }
 }
 for (const f of allSrc) {
@@ -48,16 +60,20 @@ const BUDGET = {
   antdTable: 0,
   outlineNone: 0,
   viewportHeight: 0,
-  hexTotal: 13654, // 只减不增
+  hexTotal: 13390, // 只减不增
   mojibake: 0,
-  clickableNoRole: 289, // 只减不增 (剩余多为遮罩/stopPropagation 包装)
+  clickableNoRole: 151, // 只减不增 (行级统计; 剩余多为遮罩/包装)
+  nativeTable: 26, // 只减不增 (剩余为打印/热力图/日历模板)
+  offScaleFont: 42, // 只减不增 (仅允许设计刻度 10/11/12/14/16/18/20/24/30/36/48)
 };
 
 const checks = [
   ["antdTable", antdTable, "裸 antd <Table> (请改用 components/common 的 <DataTable>)"],
+  ["nativeTable", nativeTable, "原生 HTML <table> (数据表请用 <DataTable>; 打印/热力图除外)"],
   ["outlineNone", outlineNone, "outline:'none' 焦点抑制 (改用 :focus-visible / --shadow-focus)"],
   ["viewportHeight", viewportHeight, "minHeight:'100vh' (内容区已滚动, 会造成幽灵滚动条)"],
   ["hexTotal", hexTotal, "硬编码 #rrggbb (优先使用 design-system.css 令牌)"],
+  ["offScaleFont", offScaleFont, "脱离设计尺度的 fontSize (仅 10/11/12/14/16/18/20/24/30/36/48)"],
   ["mojibake", mojibake, "U+FFFD 乱码"],
   ["clickableNoRole", clickableNoRole, "可点击 div/span 缺 role (交互元素需键盘可达)"],
 ];

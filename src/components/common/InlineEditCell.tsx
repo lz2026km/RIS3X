@@ -157,7 +157,7 @@ export function InlineEditCell({
     width: "100%",
     minWidth: 80,
     padding: "3px 6px",
-    fontSize: 12.5,
+    fontSize: 12,
     borderRadius: 6,
     border: `1px solid ${error ? "var(--color-error, #dc2626)" : "var(--color-primary-500, #3b82f6)"}`,
     background: "var(--form-input-bg, #fff)",

@@ -144,7 +144,7 @@ export function CriticalValueStatsExtended() {
                   ]}
                 />
                 {timeline.events.length === 0 ? (
-                  <div style={{ color: 'var(--text-secondary)', fontSize: 13 }}>{t('w2d.empty')}</div>
+                  <div style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{t('w2d.empty')}</div>
                 ) : (
                   <Timeline
                     items={timeline.events.map((e) => ({

@@ -757,7 +757,7 @@ export default function RqiReportCenterPage() {
                 <div>
                   <div style={{ marginBottom: 12 }}>
                     <Space size={8}>
-                      <span style={{ fontSize: 13, color: '#64748b' }}>
+                      <span style={{ fontSize: 12, color: '#64748b' }}>
                         {t('rqiReport.filter.status')}
                       </span>
                       <Select
@@ -954,7 +954,7 @@ export default function RqiReportCenterPage() {
               )}
             </div>
 
-            <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>
+            <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 8 }}>
               {t('rqiReport.detail.indicators')}
             </div>
             <DataTable<RqiReportIndicatorEntry>
@@ -1047,7 +1047,7 @@ function InfoItem({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div>
       <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 2 }}>{label}</div>
-      <div style={{ fontSize: 13, color: 'var(--text-primary, #0f172a)', wordBreak: 'break-all' }}>
+      <div style={{ fontSize: 12, color: 'var(--text-primary, #0f172a)', wordBreak: 'break-all' }}>
         {value}
       </div>
     </div>

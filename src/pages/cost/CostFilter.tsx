@@ -45,7 +45,7 @@ export function CostFilter({ activeTab, onTabChange, timeRange, onTimeRangeChang
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
           <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary, #f0f6fc)', marginBottom: 4 }}>{t('costFilter.title')}</div>
-          <div style={{ fontSize: 13, color: '#6e7681' }}>{t('costFilter.subtitle')}</div>
+          <div style={{ fontSize: 12, color: '#6e7681' }}>{t('costFilter.subtitle')}</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           {(['month', 'quarter', 'year'] as TimeRange[]).map(range => (
@@ -81,7 +81,7 @@ export function CostFilter({ activeTab, onTabChange, timeRange, onTimeRangeChang
               borderBottom: activeTab === tab.key ? '2px solid #3b82f6' : '2px solid transparent',
               background: 'transparent',
               color: activeTab === tab.key ? 'var(--text-primary, #f0f6fc)' : 'var(--text-muted, #8b949e)',
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: 500,
               cursor: 'pointer',
               display: 'flex',

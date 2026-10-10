@@ -457,7 +457,7 @@ export default function CASignaturePage() {
                     value={reportId}
                     onChange={(e) => setReportId(e.target.value)}
                     placeholder={t('caSignature.reportIdPlaceholder')}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, boxSizing: 'border-box' }}
                   />
                 </div>
                 <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>
@@ -773,9 +773,9 @@ export default function CASignaturePage() {
       >
         <div style={{ maxHeight: 480, overflow: 'auto', paddingTop: 8 }}>
           {signaturesLoading ? (
-            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 13 }}>{t('caSignature.loadingSignatures')}</div>
+            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 12 }}>{t('caSignature.loadingSignatures')}</div>
           ) : signatures.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 13 }}>{t('caSignature.noSignatures')}</div>
+            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 12 }}>{t('caSignature.noSignatures')}</div>
           ) : (
             <DataTable<SignatureRecord>
               rowKey="id"
@@ -798,9 +798,9 @@ export default function CASignaturePage() {
       >
         <div style={{ maxHeight: 460, overflow: 'auto', paddingTop: 8 }}>
           {historyLoading ? (
-            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 13 }}>{t('caSignature.loadingHistory')}</div>
+            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 12 }}>{t('caSignature.loadingHistory')}</div>
           ) : history.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 13 }}>{t('caSignature.noHistory')}</div>
+            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 12 }}>{t('caSignature.noHistory')}</div>
           ) : (
             <div>
               {history.map(h => {

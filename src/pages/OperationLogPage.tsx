@@ -674,7 +674,7 @@ export default function OperationLogPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: '#1e293b', color: WHITE }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Radio size={16} color="#22c55e" />
-              <span style={{ fontWeight: 600, fontSize: 13 }}>{t('opLog.liveStream')}</span>
+              <span style={{ fontWeight: 600, fontSize: 12 }}>{t('opLog.liveStream')}</span>
               <span style={{ background: '#22c55e', width: 8, height: 8, borderRadius: '50%', display: 'inline-block' }} />
               <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('opLog.poll5s')}</span>
             </div>
@@ -720,7 +720,7 @@ export default function OperationLogPage() {
             ].map(card => (
               <div key={card.label} style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
-                <div><div style={{ fontSize: 22, fontWeight: 800, color: card.color }}>{card.value}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
+                <div><div style={{ fontSize: 20, fontWeight: 800, color: card.color }}>{card.value}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
               </div>
             ))}
           </div>
@@ -759,7 +759,7 @@ export default function OperationLogPage() {
       {liveTab === 'session' && (
         <div style={{ margin: '0 20px 16px', display: 'flex', gap: 16 }}>
           <div style={{ width: 220, flexShrink: 0, background: WHITE, borderRadius: 10, border: '1px solid var(--border-color)', padding: 16 }}>
-            <h3 style={{ fontSize: 13, fontWeight: 700, color: PRIMARY, margin: '0 0 12px' }}>{t('opLog.selectUser')}</h3>
+            <h3 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: '0 0 12px' }}>{t('opLog.selectUser')}</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {sessionUsers.map(name => (
                 <button key={name} onClick={() => setSelectedSessionUser(name)} style={{
@@ -777,7 +777,7 @@ export default function OperationLogPage() {
             {selectedSessionUser ? (
               <>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                  <h3 style={{ fontSize: 13, fontWeight: 700, color: PRIMARY, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <h3 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <User size={16} />{t('opLog.userSessionTimeline', { name: selectedSessionUser })}
                   </h3>
                   <span style={{ fontSize: 12, color: GRAY }}>{t('opLog.sessionOpsCount', { count: sessionLogs.length })}</span>
@@ -890,7 +890,7 @@ export default function OperationLogPage() {
             }}><Shield size={14} />{t('opLog.verifyIntegrity')}</button>
           </div>
           {verifyResult && (
-            <div style={{ padding: '12px 16px', borderRadius: 8, background: verifyOk ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: verifyOk ? SUCCESS : DANGER, fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ padding: '12px 16px', borderRadius: 8, background: verifyOk ? 'var(--color-success-bg)' : 'var(--color-error-bg)', color: verifyOk ? SUCCESS : DANGER, fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
               {verifyOk ? <CheckCircle size={16} /> : <AlertTriangle size={16} />}
               {verifyResult}
             </div>
@@ -923,7 +923,7 @@ export default function OperationLogPage() {
 
       {/* Toast */}
       {toastMsg && (
-        <div style={{ position: 'fixed', top: 24, right: 24, padding: '10px 18px', borderRadius: 8, background: SUCCESS, color: WHITE, fontSize: 13, fontWeight: 600, zIndex: 9999, boxShadow: '0 4px 12px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ position: 'fixed', top: 24, right: 24, padding: '10px 18px', borderRadius: 8, background: SUCCESS, color: WHITE, fontSize: 12, fontWeight: 600, zIndex: 9999, boxShadow: '0 4px 12px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', gap: 8 }}>
           <CheckCircle size={16} />{toastMsg}
         </div>
       )}
@@ -941,10 +941,10 @@ export default function OperationLogPage() {
           <div style={{ background: WHITE, borderRadius: 12, padding: '32px 40px', minWidth: 320, boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
             <div style={{ textAlign: 'center', marginBottom: 20 }}>
               <Loader2 size={40} style={{ color: PRIMARY, animation: 'spin 1s linear infinite', marginBottom: 12 }} />
-              <div style={{ fontSize: 15, fontWeight: 600, color: PRIMARY, marginBottom: 8 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: PRIMARY, marginBottom: 8 }}>
                 {exportProgress < 100 ? t('opLog.exportingProgress') : t('opLog.exportDone')}
               </div>
-              <div style={{ fontSize: 13, color: GRAY, marginBottom: 16 }}>
+              <div style={{ fontSize: 12, color: GRAY, marginBottom: 16 }}>
                 {exportProgress < 100 ? t('opLog.pleaseWait') : t('opLog.fileReady')}
               </div>
               <div style={{ width: '100%', height: 8, background: 'var(--border-color)', borderRadius: 4, overflow: 'hidden' }}>

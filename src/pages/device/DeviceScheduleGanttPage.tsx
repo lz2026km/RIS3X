@@ -268,7 +268,7 @@ export default function DeviceScheduleGanttPage() {
         <Button size="small" icon={<ChevronLeft size={14} />} onClick={() => shiftWeek(-1)} />
         <Button size="small" onClick={goToday}>{t('thisWeek', '本周')}</Button>
         <Button size="small" icon={<ChevronRight size={14} />} onClick={() => shiftWeek(1)} />
-        <span style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>
+        <span style={{ fontSize: 12, fontWeight: 600, color: '#0f172a' }}>
           {view ? `${view.weekStart} ~ ${dayjs(view.weekStart).add(6, 'day').format('YYYY-MM-DD')}` : weekStart}
         </span>
         <Tag color="blue" style={{ fontSize: 11 }}>{t('weekHint', '周一 ~ 周日')}</Tag>
@@ -367,7 +367,7 @@ export default function DeviceScheduleGanttPage() {
                           {/* 小时刻度 */}
                           {Array.from({ length: WORK_END_HOUR - WORK_START_HOUR + 1 }, (_, h) => (
                             <div key={h} style={{ position: 'absolute', top: h * HOUR_HEIGHT + 24, left: 0, right: 0, height: 1, background: '#eef2f7', pointerEvents: 'none' }}>
-                              <span style={{ position: 'absolute', left: 3, top: -8, fontSize: 9, color: '#cbd5e1' }}>
+                              <span style={{ position: 'absolute', left: 3, top: -8, fontSize: 10, color: '#cbd5e1' }}>
                                 {h + WORK_START_HOUR}:00
                               </span>
                             </div>

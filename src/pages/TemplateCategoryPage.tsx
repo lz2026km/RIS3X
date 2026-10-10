@@ -770,15 +770,15 @@ export default function TemplateCategoryPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('tplCategory.nameLabel')}</label>
-                <input value={catForm.name} onChange={e => setCatForm({ ...catForm, name: e.target.value })} placeholder={t('tplCategory.namePlaceholder')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box',}} />
+                <input value={catForm.name} onChange={e => setCatForm({ ...catForm, name: e.target.value })} placeholder={t('tplCategory.namePlaceholder')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('tplCategory.descriptionLabel')}</label>
-                <textarea value={catForm.description} onChange={e => setCatForm({ ...catForm, description: e.target.value })} rows={3} placeholder={t('tplCategory.descriptionPlaceholder')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit' }} />
+                <textarea value={catForm.description} onChange={e => setCatForm({ ...catForm, description: e.target.value })} rows={3} placeholder={t('tplCategory.descriptionPlaceholder')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit' }} />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('tplCategory.sortOrderLabel')}</label>
-                <input type="number" min={1} value={catForm.sortOrder} onChange={e => setCatForm({ ...catForm, sortOrder: Number(e.target.value) })} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box',}} />
+                <input type="number" min={1} value={catForm.sortOrder} onChange={e => setCatForm({ ...catForm, sortOrder: Number(e.target.value) })} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box',}} />
               </div>
               {categorySource === 'fallback' && (
                 <div style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>
@@ -786,8 +786,8 @@ export default function TemplateCategoryPage() {
                 </div>
               )}
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
-                <button onClick={() => setCatModal(null)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('tplCategory.cancel')}</button>
-                <button onClick={() => void saveCategory()} disabled={catSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#0891b2', color: '#fff', fontSize: 13, fontWeight: 600, cursor: catSaving ? 'wait' : 'pointer' }}>{catSaving ? t('tplCategory.saving') : t('tplCategory.saveCategory')}</button>
+                <button onClick={() => setCatModal(null)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('tplCategory.cancel')}</button>
+                <button onClick={() => void saveCategory()} disabled={catSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#0891b2', color: '#fff', fontSize: 12, fontWeight: 600, cursor: catSaving ? 'wait' : 'pointer' }}>{catSaving ? t('tplCategory.saving') : t('tplCategory.saveCategory')}</button>
               </div>
             </div>
           </div>
@@ -809,7 +809,7 @@ export default function TemplateCategoryPage() {
                 <select
                   value={moveTargetId}
                   onChange={e => setMoveTargetId(e.target.value)}
-                  style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', background: 'var(--bg-card)' }}
+                  style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, boxSizing: 'border-box', background: 'var(--bg-card)' }}
                 >
                   <option value="">{t('tplCategory.moveTopOption')}</option>
                   {realCategories.filter(c => c.id !== moveModal.cat.id).map(c => (
@@ -821,8 +821,8 @@ export default function TemplateCategoryPage() {
                 </div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
-                <button onClick={() => setMoveModal(null)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('tplCategory.cancel')}</button>
-                <button onClick={() => void saveMove()} disabled={moveSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#0891b2', color: '#fff', fontSize: 13, fontWeight: 600, cursor: moveSaving ? 'wait' : 'pointer' }}>{moveSaving ? t('tplCategory.moving') : t('tplCategory.confirmMove')}</button>
+                <button onClick={() => setMoveModal(null)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('tplCategory.cancel')}</button>
+                <button onClick={() => void saveMove()} disabled={moveSaving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#0891b2', color: '#fff', fontSize: 12, fontWeight: 600, cursor: moveSaving ? 'wait' : 'pointer' }}>{moveSaving ? t('tplCategory.moving') : t('tplCategory.confirmMove')}</button>
               </div>
             </div>
           </div>

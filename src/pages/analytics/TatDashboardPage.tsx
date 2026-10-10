@@ -414,7 +414,7 @@ export default function TatDashboardPage() {
               <Clock size={24} />
               {t('tatDashboard.title')}
             </h1>
-            <p style={{ fontSize: 13, color: "#64748b", margin: 0 }}>
+            <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>
               Turnaround Time Analytics Dashboard · OLAP 实时统计
             </p>
           </div>

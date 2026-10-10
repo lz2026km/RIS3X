@@ -266,24 +266,24 @@ export default function AsrDictationPage() {
               value={reportId}
               onChange={(e) => setReportId(e.target.value)}
               placeholder={t('w17.asr.reportIdPlaceholder')}
-              style={{ padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, width: 220 }}
+              style={{ padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, width: 220 }}
             />
             {!streaming ? (
-              <button onClick={() => void handleStart()} disabled={loading} style={{ padding: '10px 22px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <button onClick={() => void handleStart()} disabled={loading} style={{ padding: '10px 22px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Mic size={15} />{loading ? t('w17.asr.starting') : t('w17.asr.start')}
               </button>
             ) : (
               <div style={{ display: 'flex', gap: 8 }}>
                 {paused ? (
-                  <button onClick={handleResume} style={{ padding: '10px 18px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <button onClick={handleResume} style={{ padding: '10px 18px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <Play size={15} />{t('w17.asr.resume')}
                   </button>
                 ) : (
-                  <button onClick={handlePause} style={{ padding: '10px 18px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <button onClick={handlePause} style={{ padding: '10px 18px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <Pause size={15} />{t('w17.asr.pause')}
                   </button>
                 )}
-                <button onClick={() => void handleStop()} style={{ padding: '10px 18px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <button onClick={() => void handleStop()} style={{ padding: '10px 18px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Square size={15} />{t('w17.asr.stop')}
                 </button>
               </div>
@@ -298,7 +298,7 @@ export default function AsrDictationPage() {
                   <Activity size={13} color="#3b82f6" />{t('w17.asr.realtimeText')}
                   {streaming && <span style={{ color: '#dc2626', fontSize: 11, animation: 'pulse 1.2s infinite' }}>●</span>}
                 </div>
-                <div style={{ fontSize: 13, lineHeight: 1.9, color: '#0f172a', whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>
+                <div style={{ fontSize: 12, lineHeight: 1.9, color: '#0f172a', whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>
                   {session.text || <span style={{ color: 'var(--text-muted, #94a3b8)' }}>{t('w17.asr.streamEmpty')}</span>}
                 </div>
                 {lastCommand && (
@@ -327,7 +327,7 @@ export default function AsrDictationPage() {
                   )
                 })}
                 {session.status === 'completed' && (
-                  <button onClick={() => void handleWriteToReport()} style={{ width: '100%', marginTop: 8, padding: '9px 0', background: '#10b981', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                  <button onClick={() => void handleWriteToReport()} style={{ width: '100%', marginTop: 8, padding: '9px 0', background: '#10b981', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                     <Send size={14} />{t('w17.asr.writeToReport')}
                   </button>
                 )}
@@ -369,12 +369,12 @@ export default function AsrDictationPage() {
               value={hotwordForm.term}
               onChange={(e) => setHotwordForm((f) => ({ ...f, term: e.target.value }))}
               placeholder={t('w17.asr.hotwordTerm')}
-              style={{ padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, width: 180 }}
+              style={{ padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, width: 180 }}
             />
             <select
               value={hotwordForm.category}
               onChange={(e) => setHotwordForm((f) => ({ ...f, category: e.target.value as DictationHotwordCategory }))}
-              style={{ padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13 }}
+              style={{ padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12 }}
             >
               {Object.keys(CATEGORY_COLORS).map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
@@ -383,20 +383,20 @@ export default function AsrDictationPage() {
               value={hotwordForm.priority}
               onChange={(e) => setHotwordForm((f) => ({ ...f, priority: Number(e.target.value) || 0 }))}
               placeholder={t('w17.asr.priority')}
-              style={{ padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, width: 80 }}
+              style={{ padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12, width: 80 }}
             />
-            <button onClick={() => void handleHotwordSubmit()} style={{ padding: '6px 14px', background: editingHotwordId ? '#f59e0b' : '#3b82f6', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button onClick={() => void handleHotwordSubmit()} style={{ padding: '6px 14px', background: editingHotwordId ? '#f59e0b' : '#3b82f6', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
               {editingHotwordId ? <Save size={14} /> : <Plus size={14} />}{editingHotwordId ? t('w17.asr.saveEdit') : t('w17.asr.addHotword')}
             </button>
             {editingHotwordId && (
-              <button onClick={() => { setEditingHotwordId(null); setHotwordForm({ term: '', category: '影像', priority: 1 }) }} style={{ padding: '6px 14px', background: 'var(--bg-card)', color: '#475569', border: '1px solid #cbd5e1', borderRadius: 6, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <button onClick={() => { setEditingHotwordId(null); setHotwordForm({ term: '', category: '影像', priority: 1 }) }} style={{ padding: '6px 14px', background: 'var(--bg-card)', color: '#475569', border: '1px solid #cbd5e1', borderRadius: 6, cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <X size={14} />{t('w17.asr.cancel')}
               </button>
             )}
           </div>
 
           <div style={{ overflowX: 'auto', maxHeight: 300, overflowY: 'auto', border: '1px solid var(--border-default, rgba(0,0,0,0.12))', borderRadius: 8 }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead style={{ position: 'sticky', top: 0, background: 'var(--bg-primary, #f8fafc)' }}>
                 <tr>
                   {[t('w17.asr.colTerm'), t('w17.asr.colCategory'), t('w17.asr.colPriority'), t('w17.asr.colType'), t('w17.asr.colActions')].map((h) => (

@@ -71,7 +71,7 @@ function PaletteItem({ type }: { type: string; label: string }) {
     display: "flex",
     alignItems: "center",
     gap: 8,
-    fontSize: 13,
+    fontSize: 12,
     color,
     fontWeight: 500,
     transform: transform
@@ -631,7 +631,7 @@ export default function OrchestratorPage() {
     >
       <Space orientation="vertical" style={{ width: "100%" }}>
         <div>
-          <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 13 }}>
+          <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 12 }}>
             {t("stepName")}
           </div>
           <Input
@@ -642,7 +642,7 @@ export default function OrchestratorPage() {
           />
         </div>
         <div>
-          <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 13 }}>
+          <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 12 }}>
             {t("stepType")}
           </div>
           <Select
@@ -656,7 +656,7 @@ export default function OrchestratorPage() {
           />
         </div>
         <div>
-          <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 13 }}>
+          <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 12 }}>
             {t("assigneeRole")}
           </div>
           <Input
@@ -669,7 +669,7 @@ export default function OrchestratorPage() {
         </div>
         <Row gutter={12}>
           <Col span={12}>
-            <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 13 }}>
+            <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 12 }}>
               {t("timeoutMinutes")}
             </div>
             <InputNumber
@@ -682,7 +682,7 @@ export default function OrchestratorPage() {
             />
           </Col>
           <Col span={12}>
-            <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 13 }}>
+            <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 12 }}>
               {t("slaMinutes")}
             </div>
             <InputNumber
@@ -696,7 +696,7 @@ export default function OrchestratorPage() {
           </Col>
         </Row>
         <div>
-          <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 13 }}>
+          <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 12 }}>
             {t("condition")}
           </div>
           <Input
@@ -712,7 +712,7 @@ export default function OrchestratorPage() {
             checked={stepForm.autoDispatch}
             onChange={(v) => setStepForm((p) => ({ ...p, autoDispatch: v }))}
           />
-          <span style={{ fontSize: 13 }}>{t("autoDispatch")}</span>
+          <span style={{ fontSize: 12 }}>{t("autoDispatch")}</span>
         </div>
       </Space>
     </Modal>
@@ -727,7 +727,7 @@ export default function OrchestratorPage() {
     >
       <Space orientation="vertical" style={{ width: "100%" }}>
         <div>
-          <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 13 }}>
+          <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 12 }}>
             {t("slaName")}
           </div>
           <Input
@@ -739,7 +739,7 @@ export default function OrchestratorPage() {
         </div>
         <Row gutter={12}>
           <Col span={12}>
-            <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 13 }}>
+            <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 12 }}>
               {t("slaTargetMinutes")}
             </div>
             <InputNumber
@@ -752,7 +752,7 @@ export default function OrchestratorPage() {
             />
           </Col>
           <Col span={12}>
-            <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 13 }}>
+            <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 12 }}>
               {t("slaWarningMinutes")}
             </div>
             <InputNumber
@@ -766,7 +766,7 @@ export default function OrchestratorPage() {
           </Col>
         </Row>
         <div>
-          <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 13 }}>
+          <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 12 }}>
             {t("slaEscalateRole")}
           </div>
           <Input
@@ -782,7 +782,7 @@ export default function OrchestratorPage() {
             checked={slaForm.autoEscalate}
             onChange={(v) => setSlaForm((p) => ({ ...p, autoEscalate: v }))}
           />
-          <span style={{ fontSize: 13 }}>
+          <span style={{ fontSize: 12 }}>
             {t("slaAutoEscalate")}
           </span>
         </div>
@@ -791,7 +791,7 @@ export default function OrchestratorPage() {
             checked={slaForm.notifyOnBreach ?? true}
             onChange={(v) => setSlaForm((p) => ({ ...p, notifyOnBreach: v }))}
           />
-          <span style={{ fontSize: 13 }}>
+          <span style={{ fontSize: 12 }}>
             {t("slaNotifyOnBreach")}
           </span>
         </div>
@@ -979,7 +979,7 @@ export default function OrchestratorPage() {
           <GitBranch size={20} /> {t("title")}
           <span
             style={{
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: 400,
               color: "var(--text-secondary, #475569)",
               marginLeft: 8,

@@ -15,6 +15,7 @@ import {
   AreaChart, Area
 } from 'recharts'
 import { deviceMgmtApi, type DeviceFault } from '../services/api/deviceMgmtApi'
+import { DataTable } from '../components/common'
 import { ChartContainer } from '../components/charts'
 import { t } from '../i18n/appI18n'
 import { severityColor } from '../theme/statusTokens'
@@ -192,7 +193,7 @@ function TabBtn({ label, active, onClick, icon, count }: { label: string; active
       style={{
         display: 'flex', alignItems: 'center', gap: 6,
         padding: '8px 18px', borderRadius: 8, border: 'none', cursor: 'pointer',
-        fontSize: 13, fontWeight: active ? 700 : 500,
+        fontSize: 12, fontWeight: active ? 700 : 500,
         background: active ? C.primary : 'transparent',
         color: active ? '#fff' : C.textMid,
         transition: 'all 0.2s',
@@ -236,7 +237,7 @@ function StatCard({ label, value, icon, color, subtitle, trend }: {
               style={{ transform: trend === 'down' ? 'rotate(180deg)' : 'none' }} />
           )}
         </div>
-        <div style={{ fontSize: 12.5, color: C.textLight }}>{label}</div>
+        <div style={{ fontSize: 12, color: C.textLight }}>{label}</div>
         {subtitle && <div style={{ fontSize: 12, color: C.textLight, marginTop: 1 }}>{subtitle}</div>}
       </div>
     </Card>
@@ -264,7 +265,7 @@ function PriorityBadge({ priority }: { priority: string }) {
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center', gap: 3,
-      padding: '2px 8px', borderRadius: 6, fontSize: 12.5, fontWeight: 700,
+      padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 700,
       background: `${color}15`, color,
     }}>
       {priority === '紧急' && <Zap size={10} />}
@@ -437,7 +438,7 @@ export default function DeviceFaultPage() {
             </span>
           )}
         </h1>
-        <p style={{ fontSize: 13, color: C.textMid, margin: '4px 0 0 34px' }}>
+        <p style={{ fontSize: 12, color: C.textMid, margin: '4px 0 0 34px' }}>
           {t('deviceFault.subtitle')}
         </p>
       </div>
@@ -469,11 +470,11 @@ export default function DeviceFaultPage() {
                 placeholder={t('deviceFault.searchPlaceholder')}
                 value={searchKeyword}
                 onChange={e => setSearchKeyword(e.target.value)}
-                style={{ width: '100%', padding: '8px 12px 8px 34px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '8px 12px 8px 34px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12, boxSizing: 'border-box' }}
               />
             </div>
             <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
-              style={{ padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, color: C.textMid, cursor: 'pointer', background: C.white }}>
+              style={{ padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12, color: C.textMid, cursor: 'pointer', background: C.white }}>
               <option value="全部">{t('deviceFault.filterStatusAll')}</option>
               <option value="待处理">{t('deviceFault.statusPending')}</option>
               <option value="维修中">{t('deviceFault.statusRepairing')}</option>
@@ -481,7 +482,7 @@ export default function DeviceFaultPage() {
               <option value="已完成">{t('deviceFault.statusCompleted')}</option>
             </select>
             <select value={filterPriority} onChange={e => setFilterPriority(e.target.value)}
-              style={{ padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, color: C.textMid, cursor: 'pointer', background: C.white }}>
+              style={{ padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12, color: C.textMid, cursor: 'pointer', background: C.white }}>
               <option value="全部">{t('deviceFault.filterPriorityAll')}</option>
               <option value="紧急">{t('deviceFault.priorityUrgent')}</option>
               <option value="高">{t('deviceFault.priorityHigh')}</option>
@@ -490,7 +491,7 @@ export default function DeviceFaultPage() {
             </select>
             <button
               onClick={() => setShowAddModal(true)}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: 'none', background: C.primary, color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: 'none', background: C.primary, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
               <Plus size={16} />
               {t('deviceFault.addFault')}
             </button>
@@ -500,38 +501,36 @@ export default function DeviceFaultPage() {
           {filteredRecords.length === 0 ? (
             <EmptyState icon={<AlertTriangle size={48} />} message={t('deviceFault.emptyFaults')} />
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: 'var(--bg-card)' }}>
-                  {[t('deviceFault.thDevice'), t('deviceFault.thFaultTime'), t('deviceFault.thFaultType'), t('deviceFault.thDescription'), t('deviceFault.thPriority'), t('deviceFault.thStatus'), t('deviceFault.thEngineer'), t('deviceFault.thActions')].map(h => (
-                    <th key={h} style={{ padding: '12px 16px', fontSize: 12, fontWeight: 700, color: C.textMid, textAlign: 'left', borderBottom: `1px solid ${C.border}` }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRecords.map((record, idx) => (
-<tr key={record.id} style={{ background: idx % 2 === 0 ? C.white : 'var(--bg-primary)', transition: 'background 0.15s' }}
-                onMouseEnter={e => (e.currentTarget.style.background = C.primaryLighter)}
-                onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? C.white : 'var(--bg-primary)')}>
-                    <td style={{ padding: '12px 16px', fontSize: 13, fontWeight: 600, color: C.textDark }}>{record.deviceName.split('（')[0]}</td>
-                    <td style={{ padding: '12px 16px', fontSize: 12, color: C.textMid }}>{record.faultTime}</td>
-                    <td style={{ padding: '12px 16px', fontSize: 12, color: C.textMid }}>{record.faultType}</td>
-                    <td style={{ padding: '12px 16px', fontSize: 12, color: C.textMid, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{record.description}</td>
-                    <td style={{ padding: '12px 16px' }}><PriorityBadge priority={record.priority} /></td>
-                    <td style={{ padding: '12px 16px' }}><StatusBadge status={record.status} /></td>
-                    <td style={{ padding: '12px 16px', fontSize: 12, color: C.textMid }}>{record.assignEngineer || '-'}</td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <button onClick={() => handleOpenDetail(record)} style={{ padding: '4px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.white, fontSize: 12, color: C.textMid, cursor: 'pointer' }}>{t('deviceFault.detail')}</button>
-                        {record.status === '待验收' && (
-                          <button onClick={() => handleAccept(record.id)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: C.success, fontSize: 12, color: '#fff', cursor: 'pointer' }}>{t('deviceFault.accept')}</button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable
+              rowKey="id"
+              dataSource={filteredRecords}
+              showPagination={false}
+              showExport={false}
+              showDensity={false}
+              columns={[
+                { title: t('deviceFault.thDevice'), key: 'deviceName', render: (_: unknown, record: FaultRecord) => <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{record.deviceName.split('（')[0]}</span> },
+                { title: t('deviceFault.thFaultTime'), dataIndex: 'faultTime', key: 'faultTime', render: (v: string) => <span style={{ fontSize: 12, color: C.textMid }}>{v}</span> },
+                { title: t('deviceFault.thFaultType'), dataIndex: 'faultType', key: 'faultType', render: (v: string) => <span style={{ fontSize: 12, color: C.textMid }}>{v}</span> },
+                {
+                  title: t('deviceFault.thDescription'), dataIndex: 'description', key: 'description',
+                  render: (v: string) => <span style={{ fontSize: 12, color: C.textMid, display: 'inline-block', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', verticalAlign: 'bottom' }}>{v}</span>,
+                },
+                { title: t('deviceFault.thPriority'), dataIndex: 'priority', key: 'priority', render: (_: unknown, record: FaultRecord) => <PriorityBadge priority={record.priority} /> },
+                { title: t('deviceFault.thStatus'), dataIndex: 'status', key: 'status', render: (_: unknown, record: FaultRecord) => <StatusBadge status={record.status} /> },
+                { title: t('deviceFault.thEngineer'), key: 'assignEngineer', render: (_: unknown, record: FaultRecord) => <span style={{ fontSize: 12, color: C.textMid }}>{record.assignEngineer || '-'}</span> },
+                {
+                  title: t('deviceFault.thActions'), key: 'actions',
+                  render: (_: unknown, record: FaultRecord) => (
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button onClick={() => handleOpenDetail(record)} style={{ padding: '4px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.white, fontSize: 12, color: C.textMid, cursor: 'pointer' }}>{t('deviceFault.detail')}</button>
+                      {record.status === '待验收' && (
+                        <button onClick={() => handleAccept(record.id)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: C.success, fontSize: 12, color: '#fff', cursor: 'pointer' }}>{t('deviceFault.accept')}</button>
+                      )}
+                    </div>
+                  ),
+                },
+              ]}
+            />
           )}
         </Card>
       )}
@@ -550,7 +549,7 @@ export default function DeviceFaultPage() {
                 <div key={record.id} style={{ border: `1px solid ${C.border}`, borderRadius: 10, padding: 14, background: 'var(--bg-card)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: C.textDark }}>{record.deviceName.split('（')[0]}</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: C.textDark }}>{record.deviceName.split('（')[0]}</div>
                       <div style={{ fontSize: 12, color: C.textLight, marginTop: 2 }}>{record.faultTime}</div>
                     </div>
                     <StatusBadge status={record.status} />
@@ -604,7 +603,7 @@ export default function DeviceFaultPage() {
                       {eng.name[0]}
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: C.textDark }}>{eng.name}</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: C.textDark }}>{eng.name}</div>
                       <div style={{ fontSize: 12, color: C.textLight, marginTop: 2 }}>{eng.specialty} · {eng.phone}</div>
                     </div>
                     <div style={{ textAlign: 'right' }}>
@@ -618,7 +617,7 @@ export default function DeviceFaultPage() {
 
             {/* 快速验收列表 */}
             <div style={{ marginTop: 24 }}>
-              <h4 style={{ fontSize: 13, fontWeight: 700, color: C.textDark, margin: '0 0 12px 0' }}>{t('deviceFault.pendingAcceptTitle')}</h4>
+              <h4 style={{ fontSize: 12, fontWeight: 700, color: C.textDark, margin: '0 0 12px 0' }}>{t('deviceFault.pendingAcceptTitle')}</h4>
               {faultRecords.filter(r => r.status === '待验收').map(record => (
                 <div key={record.id} style={{ border: `1px solid ${C.border}`, borderRadius: 8, padding: 10, marginBottom: 8, background: `${C.success}05` }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -730,19 +729,19 @@ export default function DeviceFaultPage() {
           {/* 关键指标 */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
             <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, padding: 16, textAlign: 'center' }} styles={{ body: { padding: 0 } }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: C.primary }}>18.5h</div>
+              <div style={{ fontSize: 30, fontWeight: 800, color: C.primary }}>18.5h</div>
               <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>{t('deviceFault.avgRepairTime')}</div>
             </Card>
             <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, padding: 16, textAlign: 'center' }} styles={{ body: { padding: 0 } }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: C.success }}>94.2%</div>
+              <div style={{ fontSize: 30, fontWeight: 800, color: C.success }}>94.2%</div>
               <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>{t('deviceFault.firstFixRate')}</div>
             </Card>
             <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, padding: 16, textAlign: 'center' }} styles={{ body: { padding: 0 } }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: C.warning }}>4.2次</div>
+              <div style={{ fontSize: 30, fontWeight: 800, color: C.warning }}>4.2次</div>
               <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>{t('deviceFault.monthlyAvgFaults')}</div>
             </Card>
             <Card bordered={false} style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, padding: 16, textAlign: 'center' }} styles={{ body: { padding: 0 } }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: C.danger }}>¥46.2万</div>
+              <div style={{ fontSize: 30, fontWeight: 800, color: C.danger }}>¥46.2万</div>
               <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>{t('deviceFault.annualCost')}</div>
             </Card>
           </div>
@@ -770,7 +769,7 @@ export default function DeviceFaultPage() {
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textMid, display: 'block', marginBottom: 4 }}>{t('deviceFault.labelDevice')}</label>
                 <select value={newFault.deviceId} onChange={e => setNewFault({ ...newFault, deviceId: e.target.value })}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, boxSizing: 'border-box' }}>
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12, boxSizing: 'border-box' }}>
                   <option value="">{t('deviceFault.selectDevice')}</option>
                   {DEVICES.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                 </select>
@@ -779,14 +778,14 @@ export default function DeviceFaultPage() {
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 600, color: C.textMid, display: 'block', marginBottom: 4 }}>{t('deviceFault.labelFaultType')}</label>
                   <select value={newFault.faultType} onChange={e => setNewFault({ ...newFault, faultType: e.target.value })}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, boxSizing: 'border-box' }}>
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12, boxSizing: 'border-box' }}>
                     {['硬件故障', '软件故障', '机械故障', '电气故障', '系统故障'].map(ft => <option key={ft} value={ft}>{ft}</option>)}
                   </select>
                 </div>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 600, color: C.textMid, display: 'block', marginBottom: 4 }}>{t('deviceFault.labelPriority')}</label>
                   <select value={newFault.priority} onChange={e => setNewFault({ ...newFault, priority: e.target.value })}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, boxSizing: 'border-box' }}>
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12, boxSizing: 'border-box' }}>
                     {['紧急', '高', '中', '低'].map(p => <option key={p} value={p}>{p}</option>)}
                   </select>
                 </div>
@@ -795,24 +794,24 @@ export default function DeviceFaultPage() {
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textMid, display: 'block', marginBottom: 4 }}>{t('deviceFault.labelDescription')}</label>
                 <textarea value={newFault.description} onChange={e => setNewFault({ ...newFault, description: e.target.value })}
                   placeholder={t('deviceFault.descriptionPlaceholder')}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, resize: 'vertical', minHeight: 80, boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12, resize: 'vertical', minHeight: 80, boxSizing: 'border-box' }} />
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textMid, display: 'block', marginBottom: 4 }}>{t('deviceFault.labelSymptoms')}</label>
                 <input type="text" value={newFault.faultSymptoms} onChange={e => setNewFault({ ...newFault, faultSymptoms: e.target.value })}
                   placeholder={t('deviceFault.symptomsPlaceholder')}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12, boxSizing: 'border-box' }} />
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textMid, display: 'block', marginBottom: 4 }}>{t('deviceFault.labelEstimatedCost')}</label>
                 <input type="number" value={newFault.estimatedCost} onChange={e => setNewFault({ ...newFault, estimatedCost: e.target.value })}
                   placeholder={t('deviceFault.costPlaceholder')}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12, boxSizing: 'border-box' }} />
               </div>
             </div>
             <div style={{ display: 'flex', gap: 10, marginTop: 24, justifyContent: 'flex-end' }}>
-              <button onClick={() => setShowAddModal(false)} style={{ padding: '8px 20px', borderRadius: 8, border: `1px solid ${C.border}`, background: C.white, fontSize: 13, color: C.textMid, cursor: 'pointer' }}>{t('deviceFault.cancel')}</button>
-              <button onClick={handleAddFault} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: C.danger, color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Send size={13} />{t('deviceFault.submitRepair')}</button>
+              <button onClick={() => setShowAddModal(false)} style={{ padding: '8px 20px', borderRadius: 8, border: `1px solid ${C.border}`, background: C.white, fontSize: 12, color: C.textMid, cursor: 'pointer' }}>{t('deviceFault.cancel')}</button>
+              <button onClick={handleAddFault} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: C.danger, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Send size={13} />{t('deviceFault.submitRepair')}</button>
             </div>
           </div>
         </div>
@@ -839,19 +838,19 @@ export default function DeviceFaultPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
               <div style={{ background: 'var(--bg-card)', padding: 10, borderRadius: 8 }}>
                 <div style={{ fontSize: 12, color: C.textLight }}>{t('deviceFault.detailDevice')}</div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginTop: 2 }}>{selectedRecord.deviceName}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginTop: 2 }}>{selectedRecord.deviceName}</div>
               </div>
               <div style={{ background: 'var(--bg-card)', padding: 10, borderRadius: 8 }}>
                 <div style={{ fontSize: 12, color: C.textLight }}>{t('deviceFault.detailFaultType')}</div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginTop: 2 }}>{selectedRecord.faultType}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginTop: 2 }}>{selectedRecord.faultType}</div>
               </div>
               <div style={{ background: 'var(--bg-card)', padding: 10, borderRadius: 8 }}>
                 <div style={{ fontSize: 12, color: C.textLight }}>{t('deviceFault.detailFaultTime')}</div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginTop: 2 }}>{selectedRecord.faultTime}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginTop: 2 }}>{selectedRecord.faultTime}</div>
               </div>
               <div style={{ background: 'var(--bg-card)', padding: 10, borderRadius: 8 }}>
                 <div style={{ fontSize: 12, color: C.textLight }}>{t('deviceFault.detailReporter')}</div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginTop: 2 }}>{selectedRecord.reporter}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginTop: 2 }}>{selectedRecord.reporter}</div>
               </div>
               <div style={{ background: 'var(--bg-card)', padding: 10, borderRadius: 8 }}>
                 <div style={{ fontSize: 12, color: C.textLight }}>{t('deviceFault.detailPriority')}</div>
@@ -865,13 +864,13 @@ export default function DeviceFaultPage() {
             {/* 故障描述 */}
             <div style={{ marginBottom: 16 }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 6 }}>{t('deviceFault.detailDescription')}</div>
-              <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, fontSize: 13, color: C.textDark, lineHeight: 1.6 }}>{selectedRecord.description}</div>
+              <div style={{ background: 'var(--bg-card)', padding: 12, borderRadius: 8, fontSize: 12, color: C.textDark, lineHeight: 1.6 }}>{selectedRecord.description}</div>
             </div>
             {/* 故障症状 */}
             {selectedRecord.faultSymptoms && (
               <div style={{ marginBottom: 16 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 6 }}>{t('deviceFault.detailSymptoms')}</div>
-                <div style={{ background: `${C.warning}08`, padding: 12, borderRadius: 8, fontSize: 13, color: C.textDark, lineHeight: 1.6, borderLeft: `3px solid ${C.warning}` }}>{selectedRecord.faultSymptoms}</div>
+                <div style={{ background: `${C.warning}08`, padding: 12, borderRadius: 8, fontSize: 12, color: C.textDark, lineHeight: 1.6, borderLeft: `3px solid ${C.warning}` }}>{selectedRecord.faultSymptoms}</div>
               </div>
             )}
             {/* 维修进度 */}
@@ -880,7 +879,7 @@ export default function DeviceFaultPage() {
               <div style={{ marginBottom: 8 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                   <span style={{ fontSize: 12, color: C.textMid }}>{t('deviceFault.completion')}</span>
-                  <span style={{ fontSize: 13, fontWeight: 800, color: C.primary }}>{getProgressPercent(selectedRecord)}%</span>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: C.primary }}>{getProgressPercent(selectedRecord)}%</span>
                 </div>
                 <ProgressBar value={getProgressPercent(selectedRecord)} color={C.primary} />
               </div>
@@ -904,11 +903,11 @@ export default function DeviceFaultPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div style={{ background: 'var(--bg-card)', padding: 10, borderRadius: 8 }}>
                 <div style={{ fontSize: 12, color: C.textLight }}>{t('deviceFault.estimatedCost')}</div>
-                <div style={{ fontSize: 15, fontWeight: 800, color: C.warning, marginTop: 2 }}>¥{(selectedRecord.estimatedCost || 0).toLocaleString()}</div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: C.warning, marginTop: 2 }}>¥{(selectedRecord.estimatedCost || 0).toLocaleString()}</div>
               </div>
               <div style={{ background: 'var(--bg-card)', padding: 10, borderRadius: 8 }}>
                 <div style={{ fontSize: 12, color: C.textLight }}>{t('deviceFault.actualCost')}</div>
-                <div style={{ fontSize: 15, fontWeight: 800, color: C.success, marginTop: 2 }}>
+                <div style={{ fontSize: 14, fontWeight: 800, color: C.success, marginTop: 2 }}>
                   {selectedRecord.actualCost ? `¥${selectedRecord.actualCost.toLocaleString()}` : '-'}
                 </div>
               </div>
@@ -917,7 +916,7 @@ export default function DeviceFaultPage() {
             {selectedRecord.status === '待验收' && (
               <div style={{ display: 'flex', gap: 10, marginTop: 20, justifyContent: 'flex-end' }}>
                 <button onClick={() => { handleAccept(selectedRecord.id); setShowDetailModal(false) }}
-                  style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: C.success, color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                  style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: C.success, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                   {t('deviceFault.confirmAccept')}
                 </button>
               </div>

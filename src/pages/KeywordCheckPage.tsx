@@ -236,7 +236,7 @@ export default function KeywordCheckPage() {
             style={{
               padding: '8px 16px', border: 'none', borderRadius: 6,
               background: scanning ? '#94a3b8' : '#3b82f6',
-              color: '#fff', fontSize: 13, fontWeight: 600,
+              color: '#fff', fontSize: 12, fontWeight: 600,
               cursor: scanning ? 'not-allowed' : 'pointer',
               display: 'flex', alignItems: 'center', gap: 6,
               boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)',
@@ -310,7 +310,7 @@ export default function KeywordCheckPage() {
                 {scanResult && (
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                     <div style={{
-                      fontSize: 26, fontWeight: 700,
+                      fontSize: 24, fontWeight: 700,
                       color: scanResult.score >= 90 ? '#10b981' : scanResult.score >= 75 ? '#3b82f6' : scanResult.score >= 60 ? '#f59e0b' : '#dc2626',
                     }}>{scanResult.score}</div>
                     <div>
@@ -391,7 +391,7 @@ export default function KeywordCheckPage() {
                     emptyText={(
                       <div style={{ padding: 20, textAlign: 'center', color: '#10b981' }}>
                         <CheckCircle2 size={40} style={{ display: 'block', margin: '0 auto 8px' }} />
-                        <div style={{ fontSize: 13, fontWeight: 700 }}>{t('kwc.noIssues')}</div>
+                        <div style={{ fontSize: 12, fontWeight: 700 }}>{t('kwc.noIssues')}</div>
                         <div style={{ fontSize: 12, marginTop: 4 }}>{t('kwc.noIssuesHint')}</div>
                       </div>
                     )}
@@ -434,7 +434,7 @@ export default function KeywordCheckPage() {
               border: '1px dashed var(--border-color)',
             }}>
               <Search size={48} style={{ color: '#cbd5e1', display: 'block', margin: '0 auto 8px' }} />
-              <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600 }}>{t('kwc.scanPrompt')}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 }}>{t('kwc.scanPrompt')}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
                 {t('kwc.scanPromptHint')}
               </div>
@@ -485,7 +485,7 @@ const ScoreCard: React.FC<{ icon: any; label: string; count: number; color: stri
     textAlign: 'center',
   }}>
     <Icon size={20} color={color} style={{ display: 'block', margin: '0 auto 4px' }} />
-    <div style={{ fontSize: 22, fontWeight: 700, color }}>{count}</div>
+    <div style={{ fontSize: 20, fontWeight: 700, color }}>{count}</div>
     <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</div>
   </div>
 );

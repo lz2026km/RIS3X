@@ -122,7 +122,7 @@ const VisualFieldPage: React.FC = () => {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        fontSize: 7,
+                        fontSize: 10,
                         color: "var(--text-secondary)",
                       }}
                     >
@@ -176,7 +176,7 @@ const VisualFieldPage: React.FC = () => {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        fontSize: 7,
+                        fontSize: 10,
                         color: "#fff",
                       }}
                     >

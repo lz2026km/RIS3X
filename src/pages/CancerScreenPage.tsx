@@ -36,7 +36,7 @@ const s: Record<string, React.CSSProperties> = {
   root: { padding: 0 },
   header: { marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
   title: { fontSize: 20, fontWeight: 700, color: 'var(--color-primary-800)', margin: 0 },
-  subtitle: { fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 },
+  subtitle: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 },
   // 统计卡片行
   statsRow: { display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, marginBottom: 24 },
   statCard: {
@@ -44,13 +44,13 @@ const s: Record<string, React.CSSProperties> = {
     boxShadow: '0 1px 4px rgba(0,0,0,0.06)', position: 'relative', overflow: 'hidden',
   },
   statIcon: { width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
-  statValue: { fontSize: 28, fontWeight: 700, color: 'var(--color-primary-800)', lineHeight: 1.1 },
+  statValue: { fontSize: 30, fontWeight: 700, color: 'var(--color-primary-800)', lineHeight: 1.1 },
   statLabel: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 },
   statSub: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 },
   statTrend: { position: 'absolute', top: 14, right: 14, fontSize: 12, fontWeight: 600 },
   // 功能区分区
   section: { background: 'var(--bg-card)', borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
-  sectionTitle: { fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
+  sectionTitle: { fontSize: 14, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
   // 任务管理
   taskGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 },
   taskLeft: {},
@@ -58,13 +58,13 @@ const s: Record<string, React.CSSProperties> = {
   taskToolbar: { display: 'flex', gap: 8, marginBottom: 12 },
   searchInput: {
     flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border-color)',
-    fontSize: 13, },
+    fontSize: 12, },
   btn: {
     padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)',
-    background: 'var(--bg-card)', cursor: 'pointer', fontSize: 13, display: 'flex',
+    background: 'var(--bg-card)', cursor: 'pointer', fontSize: 12, display: 'flex',
     alignItems: 'center', gap: 6, fontWeight: 500,
   },
-  btnPrimary: { padding: '8px 14px', borderRadius: 8, border: 'none', background: 'var(--color-primary)', color: 'var(--text-inverse)', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
+  btnPrimary: { padding: '8px 14px', borderRadius: 8, border: 'none', background: 'var(--color-primary)', color: 'var(--text-inverse)', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: 12 },
   th: { textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid var(--border-light)', color: 'var(--text-secondary)', fontWeight: 600, whiteSpace: 'nowrap' },
   td: { padding: '10px 8px', borderBottom: '1px solid var(--border-light)', color: 'var(--text-secondary)' },
@@ -74,7 +74,7 @@ const s: Record<string, React.CSSProperties> = {
   assessForm: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 },
   formItem: {},
   formLabel: { fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 },
-  formSelect: { width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13, background: 'var(--bg-card)' },
+  formSelect: { width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)' },
   riskCard: {
     borderRadius: 12, padding: 20, textAlign: 'center', marginBottom: 16,
     border: '2px solid transparent', cursor: 'pointer', transition: 'all 0.2s',
@@ -741,7 +741,7 @@ const CancerScreenPage = () => {
               background: tab === i + 1 ? 'var(--bg-card)' : 'transparent',
               color: tab === i + 1 ? 'var(--color-primary)' : 'var(--text-secondary)',
               fontWeight: tab === i + 1 ? 700 : 500, cursor: 'pointer',
-              fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
               boxShadow: tab === i + 1 ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
               transition: 'all 0.2s',
             }}
@@ -824,7 +824,7 @@ const CancerScreenPage = () => {
           <div style={s.assessGrid}>
             {/* 左: 评估表单 */}
             <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('cancerScreen.currentAssess')}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('cancerScreen.currentAssess')}</div>
               <div style={s.assessForm}>
                 {assessmentDimensions.map(dim => (
                   <div key={dim.key} style={s.formItem}>
@@ -839,8 +839,8 @@ const CancerScreenPage = () => {
                 ))}
               </div>
               <div style={{ marginTop: 16, padding: '12px 16px', background: riskTone(currentRisk).bg, borderRadius: 10, textAlign: 'center', border: `2px solid ${riskTone(currentRisk).color}` }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: riskTone(currentRisk).color }}>{t('cancerScreen.assessResult')}</div>
-                <div style={{ fontSize: 28, fontWeight: 700, color: riskTone(currentRisk).color, lineHeight: 1.2, marginTop: 4 }}>{currentRisk}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: riskTone(currentRisk).color }}>{t('cancerScreen.assessResult')}</div>
+                <div style={{ fontSize: 30, fontWeight: 700, color: riskTone(currentRisk).color, lineHeight: 1.2, marginTop: 4 }}>{currentRisk}</div>
                 <div style={{ fontSize: 12, color: riskTone(currentRisk).color, opacity: 0.8, marginTop: 4 }}>{t('cancerScreen.riskScore', { score: currentScore })}</div>
               </div>
               <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
@@ -850,7 +850,7 @@ const CancerScreenPage = () => {
             </div>
             {/* 右: 历史评估记录 */}
             <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('cancerScreen.historyAssess', { count: assessments.length })}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('cancerScreen.historyAssess', { count: assessments.length })}</div>
               <div style={s.scrollBox}>
                 {assessments.length === 0 ? (
                   <div style={s.emptyState}>
@@ -861,7 +861,7 @@ const CancerScreenPage = () => {
                 ) : assessments.map(a => (
                   <div key={a.id} style={{ padding: '10px 12px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{a.name} <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>({t('cancerScreen.yearsOld', { age: a.age })})</span></div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>{a.name} <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>({t('cancerScreen.yearsOld', { age: a.age })})</span></div>
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{a.date} · {a.doctor}</div>
                     </div>
                     <span style={{ ...s.tag, background: riskTone(a.risk).bg, color: riskTone(a.risk).color }}>{a.risk} {t('cancerScreen.scorePoints', { score: a.totalScore })}</span>
@@ -919,7 +919,7 @@ const CancerScreenPage = () => {
           <div style={s.mapGrid}>
             {/* 省份列表 */}
             <div style={s.mapSvg}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('cancerScreen.provinceCoverage')}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 12 }}>{t('cancerScreen.provinceCoverage')}</div>
               <DataTable
                 rowKey="name"
                 dataSource={provinces}
@@ -964,7 +964,7 @@ const CancerScreenPage = () => {
             </div>
             {/* 右侧：影像筛查类型分布 */}
             <div style={{ ...s.mapSvg, display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{t('cancerScreen.typeStats')}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>{t('cancerScreen.typeStats')}</div>
               {[
                 { type: 'LDCT', icon: Wind, count: 8642, color: '#2563eb', bg: '#3b82f622' },
                 { type: 'MG', icon: Heart, count: 3426, color: '#ec4899', bg: '#ec489922' },
@@ -978,10 +978,10 @@ const CancerScreenPage = () => {
                       <Icon size={20} color={item.color} />
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{t('cancerScreen.typeScreenSuffix', { type: item.type })}</div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>{t('cancerScreen.typeScreenSuffix', { type: item.type })}</div>
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.sharePercent', { pct: Math.round(item.count / 100).toLocaleString() })}</div>
                     </div>
-                    <div style={{ fontSize: 28, fontWeight: 700, color: item.color }}>{item.count.toLocaleString()}</div>
+                    <div style={{ fontSize: 30, fontWeight: 700, color: item.color }}>{item.count.toLocaleString()}</div>
                   </div>
                 )
               })}
@@ -1086,12 +1086,12 @@ const CancerScreenPage = () => {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 500 }}>
             <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>{t('cancerScreen.taskDetail')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.taskName')}</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>山东省LDCT早癌筛查</div></div>
-              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.screenType')}</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>LDCT</div></div>
-              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.target')}</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>500人</div></div>
-              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.thCompleted')}</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>326人 (65.2%)</div></div>
-              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.region')}</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>山东省</div></div>
-              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.leader')}</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>张伟医生</div></div>
+              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.taskName')}</div><div style={{ fontSize: 12, fontWeight: 600, marginTop: 4 }}>山东省LDCT早癌筛查</div></div>
+              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.screenType')}</div><div style={{ fontSize: 12, fontWeight: 600, marginTop: 4 }}>LDCT</div></div>
+              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.target')}</div><div style={{ fontSize: 12, fontWeight: 600, marginTop: 4 }}>500人</div></div>
+              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.thCompleted')}</div><div style={{ fontSize: 12, fontWeight: 600, marginTop: 4 }}>326人 (65.2%)</div></div>
+              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.region')}</div><div style={{ fontSize: 12, fontWeight: 600, marginTop: 4 }}>山东省</div></div>
+              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{t('cancerScreen.leader')}</div><div style={{ fontSize: 12, fontWeight: 600, marginTop: 4 }}>张伟医生</div></div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowDetailModal(false)}>{t('cancerScreen.close')}</button>
@@ -1124,7 +1124,7 @@ const CancerScreenPage = () => {
           {queueLoading ? (
             <div style={{ padding: 40, textAlign: 'center' }}><Spin tip={t('cancerScreen.loadingQueue')}><div style={{ height: 40 }} /></Spin></div>
           ) : queueError ? (
-            <div style={{ padding: 24, textAlign: 'center', color: 'var(--color-error)', fontSize: 13 }}>{queueError}</div>
+            <div style={{ padding: 24, textAlign: 'center', color: 'var(--color-error)', fontSize: 12 }}>{queueError}</div>
           ) : (
             <DataTable
               rowKey="id"
@@ -1215,7 +1215,7 @@ const CancerScreenPage = () => {
           {trendLoading ? (
             <div style={{ padding: 40, textAlign: 'center' }}><Spin tip={t('cancerScreen.loadingTrend')}><div style={{ height: 40 }} /></Spin></div>
           ) : trendError ? (
-            <div style={{ padding: 24, textAlign: 'center', color: 'var(--color-error)', fontSize: 13 }}>{trendError}</div>
+            <div style={{ padding: 24, textAlign: 'center', color: 'var(--color-error)', fontSize: 12 }}>{trendError}</div>
           ) : trend.length === 0 ? (
             <div style={s.emptyState}>
               <FileSearch size={48} style={s.emptyStateIcon} />
@@ -1233,7 +1233,7 @@ const CancerScreenPage = () => {
                 ].map((item, i) => (
                   <div key={i} style={{ background: 'var(--content-bg)', borderRadius: 10, padding: 16, textAlign: 'center' }}>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{item.label}</div>
-                    <div style={{ fontSize: 26, fontWeight: 700, color: item.color }}>{item.value}<span style={{ fontSize: 13, fontWeight: 400 }}>{item.unit}</span></div>
+                    <div style={{ fontSize: 24, fontWeight: 700, color: item.color }}>{item.value}<span style={{ fontSize: 12, fontWeight: 400 }}>{item.unit}</span></div>
                   </div>
                 ))}
               </div>
@@ -1338,7 +1338,7 @@ const CancerScreenPage = () => {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 500 }}>
             <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>{t('cancerScreen.exportPreview')}</div>
             <div style={{ background: 'var(--content-bg)', borderRadius: 8, padding: 16, marginBottom: 16 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t('cancerScreen.reportSummary')}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>{t('cancerScreen.reportSummary')}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 <span>{t('cancerScreen.exportStatLdct')}</span><span>{t('cancerScreen.exportStatBreast')}</span>
                 <span>{t('cancerScreen.exportStatHighRisk')}</span><span>{t('cancerScreen.exportStatEarly')}</span>
@@ -1357,7 +1357,7 @@ const CancerScreenPage = () => {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 400 }}>
             <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>{t('cancerScreen.confirmSubmitTitle')}</div>
-            <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 20 }}>{t('cancerScreen.confirmSubmitText', { risk: currentRisk, score: currentScore })}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 20 }}>{t('cancerScreen.confirmSubmitText', { risk: currentRisk, score: currentScore })}</div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowConfirmModal(false)}>{t('cancerScreen.cancel')}</button>
               <button style={{ ...s.btnPrimary, padding: '8px 16px' }} disabled={submitting} onClick={() => void handleSubmitAssessment()}>{submitting ? t('cancerScreen.submitting') : t('cancerScreen.confirmSubmit')}</button>
@@ -1370,7 +1370,7 @@ const CancerScreenPage = () => {
       {toast && (
         <div style={{
           position: 'fixed', bottom: 24, right: 24, background: toast.type === 'success' ? 'var(--color-success)' : 'var(--color-error)',
-          color: '#fff', padding: '12px 20px', borderRadius: 8, fontSize: 13, fontWeight: 500, zIndex: 2000,
+          color: '#fff', padding: '12px 20px', borderRadius: 8, fontSize: 12, fontWeight: 500, zIndex: 2000,
           boxShadow: '0 4px 12px rgba(0,0,0,0.15)', animation: 'fadeIn 0.3s'
         }}>
           {toast.msg}

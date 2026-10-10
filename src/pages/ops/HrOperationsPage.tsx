@@ -173,7 +173,7 @@ export default function HrOperationsPage() {
         <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: 'var(--bg-secondary, #21262d)', padding: 4, borderRadius: 8 }}>
           {(['roster', 'shift', 'certs'] as const).map(v => (
             <button key={v} onClick={() => setView(v)}
-              style={{ flex: 1, padding: '8px 0', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, background: view === v ? '#1e40af' : 'transparent', color: view === v ? '#fff' : 'var(--text-muted, #8b949e)' }}>
+              style={{ flex: 1, padding: '8px 0', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, background: view === v ? '#1e40af' : 'transparent', color: view === v ? '#fff' : 'var(--text-muted, #8b949e)' }}>
               {v === 'roster' ? t('hrOps.tabRoster') : v === 'shift' ? t('hrOps.tabShift') : t('hrOps.tabCerts')}
             </button>
           ))}
@@ -191,7 +191,7 @@ export default function HrOperationsPage() {
               <div style={{ position: 'relative', marginLeft: 'auto' }}>
                 <Search size={14} style={{ position: 'absolute', left: 10, top: 9, color: '#6e7681' }} />
                 <input placeholder={t('hrOps.searchName')} value={search} onChange={e => setSearch(e.target.value)}
-                  style={{ padding: '6px 12px 6px 32px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 13, width: 180 }} />
+                  style={{ padding: '6px 12px 6px 32px', borderRadius: 6, border: '1px solid var(--border-default, #30363d)', background: 'var(--bg-card, #161b22)', color: 'var(--text-primary, #f0f6fc)', fontSize: 12, width: 180 }} />
               </div>
             </div>
 
@@ -257,26 +257,17 @@ export default function HrOperationsPage() {
         {view === 'shift' && (
           <div style={{ background: 'var(--bg-card, #161b22)', border: '1px solid var(--border-default, #30363d)', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: 'var(--text-primary, #f0f6fc)' }}>{t('hrOps.weeklyShift')} <span style={{ fontSize: 11, color: '#f59e0b' }}>{t('hrOps.demoTag')}</span></div>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-              <thead>
-                <tr>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('hrOps.colDate')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('hrOps.dayShift')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('hrOps.nightShift')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('hrOps.backupShift')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {SHIFT_GRID.map((row, i) => (
-                  <tr key={i}>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', fontWeight: 600 }}>{row.day}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{row['白班']}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{row['夜班']}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{row['备班']}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable
+              dataSource={SHIFT_GRID}
+              rowKey="day"
+              pagination={false}
+              columns={[
+                { title: t('hrOps.colDate'), dataIndex: 'day', render: (v: string) => <span style={{ fontWeight: 600 }}>{v}</span> },
+                { title: t('hrOps.dayShift'), dataIndex: '白班', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
+                { title: t('hrOps.nightShift'), dataIndex: '夜班', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
+                { title: t('hrOps.backupShift'), dataIndex: '备班', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
+              ]}
+            />
           </div>
         )}
 
@@ -285,30 +276,24 @@ export default function HrOperationsPage() {
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: 'var(--text-primary, #f0f6fc)', display: 'flex', alignItems: 'center', gap: 8 }}>
               <Award size={16} color="#f59e0b" />{t('hrOps.certExpiry')} {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>{t('hrOps.certExpiryTag')}</span>}
             </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-              <thead>
-                <tr>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('hrOps.colName')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('hrOps.colCert')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('hrOps.colExpiry')}</th>
-                  <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted, #8b949e)', borderBottom: '1px solid var(--border-default, #30363d)' }}>{t('hrOps.colStatus')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {certRows.map((c, i) => (
-                  <tr key={i}>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>{c.staff}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{c.cert}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)', color: 'var(--text-muted, #8b949e)' }}>{c.expiry}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--bg-secondary, #21262d)' }}>
-                      <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: c.status === 'valid' ? '#22c55e20' : '#f59e0b20', color: c.status === 'valid' ? '#22c55e' : '#f59e0b' }}>
-                        {c.status === 'valid' ? t('hrOps.certValid') : t('hrOps.certExpiring')}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable
+              dataSource={certRows}
+              rowKey={(c, i) => `${c.staff}-${i ?? 0}`}
+              pagination={false}
+              columns={[
+                { title: t('hrOps.colName'), dataIndex: 'staff' },
+                { title: t('hrOps.colCert'), dataIndex: 'cert', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
+                { title: t('hrOps.colExpiry'), dataIndex: 'expiry', render: (v: string) => <span style={{ color: 'var(--text-muted, #8b949e)' }}>{v}</span> },
+                {
+                  title: t('hrOps.colStatus'), dataIndex: 'status',
+                  render: (v: string) => (
+                    <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: v === 'valid' ? '#22c55e20' : '#f59e0b20', color: v === 'valid' ? '#22c55e' : '#f59e0b' }}>
+                      {v === 'valid' ? t('hrOps.certValid') : t('hrOps.certExpiring')}
+                    </span>
+                  ),
+                },
+              ]}
+            />
           </div>
         )}
       </div>

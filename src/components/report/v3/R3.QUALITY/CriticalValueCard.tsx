@@ -154,7 +154,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
             {alert.studyId ? <span style={{ color: '#94a3b8' }}> · {alert.studyId}</span> : null}
             {alert.modality ? <Tag color="blue" style={{ marginLeft: 6 }}>{alert.modality}</Tag> : null}
           </div>
-          <div style={{ marginTop: 4, color: '#b91c1c', fontWeight: 600, fontSize: 13 }}>
+          <div style={{ marginTop: 4, color: '#b91c1c', fontWeight: 600, fontSize: 12 }}>
             {alert.title}
           </div>
           {alert.description && (

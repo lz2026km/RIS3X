@@ -101,7 +101,7 @@ export const DentalWorkspacePage: React.FC = () => {
                 <Space>
                   <q.icon color={q.color} size={18} />
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 600 }}>{t(q.titleKey)}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600 }}>{t(q.titleKey)}</div>
                     <Typography.Text type="secondary" style={{ fontSize: 11 }}>{t(q.descKey)}</Typography.Text>
                   </div>
                   <ArrowRight size={12} style={{ marginLeft: 'auto', color: 'var(--text-secondary)' }} />
@@ -122,7 +122,7 @@ export const DentalWorkspacePage: React.FC = () => {
                   {appointments.map((a) => (
                     <div key={a.id ?? a.patientId} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13 }}>{a.patientName ?? a.patientId}</div>
+                        <div style={{ fontSize: 12 }}>{a.patientName ?? a.patientId}</div>
                         <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{a.type ?? a.modality ?? ''} · {a.time ?? a.date ?? ''}</div>
                       </div>
                       <Tag color={(a.status === 'completed' ? 'green' : a.status === 'cancelled' ? 'red' : 'blue')}>{a.status ?? '-'}</Tag>
@@ -142,7 +142,7 @@ export const DentalWorkspacePage: React.FC = () => {
                   {recentStudies.map((s) => (
                     <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <span style={{ fontSize: 13 }}>{s.patientName} <Tag style={{ marginLeft: 6 }}>{s.modality}</Tag></span>
+                        <span style={{ fontSize: 12 }}>{s.patientName} <Tag style={{ marginLeft: 6 }}>{s.modality}</Tag></span>
                         <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{s.region} · {s.acquisitionDate?.slice(0, 10)}</div>
                       </div>
                       <Tag color={s.quality === 'Diagnostic' ? 'green' : s.quality === 'Acceptable' ? 'blue' : 'orange'}>{s.quality}</Tag>

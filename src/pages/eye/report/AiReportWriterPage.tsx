@@ -710,7 +710,7 @@ export const AiReportWriterPage: React.FC = () => {
                         (prev) => prev + (prev.endsWith(" ") ? "" : " ") + term,
                       );
                   }}
-                  style={{ margin: 4, fontSize: 13 }}
+                  style={{ margin: 4, fontSize: 12 }}
                 >
                   {term}
                 </Tag.CheckableTag>

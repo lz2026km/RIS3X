@@ -276,7 +276,7 @@ const MipScreenshotModal: React.FC<Props> = ({ open, defaultStudyUid, onClose, o
           ) : (
             <div style={{ color: '#64748b', textAlign: 'center', padding: 24 }}>
               <ScanLine size={40} style={{ opacity: 0.4, marginBottom: 8 }} />
-              <div style={{ fontSize: 13 }}>{t('w9e.mipScreenshot.pickHint')}</div>
+              <div style={{ fontSize: 12 }}>{t('w9e.mipScreenshot.pickHint')}</div>
             </div>
           )}
         </div>

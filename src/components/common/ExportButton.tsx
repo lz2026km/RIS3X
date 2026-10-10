@@ -292,7 +292,7 @@ export function ExportButton({
                   border: "none",
                   borderRadius: 4,
                   cursor: "pointer",
-                  fontSize: 13,
+                  fontSize: 12,
                   color: "#1e293b",
                   textAlign: "left",
                 }}

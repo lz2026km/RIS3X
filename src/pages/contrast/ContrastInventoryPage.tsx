@@ -194,7 +194,7 @@ const ContrastInventoryPage: React.FC = () => {
           <Space>
             <Package size={20} color="#fff" />
             <div>
-              <div style={{ fontSize: 17, fontWeight: 700, color: '#fff' }}>{t('contrastInv.title')}</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>{t('contrastInv.title')}</div>
               <div style={{ fontSize: 12, color: '#bfdbfe' }}>{t('contrastInv.subtitle')}</div>
             </div>
           </Space>

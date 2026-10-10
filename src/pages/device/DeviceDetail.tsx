@@ -106,7 +106,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
               <Activity size={16} />
               {device.name}
             </div>
-            <div style={{ fontSize: 12.5, opacity: 0.8, marginTop: 2 }}>
+            <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>
               {device.manufacturer} · {device.model} · {device.modality}
             </div>
           </div>
@@ -175,7 +175,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
                   <div style={{ fontSize: 12, color: C.textMid, marginBottom: 8 }}>{t('deviceDetail.photoStatusLabel')}{t('deviceDetail.pendingUpload')}</div>
                   <button style={{
                     padding: '6px 14px', borderRadius: 8, border: `1px solid ${C.accent}40`,
-                    background: `${C.accent}10`, color: C.accent, fontSize: 12.5, fontWeight: 600, cursor: 'pointer'
+                    background: `${C.accent}10`, color: C.accent, fontSize: 12, fontWeight: 600, cursor: 'pointer'
                   }} onClick={async () => {
                     const btn = document.activeElement as HTMLButtonElement;
                     const originalText = btn.innerHTML;
@@ -211,7 +211,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
                 }}>
                   <div style={{ textAlign: 'center' }}>
                     <QrCode size={48} style={{ color: C.primary }} />
-                    <div style={{ fontSize: 8, color: C.textLight, marginTop: 2 }}>{t('deviceDetail.qrCode')}</div>
+                    <div style={{ fontSize: 10, color: C.textLight, marginTop: 2 }}>{t('deviceDetail.qrCode')}</div>
                   </div>
                 </div>
                 <div style={{
@@ -254,7 +254,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
                     border: `1px solid ${C.border}`, textAlign: 'center'
                   }}>
                     <div style={{ fontSize: 18, fontWeight: 800, color: item.color }}>{item.value}</div>
-                    <div style={{ fontSize: 12.5, color: C.textLight, marginTop: 3 }}>{t(item.label)}</div>
+                    <div style={{ fontSize: 12, color: C.textLight, marginTop: 3 }}>{t(item.label)}</div>
                   </div>
                 ))}
               </div>
@@ -282,16 +282,16 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
                     transition: 'height 0.3s',
                   }} />
                   {i % 4 === 0 && (
-                    <span style={{ fontSize: 8, color: C.textLight }}>{th.hour}</span>
+                    <span style={{ fontSize: 10, color: C.textLight }}>{th.hour}</span>
                   )}
                 </div>
               ))}
             </div>
             <div style={{ display: 'flex', gap: 16, marginTop: 8 }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12.5, color: C.textMid }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.textMid }}>
                 <span style={{ width: 10, height: 10, borderRadius: 2, background: C.success }} /> {t('deviceDetail.inUse')}
               </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12.5, color: C.textMid }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.textMid }}>
                 <span style={{ width: 10, height: 10, borderRadius: 2, background: '#e2e8f0' }} /> {t('deviceDetail.idle')}
               </span>
             </div>
@@ -341,7 +341,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
                     alignItems: 'center', justifyContent: 'center'
                   }}>
                     <span style={{ fontSize: 18, fontWeight: 800, color: C.textDark }}>{device.healthScore}</span>
-                    <span style={{ fontSize: 8, color: C.textLight }}>{t('deviceDetail.healthScoreShort')}</span>
+                    <span style={{ fontSize: 10, color: C.textLight }}>{t('deviceDetail.healthScoreShort')}</span>
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 10, fontSize: 12, color: C.textMid }}>
@@ -379,7 +379,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
                       <span style={{ fontSize: 12, fontWeight: 700, color: C.textDark }}>{t(event.title)}</span>
-                      <span style={{ fontSize: 12.5, color: C.textLight }}>{event.date}</span>
+                      <span style={{ fontSize: 12, color: C.textLight }}>{event.date}</span>
                     </div>
                     <div style={{ fontSize: 12, color: C.textMid }}>{t(event.desc)}</div>
                   </div>
@@ -406,7 +406,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
                   border: `1px solid ${C.border}`, textAlign: 'center'
                 }}>
                   <div style={{ fontSize: 18, fontWeight: 800, color: item.color }}>{item.value}</div>
-                  <div style={{ fontSize: 12.5, color: C.textLight, marginTop: 3 }}>{item.label}</div>
+                  <div style={{ fontSize: 12, color: C.textLight, marginTop: 3 }}>{item.label}</div>
                 </div>
               ))}
               <div style={{
@@ -414,21 +414,21 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
                 border: `1px solid ${C.border}`, textAlign: 'center'
               }}>
                 <div style={{ fontSize: 18, fontWeight: 800, color: C.primary }}>{device.utilization}%</div>
-                <div style={{ fontSize: 12.5, color: C.textLight, marginTop: 3 }}>设备利用率</div>
+                <div style={{ fontSize: 12, color: C.textLight, marginTop: 3 }}>设备利用率</div>
               </div>
               <div style={{
                 background: C.white, borderRadius: 10, padding: '12px 14px',
                 border: `1px solid ${C.border}`, textAlign: 'center'
               }}>
                 <div style={{ fontSize: 18, fontWeight: 800, color: C.primary }}>{device.uptime}%</div>
-                <div style={{ fontSize: 12.5, color: C.textLight, marginTop: 3 }}>开机率</div>
+                <div style={{ fontSize: 12, color: C.textLight, marginTop: 3 }}>开机率</div>
               </div>
               <div style={{
                 background: C.white, borderRadius: 10, padding: '12px 14px',
                 border: `1px solid ${C.border}`, textAlign: 'center'
               }}>
                 <div style={{ fontSize: 18, fontWeight: 800, color: C.primary }}>{device.mtbf} 天</div>
-                <div style={{ fontSize: 12.5, color: C.textLight, marginTop: 3 }}>MTBF（故障间隔）</div>
+                <div style={{ fontSize: 12, color: C.textLight, marginTop: 3 }}>MTBF（故障间隔）</div>
               </div>
             </div>
           </div>
@@ -450,9 +450,9 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
                   }}>
                     <div style={{ fontSize: 12, color: C.textMid }}>{record.date}</div>
                     <div style={{ fontSize: 12, color: C.textDark, fontWeight: 600 }}>{record.content}</div>
-                    <div style={{ fontSize: 12.5, color: C.textMid }}>{record.engineer}</div>
-                    <div style={{ fontSize: 12.5, color: C.warning, fontWeight: 700 }}>¥{record.cost.toLocaleString()}</div>
-                    <div style={{ fontSize: 12.5, color: C.success, fontWeight: 700 }}>{record.result}</div>
+                    <div style={{ fontSize: 12, color: C.textMid }}>{record.engineer}</div>
+                    <div style={{ fontSize: 12, color: C.warning, fontWeight: 700 }}>¥{record.cost.toLocaleString()}</div>
+                    <div style={{ fontSize: 12, color: C.success, fontWeight: 700 }}>{record.result}</div>
                   </div>
                 ))}
               </div>

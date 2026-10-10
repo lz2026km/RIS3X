@@ -71,7 +71,7 @@ export default function BatchActionBar({ selectedCount, onAction, actions, onCle
           onProgress={onTaskProgress}
         />
       )}
-      <span style={{ fontSize: 13, fontWeight: 600, color: '#1e293b', whiteSpace: 'nowrap' }}>
+      <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', whiteSpace: 'nowrap' }}>
         已选中 <span style={{ color: PRIMARY, fontWeight: 700 }}>{selectedCount}</span> 项
       </span>
       <div style={{ width: 1, height: 24, background: '#e2e8f0' }} />
@@ -90,7 +90,7 @@ export default function BatchActionBar({ selectedCount, onAction, actions, onCle
             borderColor: confirmKey === action.key ? '#dc2626' : '#e2e8f0',
             background: confirmKey === action.key ? '#fef2f2' : 'var(--bg-card)',
             color: confirmKey === action.key ? '#dc2626' : '#334155',
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: 600,
             cursor: 'pointer',
             whiteSpace: 'nowrap',

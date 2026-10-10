@@ -83,7 +83,7 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
           </div>
           <div style={panelBodyStyle}>
               <div style={{ marginBottom: 24 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>{t("deptFinance.personalReportCount")}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>{t("deptFinance.personalReportCount")}</div>
                 <ChartContainer type="bar" state={PERFORMANCE_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription={t("deptFinance.noReportCountData")}>
                   <BarChart data={PERFORMANCE_DATA}>
                     <CartesianGrid strokeDasharray="3 3" stroke={C.borderLight} />
@@ -94,7 +94,7 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
                 </ChartContainer>
               </div>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>{t("deptFinance.positiveRateTrend")}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>{t("deptFinance.positiveRateTrend")}</div>
               <ChartContainer type="line" state={POSITIVE_RATE_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription={t("deptFinance.noPositiveRateData")}>
                 <LineChart data={POSITIVE_RATE_DATA}>
                   <CartesianGrid strokeDasharray="3 3" stroke={C.borderLight} />
@@ -110,17 +110,17 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
           <div style={panelHeaderStyle}><span>{t("deptFinance.workloadRankingQc")}</span></div>
           <div style={panelBodyStyle}>
             <div style={{ marginBottom: 24 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>{t("deptFinance.workloadTop5")}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>{t("deptFinance.workloadTop5")}</div>
               {WORKLOAD_RANKING.map((r, i) => (
                 <div key={r.rank} style={{ display: "flex", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${C.borderLight}`, gap: 12 }}>
                   <div style={{ width: 24, height: 24, borderRadius: "50%", background: i === 0 ? "#fbbf24" : i === 1 ? "#94a3b8" : i === 2 ? "#cd7c32" : C.borderLight, color: i < 3 ? C.white : C.textMid, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600 }}>{r.rank}</div>
-                  <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{r.name}</div><div style={{ fontSize: 12, color: C.textLight }}>{r.role}</div></div>
-                  <div style={{ textAlign: "right" }}><div style={{ fontSize: 13, fontWeight: 600, color: C.primary }}>{t("deptFinance.portions", { count: r.written + r.reviewed })}</div><div style={{ fontSize: 12, color: C.success }}>{t("deptFinance.score", { score: r.score })}</div></div>
+                  <div style={{ flex: 1 }}><div style={{ fontSize: 12, fontWeight: 500, color: C.textDark }}>{r.name}</div><div style={{ fontSize: 12, color: C.textLight }}>{r.role}</div></div>
+                  <div style={{ textAlign: "right" }}><div style={{ fontSize: 12, fontWeight: 600, color: C.primary }}>{t("deptFinance.portions", { count: r.written + r.reviewed })}</div><div style={{ fontSize: 12, color: C.success }}>{t("deptFinance.score", { score: r.score })}</div></div>
                 </div>
               ))}
             </div>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>{t("deptFinance.qualityScore")}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>{t("deptFinance.qualityScore")}</div>
               <div>
                 <ChartContainer type="bar" state={QUALITY_SCORE_DATA.length === 0 ? 'empty' : 'ready'} emptyDescription={t("deptFinance.noQualityScoreData")}>
                   <BarChart data={QUALITY_SCORE_DATA} layout="vertical">
@@ -146,13 +146,13 @@ export default function DepartmentFinanceSummary({ activeTab }: { activeTab: str
           {DEPT_KPI_METRICS.map((metric, i) => (
             <div key={i} style={{ padding: 16, background: C.white, borderRadius: 8, border: `1px solid ${C.borderLight}`, boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
-                <div style={{ fontSize: 13, color: C.textMid, fontWeight: 500 }}>{metric.label}</div>
+                <div style={{ fontSize: 12, color: C.textMid, fontWeight: 500 }}>{metric.label}</div>
                 <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: metric.trend === "up" ? C.success : metric.trend === "down" ? C.danger : C.textMid }}>
                   {metric.trend === "up" ? <TrendingUp size={14} /> : metric.trend === "down" ? <TrendingDown size={14} /> : <Minus size={14} />}
                   {metric.change > 0 ? "+" : ""}{metric.change}%
                 </div>
               </div>
-              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark, marginBottom: 4 }}>
+              <div style={{ fontSize: 30, fontWeight: 700, color: C.textDark, marginBottom: 4 }}>
                 {metric.value.toLocaleString()}<span style={{ fontSize: 14, fontWeight: 400, color: C.textMid }}> {metric.unit}</span>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: C.textLight }}>

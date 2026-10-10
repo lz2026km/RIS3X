@@ -15,11 +15,11 @@ const s = {
   grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 },
   grid3: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 },
   badge: (color: string, bg: string) => ({ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: bg, color }),
-  btn: { padding: '8px 16px', borderRadius: 6, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', background: '#1e40af', color: '#fff' },
-  select: { width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, background: 'var(--bg-card)' },
+  btn: { padding: '8px 16px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: '#1e40af', color: '#fff' },
+  select: { width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)' },
   label: { fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4, display: 'block' },
   tab: (active: boolean) => ({
-    flex: 1, padding: '10px 0', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+    flex: 1, padding: '10px 0', borderRadius: 8, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer',
     background: active ? 'var(--bg-card)' : 'transparent', color: active ? '#1e40af' : '#64748b',
     boxShadow: active ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
   }),
@@ -245,17 +245,17 @@ export default function PatientEducationPage() {
               {/* 播放器 */}
               {(selectedMaterial.contentType === 'video' || selectedMaterial.contentType === 'audio') && (
                 <div style={{ marginTop: 16, background: '#0f172a', borderRadius: 8, padding: 16, textAlign: 'center' }}>
-                  <div style={{ fontSize: 40, marginBottom: 8 }}>{selectedMaterial.contentType === 'video' ? '' : ''}</div>
-                  <div style={{ fontSize: 13, color: '#e2e8f0', marginBottom: 12 }}>{selectedMaterial.title}</div>
+                  <div style={{ fontSize: 36, marginBottom: 8 }}>{selectedMaterial.contentType === 'video' ? '' : ''}</div>
+                  <div style={{ fontSize: 12, color: '#e2e8f0', marginBottom: 12 }}>{selectedMaterial.title}</div>
                   <div style={{ background: '#1e293b', borderRadius: 4, height: 8, overflow: 'hidden', marginBottom: 12 }}>
                     <div style={{ width: `${playerProgress}%`, height: '100%', background: '#3b82f6', transition: 'width 0.3s' }} />
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
-                    <button style={{ padding: '6px 16px', borderRadius: 6, border: 'none', background: '#3b82f6', color: '#fff', fontSize: 13, cursor: 'pointer' }}
+                    <button style={{ padding: '6px 16px', borderRadius: 6, border: 'none', background: '#3b82f6', color: '#fff', fontSize: 12, cursor: 'pointer' }}
                       onClick={() => setPlaying(v => !v)}>
                       {playing ? t('patientEdu.pause') : playerProgress >= 100 ? t('patientEdu.replay') : t('patientEdu.play')}
                     </button>
-                    <button style={{ padding: '6px 16px', borderRadius: 6, border: '1px solid #334155', background: 'transparent', color: '#cbd5e1', fontSize: 13, cursor: 'pointer' }}
+                    <button style={{ padding: '6px 16px', borderRadius: 6, border: '1px solid #334155', background: 'transparent', color: '#cbd5e1', fontSize: 12, cursor: 'pointer' }}
                       onClick={() => void markComplete(selectedMaterial)}>
                       {t('patientEdu.markComplete')}
                     </button>
@@ -338,7 +338,7 @@ export default function PatientEducationPage() {
           {records.map(r => (
             <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{r.materialTitle}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{r.materialTitle}</div>
                 <div style={{ fontSize: 12, color: '#94a3b8' }}>{t('patientEdu.assignedAt')}{new Date(r.assignedAt).toLocaleString()}</div>
               </div>
               <span style={s.badge(r.completed ? 'var(--color-success)' : 'var(--color-warning)', r.completed ? 'var(--color-success-bg)' : 'var(--color-warning-bg)')}>
@@ -346,7 +346,7 @@ export default function PatientEducationPage() {
               </span>
             </div>
           ))}
-          {records.length === 0 && <div style={{ fontSize: 13, color: '#94a3b8', textAlign: 'center', padding: 24 }}>{t('patientEdu.noRecords')}</div>}
+          {records.length === 0 && <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', padding: 24 }}>{t('patientEdu.noRecords')}</div>}
         </Card>
       )}
 
@@ -386,31 +386,31 @@ export default function PatientEducationPage() {
               <span style={{ fontSize: 12, color: '#94a3b8' }}>{eduDetail.targetAudience}</span>
             </div>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{t('w3d.edu.keyPoints')}</div>
-              <ul style={{ margin: 0, paddingLeft: 18 }}>{eduDetail.keyPoints.map((p, i) => <li key={i} style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{p}</li>)}</ul>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{t('w3d.edu.keyPoints')}</div>
+              <ul style={{ margin: 0, paddingLeft: 18 }}>{eduDetail.keyPoints.map((p, i) => <li key={i} style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{p}</li>)}</ul>
             </div>
             {eduDetail.warnings.length > 0 && (
               <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#dc2626', marginBottom: 6 }}>{t('w3d.edu.warnings')}</div>
-                <ul style={{ margin: 0, paddingLeft: 18 }}>{eduDetail.warnings.map((w, i) => <li key={i} style={{ fontSize: 13, color: '#dc2626' }}>{w}</li>)}</ul>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#dc2626', marginBottom: 6 }}>{t('w3d.edu.warnings')}</div>
+                <ul style={{ margin: 0, paddingLeft: 18 }}>{eduDetail.warnings.map((w, i) => <li key={i} style={{ fontSize: 12, color: '#dc2626' }}>{w}</li>)}</ul>
               </div>
             )}
             {eduDetail.postCare && eduDetail.postCare.length > 0 && (
               <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{t('w3d.edu.postCare')}</div>
-                <ul style={{ margin: 0, paddingLeft: 18 }}>{eduDetail.postCare.map((w, i) => <li key={i} style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{w}</li>)}</ul>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{t('w3d.edu.postCare')}</div>
+                <ul style={{ margin: 0, paddingLeft: 18 }}>{eduDetail.postCare.map((w, i) => <li key={i} style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{w}</li>)}</ul>
               </div>
             )}
             {eduDetail.medication && (
-              <div><span style={{ fontSize: 13, fontWeight: 700 }}>{t('w3d.edu.medication')}: </span><span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{eduDetail.medication}</span></div>
+              <div><span style={{ fontSize: 12, fontWeight: 700 }}>{t('w3d.edu.medication')}: </span><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{eduDetail.medication}</span></div>
             )}
             {eduDetail.commonQuestions.length > 0 && (
               <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{t('w3d.edu.faq')}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{t('w3d.edu.faq')}</div>
                 <div style={{ display: 'grid', gap: 8 }}>
                   {eduDetail.commonQuestions.map((q, i) => (
                     <div key={i} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: 10 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>Q: {q.question}</div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>Q: {q.question}</div>
                       <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>A: {q.answer}</div>
                     </div>
                   ))}

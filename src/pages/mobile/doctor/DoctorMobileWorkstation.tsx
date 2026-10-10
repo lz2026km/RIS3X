@@ -259,7 +259,7 @@ export default function DoctorMobileWorkstation() {
 
       <div style={s.searchBar}>
         <Search size={16} color="#94a3b8" />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('docMobile.searchPlaceholder')} style={{ border: 'none', fontSize: 13, color: 'var(--text-primary)', width: '100%', background: 'transparent' }} />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('docMobile.searchPlaceholder')} style={{ border: 'none', fontSize: 12, color: 'var(--text-primary)', width: '100%', background: 'transparent' }} />
         <Filter size={16} color="#94a3b8" style={{ cursor: 'pointer' }} />
       </div>
 
@@ -276,7 +276,7 @@ export default function DoctorMobileWorkstation() {
       </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 48, color: '#94a3b8', fontSize: 13 }}>{t('docMobile.loading')}</div>
+        <div style={{ textAlign: 'center', padding: 48, color: '#94a3b8', fontSize: 12 }}>{t('docMobile.loading')}</div>
       ) : tab === 'worklist' ? (
         <>
           <div style={{ display: 'flex', gap: 6, padding: '8px 16px' }}>
@@ -314,7 +314,7 @@ export default function DoctorMobileWorkstation() {
                 <ChevronRight size={14} color="#cbd5e1" />
               </div>
             ))}
-            {filtered.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 13 }}>{t('docMobile.noWorkItems')}</div>}
+            {filtered.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 12 }}>{t('docMobile.noWorkItems')}</div>}
           </div>
         </>
       ) : tab === 'critical' ? (
@@ -328,7 +328,7 @@ export default function DoctorMobileWorkstation() {
                 </span>
                 <span style={{ fontSize: 12, color: '#94a3b8' }}>{c.modality ?? ''} {c.accessionNumber ?? ''}</span>
               </div>
-              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.5 }}>{c.description}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.5 }}>{c.description}</div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>{formatTime(c.createdAt)} · {c.notifiedTo ?? t('docMobile.notNotified')}</span>
                 {isAcked(c) ? (
@@ -347,7 +347,7 @@ export default function DoctorMobileWorkstation() {
               </div>
             </div>
           ))}
-          {criticals.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 13 }}>{t('docMobile.noCriticals')}</div>}
+          {criticals.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 12 }}>{t('docMobile.noCriticals')}</div>}
         </div>
       ) : tab === 'reports' ? (
         <div style={{ padding: 16 }}>
@@ -358,14 +358,14 @@ export default function DoctorMobileWorkstation() {
                 {r.isCritical && <span style={s.badge('#dc2626')}>{t('docMobile.urgency.critical')}</span>}
                 <span style={{ fontSize: 12, color: '#94a3b8' }}>{r.modality ?? ''} {r.bodyPart ?? ''}</span>
               </div>
-              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.5 }}>{r.impression || '—'}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.5 }}>{r.impression || '—'}</div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 6, display: 'flex', justifyContent: 'space-between' }}>
                 <span>{r.radiologistName ? `${r.radiologistName} 报告` : '报告撰写中'}</span>
                 <span>{formatTime(r.signedAt ?? r.createdAt)}</span>
               </div>
             </div>
           ))}
-          {reports.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 13 }}>{t('docMobile.noReports')}</div>}
+          {reports.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 12 }}>{t('docMobile.noReports')}</div>}
         </div>
       ) : tab === 'approval' ? (
         <div style={{ padding: 16 }}>
@@ -384,7 +384,7 @@ export default function DoctorMobileWorkstation() {
                 <span style={{ fontSize: 12, color: '#94a3b8' }}>{r.modality} {r.bodyPart}</span>
               </div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{r.reportId} · {formatTime(r.updatedTime ?? r.createdTime)}</div>
-              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.5, WebkitLineClamp: 2, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitBoxOrient: 'vertical' }}>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 6, lineHeight: 1.5, WebkitLineClamp: 2, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitBoxOrient: 'vertical' }}>
                 {r.impression || r.diagnosis || r.findings || t('docMobile.noDescription')}
               </div>
               {failedReviewIds[r.id] && (
@@ -395,13 +395,13 @@ export default function DoctorMobileWorkstation() {
               <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
                 <button
                   onClick={() => setReviewTarget(r)}
-                  style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: '#059669', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+                  style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: '#059669', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
                 >{t('docMobile.reviewAction')}</button>
               </div>
             </div>
           ))}
           {pendingReviews.length === 0 && (
-            <div style={{ textAlign: 'center', padding: 48, color: '#94a3b8', fontSize: 13, background: 'var(--bg-card)', borderRadius: 12 }}>
+            <div style={{ textAlign: 'center', padding: 48, color: '#94a3b8', fontSize: 12, background: 'var(--bg-card)', borderRadius: 12 }}>
               <CheckCircle size={28} style={{ margin: '0 auto 8px', display: 'block', opacity: 0.5 }} />
               {t('docMobile.noReviews')}
             </div>
@@ -452,7 +452,7 @@ export default function DoctorMobileWorkstation() {
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>{t('docMobile.reviewModalTitle')}</div>
               <button onClick={() => setReviewTarget(null)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#94a3b8', padding: 4 }}><X size={18} /></button>
             </div>
-            <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 12 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 12 }}>
               <div><strong>{reviewTarget.patientName}</strong> · {reviewTarget.modality} {reviewTarget.bodyPart}</div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{reviewTarget.reportId} · {REVIEW_STATE_LABELS[reviewTarget.state ?? ''] ?? reviewTarget.state ?? reviewTarget.status}</div>
               <div style={{ marginTop: 6, padding: 8, background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)' }}>
@@ -467,19 +467,19 @@ export default function DoctorMobileWorkstation() {
                 rows={2}
                 maxLength={200}
                 placeholder={t('docMobile.rejectPlaceholder')}
-                style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13, resize: 'none', boxSizing: 'border-box', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
+                style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, resize: 'none', boxSizing: 'border-box', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
               />
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
               <button
                 onClick={() => void handleReviewSubmit(false)}
                 disabled={reviewSubmitting}
-                style={{ flex: 1, padding: '11px 0', borderRadius: 8, border: '1px solid #fecaca', background: 'var(--bg-card)', color: '#dc2626', fontSize: 13, fontWeight: 700, cursor: reviewSubmitting ? 'wait' : 'pointer' }}
+                style={{ flex: 1, padding: '11px 0', borderRadius: 8, border: '1px solid #fecaca', background: 'var(--bg-card)', color: '#dc2626', fontSize: 12, fontWeight: 700, cursor: reviewSubmitting ? 'wait' : 'pointer' }}
               >{reviewSubmitting ? t('docMobile.submitting') : t('docMobile.reject')}</button>
               <button
                 onClick={() => void handleReviewSubmit(true)}
                 disabled={reviewSubmitting}
-                style={{ flex: 1, padding: '11px 0', borderRadius: 8, border: 'none', background: '#059669', color: '#fff', fontSize: 13, fontWeight: 700, cursor: reviewSubmitting ? 'wait' : 'pointer' }}
+                style={{ flex: 1, padding: '11px 0', borderRadius: 8, border: 'none', background: '#059669', color: '#fff', fontSize: 12, fontWeight: 700, cursor: reviewSubmitting ? 'wait' : 'pointer' }}
               >{reviewSubmitting ? t('docMobile.submitting') : t('docMobile.approve')}</button>
             </div>
           </div>

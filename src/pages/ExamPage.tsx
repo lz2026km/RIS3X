@@ -1842,7 +1842,7 @@ export default function ExamPage() {
                   {t("examPage.deviceId")}
                 </div>
                 <div
-                  style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}
+                  style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
                 >
                   {execution.deviceNumber}
                 </div>
@@ -1860,7 +1860,7 @@ export default function ExamPage() {
                   {t("examPage.examRoom")}
                 </div>
                 <div
-                  style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}
+                  style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
                 >
                   {execution.roomName}
                 </div>
@@ -2098,7 +2098,7 @@ export default function ExamPage() {
             <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 4 }}>
               {stat.label}
             </div>
-            <div style={{ fontSize: 28, fontWeight: 700, color: stat.color }}>
+            <div style={{ fontSize: 30, fontWeight: 700, color: stat.color }}>
               {stat.value}
             </div>
           </div>
@@ -2224,7 +2224,7 @@ export default function ExamPage() {
                 <div>
                   <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.fromDept")}</div>
                   <div
-                    style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}
+                    style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
                   >
                     {record.fromDepartment}
                   </div>
@@ -2244,7 +2244,7 @@ export default function ExamPage() {
                 <div>
                   <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{t("examPage.toDept")}</div>
                   <div
-                    style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}
+                    style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
                   >
                     {record.toDepartment}
                   </div>
@@ -2571,7 +2571,7 @@ export default function ExamPage() {
                     {g.patientName.slice(0, 1)}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{g.patientName}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{g.patientName}</span>
                     <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 8 }}>{g.patientId}</span>
                   </div>
                   <span style={{
@@ -2599,7 +2599,7 @@ export default function ExamPage() {
                       }} />
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
+                          <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>
                             {ex.examItemName}
                           </span>
                           <span style={{
@@ -2675,7 +2675,7 @@ export default function ExamPage() {
                         background: 'linear-gradient(180deg, #1e40af, #93c5fd)',
                         transition: 'height 0.3s',
                       }} title={t("w9a.examPage.dayCountTip", { day, count })} />
-                      <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{day.slice(5)}</span>
+                      <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{day.slice(5)}</span>
                     </div>
                   ))}
                 </div>
@@ -2903,7 +2903,7 @@ export default function ExamPage() {
               }}
             >
               <actionConfig.icon size={18} />
-              <span style={{ fontWeight: 600, fontSize: 15 }}>
+              <span style={{ fontWeight: 600, fontSize: 14 }}>
                 {actionConfig.title}
               </span>
             </div>
@@ -3229,7 +3229,7 @@ export default function ExamPage() {
         okText={t("examPage.confirmAssign2")}
         cancelText={t("examPage.cancel")}
       >
-        <div style={{ padding: "8px 0 4px", fontSize: 13, color: "var(--text-secondary)", marginBottom: 8 }}>
+        <div style={{ padding: "8px 0 4px", fontSize: 12, color: "var(--text-secondary)", marginBottom: 8 }}>
           {t("examPage.forSelected")} {selectedIds.size} {t("examPage.assignDeviceFor")}
         </div>
         <Select
@@ -3311,7 +3311,7 @@ export default function ExamPage() {
             >
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <MergeIcon size={18} color="var(--text-inverse)" />
-                <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text-inverse)" }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: "var(--text-inverse)" }}>
                   {t("examPage.mergeExams")}
                 </span>
               </div>
@@ -3362,7 +3362,7 @@ export default function ExamPage() {
                         onChange={() => setMergeTargetId(e.id)}
                       />
                       <div>
-                        <div style={{ fontWeight: 600, fontSize: 13, color: "var(--text-primary)" }}>
+                        <div style={{ fontWeight: 600, fontSize: 12, color: "var(--text-primary)" }}>
                           {e.patientName} · {e.examItemName}
                         </div>
                         <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
@@ -3463,7 +3463,7 @@ export default function ExamPage() {
             >
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <SplitIcon size={18} color="var(--text-inverse)" />
-                <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text-inverse)" }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: "var(--text-inverse)" }}>
                   {t("examPage.splitExam")}
                 </span>
               </div>
@@ -3597,7 +3597,7 @@ export default function ExamPage() {
             >
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <Upload size={18} color="var(--text-inverse)" />
-                <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text-inverse)" }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: "var(--text-inverse)" }}>
                   {t("examPage.batchImportExam")}
                 </span>
               </div>
@@ -3682,7 +3682,7 @@ export default function ExamPage() {
                     background: importResult.errors.length > 0 ? "var(--color-warning-bg)" : "var(--color-success-bg)",
                   }}
                 >
-                  <div style={{ fontSize: 13, fontWeight: 700, color: importResult.errors.length > 0 ? "var(--color-warning)" : "var(--color-success)" }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: importResult.errors.length > 0 ? "var(--color-warning)" : "var(--color-success)" }}>
                     {t("examPage.importDoneSuccess")} {importResult.imported} {t("examPage.skippedSuffix")} {importResult.skipped} {t("examPage.failedSuffix")} {importResult.errors.length}
                   </div>
                   {importResult.errors.length > 0 && (

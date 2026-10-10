@@ -691,7 +691,7 @@ const VolumeStudioPage: React.FC = () => {
     <div style={{ background: "#020617", color: "#cbd5e1", padding: 12, display: "flex", flexDirection: "column" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
         <Box size={18} color={BLUE} />
-        <span style={{ fontSize: 15, fontWeight: 700 }}>{t("volumeStudioTitle", "多平面重建工作室")}</span>
+        <span style={{ fontSize: 14, fontWeight: 700 }}>{t("volumeStudioTitle", "多平面重建工作室")}</span>
         <Tag color="cyan">MPR V2</Tag>
         {mode === "real" && <Tag color="green">{t("vsReal", "真实DICOM")}</Tag>}
         {mode === "synthetic" && <Tag>{t("vsSynthetic", "合成数据")}</Tag>}

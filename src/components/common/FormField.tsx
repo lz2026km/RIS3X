@@ -71,7 +71,7 @@ export function FormField({
       <label
         htmlFor={htmlFor}
         style={{
-          fontSize: 13,
+          fontSize: 12,
           fontWeight: 600,
           color: "#334155",
           lineHeight: 1.6,

@@ -429,7 +429,7 @@ export default function CriticalValuePage() {
                 flex: 1, padding: '10px 16px', borderRadius: 8, border: 'none',
                 background: isActive ? '#dc2626' : 'transparent',
                 color: isActive ? '#fff' : '#64748b',
-                fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                fontSize: 12, fontWeight: 600, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                 transition: 'all 0.2s',
               }}

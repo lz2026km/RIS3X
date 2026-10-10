@@ -188,7 +188,7 @@ function PhaseDistributionBars(props: {
     <div style={{ marginTop: 4 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
         <span style={{ fontSize: 10, color: '#64748b' }}>{label}</span>
-        <span style={{ fontSize: 9, color: '#475569' }}>{t('w9d.dicom4d.phaseCount', { count: bins.length })}</span>
+        <span style={{ fontSize: 10, color: '#475569' }}>{t('w9d.dicom4d.phaseCount', { count: bins.length })}</span>
       </div>
       <div style={{ display: 'flex', gap: 1, alignItems: 'flex-end', height: 34 }}>
         {bins.map((b) => (
@@ -477,7 +477,7 @@ export default function Dicom4dPage() {
       <style>{`@keyframes g005-frame-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }`}</style>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Activity size={18} color={BLUE} />
-        <span style={{ fontSize: 15, fontWeight: 700 }}>{t('dicom4d.title')}</span>
+        <span style={{ fontSize: 14, fontWeight: 700 }}>{t('dicom4d.title')}</span>
         {syntheticFrames && (
           <Tag color="orange" style={{ marginLeft: 8 }}>{t('w9d.dicom4d.syntheticTag')}</Tag>
         )}
@@ -611,7 +611,7 @@ export default function Dicom4dPage() {
               {currentFrame + 1} / {frameCount}
             </span>
             {currentFrameData && (
-              <span style={{ fontSize: 9, color: '#64748b', minWidth: 60, textAlign: 'right' }}>
+              <span style={{ fontSize: 10, color: '#64748b', minWidth: 60, textAlign: 'right' }}>
                 {(currentFrameData as { sopInstanceUid?: string }).sopInstanceUid
                   ? `sop:${(currentFrameData as { sopInstanceUid?: string }).sopInstanceUid?.slice(-8)}`
                   : ''}
@@ -626,7 +626,7 @@ export default function Dicom4dPage() {
                 <TrendingUp size={11} color="#facc15" />
                 <span style={{ fontSize: 10, color: '#64748b' }}>{t('w9d.dicom4d.phaseCurve')}</span>
                 {movieData && (
-                  <span style={{ fontSize: 9, color: '#475569', marginLeft: 'auto' }}>
+                  <span style={{ fontSize: 10, color: '#475569', marginLeft: 'auto' }}>
                     {movieData.interpolationMode === 'linear' ? t('w9d.dicom4d.interpLinear', { count: movieData.interpolatedFrames }) : t('w9d.dicom4d.interpBinned', { count: movieData.framesPerPhase })}
                   </span>
                 )}
@@ -808,7 +808,7 @@ export default function Dicom4dPage() {
                 {showRespiratory && (
                   <PhaseDistributionBars bins={distBins.respiratory} maxCount={distBins.respiratoryMax} color="#60a5fa" label="respiratory 0-9" />
                 )}
-                <div style={{ fontSize: 9, color: '#475569', marginTop: 6 }}>
+                <div style={{ fontSize: 10, color: '#475569', marginTop: 6 }}>
                   {t('w9d.dicom4d.phaseSummary', { frames: distBins.cardiac.reduce((s, b) => s + b.count, 0), total: phaseDetail?.distribution?.totalFrames ?? 0 })}
                   {phaseDetail && t('w9d.dicom4d.cycleSummary', { cardiac: phaseDetail.cardiacCycleMs, respiratory: phaseDetail.respiratoryCycleMs })}
                 </div>
@@ -850,7 +850,7 @@ export default function Dicom4dPage() {
                   )
                 })}
               </div>
-              <div style={{ fontSize: 9, color: '#475569' }}>
+              <div style={{ fontSize: 10, color: '#475569' }}>
                 {movieData.interpolationMode} · {movieData.framesPerPhase} {t('w9d.dicom4d.framesPerPhase')} · {movieData.phaseSequence.length} {t('w9d.dicom4d.frameSequence')}
               </div>
             </Card>

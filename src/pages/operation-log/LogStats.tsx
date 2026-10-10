@@ -41,7 +41,7 @@ function TodayTrendCard({ todayCount, yesterdayCount, todayTrend, peakHour, topU
             {isPositive ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
           </span>
         </div>
-        <div style={{ fontSize: 28, fontWeight: 700, color: PRIMARY }}>{todayCount}</div>
+        <div style={{ fontSize: 30, fontWeight: 700, color: PRIMARY }}>{todayCount}</div>
         <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>
           {t('logStats.yesterday')} {yesterdayCount}，{isPositive ? '↑' : '↓'}{Math.abs(parseFloat(trendPercent))}%
         </div>
@@ -75,7 +75,7 @@ function TodayTrendCard({ todayCount, yesterdayCount, todayTrend, peakHour, topU
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.peakHour')}</span>
         </div>
-        <div style={{ fontSize: 28, fontWeight: 700, color: PRIMARY }}>{peakHour}</div>
+        <div style={{ fontSize: 30, fontWeight: 700, color: PRIMARY }}>{peakHour}</div>
         <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>
           <Users size={10} style={{ verticalAlign: 'middle' }} /> {t('logStats.mostActiveUser')}: {topUser}
         </div>
@@ -97,7 +97,7 @@ function HipaaStatsCards({ stats }: { stats: HipaaStats }) {
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.todayTotal')}</span>
         </div>
-        <div style={{ fontSize: 28, fontWeight: 700, color: PRIMARY }}>{stats.todayTotal}</div>
+        <div style={{ fontSize: 30, fontWeight: 700, color: PRIMARY }}>{stats.todayTotal}</div>
       </div>
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: `1px solid ${stats.abnormalCount > 0 ? DANGER : 'var(--border-color)'}` }}>
@@ -107,7 +107,7 @@ function HipaaStatsCards({ stats }: { stats: HipaaStats }) {
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.abnormalCount')}</span>
         </div>
-        <div style={{ fontSize: 28, fontWeight: 700, color: stats.abnormalCount > 0 ? DANGER : SUCCESS }}>{stats.abnormalCount}</div>
+        <div style={{ fontSize: 30, fontWeight: 700, color: stats.abnormalCount > 0 ? DANGER : SUCCESS }}>{stats.abnormalCount}</div>
       </div>
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
@@ -117,7 +117,7 @@ function HipaaStatsCards({ stats }: { stats: HipaaStats }) {
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.mostActiveUser')}</span>
         </div>
-        <div style={{ fontSize: 28, fontWeight: 700, color: PRIMARY }}>{stats.mostActiveUser}</div>
+        <div style={{ fontSize: 30, fontWeight: 700, color: PRIMARY }}>{stats.mostActiveUser}</div>
       </div>
 
       <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
@@ -291,7 +291,7 @@ function HipaaAlertSummary({ logs }: { logs: OperationLog[] }) {
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.nonWorkHours')}</span>
         </div>
-        <div style={{ fontSize: 28, fontWeight: 700, color: DANGER }}>{alertStats.nonWorkHours}</div>
+        <div style={{ fontSize: 30, fontWeight: 700, color: DANGER }}>{alertStats.nonWorkHours}</div>
         <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>22:00 - 06:00</div>
       </div>
 
@@ -302,7 +302,7 @@ function HipaaAlertSummary({ logs }: { logs: OperationLog[] }) {
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.crossDepartment')}</span>
         </div>
-        <div style={{ fontSize: 28, fontWeight: 700, color: DANGER }}>{alertStats.crossDepartment}</div>
+        <div style={{ fontSize: 30, fontWeight: 700, color: DANGER }}>{alertStats.crossDepartment}</div>
         <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>{t('logStats.outOfScope')}</div>
       </div>
 
@@ -313,7 +313,7 @@ function HipaaAlertSummary({ logs }: { logs: OperationLog[] }) {
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.batchExport')}</span>
         </div>
-        <div style={{ fontSize: 28, fontWeight: 700, color: WARNING }}>{alertStats.batchExport}</div>
+        <div style={{ fontSize: 30, fontWeight: 700, color: WARNING }}>{alertStats.batchExport}</div>
         <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>{t('logStats.overFrequency')}</div>
       </div>
 
@@ -324,7 +324,7 @@ function HipaaAlertSummary({ logs }: { logs: OperationLog[] }) {
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>{t('logStats.highFrequency')}</span>
         </div>
-        <div style={{ fontSize: 28, fontWeight: 700, color: WARNING }}>{alertStats.highFrequency}</div>
+        <div style={{ fontSize: 30, fontWeight: 700, color: WARNING }}>{alertStats.highFrequency}</div>
         <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>{t('logStats.samePatientMulti')}</div>
       </div>
     </div>
@@ -507,7 +507,7 @@ function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
                 {index + 1}
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13, color: PRIMARY, fontWeight: 500 }}>{item.action}</div>
+                <div style={{ fontSize: 12, color: PRIMARY, fontWeight: 500 }}>{item.action}</div>
                 <div style={{ fontSize: 12, color: GRAY }}>{t('logStats.totalOps', { count: item.count })}</div>
               </div>
               <div style={{ textAlign: 'right' }}>

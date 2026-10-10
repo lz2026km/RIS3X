@@ -23,7 +23,7 @@ export function TabBar({ tabs, activeKey, onChange }: TabBarProps) {
           style={{
             display: 'flex', alignItems: 'center', gap: 6,
             padding: '10px 18px', border: 'none', cursor: 'pointer',
-            fontSize: 13, fontWeight: activeKey === tab.key ? 700 : 500,
+            fontSize: 12, fontWeight: activeKey === tab.key ? 700 : 500,
             background: 'transparent',
             color: activeKey === tab.key ? '#1e40af' : '#475569',
             borderBottom: `3px solid ${activeKey === tab.key ? '#1e40af' : 'transparent'}`,

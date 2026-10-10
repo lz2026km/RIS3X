@@ -454,7 +454,7 @@ export default function QcPdcaPage() {
         </StatCardGrid>
 
         {pendingDefectId && (
-          <div style={{ margin: '16px 0', background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 8, padding: '10px 14px', color: '#1e40af', fontSize: 13 }}>
+          <div style={{ margin: '16px 0', background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 8, padding: '10px 14px', color: '#1e40af', fontSize: 12 }}>
             <Bug size={14} style={{ marginRight: 6, verticalAlign: -2 }} />
             {t('qcPdca.defectBannerPrefix')} {pendingDefectId} {t('qcPdca.defectBannerSuffix')}
           </div>
@@ -529,7 +529,7 @@ export default function QcPdcaPage() {
                 <Tag color={PHASE_META[detail.phase]?.color}>{PHASE_META[detail.phase]?.label}</Tag>
                 <Tag color={detail.status === '已完成' ? 'green' : 'blue'}>{detail.status}</Tag>
               </Space>
-              <div style={{ marginTop: 10, color: '#475569', fontSize: 13, lineHeight: 1.7 }}>
+              <div style={{ marginTop: 10, color: '#475569', fontSize: 12, lineHeight: 1.7 }}>
                 <div><b>{t('qcPdca.detailDescription')}</b> {detail.description || '-'}</div>
                 <div><b>{t('qcPdca.detailTarget')}</b> {detail.target || '-'}</div>
                 <div><b>{t('qcPdca.detailOwner')}</b> {detail.ownerName} · <b>{t('qcPdca.detailStart')}</b> {fmtDate(detail.startDate)} · <b>{t('qcPdca.detailDue')}</b> {fmtDate(detail.dueDate)}</div>
@@ -564,7 +564,7 @@ export default function QcPdcaPage() {
                       <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                         <Tag color={PHASE_META[p.phase]?.color} style={{ marginTop: 1, flexShrink: 0 }}>{PHASE_META[p.phase]?.label}</Tag>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 13 }}>{p.content}</div>
+                          <div style={{ fontSize: 12 }}>{p.content}</div>
                           <div style={{ color: '#94a3b8', fontSize: 11, marginTop: 2 }}>
                             {fmtDate(p.createdAt)}{p.updatedAt !== p.createdAt ? ` · ${t('qcPdca.updatedAt', { date: fmtDate(p.updatedAt) })}` : ''}
                           </div>

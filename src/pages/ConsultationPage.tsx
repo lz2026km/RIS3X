@@ -12,6 +12,7 @@ import { consultationApi, type ConsultationDto } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { t } from '../i18n/appI18n'
 import { StatusTag } from '../components/common/StatusTag'
+import { DataTable } from '../components/common'
 
 const PRIMARY = '#1e40af'
 const ACCENT = '#3b82f6'
@@ -327,7 +328,7 @@ export default function ConsultationPage() {
   const renderRegResultRow = (c: ConsultationDto) => (
     <div key={c.id} role="button" tabIndex={0} onClick={() => { setSelectedId(c.id); setActiveTab('会诊列表') }} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedId(c.id); setActiveTab('会诊列表') } }} style={{ padding: '10px 14px', borderBottom: `1px solid ${BORDER}`, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, background: 'var(--bg-card)' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{c.patientName || '—'} <span style={{ fontWeight: 400, color: GRAY, fontSize: 12 }}>#{c.id}</span></div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{c.patientName || '—'} <span style={{ fontWeight: 400, color: GRAY, fontSize: 12 }}>#{c.id}</span></div>
         <div style={{ fontSize: 12, color: GRAY }}>{c.modality} · {c.bodyPart} · {c.consultationType || c.type}</div>
       </div>
       <StatusTag size="md" style={{ fontWeight: 700 }} tone={{ bg: STATUS_CONFIG[c.status]?.bg ?? 'var(--bg-primary, #f8fafc)', border: 'transparent', color: STATUS_CONFIG[c.status]?.color ?? GRAY, dot: STATUS_CONFIG[c.status]?.color ?? GRAY }}>
@@ -695,7 +696,7 @@ export default function ConsultationPage() {
           {t('consultation.title')}
           <span style={{ fontSize: 12, fontWeight: 400, color: GRAY, marginLeft: 8 }}>{t('consultation.title')}</span>
         </h1>
-        <p style={{ fontSize: 13, color: GRAY, margin: 0 }}>{t('consultation.subtitle')}</p>
+        <p style={{ fontSize: 12, color: GRAY, margin: 0 }}>{t('consultation.subtitle')}</p>
       </div>
 
       {/* Tab Navigation */}
@@ -778,7 +779,7 @@ export default function ConsultationPage() {
                   {card.icon}
                 </div>
                 <div>
-                  <div style={{ fontSize: 26, fontWeight: 700, color: PRIMARY }}>{card.value}</div>
+                  <div style={{ fontSize: 24, fontWeight: 700, color: PRIMARY }}>{card.value}</div>
                   <div style={{ fontSize: 12, color: GRAY }}>{card.label}</div>
                 </div>
               </div>
@@ -797,7 +798,7 @@ export default function ConsultationPage() {
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                     placeholder={t('consultation.searchPlaceholder')}
-                    style={{ border: 'none', fontSize: 13, width: '100%', color: PRIMARY }}
+                    style={{ border: 'none', fontSize: 12, width: '100%', color: PRIMARY }}
                   />
                 </div>
               </div>
@@ -843,7 +844,7 @@ export default function ConsultationPage() {
                 {filtered.length === 0 ? (
                   <div style={{ padding: 40, textAlign: 'center', color: GRAY }}>
                     <AlertCircle size={32} style={{ marginBottom: 8, opacity: 0.5 }} />
-                    <div style={{ fontSize: 13 }}>{t('consultation.noConsultations')}</div>
+                    <div style={{ fontSize: 12 }}>{t('consultation.noConsultations')}</div>
                   </div>
                 ) : filtered.map((c, idx) => {
                   const sc = STATUS_CONFIG[c.status] || STATUS_CONFIG['待回复']!
@@ -933,7 +934,7 @@ export default function ConsultationPage() {
               {!selected ? (
                 <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 60, textAlign: 'center', border: `1px solid ${BORDER}` }}>
                   <AlertCircle size={48} color={GRAY} style={{ marginBottom: 12, opacity: 0.4 }} />
-                  <div style={{ fontSize: 15, color: GRAY }}>{t('consultation.selectHint')}</div>
+                  <div style={{ fontSize: 14, color: GRAY }}>{t('consultation.selectHint')}</div>
                 </div>
               ) : (
                 <>
@@ -991,7 +992,7 @@ export default function ConsultationPage() {
                             {item.icon}
                             <span style={{ fontSize: 12, color: GRAY }}>{item.label}</span>
                           </div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: PRIMARY }}>{item.value}</div>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: PRIMARY }}>{item.value}</div>
                         </div>
                       ))}
                     </div>
@@ -999,25 +1000,25 @@ export default function ConsultationPage() {
                     <div style={{ display: 'flex', gap: 10, marginTop: 16, paddingTop: 16, borderTop: `1px solid ${BORDER}` }}>
                       {selected.status === '待回复' && (
                         <>
-                          <button onClick={() => void handleAccept()} disabled={acceptingId === selected.id} style={{ padding: '8px 20px', background: SUCCESS, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, opacity: acceptingId === selected.id ? 0.6 : 1 }}>
+                          <button onClick={() => void handleAccept()} disabled={acceptingId === selected.id} style={{ padding: '8px 20px', background: SUCCESS, color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, opacity: acceptingId === selected.id ? 0.6 : 1 }}>
                             <CheckCircle size={15} />{acceptingId === selected.id ? t('consultation.starting') : t('consultation.accept')}
                           </button>
-                          <button onClick={handleReject} style={{ padding: '8px 20px', background: 'var(--bg-card)', color: DANGER, border: `1px solid ${DANGER}`, borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <button onClick={handleReject} style={{ padding: '8px 20px', background: 'var(--bg-card)', color: DANGER, border: `1px solid ${DANGER}`, borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                             <X size={15} />{t('consultation.reject')}
                           </button>
                         </>
                       )}
                       {(selected.status === '待回复' || selected.status === '已回复') && (
-                        <button onClick={() => { setInviteDoctorIds(''); setShowInviteModal(true) }} style={{ padding: '8px 20px', background: '#8b5cf6', color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <button onClick={() => { setInviteDoctorIds(''); setShowInviteModal(true) }} style={{ padding: '8px 20px', background: '#8b5cf6', color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                           <Users size={15} />{t('consultation.inviteExpert')}
                         </button>
                       )}
                       {(selected.status === '待回复' || selected.status === '已回复') && (
-                        <button onClick={() => void handleCancelConsultation()} disabled={cancellingId === selected.id} style={{ padding: '8px 20px', background: 'var(--bg-card)', color: DANGER, border: `1px solid ${DANGER}`, borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, opacity: cancellingId === selected.id ? 0.6 : 1 }}>
+                        <button onClick={() => void handleCancelConsultation()} disabled={cancellingId === selected.id} style={{ padding: '8px 20px', background: 'var(--bg-card)', color: DANGER, border: `1px solid ${DANGER}`, borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, opacity: cancellingId === selected.id ? 0.6 : 1 }}>
                           <X size={15} />{cancellingId === selected.id ? t('consultation.cancelling') : t('consultation.cancelConsultation')}
                         </button>
                       )}
-                      <button onClick={handleSubmitConclusion} style={{ padding: '8px 20px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <button onClick={handleSubmitConclusion} style={{ padding: '8px 20px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                         <Send size={15} />{t('consultation.submitConclusion')}
                       </button>
                     </div>
@@ -1050,7 +1051,7 @@ export default function ConsultationPage() {
                                 </div>
                               ))}
                             </div>
-                          ) : <div style={{ color: GRAY, fontSize: 13 }}>{t('consultation.patientNotFound')}</div>
+                          ) : <div style={{ color: GRAY, fontSize: 12 }}>{t('consultation.patientNotFound')}</div>
                         })()}
                       </div>
                       {/* Exam Info */}
@@ -1074,7 +1075,7 @@ export default function ConsultationPage() {
                                 </div>
                               ))}
                             </div>
-                          ) : <div style={{ color: GRAY, fontSize: 13 }}>{t('consultation.examNotFound')}</div>
+                          ) : <div style={{ color: GRAY, fontSize: 12 }}>{t('consultation.examNotFound')}</div>
                         })()}
                       </div>
                     </div>
@@ -1096,7 +1097,7 @@ export default function ConsultationPage() {
                             {item.icon}
                             <span style={{ fontSize: 12, fontWeight: 700, color: ACCENT }}>{item.label}</span>
                           </div>
-                          <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.6 }}>{item.value}</div>
+                          <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6 }}>{item.value}</div>
                         </div>
                       ))}
                     </div>
@@ -1134,7 +1135,7 @@ export default function ConsultationPage() {
                           {/* Content */}
                           <div style={{ flex: 1, padding: '6px 12px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
-                              <div style={{ fontSize: 13, fontWeight: 700, color: node.status === 'pending' ? GRAY : PRIMARY }}>{node.label}</div>
+                              <div style={{ fontSize: 12, fontWeight: 700, color: node.status === 'pending' ? GRAY : PRIMARY }}>{node.label}</div>
                               <div style={{ fontSize: 12, color: GRAY, marginTop: 2 }}>{t('consultation.operator')}：{node.operator}</div>
                             </div>
                             <div style={{ fontSize: 12, color: GRAY, textAlign: 'right' }}>
@@ -1162,7 +1163,7 @@ export default function ConsultationPage() {
                           onChange={e => setConclusionText(e.target.value)}
                           placeholder={t('consultation.doctorOpinionPlaceholder')}
                           rows={4}
-                          style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontSize: 13, color: PRIMARY, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6, boxSizing: 'border-box' }}
+                          style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontSize: 12, color: PRIMARY, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6, boxSizing: 'border-box' }}
                           onFocus={e => e.target.style.borderColor = ACCENT}
                           onBlur={e => e.target.style.borderColor = BORDER}
                         />
@@ -1176,7 +1177,7 @@ export default function ConsultationPage() {
                           onChange={e => setDiagnosisAdvice(e.target.value)}
                           placeholder={t('consultation.diagnosisAdvicePlaceholder')}
                           rows={3}
-                          style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontSize: 13, color: PRIMARY, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6, boxSizing: 'border-box' }}
+                          style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontSize: 12, color: PRIMARY, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6, boxSizing: 'border-box' }}
                           onFocus={e => e.target.style.borderColor = ACCENT}
                           onBlur={e => e.target.style.borderColor = BORDER}
                         />
@@ -1190,7 +1191,7 @@ export default function ConsultationPage() {
                           onChange={e => setReferenceInfo(e.target.value)}
                           placeholder={t('consultation.referencePlaceholder')}
                           rows={2}
-                          style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontSize: 13, color: PRIMARY, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6, boxSizing: 'border-box' }}
+                          style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontSize: 12, color: PRIMARY, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6, boxSizing: 'border-box' }}
                           onFocus={e => e.target.style.borderColor = ACCENT}
                           onBlur={e => e.target.style.borderColor = BORDER}
                         />
@@ -1249,7 +1250,7 @@ export default function ConsultationPage() {
                   {card.icon}
                 </div>
                 <div>
-                  <div style={{ fontSize: 26, fontWeight: 700, color: PRIMARY }}>{card.value}</div>
+                  <div style={{ fontSize: 24, fontWeight: 700, color: PRIMARY }}>{card.value}</div>
                   <div style={{ fontSize: 12, color: GRAY }}>{card.label}</div>
                 </div>
               </div>
@@ -1385,7 +1386,7 @@ export default function ConsultationPage() {
                         background: PRIMARY,
                         border: 'none',
                         color: WHITE,
-                        fontSize: 13,
+                        fontSize: 12,
                         fontWeight: 600,
                         cursor: 'pointer',
                         display: 'flex',
@@ -1555,7 +1556,7 @@ export default function ConsultationPage() {
                             position: 'absolute',
                             bottom: -14,
                             left: 0,
-                            fontSize: 8,
+                            fontSize: 10,
                             color: 'rgba(255,255,255,0.4)',
                           }}>
                             {i * 2}m
@@ -1577,7 +1578,7 @@ export default function ConsultationPage() {
                   background: 'var(--color-info-bg)',
                   border: `1px solid ${ACCENT}`,
                   color: ACCENT,
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 600,
                   cursor: 'pointer',
                   display: 'flex',
@@ -1599,110 +1600,99 @@ export default function ConsultationPage() {
             </h3>
 
             <div style={{ overflowX: 'auto' }}>
-              <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-                <thead>
-                  <tr style={{ background: LIGHT_BG }}>
-                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: PRIMARY, borderBottom: `1px solid ${BORDER}` }}>{t('consultation.archiveId')}</th>
-                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: PRIMARY, borderBottom: `1px solid ${BORDER}` }}>{t('consultation.consultId')}</th>
-                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: PRIMARY, borderBottom: `1px solid ${BORDER}` }}>{t('consultation.patientName')}</th>
-                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: PRIMARY, borderBottom: `1px solid ${BORDER}` }}>{t('consultation.duration')}</th>
-                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: PRIMARY, borderBottom: `1px solid ${BORDER}` }}>{t('consultation.fileSize')}</th>
-                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: PRIMARY, borderBottom: `1px solid ${BORDER}` }}>{t('consultation.archiveTime')}</th>
-                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: PRIMARY, borderBottom: `1px solid ${BORDER}` }}>{t('consultation.status')}</th>
-                    <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: PRIMARY, borderBottom: `1px solid ${BORDER}` }}>{t('consultation.actions')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {mockRecordingArchives.map((archive, idx) => (
-                    <tr
-                      key={archive.id}
-                      style={{
-                        background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--bg-card)',
-                        borderBottom: `1px solid ${BORDER}`,
-                      }}
-                    >
-                      <td style={{ padding: '10px 12px', fontWeight: 600, color: PRIMARY }}>{archive.id}</td>
-                      <td style={{ padding: '10px 12px', color: 'var(--text-primary)' }}>{archive.consultationId}</td>
-                      <td style={{ padding: '10px 12px', color: 'var(--text-primary)' }}>{archive.patientName}</td>
-                      <td style={{ padding: '10px 12px', fontFamily: 'monospace', color: 'var(--text-primary)' }}>{archive.duration}</td>
-                      <td style={{ padding: '10px 12px', color: 'var(--text-primary)' }}>{archive.fileSize}</td>
-                      <td style={{ padding: '10px 12px', color: 'var(--text-primary)' }}>{archive.recordTime}</td>
-                      <td style={{ padding: '10px 12px' }}>
-                        <span style={{
-                          padding: '2px 8px',
-                          borderRadius: 10,
-                          fontSize: 12,
-                          fontWeight: 600,
-                          background: archive.status === '可用' ? '#d1fae5' : archive.status === '处理中' ? '#fef3c7' : '#fee2e2',
-                          color: archive.status === '可用' ? '#059669' : archive.status === '处理中' ? '#d97706' : '#dc2626',
-                        }}>
-                          {archive.status}
-                        </span>
-                      </td>
-                      <td style={{ padding: '10px 12px' }}>
-                        <div style={{ display: 'flex', gap: 6 }}>
-                          <button
-                            onClick={() => handlePlayArchive(archive)}
-                            disabled={archive.status !== '可用'}
-                            style={{
-                              padding: '4px 10px',
-                              borderRadius: 4,
-                              background: archive.status === '可用' ? '#f0f7ff' : 'var(--bg-primary, #f8fafc)',
-                              border: `1px solid ${archive.status === '可用' ? ACCENT : BORDER}`,
-                              color: archive.status === '可用' ? ACCENT : GRAY,
-                              fontSize: 12,
-                              fontWeight: 600,
-                              cursor: archive.status === '可用' ? 'pointer' : 'not-allowed',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 4,
-                            }}
-                          >
-                            <Play size={11} />{t('consultation.play')}
-                          </button>
-                          <button
-                            onClick={() => handleDownloadArchive(archive)}
-                            disabled={archive.status !== '可用'}
-                            style={{
-                              padding: '4px 10px',
-                              borderRadius: 4,
-                              background: archive.status === '可用' ? '#f0f7ff' : 'var(--bg-primary, #f8fafc)',
-                              border: `1px solid ${archive.status === '可用' ? ACCENT : BORDER}`,
-                              color: archive.status === '可用' ? ACCENT : GRAY,
-                              fontSize: 12,
-                              fontWeight: 600,
-                              cursor: archive.status === '可用' ? 'pointer' : 'not-allowed',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 4,
-                            }}
-                          >
-                            <Download size={11} />{t('consultation.download')}
-                          </button>
-                          <button
-                            onClick={() => handleDeleteArchive(archive)}
-                            style={{
-                              padding: '4px 10px',
-                              borderRadius: 4,
-                              background: 'var(--bg-card)',
-                              border: '1px solid #fee2e2',
-                              color: DANGER,
-                              fontSize: 12,
-                              fontWeight: 600,
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 4,
-                            }}
-                          >
-                            <X size={11} />{t('consultation.delete')}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table></div>
+              <DataTable
+                rowKey="id"
+                dataSource={mockRecordingArchives}
+                showPagination={false}
+                showExport={false}
+                showDensity={false}
+                columns={[
+                  { title: t('consultation.archiveId'), dataIndex: 'id', key: 'id', render: (v: string) => <span style={{ fontWeight: 600, color: PRIMARY }}>{v}</span> },
+                  { title: t('consultation.consultId'), dataIndex: 'consultationId', key: 'consultationId', render: (v: string) => <span style={{ color: 'var(--text-primary)' }}>{v}</span> },
+                  { title: t('consultation.patientName'), dataIndex: 'patientName', key: 'patientName', render: (v: string) => <span style={{ color: 'var(--text-primary)' }}>{v}</span> },
+                  { title: t('consultation.duration'), dataIndex: 'duration', key: 'duration', render: (v: string) => <span style={{ fontFamily: 'monospace', color: 'var(--text-primary)' }}>{v}</span> },
+                  { title: t('consultation.fileSize'), dataIndex: 'fileSize', key: 'fileSize', render: (v: string) => <span style={{ color: 'var(--text-primary)' }}>{v}</span> },
+                  { title: t('consultation.archiveTime'), dataIndex: 'recordTime', key: 'recordTime', render: (v: string) => <span style={{ color: 'var(--text-primary)' }}>{v}</span> },
+                  {
+                    title: t('consultation.status'), dataIndex: 'status', key: 'status',
+                    render: (v: string) => (
+                      <span style={{
+                        padding: '2px 8px',
+                        borderRadius: 10,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        background: v === '可用' ? '#d1fae5' : v === '处理中' ? '#fef3c7' : '#fee2e2',
+                        color: v === '可用' ? '#059669' : v === '处理中' ? '#d97706' : '#dc2626',
+                      }}>
+                        {v}
+                      </span>
+                    ),
+                  },
+                  {
+                    title: t('consultation.actions'), key: 'actions',
+                    render: (_: unknown, archive: RecordingArchive) => (
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button
+                          onClick={() => handlePlayArchive(archive)}
+                          disabled={archive.status !== '可用'}
+                          style={{
+                            padding: '4px 10px',
+                            borderRadius: 4,
+                            background: archive.status === '可用' ? '#f0f7ff' : 'var(--bg-primary, #f8fafc)',
+                            border: `1px solid ${archive.status === '可用' ? ACCENT : BORDER}`,
+                            color: archive.status === '可用' ? ACCENT : GRAY,
+                            fontSize: 12,
+                            fontWeight: 600,
+                            cursor: archive.status === '可用' ? 'pointer' : 'not-allowed',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 4,
+                          }}
+                        >
+                          <Play size={11} />{t('consultation.play')}
+                        </button>
+                        <button
+                          onClick={() => handleDownloadArchive(archive)}
+                          disabled={archive.status !== '可用'}
+                          style={{
+                            padding: '4px 10px',
+                            borderRadius: 4,
+                            background: archive.status === '可用' ? '#f0f7ff' : 'var(--bg-primary, #f8fafc)',
+                            border: `1px solid ${archive.status === '可用' ? ACCENT : BORDER}`,
+                            color: archive.status === '可用' ? ACCENT : GRAY,
+                            fontSize: 12,
+                            fontWeight: 600,
+                            cursor: archive.status === '可用' ? 'pointer' : 'not-allowed',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 4,
+                          }}
+                        >
+                          <Download size={11} />{t('consultation.download')}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteArchive(archive)}
+                          style={{
+                            padding: '4px 10px',
+                            borderRadius: 4,
+                            background: 'var(--bg-card)',
+                            border: '1px solid #fee2e2',
+                            color: DANGER,
+                            fontSize: 12,
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 4,
+                          }}
+                        >
+                          <X size={11} />{t('consultation.delete')}
+                        </button>
+                      </div>
+                    ),
+                  },
+                ]}
+              />
             </div>
           </div>
         </div>
@@ -1729,7 +1719,7 @@ export default function ConsultationPage() {
                   border: regSection === s.key ? 'none' : `1px solid ${BORDER}`,
                   background: regSection === s.key ? s.color : 'var(--bg-card)',
                   color: regSection === s.key ? WHITE : GRAY,
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 600,
                   cursor: 'pointer',
                   display: 'flex',
@@ -1770,7 +1760,7 @@ export default function ConsultationPage() {
                 ))}
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
-                <button onClick={() => void handleCreateConsultation()} disabled={creating} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, opacity: creating ? 0.6 : 1 }}>
+                <button onClick={() => void handleCreateConsultation()} disabled={creating} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, opacity: creating ? 0.6 : 1 }}>
                   <Send size={14} />{creating ? t('consultation.submitting') : t('consultation.registration.submit')}
                 </button>
               </div>
@@ -1793,7 +1783,7 @@ export default function ConsultationPage() {
               ) : pendingConsults.length === 0 ? (
                 <div style={{ padding: 36, textAlign: 'center', color: GRAY }}>
                   <CheckCircle size={32} style={{ marginBottom: 8, opacity: 0.4 }} />
-                  <div style={{ fontSize: 13 }}>{t('consultation.registration.pendingEmpty')}</div>
+                  <div style={{ fontSize: 12 }}>{t('consultation.registration.pendingEmpty')}</div>
                 </div>
               ) : (
                 <div style={{ border: `1px solid ${BORDER}`, borderRadius: 8, overflow: 'hidden' }}>
@@ -1844,7 +1834,7 @@ export default function ConsultationPage() {
                     {t('consultation.registration.results')} · {queryResultType === 'patient' ? t('consultation.registration.byPatient') : t('consultation.registration.byDoctor')} · {t('consultation.registration.resultCount', { count: queryResults.length })}
                   </div>
                   {queryResults.length === 0 ? (
-                    <div style={{ padding: 32, textAlign: 'center', color: GRAY, fontSize: 13 }}>{t('consultation.registration.noResult')}</div>
+                    <div style={{ padding: 32, textAlign: 'center', color: GRAY, fontSize: 12 }}>{t('consultation.registration.noResult')}</div>
                   ) : queryResults.map(c => renderRegResultRow(c))}
                 </div>
               )}
@@ -1867,7 +1857,7 @@ export default function ConsultationPage() {
               {ratingModalData.map((item, idx) => (
                 <div key={item.dimension} style={{ background: LIGHT_BG, borderRadius: 10, padding: '14px 16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{item.dimension}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{item.dimension}</span>
                     <span style={{ fontSize: 14, fontWeight: 800, color: ACCENT }}>{item.score}{t('consultation.points')}</span>
                   </div>
                   <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
@@ -1900,10 +1890,10 @@ export default function ConsultationPage() {
               ))}
             </div>
             <div style={{ marginTop: 20, display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-              <button onClick={() => setShowRatingModal(false)} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+              <button onClick={() => setShowRatingModal(false)} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                 {t('consultation.cancel')}
               </button>
-              <button onClick={handleSubmitRating} style={{ padding: '8px 20px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+              <button onClick={handleSubmitRating} style={{ padding: '8px 20px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
                 {t('consultation.confirmSubmit')}
               </button>
             </div>
@@ -2076,7 +2066,7 @@ export default function ConsultationPage() {
                           position: 'absolute',
                           bottom: -16,
                           left: 0,
-                          fontSize: 8,
+                          fontSize: 10,
                           color: 'rgba(255,255,255,0.4)',
                         }}>
                           {i * 1.5}m
@@ -2098,7 +2088,7 @@ export default function ConsultationPage() {
                   background: 'var(--color-info-bg)',
                   border: `1px solid ${ACCENT}`,
                   color: ACCENT,
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 600,
                   cursor: 'pointer',
                   display: 'flex',
@@ -2116,7 +2106,7 @@ export default function ConsultationPage() {
                   background: PRIMARY,
                   border: 'none',
                   color: WHITE,
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 600,
                   cursor: 'pointer',
                   display: 'flex',
@@ -2150,7 +2140,7 @@ export default function ConsultationPage() {
           borderRadius: 10,
           background: toast.type === 'success' ? '#059669' : toast.type === 'progress' ? '#2563eb' : '#64748b',
           color: 'white',
-          fontSize: 13,
+          fontSize: 12,
           fontWeight: 600,
           boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
           display: 'flex',
@@ -2177,7 +2167,7 @@ export default function ConsultationPage() {
             </div>
             <div role="button" tabIndex={0} style={{ border: `2px dashed ${BORDER}`, borderRadius: 12, padding: '32px 16px', textAlign: 'center', marginBottom: 16, cursor: 'pointer' }} onClick={() => uploadInputRef.current?.click()} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); uploadInputRef.current?.click() } }}>
               <Upload size={32} color={GRAY} style={{ marginBottom: 8 }} />
-              <div style={{ fontSize: 13, color: GRAY, marginBottom: 8 }}>{t('consultation.dragDropHint')}</div>
+              <div style={{ fontSize: 12, color: GRAY, marginBottom: 8 }}>{t('consultation.dragDropHint')}</div>
               <div style={{ fontSize: 12, color: GRAY }}>{t('consultation.supportedFormats')}</div>
               <input
                 ref={uploadInputRef}
@@ -2204,10 +2194,10 @@ export default function ConsultationPage() {
               </div>
             )}
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-              <button onClick={() => setShowUploadModal(false)} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+              <button onClick={() => setShowUploadModal(false)} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                 {t('consultation.cancel')}
               </button>
-              <button onClick={handleStartUpload} disabled={uploading} style={{ padding: '8px 20px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: uploading ? 0.6 : 1 }}>
+              <button onClick={handleStartUpload} disabled={uploading} style={{ padding: '8px 20px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', opacity: uploading ? 0.6 : 1 }}>
                 {uploading ? t('consultation.uploading') : t('consultation.startUpload')}
               </button>
             </div>
@@ -2233,13 +2223,13 @@ export default function ConsultationPage() {
               value={inviteDoctorIds}
               onChange={e => setInviteDoctorIds(e.target.value)}
               placeholder={t('consultation.invitePlaceholder')}
-              style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontSize: 13, color: PRIMARY, boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontSize: 12, color: PRIMARY, boxSizing: 'border-box' }}
             />
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>
-              <button onClick={() => setShowInviteModal(false)} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+              <button onClick={() => setShowInviteModal(false)} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                 {t('consultation.cancel')}
               </button>
-              <button onClick={() => void handleInvite()} disabled={invitingId === selected.id} style={{ padding: '8px 20px', background: '#8b5cf6', color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: invitingId === selected.id ? 0.6 : 1 }}>
+              <button onClick={() => void handleInvite()} disabled={invitingId === selected.id} style={{ padding: '8px 20px', background: '#8b5cf6', color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', opacity: invitingId === selected.id ? 0.6 : 1 }}>
                 {invitingId === selected.id ? t('consultation.inviting') : t('consultation.sendInvite')}
               </button>
             </div>
@@ -2287,10 +2277,10 @@ export default function ConsultationPage() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>
-              <button onClick={() => setShowEditModal(false)} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+              <button onClick={() => setShowEditModal(false)} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                 {t('consultation.cancel')}
               </button>
-              <button onClick={() => void handleUpdateConsultation()} disabled={updating} style={{ padding: '8px 20px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: updating ? 0.6 : 1 }}>
+              <button onClick={() => void handleUpdateConsultation()} disabled={updating} style={{ padding: '8px 20px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', opacity: updating ? 0.6 : 1 }}>
                 {updating ? t('consultation.saving') : t('consultation.registration.submit')}
               </button>
             </div>
@@ -2311,22 +2301,22 @@ export default function ConsultationPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
               <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 14px' }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>{t('consultation.doctorOpinion')}</div>
-                <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.6 }}>{conclusionText || t('consultation.notFilled')}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6 }}>{conclusionText || t('consultation.notFilled')}</div>
               </div>
               <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 14px' }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>{t('consultation.diagnosisAdvice')}</div>
-                <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.6 }}>{diagnosisAdvice || t('consultation.notFilled')}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6 }}>{diagnosisAdvice || t('consultation.notFilled')}</div>
               </div>
               <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 14px' }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>{t('consultation.referenceInfo')}</div>
-                <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.6 }}>{referenceInfo || t('consultation.notFilled')}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6 }}>{referenceInfo || t('consultation.notFilled')}</div>
               </div>
             </div>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-              <button onClick={() => setShowConclusionModal(false)} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+              <button onClick={() => setShowConclusionModal(false)} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                 {t('consultation.backToEdit')}
               </button>
-              <button onClick={() => void handleConfirmConclusion()} disabled={submittingConclusion} style={{ padding: '8px 20px', background: SUCCESS, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: submittingConclusion ? 0.6 : 1 }}>
+              <button onClick={() => void handleConfirmConclusion()} disabled={submittingConclusion} style={{ padding: '8px 20px', background: SUCCESS, color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', opacity: submittingConclusion ? 0.6 : 1 }}>
                 {submittingConclusion ? t('consultation.submitting') : t('consultation.confirmSubmit')}
               </button>
             </div>
@@ -2344,14 +2334,14 @@ export default function ConsultationPage() {
                 <X size={20} />
               </button>
             </div>
-            <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.6, marginBottom: 20 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6, marginBottom: 20 }}>
               {t('consultation.deleteArchiveMsg', { id: deleteTarget.id })}
             </div>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-              <button onClick={() => { setShowDeleteModal(false); setDeleteTarget(null) }} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+              <button onClick={() => { setShowDeleteModal(false); setDeleteTarget(null) }} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                 {t('consultation.cancel')}
               </button>
-              <button onClick={() => { setShowDeleteModal(false); showToast(`存档 ${deleteTarget.id} 已删除`, 'info'); setDeleteTarget(null) }} style={{ padding: '8px 20px', background: DANGER, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+              <button onClick={() => { setShowDeleteModal(false); showToast(`存档 ${deleteTarget.id} 已删除`, 'info'); setDeleteTarget(null) }} style={{ padding: '8px 20px', background: DANGER, color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
                 {t('consultation.confirmDelete')}
               </button>
             </div>
