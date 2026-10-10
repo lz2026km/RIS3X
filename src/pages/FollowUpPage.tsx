@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Trash2, Save, CheckCircle, RotateCcw, BellRing, Loader2, AlertTriangle, Eye, Plus, Bell, UserX, Ban, LayoutTemplate, Pencil, Play, X, Calendar, FileText } from 'lucide-react';
 import { followupApi, FOLLOWUP_RESULT_OPTIONS, type FollowUpPlan, type FollowUpStats, type FollowUpReminderQueue, type FollowUpResult } from '../services/api/followupApi';
 import { DataTable } from '../components/common/DataTable';
-import { Select, Typography } from 'antd';
+import { Select, Typography, message } from 'antd';
 import { followupTemplatesApi, type FollowUpTemplate } from '../services/api/followupTemplatesApi';
 import { reportApi } from '../services/api/reportApi';
 import { worklistApi } from '../services/api/worklistApi';
@@ -204,7 +204,7 @@ export default function FollowUpPage() {
     try {
       const res = await followupApi.fromExam(fromExamForm.examId.trim(), fromExamForm.templateId || undefined);
       if (res.success && res.data) {
-        window.alert(t('w9b.followUp.examLinkSuccess', { count: String((res.data as any)?.total ?? 0) }));
+        message.info(t('w9b.followUp.examLinkSuccess', { count: String((res.data as any)?.total ?? 0) }));
         setShowFromExamModal(false);
         void loadFollowUps();
       } else {
@@ -254,7 +254,7 @@ export default function FollowUpPage() {
       const res = await followupApi.fromReport(fromReportForm.reportId.trim(), fromReportForm.reason.trim() || undefined);
       if (res.success && res.data) {
         const d = res.data;
-        window.alert(t('followup.fromReport.success', { created: d.created, matched: d.matched.join('、') || '—' }));
+        message.info(t('followup.fromReport.success', { created: d.created, matched: d.matched.join('、') || '—' }));
         setShowFromReportModal(false);
         void loadFollowUps();
         void loadReminderQueue();
@@ -740,7 +740,7 @@ export default function FollowUpPage() {
         planDate: tplApplyForm.planDate,
       });
       if (res.success && res.data) {
-        window.alert(t('w9b.followUp.templateApplied', { name: tplApply.name, intervals: (tplApply.intervals ?? []).join('/'), total: res.data.total }));
+        message.info(t('w9b.followUp.templateApplied', { name: tplApply.name, intervals: (tplApply.intervals ?? []).join('/'), total: res.data.total }));
         setTplApply(null);
         setTplApplyForm({ patientId: '', patientName: '', planDate: new Date().toISOString().slice(0, 10) });
         void loadFollowUps();

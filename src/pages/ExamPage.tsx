@@ -1040,7 +1040,7 @@ export default function ExamPage() {
   const handleOpenMergeModal = () => {
     const sel = allExams.filter((e) => selectedIds.has(e.id));
     if (sel.length < 2) {
-      alert(t("examPage.mergeNeedTwo"));
+      message.warning(t("examPage.mergeNeedTwo"));
       return;
     }
     setMergeTargetId(sel[0].id);

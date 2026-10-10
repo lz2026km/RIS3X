@@ -19,6 +19,7 @@ import ReportAnnotationPanel from '../../components/report/ReportAnnotationPanel
 // [v3.0.6.11-99 Wave7B] 离线报告包: 检测本地离线副本
 import { offlineStorage } from '../../services/pwa/offlineStorage'
 import { useNavigate } from 'react-router-dom'
+import { message } from 'antd'
 import { t } from '../../i18n/appI18n'
 
 const PRIMARY = 'var(--color-primary-800)'
@@ -205,10 +206,10 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
         setArchivePolicy(res.data as never)
         setPolicyEditOpen(false)
       } else {
-        alert(res.error?.message ?? t('reportDetail.archiveSaveFailed'))
+        message.error(res.error?.message ?? t('reportDetail.archiveSaveFailed'))
       }
     } catch {
-      alert(t('reportDetail.archiveSaveNetworkError'))
+      message.error(t('reportDetail.archiveSaveNetworkError'))
     } finally {
       setPolicySaving(false)
     }

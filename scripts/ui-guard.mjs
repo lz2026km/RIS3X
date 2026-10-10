@@ -42,7 +42,7 @@ for (const f of pages) {
   rawHeading += (c.match(/<h[12][\s>]/g) || []).length;
   outlineNone += (c.match(/outline:\s*['"]none['"]/g) || []).length;
   viewportHeight += (c.match(/minHeight:\s*['"]100vh['"]/g) || []).length;
-  hexTotal += (c.match(/#[0-9a-fA-F]{6}\b/g) || []).length;
+  hexTotal += (c.replace(/var\([^)]*#[0-9a-fA-F]{6}[^)]*\)/g, "").match(/#[0-9a-fA-F]{6}\b/g) || []).length;
   // 行级判定: 含 <div/<span + onClick 且同一行无 role, 排除 stopPropagation 包装
   for (const line of c.split("\n")) {
     if (!/onClick=/.test(line)) continue;
@@ -72,7 +72,7 @@ const BUDGET = {
   antdTable: 0,
   outlineNone: 0,
   viewportHeight: 0,
-  hexTotal: 8395, // 只减不增
+  hexTotal: 5628, // 只减不增 (已排除 var() 回退值; 真正的硬编码 hex)
   mojibake: 0,
   clickableNoRole: 151, // 只减不增 (行级统计; 剩余多为遮罩/包装)
   nativeTable: 26, // 只减不增 (剩余为打印/热力图/日历模板)

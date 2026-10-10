@@ -18,7 +18,7 @@ import { SeverityTag } from '../../components/common/SeverityTag';
 import { DataTable } from '../../components/common';
 import type { TableColumnsType } from 'antd';
 import { uniqueId } from '../../utils/uniqueId';
-import { Typography } from 'antd';
+import { Typography, message } from 'antd';
 
 const { Title } = Typography
 
@@ -276,7 +276,7 @@ const BreastSpecialtyPage = () => {
 
   const handleAssignDual = async () => {
     if (!assignForm.studyId.trim() || !assignForm.patientName.trim() || !assignForm.patientId.trim()) {
-      alert(t('breastSpecialty.fillAssignFields'));
+      message.warning(t('breastSpecialty.fillAssignFields'));
       return;
     }
     setAssignSaving(true);
@@ -306,7 +306,7 @@ const BreastSpecialtyPage = () => {
   };
 
   const handleArbitrate = async () => {
-    if (!arbitrateTarget || !arbitrateReport.trim()) { alert(t('breastSpecialty.fillArbitration')); return; }
+    if (!arbitrateTarget || !arbitrateReport.trim()) { message.warning(t('breastSpecialty.fillArbitration')); return; }
     setArbitrateSaving(true);
     try {
       const res = await dualReadApi.arbitrate(arbitrateTarget.id, {
@@ -315,7 +315,7 @@ const BreastSpecialtyPage = () => {
       if (res.success && res.data) {
         setDualList(prev => prev.map(a => a.id === arbitrateTarget.id ? (res.data as DualReadAssignment) : a));
       } else {
-        alert(res.error?.message ?? t('breastSpecialty.arbitrateFailed'));
+        message.error(res.error?.message ?? t('breastSpecialty.arbitrateFailed'));
       }
     } catch {
       // [G005 Wave3B G-21 P2] 失败回退: 本地置为已仲裁并标注
@@ -424,7 +424,7 @@ const BreastSpecialtyPage = () => {
   ]
 
   const handleCreateScreening = async () => {
-    if (!newForm.patientName.trim() || !newForm.patientId.trim()) { alert(t('breastSpecialty.fillPatientFields')); return; }
+    if (!newForm.patientName.trim() || !newForm.patientId.trim()) { message.warning(t('breastSpecialty.fillPatientFields')); return; }
     setSaving(true);
     try {
       // [G005 Wave4A G-21] 真实模式走 screeningApi.create, 失败回退 mock 本地新增

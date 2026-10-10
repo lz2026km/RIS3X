@@ -120,42 +120,155 @@ export const formatDateTime = (dateTimeStr: string): string => dateTimeStr
 // ==============================
 
 import { regionalApi } from '../../services/api/regionalApi'
+import type { RegionalReportDto, RegionalSiteSyncEventDto } from '../../services/api/regionalApi'
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+export type WireFailureReason = 'no-backend' | 'request-failed' | 'empty-data'
+export type WireResult<T = unknown> =
+  | { ok: true; data?: T }
+  | { ok: false; reason: WireFailureReason; data?: unknown }
+
+const PRIORITY_MAP: Record<string, 'normal' | 'urgent' | 'critical'> = {
+  '普通': 'normal', '紧急': 'urgent', '立即': 'critical',
+}
+
+// [G005 W9-RealWire] backend/src/regional/regional.controller.ts 无对应写端点 → 诚实失败, 不伪造成功
+const noBackend = (action: string, payload: unknown): WireResult => {
+  console.warn(`[regionalWire] ${action}: no backend endpoint (本演示版本未接后端), payload=`, payload)
+  message.warning(t('w9e.regionalWire.noBackend'))
+  return { ok: false, reason: 'no-backend', data: payload }
+}
+
+const requestFailed = (errorKey: string, payload: unknown): WireResult => {
+  console.warn(`[regionalWire] ${errorKey} failed`, payload)
+  message.error(t(errorKey))
+  return { ok: false, reason: 'request-failed', data: payload }
+}
+
+function unwrapList<T>(payload: unknown): T[] {
+  if (Array.isArray(payload)) return payload as T[]
+  if (payload && typeof payload === 'object') {
+    const inner = (payload as { data?: unknown }).data
+    if (Array.isArray(inner)) return inner as T[]
+  }
+  return []
+}
+
+const csvCell = (value: unknown): string => `"${String(value ?? '').replace(/"/g, '""')}"`
+
+const downloadCsv = (filename: string, header: string[], rows: unknown[][]): void => {
+  const csv = [header, ...rows].map(row => row.map(csvCell).join(',')).join('\r\n')
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  link.click()
+  URL.revokeObjectURL(url)
+}
 
 export const consultationService = {
-  create: async (data: any) => { try { await delay(500); message.success(t('w9e.regionalWire.consultationSubmitted')); return { id: `C${Date.now()}`, ...data } } catch (e) { message.error(t('w9e.regionalWire.consultationSubmitFailed')); throw e } },
-  accept: async (id: string) => { try { await delay(300); message.success(t('w9e.regionalWire.consultationAccepted', { id })) } catch (e) { message.error(t('w9e.regionalWire.consultationAcceptFailed')); throw e } },
-  submitOpinion: async (_id: string, _opinion: string) => { try { await delay(300); message.success(t('w9e.regionalWire.opinionSubmitted')) } catch (e) { message.error(t('w9e.regionalWire.opinionSubmitFailed')); throw e } },
+  // 真实端点: POST /regional/imaging/consultations (backend regional.controller.ts:32)
+  create: async (data: any): Promise<WireResult> => {
+    try {
+      const reason = [data?.examItem, data?.applyReason].filter(Boolean).join(' / ')
+      const payload = {
+        patientName: String(data?.patientName ?? ''),
+        hospital: String(data?.institution ?? ''),
+        diagnosis: String(reason || data?.patientName || '区域影像会诊'),
+        priority: PRIORITY_MAP[String(data?.priority ?? '')] ?? 'normal',
+        createDate: new Date().toISOString().slice(0, 10),
+        gender: data?.gender,
+        age: data?.age,
+        modality: data?.modality,
+        examItem: data?.examItem,
+      }
+      const res = await regionalApi.createConsultationRequest(payload)
+      if (!res.success) return requestFailed('w9e.regionalWire.consultationSubmitFailed', res.error)
+      message.success(t('w9e.regionalWire.consultationSubmitted'))
+      return { ok: true, data: res.data }
+    } catch (e) { return requestFailed('w9e.regionalWire.consultationSubmitFailed', e) }
+  },
+  // 真实端点: POST /regional/imaging/consultations/:id/accept (backend regional.controller.ts:42)
+  accept: async (id: string): Promise<WireResult> => {
+    try {
+      const res = await regionalApi.acceptConsultationRequest(id)
+      if (!res.success) return requestFailed('w9e.regionalWire.consultationAcceptFailed', res.error)
+      message.success(t('w9e.regionalWire.consultationAccepted', { id }))
+      return { ok: true, data: res.data }
+    } catch (e) { return requestFailed('w9e.regionalWire.consultationAcceptFailed', e) }
+  },
+  // 诚实失败: 后端无会诊意见提交端点 → { ok:false, reason:'no-backend' } + 数据 payload
+  submitOpinion: async (id: string, opinion: string): Promise<WireResult> =>
+    noBackend('consultationService.submitOpinion', { id, opinion }),
 }
 
 export const reportService = {
-  review: async (reportId: string, result: '通过' | '驳回', _opinion: string) => {
-    try {
-      await delay(300)
-      await regionalApi.getRegionalReport(reportId)
-      message.success(t('w9e.regionalWire.reviewReport', { reportId, result: result === '通过' ? t('w9e.regionalWire.approved') : t('w9e.regionalWire.rejected') }))
-    } catch (e) { message.error(t('w9e.regionalWire.reviewFailed')); throw e }
-  },
+  // 诚实失败: 后端无报告审核 PATCH/PUT 端点 (仅 GET /regional/reports[/:id])
+  review: async (reportId: string, result: '通过' | '驳回', opinion: string): Promise<WireResult> =>
+    noBackend('reportService.review', { reportId, result, opinion }),
 }
 
 export const criticalValueService = {
-  acknowledge: async (id: string) => { try { await delay(300); message.success(t('w9e.regionalWire.criticalAcknowledged', { id })) } catch (e) { message.error(t('w9e.regionalWire.criticalAckFailed')); throw e } },
-  close: async (id: string) => { try { await delay(300); message.success(t('w9e.regionalWire.criticalClosed', { id })) } catch (e) { message.error(t('w9e.regionalWire.criticalCloseFailed')); throw e } },
+  // 诚实失败: 后端仅有 GET /regional/critical-values, 无确认/闭环写端点
+  acknowledge: async (id: string): Promise<WireResult> =>
+    noBackend('criticalValueService.acknowledge', { id }),
+  close: async (id: string): Promise<WireResult> =>
+    noBackend('criticalValueService.close', { id }),
 }
 
 export const teleradiologyService = {
-  submit: async (_data: any) => { try { await delay(500); message.success(t('w9e.regionalWire.remoteSubmitted')) } catch (e) { message.error(t('w9e.regionalWire.remoteSubmitFailed')); throw e } },
+  // 诚实失败: 后端无远程诊断书写 POST 端点 (仅 GET /regional/remote-diagnoses)
+  submit: async (data: any): Promise<WireResult> =>
+    noBackend('teleradiologyService.submit', data),
 }
 
 export const remoteSyncService = {
-  pull: async () => { try { await delay(500); message.success(t('w9e.regionalWire.syncSuccess')) } catch (e) { message.error(t('w9e.regionalWire.syncFailed')); throw e } },
+  // 真实端点: GET /regional/sites/sync-events (backend regional.controller.ts:91)
+  pull: async (): Promise<WireResult> => {
+    try {
+      const res = await regionalApi.listSiteSyncEvents()
+      if (!res.success) return requestFailed('w9e.regionalWire.syncFailed', res.error)
+      const events = unwrapList<RegionalSiteSyncEventDto>(res.data)
+      message.success(t('w9e.regionalWire.syncSuccess'))
+      return { ok: true, data: events }
+    } catch (e) { return requestFailed('w9e.regionalWire.syncFailed', e) }
+  },
 }
 
 export const statsService = {
-  refresh: async () => { try { await delay(300); message.success(t('w9e.regionalWire.statsRefreshed')) } catch (e) { message.error(t('w9e.regionalWire.statsRefreshFailed')); throw e } },
+  // 真实端点: GET /regional/sites/stats (backend regional.controller.ts:88)
+  refresh: async (): Promise<WireResult> => {
+    try {
+      const res = await regionalApi.getCrossSiteStats()
+      if (!res.success) return requestFailed('w9e.regionalWire.statsRefreshFailed', res.error)
+      message.success(t('w9e.regionalWire.statsRefreshed'))
+      return { ok: true, data: res.data }
+    } catch (e) { return requestFailed('w9e.regionalWire.statsRefreshFailed', e) }
+  },
 }
 
 export const exportService = {
-  csv: async (type: string) => { try { await delay(500); message.success(t('w9e.regionalWire.exportSuccess', { type })) } catch (e) { message.error(t('w9e.regionalWire.exportFailed')); throw e } },
+  // 真实下载: GET /regional/reports → CSV Blob (BOM, Excel 可直接打开)
+  csv: async (type: string): Promise<WireResult> => {
+    try {
+      const res = await regionalApi.listRegionalReports()
+      if (!res.success) return requestFailed('w9e.regionalWire.exportFailed', res.error)
+      const rows = unwrapList<RegionalReportDto>(res.data)
+      if (rows.length === 0) {
+        message.error(t('w9e.regionalWire.exportFailed'))
+        return { ok: false, reason: 'empty-data', data: rows }
+      }
+      downloadCsv(
+        `${String(type || 'regional-report').replace(/[\\/:*?"<>|]/g, '_')}.csv`,
+        ['报告ID', '机构', '患者姓名', '性别', '年龄', '检查类型', '检查项目', '报告时间', '报告医生', '状态', '质控评分', '质控问题'],
+        rows.map(r => [
+          r.reportId, r.institution, r.patientName, r.gender, r.age, r.modality,
+          r.examItem, r.reportTime, r.reportDoctor, r.status, r.qualityScore,
+          (r.qualityIssues || []).join(';'),
+        ]),
+      )
+      message.success(t('w9e.regionalWire.exportSuccess', { type }))
+      return { ok: true, data: rows.length }
+    } catch (e) { return requestFailed('w9e.regionalWire.exportFailed', e) }
+  },
 }

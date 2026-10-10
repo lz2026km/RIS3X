@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // G005 放射科RIS系统 - 科研数据抽取/课题数据脱敏管理 v2.0.0
 // 功能：课题管理 / 数据抽取 / 标签管理 / 导出管理
 // 新增：DICOM脱敏引擎 / 队列构建器 / IRB工作流 / 数据导出管线 / 数据质量看板
@@ -19,6 +19,7 @@ import { THEME_TOKENS } from '../components/common/ThemeTokens'
 import { StatusTag } from '../components/common/StatusTag'
 import { DataTable } from '../components/common/DataTable'
 import { researchApi, type ResearchProjectDto, type ResearchLabelDto, type CohortDefinitionDto as CohortDefinition, type IRBSubmissionDto as IRBSubmission, type ExportAuditDto as ExportAudit, type DataQualityScoreDto as DataQualityScore } from '../services/api/researchApi'
+import { researchExportApi } from '../services/api/researchExportApi'
 import { t } from '../i18n/appI18n'
 
 // ==================== 类型定义 ====================
@@ -469,8 +470,12 @@ function LabelsTab() {
     setBatchLabelId('')
   }
 
+  // [G005] 应用标签: researchApi 无「标签应用到抽取记录」端点 → 与批量标注一致走本地状态变更 (诚实演示, 不再只弹 toast)
   const handleApplyLabel = (label: Label) => {
-    showToast(`已应用标签「${label.name}」到当前 50 条已抽取记录`, 'success')
+    setLabels(prev => prev.map(l => l.id === label.id ? { ...l, useCount: l.useCount + 50 } : l))
+    setAnnotatedCount(prev => prev + 50)
+    setAnnotatedLabels(prev => ({ ...prev, [label.name]: (prev[label.name] ?? 0) + 50 }))
+    showToast(`已应用标签「${label.name}」到当前 50 条已抽取记录（本地标注）`, 'success')
   }
 
   const handleDeleteLabel = (label: Label) => {
@@ -581,7 +586,40 @@ function ExportTab() {
     showToast(t('researchPage.exportPermSaved'), 'success')
     setShowPermissionModal(false)
   }
-  const handleDownload = (record: ExportRecord) => { showToast(`开始下载: ${record.downloadUrl}`, 'info') }
+  // [G005] 下载导出文件: 真实请求 record.downloadUrl; 后端 /research 目前只有导出记录列表,
+  //   无内容端点时如实提示失败 (不再假装已开始下载)。
+  const handleDownload = async (record: ExportRecord) => {
+    if (!record.downloadUrl) {
+      showToast(`导出记录 ${record.id} 暂无可下载文件`, 'info')
+      return
+    }
+    try {
+      const resp = await fetch(record.downloadUrl)
+      const contentType = resp.headers.get('content-type') ?? ''
+      if (!resp.ok || contentType.includes('text/html')) {
+        showToast(`下载失败 (HTTP ${resp.status}): 后端未提供该导出文件`, 'error')
+        return
+      }
+      const blob = await resp.blob()
+      if (!blob || blob.size === 0) {
+        showToast('下载失败: 后端返回空文件', 'error')
+        return
+      }
+      const ext = record.format.toLowerCase() === 'dicom' ? 'zip' : record.format.toLowerCase()
+      const filename = `${record.projectName || record.id}.${ext}`
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+      showToast(`已开始下载: ${filename}`, 'success')
+    } catch {
+      showToast(`下载失败: 无法访问 ${record.downloadUrl}`, 'error')
+    }
+  }
   return (
     <div>
       <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, overflow: 'hidden', marginBottom: 'var(--space-5, 20px)' }}>
@@ -955,10 +993,8 @@ function ExportPipelineTab() {
   const [auditLog, setAuditLog] = useState<ExportAudit[]>([])
   const [, setLoading] = useState(true)
   const [showProgress, setShowProgress] = useState(false)
-  const [progress, setProgress] = useState(0)
-  const exportIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const exportMountedRef = useRef(true)
-  useEffect(() => { exportMountedRef.current = true; return () => { exportMountedRef.current = false; if (exportIntervalRef.current) clearInterval(exportIntervalRef.current) } }, [])
+  // 导出数据集: 真实接口 GET /research/exam-records (原 runExport 为假进度条 + 虚构「320万条」)
+  const [records, setRecords] = useState<ExamRecord[]>([])
 
   useEffect(() => {
     (async () => {
@@ -970,14 +1006,116 @@ function ExportPipelineTab() {
     })()
   }, [])
 
-  const runExport = () => {
-    setShowProgress(true); setProgress(0)
-    exportIntervalRef.current = setInterval(() => { setProgress(prev => { if (prev >= 100) { if (exportIntervalRef.current) clearInterval(exportIntervalRef.current); exportIntervalRef.current = null; setTimeout(() => { if (exportMountedRef.current) { setShowProgress(false); showToast(`导出完成 (CSV, 320条记录, 含数据字典)`, 'success') } }, 500); return 100 }; return prev + Math.floor(Math.random() * 20) + 5 }) }, 200)
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await researchApi.listExamRecords()
+        if (res.success && Array.isArray(res.data)) setRecords(res.data as ExamRecord[])
+      } catch { /* 空数据集时 runExport 会如实提示 */ }
+    })()
+  }, [])
+
+  const csvEscape = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`
+
+  const toExportRow = (r: ExamRecord, idx: number) => ({
+    patient_id: deidentify ? `ANON-${String(idx + 1).padStart(4, '0')}` : r.patientId,
+    patient_name: deidentify ? maskName(r.patientName) : r.patientName,
+    age: r.age,
+    gender: r.gender,
+    exam_type: r.examType,
+    exam_date: r.examDate,
+    diagnosis: r.diagnosis,
+    result: r.result,
+    modality: r.modality,
+  })
+
+  const DICT_LINES = [
+    'patient_id: 字符串, 患者编号 (去标识化时为匿名标识)',
+    'patient_name: 字符串, 患者姓名 (去标识化时脱敏)',
+    'age: 整数, 患者年龄',
+    'gender: 枚举(男/女)',
+    'exam_type: 枚举(CT/MR/DR...)',
+    'exam_date: 日期, YYYY-MM-DD',
+    'diagnosis: 字符串, 诊断结论',
+    'result: 枚举(阳性/阴性)',
+    'modality: 字符串, 设备编号',
+  ]
+
+  const buildLocalCsv = () => {
+    const rows = records.map((r, i) => toExportRow(r, i))
+    const headers = rows.length > 0 ? Object.keys(rows[0]!) : ['patient_id', 'patient_name', 'age', 'gender', 'exam_type', 'exam_date', 'diagnosis', 'result', 'modality']
+    const lines = [headers.map(csvEscape).join(',')]
+    for (const row of rows) lines.push(headers.map((h) => csvEscape((row as Record<string, unknown>)[h])).join(','))
+    return lines.join('\n')
+  }
+
+  const dictSection = () =>
+    ['', csvEscape(`# ${t('researchPage.dictPreview')}`), ...DICT_LINES.map((l) => csvEscape(l))].join('\n')
+
+  const downloadText = (content: string, filename: string, mime: string) => {
+    const blob = new Blob(['\ufeff' + content], { type: mime })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+  }
+
+  // [G005] 真实导出: 优先后端 researchExportApi (POST /research/datasets/build →
+  //   POST /research/export/tasks → GET /research/export/tasks/:id/content) 下载真实内容;
+  //   接口不可用时回退为基于当前数据集的本地 CSV/JSON 生成 — 两种路径都触发真实文件下载。
+  const runExport = async () => {
+    if (showProgress) return
+    setShowProgress(true)
+    const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '')
+    try {
+      const effectiveFormat: 'CSV' | 'JSON' = exportFormat === 'JSON' ? 'JSON' : 'CSV'
+      let content = ''
+      let rowCount = 0
+      let fromBackend = false
+      try {
+        const dataset = await researchExportApi.buildDataset({}, `科研数据集-${stamp}`)
+        if (dataset.success && dataset.data?.id) {
+          const task = await researchExportApi.createTask({ name: `科研导出-${stamp}`, datasetId: dataset.data.id, format: effectiveFormat })
+          if (task.success && task.data?.id) {
+            const body = await researchExportApi.getTaskContent(task.data.id)
+            if (body.success && typeof body.data?.content === 'string' && body.data.content.length > 0) {
+              content = body.data.content
+              rowCount = body.data.rows?.length ?? 0
+              fromBackend = true
+            }
+          }
+        }
+      } catch { /* 回退本地导出 */ }
+
+      if (!fromBackend) {
+        if (records.length === 0) {
+          showToast('没有可导出的记录 (数据集为空)', 'error')
+          return
+        }
+        content = effectiveFormat === 'JSON'
+          ? JSON.stringify({ deidentify, records: records.map((r, i) => toExportRow(r, i)) }, null, 2)
+          : buildLocalCsv()
+        rowCount = records.length
+      }
+      if (includeDict && effectiveFormat === 'CSV') content += dictSection()
+
+      const filename = `research-export-${stamp}.${effectiveFormat.toLowerCase()}`
+      downloadText(content, filename, effectiveFormat === 'JSON' ? 'application/json;charset=utf-8' : 'text/csv;charset=utf-8')
+      const fmtNote = exportFormat !== effectiveFormat ? `, ${exportFormat} 暂未支持已按 ${effectiveFormat} 导出` : ''
+      const srcNote = fromBackend ? '' : ', 本地生成'
+      showToast(`导出完成 (${effectiveFormat}, ${rowCount} 条记录${includeDict ? ', 含数据字典' : ''}${srcNote}${fmtNote})`, 'success')
+    } finally {
+      setShowProgress(false)
+    }
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5, 20px)' }}>
-      {showProgress && <ProgressModal open={showProgress} title={t('researchPage.exportingData')} message={`正在生成 ${exportFormat} 文件...`} progress={progress} />}
+      {showProgress && <ProgressModal open={showProgress} title={t('researchPage.exportingData')} message={`正在生成 ${exportFormat} 文件...`} />}
       <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 'var(--space-5, 20px)' }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}><Download size={16} /> {t('researchPage.exportConfig')}</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-4, 16px)' }}>

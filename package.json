@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.13-8",
-  "description": "G005 Radiology RIS v3.0.6.13-8 - Context-aware neutral color tokenization (text/border)",
+  "version": "3.0.6.13-9",
+  "description": "G005 Radiology RIS v3.0.6.13-9 - Dead Feature Root-Cause Fix (fake services -> real API)",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

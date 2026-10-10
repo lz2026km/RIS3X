@@ -155,6 +155,7 @@ export default {
     'w9e.regionalWire.statsRefreshFailed': '刷新统计失败',
     'w9e.regionalWire.exportSuccess': '{{type}}记录导出成功',
     'w9e.regionalWire.exportFailed': '导出失败',
+    'w9e.regionalWire.noBackend': '本演示版本未接后端: 该操作未执行 (无对应接口)',
 
     // ---- pages/regional/RegionalReportList ----
     'w9e.regionalReportList.filterAll': '全部',
@@ -1104,6 +1105,7 @@ export default {
     'w9e.regionalWire.statsRefreshFailed': 'Failed to refresh statistics',
     'w9e.regionalWire.exportSuccess': '{{type}} records exported',
     'w9e.regionalWire.exportFailed': 'Export failed',
+    'w9e.regionalWire.noBackend': 'Demo build is not wired to the backend: this action was not executed',
 
     // ---- pages/regional/RegionalReportList ----
     'w9e.regionalReportList.filterAll': 'All',

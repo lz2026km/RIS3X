@@ -799,7 +799,7 @@ export default function TemplateDesignerPage() {
               }
               try {
                 const res = await api.post<{ id: string }>(
-                  `/writing/templates/${sourceId}/clone`,
+                  `/templates/${sourceId}/clone`,
                 );
                 if (res.success) {
                   const newId = res.data?.id ?? uniqueId('tpl-clone');

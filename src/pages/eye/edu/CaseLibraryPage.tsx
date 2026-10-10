@@ -272,6 +272,8 @@ export const CaseLibraryPage: React.FC = () => {
       const res = await eyeApi.eduCohort({
         criteria: {
           disease: diseaseFilter,
+          // [G005] 检索框接入队列筛选条件
+          search: searchTerm.trim(),
           gender: "all",
           ageMin: 18,
           ageMax: 90,

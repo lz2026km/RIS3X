@@ -1137,15 +1137,18 @@ export default function PrintManagementPage() {
       type: 'primary',
       onConfirm: async () => {
         try {
-          const res = await printApi.createJob({
+          // [G005] 胶片规格选择卡 (介质类型/打印份数) 接入打印任务载荷
+          const jobPayload = {
             patientName: task?.patientName,
             patientId: task?.patientId,
             modality: task?.modality,
             studyType: task?.studyType,
             filmSpec: task?.filmSpec,
-            copies: task?.copies,
+            copies: printCopies,
             printer: task?.printer,
-          })
+            mediumType: selectedMediumType,
+          }
+          const res = await printApi.createJob(jobPayload)
           if (res.success) {
             displayToast(t('w9b.printMgmt.jobStarted', { id: res.data?.id ?? taskId }), 'success')
             handleRefreshQueue()
@@ -1235,15 +1238,18 @@ export default function PrintManagementPage() {
           const item = printHistory[idx] ?? printQueue[idx]
           if (!item) continue
           try {
-            const res = await printApi.createJob({
+            // [G005] 胶片规格选择卡: 介质类型/打印份数接入批量打印任务载荷
+            const jobPayload = {
               patientName: item.patientName,
               patientId: item.patientId,
               modality: item.modality,
               studyType: item.studyDesc ?? '胶片打印',
               filmSpec: item.filmSpec,
-              copies: item.copies ?? 1,
+              copies: printCopies,
               printer: item.printer,
-            })
+              mediumType: selectedMediumType,
+            }
+            const res = await printApi.createJob(jobPayload)
             if (res.success) ok++
           } catch {
             /* 单条失败不阻断, 汇总提示 */

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getFinanceService, type PatientBill, type PaymentRecord, type InsuranceClaim } from '../../services/finance/FinanceService'
 import { financeApi, type InvoiceDto, type ChargeItemDto } from '../../services/api/financeApi'
-import { Card, Typography } from 'antd'
+import { Card, Typography, message } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { LoadingBanner, ErrorBanner } from '../../components/feedback'
 import { DataTable } from '../../components/common/DataTable'
@@ -102,8 +102,8 @@ export default function PatientFinancePage() {
   }, [])
 
   const handleCreateInvoice = async () => {
-    if (!invPatientId.trim()) { alert(t('patientFinance.patientIdRequired')); return }
-    if (invItemIds.length === 0) { alert(t('patientFinance.chargeItemRequired')); return }
+    if (!invPatientId.trim()) { message.warning(t('patientFinance.patientIdRequired')); return }
+    if (invItemIds.length === 0) { message.warning(t('patientFinance.chargeItemRequired')); return }
     setInvSaving(true)
     try {
       const res = await financeApi.createInvoice({
@@ -112,14 +112,14 @@ export default function PatientFinancePage() {
         discount: invDiscount > 0 ? invDiscount : undefined,
       })
       if (res.success) {
-        alert(t('patientFinance.invoiceCreated', { id: res.data.id, amount: res.data.totalAmount }))
+        message.info(t('patientFinance.invoiceCreated', { id: res.data.id, amount: res.data.totalAmount }))
         setShowInvoiceModal(false)
         setInvPatientId(''); setInvItemIds([]); setInvDiscount(0)
       } else {
-        alert(res.error?.message ?? t('patientFinance.invoiceFailed'))
+        message.error(res.error?.message ?? t('patientFinance.invoiceFailed'))
       }
     } catch (e) {
-      alert((e as Error)?.message ?? t('patientFinance.invoiceFailed'))
+      message.error((e as Error)?.message ?? t('patientFinance.invoiceFailed'))
     } finally {
       setInvSaving(false)
     }

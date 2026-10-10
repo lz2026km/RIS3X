@@ -1,3 +1,24 @@
+## v3.0.6.13-9 (2026-10-10) — 假功能根治（W-A）
+
+> **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功 / 30 路由 E2E 通过（仅已知时序伪报）；`guard:ui` 全绿（hex 预算排除 var 回退后收紧至 5,628）
+
+### 假服务 → 真 API
+- `RegionalReportServiceWire`：7 个 `delay+toast` 假服务 → 4 个接真端点（创建/接受会诊、同步、统计、导出 CSV 真实 Blob 下载）+ 3 个后端缺失项改为诚实失败
+- `ConsultationPage.handleReject` → `consultationApi.cancel(id)` 真实调用 + `rejectingId` loading 态
+- `ConsultationPage` 截图/下载 → 真实 canvas/blob 或诚实禁用（Tooltip 说明）
+- `DevicePage.handleCecho` → `dicomDimseApi.cEcho` 真实 DIMSE 端点；`handleExam` → 演示徽标
+- `DefectLibrary` 编辑弹窗 → 受控表单 + `qualityScoringCenterApi.updateDefectItem` PATCH
+- `FhirServerPage` 创建资源 → 受控输入 + `POST /fhir/r4/{type}`
+- `ResearchPage` 导出 → 真实数据集加载 + 本地 CSV 生成 + Blob 下载（移除假进度条）
+- `AIQCPage` 确认质检 → 诚实禁用（后端无确认端点）
+
+### 10 处 404 死调用修复
+- `search/client.ts` → `/report-search-v2/search|meta`；`TemplateDesignerPage` 克隆 → `/templates/:id/clone`（端点存在）；`followUpService` → `/followups`；`documentService` → `/files/upload`；`FhirServerPage` → `/fhir/r4/{type}`；`triageApi` PUT 已正确
+
+### 7 处死筛选器 + 29 处 alert
+- CriticalValue 时间/日期、Statistics 设备类型、Cost 时间范围、Dictionary FHIR 搜索、CaseLibrary 关键词、Appointment 搜索、PrintManagement 介质/份数 → 全部接线
+- 9 文件 29 处 `window.alert` → `message.warning/error/info`
+
 ## v3.0.6.13-8 (2026-10-10) — 中性色上下文令牌化（文本/边框 → 语义 token）
 
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 核心路由 E2E 通过；`guard:ui` 全绿

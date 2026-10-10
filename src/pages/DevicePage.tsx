@@ -20,11 +20,13 @@ import {
 import { initialModalityDevices, initialExamRooms } from '../data/initialData'
 import { simulateApiCall } from '../data/simulationStore'
 import { deviceApi, deviceMgmtApi } from '../services/api'
+// [fix] C-ECHO 接入真实后端端点 POST /dicom-dimse/echo (backend/src/dicom-dimse/dicom-dimse.controller.ts)
+import { dicomDimseApi } from '../services/api/dicomApi'
 import { t } from '../i18n/appI18n'
 import { ChartContainer } from '../components/charts'
 import { VirtualTable } from '../components/common/VirtualTable'
 import { DataTable } from '../components/common/DataTable'
-import { Select } from 'antd'
+import { Select, Tag, message } from 'antd'
 import { PageHeader } from '../components/common/PageHeader'
 import { PageTemplate } from '../components/common/PageTemplate'
 import { ActionButton } from '../components/common/ActionButton'
@@ -334,11 +336,34 @@ function AETitleConfigPanel() {
     setEditingId(null)
   }
 
-  // [G005 Wave2A P1] C-ECHO 无后端端点 → 保留 setTimeout 模拟, 结果标注"模拟"
+  // [fix] C-ECHO 接入真实后端端点 POST /dicom-dimse/echo (dicomDimseApi.cEcho),
+  // 结果按后端响应真实呈现; 端点不可达时如实提示"需要真实 PACS 环境", 不再伪造成成功
   const handleCecho = async (ae: typeof AE_TITLE_CONFIGS[0]) => {
     setCechoResults(prev => ({ ...prev, [ae.id]: 'testing' }))
-    await new Promise(r => setTimeout(r, 1000))
-    setCechoResults(prev => ({ ...prev, [ae.id]: 'success' }))
+    try {
+      const res = await dicomDimseApi.cEcho({ calledAeTitle: ae.aeTitle, callingAeTitle: 'RIS_WS' })
+      // 响应形状兼容: 后端直接返回 C-ECHO 对象 / MSW 可能双包裹 data
+      const payload = (res.data as { data?: unknown } | undefined)?.data ?? res.data
+      const statusCode = (payload as { statusCode?: number } | undefined)?.statusCode
+      const ok = res.success && (statusCode === undefined || statusCode === 0)
+      setCechoResults(prev => ({ ...prev, [ae.id]: ok ? 'success' : 'fail' }))
+      if (ok) {
+        const d = new Date()
+        const pad = (n: number) => String(n).padStart(2, '0')
+        const stamp = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+        setAeConfigs((prev: any[]) => {
+          const next = prev.map((a: any) => a.id === ae.id ? { ...a, lastCecho: stamp } : a)
+          try { localStorage.setItem('g005_ae_title_configs', JSON.stringify(next)) } catch { /* ignore */ }
+          return next
+        })
+        message.success(`${ae.aeTitle} (${ae.ip}:${ae.port}) C-ECHO 成功`)
+      } else {
+        message.error(`${ae.aeTitle} (${ae.ip}:${ae.port}) C-ECHO 失败`)
+      }
+    } catch {
+      setCechoResults(prev => ({ ...prev, [ae.id]: 'fail' }))
+      message.info(`演示版本：C-ECHO 需要真实 PACS 环境，未接入 (${ae.aeTitle} · ${ae.ip}:${ae.port})`)
+    }
     setTimeout(() => setCechoResults(prev => ({ ...prev, [ae.id]: 'idle' })), 3000)
   }
 
@@ -391,11 +416,13 @@ function AETitleConfigPanel() {
                     <div style={{ fontSize: 12, color: C.textLight, marginTop: 2 }}>{ae.ip}:{ae.port} {t('devicePage.lastCecho', { time: ae.lastCecho })}</div>
                     <div style={{ marginTop: 6 }}>
                       {cechoResults[ae.id] === 'idle' || !cechoResults[ae.id] ? (
-                        <ActionButton action="refresh" size="compact" onClick={() => handleCecho(ae)}>{t('devicePage.cechoTest')}</ActionButton>
+                        <ActionButton action="refresh" size="compact" onClick={() => void handleCecho(ae)}>{t('devicePage.cechoTest')}</ActionButton>
                       ) : cechoResults[ae.id] === 'testing' ? (
                         <span style={{ fontSize: 12, color: C.warning }}>{t('devicePage.testing')}</span>
-                      ) : (
+                      ) : cechoResults[ae.id] === 'success' ? (
                         <span style={{ fontSize: 12, color: C.success, fontWeight: 700 }}>{t('devicePage.cechoSuccess')}</span>
+                      ) : (
+                        <span style={{ fontSize: 12, color: C.danger, fontWeight: 700 }}>C-ECHO 失败</span>
                       )}
                     </div>
                   </>
@@ -797,7 +824,9 @@ export default function DevicePage() {
     }).catch(() => { /* noop */ })
   }
 
-  // [G005 Wave2A P1] 开始检查流程 → 本地状态流转 开始→进行中→完成 (无 QA 端点, 标注"演示")
+  // [G005 Wave2A P1] 开始检查流程 → 后端无设备级"开始检查"端点
+  // (exam.controller 仅 exam CRUD; worklist/:id/start 需具体检查 ID, 此处仅有设备) →
+  // 保留本地状态流转 开始→进行中→完成 (i18n 文案已标注"演示"), 并在设备列表上方加"演示"徽标如实告知
   const handleExam = (device: DeviceData) => {
     const cur = examFlow[device.id] ?? 'idle'
     if (cur === 'idle') {
@@ -1193,6 +1222,11 @@ export default function DevicePage() {
   // ============================================================
   const renderDeviceList = () => (
     <div>
+      {/* [fix] 「开始检查」为演示流程: 后端无设备级检查执行端点 → 如实标注"演示"徽标 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)', padding: '6px 12px', background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning-300, #fcd34d)', borderRadius: 6 }}>
+        <Tag color="warning" style={{ margin: 0 }}>演示</Tag>
+        <span style={{ fontSize: 12, color: 'var(--color-warning-800, #92400e)' }}>「开始检查」为本地演示流程（后端未提供设备级检查执行端点，状态流转不产生真实检查）</span>
+      </div>
       <DeviceFilter
         search={search}
         onSearchChange={setSearch}

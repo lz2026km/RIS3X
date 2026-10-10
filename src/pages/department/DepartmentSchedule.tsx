@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { message } from "antd";
 import { AlertTriangle, Clock, Plus } from "lucide-react";
 import { regionalApi } from "../../services/api";
 import { Send } from "lucide-react";
@@ -147,7 +148,7 @@ export default function DepartmentSchedule() {
   };
 
   const handleCreateLeave = () => {
-    if (!newLeave.name.trim() || !newLeave.startDate || !newLeave.endDate) { alert(t("deptSched.fillRequired")); return; }
+    if (!newLeave.name.trim() || !newLeave.startDate || !newLeave.endDate) { message.warning(t("deptSched.fillRequired")); return; }
     setLeaveList(prev => [...prev, {
       id: `L${Date.now()}`,
       staffId: `S${String(Date.now()).slice(-4)}`,

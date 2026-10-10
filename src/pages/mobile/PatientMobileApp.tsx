@@ -4,7 +4,7 @@ import { pushService } from '../../services/mobile/push/PushService'
 import { wechatPay } from '../../services/wechatPay'
 import { patientPortalApi, type PortalPatientDto, type PortalClinicalDataDto, type PortalImageStudyDto } from '../../services/api/patientPortalApi'
 import { reportApi } from '../../services/api/reportApi'
-import { Card } from 'antd'
+import { Card, message } from 'antd'
 import { t } from '../../i18n/appI18n'
 
 // ===== Types =====
@@ -110,9 +110,9 @@ export default function PatientMobileApp() {
         win.print()
         return
       }
-      alert(t('mobileApp.exportUnavailable'))
+      message.error(t('mobileApp.exportUnavailable'))
     } catch {
-      alert(t('mobileApp.exportFailed'))
+      message.error(t('mobileApp.exportFailed'))
     } finally {
       setDownloadingPdf(false)
     }

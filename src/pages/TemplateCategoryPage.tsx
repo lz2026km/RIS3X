@@ -319,7 +319,7 @@ export default function TemplateCategoryPage() {
   };
 
   const saveCategory = async () => {
-    if (!catForm.name.trim()) { alert(t('tplCategory.nameRequired')); return; }
+    if (!catForm.name.trim()) { message.warning(t('tplCategory.nameRequired')); return; }
     setCatSaving(true);
     try {
       if (catModal?.mode === 'edit' && catModal.cat) {
@@ -327,7 +327,7 @@ export default function TemplateCategoryPage() {
         if (res.success && res.data) {
           setRealCategories(prev => prev.map(c => c.id === catModal.cat.id ? res.data as TemplateCategoryDto : c));
         } else {
-          alert(res.error?.message ?? t('tplCategory.updateFailed'));
+          message.error(res.error?.message ?? t('tplCategory.updateFailed'));
           setCatModal(null);
           setCatSaving(false);
           return;
@@ -337,7 +337,7 @@ export default function TemplateCategoryPage() {
         if (res.success && res.data) {
           setRealCategories(prev => [...prev, res.data as TemplateCategoryDto]);
         } else {
-          alert(res.error?.message ?? t('tplCategory.createFailed'));
+          message.error(res.error?.message ?? t('tplCategory.createFailed'));
           setCatModal(null);
           setCatSaving(false);
           return;
@@ -353,7 +353,7 @@ export default function TemplateCategoryPage() {
       }
       setCategorySource('fallback');
       setCatModal(null);
-      alert(t('tplCategory.serviceUnavailableSave'));
+      message.error(t('tplCategory.serviceUnavailableSave'));
     } finally {
       setCatSaving(false);
     }
@@ -367,14 +367,14 @@ export default function TemplateCategoryPage() {
         setRealCategories(prev => prev.filter(c => c.id !== cat.id));
         if (selectedId === cat.id) setSelectedId(null);
       } else {
-        alert(res.error?.message ?? t('tplCategory.deleteFailed'));
+        message.error(res.error?.message ?? t('tplCategory.deleteFailed'));
       }
     } catch {
       // [v3.0.6.11-96 Wave3B P1] 失败回退: 本地移除 + 标注
       setRealCategories(prev => prev.filter(c => c.id !== cat.id));
       setCategorySource('fallback');
       if (selectedId === cat.id) setSelectedId(null);
-      alert(t('tplCategory.serviceUnavailableRemove'));
+      message.error(t('tplCategory.serviceUnavailableRemove'));
     }
   };
 

@@ -120,6 +120,24 @@ export default function CostAnalysisPage() {
 
   useEffect(() => { void loadFinance() }, [loadFinance])
 
+  // [G005] 月/季/年时间范围: financeApi 无 range 参数 → 本地按月份切片后重渲染
+  const rangedLive = useMemo<LiveFinanceData | null>(() => {
+    if (!live || live.monthly.length === 0 || timeRange === 'year') return live
+    const monthly = live.monthly.slice(-(timeRange === 'month' ? 1 : 3))
+    const revenue = monthly.reduce((s, m) => s + m.revenue, 0)
+    const cost = monthly.reduce((s, m) => s + m.cost, 0)
+    return {
+      ...live,
+      revenue,
+      cost,
+      profit: revenue - cost,
+      marginPct: revenue > 0 ? ((revenue - cost) / revenue) * 100 : 0,
+      monthly,
+    }
+  }, [live, timeRange])
+
+  const rangeMonths = timeRange === 'month' ? 1 : timeRange === 'quarter' ? 3 : Number.MAX_SAFE_INTEGER
+
   const handleExportClaims837 = () => {
     const header = '单号,患者,类型,金额,状态'
     const rows = CLAIMS_DATA.claims.map(c => [c.id, c.patientName, c.type, c.amount, c.status].join(','))
@@ -149,26 +167,34 @@ export default function CostAnalysisPage() {
   }, [])
 
   // [W3-B] 效益 Tab 实时行 (financeApi.monthly → 万元口径, 与 BENEFIT_DATA 一致)
+  // [G005] 演示数据同样按 月/季/年 时间范围切片
   const benefitRows = useMemo<BenefitData[]>(() => {
-    if (!live || live.monthly.length === 0) return BENEFIT_DATA
-    return live.monthly.map((m) => ({
-      month: m.month,
-      revenue: m.revenue / 10000,
-      cost: m.cost / 10000,
-      profit: (m.revenue - m.cost) / 10000,
-      examCount: 0,
-    }))
-  }, [live])
+    const src: BenefitData[] = rangedLive && rangedLive.monthly.length > 0
+      ? rangedLive.monthly.map((m) => ({
+          month: m.month,
+          revenue: m.revenue / 10000,
+          cost: m.cost / 10000,
+          profit: (m.revenue - m.cost) / 10000,
+          examCount: 0,
+        }))
+      : BENEFIT_DATA
+    return rangeMonths >= src.length ? src : src.slice(-rangeMonths)
+  }, [rangedLive, rangeMonths])
 
   const benefitTotals = useMemo(() => {
-    if (!live) {
-      const revenue = BENEFIT_DATA.reduce((s, b) => s + b.revenue, 0)
-      const cost = BENEFIT_DATA.reduce((s, b) => s + b.cost, 0)
-      const profit = BENEFIT_DATA.reduce((s, b) => s + b.profit, 0)
+    if (!rangedLive) {
+      const revenue = benefitRows.reduce((s, b) => s + b.revenue, 0)
+      const cost = benefitRows.reduce((s, b) => s + b.cost, 0)
+      const profit = benefitRows.reduce((s, b) => s + b.profit, 0)
       return { revenue, cost, profit, marginPct: revenue > 0 ? (profit / revenue) * 100 : 0 }
     }
-    return { revenue: live.revenue / 10000, cost: live.cost / 10000, profit: live.profit / 10000, marginPct: live.marginPct }
-  }, [live])
+    return {
+      revenue: rangedLive.revenue / 10000,
+      cost: rangedLive.cost / 10000,
+      profit: rangedLive.profit / 10000,
+      marginPct: rangedLive.marginPct,
+    }
+  }, [rangedLive, benefitRows])
 
   const benefitTrendLabel = useMemo(() => {
     if (!live || live.monthly.length < 2) return ''
@@ -253,9 +279,9 @@ export default function CostAnalysisPage() {
 
       {/* [W3-B] 数据源状态条 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 'var(--space-4, 16px)', fontSize: 12, flexWrap: 'wrap' }}>
-        {live ? (
+        {rangedLive ? (
           <StatusTag status="success" dot size="md">
-            {t('costAnalysis.dataSource')} {live.source} · 收入 ¥{(live.revenue / 10000).toFixed(1)}万 / 成本 ¥{(live.cost / 10000).toFixed(1)}万
+            {t('costAnalysis.dataSource')} {rangedLive.source} · 收入 ¥{(rangedLive.revenue / 10000).toFixed(1)}万 / 成本 ¥{(rangedLive.cost / 10000).toFixed(1)}万
           </StatusTag>
         ) : (
           <StatusTag status="warning" dot size="md">
@@ -270,7 +296,7 @@ export default function CostAnalysisPage() {
         )}
       </div>
 
-      {activeTab === 'overview' && <CostOverview live={live} />}
+      {activeTab === 'overview' && <CostOverview live={rangedLive} />}
 
       {activeTab === 'equipment' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6, 24px)' }}>

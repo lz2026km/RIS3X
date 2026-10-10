@@ -903,6 +903,17 @@ export default function DictionaryPage() {
   }
 
   const renderFhirTab = () => {
+    // [G005] FHIR 检索: 演示术语树按 fhirSearch 过滤 (display/code 包含匹配, 保留命中子节点的父节点)
+    const fhirKw = fhirSearch.trim().toLowerCase()
+    const conceptHit = (c: FhirConcept): boolean =>
+      !fhirKw || c.display.toLowerCase().includes(fhirKw) || c.code.toLowerCase().includes(fhirKw)
+    const filterConceptTree = (list: FhirConcept[]): FhirConcept[] =>
+      list.reduce<FhirConcept[]>((acc, c) => {
+        const children = c.children ? filterConceptTree(c.children) : undefined
+        if (conceptHit(c) || (children && children.length > 0)) acc.push(children ? { ...c, children } : c)
+        return acc
+      }, [])
+    const filteredConcepts = filterConceptTree(mockConcepts)
     return (
       <div style={{ display: 'flex', gap: 'var(--space-4, 16px)' }}>
         <div style={{ flex: 1 }}>
@@ -929,7 +940,10 @@ export default function DictionaryPage() {
             </div>
             <div style={{ background: 'var(--content-bg)', borderRadius: 8, padding: 'var(--space-3, 12px)', border: '1px solid var(--border-color)' }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 'var(--space-2, 8px)' }}>{t('dictionary.conceptTree')}</div>
-              {mockConcepts.map(concept => (
+              {filteredConcepts.length === 0 && (
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '6px 10px' }}>{t('common.empty.noData')}</div>
+              )}
+              {filteredConcepts.map(concept => (
                 <div key={concept.code} style={{ paddingLeft: 0 }}>
                   <div
                     role="button"

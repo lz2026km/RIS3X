@@ -82,6 +82,16 @@ const MODALITY_COLORS: Record<string, string> = {
 
 const RAD_COLORS = ['var(--color-primary-500)', '#60a5fa', 'var(--color-success-500)', 'var(--color-warning-500)', '#ec4899', '#14b8a6', '#f97316', 'var(--color-info-500)']
 
+// [G005] 模态分布柱状图配色 (与原硬编码柱色保持一致)
+const MODALITY_BAR_COLORS: Record<string, string> = {
+  CT: 'var(--color-primary-500)',
+  MR: '#7c3aed',
+  DR: 'var(--color-success-500)',
+  DSA: 'var(--color-warning-600)',
+  MG: '#ec4899',
+  GI: '#14b8a6',
+}
+
 // ============================================================
 // [v3.0.6.8-28] 主数据池派生的图表数据 (替代硬编码)
 // ============================================================
@@ -97,6 +107,9 @@ const sevenDayData = DAILY_KPI_PRE.slice(-7).map((d) => ({
   MR: d.byModality.MR,
   DR: d.byModality.DR,
   DSA: d.byModality.DSA,
+  // [G005] 补齐设备类型筛选可选模态 (GI 数据源无上报 → 0)
+  MG: d.byModality.MG,
+  GI: 0,
 }))
 
 // 时段分布 - 来源: 7天数据 + 经验时段分布系数
@@ -596,7 +609,16 @@ function ExamVolumeTab() {
   }
 
   // [P1] 模态分布取自 sevenDayData.byModality 真实聚合, 不再用固定比例系数
-  const mergedData = sevenDayData
+  // [G005] 设备类型筛选接入模态分布图: 全部 → 全模态数据切片, 指定模态 → 仅该模态数据切片
+  const allModalitiesLabel = t('statistics.examVolume.allModalities')
+  const isAllModalities = modalityFilter === allModalitiesLabel || modalityFilter === '全部'
+  const chartModalities: string[] = isAllModalities ? ['CT', 'MR', 'DR', 'DSA'] : [modalityFilter]
+  const mergedData = isAllModalities
+    ? sevenDayData
+    : sevenDayData.map((d) => ({
+        day: d.day,
+        [modalityFilter]: Number((d as unknown as Record<string, number>)[modalityFilter] ?? 0),
+      }))
 
   return (
     <div>
@@ -664,10 +686,9 @@ function ExamVolumeTab() {
               <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} wrapperStyle={{ fontSize: 12 }} />
-              <Bar dataKey="CT" stackId="a" fill="var(--color-primary-500)" name="CT" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="MR" stackId="a" fill="#7c3aed" name="MR" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="DR" stackId="a" fill="var(--color-success-500)" name="DR" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="DSA" stackId="a" fill="var(--color-warning-600)" name="DSA" radius={[4, 4, 0, 0]} />
+              {chartModalities.map((m, idx) => (
+                <Bar key={m} dataKey={m} stackId="a" fill={MODALITY_BAR_COLORS[m] ?? 'var(--color-primary-500)'} name={m} radius={idx === chartModalities.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]} />
+              ))}
             </StatBarChart>
           </ChartContainer>
         </ChartCard>

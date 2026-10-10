@@ -168,6 +168,13 @@ export default function CriticalValuePage() {
     }
   }, [])
 
+  // [G005] 危急值时间解析: createdAt 优先, 缺失回退 reportedTime
+  const cvTimeMs = (cv: CriticalValue): number => {
+    const raw = cv.createdAt || cv.reportedTime || ""
+    const ts = Date.parse(raw.includes("T") ? raw : raw.replace(" ", "T"))
+    return Number.isNaN(ts) ? Number.NaN : ts
+  }
+
   const filtered = criticalValues.filter((cv) => {
     if (search) {
       const s = search.toLowerCase()
@@ -177,6 +184,30 @@ export default function CriticalValuePage() {
     if (statusFilter !== "全部" && cvStoreStatus !== statusFilter) return false
     if (modalityFilter !== "全部" && cv.modality !== modalityFilter) return false
     if (severityFilter !== "全部" && cv.severity !== severityFilter) return false
+    // [G005] 时限筛选: createdAt 相对时间窗 (30分钟内/1小时内/2小时内/超时)
+    if (timeRangeFilter !== "全部") {
+      const ts = cvTimeMs(cv)
+      if (!Number.isNaN(ts)) {
+        const ageMs = Date.now() - ts
+        const WINDOW: Record<string, number> = {
+          "30分钟内": 30 * 60 * 1000,
+          "1小时内": 60 * 60 * 1000,
+          "2小时内": 120 * 60 * 1000,
+        }
+        if (timeRangeFilter === "超时") {
+          if (ageMs <= (WINDOW["2小时内"] ?? 0)) return false
+        } else {
+          const limitMs = WINDOW[timeRangeFilter]
+          if (limitMs !== undefined && ageMs > limitMs) return false
+        }
+      }
+    }
+    // [G005] 日期筛选: 只保留所选日期当天及之后创建的危急值
+    if (dateRange) {
+      const dayStart = Date.parse(`${dateRange}T00:00:00`)
+      const ts = cvTimeMs(cv)
+      if (!Number.isNaN(dayStart) && !Number.isNaN(ts) && ts < dayStart) return false
+    }
     return true
   })
 

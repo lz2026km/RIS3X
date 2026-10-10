@@ -5,6 +5,7 @@
  */
 import { DEFECT_CATEGORIES } from '../../../../data/defectLibraryMock';
 import { defectService } from '../../../../services/quality/defectService';
+import { qualityScoringCenterApi } from '../../../../services/api/qualityScoringCenterApi';
 import type { DefectDetail, DefectSeverityLevel, DefectStatus, DefectFilter } from '../../../../types/R3/R3.DEFECT';
 import type { DefectCategoryCode } from '../../../../types/R3/R3.QUALITY';
 import {
@@ -57,6 +58,38 @@ const STATUS_META: Record<DefectStatus, { color: string; label: string }> = {
   reviewing: { color: 'purple', label: t('defectLibrary.status.reviewing') },
 };
 
+// [G005] 编辑/新增缺陷弹窗受控表单 (原 9 个 defaultValue 输入的取值会被静默丢弃)
+interface DefectDraft {
+  code: string;
+  name: string;
+  category: DefectCategoryCode;
+  severity: DefectSeverityLevel;
+  sla: number;
+  trainingRequired: 'yes' | 'no';
+  description: string;
+  solution: string;
+  examples: string;
+}
+
+// 本地严重度 → 后端 defect-library 严重度 (PATCH /defect-library/items/:id)
+const SEVERITY_TO_API: Record<DefectSeverityLevel, 'low' | 'medium' | 'high' | 'critical'> = {
+  minor: 'low',
+  major: 'medium',
+  critical: 'critical',
+};
+
+const createDraft = (): DefectDraft => ({
+  code: '',
+  name: '',
+  category: DEFECT_CATEGORIES[0]?.code ?? 'DSC',
+  severity: 'major',
+  sla: 24,
+  trainingRequired: 'no',
+  description: '',
+  solution: '',
+  examples: '',
+});
+
 export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({ onSelect }) => {
   const [defects, setDefects] = useState<DefectDetail[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,6 +102,8 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
   const [editing, setEditing] = useState<DefectDetail | null>(null);
   const [detailDrawer, setDetailDrawer] = useState<DefectDetail | null>(null);
   const [activeTab, setActiveTab] = useState<'list' | 'template' | 'stats'>('list');
+  const [draft, setDraft] = useState<DefectDraft>(createDraft);
+  const [saving, setSaving] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -134,12 +169,104 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
 
   const openCreate = () => {
     setEditing(null);
+    setDraft(createDraft());
     setEditModal(true);
   };
 
   const openEdit = (d: DefectDetail) => {
     setEditing(d);
+    setDraft({
+      code: d.code,
+      name: d.name,
+      category: d.category,
+      severity: d.severity,
+      sla: d.sla,
+      trainingRequired: d.trainingRequired ? 'yes' : 'no',
+      description: d.description,
+      solution: d.solution,
+      examples: d.examples.join('；'),
+    });
     setEditModal(true);
+  };
+
+  const splitExamples = (value: string) =>
+    value
+      .split('；')
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+  // [G005] 保存缺陷: 编辑走真实接口 PATCH /defect-library/items/:id (后端 defect-library 模块);
+  //   接口成功 → 同步本地列表; 接口不可用 → 保留本地修改并如实提示 (不谎称已写入后端)。
+  //   新增无对应 wrapper → 仅本地缺陷库生效 (与 defectService 数据源一致)。
+  const handleSave = async () => {
+    if (saving || !draft.name.trim() || (!editing && !draft.code.trim())) return;
+    setSaving(true);
+    try {
+      if (editing) {
+        const target = editing;
+        const res = await qualityScoringCenterApi.updateDefectItem(target.id, {
+          name: draft.name.trim(),
+          categoryCode: draft.category,
+          severity: SEVERITY_TO_API[draft.severity],
+          description: draft.description,
+        });
+        setDefects((prev) =>
+          prev.map((d) =>
+            d.id === target.id
+              ? {
+                  ...d,
+                  name: draft.name.trim(),
+                  category: draft.category,
+                  severity: draft.severity,
+                  sla: draft.sla,
+                  trainingRequired: draft.trainingRequired === 'yes',
+                  description: draft.description,
+                  solution: draft.solution,
+                  examples: splitExamples(draft.examples),
+                  updatedAt: new Date().toISOString(),
+                }
+              : d,
+          ),
+        );
+        if (res.success) {
+          message.success(t('defectLibrary.saved'));
+        } else {
+          message.warning(`${res.error?.message ?? '后端更新失败'}, 修改已在本地生效`);
+        }
+      } else {
+        const now = new Date().toISOString();
+        const created: DefectDetail = {
+          id: `defect-${Date.now()}`,
+          code: draft.code.trim().toUpperCase(),
+          name: draft.name.trim(),
+          nameEn: '',
+          category: draft.category,
+          severity: draft.severity,
+          description: draft.description,
+          descriptionEn: '',
+          examples: splitExamples(draft.examples),
+          solution: draft.solution,
+          solutionEn: '',
+          references: [],
+          count: 0,
+          isActive: true,
+          customDefect: true,
+          level: 2,
+          tags: [],
+          createdBy: 'current-user',
+          createdAt: now,
+          updatedAt: now,
+          sla: draft.sla,
+          trainingRequired: draft.trainingRequired === 'yes',
+        };
+        setDefects((prev) => [created, ...prev]);
+        message.success(t('defectLibrary.saved'));
+      }
+      setEditModal(false);
+      setEditing(null);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -552,10 +679,11 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
           setEditing(null);
         }}
         onOk={() => {
-          setEditModal(false);
-          setEditing(null);
-          message.success(t('defectLibrary.saved'));
-          load();
+          void handleSave();
+        }}
+        confirmLoading={saving}
+        okButtonProps={{
+          disabled: saving || !draft.name.trim() || (!editing && !draft.code.trim()),
         }}
         okText={t('defectLibrary.save')}
         cancelText={t('defectLibrary.cancel')}
@@ -565,16 +693,26 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
             <div>
               <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.code')}</div>
-              <Input defaultValue={editing?.code} disabled={!!editing} placeholder={t('defectLibrary.codePlaceholder')} />
+              <Input
+                value={draft.code}
+                onChange={(e) => setDraft({ ...draft, code: e.target.value })}
+                disabled={!!editing}
+                placeholder={t('defectLibrary.codePlaceholder')}
+              />
             </div>
             <div>
               <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.name')}</div>
-              <Input defaultValue={editing?.name} placeholder={t('defectLibrary.namePlaceholder')} />
+              <Input
+                value={draft.name}
+                onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+                placeholder={t('defectLibrary.namePlaceholder')}
+              />
             </div>
             <div>
               <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.category')}</div>
               <Select
-                defaultValue={editing?.category}
+                value={draft.category}
+                onChange={(v) => setDraft({ ...draft, category: v as DefectCategoryCode })}
                 options={DEFECT_CATEGORIES.map((c) => ({ value: c.code, label: c.name }))}
                 style={{ width: '100%' }}
               />
@@ -582,7 +720,8 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
             <div>
               <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.severity')}</div>
               <Select
-                defaultValue={editing?.severity}
+                value={draft.severity}
+                onChange={(v) => setDraft({ ...draft, severity: v as DefectSeverityLevel })}
                 options={[
                   { value: 'minor', label: t('defectLibrary.severity.minor') },
                   { value: 'major', label: t('defectLibrary.severity.major') },
@@ -593,12 +732,17 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
             </div>
             <div>
               <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.slaHours')}</div>
-              <Input type="number" defaultValue={editing?.sla ?? 24} />
+              <Input
+                type="number"
+                value={draft.sla}
+                onChange={(e) => setDraft({ ...draft, sla: Number(e.target.value) || 0 })}
+              />
             </div>
             <div>
               <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.trainingRequired')}</div>
               <Select
-                defaultValue={editing?.trainingRequired ? 'yes' : 'no'}
+                value={draft.trainingRequired}
+                onChange={(v) => setDraft({ ...draft, trainingRequired: v as 'yes' | 'no' })}
                 options={[
                   { value: 'yes', label: t('defectLibrary.yes') },
                   { value: 'no', label: t('defectLibrary.no') },
@@ -609,15 +753,23 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
           </div>
           <div>
             <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.description')}</div>
-            <Input.TextArea defaultValue={editing?.description} rows={2} />
+            <Input.TextArea
+              value={draft.description}
+              onChange={(e) => setDraft({ ...draft, description: e.target.value })}
+              rows={2}
+            />
           </div>
           <div>
             <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.solution')}</div>
-            <Input.TextArea defaultValue={editing?.solution} rows={2} />
+            <Input.TextArea
+              value={draft.solution}
+              onChange={(e) => setDraft({ ...draft, solution: e.target.value })}
+              rows={2}
+            />
           </div>
           <div>
             <div style={{ marginBottom: 'var(--space-1, 4px)', fontSize: 12 }}>{t('defectLibrary.field.examples')}</div>
-            <Input defaultValue={editing?.examples.join('；')} />
+            <Input value={draft.examples} onChange={(e) => setDraft({ ...draft, examples: e.target.value })} />
           </div>
         </Space>
       </Modal>

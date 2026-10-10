@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react'
 import type { ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { message, Typography } from 'antd'
+import { Typography, Tooltip } from 'antd'
 import { aiPlatformApi } from '../services/api/aiPlatformApi'
 import { DataTable } from '../components/common'
 import { qcImageAiApi } from '../services/api/qcImageAiApi'
@@ -465,18 +465,10 @@ export default function AIQCPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoRefresh])
 
-  // [v3.0.6.11-98 Wave3B P1] 确认质控/更新确认: 保存确认状态到本地 state + toast
-  //   (qcImageAiApi 无确认端点 — reviewResult 已随 -50 移除, 标注: 待后端确认接口)
-  const confirmQc = () => {
-    if (!selectedRecord) return
-    const now = new Date()
-    const timeStr = now.toISOString().replace('T', ' ').slice(0, 16)
-    const updated = { ...selectedRecord, confirmed: true, confirmedTime: timeStr }
-    setMergedData(prev => prev.map(d => d.id === selectedRecord.id ? { ...d, confirmed: true, confirmedTime: timeStr } : d))
-    setSelectedRecord(updated)
-    if (selectedRecord.confirmed) message.success(`已更新确认时间: ${timeStr}（本地记录）`)
-    else message.success(`已确认质控: ${selectedRecord.id}（本地记录, 待后端确认接口）`)
-  }
+  // [v3.0.6.11-98 Wave3B P1] 确认质控: 后端暂无确认端点 (qcImageAiApi 无 confirm/review 方法,
+  //   backend/src/modules/qc/image-ai.controller 仅 score / assess / assessments / stats)。
+  //   原实现为「本地改状态 + 成功 toast」的虚假成功, 已移除; 详情弹窗确认按钮改为
+  //   Tooltip + disabled, 待后端提供确认接口后再接入真实调用。
 
   // 筛选数据
   const filteredData = mergedData.filter(item => {
@@ -1629,22 +1621,28 @@ export default function AIQCPage() {
               >
                 {t('aiQcPage.close')}
               </button>
-              <button
-                onClick={confirmQc}
-                style={{
-                  flex: 1,
-                  padding: '10px 16px',
-                  borderRadius: 8,
-                  border: 'none',
-                  background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_DARK})`,
-                  color: WHITE,
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                }}
-              >
-                {selectedRecord.confirmed ? t('aiQcPage.updateConfirm') : t('aiQcPage.confirmQc')}
-              </button>
+              {/* 无后端确认端点 → 禁用 + Tooltip 说明 (无对应 i18n key, 沿用本文件既有的中文提示文案) */}
+              <Tooltip title="确认质控需要后端确认接口支持，当前暂未提供，按钮已停用">
+                <span style={{ flex: 1, display: 'block' }}>
+                  <button
+                    disabled
+                    style={{
+                      width: '100%',
+                      padding: '10px 16px',
+                      borderRadius: 8,
+                      border: 'none',
+                      background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_DARK})`,
+                      color: WHITE,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: 'not-allowed',
+                      opacity: 0.55,
+                    }}
+                  >
+                    {selectedRecord.confirmed ? t('aiQcPage.updateConfirm') : t('aiQcPage.confirmQc')}
+                  </button>
+                </span>
+              </Tooltip>
             </div>
           </div>
         </div>

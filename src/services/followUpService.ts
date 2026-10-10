@@ -10,6 +10,6 @@ export interface FollowUpData {
 
 export const followUpService = {
   async create(data: FollowUpData): Promise<ApiResponse<{ id: string }>> {
-    return api.post('/follow-up', data)
+    return api.post('/followups', data)
   },
 }

@@ -202,4 +202,9 @@ export const fhirApi = {
 
   token: (code: string, clientId: string) =>
     api.post<{ access_token: string; token_type: string; expires_in: number; scope: string }>('/fhir/r4/auth/token', { code, client_id: clientId }),
+
+  // ═══════════════════════════ Generic resource create ═════════════════════
+  // [G005] 通用资源创建 (创建资源弹窗): POST /fhir/r4/{type} — 后端 @Controller('fhir/r4')
+  createResource: (type: string, body: Record<string, unknown>) =>
+    api.post<Record<string, unknown>>(`/fhir/r4/${encodeURIComponent(type)}`, body),
 }

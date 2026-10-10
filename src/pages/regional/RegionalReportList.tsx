@@ -9,7 +9,7 @@ import {
   styles, COLORS,
   getStatusColor, getSeverityColor,
 } from './RegionalReportServiceWire'
-import { Select } from 'antd'
+import { Select, message } from 'antd'
 import type { TableColumnsType } from 'antd'
 import { regionalApi } from '../../services/api'
 import { DataTable } from '../../components/common/DataTable'
@@ -144,8 +144,8 @@ export const ConsultationList: React.FC<ConsultationListProps> = ({
   }
 
   const handleSubmitApply = async () => {
-    if (!applyForm.patientName.trim()) { alert(t('regionalReport.requiredPatientName')); return; }
-    if (!applyForm.applyReason.trim()) { alert(t('regionalReport.requiredApplyReason')); return; }
+    if (!applyForm.patientName.trim()) { message.warning(t('regionalReport.requiredPatientName')); return; }
+    if (!applyForm.applyReason.trim()) { message.warning(t('regionalReport.requiredApplyReason')); return; }
     setSubmitting(true)
     try {
       const res = await regionalApi.createConsultationRequest({
@@ -157,12 +157,12 @@ export const ConsultationList: React.FC<ConsultationListProps> = ({
         createDate: new Date().toISOString().split('T')[0],
       })
       if (res.success) {
-        alert(t('w9e.regionalReportList.applySubmittedId', { id: res.data?.id ?? '' }))
+        message.info(t('w9e.regionalReportList.applySubmittedId', { id: res.data?.id ?? '' }))
       } else {
-        alert(t('w9e.regionalReportList.submitFailedPrefix') + (res.error?.message ?? t('w9e.regionalReportList.apiUnavailable')))
+        message.error(t('w9e.regionalReportList.submitFailedPrefix') + (res.error?.message ?? t('w9e.regionalReportList.apiUnavailable')))
       }
     } catch {
-      alert(t('regionalReport.applySubmittedLocal'))
+      message.info(t('regionalReport.applySubmittedLocal'))
     } finally {
       handleCancelApply()
       setSubmitting(false)

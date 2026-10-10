@@ -13,7 +13,7 @@ import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { t } from '../i18n/appI18n'
 import { StatusTag } from '../components/common/StatusTag'
 import { DataTable } from '../components/common'
-import { Typography } from 'antd'
+import { Typography, Tooltip } from 'antd'
 
 const { Title } = Typography
 
@@ -31,6 +31,7 @@ const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }
   '待回复': { bg: '#f59e0b22', color: 'var(--color-warning-500)', label: '待回复' },
   '已回复': { bg: '#22c55e22', color: '#059669', label: '已回复' },
   '已拒绝': { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: '已拒绝' },
+  '已取消': { bg: 'var(--bg-deep)', color: 'var(--text-secondary)', label: '已取消' },
   '进行中': { bg: '#3b82f622', color: 'var(--color-primary-500)', label: '进行中' },
   '已完成': { bg: '#22c55e22', color: '#059669', label: '已完成' },
 }
@@ -360,7 +361,7 @@ export default function ConsultationPage() {
 
   const selected = consultations.find(c => c.id === selectedId)
 
-  const filters = ['全部', '待回复', '已回复', '已完成', '已拒绝']
+  const filters = ['全部', '待回复', '已回复', '已完成', '已拒绝', '已取消']
 
   const filtered = consultations.filter(c => {
     const matchFilter = filter === '全部' || c.status === filter
@@ -425,8 +426,24 @@ export default function ConsultationPage() {
     }
   }
 
-  const handleReject = () => {
-    showToast(t('consultation.rejected'), 'info')
+  // [fix] 拒绝会诊 → 后端 POST /consultations/:id/cancel (consultationApi.cancel), 成功后本地置为"已取消"
+  const [rejectingId, setRejectingId] = useState<string | null>(null)
+  const handleReject = async () => {
+    if (!selected) return
+    setRejectingId(selected.id)
+    try {
+      const res = await consultationApi.cancel(selected.id)
+      if (res.success) {
+        setConsultations(prev => prev.map(c => c.id === selected.id ? { ...c, status: '已取消' as const } : c))
+        showToast(t('consultation.rejected'), 'info')
+      } else {
+        showToast(res.error?.message ?? t('consultation.cancelFailed'), 'info')
+      }
+    } catch {
+      showToast(t('consultation.cancelFailed'), 'info')
+    } finally {
+      setRejectingId(null)
+    }
   }
 
   // [G005 Wave1B] 详情刷新: consultationApi.getById 合并最新字段 (失败保持列表数据)
@@ -523,11 +540,12 @@ export default function ConsultationPage() {
     window.print()
   }
 
+  // [fix] 评分: 后端无评价/评分端点 → 分数仅本地更新, 提示语如实标注"本地演示"
   const handleSubmitRating = () => {
     const total = ratingModalData.reduce((sum, item) => sum + item.score, 0)
     setQualityScore(Math.round(total / ratingModalData.length))
     setShowRatingModal(false)
-    showToast(t('consultation.ratingSubmitted'), 'success')
+    showToast(`${t('consultation.ratingSubmitted')}（本地演示 · 未上传后端）`, 'success')
   }
 
   // 录制控制
@@ -592,8 +610,37 @@ export default function ConsultationPage() {
     setVideoProgress(Math.max(0, Math.min(100, percent)))
   }
 
+  // [fix] 快照: 页面无真实 <video>/<canvas> 视频源 → 按钮禁用+Tooltip 说明;
+  // 若未来接入真实会话 (存在 video/canvas 元素) 则通过 canvas 真实截图为 PNG 并触发下载
   const handleSnapshot = () => {
-    showToast('快照已保存到: /captures/snapshot_' + new Date().toISOString().slice(0, 19).replace(/:/g, '-') + '.png', 'success')
+    const stamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-')
+    const downloadDataUrl = (dataUrl: string) => {
+      const a = document.createElement('a')
+      a.href = dataUrl
+      a.download = `snapshot_${stamp}.png`
+      a.click()
+      showToast(`快照已保存: ${a.download}`, 'success')
+    }
+    const video = document.querySelector<HTMLVideoElement>('video')
+    if (video && video.videoWidth > 0 && video.videoHeight > 0) {
+      const canvas = document.createElement('canvas')
+      canvas.width = video.videoWidth
+      canvas.height = video.videoHeight
+      const ctx = canvas.getContext('2d')
+      if (ctx) {
+        ctx.drawImage(video, 0, 0)
+        downloadDataUrl(canvas.toDataURL('image/png'))
+        return
+      }
+    }
+    const liveCanvas = document.querySelector<HTMLCanvasElement>('canvas')
+    if (liveCanvas) {
+      try {
+        downloadDataUrl(liveCanvas.toDataURL('image/png'))
+        return
+      } catch { /* 跨域画布无法导出 → 走下方提示 */ }
+    }
+    showToast('快照需要真实会话视频源，当前演示版本未接入', 'info')
   }
 
   const handlePlayArchive = (archive: RecordingArchive) => {
@@ -612,8 +659,18 @@ export default function ConsultationPage() {
     }
   }
 
+  // [fix] 下载录像: 存档为演示数据 (无真实媒体 URL) → 有 URL 时真实 <a download>, 否则如实提示不可下载
   const handleDownloadArchive = (archive: RecordingArchive) => {
-    showToast(`开始下载: ${archive.patientName}_${archive.recordTime.replace(/:/g, '-')}.mp4`, 'progress')
+    const url = (archive as RecordingArchive & { url?: string }).url
+    if (url) {
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${archive.patientName}_${archive.recordTime.replace(/:/g, '-')}.mp4`
+      a.click()
+      showToast(`开始下载: ${a.download}`, 'progress')
+      return
+    }
+    showToast('演示数据：录像文件未接入后端存储，无法下载', 'info')
   }
 
   const handleDeleteArchive = (archive: RecordingArchive) => {
@@ -1006,8 +1063,8 @@ export default function ConsultationPage() {
                           <button onClick={() => void handleAccept()} disabled={acceptingId === selected.id} style={{ padding: '8px 20px', background: SUCCESS, color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, opacity: acceptingId === selected.id ? 0.6 : 1 }}>
                             <CheckCircle size={15} />{acceptingId === selected.id ? t('consultation.starting') : t('consultation.accept')}
                           </button>
-                          <button onClick={handleReject} style={{ padding: '8px 20px', background: 'var(--bg-card)', color: DANGER, border: `1px solid ${DANGER}`, borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <X size={15} />{t('consultation.reject')}
+                          <button onClick={() => void handleReject()} disabled={rejectingId === selected.id} style={{ padding: '8px 20px', background: 'var(--bg-card)', color: DANGER, border: `1px solid ${DANGER}`, borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, opacity: rejectingId === selected.id ? 0.6 : 1 }}>
+                            <X size={15} />{rejectingId === selected.id ? t('consultation.cancelling') : t('consultation.reject')}
                           </button>
                         </>
                       )}
@@ -1571,27 +1628,33 @@ export default function ConsultationPage() {
                 </div>
               </div>
 
-              {/* 快照截图按钮 */}
-              <button
-                onClick={handleSnapshot}
-                style={{
-                  width: '100%',
-                  padding: '10px 16px',
-                  borderRadius: 8,
-                  background: 'var(--color-info-bg)',
-                  border: `1px solid ${ACCENT}`,
-                  color: ACCENT,
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 6,
-                }}
-              >
-                <Camera size={16} />{t('consultation.snapshot')}
-              </button>
+              {/* 快照截图按钮 (禁用 + Tooltip: 需接入真实会话视频源) */}
+              <Tooltip title="快照需要接入真实会话视频源后可用（当前为演示版本，无真实视频流）">
+                <span style={{ display: 'block', width: '100%' }}>
+                  <button
+                    onClick={handleSnapshot}
+                    disabled
+                    style={{
+                      width: '100%',
+                      padding: '10px 16px',
+                      borderRadius: 8,
+                      background: 'var(--color-info-bg)',
+                      border: `1px solid ${ACCENT}`,
+                      color: ACCENT,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: 'not-allowed',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6,
+                      opacity: 0.6,
+                    }}
+                  >
+                    <Camera size={16} />{t('consultation.snapshot')}
+                  </button>
+                </span>
+              </Tooltip>
             </div>
           </div>
 
@@ -1654,25 +1717,31 @@ export default function ConsultationPage() {
                         >
                           <Play size={11} />{t('consultation.play')}
                         </button>
-                        <button
-                          onClick={() => handleDownloadArchive(archive)}
-                          disabled={archive.status !== '可用'}
-                          style={{
-                            padding: '4px 10px',
-                            borderRadius: 4,
-                            background: archive.status === '可用' ? '#f0f7ff' : 'var(--bg-primary, #f8fafc)',
-                            border: `1px solid ${archive.status === '可用' ? ACCENT : BORDER}`,
-                            color: archive.status === '可用' ? ACCENT : GRAY,
-                            fontSize: 12,
-                            fontWeight: 600,
-                            cursor: archive.status === '可用' ? 'pointer' : 'not-allowed',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 'var(--space-1, 4px)',
-                          }}
-                        >
-                          <Download size={11} />{t('consultation.download')}
-                        </button>
+                        {/* 下载按钮: 演示存档无真实媒体 URL → 禁用 + Tooltip 如实说明 */}
+                        <Tooltip title="演示数据：录像文件未接入后端存储，无法下载">
+                          <span style={{ display: 'inline-flex' }}>
+                            <button
+                              onClick={() => handleDownloadArchive(archive)}
+                              disabled
+                              style={{
+                                padding: '4px 10px',
+                                borderRadius: 4,
+                                background: 'var(--bg-primary, #f8fafc)',
+                                border: `1px solid ${BORDER}`,
+                                color: GRAY,
+                                fontSize: 12,
+                                fontWeight: 600,
+                                cursor: 'not-allowed',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 'var(--space-1, 4px)',
+                                opacity: 0.6,
+                              }}
+                            >
+                              <Download size={11} />{t('consultation.download')}
+                            </button>
+                          </span>
+                        </Tooltip>
                         <button
                           onClick={() => handleDeleteArchive(archive)}
                           style={{
@@ -2081,44 +2150,56 @@ export default function ConsultationPage() {
               </div>
             </div>
 
-            {/* Actions */}
+            {/* Actions (快照/下载录像: 演示版本无真实视频源与媒体文件 → 禁用 + Tooltip 如实说明) */}
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-              <button
-                onClick={handleSnapshot}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: 8,
-                  background: 'var(--color-info-bg)',
-                  border: `1px solid ${ACCENT}`,
-                  color: ACCENT,
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                }}
-              >
-                <Camera size={14} />{t('consultation.snapshot')}
-              </button>
-              <button
-                onClick={() => handleDownloadArchive(selectedArchive)}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: 8,
-                  background: PRIMARY,
-                  border: 'none',
-                  color: WHITE,
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                }}
-              >
-                <Download size={14} />{t('consultation.downloadRecording')}
-              </button>
+              <Tooltip title="快照需要接入真实会话视频源后可用（当前为演示版本，无真实视频流）">
+                <span style={{ display: 'inline-flex' }}>
+                  <button
+                    onClick={handleSnapshot}
+                    disabled
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: 8,
+                      background: 'var(--color-info-bg)',
+                      border: `1px solid ${ACCENT}`,
+                      color: ACCENT,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: 'not-allowed',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      opacity: 0.6,
+                    }}
+                  >
+                    <Camera size={14} />{t('consultation.snapshot')}
+                  </button>
+                </span>
+              </Tooltip>
+              <Tooltip title="演示数据：录像文件未接入后端存储，无法下载">
+                <span style={{ display: 'inline-flex' }}>
+                  <button
+                    onClick={() => handleDownloadArchive(selectedArchive)}
+                    disabled
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: 8,
+                      background: PRIMARY,
+                      border: 'none',
+                      color: WHITE,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: 'not-allowed',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      opacity: 0.6,
+                    }}
+                  >
+                    <Download size={14} />{t('consultation.downloadRecording')}
+                  </button>
+                </span>
+              </Tooltip>
             </div>
           </div>
         </div>
@@ -2344,7 +2425,7 @@ export default function ConsultationPage() {
               <button onClick={() => { setShowDeleteModal(false); setDeleteTarget(null) }} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                 {t('consultation.cancel')}
               </button>
-              <button onClick={() => { setShowDeleteModal(false); showToast(`存档 ${deleteTarget.id} 已删除`, 'info'); setDeleteTarget(null) }} style={{ padding: '8px 20px', background: DANGER, color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+              <button onClick={() => { setShowDeleteModal(false); showToast(`演示数据：存档 ${deleteTarget.id} 删除未接入后端`, 'info'); setDeleteTarget(null) }} style={{ padding: '8px 20px', background: DANGER, color: WHITE, border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
                 {t('consultation.confirmDelete')}
               </button>
             </div>

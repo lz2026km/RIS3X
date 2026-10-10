@@ -34,6 +34,10 @@ export const FhirServerPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [usingDemo, setUsingDemo] = useState(false);
+  // [G005] 创建资源弹窗受控字段 (原为无 onChange 的受控外非受控输入, 输入被丢弃)
+  const [newResourceType, setNewResourceType] = useState('Patient');
+  const [newResourceBody, setNewResourceBody] = useState('');
+  const [creating, setCreating] = useState(false);
 
   const demoRows = (type: string) => Array.from({ length: 5 }, (_, i) => ({
     id: `demo-${i}`, resourceType: type,
@@ -62,7 +66,7 @@ export const FhirServerPage: React.FC = () => {
         entries = res.success ? (res.data?.entry ?? null) : null;
       } else {
         // Practitioner / Bundle 等无专用 api 方法 → 走通用 client (MSW 兜底)
-        const res = await api.get<{ entry?: { resource: any }[] }>(`/fhir/${type}`);
+        const res = await api.get<{ entry?: { resource: any }[] }>(`/fhir/r4/${type}`);
         entries = res.success ? (res.data?.entry ?? null) : null;
       }
       if (entries && entries.length > 0) {
@@ -106,7 +110,7 @@ export const FhirServerPage: React.FC = () => {
 
   const handleQuery = async () => {
     try {
-      const res = await api.get<any>(`/fhir/${resourceType}?${fhirQuery || '_count=5'}`);
+      const res = await api.get<any>(`/fhir/r4/${resourceType}?${fhirQuery || '_count=5'}`);
       if (res.success && res.data) {
         setQueryResult(res.data);
         message.success(t('fhirServer.queryDone'));
@@ -120,6 +124,34 @@ export const FhirServerPage: React.FC = () => {
   };
 
   const resourceTypes = ['Patient', 'Observation', 'DiagnosticReport', 'Practitioner', 'ImagingStudy', 'Bundle'];
+
+  // [G005] 创建 FHIR 资源: 解析 JSON 请求体 → POST /fhir/r4/{type} (fhirApi.createResource)
+  const handleCreateResource = async () => {
+    if (creating) return;
+    let parsed: Record<string, unknown>;
+    try {
+      const raw: unknown = JSON.parse(newResourceBody);
+      if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('invalid');
+      parsed = raw as Record<string, unknown>;
+    } catch {
+      message.error('JSON 请求体格式错误, 请检查后重试');
+      return;
+    }
+    setCreating(true);
+    try {
+      const res = await fhirApi.createResource(newResourceType, parsed);
+      if (res.success) {
+        message.success(t('fhirServer.resourceCreated'));
+        setSendModal(false);
+        setNewResourceBody('');
+        void loadResources(newResourceType);
+      } else {
+        message.error(res.error?.message || 'FHIR 资源创建失败');
+      }
+    } finally {
+      setCreating(false);
+    }
+  };
 
   return (
     <PageContainer padding={24}>
@@ -203,10 +235,10 @@ export const FhirServerPage: React.FC = () => {
           },
         ]}
       />
-      <Modal title={t('fhirServer.createResource')} open={sendModal} onCancel={() => setSendModal(false)} onOk={() => { message.success(t('fhirServer.resourceCreated')); setSendModal(false); }}>
+      <Modal title={t('fhirServer.createResource')} open={sendModal} confirmLoading={creating} onCancel={() => setSendModal(false)} onOk={() => { void handleCreateResource(); }}>
         <Form layout="vertical" size="small">
-          <Form.Item label={t('fhirServer.resourceType')}><Select options={resourceTypes.map(rt=>({value:rt,label:rt}))} /></Form.Item>
-          <Form.Item label={t('fhirServer.jsonBody')}><TextArea rows={8} placeholder='{"resourceType":"Patient","name":[{"family":"张","given":["伟"]}],...}' /></Form.Item>
+          <Form.Item label={t('fhirServer.resourceType')}><Select value={newResourceType} onChange={(v) => setNewResourceType(v)} options={resourceTypes.map(rt=>({value:rt,label:rt}))} /></Form.Item>
+          <Form.Item label={t('fhirServer.jsonBody')}><TextArea value={newResourceBody} onChange={e=>setNewResourceBody(e.target.value)} rows={8} placeholder='{"resourceType":"Patient","name":[{"family":"张","given":["伟"]}],...}' /></Form.Item>
         </Form>
       </Modal>
     </PageContainer>

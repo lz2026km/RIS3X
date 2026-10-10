@@ -565,6 +565,8 @@ export default function AppointmentPage() {
   // 右侧面板
   const [showForm, setShowForm] = useState(false);
   const [showRules, setShowRules] = useState(false);
+  // [G005] 预约规则面板设备搜索: 状态接入下方规则列表过滤
+  const [ruleSearch, setRuleSearch] = useState("");
   const [showBatchImport, setShowBatchImport] = useState(false);
 
   // 预约详情/修改
@@ -1651,7 +1653,8 @@ const borderGray = "var(--border-color)";
                   <div style={{ display: "flex", gap: 'var(--space-2, 8px)' }}>
                     <input
                       placeholder={t("apptPage.searchDevice")}
-                      onChange={() => {}}
+                      value={ruleSearch}
+                      onChange={(e) => setRuleSearch(e.target.value)}
                       style={{
                         flex: 1,
                         padding: "5px 8px",
@@ -1661,7 +1664,20 @@ const borderGray = "var(--border-color)";
                       }}
                     />
                   </div>
-                  {rules.map((rule) => {
+                  {rules
+                    .filter((rule) => {
+                      const kw = ruleSearch.trim().toLowerCase();
+                      if (!kw) return true;
+                      const device = initialModalityDevices.find(
+                        (d) => d.id === rule.deviceId,
+                      );
+                      return (
+                        (rule.deviceName ?? "").toLowerCase().includes(kw) ||
+                        (rule.deviceId ?? "").toLowerCase().includes(kw) ||
+                        (device?.modality ?? "").toLowerCase().includes(kw)
+                      );
+                    })
+                    .map((rule) => {
                     const device = initialModalityDevices.find(
                       (d) => d.id === rule.deviceId,
                     );
