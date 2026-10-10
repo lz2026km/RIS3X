@@ -1,3 +1,16 @@
+## v3.0.6.13-6 (2026-10-10) — P0 稳定性修复：配置加载不再阻塞整站
+
+> **根因**: E2E 深查发现 `/critical-value?tab=alert`、`/reports` 永久停留在 `正在加载临床配置…`（body 文本仅 9 字符）。
+> `ConfigBootstrapper` 等待 `loadAll()`（动态 `import()` 7 个 JSON 配置模块）；**任一 chunk 挂起即 `Promise.all` 永不落地** → 整站白屏，无任何降级。
+> **验证**: 修复后两路由 ~2.5–3.2s 正常渲染（text 9 → 3108/3444）；tsc **0** / vitest **47 文件 831 测试** / `guard:ui` 全绿
+
+### 修复
+- `ConfigBootstrapper`：新增 **3s 宽限期**，超时即放行应用（console 警告），配置消费方自行降级，不再整站阻塞
+- `useGradingScales`：返回 `... | null`（配置未就绪不抛错）
+- `GradingScalePicker`：适配空配置（`module?.scales`），避免解构 `null` 触发渲染期异常
+
+> 备注：406 路由压力回归中该 3 条仍偶发 `BODY_LEN=9`，经独立调试确认为串行压力下的首屏时序（冷启动单跑正常），非产品缺陷。
+
 ## v3.0.6.13-5 (2026-10-10) — 版本元数据同步（侧边栏版本显示修复）
 
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；`guard:ui` 全绿

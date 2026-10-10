@@ -12,8 +12,8 @@ const GradingScalePicker: React.FC<{
   value?: string;
   onChange?: (v: string) => void;
 }> = ({ scaleId, value, onChange }) => {
-  const { scales } = useGradingScales();
-  const scale = scales.find((s: any) => s.id === scaleId);
+  const module = useGradingScales();
+  const scale = module?.scales.find((s: any) => s.id === scaleId);
   if (!scale) return <Tag color="default">请先选择模板</Tag>;
   return (
     <Space>

@@ -14,6 +14,9 @@ const { Paragraph, Text } = Typography;
 
 type BootState = "pending" | "ready" | "error";
 
+/** [P0] 配置加载宽限期(ms): 防止配置模块异常/极慢导致整站卡在 loading 永不渲染 */
+const BOOT_GRACE_MS = 3000;
+
 export const ConfigBootstrapper: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, setState] = useState<BootState>("pending");
   const [err, setErr] = useState<Error | null>(null);
@@ -32,7 +35,20 @@ export const ConfigBootstrapper: React.FC<{ children: ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    void doLoad();
+    let done = false;
+    // 宽限计时器: 超时则放行 children, 避免配置加载阻塞整站
+    const timer = setTimeout(() => {
+      if (!done) {
+        console.warn("[ConfigBootstrapper] 配置加载超时, 已放行应用 (config-dependent consumers will handle)");
+        setState("ready");
+      }
+    }, BOOT_GRACE_MS);
+    void (async () => {
+      await doLoad();
+      done = true;
+      clearTimeout(timer);
+    })();
+    return () => clearTimeout(timer);
   }, []);
 
   if (state === "ready") return <>{children}</>;

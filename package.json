@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.13-5",
-  "description": "G005 Radiology RIS v3.0.6.13-5 - Version Source Sync (env/appInfo)",
+  "version": "3.0.6.13-6",
+  "description": "G005 Radiology RIS v3.0.6.13-6 - P0 Config Bootstrap Grace Period (no app-wide hang)",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",
