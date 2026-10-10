@@ -11,6 +11,7 @@ import { t } from '../i18n/appI18n';
 import { StatCard, StatCardGrid } from '../components/common/StatCard';
 import { ActionButton } from '../components/common/ActionButton';
 import { ErrorBanner } from '../components/feedback';
+import { PageContainer } from "../components/common";
 
 const SAMPLE_FACTS = [
   { studyId: 'S-001', modality: 'CT', priority: 'critical', patientType: '急诊', age: 65, waitingMinutes: 5, criticalFinding: true },
@@ -122,7 +123,7 @@ export default function RoutingRulePage() {
   const simMatched = results.reduce((s, r) => s + r.matched.length, 0);
 
   return (
-    <div style={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', background: 'var(--bg-card)' }}>
+    <PageContainer background="none" maxWidth="fluid" padding={0} minHeight="auto" style={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', background: 'var(--bg-card)' }}>
       <header style={{ background: 'linear-gradient(135deg,#7c3aed 0%,#ec4899 100%)', color: '#fff', padding: '14px 24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <GitBranch size={20} />
@@ -189,6 +190,6 @@ export default function RoutingRulePage() {
           </div>
         </aside>
       </div>
-    </div>
+    </PageContainer>
   );
 }

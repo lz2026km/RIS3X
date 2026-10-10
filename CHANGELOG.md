@@ -1,3 +1,15 @@
+## v3.0.6.13-11 (2026-10-10) — 排版密度（W-C）
+
+> **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；`guard:ui` 全绿
+
+### 排版/密度整改
+- **PageContainer 收养**：91 路由页根壳 `<div style={{padding}}>` → `<PageContainer>`（裸 div 根壳 132→41）；viewer 全幅页豁免
+- **标题体系**：122 处裸 `<h3>/<h4>/<h5>` → `Typography.Title`（6 文件：QCPage 51、SchedulePage 24、SelfServicePortal 20、ConsultationPage 18、WorklistPage 8、AIQCPage 1）；移除内联 fontSize/fontWeight/color
+- **Card 嵌套**：38 处 Card-in-Card → `type="inner"` 或 `<div>`（10 文件）
+- **Modal/Drawer 宽度**：212 处归一至 4 档标准（420 确认/560 表单/720 详情/960 编辑器），131 文件
+- **宽表省略号**：`DataTable` 新增 `applyDefaultEllipsis`，string 列默认 `ellipsis: {showTitle:true}`（无 render/ellipsis 的 string dataIndex 列自动截断+Tooltip）
+- 修复 h3→Title 转换引入的 `} }}>` 多余括号（QCPage 51 处、WorklistPage 21 处）
+
 ## v3.0.6.13-10 (2026-10-10) — a11y + 暗色主题 + loading + 错误重试 + 组件表格迁移（W-B）
 
 > **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；`guard:ui` 全绿（hex 降至 5,464）

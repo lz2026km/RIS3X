@@ -483,7 +483,7 @@ const CriticalValueCenterPage: React.FC = () => {
         open={detailOpen}
         onCancel={() => setDetailOpen(false)}
         footer={null}
-        width={520}
+        width={560}
       >
         {detailLoading && <div className="text-xs text-gray-400 py-3">{t('criticalCenter.detailLoading')}</div>}
         {!detailLoading && detailTarget && (
@@ -527,7 +527,7 @@ const CriticalValueCenterPage: React.FC = () => {
         confirmLoading={detecting}
         okText={t('criticalCenter.triggerDetect')}
         cancelText={t('criticalCenter.cancel')}
-        width={480}
+        width={420}
       >
         <div className="space-y-3 py-1">
           <div>
@@ -559,7 +559,7 @@ const CriticalValueCenterPage: React.FC = () => {
         confirmLoading={closing}
         okText={t('criticalCenter.submitCloseLoop')}
         cancelText={t('criticalCenter.cancel')}
-        width={480}
+        width={420}
       >
         {closeTarget && (
           <div className="space-y-3 py-1">
@@ -702,7 +702,7 @@ const CriticalValueCenterPage: React.FC = () => {
         confirmLoading={ruleSaving}
         okText={t('criticalCenter.save')}
         cancelText={t('criticalCenter.cancel')}
-        width={520}
+        width={560}
       >
         <div className="space-y-3 py-1">
           <div>

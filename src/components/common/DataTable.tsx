@@ -128,6 +128,29 @@ function applyNumericAlign<RecordType extends object>(
   }) as TableColumnsType<RecordType>;
 }
 
+/** [W-C3] 为无 render / ellipsis 的字符串列补齐默认 ellipsis (超长省略 + tooltip), 递归处理分组列 */
+function applyDefaultEllipsis<RecordType extends object>(
+  columns: TableColumnsType<RecordType>,
+): TableColumnsType<RecordType> {
+  return columns.map((col) => {
+    const anyCol = col as TableColumnType<RecordType> & {
+      children?: TableColumnsType<RecordType>;
+    };
+    if (Array.isArray(anyCol.children)) {
+      const next: TableColumnType<RecordType> & { children?: TableColumnsType<RecordType> } = { ...anyCol };
+      next.children = applyDefaultEllipsis(anyCol.children);
+      return next;
+    }
+    if (anyCol.render !== undefined || anyCol.ellipsis !== undefined) return col;
+    const dataIndex = anyCol.dataIndex;
+    if (typeof dataIndex !== "string" || dataIndex.length === 0) return col;
+    if (isNumericColumn(anyCol)) return col;
+    const next: TableColumnType<RecordType> & { children?: TableColumnsType<RecordType> } = { ...anyCol };
+    next.ellipsis = { showTitle: true };
+    return next;
+  }) as TableColumnsType<RecordType>;
+}
+
 function getColumnValue(row: object, dataIndex: unknown): unknown {
   if (dataIndex === undefined || dataIndex === null) return undefined;
   const path = Array.isArray(dataIndex) ? dataIndex : String(dataIndex).split(".");
@@ -249,7 +272,7 @@ export function DataTable<RecordType extends object>({
     ? (columnConfig.visibleColumns as unknown as TableColumnsType<RecordType>)
     : columns;
   const effectiveColumns = useMemo(
-    () => applyNumericAlign(baseColumns, !disableAutoNumericAlign),
+    () => applyDefaultEllipsis(applyNumericAlign(baseColumns, !disableAutoNumericAlign)),
     [baseColumns, disableAutoNumericAlign],
   );
   // [W14-UX] 右键上下文菜单

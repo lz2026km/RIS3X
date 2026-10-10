@@ -2538,7 +2538,7 @@ export default function ReportWritePage() {
         open={showSubmit}
         onCancel={() => setShowSubmit(false)}
         footer={null}
-        width={580}
+        width={560}
         destroyOnHidden
       >
         {conflicts.length > 0 && (
@@ -2649,7 +2649,7 @@ export default function ReportWritePage() {
         open={printOpen}
         title={<Space><Printer className="w-4 h-4" /><span>{t("reportWrite.selectPrintTemplate")}</span></Space>}
         onCancel={() => setPrintOpen(false)}
-        width={520}
+        width={560}
         destroyOnHidden
         footer={
           <div className="flex justify-end gap-2">
@@ -2744,7 +2744,7 @@ export default function ReportWritePage() {
         title={t("w9a.reportWrite.copyPrevTitle", { id: prevReport?.reportId ?? prevReport?.id ?? '', modality: prevReport?.modality ?? '', bodyPart: prevReport?.bodyPart ?? '' })}
         onCancel={() => setPrevCopyOpen(false)}
         footer={null}
-        width={640}
+        width={720}
         destroyOnHidden
       >
         {prevReport && (
@@ -2922,7 +2922,7 @@ function AiDraftConfirmModal({ draft, currentText, editMode, editText, actionLoa
       title={<Space><Sparkles className="w-4 h-4" style={{ color: '#7c3aed' }} /><span>{t("reportWrite.aiDraftConfirm")}</span><Tag color="purple">{draft.style}</Tag><Tag color="blue">{t("reportWrite.confidence")} {(draft.confidence * 100).toFixed(0)}%</Tag></Space>}
       open
       onCancel={onDiscard}
-      width={900}
+      width={960}
       destroyOnHidden
       footer={
         <div className="flex justify-between items-center">
@@ -3231,7 +3231,7 @@ function TemplateLibraryModal({ open, templates, phrases, loading, favIds, recen
       open={open}
       onCancel={onClose}
       footer={null}
-      width={900}
+      width={960}
       destroyOnHidden
     >
       <div className="pt-2 space-y-3">

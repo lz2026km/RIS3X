@@ -901,7 +901,7 @@ function EquipmentTab() {
       </Modal>
 
       {/* [G005 W4B] 质控项详情抽屉 (GET /equipment-qc/items/:id) */}
-      <Drawer title={itemDetail ? `${t('w4b.eqc.detailTitle')} · ${itemDetail.id}` : t('w4b.eqc.detailTitle')} open={itemDetailOpen} onClose={() => setItemDetailOpen(false)} width={520}>
+      <Drawer title={itemDetail ? `${t('w4b.eqc.detailTitle')} · ${itemDetail.id}` : t('w4b.eqc.detailTitle')} open={itemDetailOpen} onClose={() => setItemDetailOpen(false)} width={560}>
         {itemDetailLoading ? (
           <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}><Spin /></div>
         ) : itemDetail ? (

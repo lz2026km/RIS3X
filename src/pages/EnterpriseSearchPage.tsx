@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { SearchX } from 'lucide-react'
 import { ActionButton, ExportButton } from '../components/common'
 import { t } from '../i18n/appI18n'
+import { PageContainer } from "../components/common";
 
 const { Title } = Typography
 
@@ -115,7 +116,7 @@ export default function EnterpriseSearchPage() {
   const legacyCount = apiResults.length;
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', maxWidth: 1200, margin: '0 auto' }}>
+    <PageContainer maxWidth="narrow" padding="var(--space-6, 24px)">
       <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Title level={4} style={{ margin: 0 }}>
           <Search style={{ marginRight: 'var(--space-2, 8px)', color: 'var(--color-primary-800)' }} />
@@ -290,6 +291,6 @@ export default function EnterpriseSearchPage() {
           )}
         </>
       )}
-    </div>
+    </PageContainer>
   );
 }

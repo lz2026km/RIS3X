@@ -305,7 +305,7 @@ export const DentalSchedulePage: React.FC = () => {
           </Row>
         </>},
       ]} />
-      <Modal title={t('dentalSchedule.newAppt')} open={createModal} onCancel={()=>{setCreateModal(false);form.resetFields();}} onOk={handleCreateAppt} confirmLoading={submitting} width={520}>
+      <Modal title={t('dentalSchedule.newAppt')} open={createModal} onCancel={()=>{setCreateModal(false);form.resetFields();}} onOk={handleCreateAppt} confirmLoading={submitting} width={560}>
         <Form form={form} layout="vertical" size="small" initialValues={{ date: null, time: '09:00', type: '初诊', dentist: '王医生', chairId: undefined, patientId: undefined }}>
           <Form.Item label={t('dentalSchedule.colPatient')} name="patientId" rules={[{ required: true, message: t('dentalSchedule.selectPatientRequired') }]}>
             <Select options={patients} placeholder={t('dentalSchedule.selectPatient')} />
@@ -333,7 +333,7 @@ export const DentalSchedulePage: React.FC = () => {
         open={!!apptDetail}
         onCancel={() => setApptDetail(null)}
         footer={<Button onClick={() => setApptDetail(null)}>{t("w3b.close")}</Button>}
-        width={520}
+        width={560}
       >
         <Spin spinning={apptDetailLoading}>
           {apptDetail && (

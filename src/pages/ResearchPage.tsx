@@ -21,6 +21,7 @@ import { DataTable } from '../components/common/DataTable'
 import { researchApi, type ResearchProjectDto, type ResearchLabelDto, type CohortDefinitionDto as CohortDefinition, type IRBSubmissionDto as IRBSubmission, type ExportAuditDto as ExportAudit, type DataQualityScoreDto as DataQualityScore } from '../services/api/researchApi'
 import { researchExportApi } from '../services/api/researchExportApi'
 import { t } from '../i18n/appI18n'
+import { PageContainer } from "../components/common";
 
 // ==================== 类型定义 ====================
 type TabKey = 'projects' | 'extract' | 'labels' | 'export' | 'deid' | 'cohort' | 'irb' | 'exportPipeline' | 'dataQuality'
@@ -309,7 +310,7 @@ function ProjectsTab() {
           </div>
         </div>
       </Modal>
-      <Modal open={showDetailModal} onClose={() => setShowDetailModal(false)} title={t('researchPage.projectDetail')} width={640}>        {detailProject && (
+      <Modal open={showDetailModal} onClose={() => setShowDetailModal(false)} title={t('researchPage.projectDetail')} width={720}>        {detailProject && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5, 20px)' }}>
             <div style={{ background: COLORS.bgGray, padding: 'var(--space-4, 16px)', borderRadius: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-3, 12px)' }}><span style={{ fontSize: 18, fontWeight: 700, color: COLORS.textPrimary }}>{detailProject.name}</span><StatusTag status={projectStatusKey(detailProject.status)}>{detailProject.status}</StatusTag></div>
@@ -526,14 +527,14 @@ function LabelsTab() {
         <div style={{ fontSize: 12, color: COLORS.textSecondary }}><p style={{ marginBottom: 'var(--space-2, 8px)' }}>{t('researchPage.currentExtracted')}</p><p>{t('researchPage.labelHelp')}</p><p style={{ marginTop: 'var(--space-2, 8px)', color: COLORS.primary, fontWeight: 600 }}>{t('researchPage.annotatedPrefix')}{annotatedCount}{t('researchPage.annotatedSuffix')}{Object.entries(annotatedLabels).map(([name, cnt]) => `· ${name} ${cnt}条`).join('')}</p></div>
         <div style={{ marginTop: 'var(--space-4, 16px)', display: 'flex', gap: 'var(--space-3, 12px)' }}><button onClick={() => setShowBatchModal(true)} style={{ padding: '10px 16px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>{t('researchPage.batchAnnotate')}</button><button onClick={() => setShowCatalogModal(true)} style={{ padding: '10px 16px', background: COLORS.bgWhite, color: COLORS.primary, border: '1px solid ' + COLORS.primary, borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>{t('researchPage.viewAnnotatedCatalog')}</button></div>
       </div>
-      <Modal open={showBatchModal} onClose={() => setShowBatchModal(false)} title={t('researchPage.batchAnnotateTitle')} width={440}>
+      <Modal open={showBatchModal} onClose={() => setShowBatchModal(false)} title={t('researchPage.batchAnnotateTitle')} width={420}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
           <div style={{ padding: 'var(--space-3, 12px)', background: COLORS.primaryLighter, borderRadius: 8, fontSize: 12, color: COLORS.primary }}>{t('researchPage.batchAnnotateHint')}</div>
           <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>{t('researchPage.selectLabel')}</label><Select style={{ width: '100%' }} value={batchLabelId} onChange={(v) => setBatchLabelId(v)} options={[{ value: '', label: t('researchPage.selectLabelPlaceholder') }, ...labels.map(l => ({ value: l.id, label: `${l.name}（${l.type}）` }))]} /></div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-3, 12px)', marginTop: 'var(--space-2, 8px)' }}><button onClick={() => setShowBatchModal(false)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>{t('researchPage.cancel')}</button><button onClick={() => void handleBatchAnnotate()} disabled={!batchLabelId} style={{ padding: '10px 20px', background: batchLabelId ? COLORS.primary : COLORS.bgGray, color: batchLabelId ? 'var(--text-inverse)' : COLORS.textLight, border: 'none', borderRadius: 8, cursor: batchLabelId ? 'pointer' : 'not-allowed', fontSize: 14, fontWeight: 600 }}>{t('researchPage.confirmAnnotate')}</button></div>
         </div>
       </Modal>
-      <Modal open={showCatalogModal} onClose={() => setShowCatalogModal(false)} title={t('researchPage.annotatedCatalog')} width={520}>
+      <Modal open={showCatalogModal} onClose={() => setShowCatalogModal(false)} title={t('researchPage.annotatedCatalog')} width={560}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2, 8px)' }}>
           {Object.keys(annotatedLabels).length === 0 ? <div style={{ padding: 'var(--space-6, 24px)', textAlign: 'center', color: COLORS.textLight, fontSize: 12 }}>{t('researchPage.noCatalog')}</div> : Object.entries(annotatedLabels).map(([name, cnt]) => (
             <div key={name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: COLORS.bgGray, borderRadius: 8 }}>
@@ -543,7 +544,7 @@ function LabelsTab() {
           ))}
         </div>
       </Modal>
-      <Modal open={showAddModal} onClose={() => setShowAddModal(false)} title={t('researchPage.addCustomLabel')} width={440}>
+      <Modal open={showAddModal} onClose={() => setShowAddModal(false)} title={t('researchPage.addCustomLabel')} width={420}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
           <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>{t('researchPage.labelName')}</label><input type="text" value={newLabel.name} onChange={e => setNewLabel({ ...newLabel, name: e.target.value })} placeholder={t('researchPage.labelNamePlaceholder')} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} /></div>
           <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>{t('researchPage.thLabelType')}</label><div style={{ display: 'flex', gap: 'var(--space-2, 8px)' }}>{(['诊断', '部位', '特征'] as LabelType[]).map(type => (<button key={type} onClick={() => setNewLabel({ ...newLabel, type })} style={{ padding: '8px 16px', background: newLabel.type === type ? getLabelTypeColor(type) : COLORS.bgGray, color: newLabel.type === type ? 'var(--text-inverse)' : COLORS.textSecondary, border: '1px solid ' + (newLabel.type === type ? getLabelTypeColor(type) : COLORS.border), borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>{type}</button>))}</div></div>
@@ -657,7 +658,7 @@ function ExportTab() {
           ]}
         />
       </div>
-      <Modal open={showPermissionModal} onClose={() => setShowPermissionModal(false)} title={t('researchPage.exportPermMgmt')} width={500}>
+      <Modal open={showPermissionModal} onClose={() => setShowPermissionModal(false)} title={t('researchPage.exportPermMgmt')} width={560}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5, 20px)' }}>
           <div style={{ padding: 'var(--space-4, 16px)', background: COLORS.warningLight, borderRadius: 8, border: '1px solid ' + COLORS.warning }}><div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-2, 8px)' }}><AlertCircle size={16} color={COLORS.warning} /><span style={{ fontSize: 12, fontWeight: 700, color: COLORS.warning }}>{t('researchPage.permHint')}</span></div><div style={{ fontSize: 12, color: COLORS.textSecondary }}>{t('researchPage.permWarning')}</div></div>
           <div><div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 'var(--space-3, 12px)' }}>{t('researchPage.allowedFormats')}</div><div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>{[{ key: 'allowCsv', label: t('researchPage.fmtCsv'), desc: t('researchPage.fmtCsvDesc') }, { key: 'allowJson', label: t('researchPage.fmtJson'), desc: t('researchPage.fmtJsonDesc') }, { key: 'allowDicom', label: t('researchPage.fmtDicom'), desc: t('researchPage.fmtDicomDesc') }].map(item => (<label key={item.key} style={{ display: 'flex', alignItems: 'center', padding: 'var(--space-3, 12px)', background: COLORS.bgGray, borderRadius: 8, cursor: 'pointer' }}><Checkbox checked={exportPermissions[item.key as keyof typeof exportPermissions] as boolean} onChange={e => setExportPermissions({ ...exportPermissions, [item.key]: e.target.checked })} style={{ marginRight: 'var(--space-3, 12px)' }} /><div><div style={{ fontSize: 12, fontWeight: 600, color: COLORS.textPrimary }}>{item.label}</div><div style={{ fontSize: 12, color: COLORS.textSecondary }}>{item.desc}</div></div></label>))}</div></div>
@@ -955,7 +956,7 @@ function IRBWorkflowTab() {
           </div>
         </div>
       </div>
-      <Modal open={showForm} onClose={() => setShowForm(false)} title={t('researchPage.newIrb')} width={500}>
+      <Modal open={showForm} onClose={() => setShowForm(false)} title={t('researchPage.newIrb')} width={560}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4, 16px)' }}>
           <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{t('researchPage.thProjectName')}</label><input style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} value={form.projectName} onChange={e => setForm({ ...form, projectName: e.target.value })} /></div>
           <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{t('researchPage.thPi')}</label><input style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} value={form.pi} onChange={e => setForm({ ...form, pi: e.target.value })} /></div>
@@ -963,7 +964,7 @@ function IRBWorkflowTab() {
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2, 8px)' }}><button onClick={() => setShowForm(false)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer' }}>{t('researchPage.cancel')}</button><button onClick={submitIRB} style={{ padding: '10px 20px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600 }}>{t('researchPage.submitApplication')}</button></div>
         </div>
       </Modal>
-      <Modal open={!!viewing} onClose={() => setViewing(null)} title={t('researchPage.irbDetail')} width={480}>
+      <Modal open={!!viewing} onClose={() => setViewing(null)} title={t('researchPage.irbDetail')} width={420}>
         {viewing && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
             <div style={{ padding: 'var(--space-3, 12px)', background: COLORS.bgGray, borderRadius: 8 }}>
@@ -1269,7 +1270,7 @@ export default function ResearchPage() {
   ]
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: COLORS.bgGray,}}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" style={{ background: COLORS.bgGray }}>
       {/* [G005 W1-C] 演示数据（后端待实现）: 后端无 /research controller, 接口调用失败时页面展示空态/本地 fallback */}
       <div style={{ background: 'var(--color-warning-bg)', color: 'var(--color-warning-700)', fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 6, border: '1px solid var(--color-warning-border)', marginBottom: 'var(--space-4, 16px)' }}>
         {t('researchPage.demoBanner')}
@@ -1297,6 +1298,6 @@ export default function ResearchPage() {
         {activeTab === 'dataQuality' && <DataQualityTab />}
       </div>
       <ToastContainer />
-    </div>
+    </PageContainer>
   )
 }

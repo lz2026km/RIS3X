@@ -348,7 +348,7 @@ export const ReportTemplateManagerPage: React.FC = () => {
         </Form>
       </Modal>
 
-      <Modal title={t('reportTpl.snippetModalTitle')} open={snippetModal} onCancel={() => setSnippetModal(false)} onOk={() => void handleSnippetSave()} width={480}>
+      <Modal title={t('reportTpl.snippetModalTitle')} open={snippetModal} onCancel={() => setSnippetModal(false)} onOk={() => void handleSnippetSave()} width={420}>
         <Form form={snippetForm} layout="vertical" size="small" initialValues={{ category: '通用' }}>
           <Form.Item label={t('reportTpl.snippetName')} name="name" rules={[{ required: true, message: t('reportTpl.snippetNameRequired') }]}>
             <Input placeholder="如: 正常所见 - 胸部" />

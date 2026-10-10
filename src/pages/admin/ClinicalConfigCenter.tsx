@@ -205,14 +205,14 @@ const ClinicalConfigCenter: React.FC = () => {
                 {data === null ? (
                   <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("clinicalConfig.moduleNotLoaded")} />
                 ) : sample !== null && sample !== undefined ? (
-                  <Card size="small" title={t("clinicalConfig.summarySample")}>
+                  <Card type="inner" size="small" title={t("clinicalConfig.summarySample")}>
                     <pre style={{ background: "var(--bg-primary, #f8fafc)", padding: 'var(--space-3, 12px)', borderRadius: 4, overflow: "auto", maxHeight: 240 }}>
                       {JSON.stringify(sample, null, 2)}
                     </pre>
                   </Card>
                 ) : <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("clinicalConfig.noData")} />}
 
-                <Card
+                <Card type="inner"
                   size="small"
                   title={
                     <Space>

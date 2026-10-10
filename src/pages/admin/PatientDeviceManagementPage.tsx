@@ -379,7 +379,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
         open={!!patientModal.type}
         onCancel={() => setPatientModal({ type: null, data: {} })}
         onOk={handlePatientSave}
-        width={600}
+        width={560}
       >
         <Form layout="vertical" size="small">
           <Row gutter={8}>
@@ -400,7 +400,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
         open={deviceModal.type === 'maintain'}
         onCancel={() => setDeviceModal({ type: null, data: {} })}
         onOk={() => handleDeviceMaintain(deviceModal.data.id, '定期维护')}
-        width={400}
+        width={420}
       >
         <Alert title={t('patientDevice.maintenanceAlert')} type="info" showIcon style={{ marginBottom: 'var(--space-2, 8px)' }} />
         <p>{t('patientDevice.device')}: {deviceModal.data.name} ({deviceModal.data.id})</p>

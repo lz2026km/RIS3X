@@ -18,6 +18,7 @@ import { benchmarkApi } from '../../services/api'
 import { t } from '../../i18n/appI18n'
 import { seededInt, seededUnit } from '../../utils/seededRandom'
 import { DataTable, StatCard, StatCardGrid } from "../../components/common"
+import { PageContainer } from "../../components/common";
 
 const { Title } = Typography
 
@@ -307,7 +308,7 @@ export default function BenchmarkPageV2() {
   }
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', maxWidth: 1600, margin: '0 auto' }}>
+    <PageContainer maxWidth="full" padding="var(--space-5, 20px)">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
         <Space>
           <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg, var(--color-primary-500), #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -394,6 +395,6 @@ export default function BenchmarkPageV2() {
           />
         </Card>
       </Spin>
-    </div>
+    </PageContainer>
   )
 }

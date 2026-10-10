@@ -336,7 +336,7 @@ export default function ExportApprovalPage() {
         confirmLoading={submitting}
         onOk={() => void handleCreate()}
         onCancel={() => setCreateOpen(false)}
-        width={480}
+        width={420}
         styles={modalStyle}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 'var(--space-2, 8px)' }}>
@@ -370,7 +370,7 @@ export default function ExportApprovalPage() {
         confirmLoading={submitting}
         onOk={() => void confirmReject()}
         onCancel={() => { setRejectOpen(false); setRejectId(null); setRejectReason('') }}
-        width={440}
+        width={420}
         okButtonProps={{ style: { background: 'var(--color-error-500)', borderColor: 'var(--color-error-500)' } }}
         styles={modalStyle}
       >

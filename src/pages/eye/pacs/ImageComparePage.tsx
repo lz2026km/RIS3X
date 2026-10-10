@@ -16,6 +16,7 @@ import { ErrorBanner } from "@/components/feedback";
 import { ActionButton, ExportButton } from "@/components/common";
 import { t } from "../../../i18n/appI18n";
 import { DataTable } from "../../../components/common";
+import { PageContainer } from "../../../components/common";
 
 const ImageComparePage: React.FC = () => {
   const [pairIdx, setPairIdx] = useState(0);
@@ -77,13 +78,7 @@ const ImageComparePage: React.FC = () => {
   };
 
   return (
-    <div
-      style={{
-        padding: 'var(--space-4, 16px)',
-        background: "var(--bg-card)",
-        minHeight: "calc(100vh - 56px)",
-      }}
-    >
+    <PageContainer maxWidth="full" padding="var(--space-4, 16px)" minHeight="calc(100vh - 56px)" style={{ background: "var(--bg-card)" }}>
       <Row gutter={12}>
         <Col span={24} style={{ marginBottom: 'var(--space-3, 12px)' }}>
           <Space>
@@ -250,7 +245,7 @@ const ImageComparePage: React.FC = () => {
           </Card>
         </Col>
       </Row>
-    </div>
+    </PageContainer>
   );
 };
 export default ImageComparePage;

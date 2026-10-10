@@ -15,6 +15,7 @@ import type { VisitState } from '../../services/api/integrationApi';
 import { LoadingBanner, ErrorBanner, AppEmpty } from '../../components/feedback';
 import { ActionButton, DataTable, ExportButton } from "../../components/common";
 import { t } from '../../i18n/appI18n';
+import { PageContainer } from "../../components/common";
 
 const STATE_STEPS = [
   { key: 'registered', titleKey: 'visitDetail.state.registered', color: 'default' },
@@ -73,7 +74,7 @@ export const VisitDetailPage: React.FC = () => {
   const currentIdx = visit ? (STATE_MAP[visit.status as keyof typeof STATE_MAP] ?? 0) : 0;
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" style={{ background: 'var(--bg-primary)' }}>
       <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <GitBranch size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('visitDetail.title')}</span>
@@ -143,7 +144,7 @@ export const VisitDetailPage: React.FC = () => {
           </Card>
         </Space>
       )}
-    </div>
+    </PageContainer>
   );
 };
 

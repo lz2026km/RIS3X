@@ -490,11 +490,7 @@ export const QualityScorePanel: React.FC<{
                     );
                     return (
                       <Col xs={24} sm={12} md={8} key={d.key}>
-                        <Card
-                          size="small"
-                          style={{ borderTop: `3px solid ${CATEGORY_META[d.category].color}` }}
-                          data-testid={`dim-${d.key}`}
-                        >
+                        <div data-testid={`dim-${d.key}`} style={{ padding: 12, borderTop: `3px solid ${CATEGORY_META[d.category].color}` }}>
                           <Space style={{ width: '100%', justifyContent: 'space-between' }}>
                             <Space>
                               <span style={{ fontSize: 20 }}>{d.icon}</span>
@@ -523,7 +519,7 @@ export const QualityScorePanel: React.FC<{
                           <div style={{ fontSize: 12, color: 'var(--color-info-600)', marginTop: 'var(--space-1, 4px)' }}>
                             {t('qualityScore.rule')} {d.passingRule}
                           </div>
-                        </Card>
+                        </div>
                       </Col>
                     );
                   })}
@@ -570,13 +566,7 @@ export const QualityScorePanel: React.FC<{
                 <Row gutter={[12, 12]}>
                   {thresholds.map((th) => (
                     <Col xs={12} sm={6} key={th.grade}>
-                      <Card
-                        size="small"
-                        style={{
-                          borderTop: `4px solid ${th.color}`,
-                          background: th.bg,
-                        }}
-                      >
+                      <div style={{ padding: 12, borderTop: `4px solid ${th.color}`, background: th.bg }}>
                         <div style={{ fontSize: 30, fontWeight: 800, color: th.color }}>
                           {th.grade}
                         </div>
@@ -594,7 +584,7 @@ export const QualityScorePanel: React.FC<{
                             {th.bonusEligible ? t('qualityScore.bonus') : t('qualityScore.noBonus')}
                           </Tag>
                         </Space>
-                      </Card>
+                      </div>
                     </Col>
                   ))}
                 </Row>

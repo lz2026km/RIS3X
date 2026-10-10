@@ -252,7 +252,7 @@ export default function ChargeItemPage() {
         confirmLoading={saving}
         onOk={() => void handleSave()}
         onCancel={() => setEditorOpen(false)}
-        width={480}
+        width={420}
         styles={modalStyle}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 'var(--space-2, 8px)' }}>

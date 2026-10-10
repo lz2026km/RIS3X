@@ -39,6 +39,7 @@ import type {
 } from '../../services/api/deviceOpsApi'
 import { t } from '../../i18n/appI18n'
 import { severityToAntd, toneToAntd } from '../../theme/statusTokens'
+import { PageContainer } from "../../components/common";
 
 const { Text } = Typography
 
@@ -414,7 +415,7 @@ export default function DeviceOpsCenterPage() {
   )
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" minHeight="calc(100vh - 56px)" style={{ background: "var(--bg-card)" }}>
       <Card style={{ background: 'linear-gradient(135deg,#0f766e 0%,var(--color-primary-600) 100%)', color: '#fff', border: 'none', marginBottom: 'var(--space-4, 16px)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Space size={16}>
@@ -519,6 +520,6 @@ export default function DeviceOpsCenterPage() {
         <Space><CheckCircle size={12} />{t('w11Device.subtitle')}</Space>
         <span style={{ marginLeft: 'var(--space-4, 16px)' }}><AlertTriangle size={12} /> {t('w11Device.wo.slaBreached')}: {workOrders.filter((w) => w.slaState === 'breached').length}</span>
       </div>
-    </div>
+    </PageContainer>
   )
 }

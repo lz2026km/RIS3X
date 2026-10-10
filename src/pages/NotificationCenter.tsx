@@ -19,6 +19,7 @@ import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { formatTime } from '../utils/date';
 import { t } from '../i18n/appI18n'
 import NotificationPreferencesSection from './NotificationPreferencesSection'
+import { PageContainer } from "../components/common";
 
 // ============================================================
 // 常量定义
@@ -1597,7 +1598,7 @@ export default function NotificationCenter() {
   }, [])
 
   return (
-    <div data-testid="notification-center-page" style={{ background: BG, display: 'flex' }}>
+    <PageContainer background="none" maxWidth="fluid" padding={0} minHeight="auto" testId="notification-center-page" style={{ background: BG, display: 'flex' }}>
       {loading && <LoadingBanner message={t('notification.loading')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* 左侧边栏 */}
@@ -2145,6 +2146,6 @@ export default function NotificationCenter() {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   )
 }

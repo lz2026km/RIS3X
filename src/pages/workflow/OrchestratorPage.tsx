@@ -33,6 +33,7 @@ import { statusColor } from '../../theme/statusTokens';
 import { orchestratorApi, type OrchestratorFlow, type FlowExecution, type FlowStepDefinition, type SlaConfigDto, type SlaStats } from '../../services/api/orchestratorApi';
 import { usePagination } from '../../hooks/usePagination';
 import { DataTable, StatCard, StatCardGrid } from "../../components/common";
+import { PageContainer } from "../../components/common";
 
 const { Title } = Typography
 
@@ -960,14 +961,7 @@ export default function OrchestratorPage() {
   ];
 
   return (
-    <div
-      style={{
-        padding: 'var(--space-4, 16px)',
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
+    <PageContainer maxWidth="fluid" padding="var(--space-4, 16px)" minHeight="auto" style={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
         <Title
           level={4}
@@ -997,6 +991,6 @@ export default function OrchestratorPage() {
         items={tabItems}
         style={{ flex: 1 }}
       />
-    </div>
+    </PageContainer>
   );
 }

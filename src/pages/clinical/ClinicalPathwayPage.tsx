@@ -271,7 +271,7 @@ export const ClinicalPathwayPage: React.FC = () => {
         />
       </Card>
 
-      <Modal title={`${t('clinicalPathway.detailTitle')} - ${detail?.patient ?? ''}`} open={!!detail} onCancel={() => setDetail(null)} footer={null} width={480}>
+      <Modal title={`${t('clinicalPathway.detailTitle')} - ${detail?.patient ?? ''}`} open={!!detail} onCancel={() => setDetail(null)} footer={null} width={420}>
         {detail && (
           <>
             <Space style={{ marginBottom: 'var(--space-3, 12px)' }}>
@@ -306,7 +306,7 @@ export const ClinicalPathwayPage: React.FC = () => {
         open={!!definition}
         onCancel={() => setDefinition(null)}
         footer={null}
-        width={760}
+        width={960}
       >
         {definition && (
           <>

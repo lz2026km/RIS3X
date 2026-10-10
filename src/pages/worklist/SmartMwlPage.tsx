@@ -31,6 +31,7 @@ import { Search, ArrowUpDown, Settings, RefreshCw, Clock, AlertTriangle, FileTex
 import React, { useState, useEffect, useCallback } from 'react'
 import { DataTable, StatCard, StatCardGrid } from "../../components/common"
 import { t } from '../../i18n/appI18n'
+import { PageContainer } from "../../components/common";
 
 const { Title } = Typography
 
@@ -268,7 +269,7 @@ const SmartMwlPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)' }}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)">
       <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
         <BarChart3 size={20} color="var(--color-primary-600)" />
         <Title level={4} style={{ margin: 0 }}>{t('smartMwl.title')}</Title>
@@ -326,7 +327,7 @@ const SmartMwlPage: React.FC = () => {
         open={!!detail}
         onCancel={() => setDetail(null)}
         footer={null}
-        width={640}
+        width={720}
       >
         {detail?.result && (
           <>
@@ -403,7 +404,7 @@ const SmartMwlPage: React.FC = () => {
           </div>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

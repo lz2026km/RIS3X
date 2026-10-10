@@ -26,6 +26,7 @@ import { SearchX } from 'lucide-react'
 import { DataTable } from '../components/common/DataTable';
 import { StatusTag } from '../components/common/StatusTag';
 import { t } from '../i18n/appI18n';
+import { PageContainer } from "../components/common";
 
 interface SearchReport extends ReportDto {
   reportDate: string
@@ -376,7 +377,7 @@ export default function ReportSearchPage() {
   ];
 
   return (
-    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
+    <PageContainer maxWidth="full" padding="var(--space-5, 20px)">
       {/* 顶部 */}
       <div style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Typography.Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
@@ -823,7 +824,7 @@ export default function ReportSearchPage() {
           {t('reportSearch.footerText')} {new Date().toLocaleDateString('zh-CN')}
         </span>
       </div>
-    </div>
+    </PageContainer>
   );
 }
 

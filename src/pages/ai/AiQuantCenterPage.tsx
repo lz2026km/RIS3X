@@ -44,6 +44,7 @@ import {
   type StrokeResult,
 } from "../../services/ai/quantEngine";
 import { DataTable } from "../../components/common";
+import { PageContainer } from "../../components/common";
 
 const isEn = (): boolean => getCurrentLocale() === "en-US";
 
@@ -1003,7 +1004,7 @@ const AiQuantCenterPage: React.FC = () => {
       : "";
 
   return (
-    <div style={{ padding: 'var(--space-5, 20px)' }} data-testid="ai-quant-center">
+    <PageContainer maxWidth="full" padding="var(--space-5, 20px)" testId="ai-quant-center">
       <Space orientation="vertical" size={16} style={{ width: "100%" }}>
         <Card size="small">
           <div style={{ display: "flex", flexWrap: "wrap", gap: 'var(--space-3, 12px)', alignItems: "center" }}>
@@ -1121,7 +1122,7 @@ const AiQuantCenterPage: React.FC = () => {
           </Col>
         </Row>
       </Space>
-    </div>
+    </PageContainer>
   );
 };
 

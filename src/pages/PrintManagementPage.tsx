@@ -18,6 +18,7 @@ import type { TableColumnsType } from 'antd'
 // [G005 2B] 原生表格 slice 分页 (DICOM 任务队列 / 成本分析)
 import { usePagination } from '../hooks/usePagination'
 import { t } from '../i18n/appI18n';
+import { PageContainer } from "../components/common";
 
 // ============================================================
 // 样式常量 - WIN10风格
@@ -3524,7 +3525,7 @@ export default function PrintManagementPage() {
   ]
 
   return (
-    <div style={{ background: C.bg, padding: 'var(--space-4, 16px)' }}>
+    <PageContainer maxWidth="full" padding="var(--space-4, 16px)" style={{ background: C.bg }}>
       {/* 页面标题 */}
       <PageHeader
         as="h1"
@@ -3657,6 +3658,6 @@ export default function PrintManagementPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   )
 }

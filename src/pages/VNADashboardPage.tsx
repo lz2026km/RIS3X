@@ -57,6 +57,7 @@ import { ChartContainer } from '../components/charts'
 import { DataTable, StatCard, StatCardGrid } from "../components/common"
 import { t } from '../i18n/appI18n'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { PageContainer } from "../components/common";
 
 const { Text } = Typography
 
@@ -542,7 +543,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
   ]
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" minHeight="calc(100vh - 56px)" style={{ background: "var(--bg-card)" }}>
       <Card style={{ background: 'linear-gradient(135deg,#7c3aed 0%,#a855f7 100%)', color: '#fff', border: 'none', marginBottom: 'var(--space-4, 16px)' }}>
         <Space size={16}>
           <Archive size={36} color="#fff" />
@@ -668,7 +669,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
                       />
                       <Row gutter={16}>
                         <Col span={14}>
-                          <Card size="small" title={t('vnaPage.objectList')}>
+                          <Card type="inner" size="small" title={t('vnaPage.objectList')}>
                             <DataTable scroll={{ x: 'max-content' }}
                               dataSource={patientArchive.objects}
                               rowKey="id"
@@ -685,7 +686,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
                           </Card>
                         </Col>
                         <Col span={10}>
-                          <Card size="small" title={t('vnaPage.lifecycleTimeline')} data-testid="vna-patient-timeline">
+                          <Card type="inner" size="small" title={t('vnaPage.lifecycleTimeline')} data-testid="vna-patient-timeline">
                             <Timeline
                               items={timelineItems.map((item) => ({
                                 key: item.key,
@@ -730,7 +731,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
                     <Button icon={<RefreshCw size={14} />} loading={lifecycleLoading} onClick={() => void loadLifecycle()}>{t('vnaPage.refresh')}</Button>
                     <Text type="secondary">{t('vnaPage.policyEventCount', { policies: policies.length, events: events.length })}</Text>
                   </Space>
-                  <Card size="small" title={t('vnaPage.tierPolicies')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
+                  <Card type="inner" size="small" title={t('vnaPage.tierPolicies')} style={{ marginBottom: 'var(--space-4, 16px)' }}>
                     <DataTable
                       data-testid="vna-lifecycle-policies"
                       rowKey="id"
@@ -754,7 +755,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
                       ]}
                     />
                   </Card>
-                  <Card size="small" title={t('vnaPage.migrateEventsLog')}>
+                  <Card type="inner" size="small" title={t('vnaPage.migrateEventsLog')}>
                     <DataTable
                       data-testid="vna-lifecycle-events"
                       rowKey="id"
@@ -821,7 +822,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
 
                   <Row gutter={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
                     <Col span={14}>
-                      <Card size="small" title={t('vnaOps.trendTitle')}>
+                      <Card type="inner" size="small" title={t('vnaOps.trendTitle')}>
                         {trend.length > 0 ? (
                           <ChartContainer height={260} testId="vna-storage-trend">
                             <LineChart data={trend} margin={{ top: 8, right: 16, bottom: 0, left: 8 }}>
@@ -841,7 +842,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
                       </Card>
                     </Col>
                     <Col span={10}>
-                      <Card size="small" title={t('vnaOps.byTierTitle')}>
+                      <Card type="inner" size="small" title={t('vnaOps.byTierTitle')}>
                         <DataTable
                           data-testid="vna-by-tier"
                           rowKey="tier"
@@ -859,7 +860,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
                     </Col>
                   </Row>
 
-                  <Card size="small" title={t('vnaOps.duplicateTitle')} extra={duplicates ? <Tag color="red">{t('vnaOps.wasted')} {formatSize(duplicates.wastedBytes)}</Tag> : undefined}>
+                  <Card type="inner" size="small" title={t('vnaOps.duplicateTitle')} extra={duplicates ? <Tag color="red">{t('vnaOps.wasted')} {formatSize(duplicates.wastedBytes)}</Tag> : undefined}>
                     {duplicates && duplicates.totalDuplicates > 0 ? (
                       <DataTable
                         data-testid="vna-duplicate-analysis"
@@ -936,7 +937,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
       {/* 对象详情 Drawer */}
       <Drawer
         title={detail ? `对象详情 · ${detail.name}` : t('vnaPage.objectDetail')}
-        width={480}
+        width={420}
         open={drawerOpen}
         onClose={closeDetail}
         extra={detail && (
@@ -1082,7 +1083,7 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
           </>
         )}
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

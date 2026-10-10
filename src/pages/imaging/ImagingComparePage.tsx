@@ -28,6 +28,7 @@ import {
   type PatientListItem,
   type PatientStudyDto,
 } from '../../services/api/imagingCompareApi'
+import { PageContainer } from "../../components/common";
 
 const BLUE = 'var(--color-primary-500)'
 const CYAN = '#22d3ee'
@@ -608,7 +609,7 @@ export default function ImagingComparePage() {
   }
 
   return (
-    <div data-testid="imaging-compare-page" style={{ background: '#020617', color: '#cbd5e1', padding: 'var(--space-3, 12px)' }}>
+    <PageContainer background="none" maxWidth="fluid" padding="var(--space-3, 12px)" minHeight="auto" testId="imaging-compare-page" style={{ background: '#020617', color: '#cbd5e1' }}>
       {/* ── 顶栏 ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 10, flexWrap: 'wrap' }}>
         <Columns2 size={18} color={BLUE} />
@@ -950,7 +951,7 @@ export default function ImagingComparePage() {
       <div style={{ marginTop: 6, fontSize: 10, color: 'var(--text-secondary, #475569)', textAlign: 'center' }}>
         {t('imagingCompare.hint')}
       </div>
-    </div>
+    </PageContainer>
   )
 }
 

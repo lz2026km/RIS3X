@@ -887,7 +887,7 @@ export default function ReportRulesPage() {
         onOk={() => void saveTier()}
         okText={t('w4a.tiers.save')}
         cancelText={t('w4a.tiers.cancel')}
-        width={760}
+        width={960}
         destroyOnClose
       >
         <Form form={tierForm} layout="vertical">
@@ -951,7 +951,7 @@ export default function ReportRulesPage() {
       </Drawer>
 
       {/* 一键修正建议抽屉 */}
-      <Drawer title={t('reportRules.fixTitle')} width={520} open={fixOpen} onClose={() => setFixOpen(false)} extra={<Button type="primary" icon={<FileCheck2 size={14} />} onClick={acceptFixes}>{t('reportRules.applyToReport')}</Button>}>
+      <Drawer title={t('reportRules.fixTitle')} width={560} open={fixOpen} onClose={() => setFixOpen(false)} extra={<Button type="primary" icon={<FileCheck2 size={14} />} onClick={acceptFixes}>{t('reportRules.applyToReport')}</Button>}>
         {fixedFields && (
           <Space direction="vertical" size={10} style={{ width: '100%' }}>
             {FIELD_KEYS.map((key) => (

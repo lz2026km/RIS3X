@@ -405,7 +405,7 @@ export const SignAmendPage: React.FC = () => {
         open={!!certModal.type && certModal.type !== 'verify' || (certModal.type === 'verify' && verifyResult)}
         onCancel={() => { setCertModal({ type: null, data: {} }); setVerifyResult(null); }}
         footer={null}
-        width={500}
+        width={560}
       >
         {certModal.type === 'apply' && (
           <Form layout="vertical" size="small">
@@ -453,7 +453,7 @@ export const SignAmendPage: React.FC = () => {
         open={!!amendModal.type}
         onCancel={() => { setAmendModal({ type: null, data: {} }); setAmendHistory(null); }}
         footer={null}
-        width={500}
+        width={560}
       >
         {amendModal.type === 'start' && (
           <Form layout="vertical" size="small">
@@ -497,7 +497,7 @@ export const SignAmendPage: React.FC = () => {
         open={supplementModal}
         onCancel={() => setSupplementModal(false)}
         footer={null}
-        width={500}
+        width={560}
       >
         <Form layout="vertical" size="small">
           <Form.Item label={t('w4a.supplement.parentReportId')} required>

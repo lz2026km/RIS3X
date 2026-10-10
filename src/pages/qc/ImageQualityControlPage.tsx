@@ -30,6 +30,7 @@ import { EmptyState } from '../../components/common/EmptyState'
 import { AppText } from '../../components/common/AppText'
 import { THEME_TOKENS } from '../../components/common/ThemeTokens'
 import { t } from '../../i18n/appI18n'
+import { PageContainer } from "../../components/common";
 
 const MODALITY_OPTIONS = ['CT', 'MR', 'DR', 'US', 'MG', 'DSA'].map((m) => ({ label: m, value: m }))
 const STATUS_META: Record<string, { color: string; labelKey: string }> = {
@@ -203,7 +204,7 @@ export default function ImageQualityControlPage() {
   ]
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" style={{ background: 'var(--bg-primary)' }}>
       <PageHeader
         icon={<Camera size={20} color="var(--color-primary-500)" />}
         title={t('imageQualityControl.title')}
@@ -343,7 +344,7 @@ export default function ImageQualityControlPage() {
           onChange={setRetakeReason}
         />
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

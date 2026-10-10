@@ -22,6 +22,7 @@ import { Bot, AlertTriangle, CheckCircle, Clock, RefreshCw, FileText, Zap, UserC
 import { DataTable, StatCard, StatCardGrid } from "../../components/common"
 import React, { useState, useEffect, useCallback } from 'react'
 import { t } from '../../i18n/appI18n'
+import { PageContainer } from "../../components/common";
 
 const { Title } = Typography
 
@@ -163,7 +164,7 @@ const AiTriagePage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)' }}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)">
       <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
         <Bot size={20} color="#722ed1" /><Title level={4} style={{ margin: 0 }}>{t('aiTriage.title')}</Title><Tag color="purple">{t('aiTriage.tag')}</Tag>
       </div>
@@ -208,7 +209,7 @@ const AiTriagePage: React.FC = () => {
         selectedItem && selectedItem.status !== 'ASSIGNED' && selectedItem.status !== 'COMPLETED' ? (
           <Button type="primary" icon={<UserCheck size={14} />} loading={assigning} onClick={() => void handleAssign(selectedItem)}>{t('aiTriage.assignDoctor')}</Button>
         ) : null
-      } width={640}>
+      } width={720}>
         {selectedItem && (<div>
           <Row gutter={16} style={{ marginBottom: 'var(--space-4, 16px)' }}>
             <Col span={8}><Card size="small"><Statistic title={t('aiTriage.overallScore')} value={selectedItem.score} styles={{ content: { color: levelColor[selectedItem.level] } }} /></Card></Col>
@@ -240,7 +241,7 @@ const AiTriagePage: React.FC = () => {
       <Modal title={t('aiTriage.scoreTitle')} open={scoreModal} onCancel={() => setScoreModal(false)} footer={null} width={420}>
         <ScoreForm submitting={scoring} onSubmit={handleScore} />
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

@@ -500,7 +500,7 @@ const CoSignPage: React.FC = () => {
             </Space>
           ) : null
         }
-        width={600}
+        width={560}
       >
         {selectedItem && (
           <Descriptions bordered column={2} size="small">
@@ -610,7 +610,7 @@ const CoSignPage: React.FC = () => {
         onCancel={() => setRuleCreateOpen(false)}
         confirmLoading={ruleSaving}
         okText={t('coSign.create')}
-        width={520}
+        width={560}
       >
         <Form
           form={ruleForm}

@@ -417,7 +417,7 @@ const TriageDashboardPage: React.FC = () => {
         onOk={handleManualUpdate}
         confirmLoading={manualSaving}
         onCancel={() => setDetailOpen(false)}
-        width={500}
+        width={560}
       >
         {selectedItem && (
           <>

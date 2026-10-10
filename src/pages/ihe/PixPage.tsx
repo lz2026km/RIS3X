@@ -28,6 +28,7 @@ import { iheApi } from "../../services/api/integrationApi";
 import { usePagination } from "../../hooks/usePagination";
 import { t } from "../../i18n/appI18n";
 import { DataTable } from "../../components/common";
+import { PageContainer } from "../../components/common";
 
 const { TextArea } = Input;
 
@@ -309,7 +310,7 @@ export const PixPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: "var(--bg-primary)",}}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" style={{ background: "var(--bg-primary)" }}>
       <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Fingerprint size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t("pixPage.title")}</span>
@@ -665,7 +666,7 @@ export const PixPage: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 

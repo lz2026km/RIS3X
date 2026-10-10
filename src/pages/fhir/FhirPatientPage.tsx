@@ -20,6 +20,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Inbox } from 'lucide-react'
 import { usePagination } from '../../hooks/usePagination'
 import { t } from '../../i18n/appI18n'
+import { PageContainer } from "../../components/common";
 
 const {  } = DatePicker
 
@@ -220,7 +221,7 @@ export const FhirPatientPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" style={{ background: 'var(--bg-primary)' }}>
       <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Users size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fhirPatient.title')}</span>
@@ -267,7 +268,7 @@ export const FhirPatientPage: React.FC = () => {
         onCancel={() => setModalOpen(false)}
         onOk={handleSave}
         confirmLoading={saving}
-        width={600}
+        width={560}
       >
         <Form form={form} layout="vertical" size="small">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
@@ -314,7 +315,7 @@ export const FhirPatientPage: React.FC = () => {
             <Button onClick={() => setDetailOpen(false)}>{t('fhirPatient.close')}</Button>
           </Space>
         }
-        width={600}
+        width={560}
       >
         {detailLoading ? (
           <div style={{ textAlign: 'center', padding: '32px 0', color: '#999' }}>{t('fhirPatient.loadingDetail')}</div>
@@ -357,7 +358,7 @@ export const FhirPatientPage: React.FC = () => {
           />
         )}
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

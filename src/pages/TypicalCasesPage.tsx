@@ -18,6 +18,7 @@ import {
 import { TYPICAL_CASES_SEED as mockTypicalCases, type TypicalCase } from '../services/mockBackend/typicalCasesSeed'
 import { typicalCaseApi } from '../services/api/typicalCaseApi'
 import { TeachingExamModal } from './teach/TeachingExamModal'
+import { PageContainer } from "../components/common";
 
 const { Title } = Typography
 
@@ -888,7 +889,7 @@ export default function TypicalCasesPage() {
   const hasActiveFilters = searchKeyword || examTypeFilter.length > 0 || bodyPartFilter.length > 0 || diseaseFilter.length > 0 || tagFilter.length > 0 || teachingOnly || categoryFilter.length > 0 || favoriteOnly
 
   return (
-    <div style={{ background: COLORS.background }}>
+    <PageContainer maxWidth="full" padding={0} minHeight="auto" style={{ background: COLORS.background }}>
       {/* 顶部统计 */}
       <div style={{ background: COLORS.primary, padding: '20px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
@@ -1151,6 +1152,6 @@ export default function TypicalCasesPage() {
         onToggleTeachingTag={(id, tag) => toggleTeachingTag(id, tag)} />
       <AddCaseForm visible={addFormVisible} initial={editingCase} onClose={() => { setAddFormVisible(false); setEditingCase(null) }} onSubmit={editingCase ? (d) => void handleEditCase(d) : (d) => void handleAddCase(d)} />
       <TeachingExamModal visible={examModeVisible} cases={cases} onClose={() => setExamModeVisible(false)} />
-    </div>
+    </PageContainer>
   )
 }

@@ -20,6 +20,7 @@ import { Typography } from 'antd';
 
 const { Title } = Typography
 import { t } from '../i18n/appI18n';
+import { PageContainer } from "../components/common";
 
 // ============================================================
 // 状态配置
@@ -155,7 +156,7 @@ export default function BlockchainProofPage() {
   };
 
   return (
-    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
+    <PageContainer maxWidth="full" padding="var(--space-5, 20px)">
       {/* 顶部 */}
       <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
@@ -367,7 +368,7 @@ export default function BlockchainProofPage() {
           </div>
         )}
       </div>
-    </div>
+    </PageContainer>
   );
 }
 

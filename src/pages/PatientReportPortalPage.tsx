@@ -22,6 +22,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { patientPortalApi } from '../services/api/patientPortalApi';
 import { shareApi } from '../services/api/shareApi';
 import { t } from '../i18n/appI18n';
+import { PageContainer } from "../components/common";
 
 // ============================================================
 // 主组件
@@ -207,7 +208,7 @@ export default function PatientReportPortalPage() {
   ];
 
   return (
-    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1400, margin: '0 auto' }}>
+    <PageContainer maxWidth="standard" padding="var(--space-5, 20px)">
       {/* 顶部 */}
       <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
@@ -423,7 +424,7 @@ export default function PatientReportPortalPage() {
         open={!!educationDetail}
         onCancel={() => setEducationDetail(null)}
         footer={<button onClick={() => setEducationDetail(null)} style={{ padding: '6px 16px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}>{t('patientPortal.close')}</button>}
-        width={520}
+        width={560}
       >
         {educationDetail && (
           <div style={{ marginTop: 'var(--space-2, 8px)' }}>
@@ -484,7 +485,7 @@ export default function PatientReportPortalPage() {
         okText={t('patientPortal.submitFeedback')}
         cancelText={t('patientPortal.cancel')}
         confirmLoading={feedbackSubmitting}
-        width={440}
+        width={420}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
           <div>
@@ -503,7 +504,7 @@ export default function PatientReportPortalPage() {
           </div>
         </div>
       </Modal>
-    </div>
+    </PageContainer>
   );
 }
 

@@ -38,6 +38,7 @@ import { eyeApi } from "../../../services/api/eyeApi";
 import { LoadingBanner, ErrorBanner } from "../../../components/feedback";
 import { DataTable, StatCard, StatCardGrid } from "../../../components/common";
 import { t } from "../../../i18n/appI18n";
+import { PageContainer } from "../../../components/common";
 
 export const OptometryClosedLoopPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("screening");
@@ -259,7 +260,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
   const { pageData: okLensPage, pagination: okLensPagination } = usePagination(okLensRecords, 6);
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: "var(--bg-card)",}}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" style={{ background: 'var(--bg-card)' }}>
       <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Heart size={20} color="#f5222d" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>
@@ -885,7 +886,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
           },
         ]}
       />
-    </div>
+    </PageContainer>
   );
 };
 

@@ -98,7 +98,7 @@ export const RejectTemplateModal: React.FC<RejectTemplateModalProps> = ({
       }
       open={open}
       onCancel={handleClose}
-      width={760}
+      width={960}
       footer={[
         <Button key="cancel" onClick={handleClose}>
           {t('w9e.rejectTemplate.cancel')}

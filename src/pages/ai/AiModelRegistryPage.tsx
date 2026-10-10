@@ -594,7 +594,7 @@ const AiModelRegistryPage: React.FC = () => {
         title={t("w4ai.detail.title")}
         onCancel={() => setDetailModel(null)}
         footer={null}
-        width={760}
+        width={960}
       >
         {detailModel ? (
           <Space orientation="vertical" size={12} style={{ width: "100%" }}>

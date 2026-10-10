@@ -19,6 +19,7 @@ import {
   TrendingUp, BarChart2, Users, PieChart, Layers, Code,
   Globe, Server, History, Shield,
 } from 'lucide-react'
+import { PageContainer } from "../components/common";
 
 // ---------- 样式定义 ----------
 const s: Record<string, React.CSSProperties> = {
@@ -1411,7 +1412,7 @@ export default function DictionaryPage() {
   }
 
   return (
-    <div style={{ background: 'var(--bg-card)', padding: 'var(--space-5, 20px)', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
+    <PageContainer maxWidth="full" padding="var(--space-5, 20px)" minHeight="auto" style={{ background: 'var(--bg-card)', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
       <div style={s.pageHeader}>
         <PageHeader
           variant="flex"
@@ -1566,6 +1567,6 @@ export default function DictionaryPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   )
 }

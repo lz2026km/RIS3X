@@ -604,7 +604,7 @@ export default function ReportWatermarkPage() {
       </Modal>
 
       {/* 签署记录时间线 */}
-      <Drawer title={t('reportWatermark.signDetailTitle', { id: detail?.id ?? '', status: detail ? SIGN_STATUS_LABELS[detail.status] : '' })} width={460} open={detailOpen} onClose={() => setDetailOpen(false)}>
+      <Drawer title={t('reportWatermark.signDetailTitle', { id: detail?.id ?? '', status: detail ? SIGN_STATUS_LABELS[detail.status] : '' })} width={420} open={detailOpen} onClose={() => setDetailOpen(false)}>
         {detail && (
           <Space direction="vertical" size={12} style={{ width: '100%' }}>
             <Alert

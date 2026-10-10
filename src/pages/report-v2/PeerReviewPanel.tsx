@@ -362,7 +362,7 @@ const PeerReviewPanel: React.FC = () => {
         open={!!defectTask}
         onCancel={() => setDefectTask(null)}
         footer={<Button onClick={() => setDefectTask(null)}>{t('w4a.peer.close')}</Button>}
-        width={640}
+        width={720}
       >
         {defectTask && (
           <Space direction="vertical" style={{ width: '100%' }}>

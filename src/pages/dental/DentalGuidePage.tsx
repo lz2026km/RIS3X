@@ -426,7 +426,7 @@ export const DentalGuidePage: React.FC = () => {
         onCancel={() => setSleeveModal({ open: false, guide: null, sleeveType: "", saving: false })}
         onOk={() => void handleUpdateSleeve()}
         confirmLoading={sleeveModal.saving}
-        width={400}
+        width={420}
       >
         <div style={{ fontSize: 12, marginBottom: 'var(--space-2, 8px)' }}>
           {t('dentalGuide.guideLabel')}: {sleeveModal.guide?.patientName ?? '-'} · FDI #{sleeveModal.guide?.toothNo ?? '-'}

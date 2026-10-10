@@ -237,7 +237,7 @@ export const EmrTemplatesPage: React.FC = () => {
           },
         ]}
       />
-      <Modal title={templateModal?.type === 'create' ? t('w9.emrTpl.create') : t('w9.emrTpl.edit')} open={!!templateModal} onCancel={()=>setTemplateModal(null)} onOk={handleSaveTemplate} width={500}>
+      <Modal title={templateModal?.type === 'create' ? t('w9.emrTpl.create') : t('w9.emrTpl.edit')} open={!!templateModal} onCancel={()=>setTemplateModal(null)} onOk={handleSaveTemplate} width={560}>
         <Form form={form} layout="vertical" size="small" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item name="name" label={t('w9.emrTpl.templateName')} rules={[{ required: true, message: t('w9.emrTpl.templateName') }]}><Input /></Form.Item>
           <Form.Item name="category" label={t('w9.emrTpl.category')}><Select options={['Dental','General','Surgery','Ortho','Pediatric'].map(c=>({value:c,label:CATEGORY_LABELS[c] ?? c}))} /></Form.Item>

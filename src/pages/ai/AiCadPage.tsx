@@ -176,7 +176,7 @@ const AccuracyPanel: React.FC = () => {
           })}
         </StatCardGrid>
 
-        <Card size="small" title={t('aiCad.trendTitle')}>
+        <Card type="inner" size="small" title={t('aiCad.trendTitle')}>
           {trend.length === 0 && !loading ? (
             <EmptyState description={t('aiCad.noTrend')} />
           ) : (
@@ -381,7 +381,7 @@ const CadDetectPanel: React.FC = () => {
 
   return (
     <div style={{ padding: 'var(--space-4, 16px)' }}>
-      <Card size="small" title={<Space><ScanSearch size={16} color="var(--color-primary-600)" />{t('aiCad.detectTitle')}</Space>}>
+      <Card type="inner" size="small" title={<Space><ScanSearch size={16} color="var(--color-primary-600)" />{t('aiCad.detectTitle')}</Space>}>
         <Space wrap style={{ marginBottom: 'var(--space-3, 12px)' }}>
           <Input
             placeholder={t('aiCad.instancePlaceholder')}
@@ -445,7 +445,7 @@ const CadDetectPanel: React.FC = () => {
         )}
       </Card>
 
-      <Card size="small" title={t('aiCad.detail')} style={{ marginTop: 'var(--space-4, 16px)' }}>
+      <Card type="inner" size="small" title={t('aiCad.detail')} style={{ marginTop: 'var(--space-4, 16px)' }}>
         <Spin spinning={loadingDetail}>
           {detail ? (
             <>

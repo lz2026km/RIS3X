@@ -225,7 +225,7 @@ const DicomSharePage: React.FC = () => {
       </Card>
 
       <Modal title={t('dicomShare.shareModalTitle')} open={shareModal} onCancel={() => setShareModal(false)} onOk={handleShareOk}
-        okText={t('dicomShare.createShare')} confirmLoading={creating} width={480}>
+        okText={t('dicomShare.createShare')} confirmLoading={creating} width={420}>
         <Form form={shareForm} layout="vertical" size="small" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item name="studyId" label={t('dicomShare.colStudy')} rules={[{ required: true, message: t('dicomShare.selectStudyRequired') }]}>
             <Select options={STUDY_OPTIONS} placeholder={t('dicomShare.selectStudyPlaceholder')} />

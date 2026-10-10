@@ -296,7 +296,7 @@ export default function WorkflowDesignerPage() {
           <DataTable columns={stepColumns} dataSource={stepList} rowKey="key" pagination={false} scroll={{ x: 'max-content' }}/>
         </div>
       </div>
-      <Modal title={t('workflowDesigner.history')} open={showVersion} onCancel={() => setShowVersion(false)} footer={null} width={500}>
+      <Modal title={t('workflowDesigner.history')} open={showVersion} onCancel={() => setShowVersion(false)} footer={null} width={560}>
         <DataTable columns={[
           { title: t('workflowDesigner.colVersion'), dataIndex: 'version', key: 'version' },
           { title: t('workflowDesigner.colDate'), dataIndex: 'updatedAt', key: 'updatedAt' },

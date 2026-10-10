@@ -1961,7 +1961,7 @@ export function ExamDetailView({
         okText={t("examDetail.complete")}
         okButtonProps={{ disabled: completeBusy }}
         confirmLoading={completeBusy}
-        width={520}
+        width={560}
         destroyOnClose
       >
         {completeModal && (

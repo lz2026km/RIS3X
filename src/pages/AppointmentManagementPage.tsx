@@ -14,6 +14,7 @@ import {
 import type { AccessionParseResultDto, RescheduleRecordDto } from '../services/api/appointmentApi'
 import { formatDateObj } from '../utils/date';
 import { t } from '../i18n/appI18n';
+import { PageContainer } from "../components/common";
 
 // ==================== 类型定义 ====================
 interface Appointment {
@@ -822,7 +823,7 @@ export default function AppointmentManagementPage() {
   }
 
   return (
-    <div style={styles.container}>
+    <PageContainer maxWidth="fluid" style={{ ...styles.container, minHeight: "auto" }}>
       {/* 头部 */}
       <div style={styles.header}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
@@ -1672,6 +1673,6 @@ export default function AppointmentManagementPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   )
 }

@@ -645,7 +645,7 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
         open={showSpecials}
         onCancel={() => setShowSpecials(false)}
         footer={null}
-        width={500}
+        width={560}
       >
         <div className="grid grid-cols-6 gap-2">
           {RAD_SPECIALS.map((s) => (
@@ -661,7 +661,7 @@ export const ReportRichEditor = React.forwardRef<ReportRichEditorHandle, Props>(
         open={showComparison}
         onCancel={() => setShowComparison(false)}
         footer={null}
-        width={520}
+        width={560}
       >
         <Collapse
           items={[

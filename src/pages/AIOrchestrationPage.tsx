@@ -74,6 +74,7 @@ const MODEL_STATUS_META: Record<string, { color: string; label: string }> = {
   FAILED: { color: 'error', label: t('aiOrch.statusFailed') },
 };
 import { DataTable } from "../components/common";
+import { PageContainer } from "../components/common";
 
 const JOB_STATUS_META: Record<string, { color: string; icon: React.ReactNode; label: string }> = {
   QUEUED: { color: 'default', icon: <Clock size={13} />, label: t('aiOrch.jobQueued') },
@@ -990,7 +991,7 @@ export default function AIOrchestrationPage() {
   const drawerFindings = drawerJob?.result?.findings ?? [];
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', maxWidth: 1440, margin: '0 auto' }}>
+    <PageContainer maxWidth="wide" padding="var(--space-6, 24px)">
       <Card variant="borderless" style={{ borderRadius: 12, marginBottom: 'var(--space-4, 16px)' }}>
         <PageHeader
           icon={
@@ -1270,7 +1271,7 @@ export default function AIOrchestrationPage() {
         onCancel={() => { setRegisterOpen(false); registerForm.resetFields(); }}
         okText={t('aiOrch.okRegister')}
         cancelText={t('aiOrch.cancel')}
-        width={520}
+        width={560}
       >
         <Form form={registerForm} layout="vertical" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item name="name" label={t('aiOrch.fldModelName')} rules={[{ required: true, message: t('aiOrch.msgModelName') }]}>
@@ -1364,7 +1365,7 @@ export default function AIOrchestrationPage() {
         onCancel={() => { setTriggerOpen(false); triggerForm.resetFields(); }}
         okText={t('aiOrch.okTrigger')}
         cancelText={t('aiOrch.cancel')}
-        width={480}
+        width={420}
       >
         <Form form={triggerForm} layout="vertical" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item name="modelId" label={t('aiOrch.fldAiModelDeployed')} rules={[{ required: true, message: t('aiOrch.msgSelectModel') }]}>
@@ -1393,7 +1394,7 @@ export default function AIOrchestrationPage() {
         onCancel={() => { setEventOpen(false); eventForm.resetFields(); }}
         okText={t('aiOrch.okTriggerEvent')}
         cancelText={t('aiOrch.cancel')}
-        width={480}
+        width={420}
       >
         <Form form={eventForm} layout="vertical" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item name="trigger" label={t('aiOrch.fldEventType')} rules={[{ required: true, message: t('aiOrch.msgEventType') }]} initialValue="ON_STUDY_COMPLETE">
@@ -1429,7 +1430,7 @@ export default function AIOrchestrationPage() {
         okText={t('aiOrch.okGenerate')}
         confirmLoading={srSubmitting}
         cancelText={t('aiOrch.cancel')}
-        width={520}
+        width={560}
       >
         <Form form={srForm} layout="vertical" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item name="studyId" label={t('aiOrch.fldExamId')} rules={[{ required: true, message: t('aiOrch.msgExamId') }]}>
@@ -1527,7 +1528,7 @@ export default function AIOrchestrationPage() {
         open={!!testResult}
         onCancel={() => setTestResult(null)}
         footer={<Button onClick={() => setTestResult(null)}>{t('aiOrch.close')}</Button>}
-        width={440}
+        width={420}
       >
         {testResult && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
@@ -1689,6 +1690,6 @@ export default function AIOrchestrationPage() {
           </div>
         )}
       </Drawer>
-    </div>
+    </PageContainer>
   );
 }

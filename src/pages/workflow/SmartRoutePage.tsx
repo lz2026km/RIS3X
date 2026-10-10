@@ -24,6 +24,7 @@ import { RefreshCw } from 'lucide-react'
 import { UserCheck, Zap } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
 import { t } from '../../i18n/appI18n'
+import { PageContainer } from "../../components/common";
 
 interface RoutingRule {
   id: string
@@ -194,7 +195,7 @@ const SmartRoutePage: React.FC = () => {
   const byDoctor = stats?.byDoctor ?? {}
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)' }}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)">
       <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <GitBranch size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('smartRoute.title')}</span>
@@ -276,7 +277,7 @@ const SmartRoutePage: React.FC = () => {
           <Form.Item name="priority" label={t('smartRoute.colPriority')}><InputNumber style={{ width: '100%' }} /></Form.Item>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

@@ -17,6 +17,7 @@ import { usePagination } from "../../hooks/usePagination";
 import { ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
 import { DataTable } from "../../components/common";
+import { PageContainer } from "../../components/common";
 
 interface CheckDraft {
   key: string;
@@ -289,7 +290,7 @@ export default function DRLManagement() {
   ];
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
+    <PageContainer background="none" maxWidth="fluid" padding={0} minHeight="auto" style={{ display: "flex", flexDirection: "column", gap: 'var(--space-4, 16px)' }}>
       {loadError && !rowsLoading && <ErrorBanner message={loadError} onRetry={() => { void loadDrls(); void loadAlerts(); }} retryLabel={t('w9.states.retry')} />}
       {dataSource === "demo" && !rowsLoading && (
         <div style={{ padding: "8px 12px", background: "#fef3c7", color: "var(--color-warning-600)", borderRadius: 8, fontSize: 12, display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)' }}>
@@ -384,7 +385,7 @@ export default function DRLManagement() {
           locale={{ emptyText: t('drl.noAlerts') }}
         />
       </div>
-    </div>
+    </PageContainer>
   );
 }
 

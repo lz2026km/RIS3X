@@ -579,7 +579,7 @@ const CommitteeRoomPage: React.FC = () => {
         okText={t("committeeRoom.voteOk")}
         cancelText={t("committeeRoom.cancel")}
         confirmLoading={voteLoading}
-        width={520}
+        width={560}
         destroyOnHidden
       >
         {voteTarget && (

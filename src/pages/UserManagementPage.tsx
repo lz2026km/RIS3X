@@ -5,6 +5,7 @@ import { generateId } from '../data/simulationStore'
 import { PermissionGate } from '../components/common/PermissionGate'
 import { userApi } from '../services/api/userApi'
 import { uniqueId } from '../utils/uniqueId'
+import { PageContainer } from "../components/common";
 
 const { Title } = Typography
 
@@ -140,7 +141,7 @@ export default function UserManagementPage() {
   }
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}} data-testid="user-management-page">
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" testId="user-management-page" style={{ background: 'var(--bg-card)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
         <Title level={4} style={{ margin: 0 }}>用户权限管理</Title>
         <button
@@ -179,6 +180,6 @@ export default function UserManagementPage() {
           onResetPassword={onResetPassword}
         />
       </PermissionGate>
-    </div>
+    </PageContainer>
   )
 }

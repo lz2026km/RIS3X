@@ -304,7 +304,7 @@ const DualReadPage: React.FC = () => {
         <DataTable rowKey="id" dataSource={assignPagination.pageData} columns={columns} pagination={assignPagination.pagination} loading={loading} scroll={{ x: 'max-content' }}/>
       </Card>
       {selectedAssignment && (
-        <Modal title={`仲裁 - ${selectedAssignment.studyId}`} open={arbitrateOpen} onOk={() => void handleArbitrate()} onCancel={() => setArbitrateOpen(false)} width={700} confirmLoading={actionLoading}>
+        <Modal title={`仲裁 - ${selectedAssignment.studyId}`} open={arbitrateOpen} onOk={() => void handleArbitrate()} onCancel={() => setArbitrateOpen(false)} width={720} confirmLoading={actionLoading}>
           <Row gutter={16}>
             <Col span={12}><Card size="small" title={`读一: ${selectedAssignment.reader1Name}`}><Text>{selectedAssignment.report1 || t('dualRead.none')}</Text></Card></Col>
             <Col span={12}><Card size="small" title={`读二: ${selectedAssignment.reader2Name}`}><Text>{selectedAssignment.report2 || t('dualRead.none')}</Text></Card></Col>
@@ -337,7 +337,7 @@ const DualReadPage: React.FC = () => {
         open={conclusionOpen}
         onCancel={() => { setConclusionOpen(false); setConclusionTarget(null) }}
         footer={null}
-        width={640}
+        width={720}
       >
         {conclusionTarget && (
           <Space direction="vertical" style={{ width: '100%' }}>

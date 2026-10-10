@@ -700,7 +700,7 @@ const EyeRisPage: React.FC = () => {
         onCancel={() => setSurgeryModal({ open: false, submitting: false })}
         onOk={() => void handleScheduleSurgery()}
         confirmLoading={surgeryModal.submitting}
-        width={480}
+        width={420}
       >
         <Form form={surgeryForm} layout="vertical" size="small" style={{ marginTop: 'var(--space-2, 8px)' }} initialValues={{ eyeSide: 'OD', orRoom: '手术室 1' }}>
           <Form.Item label={t("eyeRis.fPatientName")} name="patientName" rules={[{ required: true, message: t("eyeRis.fPatientNameRequired") }]}>

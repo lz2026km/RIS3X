@@ -540,7 +540,7 @@ export default function TechMobileWorkstation() {
         open={!!detail}
         onClose={() => setDetail(null)}
         placement="right"
-        width={360}
+        width={420}
       >
         {detail && (
           <div style={{ fontSize: 12 }}>

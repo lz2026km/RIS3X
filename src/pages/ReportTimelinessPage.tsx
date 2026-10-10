@@ -18,6 +18,7 @@ import { t } from '../i18n/appI18n';
 // [v3.0.6.11-105 Wave 2C] 国标指标联动: RQI-RRC-02 急诊报告 2h 完成率
 import { RqiIndicatorLink } from '../components/qc/RqiIndicatorLink';
 import { DataTable } from '../components/common';
+import { PageContainer } from "../components/common";
 
 // ============================================================
 // 主组件
@@ -135,7 +136,7 @@ export default function ReportTimelinessPage() {
   };
 
   return (
-    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
+    <PageContainer maxWidth="full" padding="var(--space-5, 20px)">
       {/* 顶部 */}
       <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
@@ -331,7 +332,7 @@ export default function ReportTimelinessPage() {
           ]}
         />
       </div>
-    </div>
+    </PageContainer>
   );
 }
 

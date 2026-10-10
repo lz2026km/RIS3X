@@ -27,6 +27,7 @@ import CriticalValueStatsExtended from './critical/CriticalValueStatsExtended';
 import { LoadingBanner, ErrorBanner, AppEmpty } from '../components/feedback';
 import { Typography } from 'antd';
 import { t } from '../i18n/appI18n';
+import { PageContainer } from "../components/common";
 
 const { Title } = Typography
 
@@ -112,7 +113,7 @@ export default function CriticalValueStatsPage() {
   const recentEvents = [...events].sort((a, b) => b.reportedAt.localeCompare(a.reportedAt));
 
   return (
-    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
+    <PageContainer maxWidth="full" padding="var(--space-5, 20px)">
       {loading && <LoadingBanner message={t('w9.states.loading')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
 
@@ -331,7 +332,7 @@ export default function CriticalValueStatsPage() {
           })}
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 }
 

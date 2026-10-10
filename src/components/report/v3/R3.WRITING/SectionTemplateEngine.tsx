@@ -187,7 +187,7 @@ export default function SectionTemplateEngine({ open, modality, bodyPart, contex
       }
       open={open}
       onCancel={onClose}
-      width={760}
+      width={960}
       destroyOnHidden
       footer={
         <div className="flex items-center justify-between">

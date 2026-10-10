@@ -112,7 +112,7 @@ export default function ReportAuditTrailDrawer({ report, onClose }: ReportAuditT
     <Drawer
       open={!!report}
       onClose={onClose}
-      width={520}
+      width={560}
       title={
         <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
           <History size={16} color={PRIMARY} />

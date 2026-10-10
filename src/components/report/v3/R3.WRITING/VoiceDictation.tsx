@@ -666,7 +666,7 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
           {t('aiDraft.voice.medicalVocab')}
           <Tag color="green">{onlineLexicon ? t('aiDraft.voice.lexiconEntries', { count: onlineLexicon.length }) : t('aiDraft.voice.onlineLoading')}</Tag>
         </span>
-      } open={showVocab} onCancel={() => setShowVocab(false)} footer={null} width={640}>
+      } open={showVocab} onCancel={() => setShowVocab(false)} footer={null} width={720}>
         {onlineLexicon ? (
           <DataTable
             dataSource={onlineLexicon.slice(0, 100)}
@@ -692,7 +692,7 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
       </Modal>
 
       {/* 10. 语音听写历史 Modal */}
-      <Modal title={t('aiDraft.voice.historyTitle')} open={showHistory} onCancel={() => setShowHistory(false)} footer={null} width={600}>
+      <Modal title={t('aiDraft.voice.historyTitle')} open={showHistory} onCancel={() => setShowHistory(false)} footer={null} width={560}>
         {history.length > 0 ? (
           <List
             dataSource={history}

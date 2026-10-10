@@ -36,6 +36,7 @@ import {
 import { regionalApi, type InstitutionDto, type CrossInstitutionStudyDto, type AccessRecordDto, type ConsultationRequestDto, type RegionalSiteDto, type RegionalSiteSyncEventDto, type RegionalSiteRoutingRuleDto } from "@/services/api/regionalApi";
 import { DataTable, StatCard, StatCardGrid } from "../../components/common";
 import { t } from "../../i18n/appI18n";
+import { PageContainer } from "../../components/common";
 
 const { Text } = Typography;
 
@@ -306,7 +307,7 @@ const RegionalCollaborationPage: React.FC = () => {
   }, [syncEvents, sites]);
 
   return (
-    <div style={{ padding: 'var(--space-4, 16px)', background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
+    <PageContainer maxWidth="full" padding="var(--space-4, 16px)" minHeight="calc(100vh - 56px)" style={{ background: "var(--bg-card)" }}>
       {/* 页头 */}
       <div style={{ display: "flex", alignItems: "center", gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-3, 12px)', flexWrap: "wrap" }}>
         <Network size={18} color="var(--color-info-600)" />
@@ -594,7 +595,7 @@ const RegionalCollaborationPage: React.FC = () => {
         onCancel={() => setApplyOpen(false)}
         okText={t('regionalCollab.submitConsult')}
         cancelText={t('regionalCollab.cancel')}
-        width={480}
+        width={420}
         data-testid="regional-consult-modal"
       >
         <Form form={applyForm} layout="vertical" size="small" style={{ marginTop: 'var(--space-2, 8px)' }}>
@@ -616,7 +617,7 @@ const RegionalCollaborationPage: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 

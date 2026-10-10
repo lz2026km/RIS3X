@@ -42,6 +42,7 @@ import React, { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { seededUnit } from "../../utils/seededRandom";
 import { t } from "../../i18n/appI18n";
+import { PageContainer } from "../../components/common";
 
 export const IheConnectathonPage: React.FC = () => {
   const navigate = useNavigate();
@@ -162,7 +163,7 @@ export const IheConnectathonPage: React.FC = () => {
   }, [session]);
 
   return (
-    <div className="p-4 space-y-3">
+    <PageContainer background="none" maxWidth="fluid" padding={0} minHeight="auto" className="p-4 space-y-3">
       <Card size="small" className="shadow-sm">
         <div className="flex items-center justify-between">
           <Space>
@@ -461,7 +462,7 @@ export const IheConnectathonPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
-    </div>
+    </PageContainer>
   );
 };
 

@@ -386,7 +386,7 @@ export const MultiChannelSender: React.FC<Props> = ({ reportId, patientId, onSen
         open={editChannel !== null}
         onCancel={() => setEditChannel(null)}
         footer={null}
-        width={520}
+        width={560}
       >
         <Form form={editChannelForm} layout="vertical" size="small">
           <Form.Item name="displayName" label={t('w1Buttons.channel.name')} rules={[{ required: true, message: t('w1Buttons.channel.nameRequired') }]}>
@@ -428,7 +428,7 @@ export const MultiChannelSender: React.FC<Props> = ({ reportId, patientId, onSen
         open={detailTask !== null}
         onCancel={() => setDetailTask(null)}
         footer={<Button onClick={() => setDetailTask(null)}>{t('reportDist.close')}</Button>}
-        width={640}
+        width={720}
       >
         {detailTask && (
           <div className="space-y-3">

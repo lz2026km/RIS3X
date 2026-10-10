@@ -221,7 +221,7 @@ export const CriticalValueCard: React.FC<CriticalValueCardProps> = ({ alert, onN
         okText={t('criticalValueCard.send')}
         cancelText={t('criticalValueCard.cancel')}
         okButtonProps={{ loading: busy }}
-        width={480}
+        width={420}
         destroyOnHidden
       >
         <div style={{ fontSize: 12, color: '#475569', marginBottom: 10 }}>

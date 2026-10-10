@@ -501,7 +501,7 @@ export default function TechSchedulePage() {
         open={!!detail}
         onCancel={() => setDetail(null)}
         footer={null}
-        width={460}
+        width={420}
         destroyOnClose
       >
         {detail && (
@@ -547,7 +547,7 @@ export default function TechSchedulePage() {
       </Modal>
 
       {/* ================= 新建排班弹窗 ================= */}
-      <Modal title={t('techSchedule.createScheduleTitle')} open={createOpen} onCancel={() => setCreateOpen(false)} onOk={() => void handleCreate()} width={440} destroyOnClose>
+      <Modal title={t('techSchedule.createScheduleTitle')} open={createOpen} onCancel={() => setCreateOpen(false)} onOk={() => void handleCreate()} width={420} destroyOnClose>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', paddingTop: 'var(--space-2, 8px)' }}>
           <label style={labelStyle}>{t('techSchedule.date')}</label>
           <input type="date" value={createForm.date} onChange={(e) => setCreateForm({ ...createForm, date: e.target.value })} style={inputStyle} data-testid="ts-create-date" />
@@ -569,7 +569,7 @@ export default function TechSchedulePage() {
       </Modal>
 
       {/* ================= 批量生成弹窗 ================= */}
-      <Modal title={t('techSchedule.batchGenerateTitle')} open={batchOpen} onCancel={() => setBatchOpen(false)} onOk={() => void handleBatch()} width={440} destroyOnClose>
+      <Modal title={t('techSchedule.batchGenerateTitle')} open={batchOpen} onCancel={() => setBatchOpen(false)} onOk={() => void handleBatch()} width={420} destroyOnClose>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', paddingTop: 'var(--space-2, 8px)' }}>
           <label style={labelStyle}>{t('techSchedule.startDate')}</label>
           <input type="date" value={batchForm.startDate} onChange={(e) => setBatchForm({ ...batchForm, startDate: e.target.value })} style={inputStyle} />
@@ -617,7 +617,7 @@ export default function TechSchedulePage() {
       </Modal>
 
       {/* ================= 编辑弹窗 ================= */}
-      <Modal title={t('techSchedule.editScheduleTitle')} open={editOpen} onCancel={() => setEditOpen(false)} onOk={() => void handleEdit()} width={440} destroyOnClose>
+      <Modal title={t('techSchedule.editScheduleTitle')} open={editOpen} onCancel={() => setEditOpen(false)} onOk={() => void handleEdit()} width={420} destroyOnClose>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', paddingTop: 'var(--space-2, 8px)' }}>
           <label style={labelStyle}>{t('techSchedule.date')}</label>
           <input type="date" value={editForm.date} onChange={(e) => setEditForm({ ...editForm, date: e.target.value })} style={inputStyle} />

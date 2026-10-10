@@ -673,7 +673,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
         }
         open={!!detailEvent}
         onClose={() => setDetailEvent(null)}
-        width={520}
+        width={560}
       >
         {detailEvent && (
           <Space orientation="vertical" size={12} style={{ width: '100%' }}>

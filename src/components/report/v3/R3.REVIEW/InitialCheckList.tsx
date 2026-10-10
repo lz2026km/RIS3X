@@ -355,7 +355,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
             </Button>
           </Space>
         }
-        width={640}
+        width={720}
       >
         {detailTask && (
           <Space orientation="vertical" style={{ width: '100%' }} size={6}>

@@ -23,6 +23,7 @@ import { FileText, Play, Eye, Copy, Download, FilePlus2, Database, GitBranch, Ba
 import React, { useState, useEffect, useCallback } from 'react'
 import { Inbox } from 'lucide-react'
 import { PageHeader } from '../../components/common/PageHeader'
+import { PageContainer } from "../../components/common";
 
 const { TextArea } = Input
 const { Text } = Typography
@@ -407,7 +408,7 @@ export const DicomSrPage: React.FC = () => {
   const selectedTemplate = templates.find(t => t.id === templateId)
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" style={{ background: 'var(--bg-primary)' }}>
     <PageHeader
       icon={<FileText size={20} color="var(--color-primary-600)" />}
       title={t('dicomSrPage.title')}
@@ -1043,7 +1044,7 @@ export const DicomSrPage: React.FC = () => {
         open={mtDetailOpen}
         onCancel={() => setMtDetailOpen(false)}
         footer={<Button onClick={() => setMtDetailOpen(false)}>{t('dicomSrPage.close')}</Button>}
-        width={640}
+        width={720}
       >
         {mtDetailLoading ? (
           <div style={{ textAlign: 'center', padding: 'var(--space-8, 32px)' }}>
@@ -1094,7 +1095,7 @@ export const DicomSrPage: React.FC = () => {
           <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('dicomSrPage.noData')} />
         )}
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

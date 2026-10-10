@@ -20,6 +20,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import { t } from '../../i18n/appI18n';
 import { DataTable, StatCard, StatCardGrid } from "../../components/common";
+import { PageContainer } from "../../components/common";
 
 const COLORS = { red: '#ff4d4f', yellow: '#faad14', green: '#52c41a', blue: 'var(--color-primary-600)' };
 
@@ -156,7 +157,7 @@ export const OEEDashboardPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" style={{ background: 'var(--bg-card)' }}>
       <Space style={{ marginBottom: 'var(--space-4, 16px)', width: '100%', justifyContent: 'space-between' }} wrap>
         <Space>
           <Gauge size={20} color={COLORS.blue} />
@@ -237,7 +238,7 @@ export const OEEDashboardPage: React.FC = () => {
         .oee-row-yellow { background: var(--color-warning-bg, #fffbe6) !important; }
         .oee-row-red:hover td, .oee-row-yellow:hover td { filter: brightness(0.95); }
       `}</style>
-    </div>
+    </PageContainer>
   );
 };
 

@@ -17,6 +17,7 @@ import { DAILY_KPI_PRE } from '../data/_generators'
 import { seededUnit } from '../utils/seededRandom'
 import { t } from '../i18n/appI18n'
 import { severityColor } from '../theme/statusTokens'
+import { PageContainer } from "../components/common";
 
 const { Title } = Typography
 
@@ -1054,13 +1055,7 @@ export default function EquipmentEfficiencyPage() {
   ] as const
 
   return (
-    <div
-      style={{ backgroundColor: C.bg,
-        color: C.textDark,
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        padding: 'var(--space-6, 24px)',
-      }}
-    >
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" minHeight="auto" style={{ backgroundColor: C.bg, color: C.textDark, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
       {/* 页面标题 */}
       <div style={{ marginBottom: 'var(--space-6, 24px)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--space-4, 16px)', flexWrap: 'wrap' }}>
         <div>
@@ -1798,6 +1793,6 @@ export default function EquipmentEfficiencyPage() {
           50% { opacity: 0.5; }
         }
       `}</style>
-    </div>
+    </PageContainer>
   )
 }

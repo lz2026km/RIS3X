@@ -733,7 +733,7 @@ const DbtPage: React.FC = () => {
         open={biradsOpen}
         onCancel={() => setBiradsOpen(false)}
         footer={null}
-        width={680}
+        width={720}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
           <Card size="small" title={t('dbtPage.featureConfirm')}>

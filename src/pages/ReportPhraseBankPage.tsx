@@ -24,6 +24,7 @@ import { resolveTemplateVariables, describeTemplateVariables } from '../utils/te
 import { LoadingBanner, AppEmpty } from '../components/feedback';
 import { t } from '../i18n/appI18n';
 import { StatusTag } from '../components/common/StatusTag';
+import { PageContainer } from "../components/common";
 
 const CATEGORY_LABEL_TO_KEY: Record<string, PhraseCategory> = {
   '正常': 'normal',
@@ -327,7 +328,7 @@ export default function ReportPhraseBankPage() {
   };
 
   return (
-    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
+    <PageContainer maxWidth="full" padding="var(--space-5, 20px)">
       {loading && <LoadingBanner message={t('w9.states.loading')} />}
       {/* 顶部 */}
       <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -555,7 +556,7 @@ export default function ReportPhraseBankPage() {
         onOk={() => void handleCreate()}
         okText={t('rpb.create')}
         cancelText={t('rpb.cancel')}
-        width={520}
+        width={560}
       >
         <Form layout="vertical" size="small" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item label={t('rpb.phraseTitle')} required>
@@ -582,7 +583,7 @@ export default function ReportPhraseBankPage() {
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   );
 }
 

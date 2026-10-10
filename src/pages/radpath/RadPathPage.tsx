@@ -30,6 +30,7 @@ import { message } from "antd";
 import { ErrorBanner } from "../../components/feedback";
 import { DataTable, StatCard, StatCardGrid } from "../../components/common";
 import { t } from "../../i18n/appI18n";
+import { PageContainer } from "../../components/common";
 
 const consistencyColor: Record<string, string> = {
   concordant: "#10b981",
@@ -163,7 +164,7 @@ const RadPathPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)' }}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)">
       <div
         style={{
           marginBottom: 'var(--space-4, 16px)',
@@ -229,7 +230,7 @@ const RadPathPage: React.FC = () => {
           setSelectedRecord(null);
         }}
         footer={null}
-        width={700}
+        width={720}
       >
         {selectedRecord && (
           <div>
@@ -346,7 +347,7 @@ const RadPathPage: React.FC = () => {
           />
         </div>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 

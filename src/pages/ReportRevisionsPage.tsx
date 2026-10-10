@@ -24,6 +24,7 @@ import { extendedReportMock } from '../data/reportSubsystemMock';
 import { reportApi, type ReportRevisionContentDto, type ReportSignatureDto } from '../services/api/reportApi';
 import { DataTable } from '../components/common/DataTable';
 import { t } from '../i18n/appI18n';
+import { PageContainer } from "../components/common";
 
 // ============================================================
 // 修订动作配置
@@ -394,7 +395,7 @@ export default function ReportRevisionsPage() {
   ];
 
   return (
-    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
+    <PageContainer maxWidth="full" padding="var(--space-5, 20px)">
       {/* 顶部 */}
       <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
@@ -799,7 +800,7 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
         confirmLoading={addendumLoading}
         okText={t('reportRev.confirmAddendum')}
         cancelText={t('reportRev.cancel')}
-        width={480}
+        width={420}
       >
         <div style={{ fontSize: 12 }}>
           <p style={{ marginBottom: 10, color: 'var(--text-secondary)' }}>
@@ -816,7 +817,7 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
           />
         </div>
       </Modal>
-    </div>
+    </PageContainer>
   );
 }
 

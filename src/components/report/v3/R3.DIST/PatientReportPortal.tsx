@@ -155,7 +155,7 @@ export const PatientReportPortal: React.FC<Props> = ({ reportId, patientId }) =>
         open={showCreate}
         onCancel={() => setShowCreate(false)}
         footer={null}
-        width={500}
+        width={560}
       >
         <Form layout="vertical">
           <Form.Item label={t('reportDist.portal.form.language')}><Select value={createForm.language} onChange={(v) => setCreateForm((f) => ({ ...f, language: v as PatientPortalLang }))} options={[{ value: 'zh-CN', label: t('reportDist.portal.langZh') }, { value: 'en-US', label: 'English' }]} /></Form.Item>
@@ -184,7 +184,7 @@ export const PatientReportPortal: React.FC<Props> = ({ reportId, patientId }) =>
         open={!!showViews}
         onCancel={() => { setShowViews(null); setViews([]); }}
         footer={null}
-        width={600}
+        width={560}
       >
         {views.length > 0 ? (
           <Table size="small" rowKey="id" dataSource={views} pagination={false} scroll={{ x: 'max-content' }} columns={[

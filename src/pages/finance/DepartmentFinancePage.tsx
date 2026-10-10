@@ -601,7 +601,7 @@ export default function DepartmentFinancePage() {
             title={t('deptFinance.invoiceDetail')}
             footer={<button onClick={() => setDetailOpen(false)} style={{ padding: '6px 18px', borderRadius: 6, border: '1px solid var(--border-default)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: 12 }}>{t('deptFinance.close')}</button>}
             onCancel={() => setDetailOpen(false)}
-            width={520}
+            width={560}
             styles={modalStyle}
           >
             {detailLoading ? (
@@ -657,7 +657,7 @@ export default function DepartmentFinancePage() {
             confirmLoading={paying}
             onOk={() => void confirmPay()}
             onCancel={() => { setPayOpen(false); setPayInvoice(null) }}
-            width={440}
+            width={420}
             styles={modalStyle}
           >
             {payInvoice && (

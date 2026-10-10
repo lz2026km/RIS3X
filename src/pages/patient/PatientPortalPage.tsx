@@ -23,6 +23,7 @@ import { DataTable, ExportButton } from "../../components/common";
 import { patientPortalApi, type PortalPatientDto, type PortalClinicalDataDto } from '../../services/api/patientPortalApi';
 import { appointmentApi, type AppointmentDto } from '../../services/api/appointmentApi';
 import { paymentApi, satisfactionApi, wechatApi, type PaymentOrderDto, type SurveyDto } from '../../services/api/w12PatientApi';
+import { PageContainer } from "../../components/common";
 
 interface TimelineEvent {
   date: string;
@@ -190,7 +191,7 @@ export const PatientPortalPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" style={{ background: 'var(--bg-primary)' }}>
       <Space style={{ marginBottom: 'var(--space-4, 16px)' }} wrap>
         <User size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('w8.patientPortal.title')}</span>
@@ -276,7 +277,7 @@ export const PatientPortalPage: React.FC = () => {
           </Row>
         },
       ]} />
-    </div>
+    </PageContainer>
   );
 };
 export default PatientPortalPage;

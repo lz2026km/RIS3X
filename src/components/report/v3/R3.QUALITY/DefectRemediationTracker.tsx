@@ -508,7 +508,7 @@ export const DefectRemediationTracker: React.FC = () => {
         open={!!detailModal}
         onCancel={() => setDetailModal(null)}
         footer={null}
-        width={520}
+        width={560}
       >
         {detailModal && (
           <Space orientation="vertical" style={{ width: '100%' }} size={8}>

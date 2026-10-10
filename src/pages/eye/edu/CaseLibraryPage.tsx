@@ -522,7 +522,7 @@ export const CaseLibraryPage: React.FC = () => {
                   }
                   open={!!selectedCase}
                   onClose={() => setSelectedCase(null)}
-                  width={680}
+                  width={720}
                 >
                   {selectedCase && (
                     <>
@@ -752,7 +752,7 @@ export const CaseLibraryPage: React.FC = () => {
         onOk={() => void handleCreateCase()}
         confirmLoading={creating}
         okText={t("eyeCaseLibrary.create")}
-        width={500}
+        width={560}
       >
         <Form layout="vertical" size="small">
           <Row gutter={12}>

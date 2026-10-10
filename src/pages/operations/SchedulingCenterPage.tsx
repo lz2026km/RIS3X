@@ -25,6 +25,7 @@ import { CalendarDays, Clock, Monitor, Users, Plus, RefreshCw } from 'lucide-rea
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { t } from '../../i18n/appI18n';
 import { DataTable, StatCard, StatCardGrid } from "../../components/common";
+import { PageContainer } from "../../components/common";
 
 const STATE_COLOR: Record<string, string> = {
   SCHEDULED: 'blue', CONFIRMED: 'cyan', CHECKED_IN: 'geekblue', IN_PROGRESS: 'orange',
@@ -171,7 +172,7 @@ export const SchedulingCenterPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" style={{ background: 'var(--bg-card)' }}>
       <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <CalendarDays size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('sch.title')}</span>
@@ -229,7 +230,7 @@ export const SchedulingCenterPage: React.FC = () => {
         onCancel={() => setBookingOpen(false)}
         onOk={() => void handleCreate()}
         confirmLoading={submitting}
-        width={520}
+        width={560}
       >
         <Form form={form} layout="vertical" size="small">
           <Row gutter={12}>
@@ -266,7 +267,7 @@ export const SchedulingCenterPage: React.FC = () => {
           </Row>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 export default SchedulingCenterPage;

@@ -129,7 +129,7 @@ export default function BackupPage() {
               key: 'schedule',
               label: <span><RefreshCw /> {t('bk.tabSchedule')}</span>,
               children: (
-                <Card size="small">
+                <div style={{ padding: 'var(--space-3, 12px)' }}>
                   <Descriptions bordered column={2}>
                     <Descriptions.Item label={t('bk.autoBackup')}>
                       <Tag color={autoBackup ? 'green' : 'default'}>{autoBackup ? t('bk.enabled') : t('bk.disabled')}</Tag>
@@ -140,7 +140,7 @@ export default function BackupPage() {
                     <Descriptions.Item label={t('bk.locationLabel')}>/data/backups/ris/</Descriptions.Item>
                     <Descriptions.Item label={t('bk.encryptionLabel')}><Tag color="success">AES-256</Tag></Descriptions.Item>
                   </Descriptions>
-                </Card>
+                </div>
               ),
             },
           ]} />

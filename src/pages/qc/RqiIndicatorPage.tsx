@@ -853,7 +853,7 @@ export default function RqiIndicatorPage() {
         title={t('rqi2024.configTitle')}
         open={configOpen}
         onClose={() => setConfigOpen(false)}
-        width={520}
+        width={560}
         extra={
           <Space>
             <Button size="small" onClick={() => setConfigOpen(false)}>

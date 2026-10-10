@@ -830,7 +830,7 @@ export const DicomDimsePage: React.FC = () => {
             </Button>
           </Space>
         }
-        width={640}
+        width={720}
       >
         <input
           ref={storeFileInputRef}

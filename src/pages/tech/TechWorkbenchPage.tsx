@@ -1210,7 +1210,7 @@ export default function TechWorkbenchPage() {
         title={t('techWorkbench.detailTitle')}
         onCancel={() => setSelectedExam(null)}
         footer={null}
-        width={760}
+        width={960}
         destroyOnClose
       >
         {selectedExam && (
@@ -1293,7 +1293,7 @@ export default function TechWorkbenchPage() {
         okText={t('techWorkbench.timeoutConfirm')}
         confirmLoading={busy}
         okButtonProps={{ disabled: busy || timeoutModal?.loading }}
-        width={580}
+        width={560}
         destroyOnClose
       >
         {timeoutModal?.loading ? (
@@ -1338,7 +1338,7 @@ export default function TechWorkbenchPage() {
         okText={t('techWorkbench.actionComplete')}
         okButtonProps={{ disabled: busy }}
         confirmLoading={busy}
-        width={520}
+        width={560}
         destroyOnClose
       >
         {completeModal && (

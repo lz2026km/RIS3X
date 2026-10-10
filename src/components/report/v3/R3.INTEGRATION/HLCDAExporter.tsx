@@ -251,7 +251,7 @@ export const HLCDAExporter: React.FC<Props> = ({ reportId, patientId, onExport }
         open={showGenerate}
         onCancel={() => setShowGenerate(false)}
         footer={null}
-        width={500}
+        width={560}
       >
         <Form layout="vertical">
           <Form.Item label={t('reportIntegration.cda.titleLabel')}><Input value={genForm.title} onChange={(e) => setGenForm((f) => ({ ...f, title: e.target.value }))} /></Form.Item>

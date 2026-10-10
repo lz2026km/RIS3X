@@ -480,7 +480,7 @@ export const ConsentEducationPage: React.FC = () => {
         </Form>
       </Modal>
 
-      <Modal title={`${t('consentEdu.editMaterial')} - ${editingMaterial?.title ?? ''}`} open={!!editingMaterial} onOk={() => void submitEditMaterial()} confirmLoading={saving} onCancel={() => setEditingMaterial(null)} okText={t('consentEdu.save')} width={520}>
+      <Modal title={`${t('consentEdu.editMaterial')} - ${editingMaterial?.title ?? ''}`} open={!!editingMaterial} onOk={() => void submitEditMaterial()} confirmLoading={saving} onCancel={() => setEditingMaterial(null)} okText={t('consentEdu.save')} width={560}>
         <Form form={materialEditForm} layout="vertical">
           <Form.Item name="title" label={t('consentEdu.titleCol')} rules={[{ required: true, message: t('consentEdu.enterTitle') }]}>
             <Input placeholder={t('consentEdu.titlePlaceholder')} />

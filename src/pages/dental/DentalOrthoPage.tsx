@@ -237,7 +237,7 @@ export const DentalOrthoPage: React.FC = () => {
         open={!!detail}
         onCancel={() => setDetail(null)}
         footer={null}
-        width={520}
+        width={560}
       >
         {detail && (
           <>

@@ -62,7 +62,7 @@ export const TreatmentActions: React.FC<{ record: DentalTreatment }> = ({ record
         open={detailOpen}
         onCancel={() => setDetailOpen(false)}
         footer={<Button onClick={() => setDetailOpen(false)}>{t('dentalShared.close')}</Button>}
-        width={520}
+        width={560}
       >
         <Descriptions bordered size="small" column={2}>
           <Descriptions.Item label={t('dentalShared.patient')}>{record.patientName || '-'}</Descriptions.Item>

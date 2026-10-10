@@ -24,6 +24,7 @@ import { Droplets, Save, Trash2, RefreshCw, TrendingUp, Activity } from 'lucide-
 import React, { useState, useEffect, useCallback } from 'react';
 import { t } from '../../../i18n/appI18n';
 import { DataTable } from "../../../components/common";
+import { PageContainer } from "../../../components/common";
 
 const DEVICE_OPTIONS = [
   { value: 'nct', labelKey: 'w9d.iopDevice.nct' },
@@ -143,7 +144,7 @@ const IntraocularPressurePage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 'var(--space-4, 16px)', background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
+    <PageContainer maxWidth="full" padding="var(--space-4, 16px)" minHeight="calc(100vh - 56px)" style={{ background: "var(--bg-card)" }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)', marginBottom: 'var(--space-4, 16px)' }}>
         <Droplets className="v4-icon" style={{ width: 24, height: 24, color: 'var(--color-info-600)' }} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('iop.title')}</span>
@@ -212,7 +213,7 @@ const IntraocularPressurePage: React.FC = () => {
           />
         </Spin>
       </Card>
-    </div>
+    </PageContainer>
   );
 };
 

@@ -281,7 +281,7 @@ export const IHEXDSRegistry: React.FC<Props> = ({ reportId, patientId, onRegiste
         </div>
       </Modal>
 
-      <Modal title={<Space><Braces className="w-4 h-4" /><span>{t('reportIntegration.xds.ebxmlPackage')}</span></Space>} open={showXml} onCancel={() => setShowXml(false)} footer={null} width={900}>
+      <Modal title={<Space><Braces className="w-4 h-4" /><span>{t('reportIntegration.xds.ebxmlPackage')}</span></Space>} open={showXml} onCancel={() => setShowXml(false)} footer={null} width={960}>
         {selected && <pre className="bg-slate-900 text-slate-100 p-3 rounded text-xs overflow-auto max-h-[600px] font-mono">{buildXdsSubmitTransactionRequest(selected)}</pre>}
       </Modal>
     </div>

@@ -191,7 +191,7 @@ function ImageSearchTab() {
         open={!!detail}
         title={detail ? `${t('similarCase.imageDetail')} ${detail.modality} · ${detail.bodyPart} (${t('similarCase.descrSimilarity')} ${detail.similarity}%)` : ''}
         footer={null}
-        width={640}
+        width={720}
         onCancel={() => setDetail(null)}
       >
         {detail && (
@@ -352,7 +352,7 @@ function HybridSearchTab() {
         open={!!detail}
         title={detail ? `${t('similarCase.hybridDetail')} ${detail.reportId} (${t('similarCase.descrSimilarity')} ${detail.similarity}%)` : ''}
         footer={null}
-        width={680}
+        width={720}
         onCancel={() => setDetail(null)}
       >
         {detail && (

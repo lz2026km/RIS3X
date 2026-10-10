@@ -14,6 +14,7 @@ import { ActionButton } from '../components/common/ActionButton'
 import { StatusTag } from '../components/common/StatusTag'
 import { t as t9 } from '../i18n/appI18n'
 import { uniqueId } from '../utils/uniqueId'
+import { PageContainer } from "../components/common";
 
 // ============ 类型定义 ============
 interface TermEntry {
@@ -1032,7 +1033,7 @@ export default function TermLibraryPage() {
 
   // ============ 渲染 ============
   return (
-    <div data-testid="term-library-page" style={{ display: 'flex', background: 'var(--bg-card)', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
+    <PageContainer background="none" maxWidth="fluid" padding={0} minHeight="auto" testId="term-library-page" style={{ display: 'flex', background: 'var(--bg-card)', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
       {/* [v3.0.6.11-88] 已接入真实 API: 后端 term-entry.controller (/terms 全 11 端点) 已实现 */}
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, background: 'var(--color-success-bg)', color: '#065f46', fontSize: 12, fontWeight: 600, padding: '4px 16px', textAlign: 'center', borderBottom: '1px solid #a7f3d0' }}>
          {t9('termLibrary.apiBanner')}
@@ -1429,6 +1430,6 @@ export default function TermLibraryPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   )
 }

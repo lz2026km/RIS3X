@@ -103,7 +103,7 @@ export default function TechnicianAssignmentEditor({
       confirmLoading={saving}
       okText="保存"
       cancelText="取消"
-      width={440}
+      width={420}
     >
       {mode === 'assign' ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 'var(--space-2, 8px)' }}>

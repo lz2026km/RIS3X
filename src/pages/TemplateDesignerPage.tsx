@@ -28,6 +28,7 @@ import {
 } from "../services/api/templatesApi";
 import { t } from "../i18n/appI18n";
 import { Typography } from "antd";
+import { PageContainer } from "../components/common";
 
 const { Title } = Typography
 
@@ -2548,7 +2549,7 @@ const VisualDesignerBody: React.FC<{
   const varCount = (content.match(/[{}]\s*[\w\u4e00-\u9fa5]+\s*[{}]/g) || []).filter((m) => m.includes("{{")).length;
 
   return (
-    <div style={{ display: "flex", width: "100%", overflow: "hidden" }}>
+    <PageContainer background="none" maxWidth="fluid" padding={0} minHeight="auto" style={{ display: "flex", width: "100%", overflow: "hidden" }}>
       {/* 左: 变量面板 + 结构化字段面板 */}
       <div
         style={{
@@ -2969,7 +2970,7 @@ const VisualDesignerBody: React.FC<{
           )}
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 };
 

@@ -567,7 +567,7 @@ export const DentalImplant3DPage: React.FC = () => {
           onCancel={() => setImplantModal({ open: false, data: null, saving: false })}
           onOk={() => void handleUpdateImplant()}
           confirmLoading={implantModal.saving}
-          width={440}
+          width={420}
         >
           {implantModal.data && (
             <Form layout="vertical" size="small" style={{ marginTop: 'var(--space-2, 8px)' }}>
@@ -591,7 +591,7 @@ export const DentalImplant3DPage: React.FC = () => {
           onCancel={() => setCreateImplantOpen(false)}
           onOk={() => void handleCreateImplant()}
           confirmLoading={createImplantSaving}
-          width={440}
+          width={420}
         >
           <Form layout="vertical" size="small" style={{ marginTop: 'var(--space-2, 8px)' }}>
             <Form.Item label={t("w3b.implantTooth")}> <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>(FDI)</span>

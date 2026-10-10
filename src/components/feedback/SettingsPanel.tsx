@@ -98,7 +98,7 @@ export function SettingsPanel({
         open={open}
         onCancel={() => setOpen(false)}
         footer={null}
-        width={640}
+        width={720}
         destroyOnHidden
       >
         <Tabs

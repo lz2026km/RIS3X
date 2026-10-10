@@ -896,7 +896,7 @@ export default function RqiReportCenterPage() {
         title={t('rqiReport.detail.title')}
         open={detailOpen}
         onClose={() => setDetailOpen(false)}
-        width={820}
+        width={960}
       >
         {detailLoading && !detailBatch ? (
           <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)', color: 'var(--text-muted, #94a3b8)' }}>

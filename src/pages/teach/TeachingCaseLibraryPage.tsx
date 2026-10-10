@@ -650,7 +650,7 @@ export default function TeachingCaseLibraryPage() {
         open={Boolean(commentTarget)}
         onCancel={() => setCommentTarget(null)}
         footer={null}
-        width={520}
+        width={560}
       >
         <div style={{ maxHeight: 300, overflowY: 'auto', marginBottom: 'var(--space-3, 12px)' }}>
           {comments.length === 0 && <Empty description={t('noComment', '暂无评论')} />}

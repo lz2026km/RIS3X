@@ -664,7 +664,7 @@ export default function CustomReportPage() {
             )}
           </Space>
         }
-        width={760}
+        width={960}
         destroyOnClose={false}
       >
         <Steps
@@ -796,7 +796,7 @@ export default function CustomReportPage() {
         open={!!resultDef}
         onCancel={() => setResultDef(null)}
         footer={<Button onClick={() => setResultDef(null)}>{t('customReport.close')}</Button>}
-        width={860}
+        width={960}
       >
         {resultLoading ? (
           <div style={{ textAlign: 'center', padding: 'var(--space-12, 48px)' }}><Spin /></div>
@@ -837,7 +837,7 @@ export default function CustomReportPage() {
       {/* ── 历史 Drawer ────────────────────────────────────────────────────── */}
       <Drawer
         title={historyDef ? t('customReport.historyTitleNamed', { name: historyDef.name }) : t('customReport.historyTitle')}
-        width={640}
+        width={720}
         open={!!historyDef}
         onClose={() => setHistoryDef(null)}
       >
@@ -870,7 +870,7 @@ export default function CustomReportPage() {
         okText={t('customReport.saveAndPush')}
         cancelText={t('customReport.cancel')}
         confirmLoading={saving}
-        width={540}
+        width={560}
       >
         {scheduleDef && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', paddingTop: 'var(--space-2, 8px)' }}>

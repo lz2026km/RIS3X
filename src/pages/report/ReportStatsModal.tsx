@@ -133,7 +133,7 @@ export default function ReportStatsModal({ open, onClose }: ReportStatsModalProp
       open={open}
       onCancel={onClose}
       footer={null}
-      width={860}
+      width={960}
       destroyOnHidden
     >
       <div style={{ display: 'flex', gap: 'var(--space-1, 4px)', background: 'var(--bg-secondary, #f1f5f9)', borderRadius: 10, padding: 'var(--space-1, 4px)', marginBottom: 'var(--space-4, 16px)' }}>

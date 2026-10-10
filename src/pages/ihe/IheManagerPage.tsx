@@ -671,7 +671,7 @@ export const IheManagerPage: React.FC = () => {
         title={t('iheManager.editDomainConfig')}
         open={domainDrawerOpen}
         onClose={() => setDomainDrawerOpen(false)}
-        width={520}
+        width={560}
         extra={
           <Space>
             <Button icon={<Save size={14} />} type="primary" loading={domainSaving} onClick={handleSaveDomain}>

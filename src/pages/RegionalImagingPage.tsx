@@ -19,6 +19,7 @@ import {
   type IntegrationStatusDto,
 } from "../services/api/regionalApi";
 import { t } from "../i18n/appI18n";
+import { PageContainer } from "../components/common";
 
 // Types
 type AccessApplication = AccessApplicationDto;
@@ -1472,7 +1473,7 @@ const RegionalImagingPage: React.FC = () => {
   };
 
   return (
-    <div style={styles.container}>
+    <PageContainer maxWidth="full" style={{ ...styles.container, minHeight: "auto" }}>
       <div style={styles.header}>
         <Typography.Title level={4} style={{ margin: "0 0 8px 0" }}>{t('regionalImaging.pageTitle')}</Typography.Title>
         <p style={styles.subtitle}>
@@ -1495,7 +1496,7 @@ const RegionalImagingPage: React.FC = () => {
         ))}
       </div>
       <div style={styles.content}>{renderContent()}</div>
-    </div>
+    </PageContainer>
   );
 };
 

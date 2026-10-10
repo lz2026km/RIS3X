@@ -264,7 +264,7 @@ export const DentalStudiesPage: React.FC = () => {
         onCancel={() => setRegOpen(false)}
         onOk={() => void handleSaveStudy()}
         confirmLoading={saving}
-        width={480}
+        width={420}
       >
         <Form form={regForm} layout="vertical" size="small" style={{ marginTop: 'var(--space-2, 8px)' }}>
           <Row gutter={12}>
@@ -322,7 +322,7 @@ export const DentalStudiesPage: React.FC = () => {
         open={cmpOpen}
         onCancel={() => setCmpOpen(false)}
         footer={<Button onClick={() => setCmpOpen(false)}>{t('dentalStudies.close')}</Button>}
-        width={640}
+        width={720}
       >
         {cmpResult && (
           <>

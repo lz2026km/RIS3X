@@ -358,7 +358,7 @@ export const MaterialsPage: React.FC = () => {
         open={!!iolModal.type}
         onCancel={() => setIolModal({ type: null, data: {} })}
         onOk={iolModal.type === 'in' ? handleIolInStock : iolModal.type === 'out' ? handleIolOutStock : iolModal.type === 'transfer' ? handleIolTransfer : handleIolAdjust}
-        width={500}
+        width={560}
       >
         {iolModal.type === 'in' ? (
           <Form layout="vertical" size="small">
@@ -403,7 +403,7 @@ export const MaterialsPage: React.FC = () => {
         open={iolDetail.open}
         onCancel={() => setIolDetail({ open: false, data: null, loading: false })}
         footer={<Button onClick={() => setIolDetail({ open: false, data: null, loading: false })}>{t('materialsPage.close')}</Button>}
-        width={480}
+        width={420}
       >
         {iolDetail.loading ? (
           <div style={{ textAlign: 'center', padding: 'var(--space-6, 24px)' }}>{t('materialsPage.loading')}</div>
@@ -439,7 +439,7 @@ export const MaterialsPage: React.FC = () => {
         onCancel={() => setLensModal({ type: null, data: {} })}
         onOk={lensModal.type === 'fitting' ? undefined : handleLensSave}
         footer={lensModal.type === 'fitting' ? null : undefined}
-        width={500}
+        width={560}
       >
         {lensModal.type === 'fitting' ? (
           <div>
@@ -492,7 +492,7 @@ export const MaterialsPage: React.FC = () => {
         okText={t('materialsPage.generateDesign')}
         cancelText={t('materialsPage.cancel')}
         confirmLoading={okDesignModal.submitting}
-        width={460}
+        width={420}
       >
         <Form layout="vertical" size="small">
           <Form.Item label={t('materialsPage.patientId')} required><Input value={okDesignModal.data.patientId} onChange={e => setOkDesignModal({ ...okDesignModal, data: { ...okDesignModal.data, patientId: e.target.value } })} placeholder="P000001" /></Form.Item>

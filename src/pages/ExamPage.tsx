@@ -73,6 +73,7 @@ import { useKeyboardShortcuts, useNavigationShortcuts, SHORTCUTS } from "../hook
 import { useNavigate } from "react-router-dom";
 import { t } from '../i18n/appI18n';
 import { statusTone } from "../theme/statusTokens";
+import { PageContainer } from "../components/common";
 
 // ==================== 常量配置 ====================
 const PRIMARY = "var(--color-primary)"; // 主品牌色
@@ -3218,8 +3219,12 @@ export default function ExamPage() {
 
   // ==================== 主渲染 ====================
   return (
-    <div
-      data-testid="exam-page"
+    <PageContainer
+      background="none"
+      maxWidth="fluid"
+      padding={0}
+      minHeight="auto"
+      testId="exam-page"
       style={{
         display: "flex",
         flexDirection: "column",
@@ -3758,7 +3763,7 @@ export default function ExamPage() {
         confirmLoading={creatingExam}
         okText={t("examPage.create")}
         cancelText={t("examPage.cancel")}
-        width={480}
+        width={420}
       >
         <Form form={createExamForm} layout="vertical" size="small" style={{ marginTop: 'var(--space-3, 12px)' }} initialValues={{ modality: "CT", bodyPart: t("examPage.chest") }}>
           <Form.Item name="patientId" label={t("examPage.patient")} rules={[{ required: true, message: t("examPage.selectPatientRequired") }]}>
@@ -3791,6 +3796,6 @@ export default function ExamPage() {
         onCancel={() => setTimeoutExamId(null)}
         onVerified={() => void handleTimeoutVerified()}
       />
-    </div>
+    </PageContainer>
   );
 }

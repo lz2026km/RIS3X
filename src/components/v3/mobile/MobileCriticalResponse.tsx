@@ -179,7 +179,7 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
         open={!!selected}
         onCancel={() => setSelected(null)}
         footer={null}
-        width={400}
+        width={420}
         data-testid="mob-cv-modal"
       >
         {selected && (

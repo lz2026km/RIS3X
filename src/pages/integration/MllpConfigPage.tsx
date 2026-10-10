@@ -21,6 +21,7 @@ import { usePagination } from "../../hooks/usePagination";
 import { ErrorBanner } from "../../components/feedback";
 import dayjs from "dayjs";
 import { t } from '../../i18n/appI18n';
+import { PageContainer } from "../../components/common";
 
 interface MllpStatus {
   running: boolean;
@@ -156,7 +157,7 @@ export const MllpConfigPage: React.FC = () => {
   ];
 
   return (
-    <div className="p-4 space-y-3">
+    <PageContainer background="none" maxWidth="fluid" padding={0} minHeight="auto" className="p-4 space-y-3">
       {loadError && <ErrorBanner message={loadError} />}
 
       <Card size="small" className="shadow-sm">
@@ -275,7 +276,7 @@ export const MllpConfigPage: React.FC = () => {
           />
         </div>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 

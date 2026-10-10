@@ -30,6 +30,7 @@ import { StatCard, StatCardGrid } from '../../components/common/StatCard'
 import { EmptyState } from '../../components/common/EmptyState'
 import { AppText } from '../../components/common/AppText'
 import { THEME_TOKENS } from '../../components/common/ThemeTokens'
+import { PageContainer } from "../../components/common";
 
 const REASON_COLORS: Record<string, string> = {
   motion_artifact: 'var(--color-error-500)', positioning: 'var(--color-warning-500)', wrong_protocol: '#8b5cf6',
@@ -189,7 +190,7 @@ export default function RetakeRateAnalyticsPage() {
   }
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" style={{ background: 'var(--bg-primary)' }}>
       <PageHeader
         icon={<BarChart3 size={20} color="#7c3aed" />}
         title={t('retakeAnalytics.title')}
@@ -446,7 +447,7 @@ export default function RetakeRateAnalyticsPage() {
           </div>
         )}
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

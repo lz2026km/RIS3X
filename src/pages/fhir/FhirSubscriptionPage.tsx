@@ -17,6 +17,7 @@ import {
 import { Bell, Plus, Trash, RefreshCw, Eye } from 'lucide-react'
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
+import { PageContainer } from "../../components/common";
 
 export const FhirSubscriptionPage: React.FC = () => {
   const [subscriptions, setSubscriptions] = useState<FhirSubscription[]>([])
@@ -165,7 +166,7 @@ export const FhirSubscriptionPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" style={{ background: 'var(--bg-primary)' }}>
       <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Bell size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fhirSub.title')}</span>
@@ -198,7 +199,7 @@ export const FhirSubscriptionPage: React.FC = () => {
         onCancel={() => setModalOpen(false)}
         onOk={handleCreate}
         confirmLoading={saving}
-        width={600}
+        width={560}
       >
         <Form form={form} layout="vertical" size="small" initialValues={{ channelType: 'rest-hook', payload: 'id-only' }}>
           <Form.Item name="reason" label={t('fhirSub.reasonLabel')} rules={[{ required: true }]}>
@@ -236,7 +237,7 @@ export const FhirSubscriptionPage: React.FC = () => {
         open={detailOpen}
         onCancel={() => setDetailOpen(false)}
         footer={<Button onClick={() => setDetailOpen(false)}>{t('fhirSub.close')}</Button>}
-        width={600}
+        width={560}
       >
         {detailLoading ? (
           <div style={{ textAlign: 'center', padding: '32px 0', color: '#999' }}>{t('fhirSub.loadingDetail')}</div>
@@ -248,7 +249,7 @@ export const FhirSubscriptionPage: React.FC = () => {
           </div>
         ) : <Empty description={t('fhirSub.empty')} image={<Inbox size={48} style={{opacity:0.4}}/>} />}
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

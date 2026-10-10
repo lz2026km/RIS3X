@@ -169,7 +169,7 @@ export const DeviceManagement: React.FC<DeviceManagementProps> = ({ devices, onC
         onOk={() => {
           form.submit()
         }}
-        width={640}
+        width={720}
         data-testid="device-form-modal"
       >
         <Form

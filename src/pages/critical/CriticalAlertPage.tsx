@@ -524,7 +524,7 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
         open={detailOpen}
         onCancel={() => setDetailOpen(false)}
         confirmLoading={submitting}
-        width={640}
+        width={720}
         footer={selected ? [
           <Button key="cancel" onClick={() => setDetailOpen(false)}>{tr('criticalAlert.cancel')}</Button>,
           <Button key="log" icon={<Phone size={12} />} onClick={() => void openCommunicationLog(selected.id)}>{t('communicationLog')}</Button>,
@@ -604,7 +604,7 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
         open={logOpen}
         onCancel={() => setLogOpen(false)}
         footer={<Button onClick={() => setLogOpen(false)}>{tr('criticalAlert.close')}</Button>}
-        width={640}
+        width={720}
       >
         <Spin spinning={logLoading}>
           {logEntries.length === 0 ? (

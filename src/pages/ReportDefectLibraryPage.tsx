@@ -37,6 +37,7 @@ import { Drawer, Tag, Typography } from "antd";
 import { reportQualityApi } from "../services/api";
 import { qualityScoringCenterApi } from "../services/api/qualityScoringCenterApi";
 import { t } from "../i18n/appI18n";
+import { PageContainer } from "../components/common";
 
 // [G005 W4A] /defect-library/items/:id 详情形状 (后端 DefectItem)
 interface LibraryDefectDetail {
@@ -375,7 +376,7 @@ export default function ReportDefectLibraryPage() {
   ];
 
   return (
-    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: "0 auto" }}>
+    <PageContainer maxWidth="full" padding="var(--space-5, 20px)">
       {loading && <LoadingBanner message={t('w9.states.loading')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
 
@@ -937,7 +938,7 @@ export default function ReportDefectLibraryPage() {
       {/* [G005 W4A] 缺陷库单项详情 Drawer (GET /defect-library/items/:id) */}
       <Drawer
         title={`${t('w4a.defect.viewDetail')}${libraryDetail ? ` · ${libraryDetail.code}` : ''}`}
-        width={460}
+        width={420}
         open={libraryDetailOpen}
         onClose={() => setLibraryDetailOpen(false)}
       >
@@ -1197,7 +1198,7 @@ export default function ReportDefectLibraryPage() {
           {toast.message}
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }
 

@@ -19,6 +19,7 @@ import type { Hl7Report, Hl7ArchiveRecord } from "../../services/api/integration
 import { usePagination } from "../../hooks/usePagination";
 import { t } from "../../i18n/appI18n";
 import { DataTable } from "../../components/common";
+import { PageContainer } from "../../components/common";
 
 const { RangePicker } = DatePicker;
 
@@ -302,7 +303,7 @@ export const Hl7BuilderPage: React.FC = () => {
   };
 
   return (
-    <div className="p-4 space-y-3">
+    <PageContainer background="none" maxWidth="fluid" padding={0} minHeight="auto" className="p-4 space-y-3">
       <Card size="small" className="shadow-sm">
         <div className="flex items-center justify-between">
           <Space>
@@ -459,7 +460,7 @@ export const Hl7BuilderPage: React.FC = () => {
         scroll={{ x: 'max-content' }}
         />
       </Card>
-    </div>
+    </PageContainer>
   );
 };
 

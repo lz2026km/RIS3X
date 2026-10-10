@@ -160,7 +160,7 @@ export const DicomSrTemplatePage: React.FC = () => {
         onCancel={() => setModalOpen(false)}
         onOk={handleSave}
         confirmLoading={saving}
-        width={600}
+        width={560}
       >
         <Form form={form} layout="vertical" size="small">
           <Form.Item name="label" label={t('srTpl.colLabel')} rules={[{ required: true }]}>
@@ -183,7 +183,7 @@ export const DicomSrTemplatePage: React.FC = () => {
         open={detailOpen}
         onCancel={() => setDetailOpen(false)}
         footer={<Button onClick={() => setDetailOpen(false)}>{t('srTpl.close')}</Button>}
-        width={500}
+        width={560}
       >
         {selectedTemplate ? (
           <Descriptions column={1} size="small" bordered>

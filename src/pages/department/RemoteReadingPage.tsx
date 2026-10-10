@@ -274,7 +274,7 @@ const RemoteReadingPage: React.FC = () => {
       </Card>
 
       <Modal title={t('remoteReading.assignTitle')} open={assignOpen} onCancel={() => setAssignOpen(false)} onOk={handleAssign}
-        okText={t('remoteReading.assign')} confirmLoading={assignLoading} width={480}>
+        okText={t('remoteReading.assign')} confirmLoading={assignLoading} width={420}>
         <Form form={assignForm} layout="vertical" size="small" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item name="studyId" label={t('remoteReading.examPending')} rules={[{ required: true, message: t('remoteReading.selectExam') }]}>
             <Select

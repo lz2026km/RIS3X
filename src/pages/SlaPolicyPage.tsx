@@ -193,7 +193,7 @@ export default function SlaPolicyPage() {
           <Button type="primary" loading={saving} onClick={handleSaveAll} icon={<Clock size={14} />}>{t('sla.saveAll')}</Button>
         </div>
       </div>
-      <Modal title={editing ? t('sla.editPolicy') : t('sla.newPolicy')} open={modalOpen} onOk={handleOk} onCancel={() => setModalOpen(false)} width={520}>
+      <Modal title={editing ? t('sla.editPolicy') : t('sla.newPolicy')} open={modalOpen} onOk={handleOk} onCancel={() => setModalOpen(false)} width={560}>
         <Form form={form} layout="vertical">
           <Form.Item name="name" label={t('sla.colName')} rules={[{ required: true, message: t('sla.nameRequired') }]}>
             <Input />

@@ -98,7 +98,7 @@ export function ExportDialog({ reportId, open, onCancel }: ExportDialogProps) {
       open={open}
       onCancel={handleClose}
       footer={null}
-      width={520}
+      width={560}
       destroyOnHidden
       maskClosable={!exporting}
       closable={!exporting}

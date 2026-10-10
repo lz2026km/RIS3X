@@ -24,6 +24,7 @@ import { DataTable, ExportButton, StatCard, StatCardGrid } from "../../component
 import { deviceOpsApi } from '../../services/api/deviceOpsApi'
 import type { CostByExamRow, CostSummary, DrgGroups, ReportDefinition, ReportInstance } from '../../services/api/deviceOpsApi'
 import { t } from '../../i18n/appI18n'
+import { PageContainer } from "../../components/common";
 
 const { Text } = Typography
 const fmtMoney = (v?: number) => (typeof v === 'number' ? `¥${v.toLocaleString()}` : t('w11Device.dash'))
@@ -225,7 +226,7 @@ export default function CostDrgPage() {
   )
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)', minHeight: 'calc(100vh - 56px)' }}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" minHeight="calc(100vh - 56px)" style={{ background: "var(--bg-card)" }}>
       <Card style={{ background: 'linear-gradient(135deg,#7c3aed 0%,var(--color-primary-600) 100%)', color: '#fff', border: 'none', marginBottom: 'var(--space-4, 16px)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Space size={16}>
@@ -254,6 +255,6 @@ export default function CostDrgPage() {
           ]}
         />
       </Card>
-    </div>
+    </PageContainer>
   )
 }

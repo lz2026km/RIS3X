@@ -275,11 +275,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
                   d.state === 'BUSY' ? CHART_COLORS.error : d.state === 'IDLE' ? CHART_COLORS.success : d.state === 'OFFLINE' ? CHART_COLORS.gray : d.state === 'MAINTENANCE' ? CHART_COLORS.amber : CHART_COLORS.primary
                 return (
                   <Col key={d.id} xs={12} sm={8} md={6}>
-                    <Card
-                      size="small"
-                      data-testid={`ops-device-${d.id}`}
-                      style={{ borderColor: stateColor }}
-                    >
+                    <div data-testid={`ops-device-${d.id}`} style={{ padding: 12, borderColor: stateColor }}>
                       <Space orientation="vertical" size={2} style={{ width: '100%' }}>
                         <Space size={4}>
                           <Tag color="blue">{d.modality}</Tag>
@@ -295,7 +291,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
                           strokeColor={d.utilization > 80 ? CHART_COLORS.error : CHART_COLORS.primary}
                         />
                       </Space>
-                    </Card>
+                    </div>
                   </Col>
                 )
               })}

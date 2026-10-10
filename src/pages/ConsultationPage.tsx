@@ -14,6 +14,7 @@ import { t } from '../i18n/appI18n'
 import { StatusTag } from '../components/common/StatusTag'
 import { DataTable } from '../components/common'
 import { Typography, Tooltip } from 'antd'
+import { PageContainer } from "../components/common";
 
 const { Title } = Typography
 
@@ -742,7 +743,7 @@ export default function ConsultationPage() {
   ]
 
   return (
-    <div data-testid="consultation-page" style={{ padding: 'var(--space-6, 24px)', maxWidth: 1600, margin: '0 auto', background: 'var(--bg-card)',}}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" testId="consultation-page" style={{ background: 'var(--bg-card)' }}>
       {/* [v3.0.6.11-88] 已接入真实 API: 后端 consultations.controller 全端点已实现 */}
       <div style={{ background: 'var(--color-success-bg)', color: '#065f46', fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 6, border: '1px solid #a7f3d0', marginBottom: 'var(--space-3, 12px)' }}>
         {t('consultation.realApiBanner')}</div>
@@ -1087,9 +1088,9 @@ export default function ConsultationPage() {
 
                   {/* Patient & Exam Info */}
                   <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                    <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Title level={4} style={{  margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <User size={16} color={ACCENT} />{t('consultation.patientExamInfo')}
-                    </h3>
+                    </Title>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
                       {/* Patient Info */}
                       <div>
@@ -1144,9 +1145,9 @@ export default function ConsultationPage() {
 
                   {/* Consultation Purpose & Clinical Info */}
                   <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                    <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Title level={4} style={{  margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Stethoscope size={16} color={ACCENT} />{t('consultation.purposeClinicalInfo')}
-                    </h3>
+                    </Title>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
                       {[
                         { label: t('consultation.purposeDesc'), value: selected.requestReason, icon: <MessageSquare size={14} color={ACCENT} /> },
@@ -1166,9 +1167,9 @@ export default function ConsultationPage() {
 
                   {/* Timeline */}
                   <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                    <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Title level={4} style={{  margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Clock3 size={16} color={ACCENT} />{t('consultation.timelineTitle')}
-                    </h3>
+                    </Title>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
                       {timeline.map((node, idx) => (
                         <div key={node.label} style={{ display: 'flex', alignItems: 'stretch', minHeight: 72 }}>
@@ -1211,9 +1212,9 @@ export default function ConsultationPage() {
 
                   {/* Consultation Conclusion */}
                   <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                    <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Title level={4} style={{  margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <MessageSquare size={16} color={ACCENT} />{t('consultation.conclusionSection')}
-                    </h3>
+                    </Title>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
                       <div>
                         <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>
@@ -1263,9 +1264,9 @@ export default function ConsultationPage() {
                   {/* Consultation Evaluation */}
                   <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                      <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Title level={4} style={{  margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
                         <ThumbsUp size={16} color={ACCENT} />{t('consultation.evaluation')}
-                      </h3>
+                      </Title>
                       <button
                         onClick={() => setShowRatingModal(true)}
                         style={{ padding: '4px 12px', background: 'var(--color-info-bg)', color: ACCENT, border: `1px solid ${ACCENT}`, borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 'var(--space-1, 4px)' }}>
@@ -1321,9 +1322,9 @@ export default function ConsultationPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)' }}>
             {/* 会诊录音录像控制面板 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Title level={4} style={{  margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Video size={16} color={ACCENT} />{t('consultation.recordingPanel')}
-              </h3>
+              </Title>
 
               {/* 当前会诊信息 */}
               <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 14px', marginBottom: 'var(--space-4, 16px)' }}>
@@ -1493,9 +1494,9 @@ export default function ConsultationPage() {
 
             {/* 录像预览区 */}
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Title level={4} style={{  margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Film size={16} color={ACCENT} />{t('consultation.videoPreview')}
-              </h3>
+              </Title>
 
               {/* 视频预览 */}
               <div style={{
@@ -1661,10 +1662,10 @@ export default function ConsultationPage() {
 
           {/* 录音录像存档列表 */}
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Title level={4} style={{  margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Film size={16} color={ACCENT} />{t('consultation.archiveList')}
               <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-warning-600)', background: 'var(--color-warning-bg, #fffbeb)', border: '1px solid var(--color-warning-300, #fcd34d)', borderRadius: 10, padding: '2px 8px' }}>{t('consultation.demoData')}</span>
-            </h3>
+            </Title>
 
             <div style={{ overflowX: 'auto' }}>
               <DataTable
@@ -1807,9 +1808,9 @@ export default function ConsultationPage() {
 
           {regSection === 'create' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Title level={4} style={{  margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <FileText size={16} color={ACCENT} />{t('consultation.registration.createTitle')}
-              </h3>
+              </Title>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
                 {([
                   { label: t('consultation.registration.patientName'), key: 'patientName', placeholder: t('consultation.regPatientNamePh') },
@@ -1843,10 +1844,10 @@ export default function ConsultationPage() {
           {regSection === 'pending' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Title level={4} style={{  margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <Clock size={16} color={WARNING} />{t('consultation.registration.pending')}
                   <span style={{ background: '#fef3c7', color: WARNING, borderRadius: 10, padding: '2px 8px', fontSize: 12 }}>{t('consultation.registration.pendingCount')}: {pendingConsults.length}</span>
-                </h3>
+                </Title>
                 <button onClick={() => void loadPending()} style={{ padding: '6px 14px', background: 'var(--color-info-bg)', color: ACCENT, border: `1px solid ${ACCENT}`, borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
                   <RefreshCw size={13} />{t('consultation.refresh')}
                 </button>
@@ -1868,9 +1869,9 @@ export default function ConsultationPage() {
 
           {regSection === 'query' && (
             <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 'var(--space-5, 20px)', border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Title level={4} style={{  margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Search size={16} color={SUCCESS} />{t('consultation.registration.title')}
-              </h3>
+              </Title>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4, 16px)', marginBottom: 'var(--space-4, 16px)' }}>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('consultation.registration.byPatient')}</label>
@@ -1921,7 +1922,7 @@ export default function ConsultationPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 'var(--space-6, 24px)', width: 480, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>{t('consultation.detailRatingTitle')}</h3>
+              <Title level={4} style={{  margin: 0 }}>{t('consultation.detailRatingTitle')}</Title>
               <button aria-label="关闭" onClick={() => setShowRatingModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
                 <X size={20} />
               </button>
@@ -1980,7 +1981,7 @@ export default function ConsultationPage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 'var(--space-6, 24px)', width: 800, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
               <div>
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 4px' }}>{t('consultation.videoPlayback')} - {selectedArchive.patientName}</h3>
+                <Title level={4} style={{  margin: '0 0 4px' }}>{t('consultation.videoPlayback')} - {selectedArchive.patientName}</Title>
                 <div style={{ fontSize: 12, color: GRAY }}>{selectedArchive.consultationId} | {selectedArchive.duration} | {selectedArchive.fileSize}</div>
               </div>
               <button aria-label="关闭"
@@ -2245,7 +2246,7 @@ export default function ConsultationPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 'var(--space-6, 24px)', width: 480, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>{t('consultation.uploadTitle')}</h3>
+              <Title level={4} style={{  margin: 0 }}>{t('consultation.uploadTitle')}</Title>
               <button aria-label="关闭" onClick={() => setShowUploadModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
                 <X size={20} />
               </button>
@@ -2295,7 +2296,7 @@ export default function ConsultationPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 'var(--space-6, 24px)', width: 440, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>{t('consultation.inviteTitle')}</h3>
+              <Title level={4} style={{  margin: 0 }}>{t('consultation.inviteTitle')}</Title>
               <button aria-label="关闭" onClick={() => setShowInviteModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
                 <X size={20} />
               </button>
@@ -2327,7 +2328,7 @@ export default function ConsultationPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 'var(--space-6, 24px)', width: 560, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>{t('consultation.registration.editTitle')} #{selected.id}</h3>
+              <Title level={4} style={{  margin: 0 }}>{t('consultation.registration.editTitle')} #{selected.id}</Title>
               <button aria-label="关闭" onClick={() => setShowEditModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
                 <X size={20} />
               </button>
@@ -2378,7 +2379,7 @@ export default function ConsultationPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 'var(--space-6, 24px)', width: 520, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-5, 20px)' }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>{t('consultation.confirmConclusionTitle')}</h3>
+              <Title level={4} style={{  margin: 0 }}>{t('consultation.confirmConclusionTitle')}</Title>
               <button aria-label="关闭" onClick={() => setShowConclusionModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
                 <X size={20} />
               </button>
@@ -2414,7 +2415,7 @@ export default function ConsultationPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 16, padding: 'var(--space-6, 24px)', width: 400, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4, 16px)' }}>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: DANGER, margin: 0 }}>{t('consultation.confirmDeleteArchive')}</h3>
+              <Title level={4} style={{  margin: 0 }}>{t('consultation.confirmDeleteArchive')}</Title>
               <button aria-label="关闭" onClick={() => { setShowDeleteModal(false); setDeleteTarget(null) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 'var(--space-1, 4px)' }}>
                 <X size={20} />
               </button>
@@ -2433,6 +2434,6 @@ export default function ConsultationPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   )
 }

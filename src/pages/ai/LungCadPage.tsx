@@ -284,7 +284,7 @@ const LungCadPage: React.FC = () => {
         title={`${t("w9d.lungCad.detailTitle")} - ${selected?.patientName}`}
         open={detailOpen}
         onCancel={() => setDetailOpen(false)}
-        width={800}
+        width={960}
         footer={null}
       >
         {selected && (

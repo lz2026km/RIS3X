@@ -28,6 +28,7 @@ import { hangingApi, type HangingProtocol, type HangingMatchResult, type Hanging
 import { usePagination } from '../../hooks/usePagination'
 import { LAYOUT_PRESETS, layoutKey, HANGING_PROTOCOL_PRESETS, matchHangingProtocols } from '../../constants/hangingProtocols'
 import { t } from '../../i18n/appI18n'
+import { PageContainer } from "../../components/common";
 
 const { Title, Text } = Typography
 
@@ -244,7 +245,7 @@ const HangingProtocolPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" style={{ background: 'var(--bg-primary)' }}>
       <Space style={{ marginBottom: 'var(--space-4, 16px)' }} align="center">
         <LayoutGrid size={20} color="var(--color-primary-600)" />
         <Title level={4} style={{ margin: 0 }}>{t('hangProto.title')}</Title>
@@ -302,7 +303,7 @@ const HangingProtocolPage: React.FC = () => {
         open={modalOpen}
         onOk={() => handleSave()}
         onCancel={() => setModalOpen(false)}
-        width={640}
+        width={720}
         destroyOnHidden
       >
         <Form form={form} layout="vertical" initialValues={{ layoutPreset: '1x1' }}>
@@ -359,7 +360,7 @@ const HangingProtocolPage: React.FC = () => {
         open={matchModalOpen}
         onCancel={() => setMatchModalOpen(false)}
         footer={null}
-        width={760}
+        width={960}
         destroyOnHidden
       >
         <Form form={matchForm} layout="vertical" initialValues={{ matchModality: 'CT', matchBodyPart: 'CHEST' }}>
@@ -413,7 +414,7 @@ const HangingProtocolPage: React.FC = () => {
           </div>
         )}
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

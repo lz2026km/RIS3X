@@ -21,6 +21,7 @@ import {
   Zap, Download,
   Brain, Bot, Scan, Gauge, MessageSquare, Wrench
 } from 'lucide-react'
+import { PageContainer } from "../components/common";
 
 const PRIMARY = 'var(--color-primary-500)'
 const PRIMARY_DARK = 'var(--color-primary-600)'
@@ -620,12 +621,7 @@ export default function AIQCPage() {
   }
 
   return (
-    <div style={{
-      padding: 'var(--space-6, 24px)',
-      maxWidth: 1600,
-      margin: '0 auto',
-      background: DARK_BG, color: WHITE,
-    }}>
+    <PageContainer background="dark" maxWidth="full" padding="var(--space-6, 24px)" style={{ color: WHITE }}>
       {/* [v1.0.4 R4] 升级入口横幅 */}
       <div style={{
         background: 'linear-gradient(135deg, #7c3aed 0%, var(--color-primary-500) 100%)',
@@ -1521,7 +1517,7 @@ export default function AIQCPage() {
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <Brain size={20} color={PRIMARY} />
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: WHITE, margin: 0 }}>{t('aiQcPage.detailTitle')}</h3>
+                <Title level={4} style={{  margin: 0 }}>{t('aiQcPage.detailTitle')}</Title>
               </div>
               <button aria-label="关闭"
                 onClick={() => setShowDetail(false)}
@@ -1660,6 +1656,6 @@ export default function AIQCPage() {
           filter: invert(0.7);
         }
       `}</style>
-    </div>
+    </PageContainer>
   )
 }

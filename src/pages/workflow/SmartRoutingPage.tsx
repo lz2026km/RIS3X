@@ -34,6 +34,7 @@ import { t } from '../../i18n/appI18n'
 
 const { Title } = Typography
 import { uniqueId } from '../../utils/uniqueId'
+import { PageContainer } from "../../components/common";
 
 const stageMeta: Record<string, { label: string; color: string }> = {
   qualification: { label: '资质匹配', color: 'blue' },
@@ -217,7 +218,7 @@ const SmartRoutingPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)' }}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)">
       <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
         <Route size={20} color="var(--color-primary-600)" />
         <Title level={4} style={{ margin: 0 }}>{t('smartRouting.title')}</Title>
@@ -375,7 +376,7 @@ const SmartRoutingPage: React.FC = () => {
           <Form.Item name="priority" label={t('smartRouting.priorityHint')}><InputNumber style={{ width: '100%' }} /></Form.Item>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

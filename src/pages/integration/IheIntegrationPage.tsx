@@ -169,7 +169,7 @@ const IheIntegrationPage: React.FC = () => {
         </Col>
       </Row>
 
-      <Modal title={t('iheInt.pixQueryBtn')} open={pixModal} onCancel={() => setPixModal(false)} footer={null} width={460}>
+      <Modal title={t('iheInt.pixQueryBtn')} open={pixModal} onCancel={() => setPixModal(false)} footer={null} width={420}>
         <Space direction="vertical" size={12} style={{ width: '100%', marginTop: 'var(--space-3, 12px)' }}>
           <Input.Search
             placeholder={t('iheInt.pixPlaceholder')}
@@ -182,7 +182,7 @@ const IheIntegrationPage: React.FC = () => {
         </Space>
       </Modal>
 
-      <Modal title={t('iheInt.pdqQueryBtn')} open={pdqModal} onCancel={() => setPdqModal(false)} footer={null} width={460}>
+      <Modal title={t('iheInt.pdqQueryBtn')} open={pdqModal} onCancel={() => setPdqModal(false)} footer={null} width={420}>
         <Space direction="vertical" size={12} style={{ width: '100%', marginTop: 'var(--space-3, 12px)' }}>
           <Input.Search
             placeholder={t('iheInt.pdqPlaceholder')}
@@ -195,7 +195,7 @@ const IheIntegrationPage: React.FC = () => {
         </Space>
       </Modal>
 
-      <Modal title={`${t('iheInt.txnDetailTitle')} - ${detailTxn ?? ''}`} open={!!detailTxn} onCancel={() => setDetailTxn(null)} footer={<Button type="primary" onClick={() => setDetailTxn(null)}>{t('iheInt.close')}</Button>} width={480}>
+      <Modal title={`${t('iheInt.txnDetailTitle')} - ${detailTxn ?? ''}`} open={!!detailTxn} onCancel={() => setDetailTxn(null)} footer={<Button type="primary" onClick={() => setDetailTxn(null)}>{t('iheInt.close')}</Button>} width={420}>
         {detailTxn && (
           <Descriptions bordered column={1} size="small" style={{ marginTop: 'var(--space-3, 12px)' }}>
             <Descriptions.Item label={t('iheInt.txnName')}>{detailTxn}</Descriptions.Item>
@@ -206,7 +206,7 @@ const IheIntegrationPage: React.FC = () => {
         )}
       </Modal>
 
-      <Modal title={t('iheInt.pamTitle')} open={pamModal} onCancel={() => setPamModal(false)} footer={<Button type="primary" onClick={() => setPamModal(false)}>{t('iheInt.close')}</Button>} width={520}>
+      <Modal title={t('iheInt.pamTitle')} open={pamModal} onCancel={() => setPamModal(false)} footer={<Button type="primary" onClick={() => setPamModal(false)}>{t('iheInt.close')}</Button>} width={560}>
         <Space direction="vertical" size={10} style={{ width: '100%', marginTop: 'var(--space-2, 8px)' }}>
           <Alert type="info" showIcon message={t('iheInt.pamAlert')} />
           <Descriptions bordered column={1} size="small">

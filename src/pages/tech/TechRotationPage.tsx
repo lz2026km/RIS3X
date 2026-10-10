@@ -632,7 +632,7 @@ export default function TechRotationPage() {
         onOk={() => void handleExecute()}
         okText={t('techRotation.execOk')}
         cancelText={t('techRotation.cancel')}
-        width={380}
+        width={420}
         destroyOnClose
       >
         {execModal && (

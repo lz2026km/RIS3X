@@ -398,7 +398,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
         onOk={saveEdit}
         okText={t('criticalValueEscalation.save')}
         cancelText={t('criticalValueEscalation.cancel')}
-        width={620}
+        width={560}
         okButtonProps={{ icon: <Save size={12} /> }}
       >
         {editing && (

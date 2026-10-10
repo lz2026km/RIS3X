@@ -26,6 +26,7 @@ import {
   countByLevel,
   findCategoryById,
 } from '../data/templateCategoryTree';
+import { PageContainer } from "../components/common";
 
 // [v3.0.6.11-96 Wave3B P1] 真实分类(扁平, name/sortOrder) → 树根节点; 按 code 匹配静态子树作为后代
 function buildTreeFromCategories(cats: TemplateCategoryDto[]): TemplateCategoryNode[] {
@@ -435,7 +436,7 @@ export default function TemplateCategoryPage() {
   }, [templates, selectedNode]);
 
   return (
-    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
+    <PageContainer maxWidth="full" padding="var(--space-5, 20px)">
       {/* 顶部 */}
       <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
@@ -830,7 +831,7 @@ export default function TemplateCategoryPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }
 

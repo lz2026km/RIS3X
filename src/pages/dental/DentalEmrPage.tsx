@@ -324,7 +324,7 @@ export const DentalEmrPage: React.FC = () => {
             onCancel={() => { setApptCreateOpen(false); setApptEditItem(null); apptForm.resetFields(); }}
             onOk={() => void handleSaveAppt()}
             confirmLoading={apptSaving}
-            width={460}
+            width={420}
           >
             <Form form={apptForm} layout="vertical" size="small">
               {!apptEditItem && (

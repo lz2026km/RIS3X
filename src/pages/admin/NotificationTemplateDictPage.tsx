@@ -334,7 +334,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
         open={!!tplModal.type}
         onCancel={() => { setTplModal({ type: null, data: {} }); tplForm.resetFields(); }}
         onOk={handleTplSave}
-        width={600}
+        width={560}
       >
         <Form form={tplForm} layout="vertical" size="small" initialValues={{ isDefault: false }}>
           <Row gutter={8}>
@@ -353,7 +353,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
         open={!!dictModal.type}
         onCancel={() => { setDictModal({ type: null, data: {} }); dictForm.resetFields(); }}
         onOk={handleDictSave}
-        width={500}
+        width={560}
       >
         <Form form={dictForm} layout="vertical" size="small" initialValues={{ sortOrder: 0, isActive: true }}>
           <Row gutter={8}>

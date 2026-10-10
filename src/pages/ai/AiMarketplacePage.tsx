@@ -17,6 +17,7 @@ import { t } from '../../i18n/appI18n'
 import { aiMarketplaceApi, type AiModel } from '../../services/api/aiMarketplaceApi'
 import { ActionButton } from '../../components/common/ActionButton'
 import { StatCard, StatCardGrid } from '../../components/common/StatCard'
+import { PageContainer } from "../../components/common";
 
 const { Text } = Typography
 const { confirm } = Modal
@@ -145,7 +146,7 @@ const AiMarketplacePage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" style={{ background: 'var(--bg-primary)' }}>
       <Space style={{ marginBottom: 'var(--space-4, 16px)' }} align="center">
         <Cpu size={22} color="var(--color-primary-600)" />
         <div>
@@ -211,7 +212,7 @@ const AiMarketplacePage: React.FC = () => {
           <Form.Item name="description" label={t('w8.aiMarketplace.formDescription')}><Input.TextArea rows={3} /></Form.Item>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

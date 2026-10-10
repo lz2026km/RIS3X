@@ -25,6 +25,7 @@ import { LoadingBanner, ErrorBanner } from '../../components/feedback'
 import { DataTable, StatCard, StatCardGrid } from "../../components/common"
 import { t } from '../../i18n/appI18n'
 import { severityToAntd } from '../../theme/statusTokens'
+import { PageContainer } from "../../components/common";
 
 const { Text } = Typography
 
@@ -178,7 +179,7 @@ export const CertificateCenterPage: React.FC = () => {
   ]
 
   return (
-    <div data-testid="certificate-center-page" style={{ padding: 'var(--space-5, 20px)', maxWidth: 1400, margin: '0 auto' }}>
+    <PageContainer maxWidth="standard" padding="var(--space-5, 20px)" testId="certificate-center-page">
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-4, 16px)' }}>
         <ShieldCheck size={22} color="var(--color-info-600)" />
         <Typography.Title level={4} style={{ margin: 0 }}>{t('w8Report.certCenterTitle')}</Typography.Title>
@@ -294,7 +295,7 @@ export const CertificateCenterPage: React.FC = () => {
       >
         <Input.TextArea rows={3} value={revokeReason} onChange={(e) => setRevokeReason(e.target.value)} placeholder={t('w8Report.revokeReasonPlaceholder')} maxLength={200} showCount />
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

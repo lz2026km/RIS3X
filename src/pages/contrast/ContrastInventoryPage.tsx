@@ -268,7 +268,7 @@ const ContrastInventoryPage: React.FC = () => {
       </Modal>
 
       <Modal title={t('contrastInv.receive')} open={receiveOpen} onCancel={() => setReceiveOpen(false)} onOk={handleReceive}
-        okText={t('contrastInv.confirmIn')} confirmLoading={submitting} width={460}>
+        okText={t('contrastInv.confirmIn')} confirmLoading={submitting} width={420}>
         <Form form={receiveForm} layout="vertical" size="small" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item name="itemId" label={t('contrastInv.batchLabel')} rules={[{ required: true, message: t('contrastInv.selectBatch') }]}>
             <Select placeholder={t('contrastInv.selectBatchPlaceholder')} options={inventory.map((i) => ({ value: i.id, label: `${i.name}${i.batchNo ? ` (${i.batchNo})` : ''} · 余量 ${i.quantity}ml` }))} />

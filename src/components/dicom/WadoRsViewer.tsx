@@ -114,7 +114,7 @@ export default function WadoRsViewer({ studyUID }: Props) {
           <Text type="secondary">{t('series')}</Text>
         )}
       </Spin>
-      <Modal open={previewOpen} onCancel={() => setPreviewOpen(false)} footer={null} width={600} title={t('viewer')}>
+      <Modal open={previewOpen} onCancel={() => setPreviewOpen(false)} footer={null} width={560} title={t('viewer')}>
         {previewUrl ? (
           <div style={{ background: '#000', minHeight: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <ImageIcon size={64} color="#666" />

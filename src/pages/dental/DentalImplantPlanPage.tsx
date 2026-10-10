@@ -225,7 +225,7 @@ export const DentalImplantPlanPage: React.FC = () => {
         </Col>
       </Row>
 
-      <Modal title={t('dentalImplantPlan.newPlanModal')} open={createModal} onCancel={() => setCreateModal(false)} onOk={() => void handleCreate()} confirmLoading={saving} width={480}>
+      <Modal title={t('dentalImplantPlan.newPlanModal')} open={createModal} onCancel={() => setCreateModal(false)} onOk={() => void handleCreate()} confirmLoading={saving} width={420}>
         <Form form={form} layout="vertical" size="small" initialValues={{ type: '单颗种植', toothNo: 36 }}>
           <Form.Item label={t('dentalImplantPlan.patientName')} name="patientName" rules={[{ required: true, message: t('dentalImplantPlan.enterPatientName') }]}>
             <Input placeholder={t('dentalImplantPlan.patientName')} />

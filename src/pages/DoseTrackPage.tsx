@@ -57,6 +57,7 @@ import {
 } from "recharts";
 import { ChartContainer, chartDefaults } from "../components/charts";
 import { Typography } from "antd";
+import { PageContainer } from "../components/common";
 
 const { Title } = Typography
 
@@ -225,7 +226,7 @@ export default function DoseTrackPage() {
   }, [deviceDose]);
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', maxWidth: 1400, margin: "0 auto" }}>
+    <PageContainer maxWidth="standard" padding="var(--space-6, 24px)">
       <PageHeader
         onExportPatient={handleExportPatientCSV}
         onExportDevice={handleExportDeviceCSV}
@@ -367,7 +368,7 @@ export default function DoseTrackPage() {
       )}
 
       <FooterInfo />
-    </div>
+    </PageContainer>
   );
 }
 

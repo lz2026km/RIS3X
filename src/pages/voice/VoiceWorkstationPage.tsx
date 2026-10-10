@@ -854,7 +854,7 @@ export default function VoiceWorkstationPage() {
         open={!!viewSession}
         onCancel={() => setViewSession(null)}
         footer={<Button onClick={() => setViewSession(null)}>{t('voiceWs.close')}</Button>}
-        width={640}
+        width={720}
       >
         {viewSession && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
@@ -891,7 +891,7 @@ export default function VoiceWorkstationPage() {
         onCancel={() => setReportModalOpen(false)}
         okText={t('voiceWs.confirmInsert')}
         cancelText={t('voiceWs.cancel')}
-        width={460}
+        width={420}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 'var(--space-2, 8px)' }}>
           <div style={{ fontSize: 12, color: 'var(--text-secondary, #475569)' }}>

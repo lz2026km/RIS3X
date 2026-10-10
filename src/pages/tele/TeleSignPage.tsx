@@ -16,6 +16,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { usePagination } from '../../hooks/usePagination'
 import { t } from '../../i18n/appI18n'
+import { PageContainer } from "../../components/common";
 
 const { Text } = Typography
 const { TextArea } = Input
@@ -168,7 +169,7 @@ const TeleSignPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)' }}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)">
       <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <FileSignature size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('teleSign.title')}</span>
@@ -178,7 +179,7 @@ const TeleSignPage: React.FC = () => {
       <Card>
         <DataTable rowKey="id" dataSource={pagedSessions} columns={columns} pagination={sessionsPagination} loading={loading} scroll={{ x: 'max-content' }}/>
       </Card>
-      <Modal title={t('teleSign.signReport')} open={signOpen} onCancel={() => setSignOpen(false)} width={600} footer={
+      <Modal title={t('teleSign.signReport')} open={signOpen} onCancel={() => setSignOpen(false)} width={560} footer={
         <Space>
           <Button onClick={clearCanvas}>{t('teleSign.clearSignature')}</Button>
           <Button icon={<XCircle size={14} />} danger loading={signSaving} disabled={signSaving} onClick={handleReject}>{t('teleSign.reject')}</Button>
@@ -195,7 +196,7 @@ const TeleSignPage: React.FC = () => {
         </div>
         <TextArea placeholder={t('teleSign.remarkPlaceholder')} rows={2} value={comment} onChange={e => setComment(e.target.value)} />
       </Modal>
-      <Modal title={`报告预览 - ${selectedSession?.reportTitle}`} open={previewOpen} onCancel={() => setPreviewOpen(false)} width={600}>
+      <Modal title={`报告预览 - ${selectedSession?.reportTitle}`} open={previewOpen} onCancel={() => setPreviewOpen(false)} width={560}>
         <Card>
           <Text strong>{t('teleSign.col.reportId')}: </Text><Text>{selectedSession?.reportId}</Text><br />
           <Text strong>{t('teleSign.col.patient')}: </Text><Text>{selectedSession?.patientName}</Text><br />
@@ -207,7 +208,7 @@ const TeleSignPage: React.FC = () => {
       </Modal>
 
       {/* [W1-B] 发起签署会话: POST /tele-sign/session */}
-      <Modal title={t('teleSign.createSessionTitle')} open={createOpen} onCancel={() => setCreateOpen(false)} onOk={() => void handleCreateSession()} confirmLoading={createSaving} width={480}>
+      <Modal title={t('teleSign.createSessionTitle')} open={createOpen} onCancel={() => setCreateOpen(false)} onOk={() => void handleCreateSession()} confirmLoading={createSaving} width={420}>
         <Form form={createForm} layout="vertical" size="small" style={{ marginTop: 'var(--space-3, 12px)' }}>
           <Form.Item label={t('teleSign.col.reportId')} name="reportId" rules={[{ required: true, message: t('teleSign.validate.reportId') }]}>
             <Input placeholder={t('teleSign.ph.reportId')} />
@@ -226,7 +227,7 @@ const TeleSignPage: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

@@ -204,7 +204,7 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
         </Spin>
       </Card>
 
-      <Modal title={t('dentalRadFusion.createReferralTitle')} open={createModal} onCancel={() => setCreateModal(false)} onOk={() => void handleCreate()} confirmLoading={saving} width={480}>
+      <Modal title={t('dentalRadFusion.createReferralTitle')} open={createModal} onCancel={() => setCreateModal(false)} onOk={() => void handleCreate()} confirmLoading={saving} width={420}>
         <Form form={form} layout="vertical" size="small" initialValues={{ source: '口腔科', target: '放射科' }}>
           <Form.Item label={t('dentalRadFusion.patient')} name="patientId" rules={[{ required: true, message: t('dentalRadFusion.requiredPatient') }]}>
             <Select options={PATIENT_OPTIONS} placeholder={t('dentalRadFusion.selectPatient')} />
@@ -227,7 +227,7 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
         open={!!detailRow}
         onCancel={() => setDetailRow(null)}
         footer={<Button onClick={() => setDetailRow(null)}>{t('dentalRadFusion.close')}</Button>}
-        width={520}
+        width={560}
       >
         {detailRow && (
           <div>

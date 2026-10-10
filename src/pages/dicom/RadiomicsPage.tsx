@@ -18,6 +18,7 @@ import {
 } from "antd";
 import { Download, Radar, Plus, Trash2, FlaskConical } from 'lucide-react'
 import { radiomicsApi, type RadiomicsFeature, type RadiomicsResult } from '../../services/api/radiomicsApi'
+import { PageContainer } from "../../components/common";
 
 const { Title, Text } = Typography
 
@@ -172,7 +173,7 @@ export default function RadiomicsPage() {
   } : null
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)' }}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)">
       <Title level={3}><FlaskConical /> {t('radiomics:pageTitle')}</Title>
       <Text type="secondary">{t('radiomics:subtitle')}</Text>
       <Divider />
@@ -277,7 +278,7 @@ export default function RadiomicsPage() {
           ]} />
         </Card>
       )}
-    </div>
+    </PageContainer>
   )
 }
 

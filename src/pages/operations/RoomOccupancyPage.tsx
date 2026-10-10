@@ -20,6 +20,7 @@ import { LayoutDashboard, Users, Clock, TrendingUp, AlertTriangle, Circle, Refre
 import React, { useState, useEffect, useCallback } from 'react';
 import { t } from '../../i18n/appI18n';
 import { DataTable, StatCard, StatCardGrid } from "../../components/common";
+import { PageContainer } from "../../components/common";
 
 const STATUS_META: Record<string, { color: string; label: string }> = {
   idle: { color: '#52c41a', label: '空闲' },
@@ -105,7 +106,7 @@ export const RoomOccupancyPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-card)',}}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" style={{ background: 'var(--bg-card)' }}>
       <Space style={{ marginBottom: 'var(--space-4, 16px)', width: '100%', justifyContent: 'space-between' }} wrap>
         <Space>
           <LayoutDashboard size={20} color="var(--color-primary-600)" />
@@ -256,7 +257,7 @@ export const RoomOccupancyPage: React.FC = () => {
       <style>{`
         @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
       `}</style>
-    </div>
+    </PageContainer>
   );
 };
 export default RoomOccupancyPage;

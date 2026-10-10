@@ -23,6 +23,7 @@ import { EmptyState } from '../../components/common/EmptyState'
 import { RefreshCw, Upload as UploadIcon, Search, Eye, Download } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { t } from '../../i18n/appI18n'
+import { PageContainer } from "../../components/common";
 
 const { Title, Text } = Typography
 
@@ -147,7 +148,7 @@ export default function DicomWebPage() {
   ]
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', maxWidth: 1280, margin: '0 auto' }}>
+    <PageContainer maxWidth="narrow" padding="var(--space-6, 24px)">
       <Space style={{ marginBottom: 'var(--space-2, 8px)' }} wrap>
         <Title level={3} style={{ margin: 0 }}>{t('dw.title')}</Title>
         <Tag color="cyan">v3.0.6.11-75</Tag>
@@ -205,10 +206,10 @@ export default function DicomWebPage() {
         </Upload.Dragger>
       </Card>
 
-      <Modal title={t('dw.wadoPreviewTitle')} open={!!previewStudy} onCancel={() => setPreviewStudy(null)} footer={null} width={760}>
+      <Modal title={t('dw.wadoPreviewTitle')} open={!!previewStudy} onCancel={() => setPreviewStudy(null)} footer={null} width={960}>
         {previewStudy && <WadoRsViewer studyUID={previewStudy} serverUrl={server} />}
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

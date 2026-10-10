@@ -529,7 +529,7 @@ const PacsAdminPage: React.FC = () => {
       {/* [v3.0.6.11-103 Wave 4A] 服务器详情 Drawer (GET /pacs-admin/servers/:id) */}
       <Drawer
         title={t('pacsAdmin.serverDetail')}
-        width={460}
+        width={420}
         open={detailOpen}
         onClose={() => setDetailOpen(false)}
         extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={() => detailServer && void handleViewServer(detailServer.id)}>{t('pacsAdmin.refresh')}</Button>}

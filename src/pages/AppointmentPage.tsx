@@ -55,6 +55,7 @@ import { InlineEditCell } from "../components/common/InlineEditCell";
 import { DataTable } from "../components/common";
 import { useUndoActions } from "../components/UndoToast";
 import { t } from '../i18n/appI18n';
+import { PageContainer } from "../components/common";
 
 // ==================== 类型定义 ====================
 interface Appointment {
@@ -1178,10 +1179,14 @@ const borderGray = "var(--border-color)";
 
   // ====== 渲染 ======
   return (
-    <div
-      data-testid="appointment-page"
+    <PageContainer
+      background="none"
+      maxWidth="fluid"
+      padding={0}
+      minHeight="auto"
+      testId="appointment-page"
       style={{
-        padding: 0, background: "var(--bg-card)",
+        background: "var(--bg-card)",
         fontFamily:
           '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
@@ -3300,6 +3305,6 @@ const borderGray = "var(--border-color)";
           </Card>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }

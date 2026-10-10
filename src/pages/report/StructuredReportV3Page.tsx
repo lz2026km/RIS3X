@@ -150,7 +150,7 @@ export default function StructuredReportV3Page() {
         open={validateOpen}
         onCancel={() => setValidateOpen(false)}
         footer={<Button onClick={() => setValidateOpen(false)}>{t('w4a.peer.close')}</Button>}
-        width={620}
+        width={560}
       >
         {validation && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>

@@ -687,7 +687,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
         }}
         okText={t('defectLibrary.save')}
         cancelText={t('defectLibrary.cancel')}
-        width={680}
+        width={720}
       >
         <Space orientation="vertical" style={{ width: '100%' }} size={10}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3, 12px)' }}>
@@ -778,7 +778,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
         title={detailDrawer ? `${detailDrawer.name} (${detailDrawer.code})` : ''}
         open={!!detailDrawer}
         onClose={() => setDetailDrawer(null)}
-        width={480}
+        width={420}
       >
         {detailDrawer && (
           <Space orientation="vertical" style={{ width: '100%' }} size={12}>

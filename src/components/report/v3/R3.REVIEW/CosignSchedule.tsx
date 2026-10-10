@@ -980,7 +980,7 @@ export const CosignSchedule: React.FC = () => {
         title={t('reportReview.cosign.historyTitle', { reportId: historyReportId })}
         open={historyDrawerOpen}
         onClose={() => setHistoryDrawerOpen(false)}
-        width={520}
+        width={560}
       >
         <Timeline
           items={historyList.map((h) => ({

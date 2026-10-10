@@ -320,7 +320,7 @@ export const ComplianceDocsPage: React.FC = () => {
         onOk={() => void handleSave()}
         onCancel={() => setModalOpen(false)}
         confirmLoading={saving}
-        width={640}
+        width={720}
         destroyOnHidden
       >
         <Form form={form} layout="vertical" style={{ marginTop: 'var(--space-2, 8px)' }}>
@@ -413,7 +413,7 @@ export const ComplianceDocsPage: React.FC = () => {
         open={reportOpen}
         onCancel={() => setReportOpen(false)}
         footer={null}
-        width={640}
+        width={720}
       >
         <Spin spinning={reportLoading}>
           {report && (

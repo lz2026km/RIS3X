@@ -17,6 +17,7 @@ import {
   RefreshCw, ChevronRight, Info, Zap,
 } from 'lucide-react'
 import { t } from '../i18n/appI18n';
+import { PageContainer } from "../components/common";
 
 // ============================================================
 // 样式常量 - 蓝色主题
@@ -1671,7 +1672,7 @@ export default function FindingLibraryPage() {
   // 渲染：布局
   // ============================================================
   return (
-    <div style={{ display: 'flex', height: '100%', background: COLORS.background }}>
+    <PageContainer background="none" maxWidth="fluid" padding={0} minHeight="auto" style={{ display: 'flex', height: '100%', background: COLORS.background }}>
       {/* ===== 左侧面板 ===== */}
       {showLeftPanel && (
         <div style={{
@@ -2060,6 +2061,6 @@ export default function FindingLibraryPage() {
 
       {/* 详情弹窗 */}
       {showDetailModal && renderDetailModal()}
-    </div>
+    </PageContainer>
   )
 }

@@ -269,7 +269,7 @@ export const DentalTelePage: React.FC = () => {
         </Spin>
       </Card>
 
-      <Modal title={t('dentalTele.createModal')} open={createModal} onCancel={() => setCreateModal(false)} onOk={() => void createSession()} confirmLoading={saving} width={480}>
+      <Modal title={t('dentalTele.createModal')} open={createModal} onCancel={() => setCreateModal(false)} onOk={() => void createSession()} confirmLoading={saving} width={420}>
         <Form form={form} layout="vertical" size="small" initialValues={{ expert: '王专?(种植)' }}>
           <Form.Item label={t('dentalTele.formTitle')} name="title" rules={[{ required: true, message: t('dentalTele.formTitleRequired') }]}>
             <Input placeholder={t('dentalTele.formTitlePlaceholder')} />
@@ -286,7 +286,7 @@ export const DentalTelePage: React.FC = () => {
         </Form>
       </Modal>
 
-      <Modal title={t('dentalTele.uploadPhotos')} open={photoModal} onCancel={() => setPhotoModal(false)} footer={<Button type="primary" onClick={() => setPhotoModal(false)}>{t('dentalTele.done')}</Button>} width={520}>
+      <Modal title={t('dentalTele.uploadPhotos')} open={photoModal} onCancel={() => setPhotoModal(false)} footer={<Button type="primary" onClick={() => setPhotoModal(false)}>{t('dentalTele.done')}</Button>} width={560}>
         <div style={{ marginBottom: 'var(--space-3, 12px)' }}>
           <input
             ref={photoInputRef}
@@ -323,7 +323,7 @@ export const DentalTelePage: React.FC = () => {
         <Alert style={{ marginTop: 'var(--space-3, 12px)' }} type="info" showIcon icon={<AlertTriangle size={14} />} message={t('dentalTele.photoLocalOnly')} />
       </Modal>
 
-      <Modal title={`${t('dentalTele.detailTitle')} - ${detailModal?.title ?? ''}`} open={!!detailModal} onCancel={() => setDetailModal(null)} footer={<Button onClick={() => setDetailModal(null)}>{t('dentalTele.close')}</Button>} width={480}>
+      <Modal title={`${t('dentalTele.detailTitle')} - ${detailModal?.title ?? ''}`} open={!!detailModal} onCancel={() => setDetailModal(null)} footer={<Button onClick={() => setDetailModal(null)}>{t('dentalTele.close')}</Button>} width={420}>
         {detailModal && (
           <div>
             <div style={{ marginBottom: 'var(--space-3, 12px)' }}>

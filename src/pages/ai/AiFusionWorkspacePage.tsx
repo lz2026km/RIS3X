@@ -246,7 +246,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
         open={!!detail}
         onCancel={() => setDetail(null)}
         footer={<Button type="primary" onClick={() => void handleRunFusion(detail ?? undefined)} icon={<PlayCircle size={12} />}>{t('aiFusion.rerunFusion')}</Button>}
-        width={520}
+        width={560}
       >
         {detail && (
           <>

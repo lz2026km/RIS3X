@@ -291,7 +291,7 @@ export default function ClinicalFeedbackPage() {
         onCancel={() => setCreateOpen(false)}
         okText={t('feedback.submit', '提交反馈')}
         confirmLoading={submitting}
-        width={640}
+        width={720}
       >
         <Form form={createForm} layout="vertical" initialValues={{ type: 'objection', department: '临床科室', submittedBy: '当前用户' }}>
           <Row gutter={16}>
@@ -394,7 +394,7 @@ export default function ClinicalFeedbackPage() {
         open={!!detail}
         onCancel={() => setDetail(null)}
         footer={<Button type="primary" onClick={() => setDetail(null)}>{t('feedback.confirm', '确定')}</Button>}
-        width={620}
+        width={560}
       >
         {detail && (
           <>

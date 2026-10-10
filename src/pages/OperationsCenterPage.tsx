@@ -26,6 +26,7 @@ import { emergencyChannelApi, type EmergencyTriggerRecord } from '../services/ap
 import { worklistApi } from '../services/api/worklistApi'
 import { t } from '../i18n/appI18n'
 import { DataTable } from '../components/common'
+import { PageContainer } from "../components/common";
 
 // ==================== 模拟数据 ====================
 const KPI_DATA = [
@@ -1699,7 +1700,7 @@ export default function OperationsCenterPage() {
   )
 
   return (
-    <div style={s.root}>
+    <PageContainer maxWidth="fluid" style={{ ...s.root, minHeight: "auto" }}>
       {/* 顶部标题栏 */}
       <div style={s.headerBar}>
         <div style={s.headerTitle}>
@@ -1959,7 +1960,7 @@ export default function OperationsCenterPage() {
           {t('opsCenter.footer')}
         </div>
       </div>
-    </div>
+    </PageContainer>
   )
 }
 

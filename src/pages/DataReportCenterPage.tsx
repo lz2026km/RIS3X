@@ -1012,7 +1012,7 @@ function CustomReportCenter() {
       {/* 结果 Drawer */}
       <Drawer
         title={resultDef ? t('dataReportCenter.resultTitleNamed', { name: resultDef.name }) : t('dataReportCenter.resultTitle')}
-        width={760}
+        width={960}
         open={!!resultDef}
         onClose={() => setResultDef(null)}
       >
@@ -1044,7 +1044,7 @@ function CustomReportCenter() {
       {/* 历史 Drawer */}
       <Drawer
         title={historyDef ? t('dataReportCenter.historyTitleNamed', { name: historyDef.name }) : t('dataReportCenter.historyTitle')}
-        width={620}
+        width={560}
         open={!!historyDef}
         onClose={() => setHistoryDef(null)}
       >
@@ -1088,7 +1088,7 @@ function CustomReportCenter() {
         okText={editing ? t('dataReportCenter.save') : t('dataReportCenter.create')}
         cancelText={t('dataReportCenter.cancel')}
         confirmLoading={saving}
-        width={680}
+        width={720}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', paddingTop: 'var(--space-2, 8px)' }}>
           <Space>
@@ -1148,7 +1148,7 @@ function CustomReportCenter() {
         okText={t('dataReportCenter.saveAndPush')}
         cancelText={t('dataReportCenter.cancel')}
         confirmLoading={saving}
-        width={520}
+        width={560}
       >
         {scheduleDef && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', paddingTop: 'var(--space-2, 8px)' }}>

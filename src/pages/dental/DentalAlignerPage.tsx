@@ -324,7 +324,7 @@ export const DentalAlignerPage: React.FC = () => {
           onCancel={() => { setCreateModal(false); createForm.resetFields(); }}
           onOk={() => void handleCreatePlan()}
           confirmLoading={creating}
-          width={480}
+          width={420}
         >
           <Form form={createForm} layout="vertical" size="small" initialValues={{ totalStages: 14, wearDaysPerStage: 7 }}>
             <Form.Item name="patientName" label={t("w3b.patientName")} rules={[{ required: true, message: t("dentalAligner.patientNameRequired") }]}>

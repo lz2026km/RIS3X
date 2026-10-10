@@ -18,6 +18,7 @@ import { termApi } from '../services/api/termApi';
 import { t } from '../i18n/appI18n';
 import { ActionButton } from '../components/common/ActionButton';
 import { Typography } from 'antd';
+import { PageContainer } from "../components/common";
 
 const { Title } = Typography
 
@@ -128,7 +129,7 @@ export default function TermSynonymGraphPage() {
   const focusTerm = terms.find(x => x.id === graphFocus) ?? terms[0] ?? FEATURED_TERMS[0];
 
   return (
-    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
+    <PageContainer maxWidth="full" padding="var(--space-5, 20px)">
       {/* 顶部 */}
       <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
@@ -317,7 +318,7 @@ export default function TermSynonymGraphPage() {
           </div>
         )}
       </div>
-    </div>
+    </PageContainer>
   );
 }
 

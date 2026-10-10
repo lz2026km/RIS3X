@@ -288,7 +288,7 @@ export const DentalPhotoPage: React.FC = () => {
         onOk={handleUpload}
         okText={t('dentalPhoto.upload')}
         cancelText={t('dentalPhoto.cancel')}
-        width={520}
+        width={560}
       >
         <Space orientation="vertical" style={{ width: '100%' }}>
           <div>

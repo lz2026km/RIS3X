@@ -18,6 +18,7 @@ import { Layers, Search, RefreshCw, Eye } from 'lucide-react'
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
 import { t } from '../../i18n/appI18n'
+import { PageContainer } from "../../components/common";
 
 const PAGE_SIZE = 10
 
@@ -132,7 +133,7 @@ export const FhirImagingStudyPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" style={{ background: 'var(--bg-primary)' }}>
       <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Layers size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fis.title')}</span>
@@ -181,7 +182,7 @@ export const FhirImagingStudyPage: React.FC = () => {
         open={detailOpen}
         onCancel={() => setDetailOpen(false)}
         footer={<Button onClick={() => setDetailOpen(false)}>{t('fis.close')}</Button>}
-        width={700}
+        width={720}
       >
         {detailLoading ? (
           <div style={{ textAlign: 'center', padding: '32px 0', color: '#999' }}>{t('fis.loadingDetail')}</div>
@@ -212,7 +213,7 @@ export const FhirImagingStudyPage: React.FC = () => {
           </Descriptions>
         ) : <Empty description={t('fis.noData')} image={<Inbox size={48} style={{opacity:0.4}}/>} />}
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

@@ -47,6 +47,7 @@ import { eyeApi } from "../../../services/api/eyeApi";
 import { ErrorBanner } from "../../../components/feedback";
 import { t } from "../../../i18n/appI18n";
 import { DataTable } from "../../../components/common";
+import { PageContainer } from "../../../components/common";
 
 export const TeleConsultPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("tele");
@@ -335,7 +336,7 @@ export const TeleConsultPage: React.FC = () => {
   }, [recording]);
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: "var(--bg-card)",}}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" style={{ background: 'var(--bg-card)' }}>
       <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Video size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>
@@ -1191,7 +1192,7 @@ export const TeleConsultPage: React.FC = () => {
         }}
         okText={t("eye.tele.saveSettings")}
         confirmLoading={savingSettings}
-        width={460}
+        width={420}
       >
         <Form layout="vertical" size="small">
           <Form.Item label={t("eye.tele.videoDevice")}>
@@ -1224,7 +1225,7 @@ export const TeleConsultPage: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+    </PageContainer>
   );
 };
 

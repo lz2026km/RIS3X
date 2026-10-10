@@ -23,6 +23,7 @@ import { usePagination } from "../hooks/usePagination";
 import { LoadingBanner } from "../components/feedback";
 import { ActionButton, DataTable, ExportButton, StatCard, StatCardGrid } from "../components/common";
 import { t } from "../i18n/appI18n";
+import { PageContainer } from "../components/common";
 
 const {  Text } = Typography;
 
@@ -132,7 +133,7 @@ export default function BusinessContinuityPage() {
   const queuePagination = usePagination(queue, 10);
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: "var(--bg-card)", minHeight: "calc(100vh - 56px)" }}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" minHeight="calc(100vh - 56px)" style={{ background: "var(--bg-card)" }}>
       <Card style={{ background: "linear-gradient(135deg,var(--color-error-600) 0%,var(--color-warning-500) 100%)", color: "#fff", border: "none", marginBottom: 'var(--space-4, 16px)' }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Space size={16}>
@@ -264,6 +265,6 @@ export default function BusinessContinuityPage() {
        
         />
       </Card>
-    </div>
+    </PageContainer>
   );
 }

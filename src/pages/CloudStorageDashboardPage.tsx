@@ -936,7 +936,7 @@ function BucketObjectsModal({
       open={visible}
       onCancel={onClose}
       footer={null}
-      width={860}
+      width={960}
     >
       <Alert
         type="info"
@@ -1092,7 +1092,7 @@ function BucketObjectsModal({
           <Button key="copy" type="primary" icon={<ClipboardCopy size={14} />} onClick={() => void copySignedUrl()}>{t("cloudStorage.objects.copyUrl")}</Button>,
           <Button key="close" onClick={() => setSignedUrlInfo(null)}>{t("cloudStorage.objects.close")}</Button>,
         ]}
-        width={640}
+        width={720}
         destroyOnHidden
       >
         {signedUrlInfo && (

@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.13-10",
-  "description": "G005 Radiology RIS v3.0.6.13-10 - a11y + dark theme + loading + retry + component tables",
+  "version": "3.0.6.13-11",
+  "description": "G005 Radiology RIS v3.0.6.13-11 - Typography Density (PageContainer + Title + Card-in-Card + Modal widths + ellipsis)",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

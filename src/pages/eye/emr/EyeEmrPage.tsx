@@ -232,7 +232,7 @@ const EyeEmrPage: React.FC = () => {
                   children: (
                     <Row gutter={12}>
                       <Col span={8}>
-                        <Card size="small" title={t('eyeEmr.vision')}>
+                        <Card type="inner" size="small" title={t('eyeEmr.vision')}>
                           <Descriptions
                             size="small"
                             column={2}
@@ -244,7 +244,7 @@ const EyeEmrPage: React.FC = () => {
                             ]}
                           />
                         </Card>
-                        <Card
+                        <Card type="inner"
                           size="small"
                           title={t('eyeEmr.iop')}
                           style={{ marginTop: 'var(--space-1, 4px)' }}
@@ -254,7 +254,7 @@ const EyeEmrPage: React.FC = () => {
                             {selected.iopOd[0]?.os} mmHg
                           </div>
                         </Card>
-                        <Card
+                        <Card type="inner"
                           size="small"
                           title={t('eyeEmr.refraction')}
                           style={{ marginTop: 'var(--space-1, 4px)' }}
@@ -271,7 +271,7 @@ const EyeEmrPage: React.FC = () => {
                         </Card>
                       </Col>
                       <Col span={8}>
-                        <Card size="small" title={t('eyeEmr.slitLamp')}>
+                        <Card type="inner" size="small" title={t('eyeEmr.slitLamp')}>
                           <div style={{ fontSize: 12, lineHeight: 1.8 }}>
                             <div>
                               <strong>{t('eyeEmr.slitLampLid')}</strong>{" "}
@@ -305,7 +305,7 @@ const EyeEmrPage: React.FC = () => {
                         </Card>
                       </Col>
                       <Col span={8}>
-                        <Card size="small" title={t('eyeEmr.fundus')}>
+                        <Card type="inner" size="small" title={t('eyeEmr.fundus')}>
                           <div style={{ fontSize: 12, lineHeight: 1.8 }}>
                             <div>
                               <strong>{t('eyeEmr.fundusDisc')}</strong>{" "}
@@ -325,7 +325,7 @@ const EyeEmrPage: React.FC = () => {
                             </div>
                           </div>
                         </Card>
-                        <Card
+                        <Card type="inner"
                           size="small"
                           title={t('eyeEmr.gonioscopy')}
                           style={{ marginTop: 'var(--space-1, 4px)' }}

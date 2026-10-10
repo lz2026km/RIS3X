@@ -378,7 +378,7 @@ export default function PatientEducationPage() {
         open={!!eduDetail}
         onCancel={() => setEduDetail(null)}
         footer={null}
-        width={640}
+        width={720}
       >
         {eduDetail && (
           <div style={{ display: 'grid', gap: 14, paddingTop: 'var(--space-1, 4px)' }}>

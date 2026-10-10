@@ -20,6 +20,7 @@ import { StatusTag } from '../components/common/StatusTag';
 import { ActionButton } from '../components/common/ActionButton';
 import { StatCard } from '../components/common';
 import { t } from '../i18n/appI18n';
+import { PageContainer } from "../components/common";
 
 const { Title } = Typography
 
@@ -309,7 +310,7 @@ export default function CASignaturePage() {
   ];
 
   return (
-    <div style={{ padding: 'var(--space-5, 20px)', maxWidth: 1600, margin: '0 auto' }}>
+    <PageContainer maxWidth="full" padding="var(--space-5, 20px)">
       <div style={{ marginBottom: 'var(--space-4, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <Title level={4} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)' }}>
@@ -627,7 +628,7 @@ export default function CASignaturePage() {
         okText={t('caSignature.upload')}
         cancelText={t('caSignature.cancel')}
         confirmLoading={uploading}
-        width={480}
+        width={420}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 'var(--space-2, 8px)' }}>
           <div>
@@ -700,7 +701,7 @@ export default function CASignaturePage() {
         cancelText={t('caSignature.cancel')}
         okButtonProps={{ danger: true }}
         confirmLoading={revoking}
-        width={440}
+        width={420}
       >
         <div style={{ paddingTop: 'var(--space-2, 8px)' }}>
           {selectedCert && (
@@ -731,7 +732,7 @@ export default function CASignaturePage() {
         okText={t('caSignature.startVerify')}
         cancelText={t('caSignature.close')}
         confirmLoading={verifying}
-        width={460}
+        width={420}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 'var(--space-2, 8px)' }}>
           <div>
@@ -796,7 +797,7 @@ export default function CASignaturePage() {
         open={showHistoryModal}
         onCancel={() => setShowHistoryModal(false)}
         footer={null}
-        width={680}
+        width={720}
       >
         <div style={{ maxHeight: 460, overflow: 'auto', paddingTop: 'var(--space-2, 8px)' }}>
           {historyLoading ? (
@@ -821,7 +822,7 @@ export default function CASignaturePage() {
           )}
         </div>
       </Modal>
-    </div>
+    </PageContainer>
   );
 }
 

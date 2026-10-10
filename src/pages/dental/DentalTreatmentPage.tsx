@@ -224,7 +224,7 @@ export const DentalTreatmentPage: React.FC = () => {
         onCancel={() => setCreateOpen(false)}
         onOk={() => void handleCreate()}
         confirmLoading={submitting}
-        width={520}
+        width={560}
       >
         <Form form={form} layout="vertical" size="small">
           <Row gutter={12}>
@@ -272,7 +272,7 @@ export const DentalTreatmentPage: React.FC = () => {
         open={!!detailItem}
         onCancel={() => setDetailItem(null)}
         footer={<Button onClick={() => setDetailItem(null)}>{t('dentalTreatment.close')}</Button>}
-        width={520}
+        width={560}
       >
         {detailItem && (
           <Spin spinning={detailLoading}>

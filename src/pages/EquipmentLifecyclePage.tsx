@@ -14,6 +14,7 @@ import { ChartContainer } from '../components/charts'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { t } from '../i18n/appI18n'
 import { uniqueId } from '../utils/uniqueId'
+import { PageContainer } from "../components/common";
 
 // ===== 演示数据：放射科设备全生命周期数据 =====
 const mockDevices = [
@@ -762,7 +763,7 @@ export default function EquipmentLifecyclePage() {
   }, [])
 
   return (
-    <div style={s.root}>
+    <PageContainer maxWidth="full" padding="var(--space-8, 32px)">
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3, 12px)' }}>
         <PageHeader title={t('equipLifecycle.pageTitle')} style={{ marginBottom: 'var(--space-6, 24px)' }} />
         {/* [G005 Wave4A P1] 数据来源徽标 (按当前 Tab 数据源动态显示, 修复"顶部真实/Tab mock"矛盾) */}
@@ -1463,6 +1464,6 @@ export default function EquipmentLifecyclePage() {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   )
 }

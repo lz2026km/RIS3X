@@ -22,6 +22,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { usePagination } from '../../hooks/usePagination'
 import { t } from '../../i18n/appI18n'
 import { DataTable, StatCard, StatCardGrid } from "../../components/common"
+import { PageContainer } from "../../components/common";
 
 // 数据来源说明: [G005 Wave1A W9] 后端已实现 /auto-collection (rules/tasks/config/logs/stats), MSW 仅 mock 兜底。
 
@@ -357,7 +358,7 @@ const AutoCollectionPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)' }}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)">
       {/* [G005 Wave1A W9] 后端已实现 /auto-collection, MSW 仅 mock 兜底 */}
       <Alert
         type="success"
@@ -493,7 +494,7 @@ const AutoCollectionPage: React.FC = () => {
         okText={editingRule ? t('autoCollection.save') : t('autoCollection.create')}
         cancelText={t('autoCollection.cancel')}
         confirmLoading={creating}
-        width={480}
+        width={420}
       >
         <Form form={form} layout="vertical" size="small" style={{ marginTop: 'var(--space-3, 12px)' }} initialValues={{ triggerType: 'event', action: 'archive', enabled: true }}>
           <Form.Item name="name" label={t('autoCollection.ruleNameLabel')} rules={[{ required: true, message: t('autoCollection.requiredRuleName') }]}>
@@ -529,7 +530,7 @@ const AutoCollectionPage: React.FC = () => {
         okText={t('autoCollection.create')}
         cancelText={t('autoCollection.cancel')}
         confirmLoading={taskCreating}
-        width={480}
+        width={420}
       >
         <Form form={taskForm} layout="vertical" size="small" style={{ marginTop: 'var(--space-3, 12px)' }} initialValues={{ sourceType: 'DICOM' }}>
           <Form.Item name="name" label={t('autoCollection.taskName')} rules={[{ required: true, message: t('autoCollection.requiredTaskName') }]}>
@@ -557,7 +558,7 @@ const AutoCollectionPage: React.FC = () => {
         open={!!taskDetail}
         onCancel={() => setTaskDetail(null)}
         footer={<Button onClick={() => setTaskDetail(null)}>{t('autoCollection.close')}</Button>}
-        width={460}
+        width={420}
       >
         <Spin spinning={detailLoading}>
           {taskDetail && (
@@ -573,7 +574,7 @@ const AutoCollectionPage: React.FC = () => {
           )}
         </Spin>
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
 

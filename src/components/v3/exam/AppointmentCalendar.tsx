@@ -275,7 +275,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
         open={createOpen}
         onCancel={() => setCreateOpen(false)}
         onOk={() => form.submit()}
-        width={600}
+        width={560}
         data-testid="apt-create-modal"
       >
         <Form form={form} onFinish={handleCreate} layout="vertical">

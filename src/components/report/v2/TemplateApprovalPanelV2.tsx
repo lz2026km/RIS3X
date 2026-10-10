@@ -405,7 +405,7 @@ const TemplateApprovalPanelV2: React.FC<TemplateApprovalPanelV2Props> = ({ compa
         title={selected ? t('templateApproval.versionHistory', { name: selected.name }) : t('templateApproval.versionHistoryTitle')}
         open={historyOpen}
         onClose={() => setHistoryOpen(false)}
-        width={480}
+        width={420}
       >
         <Space direction="vertical" size={8} style={{ width: '100%' }}>
           {versionTimeline.map((_, i) => (

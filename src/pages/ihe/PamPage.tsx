@@ -22,6 +22,7 @@ import { usePagination } from '../../hooks/usePagination';
 import { ErrorBanner } from '../../components/feedback';
 import { t } from '../../i18n/appI18n';
 import { DataTable } from "../../components/common";
+import { PageContainer } from "../../components/common";
 
 const MSG_TYPES = ['A01', 'A03', 'A04', 'A05', 'A08', 'A11', 'A13'];
 
@@ -90,7 +91,7 @@ export const PamPage: React.FC = () => {
   }, [messageType, patientId, visitNumber, classCode, assignedLocation]);
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" style={{ background: 'var(--bg-primary)' }}>
       <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Activity size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('pam.title')}</span>
@@ -182,7 +183,7 @@ export const PamPage: React.FC = () => {
           },
         ]}
       />
-    </div>
+    </PageContainer>
   );
 };
 

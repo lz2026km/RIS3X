@@ -689,7 +689,7 @@ export const AiReportWriterPage: React.FC = () => {
         open={showVocabModal}
         onCancel={() => setShowVocabModal(false)}
         footer={null}
-        width={680}
+        width={720}
       >
         {vocab ? (
           <>

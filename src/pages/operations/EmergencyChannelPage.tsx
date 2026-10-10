@@ -32,6 +32,7 @@ import {
 import { HeartPulse, Settings, Zap, History, Save, RefreshCw, CheckCircle2, BellRing, AlertTriangle } from 'lucide-react'
 import { emergencyChannelApi, type EmergencyChannelConfigItem, type EmergencyTriggerRecord, type EmergencyChannelType } from '../../services/api/emergencyChannelApi'
 import { DataTable, StatCard, StatCardGrid } from "../../components/common"
+import { PageContainer } from "../../components/common";
 
 const TRIGGER_TYPES: Array<{ value: string; label: string }> = [
   { value: 'critical-finding', label: '危急值发现' },
@@ -158,7 +159,7 @@ export default function EmergencyChannelPage() {
   const enabledCount = channels.filter((c) => c.enabled).length
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)' }}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)">
       <Alert
         type="info"
         showIcon
@@ -355,6 +356,6 @@ export default function EmergencyChannelPage() {
           </>
         )}
       </Modal>
-    </div>
+    </PageContainer>
   )
 }

@@ -14,6 +14,7 @@ import {
 import { Globe, Download, Activity, Loader2, Eye, FileText } from 'lucide-react';
 import { t } from '../../i18n/appI18n';
 import { DataTable } from "../../components/common";
+import { PageContainer } from "../../components/common";
 
 interface NdjsonFile {
   type: string;
@@ -111,7 +112,7 @@ export const FhirBulkExportDetailPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 'var(--space-6, 24px)', background: 'var(--bg-primary)',}}>
+    <PageContainer maxWidth="full" padding="var(--space-6, 24px)" style={{ background: 'var(--bg-primary)' }}>
       <Space style={{ marginBottom: 'var(--space-4, 16px)' }}>
         <Globe size={20} color="var(--color-primary-600)" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fhirExport.title')}</span>
@@ -154,7 +155,7 @@ export const FhirBulkExportDetailPage: React.FC = () => {
           }))} />
         </Card>
       )}
-    </div>
+    </PageContainer>
   );
 };
 

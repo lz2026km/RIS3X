@@ -220,7 +220,7 @@ const MipScreenshotModal: React.FC<Props> = ({ open, defaultStudyUid, onClose, o
       title={<Space><Layers className="w-4 h-4" style={{ color: 'var(--color-info-600)' }} /><span>{t('w9e.mipScreenshot.title')}</span><Tag color="cyan">{t('w9e.mipScreenshot.tag3d')}</Tag></Space>}
       open={open}
       onCancel={onClose}
-      width={620}
+      width={560}
       destroyOnHidden
       footer={
         <Space>

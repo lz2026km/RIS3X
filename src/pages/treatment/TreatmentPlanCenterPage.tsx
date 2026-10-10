@@ -284,7 +284,7 @@ export const TreatmentPlanCenterPage: React.FC = () => {
         onCancel={() => setCreateModal(false)}
         onOk={() => void handleCreate()}
         confirmLoading={saving}
-        width={520}
+        width={560}
       >
         <Form form={form} layout="vertical" size="small" initialValues={{ type: '种植', departments: ['口腔科', '放射科'] }}>
           <Form.Item label={t('treatmentPlan.patientLabel')} name="patientId" rules={[{ required: true, message: t('treatmentPlan.selectPatient') }]}>
@@ -325,7 +325,7 @@ export const TreatmentPlanCenterPage: React.FC = () => {
             ) : null}
           </>
         ) : null
-      } width={640}>
+      } width={720}>
         {detail && (
           <>
             <Descriptions bordered column={2} size="small" style={{ marginBottom: 'var(--space-4, 16px)' }}>
@@ -356,7 +356,7 @@ export const TreatmentPlanCenterPage: React.FC = () => {
       </Modal>
 
       {/* [W1-B] 编辑计划: PATCH /treatment-plans/:id */}
-      <Modal title={`${t('treatmentPlan.editTitle')} - ${detail?.id ?? ''}`} open={editModal} onCancel={() => setEditModal(false)} onOk={() => void handleUpdate()} confirmLoading={editSaving} width={520}>
+      <Modal title={`${t('treatmentPlan.editTitle')} - ${detail?.id ?? ''}`} open={editModal} onCancel={() => setEditModal(false)} onOk={() => void handleUpdate()} confirmLoading={editSaving} width={560}>
         <Form form={editForm} layout="vertical" size="small">
           <Form.Item label={t('treatmentPlan.typeLabel')} name="type" rules={[{ required: true, message: t('treatmentPlan.selectType') }]}>
             <Select options={PLAN_TYPE_OPTIONS} />

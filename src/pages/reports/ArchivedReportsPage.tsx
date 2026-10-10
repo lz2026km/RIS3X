@@ -14,6 +14,7 @@ import { reportApi, type ListPayload } from '../../services/api/reportApi'
 import { ErrorBanner } from '../../components/feedback'
 import type { ReportDto } from '../../types/dto'
 import { t } from '../../i18n/appI18n'
+import { PageContainer } from "../../components/common";
 
 function unwrap(payload: ListPayload<ReportDto> | undefined): ReportDto[] {
   if (!payload) return []
@@ -75,7 +76,7 @@ export default function ArchivedReportsPage() {
   ]
 
   return (
-    <div style={{ padding: 'var(--space-4, 16px)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
+    <PageContainer maxWidth="full" padding="var(--space-4, 16px)" minHeight="auto" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)' }}>
       <Card size="small">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--space-2, 8px)' }}>
           <Space>
@@ -114,7 +115,7 @@ export default function ArchivedReportsPage() {
           locale={{ emptyText: t('w6Workflow.archive.empty') }}
         />
       </Card>
-    </div>
+    </PageContainer>
   )
 }
 

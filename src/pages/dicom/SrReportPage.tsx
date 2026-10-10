@@ -470,7 +470,7 @@ const SrReportPage: React.FC = () => {
             </Space>
           )
         }
-        width={860}
+        width={960}
       >
         <Spin spinning={detailLoading}>
           {detail && (
@@ -624,7 +624,7 @@ const SrReportPage: React.FC = () => {
             </Button>
           </Space>
         }
-        width={680}
+        width={720}
       >
         <Spin spinning={backfillLoading}>
           {backfillData && (
@@ -743,7 +743,7 @@ const GenerateSrModal: React.FC<{
       onOk={() => void onSubmit()}
       okText={t("srReport.generateOk")}
       confirmLoading={generating}
-      width={640}
+      width={720}
     >
       {loadError && !reportsLoading && (
         <Alert type="warning" showIcon style={{ marginBottom: 'var(--space-3, 12px)' }} title={loadError} />

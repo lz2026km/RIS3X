@@ -41,6 +41,7 @@ import {
   type RestorePointDto, type RetentionPolicyDto,
 } from '../../services/api/w13SecurityApi'
 import type { ReportCertificateDto } from '../../services/api/reportApi'
+import { PageContainer } from "../../components/common";
 
 const { Text, Paragraph } = Typography
 
@@ -634,7 +635,7 @@ const DrTab: React.FC = () => {
             </Descriptions>
           </Col>
           <Col span={16}>
-            <Card size="small" title={t('w13Sec.dr.steps')} style={{ marginBottom: 'var(--space-3, 12px)' }}>
+            <Card type="inner" size="small" title={t('w13Sec.dr.steps')} style={{ marginBottom: 'var(--space-3, 12px)' }}>
               {lastDrill ? (
                 <Space direction="vertical" style={{ width: '100%' }}>
                   {lastDrill.steps.map((s) => (
@@ -674,7 +675,7 @@ const DrTab: React.FC = () => {
         title={<span><PlayCircle size={14} /> {t('w4b.dr.detailTitle')} - {drillDetail?.id ?? ''}</span>}
         open={drillDetailOpen}
         onClose={() => setDrillDetailOpen(false)}
-        width={640}
+        width={720}
       >
         {drillDetailLoading ? (
           <div style={{ textAlign: 'center', padding: 'var(--space-10, 40px)' }}><Spin /></div>
@@ -767,7 +768,7 @@ const AuditChainTab: React.FC = () => {
             <Col span={6}><Statistic title={t('w13Sec.ac.blocks')} value={verification.totalBlocks} /></Col>
             <Col span={6}><Statistic title={t('w13Sec.ac.checked')} value={verification.checkedBlocks} /></Col>
             <Col span={6}><Statistic title={t('w13Sec.ac.source')} value={t(`w13Sec.ac.source.${verification.source}`)} /></Col>
-            <Col span={6}><Card size="small"><Text type="secondary" style={{ fontSize: 12 }}>{t('w13Sec.ac.headHash')}</Text><div><Text code style={{ fontSize: 11, wordBreak: 'break-all' }}>{verification.headHash.slice(0, 24)}…</Text></div></Card></Col>
+            <Col span={6}><div style={{ padding: 'var(--space-3, 12px)' }}><Text type="secondary" style={{ fontSize: 12 }}>{t('w13Sec.ac.headHash')}</Text><div><Text code style={{ fontSize: 11, wordBreak: 'break-all' }}>{verification.headHash.slice(0, 24)}…</Text></div></div></Col>
           </Row>
         </Card>
       )}
@@ -799,7 +800,7 @@ const AuditChainTab: React.FC = () => {
 export const SecurityComplianceCenterPage: React.FC = () => {
   const [tab, setTab] = useState('ca')
   return (
-    <div data-testid="security-compliance-center-page" style={{ padding: 'var(--space-5, 20px)', maxWidth: 1500, margin: '0 auto' }}>
+    <PageContainer maxWidth="full" padding="var(--space-5, 20px)" testId="security-compliance-center-page" style={{ maxWidth: 1500 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2, 8px)', marginBottom: 'var(--space-1, 4px)' }}>
         <ShieldCheck size={22} color="var(--color-info-600)" />
         <Typography.Title level={4} style={{ margin: 0 }}>{t('w13Sec.title')}</Typography.Title>
@@ -813,7 +814,7 @@ export const SecurityComplianceCenterPage: React.FC = () => {
         { key: 'dr', label: <span><DatabaseBackup size={14} /> {t('w13Sec.tab.dr')}</span>, children: <DrTab /> },
         { key: 'audit', label: <span><Link2 size={14} /> {t('w13Sec.tab.auditChain')}</span>, children: <AuditChainTab /> },
       ]} />
-    </div>
+    </PageContainer>
   )
 }
 

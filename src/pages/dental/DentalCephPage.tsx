@@ -382,7 +382,7 @@ export const DentalCephPage: React.FC = () => {
           onCancel={() => setCreateModal(false)}
           onOk={() => void handleCreateStudy()}
           confirmLoading={creating}
-          width={460}
+          width={420}
         >
           <Row gutter={12} style={{ marginTop: 'var(--space-2, 8px)' }}>
             <Col span={12}>

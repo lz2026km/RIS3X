@@ -234,7 +234,7 @@ const SecondReadPanel: React.FC = () => {
       {/* 详情 + 风险项处理 */}
       <Modal
         title={`${t('secondRead.detailTitle')} - ${detail?.reportId ?? ''}`} open={!!detail} onCancel={() => setDetail(null)}
-        footer={null} width={760}
+        footer={null} width={960}
       >
         {detail && (
           <Space direction="vertical" style={{ width: '100%' }}>

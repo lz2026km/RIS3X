@@ -381,7 +381,7 @@ export default function MobileApprovalPage() {
         cancelText={t('mobileApproval.cancel')}
         confirmLoading={submitting}
         okButtonProps={modalKind === 'reject' ? { danger: true } : undefined}
-        width={520}
+        width={560}
       >
         {acting && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3, 12px)', paddingTop: 'var(--space-2, 8px)' }}>

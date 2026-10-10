@@ -516,7 +516,7 @@ export default function QcPdcaPage() {
         title={detail ? `${detail.title} — ${PHASE_META[detail.phase]?.label ?? detail.phase}` : t('qcPdca.cycleDetail')}
         open={detailOpen}
         onClose={() => setDetailOpen(false)}
-        width={640}
+        width={720}
         extra={sourceBadge}
       >
         {detailLoading ? (
@@ -641,7 +641,7 @@ export default function QcPdcaPage() {
         onCancel={() => { setPhaseModalOpen(false); setPhaseEditing(null) }}
         okText={phaseEditing ? t('qcPdca.save') : t('qcPdca.add')}
         cancelText={t('qcPdca.cancel')}
-        width={480}
+        width={420}
         destroyOnClose
       >
         <Form form={phaseForm} layout="vertical" preserve={false} initialValues={{ phase: 'plan' }}>

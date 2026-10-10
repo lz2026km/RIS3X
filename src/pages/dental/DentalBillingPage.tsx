@@ -262,14 +262,14 @@ export const DentalBillingPage: React.FC = () => {
           {key:'charge', label:t('dentalBilling.tabCharge'), children:<>
             <Row gutter={12}>
               <Col span={8}>
-                <Card size="small" title={t('dentalBilling.feeItemSelect')}>
+                <Card type="inner" size="small" title={t('dentalBilling.feeItemSelect')}>
                   <Select showSearch placeholder={t('dentalBilling.searchItemPlaceholder')} style={{width:'100%',marginBottom:'var(--space-2, 8px)'}} options={catalog.map((c:any)=>({value:c.code,label:`${c.name} ¥${c.unitPrice}`}))} />
                   <DataTable dataSource={pagedCatalog} rowKey="code" pagination={catalogPagination} scroll={{ x: 'max-content' }}
                     columns={[{title:t('dentalBilling.colItem'),dataIndex:'name',width:140},{title:t('dentalBilling.colPrice'),dataIndex:'unitPrice',render:(v:number)=>`¥${v}`},{title:t('dentalBilling.colInsurance'),dataIndex:'insuranceType',render:(v:string)=><Tag color={v==='甲类'?'green':v==='乙类'?'blue':'red'}>{v}</Tag>},{title:'',render:(_,r:any)=><Button size="small" icon={<Plus size={14}/>} onClick={()=>setNewInvoice({...newInvoice,items:[...newInvoice.items,{...r,qty:1}]})} aria-label={t('dentalBilling.addItem')} />}]} />
                 </Card>
               </Col>
               <Col span={8}>
-                <Card size="small" title={t('dentalBilling.selectedItems')}>
+                <Card type="inner" size="small" title={t('dentalBilling.selectedItems')}>
                   {newInvoice.items.map((item:any,i:number)=>(
                     <div key={i} style={{padding:'4px 0',borderBottom:'1px solid var(--border-color)',display:'flex',justifyContent:'space-between'}}>
                       <span><Tag>{item.code}</Tag>{item.name}</span>
@@ -292,7 +292,7 @@ export const DentalBillingPage: React.FC = () => {
                 </Card>
               </Col>
               <Col span={8}>
-                <Card size="small" title={t('dentalBilling.realtimeInsurance')}>
+                <Card type="inner" size="small" title={t('dentalBilling.realtimeInsurance')}>
                   <InputNumber placeholder={t('dentalBilling.enterTotalAmount')} style={{width:'100%',marginBottom:'var(--space-2, 8px)'}} />
                   <Button block icon={<Calculator size={14}/>} onClick={async()=>{
                     try {
@@ -325,13 +325,13 @@ export const DentalBillingPage: React.FC = () => {
             ]} 
           scroll={{ x: 'max-content' }}/>},
           {key:'reports', label:t('dentalBilling.tabReports'), children:<Row gutter={12}>
-            <Col span={8}><Card size="small" title={t('dentalBilling.financeOverview')}><Statistic title={t('dentalBilling.monthlyRevenue')} prefix="¥" value={invoices.reduce((s,i)=>s+i.total,0)} /><Statistic title={t('dentalBilling.receivable')} prefix="¥" value={totalPending} style={{marginTop:'var(--space-3, 12px)'}} /><Statistic title={t('dentalBilling.received')} prefix="¥" value={totalPaid} style={{marginTop:'var(--space-3, 12px)'}} /><Progress percent={totalPaid/(totalPaid+totalPending+1)*100} size="small" strokeColor="#52c41a" /></Card></Col>
-            <Col span={8}><Card size="small" title={t('dentalBilling.operationData')}><Statistic title={t('dentalBilling.billCount')} value={invoices.length} /><Statistic title={t('dentalBilling.paidRatio')} value={invoices.length>0?((invoices.filter(i=>i.status==='paid').length/invoices.length)*100).toFixed(0):'0'} suffix="%" style={{marginTop:'var(--space-3, 12px)'}} /></Card></Col>
-            <Col span={8}><Card size="small" title={t('dentalBilling.feeDetail')}><List size="small" dataSource={catalog.slice(0,3)} renderItem={(d:any)=><List.Item><span>{d.name}</span><Tag>¥{d.unitPrice}</Tag></List.Item>} /></Card></Col>
+            <Col span={8}><Card type="inner" size="small" title={t('dentalBilling.financeOverview')}><Statistic title={t('dentalBilling.monthlyRevenue')} prefix="¥" value={invoices.reduce((s,i)=>s+i.total,0)} /><Statistic title={t('dentalBilling.receivable')} prefix="¥" value={totalPending} style={{marginTop:'var(--space-3, 12px)'}} /><Statistic title={t('dentalBilling.received')} prefix="¥" value={totalPaid} style={{marginTop:'var(--space-3, 12px)'}} /><Progress percent={totalPaid/(totalPaid+totalPending+1)*100} size="small" strokeColor="#52c41a" /></Card></Col>
+            <Col span={8}><Card type="inner" size="small" title={t('dentalBilling.operationData')}><Statistic title={t('dentalBilling.billCount')} value={invoices.length} /><Statistic title={t('dentalBilling.paidRatio')} value={invoices.length>0?((invoices.filter(i=>i.status==='paid').length/invoices.length)*100).toFixed(0):'0'} suffix="%" style={{marginTop:'var(--space-3, 12px)'}} /></Card></Col>
+            <Col span={8}><Card type="inner" size="small" title={t('dentalBilling.feeDetail')}><List size="small" dataSource={catalog.slice(0,3)} renderItem={(d:any)=><List.Item><span>{d.name}</span><Tag>¥{d.unitPrice}</Tag></List.Item>} /></Card></Col>
           </Row>},
         ]} />
       </Card>
-      <Modal title={`${t('dentalBilling.charge')} - ${currentInvoice?.id}`} open={payModal} onCancel={()=>{setPayModal(false); setPaymentMethod(DEFAULT_METHOD);}} onOk={handlePay} width={400}
+      <Modal title={`${t('dentalBilling.charge')} - ${currentInvoice?.id}`} open={payModal} onCancel={()=>{setPayModal(false); setPaymentMethod(DEFAULT_METHOD);}} onOk={handlePay} width={420}
         okText={`${t('dentalBilling.confirmCharge')} ¥${currentInvoice?.selfPay || 0}`}>
         <div style={{textAlign:'center',padding:'var(--space-4, 16px)'}}>
           <div style={{fontSize:30,fontWeight:700,color:'var(--color-primary-600)'}}>¥{currentInvoice?.selfPay || 0}</div>
@@ -339,7 +339,7 @@ export const DentalBillingPage: React.FC = () => {
           <Select value={paymentMethod} onChange={setPaymentMethod} style={{width:'100%'}} options={payMethods.map((m:any)=>({value:m.id,label:m.name}))} />
         </div>
       </Modal>
-      <Modal title={t('dentalBilling.createInvoiceTitle')} open={invoiceModal.open} onCancel={() => setInvoiceModal({ open: false, saving: false })} onOk={() => void handleCreateInvoice()} confirmLoading={invoiceModal.saving} width={440}>
+      <Modal title={t('dentalBilling.createInvoiceTitle')} open={invoiceModal.open} onCancel={() => setInvoiceModal({ open: false, saving: false })} onOk={() => void handleCreateInvoice()} confirmLoading={invoiceModal.saving} width={420}>
         <Form form={invoiceForm} layout="vertical" size="small" style={{ marginTop: 'var(--space-2, 8px)' }} initialValues={{ patientId: selectedPatient, itemCode: 'DENTAL-001', quantity: 1 }}>
           <Form.Item label={t('dentalBilling.patient')} name="patientId" rules={[{ required: true, message: t('dentalBilling.selectPatientRequired') }]}>
             <Select options={[{ value: 'P100001', label: '张伟' }, { value: 'P100002', label: '李娜' }, { value: 'P100003', label: '王芳' }]} />

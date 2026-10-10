@@ -22,6 +22,7 @@ import { StatCard as CommonStatCard } from '../components/common/StatCard'
 import { DataTable } from '../components/common'
 import { seededUnit } from '../utils/seededRandom'
 import { t } from '../i18n/appI18n'
+import { PageContainer } from "../components/common";
 
 // ============================================================
 // [W2-B] 共享数据 Hook: statsApi.getDaily/getTrend/getByModality + deviceApi.list
@@ -1767,9 +1768,7 @@ export default function GreenITPage() {
   ]
 
   return (
-    <div style={{ background: C.background,
-      padding: '24px',
-    }}>
+    <PageContainer maxWidth="full" padding={24} style={{ background: C.background }}>
       {/* 页面标题 */}
       <div style={{ marginBottom: 'var(--space-6, 24px)' }}>
         <PageHeader
@@ -1874,6 +1873,6 @@ export default function GreenITPage() {
           {activeTab === 'iso' && <ISO14001Compliance />}
         </div>
       </div>
-    </div>
+    </PageContainer>
   )
 }
