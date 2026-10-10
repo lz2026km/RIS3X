@@ -192,19 +192,19 @@ function HangingProtocolPanelInner({ onApply, modality, bodyPart }: HangingProto
                   value={newName}
                   onChange={e => setNewName(e.target.value)}
                   placeholder={t('w9d.hanging.protocolNamePlaceholder')}
-                  style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #475569', background: '#0f172a', color: '#e2e8f0', fontSize: 12, outline: 'none' }}
+                  style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #475569', background: '#0f172a', color: '#e2e8f0', fontSize: 12,}}
                 />
                 <input
                   value={newDesc}
                   onChange={e => setNewDesc(e.target.value)}
                   placeholder={t('w9d.hanging.descPlaceholder')}
-                  style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #475569', background: '#0f172a', color: '#e2e8f0', fontSize: 12, outline: 'none' }}
+                  style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #475569', background: '#0f172a', color: '#e2e8f0', fontSize: 12,}}
                 />
                 <input
                   value={newModality}
                   onChange={e => setNewModality(e.target.value)}
                   placeholder={t('w9d.hanging.modalityPlaceholder')}
-                  style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #475569', background: '#0f172a', color: '#e2e8f0', fontSize: 12, outline: 'none' }}
+                  style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #475569', background: '#0f172a', color: '#e2e8f0', fontSize: 12,}}
                 />
                 <div style={{ display: 'flex', gap: 6 }}>
                   <button

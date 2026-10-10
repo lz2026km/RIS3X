@@ -1,13 +1,27 @@
 // [v3.0.6.8-64] 系统管理后台 (用户+角色+配置)
 // [G005 Wave1A P0-2] 用户创建/删除改走真实 userApi (/users, 后端 users.module), 替代不存在的 /system/admin/users 写端点
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Button, Table, message, Tabs, Form, Input, Select, Modal, List, Badge, Spin } from 'antd';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  message,
+  Tabs,
+  Form,
+  Input,
+  Select,
+  Modal,
+  List,
+  Badge,
+  Spin,
+} from "antd";
 import { Plus, Edit3, Trash2, Settings, Save } from 'lucide-react';
 import { systemAdminApi, type SystemUserDto, type SystemRoleDto, type SystemConfigDto } from '../../services/api/systemAdminApi';
 import { userApi } from '../../services/api/userApi';
 import { usePagination } from '../../hooks/usePagination';
 import { t } from '../../i18n/appI18n';
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 
 // [G005 Wave1A P0-2] 中文角色 → userApi 英文枚举
 const ROLE_TO_ENUM: Record<string, 'DOCTOR' | 'TECHNICIAN' | 'NURSE' | 'ADMIN' | 'DIRECTOR'> = {
@@ -191,7 +205,7 @@ export const SystemAdminPage: React.FC = () => {
           items={[
             { key:'users', label:t('sysAdmin.tabUsers'), children:
               <Card size="small" extra={<Button type="primary" icon={<Plus size={12}/>} onClick={() => { setEditUser(null); setUserModal(true) }}>{t('sysAdmin.addUser')}</Button>} title={`${users.length} 用户`}>
-                <Table dataSource={pagedUsers} rowKey="id" pagination={usersPagination}
+                <DataTable dataSource={pagedUsers} rowKey="id" pagination={usersPagination}
                   columns={[
                     {title:t('sysAdmin.colId'),dataIndex:'id'},{title:t('sysAdmin.colName'),dataIndex:'name'},
                     {title:t('sysAdmin.colRole'),dataIndex:'role',render:(r)=><Tag color="blue">{r}</Tag>},
@@ -205,7 +219,7 @@ export const SystemAdminPage: React.FC = () => {
             },
             { key:'roles', label:t('sysAdmin.tabRoles'), children:
               <Card size="small" title={`${roles.length} 角色`}>
-                <Table dataSource={pagedRoles} rowKey="name" pagination={rolesPagination} scroll={{ x: 'max-content' }}
+                <DataTable dataSource={pagedRoles} rowKey="name" pagination={rolesPagination} scroll={{ x: 'max-content' }}
                   columns={[
                     {title:t('sysAdmin.colRole'),dataIndex:'name',render:(r)=><Tag color="purple">{r}</Tag>},
                     {title:t('sysAdmin.colPermissions'),dataIndex:'permissions',render:(p)=><>{p.map((x:string)=><Tag key={x} style={{margin:2}}>{x}</Tag>)}</>},

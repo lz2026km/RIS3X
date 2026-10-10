@@ -1,11 +1,29 @@
 // [v3.0.6.8-47] PR3: 通知 + 模板 + 词典综合管理
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, message, Tabs, List, InputNumber, Modal, Badge, Table, Switch, Avatar } from 'antd';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Select,
+  Input,
+  Form,
+  Row,
+  Col,
+  message,
+  Tabs,
+  List,
+  InputNumber,
+  Modal,
+  Badge,
+  Switch,
+  Avatar,
+} from "antd";
 import { Bell, FileText, BookOpen, Plus, Edit3, CheckCircle2, RefreshCw } from 'lucide-react';
 import { notificationApi, templateApi, dictionaryApi } from '@/services/api/notificationTemplateDictApi';
 import { LoadingBanner } from '../../components/feedback';
 import { t } from '../../i18n/appI18n';
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 
 const { TextArea } = Input;
 
@@ -256,8 +274,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
               </Space>
             }
           >
-            <Table
-              size="small"
+            <DataTable
               loading={loading}
               dataSource={filteredTemplates}
               rowKey="id"
@@ -290,8 +307,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
               </Space>
             }
           >
-            <Table
-              size="small"
+            <DataTable
               loading={loading}
               dataSource={filteredDict}
               rowKey="id"

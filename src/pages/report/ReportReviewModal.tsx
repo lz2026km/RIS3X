@@ -94,7 +94,7 @@ export default function ReportReviewModal({ report, onClose, onSubmit }: ReportR
               placeholder={result === 'approved' ? '同意发布，报告书写规范。' : '请修改诊断意见中的描述...'}
               rows={3} style={{
                 width: '100%', padding: '10px 12px', border: '1px solid var(--border-color)', borderRadius: 6,
-                fontSize: 12, resize: 'none', outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit',
+                fontSize: 12, resize: 'none', boxSizing: 'border-box', fontFamily: 'inherit',
               }} />
           </div>
 
@@ -102,7 +102,7 @@ export default function ReportReviewModal({ report, onClose, onSubmit }: ReportR
             <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 6 }}>电子签名密码</div>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)}
               placeholder="请输入审核签名密码..."
-              style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, outline: 'none', boxSizing: 'border-box' }} />
+              style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, boxSizing: 'border-box' }} />
           </div>
         </div>
 

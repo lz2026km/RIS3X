@@ -399,7 +399,7 @@ export default function ReportSearchPage() {
               onChange={e => setQuery(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSearch()}
               placeholder={t('reportSearch.searchPlaceholder')}
-              style={{ flex: 1, padding: '10px 4px', border: 'none', background: 'transparent', fontSize: 14, outline: 'none' }}
+              style={{ flex: 1, padding: '10px 4px', border: 'none', background: 'transparent', fontSize: 14,}}
             />
             {query && <X size={14} onClick={() => setQuery('')} style={{ cursor: 'pointer', color: 'var(--text-secondary)' }} />}
           </div>

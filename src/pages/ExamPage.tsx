@@ -1304,9 +1304,7 @@ export default function ExamPage() {
             padding: "8px 10px 8px 32px",
             border: "1px solid var(--border-color)",
             borderRadius: 6,
-            fontSize: 12,
-            outline: "none",
-            boxSizing: "border-box",
+            fontSize: 12, boxSizing: "border-box",
           }}
           onFocus={(e) => (e.target.style.borderColor = PRIMARY)}
           onBlur={(e) => (e.target.style.borderColor = "var(--border-color)")}
@@ -1325,7 +1323,7 @@ export default function ExamPage() {
         }}
         options={["全部", "普通", "紧急", "危重"].map((p) => ({
           value: p,
-          label: p === "全部" ? t("examPage.allPriorities") : `⚑ ${p}`,
+          label: p === "全部" ? t("examPage.allPriorities") : p,
         }))}
       />
 
@@ -3062,9 +3060,7 @@ export default function ExamPage() {
                   border: "1px solid var(--border-color)",
                   borderRadius: 6,
                   fontSize: 12,
-                  resize: "none",
-                  outline: "none",
-                  boxSizing: "border-box",
+                  resize: "none", boxSizing: "border-box",
                   fontFamily: "inherit",
                 }}
                 onFocus={(e) =>
@@ -3503,9 +3499,7 @@ export default function ExamPage() {
                   border: "1px solid var(--border-color)",
                   borderRadius: 6,
                   fontSize: 12,
-                  resize: "vertical",
-                  outline: "none",
-                  boxSizing: "border-box",
+                  resize: "vertical", boxSizing: "border-box",
                   fontFamily: "monospace",
                 }}
               />
@@ -3647,9 +3641,7 @@ export default function ExamPage() {
                   borderRadius: 8,
                   fontSize: 12,
                   fontFamily: "monospace",
-                  resize: "vertical",
-                  outline: "none",
-                }}
+                  resize: "vertical", }}
               />
               <div style={{ marginTop: 10 }}>
                 <label

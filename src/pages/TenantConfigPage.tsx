@@ -1,11 +1,30 @@
 import { useAuth } from '../hooks/useAuth'
 import { tenantApi, type TenantProfile, type TenantUsage, type TenantFeatures } from '../services/api/tenantApi'
 import {
-  Card, Table, Tag, Statistic, Row, Col, Button, Spin, Alert, Tabs, Descriptions, Space,
-  Badge, Progress, Switch, Form, Input, InputNumber, Modal, message, Popconfirm, List,
-} from 'antd'
+  Card,
+  Tag,
+  Statistic,
+  Row,
+  Col,
+  Button,
+  Spin,
+  Alert,
+  Tabs,
+  Descriptions,
+  Space,
+  Badge,
+  Progress,
+  Switch,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  message,
+  Popconfirm,
+  List,
+} from "antd";
 import { useState, useEffect, useCallback } from 'react'
-import { StatCard, StatCardGrid, PageContainer } from '../components/common'
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../components/common"
 import { RefreshCw, ShieldCheck, Settings, Users, LayoutDashboard, Zap, Plus, Power, PlayCircle, ClipboardList } from 'lucide-react'
 import { usePagination } from '../hooks/usePagination'
 import { t } from '../i18n/appI18n'
@@ -328,7 +347,7 @@ export default function TenantConfigPage() {
               children: (
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                   <Button type="primary" icon={<Plus />} onClick={() => setCreating(true)}>{t('tenantConfig.newTenant')}</Button>
-                  <Table rowKey="id" columns={columns} dataSource={pagedTenants} pagination={tenantsPagination} size="small" scroll={{ x: 'max-content' }}/>
+                  <DataTable rowKey="id" columns={columns} dataSource={pagedTenants} pagination={tenantsPagination} scroll={{ x: 'max-content' }}/>
                 </Space>
               ),
             }] : []),

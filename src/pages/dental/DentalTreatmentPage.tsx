@@ -1,15 +1,29 @@
 // [v3.0.6.11-54] Phase 2: 口腔治疗中心 (治疗计划列表 + 新建治疗)
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  Row, Col, Card, Button, Space, Modal, Form, Input, Select,
-  InputNumber, message, Spin, Tag, Table, Empty, Popconfirm, Descriptions,
-} from 'antd';
+  Row,
+  Col,
+  Card,
+  Button,
+  Space,
+  Modal,
+  Form,
+  Input,
+  Select,
+  InputNumber,
+  message,
+  Spin,
+  Tag,
+  Empty,
+  Popconfirm,
+  Descriptions,
+} from "antd";
 import { Plus, RefreshCw, Stethoscope, Activity, CheckCircle2 } from 'lucide-react';
 import { DentalPageLayout } from './DentalShared';
 import { dentalApi } from '../../services/api/dentalApi';
 import { usePagination } from '../../hooks/usePagination';
 import { t } from '../../i18n/appI18n';
-import { StatCard, StatCardGrid } from '../../components/common';
+import { DataTable, StatCard, StatCardGrid } from "../../components/common";
 
 const STATUS_COLOR: Record<string, string> = {
   completed: 'green', Completed: 'green', InProgress: 'orange', in_progress: 'orange',
@@ -198,7 +212,7 @@ export const DentalTreatmentPage: React.FC = () => {
               <Button type="primary" icon={<Plus size={12} />} onClick={() => setCreateOpen(true)}>{t('dentalTreatment.newTreatmentPlan')}</Button>
             </Empty>
           ) : (
-            <Table rowKey="id" size="small" dataSource={listPagination.pageData} columns={columns} pagination={listPagination.pagination} scroll={{ x: 'max-content' }}/>
+            <DataTable rowKey="id" dataSource={listPagination.pageData} columns={columns} pagination={listPagination.pagination} scroll={{ x: 'max-content' }}/>
           )}
         </Spin>
       </Card>

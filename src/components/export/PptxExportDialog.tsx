@@ -107,14 +107,12 @@ export const PptxExportDialog: React.FC<PptxExportDialogProps> = ({ open, onClos
 };
 
 const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 13, outline: 'none',
-};
+  width: '100%', padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 13, };
 const textAreaStyle: React.CSSProperties = {
   ...inputStyle, resize: 'vertical', fontFamily: 'inherit',
 };
 const selectSmall: React.CSSProperties = {
-  padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, outline: 'none',
-};
+  padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, };
 const addBtnStyle: React.CSSProperties = {
   padding: '4px 10px', border: '1px solid #7c3aed', borderRadius: 4, background: '#f5f3ff',
   color: '#7c3aed', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,

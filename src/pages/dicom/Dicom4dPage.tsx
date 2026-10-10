@@ -473,7 +473,7 @@ export default function Dicom4dPage() {
   const currentFrameData = phaseState?.frames[currentFrame]
 
   return (
-    <div style={{ minHeight: '100vh', background: '#020617', color: '#cbd5e1', padding: 12 }}>
+    <div style={{ background: '#020617', color: '#cbd5e1', padding: 12 }}>
       <style>{`@keyframes g005-frame-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }`}</style>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Activity size={18} color={BLUE} />

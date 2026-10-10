@@ -50,9 +50,7 @@ const inputStyle: React.CSSProperties = {
   color: 'var(--text-primary)',
   fontSize: 14,
   marginBottom: 14,
-  boxSizing: 'border-box',
-  outline: 'none',
-};
+  boxSizing: 'border-box', };
 
 /**
  * 登录页专属样式:
@@ -202,9 +200,7 @@ export default function LoginPage() {
   return (
     <main
       className="anim-fade-in"
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
+      style={{ display: 'flex',
         overflowY: 'auto',
         background: 'var(--bg-primary)',
         color: 'var(--text-primary)',

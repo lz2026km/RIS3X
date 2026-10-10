@@ -6,13 +6,31 @@ import {
   DragEndEvent,
 } from "@dnd-kit/core";
 import { Layers, Save, Play, List, History, GripVertical, Plus, CheckCircle2, X, Clock, GitBranch, Zap, Settings, Trash2 } from 'lucide-react';
-import { Table, Button, Tag, message, Modal, Input, Select, Card, Statistic, Row, Col, Tabs, Tooltip, Badge, Popconfirm, Space, Switch, InputNumber } from 'antd';
+import {
+  Button,
+  Tag,
+  message,
+  Modal,
+  Input,
+  Select,
+  Card,
+  Statistic,
+  Row,
+  Col,
+  Tabs,
+  Tooltip,
+  Badge,
+  Popconfirm,
+  Space,
+  Switch,
+  InputNumber,
+} from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useTranslation } from "react-i18next";
 import { t as appT } from '../../i18n/appI18n';
 import { orchestratorApi, type OrchestratorFlow, type FlowExecution, type FlowStepDefinition, type SlaConfigDto, type SlaStats } from '../../services/api/orchestratorApi';
 import { usePagination } from '../../hooks/usePagination';
-import { StatCard, StatCardGrid } from '../../components/common';
+import { DataTable, StatCard, StatCardGrid } from "../../components/common";
 
 type StepTypeColor = { key: string; color: string };
 
@@ -809,7 +827,7 @@ export default function OrchestratorPage() {
         title={t("executions")}
         styles={{ body: { padding: 0 } }}
       >
-        <Table
+        <DataTable
           dataSource={executions.items}
           columns={executionColumns}
           rowKey="id"
@@ -823,7 +841,6 @@ export default function OrchestratorPage() {
               loadExecutions(p);
             },
           }}
-          size="small"
         scroll={{ x: 'max-content' }}
         />
       </Card>
@@ -833,12 +850,11 @@ export default function OrchestratorPage() {
         style={{ marginTop: 16 }}
         styles={{ body: { padding: 0 } }}
       >
-        <Table
+        <DataTable
           dataSource={slaPagination.pageData}
           columns={slaConfigColumns}
           rowKey={(r) => r.id ?? ""}
           pagination={slaPagination.pagination}
-          size="small"
         scroll={{ x: 'max-content' }}
         />
       </Card>

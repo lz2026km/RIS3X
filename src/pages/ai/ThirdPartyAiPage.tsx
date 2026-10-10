@@ -2,7 +2,6 @@ import { aiPlatformApi } from "../../services/api/aiPlatformApi";
 import { AiPlatformModel, AiPlatformStats, AiPlatformTestResult } from '../../services/api/aiPlatformApi'
 import {
   Card,
-  Table,
   Button,
   Tag,
   Space,
@@ -28,7 +27,7 @@ import {
 } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import { t } from "../../i18n/appI18n";
-import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 
 const statusLabel: Record<string, string> = {
   active: t("thirdAi.status.active"),
@@ -316,12 +315,11 @@ const ThirdPartyAiPage: React.FC = () => {
         }
       >
         <Spin spinning={loading}>
-          <Table
+          <DataTable
             rowKey="id"
             dataSource={providers}
             columns={columns}
             pagination={false}
-            size="small"
           scroll={{ x: 'max-content' }}
           />
         </Spin>

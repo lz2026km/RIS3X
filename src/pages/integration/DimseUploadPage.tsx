@@ -1,11 +1,24 @@
 ﻿// [W3-2] DIMSE 上传: 真实文件读取 + dicomDimseApi.upload 调用 + 分阶段进度 + 结果列表
 // [W3-C] 刷新按钮: 真实刷新 — 上传记录持久化到 localStorage, 刷新时从存储重新加载
 import React, { useEffect, useState } from 'react';
-import { Card, Upload, Button, message, Table, Tag, Space, Alert, Typography, Progress, Select, Popconfirm, Empty } from 'antd';
+import {
+  Card,
+  Upload,
+  Button,
+  message,
+  Tag,
+  Space,
+  Alert,
+  Typography,
+  Progress,
+  Select,
+  Popconfirm,
+  Empty,
+} from "antd";
 import { RefreshCw, Upload as UploadIcon, Trash2 } from 'lucide-react';
 import { dicomDimseApi } from '../../services/api/dicomApi';
 import { t } from '../../i18n/appI18n';
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 
 const destOptions = () => [
   { value: 's3', label: t('dimseUpload.destS3') },
@@ -193,7 +206,7 @@ export const DimseUploadPage: React.FC = () => {
         </Space>
       </Card>
       <Card size="small" title={t('dimseUpload.recordsTitle', { count: records.length })} style={{ marginTop: 16 }}>
-        <Table
+        <DataTable
           dataSource={records}
           rowKey="key"
           columns={[...uploadColumns(), {

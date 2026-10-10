@@ -441,9 +441,7 @@ const CardiacSpecialtyPage = () => {
                     onChange={(e) => setSearch(e.target.value)}
                     style={{
                       border: "none",
-                      background: "transparent",
-                      outline: "none",
-                      marginLeft: 8,
+                      background: "transparent", marginLeft: 8,
                       fontSize: 13,
                       width: 160,
                     }}

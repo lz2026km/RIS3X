@@ -460,8 +460,7 @@ export default function ReportRevisionsPage() {
                 placeholder={t('reportRev.searchPlaceholder')}
                 style={{
                   width: '100%', padding: '5px 8px 5px 26px',
-                  border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, outline: 'none',
-                }}
+                  border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, }}
               />
             </div>
           </div>
@@ -826,7 +825,7 @@ color: seg.type === 'removed' ? '#b91c1c' : seg.type === 'added' ? '#047857' : '
 // ============================================================
 const selectStyle: React.CSSProperties = {
   padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4,
-  fontSize: 12, outline: 'none', minWidth: 100,
+  fontSize: 12, minWidth: 100,
 };
 
 // ============================================================

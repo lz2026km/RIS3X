@@ -651,7 +651,7 @@ export default function TemplateManagementPage() {
                 <div style={{ fontSize: 26, fontWeight: 700, color: C.warning }}>4.5</div>
                 <div style={{ fontSize: 12, color: C.textLight }}>/ 5.0</div>
                 <div style={{ display: 'flex', gap: 2, justifyContent: 'center', margin: '6px 0' }}>
-                  {[1, 2, 3, 4, 5].map(s => <span key={s} style={{ color: s <= 4 ? C.warning : C.border, fontSize: 18 }}>★</span>)}
+                  {[1, 2, 3, 4, 5].map(s => <Star key={s} size={16} style={{ color: s <= 4 ? C.warning : C.border, fill: s <= 4 ? C.warning : 'transparent' }} />)}
                 </div>
                 <div style={{ fontSize: 12, color: C.textMid }}>{t9('templateMgmt.basedOnReviews')}</div>
               </div>
@@ -768,7 +768,7 @@ export default function TemplateManagementPage() {
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 6 }}>{t9('templateMgmt.shareToLabel')}</label>
-                  <input value={shareForm.sharedWith} onChange={e => setShareForm({ ...shareForm, sharedWith: e.target.value })} placeholder={t9('templateMgmt.shareToPlaceholder')} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                  <input value={shareForm.sharedWith} onChange={e => setShareForm({ ...shareForm, sharedWith: e.target.value })} placeholder={t9('templateMgmt.shareToPlaceholder')} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, boxSizing: 'border-box' }} />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 6 }}>{t9('templateMgmt.shPermission')}</label>
@@ -1088,7 +1088,7 @@ export default function TemplateManagementPage() {
                 onChange={(e) => setRejectReason(e.target.value)}
                 rows={4}
                 placeholder={t9('templateMgmt.rejectReasonPlaceholder')}
-                style={{ width: '100%', boxSizing: 'border-box', padding: '10px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none', resize: 'vertical', fontFamily: 'inherit' }}
+                style={{ width: '100%', boxSizing: 'border-box', padding: '10px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, resize: 'vertical', fontFamily: 'inherit' }}
               />
             </div>
             <div style={styles.modalFooter}>
@@ -1109,17 +1109,17 @@ export default function TemplateManagementPage() {
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  container: { padding: '24px', backgroundColor: C.bg, minHeight: '100vh', fontFamily: '"Microsoft YaHei", "Segoe UI", sans-serif' },
+  container: { padding: '24px', backgroundColor: C.bg, fontFamily: '"Microsoft YaHei", "Segoe UI", sans-serif' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', backgroundColor: 'var(--bg-card)', padding: '16px 24px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' },
   headerLeft: { display: 'flex', alignItems: 'center', gap: '12px' },
   title: { fontSize: '20px', fontWeight: 700, color: C.textDark, margin: 0 },
   addBtn: { display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 18px', backgroundColor: C.primary, color: C.white, border: 'none', borderRadius: '6px', fontSize: '14px', fontWeight: 500, cursor: 'pointer', transition: 'background-color 0.2s' },
   toolbar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', gap: '16px', backgroundColor: 'var(--bg-card)', padding: '16px 20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' },
   searchBox: { display: 'flex', alignItems: 'center', gap: '10px', flex: 1, maxWidth: '400px', padding: '8px 14px', backgroundColor: C.bgLight, borderRadius: '6px', border: `1px solid ${C.borderLight}` },
-  searchInput: { flex: 1, border: 'none', outline: 'none', backgroundColor: 'transparent', fontSize: '14px', color: C.textDark },
+  searchInput: { flex: 1, border: 'none', backgroundColor: 'transparent', fontSize: '14px', color: C.textDark },
   filters: { display: 'flex', alignItems: 'center', gap: '12px' },
   filterGroup: { display: 'flex', alignItems: 'center', gap: '8px' },
-  select: { padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: '6px', fontSize: '14px', color: C.textDark, backgroundColor: 'var(--bg-card)', cursor: 'pointer', outline: 'none' },
+  select: { padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: '6px', fontSize: '14px', color: C.textDark, backgroundColor: 'var(--bg-card)', cursor: 'pointer',},
   statsBar: { display: 'flex', gap: '24px', marginBottom: '16px', backgroundColor: 'var(--bg-card)', padding: '14px 24px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' },
   statItem: { display: 'flex', alignItems: 'center', gap: '8px' },
   statLabel: { fontSize: '14px', color: C.textMid },
@@ -1166,10 +1166,10 @@ const styles: Record<string, React.CSSProperties> = {
   formGroup: { marginBottom: '16px' },
   label: { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 500, color: C.textDark, marginBottom: '6px' },
   required: { color: C.danger },
-  input: { width: '100%', padding: '10px 12px', border: `1px solid ${C.border}`, borderRadius: '6px', fontSize: '14px', color: C.textDark, outline: 'none', boxSizing: 'border-box' },
-  textarea: { width: '100%', padding: '10px 12px', border: `1px solid ${C.border}`, borderRadius: '6px', fontSize: '14px', color: C.textDark, outline: 'none', fontFamily: '"Consolas", "Monaco", monospace', resize: 'vertical', boxSizing: 'border-box' },
+  input: { width: '100%', padding: '10px 12px', border: `1px solid ${C.border}`, borderRadius: '6px', fontSize: '14px', color: C.textDark, boxSizing: 'border-box' },
+  textarea: { width: '100%', padding: '10px 12px', border: `1px solid ${C.border}`, borderRadius: '6px', fontSize: '14px', color: C.textDark, fontFamily: '"Consolas", "Monaco", monospace', resize: 'vertical', boxSizing: 'border-box' },
   tagInput: { display: 'flex', gap: '8px' },
-  tagInputField: { flex: 1, padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: '6px', fontSize: '14px', outline: 'none' },
+  tagInputField: { flex: 1, padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: '6px', fontSize: '14px',},
   tagAddBtn: { padding: '8px 16px', backgroundColor: C.primaryLighter, color: C.primary, border: 'none', borderRadius: '6px', fontSize: '13px', cursor: 'pointer' },
   tagsList: { display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '10px' },
   tagItem: { display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', backgroundColor: C.primaryLighter, color: C.primary, borderRadius: '14px', fontSize: '13px' },

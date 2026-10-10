@@ -53,17 +53,17 @@ function AdvancedFilterPanel({ filters, onChange, onReset, presets, onApplyPrese
           <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6, display: 'block' }}>年龄范围</label>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <input type="number" value={filters.ageMin} onChange={e => onChange({ ...filters, ageMin: e.target.value })} placeholder="最小"
-              style={{ flex: 1, padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, outline: 'none', width: '100%' }} />
+              style={{ flex: 1, padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, width: '100%' }} />
             <span style={{ color: '#64748b', fontSize: 12 }}>-</span>
             <input type="number" value={filters.ageMax} onChange={e => onChange({ ...filters, ageMax: e.target.value })} placeholder="最大"
-              style={{ flex: 1, padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, outline: 'none', width: '100%' }} />
+              style={{ flex: 1, padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, width: '100%' }} />
           </div>
         </div>
 
         <div>
           <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6, display: 'block' }}>患者类型</label>
           <select value={filters.patientType} onChange={e => onChange({ ...filters, patientType: e.target.value as PatientTypeFilter })}
-            style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, outline: 'none', background: 'var(--bg-card)' }}>
+            style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)' }}>
             {(['全部', '门诊', '住院', '体检', '急诊'] as PatientTypeFilter[]).map(t => (
               <option key={t} value={t}>{t}</option>
             ))}
@@ -73,7 +73,7 @@ function AdvancedFilterPanel({ filters, onChange, onReset, presets, onApplyPrese
         <div>
           <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6, display: 'block' }}>检查设备</label>
           <select value={filters.modality} onChange={e => onChange({ ...filters, modality: e.target.value })}
-            style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, outline: 'none', background: 'var(--bg-card)' }}>
+            style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)' }}>
             {modalities.map(m => <option key={m} value={m}>{m}</option>)}
           </select>
         </div>
@@ -81,19 +81,19 @@ function AdvancedFilterPanel({ filters, onChange, onReset, presets, onApplyPrese
         <div>
           <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6, display: 'block' }}>建档日期从</label>
           <input type="date" value={filters.dateFrom} onChange={e => onChange({ ...filters, dateFrom: e.target.value })}
-            style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, outline: 'none' }} />
+            style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12,}} />
         </div>
 
         <div>
           <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6, display: 'block' }}>建档日期至</label>
           <input type="date" value={filters.dateTo} onChange={e => onChange({ ...filters, dateTo: e.target.value })}
-            style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, outline: 'none' }} />
+            style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12,}} />
         </div>
 
         <div>
           <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6, display: 'block' }}>诊断分类</label>
           <select value={filters.diagnosisCategory || '全部'} onChange={e => onChange({ ...filters, diagnosisCategory: e.target.value })}
-            style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, outline: 'none', background: 'var(--bg-card)' }}>
+            style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)' }}>
             {diagnosisCategories.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
@@ -132,7 +132,7 @@ function AdvancedFilterPanel({ filters, onChange, onReset, presets, onApplyPrese
           )}
           <div style={{ display: 'flex', gap: 8 }}>
             <input value={savePresetName || ''} onChange={e => onSavePresetNameChange?.(e.target.value)} placeholder="预设名称..."
-              style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, outline: 'none' }} />
+              style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12,}} />
             <button onClick={onSavePreset} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: '#1e40af', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Save size={12} />保存当前</button>
           </div>
         </div>
@@ -189,7 +189,7 @@ export function PatientSearchPanel(props: PatientSearchPanelProps) {
           value={props.search}
           onChange={e => props.onSearchChange(e.target.value)}
           placeholder="综合搜索：姓名 / 身份证 / 就诊卡号 / 电话 / 检查号..."
-          style={{ border: 'none', outline: 'none', fontSize: 13, width: 400, background: 'transparent' }}
+          style={{ border: 'none', fontSize: 13, width: 400, background: 'transparent' }}
         />
         <button
           onClick={props.onToggleAdvanced}

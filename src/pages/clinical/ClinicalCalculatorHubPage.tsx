@@ -1,9 +1,21 @@
 // [v3.0.6.8-78] 临床计算器中心
 import React, { useState } from 'react';
-import { Card, Space, Tag, Row, Col, Form, Input, Select, Button, Table, Result, message } from 'antd';
+import {
+  Card,
+  Space,
+  Tag,
+  Row,
+  Col,
+  Form,
+  Input,
+  Select,
+  Button,
+  Result,
+  message,
+} from "antd";
 import { Calculator, Beaker, Activity, Heart, ArrowRight, Download } from 'lucide-react';
 import { t } from '../../i18n/appI18n';
-import { PageContainer } from '../../components/common';
+import { DataTable, PageContainer } from "../../components/common";
 
 type Calc = { id:string; name:string; category:string; icon:string; description:string; inputs:string[]; calculate:(vals:any)=>any };
 
@@ -193,7 +205,7 @@ export const ClinicalCalculatorHubPage: React.FC = () => {
         </Col>
         <Col span={10}>
           <Card size="small" title={t('clinicalCalc.recent')} extra={<Button icon={<Download size={12}/>} onClick={handleExport}>{t('clinicalCalc.export')}</Button>}>
-            <Table rowKey={(record, index) => `${record.time}-${index}`} dataSource={history} pagination={false} scroll={{ x: 'max-content' }} columns={[
+            <DataTable rowKey={(record, index) => `${record.time}-${index}`} dataSource={history} pagination={false} scroll={{ x: 'max-content' }} columns={[
               {title:t('clinicalCalc.colTime'),dataIndex:'time'},{title:t('clinicalCalc.colCalculator'),dataIndex:'calc',render:(c:string)=><Tag color="blue">{c}</Tag>},
               {title:t('clinicalCalc.colPatient'),dataIndex:'patient'},{title:t('clinicalCalc.colResult'),dataIndex:'result'},
             ]} />

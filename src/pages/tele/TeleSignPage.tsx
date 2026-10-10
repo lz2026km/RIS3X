@@ -1,5 +1,16 @@
 import { teleSignApi, type TeleSignSession } from '../../services/api/teleSignApi'
-import { Card, Table, Button, Tag, Space, Modal, Input, Typography, message, Alert, Form } from 'antd'
+import {
+  Card,
+  Button,
+  Tag,
+  Space,
+  Modal,
+  Input,
+  Typography,
+  message,
+  Alert,
+  Form,
+} from "antd";
 import { FileSignature, CheckCircle, XCircle, Pen, Eye, Plus } from 'lucide-react'
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { RefreshCw } from 'lucide-react'
@@ -154,7 +165,7 @@ const TeleSignPage: React.FC = () => {
       </Space>
       {error && <Alert type="warning" showIcon message={t('teleSign.loadFail')} description={error} action={<Button size="small" onClick={fetchSessions}><RefreshCw size={14} /> {t('teleSign.retry')}</Button>} style={{ marginBottom: 16 }} />}
       <Card>
-        <Table rowKey="id" dataSource={pagedSessions} columns={columns} pagination={sessionsPagination} size="small" loading={loading} scroll={{ x: 'max-content' }}/>
+        <DataTable rowKey="id" dataSource={pagedSessions} columns={columns} pagination={sessionsPagination} loading={loading} scroll={{ x: 'max-content' }}/>
       </Card>
       <Modal title={t('teleSign.signReport')} open={signOpen} onCancel={() => setSignOpen(false)} width={600} footer={
         <Space>
@@ -209,3 +220,5 @@ const TeleSignPage: React.FC = () => {
 }
 
 export default TeleSignPage
+
+import { DataTable } from "../../components/common";

@@ -5,8 +5,18 @@
  * 展示待确认危急值通知, 支持 确认接收 (PATCH /criticals/:id state=ACKNOWLEDGED) 与 临床回执 (POST /criticals/:id/clinical-receipt)
  */
 import { useState, useEffect, useCallback } from 'react'
-import { Card, Table, Tag, Button, Modal, Input, message, Spin, Alert, Empty } from 'antd'
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
+import {
+  Card,
+  Tag,
+  Button,
+  Modal,
+  Input,
+  message,
+  Spin,
+  Alert,
+  Empty,
+} from "antd";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 import { ShieldAlert, Bell, CheckCircle, FileCheck, RefreshCw, Inbox } from 'lucide-react'
 import { criticalExtApi } from '../../services/api/criticalExtApi'
 import { criticalApi } from '../../services/api/criticalApi'
@@ -241,7 +251,7 @@ export default function ReceiverPortalPage() {
         ) : items.length === 0 ? (
           <Empty description={loadError ? t('receiverPortal.loadFailed') : t('receiverPortal.noPending')} image={<Inbox size={48} color="#94a3b8" />} />
         ) : (
-          <Table dataSource={listPagination.pageData} columns={columns} rowKey={(r) => String(r.id ?? r.criticalId ?? '')} size="small" pagination={listPagination.pagination} scroll={{ x: 'max-content' }}/>
+          <DataTable dataSource={listPagination.pageData} columns={columns} rowKey={(r) => String(r.id ?? r.criticalId ?? '')} pagination={listPagination.pagination} scroll={{ x: 'max-content' }}/>
         )}
       </Card>
 

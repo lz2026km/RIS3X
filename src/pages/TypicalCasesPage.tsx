@@ -551,7 +551,7 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
             <div style={{ padding: 14, background: COLORS.white, borderRadius: 10, border: `1px solid ${COLORS.border}` }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text, marginBottom: 8 }}>{t('discussionAdd')}</div>
               <textarea value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder={t('discussionPlaceholder')}
-                style={{ width: '100%', minHeight: 80, padding: 10, borderRadius: 6, border: `1px solid ${COLORS.border}`, fontSize: 13, resize: 'vertical', outline: 'none', fontFamily: 'inherit' }} />
+                style={{ width: '100%', minHeight: 80, padding: 10, borderRadius: 6, border: `1px solid ${COLORS.border}`, fontSize: 13, resize: 'vertical', fontFamily: 'inherit' }} />
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
                 <button onClick={() => setNewComment('')} disabled={!newComment.trim()} style={{
                   padding: '6px 16px', borderRadius: 6, border: 'none', background: newComment.trim() ? COLORS.info : COLORS.textLight,
@@ -602,7 +602,7 @@ const AddCaseForm: React.FC<AddCaseFormProps> = ({ visible, onClose, onSubmit, i
 
   if (!visible) return null
 
-  const inputStyle = { width: '100%', padding: '8px 12px', borderRadius: 6, border: `1px solid ${COLORS.border}`, fontSize: 13, outline: 'none' }
+  const inputStyle = { width: '100%', padding: '8px 12px', borderRadius: 6, border: `1px solid ${COLORS.border}`, fontSize: 13,}
   const labelStyle = { display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.text, marginBottom: 4 }
 
   return (
@@ -877,7 +877,7 @@ export default function TypicalCasesPage() {
   const hasActiveFilters = searchKeyword || examTypeFilter.length > 0 || bodyPartFilter.length > 0 || diseaseFilter.length > 0 || tagFilter.length > 0 || teachingOnly || categoryFilter.length > 0 || favoriteOnly
 
   return (
-    <div style={{ minHeight: '100vh', background: COLORS.background }}>
+    <div style={{ background: COLORS.background }}>
       {/* 顶部统计 */}
       <div style={{ background: COLORS.primary, padding: '20px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
@@ -985,7 +985,7 @@ export default function TypicalCasesPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '8px 12px', background: COLORS.backgroundLight }}>
                 <Search size={16} style={{ color: COLORS.textMuted }} />
                 <input type="text" value={searchKeyword} onChange={(e) => setSearchKeyword(e.target.value)} placeholder={t('searchCases')}
-                  style={{ border: 'none', outline: 'none', fontSize: 13, width: '100%', background: 'transparent' }} />
+                  style={{ border: 'none', fontSize: 13, width: '100%', background: 'transparent' }} />
               </div>
             </div>
 

@@ -98,7 +98,7 @@ export default function ReportCriticalModal({ report, submitting, onClose, onSub
               onChange={e => setDescription(e.target.value)}
               rows={4}
               placeholder={`例如: ${report.diagnosis || report.examFindings || '检查所见提示危急结果'}（自动带入诊断意见）`}
-              style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, resize: 'none', outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }}
+              style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 12, resize: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }}
             />
           </div>
 

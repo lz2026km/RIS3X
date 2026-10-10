@@ -72,9 +72,7 @@ const TEXT_MUTED = '#64748b'
 // ============================================================
 const styles: Record<string, React.CSSProperties> = {
   // 根容器
-  root: {
-    minHeight: '100vh',
-    background: `linear-gradient(135deg, ${BG_LIGHT} 0%, #e2e8f0 100%)`,
+  root: { background: `linear-gradient(135deg, ${BG_LIGHT} 0%, #e2e8f0 100%)`,
     fontFamily: '"PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif',
   },
 
@@ -554,16 +552,12 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '8px 12px',
     border: '1px solid var(--border-color)',
     borderRadius: 8,
-    fontSize: 13,
-    outline: 'none',
-  },
+    fontSize: 13, },
   filterSelect: {
     padding: '8px 12px',
     border: '1px solid var(--border-color)',
     borderRadius: 8,
-    fontSize: 13,
-    outline: 'none',
-    background: 'var(--bg-card)',
+    fontSize: 13, background: 'var(--bg-card)',
   },
 }
 

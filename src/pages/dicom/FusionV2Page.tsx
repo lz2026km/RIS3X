@@ -554,7 +554,7 @@ export default function FusionV2Page() {
   )
 
   return (
-    <div data-testid="fusion-v2-page" style={{ minHeight: '100vh', background: '#020617', color: '#cbd5e1', padding: 12 }}>
+    <div data-testid="fusion-v2-page" style={{ background: '#020617', color: '#cbd5e1', padding: 12 }}>
       {/* Top toolbar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
         <Layers size={18} color={BLUE} />
@@ -662,7 +662,7 @@ export default function FusionV2Page() {
                     value={patientInput}
                     onChange={e => setPatientInput(e.target.value)}
                     placeholder={t('w9d.fusionV2.patientIdPlaceholder')}
-                    style={{ flex: 1, padding: '6px 8px', background: '#0f172a', border: '1px solid #334155', borderRadius: 4, fontSize: 12, color: '#f8fafc', outline: 'none' }}
+                    style={{ flex: 1, padding: '6px 8px', background: '#0f172a', border: '1px solid #334155', borderRadius: 4, fontSize: 12, color: '#f8fafc',}}
                   />
                   <button
                     style={{ ...btnStyle, color: studyLoading ? '#64748b' : BLUE, borderColor: BLUE, whiteSpace: 'nowrap' }}
@@ -785,7 +785,7 @@ export default function FusionV2Page() {
               <span style={{ color: '#94a3b8' }}>{t('fusion.roiOverlay')}: {roiAnnotations.length}</span>
               {roiAnnotations.map((ann, i) => (
                 <span key={ann.id} style={{ color: ann.color }}>
-                  #{i + 1}: {ann.tool === 'rectangle' ? '□' : ann.tool === 'ellipse' ? '○' : '✎'} ({ann.points.length} pts)
+                  #{i + 1}: {ann.tool === 'rectangle' ? <Square size={10} /> : ann.tool === 'ellipse' ? <Circle size={10} /> : <Pen size={10} />} ({ann.points.length} pts)
                 </span>
               ))}
             </div>

@@ -227,7 +227,7 @@ export default function AutoCodingPage() {
               value={reportId}
               onChange={(e) => { setReportId(e.target.value); setWritten(false) }}
               placeholder={t('w17.coding.reportIdPlaceholder')}
-              style={{ width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, marginBottom: 10, outline: 'none' }}
+              style={{ width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, marginBottom: 10,}}
             />
             <div style={{ fontSize: 12, color: '#64748b', marginBottom: 6 }}>
               {t('w17.coding.confirmedCount')}: <strong>{confirmedTerms.length}</strong>

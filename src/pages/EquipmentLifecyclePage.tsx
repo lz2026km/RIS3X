@@ -69,8 +69,8 @@ const s = {
   // 操作区
   toolbar: { display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' as const, alignItems: 'center' },
   searchBox: { display: 'flex', alignItems: 'center', gap: 8, background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '8px 14px', flex: '0 0 280px' },
-  searchInput: { border: 'none', outline: 'none', fontSize: 15, flex: 1, background: 'transparent' },
-  select: { background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '8px 12px', fontSize: 14, outline: 'none' },
+  searchInput: { border: 'none', fontSize: 15, flex: 1, background: 'transparent' },
+  select: { background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '8px 12px', fontSize: 14,},
   btn: { padding: '10px 18px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 15, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.2s', minHeight: 44 },
   btnPrimary: { background: 'var(--color-primary-700)', color: '#fff' },
   btnSuccess: { background: '#16a34a', color: '#fff' },
@@ -1311,18 +1311,18 @@ export default function EquipmentLifecyclePage() {
               ].map(field => (
                 <div key={field.key} style={s.detailItem}>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{field.label}</div>
-                  <input style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)' }} value={deviceForm[field.key]} onChange={e => setDeviceForm({ ...deviceForm, [field.key]: e.target.value })} placeholder={field.placeholder} />
+                  <input style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', background: 'var(--bg-card)' }} value={deviceForm[field.key]} onChange={e => setDeviceForm({ ...deviceForm, [field.key]: e.target.value })} placeholder={field.placeholder} />
                 </div>
               ))}
               <div style={s.detailItem}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('equipLifecycle.formModality')}</div>
-                <select style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)' }} value={deviceForm.modality} onChange={e => setDeviceForm({ ...deviceForm, modality: e.target.value })}>
+                <select style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', background: 'var(--bg-card)' }} value={deviceForm.modality} onChange={e => setDeviceForm({ ...deviceForm, modality: e.target.value })}>
                   {['CT', 'MR', 'DR', 'DSA', 'MG', 'US', 'PET'].map(m => <option key={m} value={m}>{m}</option>)}
                 </select>
               </div>
               <div style={s.detailItem}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('equipLifecycle.formStatus')}</div>
-                <select style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)' }} value={deviceForm.status} onChange={e => setDeviceForm({ ...deviceForm, status: e.target.value })}>
+                <select style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', background: 'var(--bg-card)' }} value={deviceForm.status} onChange={e => setDeviceForm({ ...deviceForm, status: e.target.value })}>
                   {['在用', '空闲', '维保中'].map(m => <option key={m} value={m}>{m}</option>)}
                 </select>
               </div>
@@ -1352,7 +1352,7 @@ export default function EquipmentLifecyclePage() {
             </div>
             <div style={s.detailItem}>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('equipLifecycle.retireReason')}</div>
-              <textarea style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)', minHeight: 60, resize: 'vertical' }} value={scrapReason} onChange={e => setScrapReason(e.target.value)} placeholder={t('equipLifecycle.retireReasonPlaceholder')} />
+              <textarea style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', background: 'var(--bg-card)', minHeight: 60, resize: 'vertical' }} value={scrapReason} onChange={e => setScrapReason(e.target.value)} placeholder={t('equipLifecycle.retireReasonPlaceholder')} />
             </div>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 20 }}>
               <button style={{ ...s.btn, ...s.btnGhost }} onClick={() => setShowScrap(false)}>{t('equipLifecycle.cancel')}</button>
@@ -1383,7 +1383,7 @@ export default function EquipmentLifecyclePage() {
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{field.label}</div>
                   <input
                     type={field.key === 'maintenanceDate' ? 'date' : field.key === 'estimatedCost' ? 'number' : 'text'}
-                    style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)' }}
+                    style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', background: 'var(--bg-card)' }}
                     value={maintPlanForm[field.key]}
                     onChange={e => setMaintPlanForm({ ...maintPlanForm, [field.key]: e.target.value })}
                     placeholder={field.placeholder}
@@ -1394,7 +1394,7 @@ export default function EquipmentLifecyclePage() {
             <div style={{ marginTop: 8 }}>
               <div style={s.detailItem}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('equipLifecycle.remarks')}</div>
-                <textarea style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)', minHeight: 60, resize: 'vertical' }} value={maintPlanForm.content} onChange={e => setMaintPlanForm({ ...maintPlanForm, content: e.target.value })} placeholder={t('equipLifecycle.remarksPlaceholder')} />
+                <textarea style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', background: 'var(--bg-card)', minHeight: 60, resize: 'vertical' }} value={maintPlanForm.content} onChange={e => setMaintPlanForm({ ...maintPlanForm, content: e.target.value })} placeholder={t('equipLifecycle.remarksPlaceholder')} />
               </div>
             </div>
             <div style={{ display: 'flex', gap: 12, marginTop: 20, justifyContent: 'flex-end' }}>
@@ -1425,7 +1425,7 @@ export default function EquipmentLifecyclePage() {
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{field.label}</div>
                   <input
                     type={field.key === 'maintenanceDate' ? 'date' : field.key === 'estimatedCost' ? 'number' : 'text'}
-                    style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: 'var(--bg-card)' }}
+                    style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', background: 'var(--bg-card)' }}
                     value={String(maintEditForm[field.key])}
                     onChange={e => {
                       const v = field.key === 'estimatedCost' ? Number(e.target.value) : e.target.value

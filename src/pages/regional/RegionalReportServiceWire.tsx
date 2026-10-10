@@ -19,7 +19,7 @@ export const COLORS = {
 }
 
 export const styles = {
-  pageContainer: { minHeight: '100vh', backgroundColor: 'var(--bg-primary)', fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif', fontSize: '14px', color: COLORS.textDark },
+  pageContainer: { backgroundColor: 'var(--bg-primary)', fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif', fontSize: '14px', color: COLORS.textDark },
   header: { backgroundColor: COLORS.primary, color: 'white', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' },
   headerTitle: { display: 'flex', alignItems: 'center', gap: '12px', fontSize: '20px', fontWeight: 600 },
   headerSubtitle: { fontSize: '12px', opacity: 0.85, marginTop: '2px' },
@@ -50,8 +50,8 @@ export const styles = {
   buttonDanger: { backgroundColor: COLORS.danger, color: 'white' },
   buttonGhost: { backgroundColor: 'transparent', color: COLORS.textMuted },
   statusTag: { padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' },
-  input: { padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '13px', outline: 'none', transition: 'border-color 0.2s' },
-  textarea: { padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '13px', outline: 'none', resize: 'vertical' as const, minHeight: '80px', fontFamily: 'inherit' },
+  input: { padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '13px', transition: 'border-color 0.2s' },
+  textarea: { padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--border-color)', fontSize: '13px', resize: 'vertical' as const, minHeight: '80px', fontFamily: 'inherit' },
   modal: { position: 'fixed' as const, top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
   modalContent: { backgroundColor: COLORS.cardWhite, borderRadius: '12px', width: '90%', maxWidth: '600px', maxHeight: '90vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' },
   modalHeader: { padding: '16px 20px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 600, fontSize: '16px' },

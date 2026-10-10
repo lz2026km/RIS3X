@@ -903,7 +903,7 @@ export default function TechOverviewPage() {
   )
 
   return (
-    <div data-testid="tech-overview-page" style={{ minHeight: '100vh', background: C.bg, color: C.text, fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+    <div data-testid="tech-overview-page" style={{ background: C.bg, color: C.text, fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       {/* ================= 头部 ================= */}
       <div style={{ background: 'linear-gradient(135deg,#0f766e,#0f172a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

@@ -6,9 +6,25 @@ import dayjs from 'dayjs'
 import { deviceMgmtApi, type ContrastInventory } from '../../services/api/deviceMgmtApi'
 import { t } from '../../i18n/appI18n'
 import {
-  Card, Table, Tag, Space, Typography, Row, Col, Button, Modal, Form, Input, InputNumber, Select, DatePicker, Alert, Spin, Empty, message,
-} from 'antd'
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
+  Card,
+  Tag,
+  Space,
+  Typography,
+  Row,
+  Col,
+  Button,
+  Modal,
+  Form,
+  Input,
+  InputNumber,
+  Select,
+  DatePicker,
+  Alert,
+  Spin,
+  Empty,
+  message,
+} from "antd";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 import { Package, Plus, MinusCircle, Archive, Search, RefreshCw, PackagePlus } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { AlertTriangle, Inbox } from 'lucide-react'
@@ -232,7 +248,7 @@ const ContrastInventoryPage: React.FC = () => {
         ) : filtered.length === 0 ? (
           <Empty image={<AlertTriangle size={48} style={{opacity:0.4}}/>} description={error ? t('contrastInv.loadFailedShort') : t('contrastInv.empty')} />
         ) : (
-          <Table rowKey="id" dataSource={filtered} columns={columns} pagination={false} size="small" scroll={{ x: 900 }} />
+          <DataTable rowKey="id" dataSource={filtered} columns={columns} pagination={false} scroll={{ x: 900 }} />
         )}
       </Card>
 
@@ -279,8 +295,8 @@ const ContrastInventoryPage: React.FC = () => {
         {logs.length === 0 ? (
           <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('contrastInv.emptyLog')} />
         ) : (
-          <Table scroll={{ x: 'max-content' }}
-            rowKey="id" size="small" pagination={false}
+          <DataTable scroll={{ x: 'max-content' }}
+            rowKey="id" pagination={false}
             dataSource={logs}
             columns={[
               { title: t('contrastInv.colTime'), dataIndex: 'at', width: 160 },

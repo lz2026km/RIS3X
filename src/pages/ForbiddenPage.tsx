@@ -8,7 +8,7 @@ export default function ForbiddenPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(ellipse at 30% 20%, #1e3a5f 0%, #0f172a 60%)', color: '#e2e8f0', padding: 24 }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(ellipse at 30% 20%, #1e3a5f 0%, #0f172a 60%)', color: '#e2e8f0', padding: 24 }}>
       <div style={{
         background: 'rgba(30, 41, 59, 0.92)', backdropFilter: 'blur(8px)',
         padding: 48, borderRadius: 16, width: 460, textAlign: 'center',

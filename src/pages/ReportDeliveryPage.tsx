@@ -607,7 +607,7 @@ export default function ReportDeliveryPage() {
           value={recallReason}
           onChange={e => setRecallReason(e.target.value)}
           placeholder={t('reportDelivery.recallReasonPlaceholder')}
-          style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13, outline: 'none', resize: 'vertical' }}
+          style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13, resize: 'vertical' }}
         />
       </Modal>
 
@@ -666,8 +666,7 @@ export default function ReportDeliveryPage() {
 // ============================================================
 const selectStyle: React.CSSProperties = {
   padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4,
-  fontSize: 12, outline: 'none',
-};
+  fontSize: 12, };
 
 // ============================================================
 // KPI

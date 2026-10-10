@@ -5,8 +5,28 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import {
-  Card, Col, Row, Table, Tag, Statistic, Tabs, Progress, Typography, Space, Alert,
-  Radio, Form, Input, Button, message, InputNumber, Select, Modal, Upload, Tooltip, Popconfirm, Switch,
+  Card,
+  Col,
+  Row,
+  Tag,
+  Statistic,
+  Tabs,
+  Progress,
+  Typography,
+  Space,
+  Alert,
+  Radio,
+  Form,
+  Input,
+  Button,
+  message,
+  InputNumber,
+  Select,
+  Modal,
+  Upload,
+  Tooltip,
+  Popconfirm,
+  Switch,
 } from "antd";
 import {
   Cloud, Database, Archive, HardDrive, Layers, Activity, Clock, TrendingUp, AlertCircle,
@@ -19,7 +39,7 @@ import {
   Tooltip as ChartTooltip, BarChart, Bar,
 } from "recharts";
 import { ChartContainer, chartDefaults } from '../components/charts';
-import { StatCard, StatCardGrid } from '../components/common';
+import { DataTable, StatCard, StatCardGrid } from "../components/common";
 import { autoInterval } from '../utils/chartUtils';
 import { STORAGE_NODES, TIER_METRICS, ARCHIVE_JOBS, COMPRESSION } from "../services/storage";
 import { usePagination } from "../hooks/usePagination";
@@ -364,8 +384,7 @@ function StorageMonitorTab() {
             }
           >
             {repStatus && repStatus.tasks.length > 0 ? (
-              <Table
-                size="small"
+              <DataTable
                 rowKey="id"
                 dataSource={repStatus.tasks.slice(0, 4)}
                 pagination={false}
@@ -456,10 +475,9 @@ function StorageMonitorTab() {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={16}>
           <Card title={<Space><HardDrive size={16} />{t("cloudStorage.monitor.nodesTitle", { n: nodes.length })}<Tag color="green">{t("cloudStorage.monitor.onlineTag", { n: nodes.filter(n => n.status === "online").length })}</Tag></Space>}>
-            <Table scroll={{ x: 'max-content' }}
+            <DataTable scroll={{ x: 'max-content' }}
               dataSource={nodes}
               rowKey="id"
-              size="small"
               pagination={false}
               columns={[
                 { title: t("cloudStorage.monitor.thNode"), dataIndex: "name", key: "name", width: 220, render: (n: string, r: any) => (
@@ -521,10 +539,9 @@ function StorageMonitorTab() {
       </Row>
 
       <Card title={<Space><Repeat size={16} />{t("cloudStorage.monitor.archiveJobs", { n: ARCHIVE_JOBS.length })}</Space>}>
-        <Table scroll={{ x: 'max-content' }}
+        <DataTable scroll={{ x: 'max-content' }}
           dataSource={jobsPagination.pageData}
           rowKey="id"
-          size="small"
           pagination={jobsPagination.pagination}
           columns={[
             { title: t("cloudStorage.monitor.thTask"), dataIndex: "id", key: "id", width: 110 },
@@ -971,8 +988,7 @@ function BucketObjectsModal({
           </Button>
         </Popconfirm>
       </Space>
-      <Table
-        size="small"
+      <DataTable
         rowKey="key"
         loading={loading}
         dataSource={objectPageData}
@@ -1229,12 +1245,11 @@ function StorageBucketsTab() {
           </Space>
         }
       >
-        <Table
+        <DataTable
           scroll={{ x: 'max-content' }}
           rowKey="name"
           loading={loading}
           dataSource={buckets}
-          size="small"
           pagination={false}
           columns={[
             {
@@ -1422,8 +1437,7 @@ function StorageBucketsTab() {
               <Text strong style={{ fontSize: 13 }}>{t("cloudStorage.buckets.recentRepTasks")}</Text>
               {repPolling && <Tag color="blue">{t("cloudStorage.buckets.refreshing")}</Tag>}
             </Space>
-            <Table
-              size="small"
+            <DataTable
               rowKey="id"
               dataSource={repTasks.slice(0, 4)}
               pagination={false}
@@ -1562,12 +1576,11 @@ function LifecyclePoliciesTab() {
         }
         style={{ marginBottom: 16 }}
       >
-        <Table
+        <DataTable
           scroll={{ x: 'max-content' }}
           rowKey="id"
           loading={loading}
           dataSource={policies}
-          size="small"
           pagination={{ pageSize: 10, showSizeChanger: false }}
           columns={[
             {

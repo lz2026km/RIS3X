@@ -6,10 +6,23 @@ import { examApi } from '../../services/api/examApi'
 import { remoteReadingApi, type RemoteReadingSession, type RemoteReadingStats } from '../../services/api/remoteReadingApi'
 import type { ExamDto } from '../../types/dto'
 import {
-  Card, Table, Tag, Space, Typography, Button, Tabs, Select,
-  Modal, Form, Input, Alert, Spin, Empty, Tooltip, message,
-} from 'antd'
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
+  Card,
+  Tag,
+  Space,
+  Typography,
+  Button,
+  Tabs,
+  Select,
+  Modal,
+  Form,
+  Input,
+  Alert,
+  Spin,
+  Empty,
+  Tooltip,
+  message,
+} from "antd";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 import { Globe, Send, CheckCircle, Clock, UserPlus, PlayCircle, Undo2 } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
@@ -256,7 +269,7 @@ const RemoteReadingPage: React.FC = () => {
         ) : sessions.length === 0 ? (
           <Empty image={<AlertTriangle size={48} style={{opacity:0.4}}/>} description={error ? t('remoteReading.loadFailed') : t('remoteReading.empty')} />
         ) : (
-          <Table rowKey="id" dataSource={sessions} columns={columns} pagination={{ current: sessionPage, pageSize: 10, total: sessions.length, onChange: setSessionPage, showSizeChanger: false, showTotal: (total) => t('remoteReading.totalCount', { total }) }} size="small" scroll={{ x: 'max-content' }}/>
+          <DataTable rowKey="id" dataSource={sessions} columns={columns} pagination={{ current: sessionPage, pageSize: 10, total: sessions.length, onChange: setSessionPage, showSizeChanger: false, showTotal: (total) => t('remoteReading.totalCount', { total }) }} scroll={{ x: 'max-content' }}/>
         )}
       </Card>
 

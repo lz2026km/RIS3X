@@ -102,9 +102,7 @@ export default function ReportHeader({
     background: WHITE,
     color: 'var(--text-secondary)',
     fontSize: 12,
-    cursor: 'pointer',
-    outline: 'none',
-  }
+    cursor: 'pointer', }
 
   return (
     <div style={{
@@ -118,7 +116,7 @@ export default function ReportHeader({
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 220, border: '1px solid var(--border-color)', borderRadius: 8, padding: '6px 12px', background: 'var(--bg-card)' }}>
           <Search size={14} style={{ color: '#94a3b8', flexShrink: 0 }} />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="搜索患者姓名 / 检查号 / 报告ID / 检查号..."
-            style={{ border: 'none', outline: 'none', fontSize: 13, width: '100%', background: 'transparent' }} />
+            style={{ border: 'none', fontSize: 13, width: '100%', background: 'transparent' }} />
           {search && <X size={13} style={{ color: '#94a3b8', cursor: 'pointer', flexShrink: 0 }} onClick={() => setSearch('')} />}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -160,10 +158,10 @@ export default function ReportHeader({
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <span style={{ fontSize: 12, color: GRAY, fontWeight: 600 }}>日期:</span>
           <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-            style={{ padding: '5px 8px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, outline: 'none' }} />
+            style={{ padding: '5px 8px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12,}} />
           <span style={{ fontSize: 12, color: GRAY }}>—</span>
           <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-            style={{ padding: '5px 8px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, outline: 'none' }} />
+            style={{ padding: '5px 8px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12,}} />
         </div>
         <button onClick={() => setCriticalOnly(!criticalOnly)} style={btnStyle(criticalOnly, '#dc2626')}>
           {criticalOnly ? '' : ''} 仅危急值

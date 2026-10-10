@@ -416,7 +416,7 @@ export default function OperationLogPage() {
   ]
 
   return (
-    <div data-testid="operation-log-page" style={{ minHeight: '100vh', background: BG }}>
+    <div data-testid="operation-log-page" style={{ background: BG }}>
       {loading && <LoadingBanner message={t('opLog.loadingBanner')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {dataSource === 'demo' && !loading && (

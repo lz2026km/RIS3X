@@ -6,11 +6,31 @@
 import { usePagination } from "../hooks/usePagination";
 import { regionalApi, type RegionalSiteDto, type RegionalSiteSyncEventDto, type RegionalSiteRoutingRuleDto, type CrossSiteStatsDto, type FederationConfigDto, type CampusDto } from "../services/api/regionalApi";
 import { SITES, SYNC_EVENTS, ROUTING_RULES, type Site, type SyncEvent, type RoutingRule } from "../services/site";
-import { Card, Col, Row, Table, Tag, Statistic, Tabs, Progress, Badge, Space, Typography, Alert, Button, Modal, Form, Input, Switch, InputNumber, Select, message } from "antd";
-import { Building2, MapPin, Activity, Database, Globe, Network, CheckCircle, AlertTriangle, XCircle, RefreshCw, Shield, Plus } from "lucide-react";
+import {
+  Card,
+  Col,
+  Row,
+  Tag,
+  Statistic,
+  Tabs,
+  Progress,
+  Badge,
+  Space,
+  Typography,
+  Alert,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Switch,
+  InputNumber,
+  Select,
+  message,
+} from "antd";
+import { Building2, MapPin, Activity, Database, Globe, Network, CheckCircle, AlertTriangle, XCircle, RefreshCw, Shield, Plus, Star } from "lucide-react";
 import { useMemo, useEffect, useState, useCallback } from "react";
 import { AppEmpty } from "../components/feedback";
-import { ActionButton, ExportButton, StatCard, StatCardGrid } from "../components/common";
+import { ActionButton, DataTable, ExportButton, StatCard, StatCardGrid } from "../components/common";
 import { t } from "../i18n/appI18n";
 
 const {  Text } = Typography;
@@ -223,7 +243,7 @@ export default function MultiSiteDashboardPage() {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={16}>
           <Card title={<Space><Network size={16} />{t('multiSiteDashboard.siteListTitle', { count: sites.length })}<Tag color="green">{t('multiSiteDashboard.onlineTag', { count: activeCount })}</Tag><Tag color="red">{t('multiSiteDashboard.offlineTag', { count: offlineCount })}</Tag></Space>} extra={<Badge count={offlineCount} title={t('multiSiteDashboard.alertSites')} />}>
-            <Table scroll={{ x: 'max-content' }} dataSource={sites} columns={siteColumns} rowKey="id" size="small" pagination={false} loading={loading} locale={{ emptyText: <AppEmpty variant="no-data" minHeight={160} /> }} />
+            <DataTable scroll={{ x: 'max-content' }} dataSource={sites} columns={siteColumns} rowKey="id" pagination={false} loading={loading} locale={{ emptyText: <AppEmpty variant="no-data" minHeight={160} /> }} />
           </Card>
         </Col>
         <Col span={8}>
@@ -252,10 +272,9 @@ export default function MultiSiteDashboardPage() {
               key: "events",
               label: <><Activity size={14} /> {t('multiSiteDashboard.syncEventsTab', { count: syncEvents.length })}</>,
               children: (
-                <Table scroll={{ x: 'max-content' }}
+                <DataTable scroll={{ x: 'max-content' }}
                   dataSource={eventsPagination.pageData}
                   rowKey="id"
-                  size="small"
                   pagination={eventsPagination.pagination}
                   locale={{ emptyText: <AppEmpty variant="no-data" minHeight={160} /> }}
                   columns={[
@@ -276,10 +295,9 @@ export default function MultiSiteDashboardPage() {
               key: "rules",
               label: <><Shield size={14} /> {t('multiSiteDashboard.routingRulesTab', { count: routingRules.length })}</>,
               children: (
-                <Table scroll={{ x: 'max-content' }}
+                <DataTable scroll={{ x: 'max-content' }}
                   dataSource={routingRules}
                   rowKey="id"
-                  size="small"
                   pagination={false}
                   locale={{ emptyText: <AppEmpty variant="no-data" minHeight={160} /> }}
                   columns={[
@@ -315,13 +333,13 @@ export default function MultiSiteDashboardPage() {
                       </div>
                     </Card>
                     <Card size="small" title={<Space><Building2 size={14} />{t('multiSite.campus')}</Space>}>
-                      <Table scroll={{ x: 'max-content' }} dataSource={campuses} rowKey="id" size="small" pagination={{ pageSize: 6, showSizeChanger: false }} locale={{ emptyText: <AppEmpty variant="no-data" minHeight={120} /> }}
+                      <DataTable scroll={{ x: 'max-content' }} dataSource={campuses} rowKey="id" pagination={{ pageSize: 6, showSizeChanger: false }} locale={{ emptyText: <AppEmpty variant="no-data" minHeight={120} /> }}
                         columns={[
                           { title: t('multiSiteDashboard.colSite'), dataIndex: "name", key: "name" },
                           { title: t('multiSiteDashboard.colRegion'), dataIndex: "address", key: "address" },
                           { title: t('multiSiteDashboard.colDevices'), dataIndex: "devices", key: "devices", width: 90 },
                           { title: t('multiSiteDashboard.colUsers'), dataIndex: "beds", key: "beds", width: 90 },
-                          { title: t('multiSiteDashboard.colStatus'), dataIndex: "isMain", key: "isMain", width: 90, render: (v: boolean) => <Tag color={v ? "blue" : "default"}>{v ? '★' : '—'}</Tag> },
+                          { title: t('multiSiteDashboard.colStatus'), dataIndex: "isMain", key: "isMain", width: 90, render: (v: boolean) => <Tag color={v ? "blue" : "default"}>{v ? <Star size={12} style={{ fill: 'currentColor' }} /> : '—'}</Tag> },
                         ]}
                       />
                     </Card>

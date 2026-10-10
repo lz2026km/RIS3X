@@ -194,7 +194,7 @@ export default function AccountsReceivablePage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+    <div style={{ background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><Wallet size={24} /><span style={{ fontSize: 20, fontWeight: 700 }}>{t('ar.title')}</span></div>
         <button onClick={handleExportCsv} disabled={items.length === 0} title={items.length === 0 ? t('ar.exportDisabled') : t('ar.exportHint')} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: items.length === 0 ? 'not-allowed' : 'pointer', opacity: items.length === 0 ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />{t('ar.exportReport')}</button>
@@ -235,9 +235,9 @@ export default function AccountsReceivablePage() {
           <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
             <div style={{ position: 'relative' }}>
               <Search size={16} style={{ position: 'absolute', left: 10, top: 10, color: '#6e7681' }} />
-              <input type="text" placeholder={t('ar.searchPlaceholder')} value={searchText} onChange={e => setSearchText(e.target.value)} style={{ padding: '8px 12px 8px 34px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, width: 240, outline: 'none' }} />
+              <input type="text" placeholder={t('ar.searchPlaceholder')} value={searchText} onChange={e => setSearchText(e.target.value)} style={{ padding: '8px 12px 8px 34px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, width: 240,}} />
             </div>
-            <select value={payerFilter} onChange={e => setPayerFilter(e.target.value as PayerFilter)} style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none' }}>
+            <select value={payerFilter} onChange={e => setPayerFilter(e.target.value as PayerFilter)} style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13,}}>
               <option value="all">{t('ar.allPayers')}</option>
               <option value="医保(城镇职工)">{t('w9e.ar.payerEmployee')}</option>
               <option value="医保(城乡居民)">{t('w9e.ar.payerResident')}</option>

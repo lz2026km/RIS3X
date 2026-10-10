@@ -2,7 +2,20 @@ import { PageContainer, PageHeader, StatCard, StatCardGrid } from '@/components/
 import { usePagination } from '@/hooks/usePagination'
 import { eyeApi } from '@/services/api/eyeApi'
 import type { ApiResponse } from '@/services/api/types'
-import { Card, Row, Col, Tag, Table, Progress, Tabs, Badge, Alert, Button, Spin, Empty, Space } from 'antd'
+import {
+  Card,
+  Row,
+  Col,
+  Tag,
+  Progress,
+  Tabs,
+  Badge,
+  Alert,
+  Button,
+  Spin,
+  Empty,
+  Space,
+} from "antd";
 import { BarChart3, TrendingUp, TrendingDown, Activity, Users, DollarSign, Smile, AlertTriangle, RefreshCw } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { t } from '../../i18n/appI18n'
@@ -133,7 +146,7 @@ const EyeKpiDashboardPage: React.FC = () => {
               ]}
             />
             {filtered.length === 0 ? <Empty image={<BarChart3 size={48} style={{opacity:0.4}}/>} description={t('eyeKpi.noMetrics')} /> : (
-              <Table dataSource={metricPagination.pageData} rowKey="id" size="small" pagination={metricPagination.pagination}
+              <DataTable dataSource={metricPagination.pageData} rowKey="id" pagination={metricPagination.pagination}
                 columns={[
                   { title: t('eyeKpi.colCategory'), dataIndex: 'category', key: 'category', width: 80, render: (v: string) => <Tag color={categoryColors[v]}>{t(CATEGORY_LABELS_DICT[v] || v)}</Tag> },
                   { title: t('eyeKpi.colMetric'), dataIndex: 'name', key: 'name', width: 200 },
@@ -167,3 +180,5 @@ const PercentBar: React.FC<{ value: number; target: number }> = ({ value, target
   return <Progress percent={pct} size="small" strokeColor={pct >= 90 ? '#22c55e' : pct >= 70 ? '#f59e0b' : '#ef4444'} style={{ margin: 0 }} />
 }
 export default EyeKpiDashboardPage
+
+import { DataTable } from "../../components/common";

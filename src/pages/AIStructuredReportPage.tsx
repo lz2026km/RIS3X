@@ -883,9 +883,7 @@ const AIStructuredReportPage: React.FC = () => {
   const styles = {
     container: {
       display: "flex",
-      flexDirection: "column" as const,
-      minHeight: "100vh",
-      backgroundColor: "var(--bg-card)",
+      flexDirection: "column" as const, backgroundColor: "var(--bg-card)",
       color: "var(--text-primary)",
       fontFamily:
         '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -1032,9 +1030,7 @@ const AIStructuredReportPage: React.FC = () => {
       border: "1px solid var(--border-color)",
       borderRadius: "6px",
       color: "var(--text-primary)",
-      fontSize: "14px",
-      outline: "none",
-      transition: "border-color 0.2s",
+      fontSize: "14px", transition: "border-color 0.2s",
     },
     select: {
       padding: "10px 12px",
@@ -1042,18 +1038,14 @@ const AIStructuredReportPage: React.FC = () => {
       border: "1px solid var(--border-color)",
       borderRadius: "6px",
       color: "var(--text-primary)",
-      fontSize: "14px",
-      outline: "none",
-    },
+      fontSize: "14px", },
     textarea: {
       padding: "12px",
       backgroundColor: "var(--bg-card)",
       border: "1px solid var(--border-color)",
       borderRadius: "6px",
       color: "var(--text-primary)",
-      fontSize: "14px",
-      outline: "none",
-      resize: "vertical" as const,
+      fontSize: "14px", resize: "vertical" as const,
       minHeight: "80px",
       fontFamily: "inherit",
     },

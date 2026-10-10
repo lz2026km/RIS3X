@@ -1,7 +1,24 @@
 import { usePagination } from '../../hooks/usePagination'
 import { smartRouteApi, type SmartRouteRule, type SmartRouteAssignment, type SmartRouteStats, type DoctorRecommendation } from '../../services/api/smartRouteApi'
-import { Card, Table, Button, Space, Switch, InputNumber, Input, Modal, Form, Select, Row, Col, message, Tabs, Alert, Tag, Progress } from 'antd'
-import { StatCard, StatCardGrid } from '../../components/common'
+import {
+  Card,
+  Button,
+  Space,
+  Switch,
+  InputNumber,
+  Input,
+  Modal,
+  Form,
+  Select,
+  Row,
+  Col,
+  message,
+  Tabs,
+  Alert,
+  Tag,
+  Progress,
+} from "antd";
+import { DataTable, StatCard, StatCardGrid } from "../../components/common"
 import { GitBranch, Edit3, BarChart3, History } from 'lucide-react'
 import { RefreshCw } from 'lucide-react'
 import { UserCheck, Zap } from 'lucide-react'
@@ -245,8 +262,8 @@ const SmartRoutePage: React.FC = () => {
             </Row>
           </Card>
         ) },
-        { key: 'rules', label: <span><GitBranch size={14} /> {t('smartRoute.tabRules')}</span>, children: <Card><Table rowKey="id" dataSource={rules} columns={ruleColumns} pagination={false} size="small" loading={loading} scroll={{ x: 'max-content' }}/></Card> },
-        { key: 'history', label: <span><History size={14} /> {t('smartRoute.tabHistory')}</span>, children: <Card><Table rowKey="id" dataSource={historyPagination.pageData} columns={historyColumns} pagination={historyPagination.pagination} size="small" loading={loading} scroll={{ x: 'max-content' }}/></Card> },
+        { key: 'rules', label: <span><GitBranch size={14} /> {t('smartRoute.tabRules')}</span>, children: <Card><DataTable rowKey="id" dataSource={rules} columns={ruleColumns} pagination={false} loading={loading} scroll={{ x: 'max-content' }}/></Card> },
+        { key: 'history', label: <span><History size={14} /> {t('smartRoute.tabHistory')}</span>, children: <Card><DataTable rowKey="id" dataSource={historyPagination.pageData} columns={historyColumns} pagination={historyPagination.pagination} loading={loading} scroll={{ x: 'max-content' }}/></Card> },
         { key: 'stats', label: <span><BarChart3 size={14} /> {t('smartRoute.tabStats')}</span>, children: <Card><StatCardGrid minWidth={200} gap={16}>{Object.entries(byDoctor).map(([k, v]) => <StatCard key={k} title={k} value={v} suffix={t('smartRoute.unitTimes')} loading={loading} />)}</StatCardGrid></Card> },
       ]} />
       <Modal title={t('smartRoute.editRuleTitle')} open={editOpen} onOk={handleSave} onCancel={() => setEditOpen(false)}>

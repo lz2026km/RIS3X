@@ -3,10 +3,27 @@ import EyeLateralityBadge from '@/components/eye/EyeLateralityBadge';
 import IopCurveChart from '@/components/eye/IopCurveChart';
 import { usePagination } from '@/hooks/usePagination';
 import { eyeApi } from '@/services/api/eyeApi';
-import { Card, Row, Col, InputNumber, Select, Tag, Button, message, Table, Alert, Popconfirm, Empty, Spin, Space, Statistic, Progress } from 'antd';
+import {
+  Card,
+  Row,
+  Col,
+  InputNumber,
+  Select,
+  Tag,
+  Button,
+  message,
+  Alert,
+  Popconfirm,
+  Empty,
+  Spin,
+  Space,
+  Statistic,
+  Progress,
+} from "antd";
 import { Droplets, Save, Trash2, RefreshCw, TrendingUp, Activity } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { t } from '../../../i18n/appI18n';
+import { DataTable } from "../../../components/common";
 
 const DEVICE_OPTIONS = [
   { value: 'nct', labelKey: 'w9d.iopDevice.nct' },
@@ -185,12 +202,11 @@ const IntraocularPressurePage: React.FC = () => {
 
       <Card size="small" title={t('w9d.iop.recordTitle', { count: iopRecords.length })} style={{ marginTop: 12 }}>
         <Spin spinning={loading}>
-          <Table
+          <DataTable
             rowKey="id"
             dataSource={iopPageData}
             columns={columns}
             pagination={iopPagination}
-            size="small"
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('iop.emptyRecords')} /> }}
           scroll={{ x: 'max-content' }}
           />

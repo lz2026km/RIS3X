@@ -1,7 +1,16 @@
 import { v3AiPlatformApi } from '../../services/api/v3Api'
-import { ExportButton, StatCard, StatCardGrid, PageContainer } from '../../components/common'
+import { DataTable, ExportButton, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 import { t } from '../../i18n/appI18n'
-import { Card, Table, Tag, Space, Typography, Button, message, Empty, Badge } from 'antd'
+import {
+  Card,
+  Tag,
+  Space,
+  Typography,
+  Button,
+  message,
+  Empty,
+  Badge,
+} from "antd";
 import { Cpu, RefreshCw, Settings } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 import { Inbox } from 'lucide-react'
@@ -139,7 +148,7 @@ const AiProvidersPage: React.FC = () => {
       <Card
         title={<Space><Settings size={14} color="#7c3aed" />{t('aiProviders.list')}</Space>}
       >
-        <Table
+        <DataTable
           dataSource={providerDetails}
           columns={columns}
           rowKey="id"

@@ -19,7 +19,6 @@ import {
   Alert,
   InputNumber,
   Radio,
-  Table,
 } from "antd";
 import {
   Activity,
@@ -37,7 +36,7 @@ import React, { useState, useEffect } from "react";
 import { usePagination } from "../../../hooks/usePagination";
 import { eyeApi } from "../../../services/api/eyeApi";
 import { LoadingBanner, ErrorBanner } from "../../../components/feedback";
-import { StatCard, StatCardGrid } from "../../../components/common";
+import { DataTable, StatCard, StatCardGrid } from "../../../components/common";
 import { t } from "../../../i18n/appI18n";
 
 export const OptometryClosedLoopPage: React.FC = () => {
@@ -260,7 +259,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
   const { pageData: okLensPage, pagination: okLensPagination } = usePagination(okLensRecords, 6);
 
   return (
-    <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "100vh" }}>
+    <div style={{ padding: 24, background: "var(--bg-card)",}}>
       <Space style={{ marginBottom: 16 }}>
         <Heart size={20} color="#f5222d" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>
@@ -507,9 +506,8 @@ export const OptometryClosedLoopPage: React.FC = () => {
                       </Col>
                       <Col span={24}>
                         <Divider style={{ margin: "4px 0" }} />
-                        <Table
-                          size="small"
-                          dataSource={curveHistory}
+                        <DataTable
+                          dataSource={curveHistory as Array<Record<string, unknown>>}
                           rowKey="date"
                           pagination={curveHistoryPagination}
                           columns={[
@@ -807,8 +805,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                     extra={<Tag color="blue">{refractionRecords.length}</Tag>}
                     style={{ marginBottom: 16 }}
                   >
-                    <Table
-                      size="small"
+                    <DataTable
                       rowKey={(r: any) => r.refractionId ?? r.id}
                       dataSource={refPage}
                       pagination={refPagination}
@@ -837,8 +834,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                     extra={<Tag color="blue">{okLensRecords.length}</Tag>}
                     style={{ marginBottom: 16 }}
                   >
-                    <Table
-                      size="small"
+                    <DataTable
                       rowKey={(r: any) => r.okLensId ?? r.id}
                       dataSource={okLensPage}
                       pagination={okLensPagination}
@@ -863,8 +859,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                     }
                   >
                     {visionSeq?.history?.length ? (
-                      <Table
-                        size="small"
+                      <DataTable
                         rowKey="date"
                         dataSource={visionSeq.history}
                         pagination={false}

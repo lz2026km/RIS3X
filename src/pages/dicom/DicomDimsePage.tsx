@@ -1,9 +1,25 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { Card, Tabs, Table, Button, Form, Input, Select, Upload, message, Tag, Space, Alert, InputNumber, Modal, Switch, Progress } from 'antd'
+import {
+  Card,
+  Tabs,
+  Button,
+  Form,
+  Input,
+  Select,
+  Upload,
+  message,
+  Tag,
+  Space,
+  Alert,
+  InputNumber,
+  Modal,
+  Switch,
+  Progress,
+} from "antd";
 import { Send, Search, Upload as UploadIcon, ArrowRight, CheckCircle, XCircle, Radio, RefreshCw, Plus, Lock, Clock3, FileKey, Save, ListOrdered, Pause, Play, RotateCcw, Ban } from 'lucide-react'
 import { dicomDimseApi, type DicomTlsConfig, type MppsRecord, type TransferRecord, type TransferStats } from '../../services/api/dicomApi'
 import { usePagination } from '../../hooks/usePagination'
-import { PageContainer, StatCard, StatCardGrid } from '../../components/common'
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 import { t } from '../../i18n/appI18n'
 
 const STAT_COLOR_MAP: Record<string, string> = {
@@ -528,7 +544,7 @@ export const DicomDimsePage: React.FC = () => {
             <Button icon={<RefreshCw size={14} />} onClick={() => setDevices(INITIAL_DEVICES)}>{t('dicomDimse.reset')}</Button>
           </Space>
         }>
-          <Table scroll={{ x: 'max-content' }}
+          <DataTable scroll={{ x: 'max-content' }}
             dataSource={devicePagination.pageData}
             rowKey="aeTitle"
             pagination={devicePagination.pagination}
@@ -568,7 +584,7 @@ export const DicomDimsePage: React.FC = () => {
             </Form>
           </Card>
           <Card size="small" title={t('dicomDimse.worklistTitle')}>
-            <Table scroll={{ x: 'max-content' }} dataSource={mwlPagination.pageData} rowKey={(r, i) => r.accessionNumber || `${i}`} columns={MWL_COLUMNS} loading={mwlLoading} pagination={mwlPagination.pagination}/>
+            <DataTable scroll={{ x: 'max-content' }} dataSource={mwlPagination.pageData} rowKey={(r, i) => r.accessionNumber || `${i}`} columns={MWL_COLUMNS} loading={mwlLoading} pagination={mwlPagination.pagination}/>
           </Card>
         </>
       ),
@@ -585,7 +601,7 @@ export const DicomDimsePage: React.FC = () => {
             </Space>
           }>
           <Alert title={t('dicomDimse.fileUploadAlert')} type="info" showIcon style={{ marginBottom: 12 }} />
-          <Table scroll={{ x: 'max-content' }} dataSource={storePagination.pageData} rowKey={(r, i) => r.sopInstanceUid || `${i}`} columns={C_STORE_COLUMNS} pagination={storePagination.pagination} />
+          <DataTable scroll={{ x: 'max-content' }} dataSource={storePagination.pageData} rowKey={(r, i) => r.sopInstanceUid || `${i}`} columns={C_STORE_COLUMNS} pagination={storePagination.pagination} />
         </Card>
       ),
     },
@@ -612,7 +628,7 @@ export const DicomDimsePage: React.FC = () => {
             </Form>
           </Card>
           <Card size="small" title={t('dicomDimse.cmoveRecords')}>
-            <Table scroll={{ x: 'max-content' }} dataSource={movePagination.pageData} rowKey={(r, i) => `${r.studyUid}-${i}`} columns={C_MOVE_COLUMNS} pagination={movePagination.pagination} />
+            <DataTable scroll={{ x: 'max-content' }} dataSource={movePagination.pageData} rowKey={(r, i) => `${r.studyUid}-${i}`} columns={C_MOVE_COLUMNS} pagination={movePagination.pagination} />
           </Card>
         </>
       ),
@@ -659,7 +675,7 @@ export const DicomDimsePage: React.FC = () => {
             </div>
           </Card>
           <Card size="small" title={t('dicomDimse.tlsNodeTitle')}>
-            <Table scroll={{ x: 'max-content' }} rowKey="aeTitle" dataSource={tlsNodes} columns={TLS_NODE_COLUMNS} loading={tlsLoading} pagination={false} size="small" />
+            <DataTable scroll={{ x: 'max-content' }} rowKey="aeTitle" dataSource={tlsNodes} columns={TLS_NODE_COLUMNS} loading={tlsLoading} pagination={false} />
           </Card>
         </>
       ),
@@ -690,7 +706,7 @@ export const DicomDimsePage: React.FC = () => {
             </Form>
           </Card>
           <Card size="small" title={t('dicomDimse.mppsProgressTitle2')}>
-            <Table scroll={{ x: 'max-content' }} dataSource={mppsPagination.pageData} rowKey="studyUid" columns={MPPS_COLUMNS} loading={mppsLoading} pagination={mppsPagination.pagination} locale={{ emptyText: t('w2Empty.mppsEmpty') }} />
+            <DataTable scroll={{ x: 'max-content' }} dataSource={mppsPagination.pageData} rowKey="studyUid" columns={MPPS_COLUMNS} loading={mppsLoading} pagination={mppsPagination.pagination} locale={{ emptyText: t('w2Empty.mppsEmpty') }} />
           </Card>
         </>
       ),
@@ -720,7 +736,7 @@ export const DicomDimsePage: React.FC = () => {
               <Button size="small" type="primary" icon={<Plus size={14} />} onClick={() => setTransferModal(true)}>{t('dicomDimse.newTransfer')}</Button>
             </Space>
           }>
-            <Table scroll={{ x: 'max-content' }}
+            <DataTable scroll={{ x: 'max-content' }}
               dataSource={transferPagination.pageData}
               rowKey="id"
               loading={transferLoading}

@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.12-9",
-  "description": "G005 Radiology RIS v3.0.6.12-9 - Unified KPI Cards & Page Shells",
+  "version": "3.0.6.13-0",
+  "description": "G005 Radiology RIS v3.0.6.13-0 - DataTable Unification & UI Guardrails",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",
@@ -27,7 +27,8 @@
     "deploy": "vite build && gh-pages -d dist -b gh-pages",
     "audit:dead-ui": "node scripts/audit-dead-ui.mjs",
     "audit:rbac": "node scripts/audit-rbac.mjs",
-    "audit:exports": "node scripts/audit-exports.mjs"
+    "audit:exports": "node scripts/audit-exports.mjs",
+    "guard:ui": "node scripts/ui-guard.mjs"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^2.0.0",
@@ -39,7 +40,6 @@
     "@dnd-kit/sortable": "^7.0.2",
     "@dnd-kit/utilities": "^3.2.2",
     "@sentry/react": "^8.40.0",
-    "@tabler/icons-react": "^3.48.0",
     "@tiptap/extension-character-count": "^3.26.1",
     "@tiptap/extension-color": "^3.26.1",
     "@tiptap/extension-font-family": "^3.26.1",

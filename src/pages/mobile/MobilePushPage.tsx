@@ -246,8 +246,7 @@ export default function MobilePushPage() {
 
   const containerStyle: React.CSSProperties = {
     maxWidth: 480, margin: '0 auto', padding: 16,
-    background: 'var(--bg-primary)', minHeight: '100vh',
-    fontFamily: '-apple-system, sans-serif',
+    background: 'var(--bg-primary)', fontFamily: '-apple-system, sans-serif',
   }
 
   const headerStyle: React.CSSProperties = {
@@ -336,7 +335,7 @@ export default function MobilePushPage() {
             <input
               value={testTitle}
               onChange={(e) => setTestTitle(e.target.value)}
-              style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box' }}
             />
           </div>
           <div style={{ marginBottom: 8 }}>
@@ -345,7 +344,7 @@ export default function MobilePushPage() {
               value={testBody}
               onChange={(e) => setTestBody(e.target.value)}
               rows={2}
-              style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, outline: 'none', resize: 'none', boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, resize: 'none', boxSizing: 'border-box' }}
             />
           </div>
           <button onClick={handleTestPush} style={{ ...btnBase, width: '100%', background: '#2563eb', color: '#fff', gap: 6 }}>

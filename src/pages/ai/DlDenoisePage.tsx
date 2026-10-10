@@ -327,7 +327,7 @@ const DlDenoisePage: React.FC = () => {
   const activeKernelLabel = KERNEL_LABELS[kernel]
 
   return (
-    <div style={{ minHeight: '100vh', background: '#020617', color: '#cbd5e1', padding: 12 }}>
+    <div style={{ background: '#020617', color: '#cbd5e1', padding: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
         <Sparkles size={18} color={BLUE} />
         <span style={{ fontSize: 15, fontWeight: 700 }}>{t('dlDenoisePage.title')}</span>

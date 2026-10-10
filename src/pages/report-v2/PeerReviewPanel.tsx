@@ -1,8 +1,21 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import {
-  Card, Button, Tag, Space, Modal, Input, Row, Col,
-  message, Alert, Select, Rate, Progress, Tooltip, Divider, Table,
-} from 'antd'
+  Card,
+  Button,
+  Tag,
+  Space,
+  Modal,
+  Input,
+  Row,
+  Col,
+  message,
+  Alert,
+  Select,
+  Rate,
+  Progress,
+  Tooltip,
+  Divider,
+} from "antd";
 import {
   Star, UserCheck, ClipboardCheck, RefreshCw, PlusCircle,
   FileText,
@@ -365,9 +378,8 @@ const PeerReviewPanel: React.FC = () => {
               />
               <Button type="primary" loading={defectSaving} onClick={() => void handleAddDefects()}>{t('w4a.peer.addDefect')}</Button>
             </Space>
-            <Table<PeerReviewDefectItem>
+            <DataTable<PeerReviewDefectItem>
               rowKey="id"
-              size="small"
               loading={defectLoading}
               dataSource={defects}
               pagination={false}
@@ -386,3 +398,5 @@ const PeerReviewPanel: React.FC = () => {
 }
 
 export default PeerReviewPanel
+
+import { DataTable } from "../../components/common";

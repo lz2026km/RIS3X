@@ -204,7 +204,7 @@ export default function BlockchainProofPage() {
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   placeholder={t('blockchain.searchPlaceholder')}
-                  style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, outline: 'none' }}
+                  style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12,}}
                 />
               </div>
               <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={selectStyle}>
@@ -394,8 +394,7 @@ const HashRow: React.FC<{ label: string; value: string }> = ({ label, value }) =
 // ============================================================
 const selectStyle: React.CSSProperties = {
   padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4,
-  fontSize: 12, outline: 'none',
-};
+  fontSize: 12, };
 
 // ============================================================
 // KPI

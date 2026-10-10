@@ -7,9 +7,24 @@
  */
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  Card, Row, Col, Button, Select, Input, Tag, Space, Typography, message, Progress, Statistic,
-  Divider, List, Empty, Alert, Table, Tooltip,
-} from 'antd'
+  Card,
+  Row,
+  Col,
+  Button,
+  Select,
+  Input,
+  Tag,
+  Space,
+  Typography,
+  message,
+  Progress,
+  Statistic,
+  Divider,
+  List,
+  Empty,
+  Alert,
+  Tooltip,
+} from "antd";
 import {
   Brain, ScanSearch, FileText, ClipboardCopy, Gauge, Wand2, LayoutGrid, Check, History, Sparkles, Activity, CircleDot,
 } from 'lucide-react'
@@ -21,7 +36,7 @@ import {
   type HangingApplication,
 } from '../../services/api/aiV2Api'
 import { t } from '../../i18n/appI18n'
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 
 const { Text, Title } = Typography
 const { TextArea } = Input
@@ -552,8 +567,7 @@ const HangingPanel: React.FC = () => {
       <Divider titlePlacement="left" plain style={{ margin: '16px 0 8px' }}>
         <Space size={6}><History size={13} color="#2563eb" /><Text type="secondary" style={{ fontSize: 12 }}>{t('aiEnhanced.applyHistory')}</Text></Space>
       </Divider>
-      <Table<HangingApplication>
-        size="small"
+      <DataTable<HangingApplication>
         rowKey="id"
         dataSource={applications}
         pagination={{ pageSize: 5, showSizeChanger: false }}

@@ -2805,7 +2805,7 @@ export default function WorklistPage() {
                   onKeyDown={(e) => { if (e.key === 'Enter') saveColumnView() }}
                   placeholder={t('w14Ux.views.namePlaceholder')}
                   aria-label={t('w14Ux.views.namePlaceholder')}
-                  style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, outline: 'none', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
+                  style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)', color: 'var(--text-primary)' }}
                 />
                 <ActionButton action="create" size="compact" onClick={saveColumnView}>{t('w14Ux.views.saveShort')}</ActionButton>
               </div>

@@ -12,9 +12,28 @@ import {
   type DuplicateAnalysis,
 } from '../services/api/vnaApi'
 import {
-  Alert, Button, Card, Col, Descriptions, Drawer, Empty, Form, Input, InputNumber, Modal, Popconfirm,
-  Row, Select, Space, Table, Tabs, Tag, Timeline, Typography, Upload, message,
-} from 'antd'
+  Alert,
+  Button,
+  Card,
+  Col,
+  Descriptions,
+  Drawer,
+  Empty,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Popconfirm,
+  Row,
+  Select,
+  Space,
+  Tabs,
+  Tag,
+  Timeline,
+  Typography,
+  Upload,
+  message,
+} from "antd";
 import {
   Archive,
   Download,
@@ -35,7 +54,7 @@ import {
 import { Inbox, Trash2, ArrowRight } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip } from 'recharts'
 import { ChartContainer } from '../components/charts'
-import { StatCard, StatCardGrid } from '../components/common'
+import { DataTable, StatCard, StatCardGrid } from "../components/common"
 import { t } from '../i18n/appI18n'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -586,11 +605,10 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
                     </Space>
                     <Text type="secondary" data-testid="vna-objects-count">{t('vnaPage.objectsCount', { count: objects.length })}</Text>
                   </Space>
-                  <Table scroll={{ x: 'max-content' }}
+                  <DataTable scroll={{ x: 'max-content' }}
                     data-testid="vna-objects-table"
                     dataSource={objectPageData}
                     rowKey="id"
-                    size="small"
                     loading={loading}
                     columns={objectColumns}
                     pagination={objectPagination}
@@ -603,11 +621,10 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
               key: 'studies',
               label: t('vnaPage.studiesTab', { count: studies.length }),
               children: (
-                <Table scroll={{ x: 'max-content' }}
+                <DataTable scroll={{ x: 'max-content' }}
                   data-testid="vna-studies-table"
                   dataSource={studyPageData}
                   rowKey="studyUid"
-                  size="small"
                   loading={studiesLoading}
                   pagination={studyPagination}
                   columns={[
@@ -652,10 +669,9 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
                       <Row gutter={16}>
                         <Col span={14}>
                           <Card size="small" title={t('vnaPage.objectList')}>
-                            <Table scroll={{ x: 'max-content' }}
+                            <DataTable scroll={{ x: 'max-content' }}
                               dataSource={patientArchive.objects}
                               rowKey="id"
-                              size="small"
                               pagination={false}
                               columns={[
                                 { title: t('vnaPage.name'), dataIndex: 'name', key: 'name', ellipsis: true },
@@ -715,10 +731,9 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
                     <Text type="secondary">{t('vnaPage.policyEventCount', { policies: policies.length, events: events.length })}</Text>
                   </Space>
                   <Card size="small" title={t('vnaPage.tierPolicies')} style={{ marginBottom: 16 }}>
-                    <Table
+                    <DataTable
                       data-testid="vna-lifecycle-policies"
                       rowKey="id"
-                      size="small"
                       scroll={{ x: 'max-content' }}
                       loading={lifecycleLoading}
                       dataSource={policies}
@@ -740,10 +755,9 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
                     />
                   </Card>
                   <Card size="small" title={t('vnaPage.migrateEventsLog')}>
-                    <Table
+                    <DataTable
                       data-testid="vna-lifecycle-events"
                       rowKey="id"
-                      size="small"
                       scroll={{ x: 'max-content' }}
                       dataSource={eventPageData}
                       pagination={eventPagination}
@@ -828,10 +842,9 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
                     </Col>
                     <Col span={10}>
                       <Card size="small" title={t('vnaOps.byTierTitle')}>
-                        <Table
+                        <DataTable
                           data-testid="vna-by-tier"
                           rowKey="tier"
-                          size="small"
                           pagination={false}
                           loading={analyticsLoading}
                           dataSource={byTier}
@@ -848,10 +861,9 @@ const { pageData: eventPageData, pagination: eventPagination } = usePagination(e
 
                   <Card size="small" title={t('vnaOps.duplicateTitle')} extra={duplicates ? <Tag color="red">{t('vnaOps.wasted')} {formatSize(duplicates.wastedBytes)}</Tag> : undefined}>
                     {duplicates && duplicates.totalDuplicates > 0 ? (
-                      <Table
+                      <DataTable
                         data-testid="vna-duplicate-analysis"
                         rowKey={(r) => `${r.name}-${r.size}`}
-                        size="small"
                         scroll={{ x: 'max-content' }}
                         dataSource={duplicates.groups}
                         pagination={{ pageSize: 5 }}

@@ -100,7 +100,7 @@ export default function StructuredReportV3Page() {
             value={reportId}
             onChange={(e) => { setReportId(e.target.value); setSaved(false) }}
             placeholder={t('w17.srPage.reportIdPlaceholder')}
-            style={{ flex: 1, minWidth: 260, maxWidth: 420, padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, outline: 'none' }}
+            style={{ flex: 1, minWidth: 260, maxWidth: 420, padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13,}}
           />
           <Button
             loading={validating}

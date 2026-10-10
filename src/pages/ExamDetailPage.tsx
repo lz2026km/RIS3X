@@ -412,7 +412,7 @@ export default function ExamDetailPage() {
                 placeholder={t("examPage.techNotesPlaceholder")}
                 rows={3}
                 maxLength={2000}
-                style={{ width: "100%", padding: "10px 12px", border: "1px solid var(--border-color)", borderRadius: 6, fontSize: 12, resize: "vertical", outline: "none", boxSizing: "border-box", fontFamily: "inherit" }}
+                style={{ width: "100%", padding: "10px 12px", border: "1px solid var(--border-color)", borderRadius: 6, fontSize: 12, resize: "vertical", boxSizing: "border-box", fontFamily: "inherit" }}
               />
               <div style={{ marginTop: 10, display: "flex", justifyContent: "flex-end" }}>
                 <button

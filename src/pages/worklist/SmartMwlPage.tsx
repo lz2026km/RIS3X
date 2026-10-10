@@ -8,11 +8,27 @@ import {
   type SmartWeightConfig,
   type SmartScoreInput,
 } from '../../services/api/worklistSmartApi'
-import { Card, Table, Button, Tag, Space, Input, Row, Col, Statistic, Slider, Form, Modal, message, Alert, Progress, Tooltip } from 'antd'
+import {
+  Card,
+  Button,
+  Tag,
+  Space,
+  Input,
+  Row,
+  Col,
+  Statistic,
+  Slider,
+  Form,
+  Modal,
+  message,
+  Alert,
+  Progress,
+  Tooltip,
+} from "antd";
 import { Search, ArrowUpDown, Settings, RefreshCw, Clock, AlertTriangle, FileText, BarChart3, Eye, Info } from 'lucide-react'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { StatCard, StatCardGrid } from '../../components/common'
+import { DataTable, StatCard, StatCardGrid } from "../../components/common"
 import { t } from '../../i18n/appI18n'
 
 const levelMeta: Record<string, { labelKey: string; color: string }> = {
@@ -299,7 +315,7 @@ const SmartMwlPage: React.FC = () => {
           </Space>
         }
       >
-        <Table dataSource={rowPagination.pageData} columns={columns} rowKey={(r) => r.item.id} loading={loading} pagination={rowPagination.pagination} size="small" scroll={{ x: 'max-content' }}/>
+        <DataTable dataSource={rowPagination.pageData} columns={columns} rowKey={(r) => r.item.id} loading={loading} pagination={rowPagination.pagination} scroll={{ x: 'max-content' }}/>
       </Card>
 
       <Modal

@@ -596,7 +596,7 @@ export default function TermLibraryPage() {
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--content-bg)', border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', flex: 1 }}>
             <Search size={12} color="var(--text-secondary)" />
-            <input value={suggestionSearch} onChange={e => setSuggestionSearch(e.target.value)} placeholder={t9('termLibrary.suggestionPlaceholder')} style={{ border: 'none', outline: 'none', fontSize: 12, background: 'transparent', width: '100%', color: '#1e40af' }} />
+            <input value={suggestionSearch} onChange={e => setSuggestionSearch(e.target.value)} placeholder={t9('termLibrary.suggestionPlaceholder')} style={{ border: 'none', fontSize: 12, background: 'transparent', width: '100%', color: '#1e40af' }} />
           </div>
           <select style={{ padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--text-secondary)', background: 'var(--content-bg)', cursor: 'pointer' }}>
             <option value="">{t9('termLibrary.allModalities')}</option>
@@ -827,7 +827,7 @@ export default function TermLibraryPage() {
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--content-bg)', border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', flex: 1 }}>
             <Search size={12} color="var(--text-secondary)" />
-            <input value={languageSearch} onChange={e => setLanguageSearch(e.target.value)} placeholder={t9('termLibrary.searchTermsShort')} style={{ border: 'none', outline: 'none', fontSize: 12, background: 'transparent', width: '100%', color: '#1e40af' }} />
+            <input value={languageSearch} onChange={e => setLanguageSearch(e.target.value)} placeholder={t9('termLibrary.searchTermsShort')} style={{ border: 'none', fontSize: 12, background: 'transparent', width: '100%', color: '#1e40af' }} />
           </div>
           <select value={selectedLang} onChange={e => setSelectedLang(e.target.value as any)} style={{ padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--text-secondary)', background: 'var(--content-bg)', cursor: 'pointer' }}>
             <option value="zh">{t9('termLibrary.langZh')}</option>
@@ -996,7 +996,7 @@ export default function TermLibraryPage() {
             <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 6 }}>{t9('termLibrary.labelCategoryName')}</label>
-                <input value={categoryForm.name} onChange={e => setCategoryForm({ ...categoryForm, name: e.target.value })} placeholder={t9('termLibrary.categoryNamePlaceholder')} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                <input value={categoryForm.name} onChange={e => setCategoryForm({ ...categoryForm, name: e.target.value })} placeholder={t9('termLibrary.categoryNamePlaceholder')} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13, boxSizing: 'border-box' }} />
               </div>
               {!categoryForm.id && (
                 <div>
@@ -1031,7 +1031,7 @@ export default function TermLibraryPage() {
 
   // ============ 渲染 ============
   return (
-    <div data-testid="term-library-page" style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-card)', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
+    <div data-testid="term-library-page" style={{ display: 'flex', background: 'var(--bg-card)', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
       {/* [v3.0.6.11-88] 已接入真实 API: 后端 term-entry.controller (/terms 全 11 端点) 已实现 */}
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, background: 'var(--color-success-bg)', color: '#065f46', fontSize: 12, fontWeight: 600, padding: '4px 16px', textAlign: 'center', borderBottom: '1px solid #a7f3d0' }}>
          {t9('termLibrary.apiBanner')}
@@ -1049,7 +1049,7 @@ export default function TermLibraryPage() {
         <div style={{ padding: '12px 12px 8px', borderBottom: '1px solid var(--border-light)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--content-bg)', border: '1px solid var(--border-color)', borderRadius: 8, padding: '7px 10px' }}>
             <Search size={13} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
-            <input value={leftSearch} onChange={e => setLeftSearch(e.target.value)} placeholder={t9('termLibrary.searchTermsPlaceholder')} style={{ border: 'none', outline: 'none', fontSize: 12, background: 'transparent', width: '100%', color: '#1e40af' }} />
+            <input value={leftSearch} onChange={e => setLeftSearch(e.target.value)} placeholder={t9('termLibrary.searchTermsPlaceholder')} style={{ border: 'none', fontSize: 12, background: 'transparent', width: '100%', color: '#1e40af' }} />
             {leftSearch && <button onClick={() => setLeftSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}><X size={12} style={{ color: 'var(--text-secondary)' }} /></button>}
           </div>
         </div>
@@ -1166,7 +1166,7 @@ export default function TermLibraryPage() {
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--content-bg)', border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', flex: 1, minWidth: 200 }}>
                     <Search size={12} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
-                    <input value={wsSearch} onChange={e => setWsSearch(e.target.value)} placeholder={t9('termLibrary.searchStandardPlaceholder')} style={{ border: 'none', outline: 'none', fontSize: 12, background: 'transparent', width: '100%', color: '#1e40af' }} />
+                    <input value={wsSearch} onChange={e => setWsSearch(e.target.value)} placeholder={t9('termLibrary.searchStandardPlaceholder')} style={{ border: 'none', fontSize: 12, background: 'transparent', width: '100%', color: '#1e40af' }} />
                     {wsSearch && <button onClick={() => setWsSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}><X size={12} style={{ color: 'var(--text-secondary)' }} /></button>}
                   </div>
                   <select value={wsDeptFilter} onChange={e => setWsDeptFilter(e.target.value)} style={{ padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, color: 'var(--text-secondary)', background: 'var(--content-bg)', cursor: 'pointer' }}>
@@ -1309,7 +1309,7 @@ export default function TermLibraryPage() {
                   <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--content-bg)', border: '1px solid var(--border-color)', borderRadius: 6, padding: '5px 10px' }}>
                       <Search size={12} style={{ color: 'var(--text-secondary)' }} />
-                      <input value={rightSearch} onChange={e => setRightSearch(e.target.value)} placeholder={t9('termLibrary.searchTermContent')} style={{ border: 'none', outline: 'none', fontSize: 12, background: 'transparent', width: 150, color: '#1e40af' }} />
+                      <input value={rightSearch} onChange={e => setRightSearch(e.target.value)} placeholder={t9('termLibrary.searchTermContent')} style={{ border: 'none', fontSize: 12, background: 'transparent', width: 150, color: '#1e40af' }} />
                     </div>
                     <Select
                       size="small"
@@ -1376,7 +1376,7 @@ export default function TermLibraryPage() {
             <div style={{ padding: 20 }}>
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}> {t9('termLibrary.labelTermContent')} <span style={{ color: '#dc2626' }}>*</span></label>
-                <textarea value={formData.term} onChange={e => setFormData(prev => ({ ...prev, term: e.target.value }))} rows={3} placeholder={t9('termLibrary.termContentPlaceholder')} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, color: '#1e40af', outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} onFocus={e => e.target.style.borderColor = '#1e40af'} onBlur={e => e.target.style.borderColor = 'var(--border-color)'} />
+                <textarea value={formData.term} onChange={e => setFormData(prev => ({ ...prev, term: e.target.value }))} rows={3} placeholder={t9('termLibrary.termContentPlaceholder')} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, color: '#1e40af', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} onFocus={e => e.target.style.borderColor = '#1e40af'} onBlur={e => e.target.style.borderColor = 'var(--border-color)'} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
                 <div><label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>{t9('termLibrary.labelCategory')}</label>
@@ -1413,11 +1413,11 @@ export default function TermLibraryPage() {
               </div>
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>{t9('termLibrary.labelStandardReport')}</label>
-                <textarea value={formData.standardReport} onChange={e => setFormData(prev => ({ ...prev, standardReport: e.target.value }))} rows={4} placeholder={t9('termLibrary.standardReportPlaceholder')} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, color: '#1e40af', outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} onFocus={e => e.target.style.borderColor = '#1e40af'} onBlur={e => e.target.style.borderColor = 'var(--border-color)'} />
+                <textarea value={formData.standardReport} onChange={e => setFormData(prev => ({ ...prev, standardReport: e.target.value }))} rows={4} placeholder={t9('termLibrary.standardReportPlaceholder')} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, color: '#1e40af', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} onFocus={e => e.target.style.borderColor = '#1e40af'} onBlur={e => e.target.style.borderColor = 'var(--border-color)'} />
               </div>
               <div style={{ marginBottom: 20 }}>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>{t9('termLibrary.labelUsageNotes')}</label>
-                <textarea value={formData.usageNotes} onChange={e => setFormData(prev => ({ ...prev, usageNotes: e.target.value }))} rows={2} placeholder={t9('termLibrary.optional')} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, color: '#1e40af', outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} onFocus={e => e.target.style.borderColor = '#1e40af'} onBlur={e => e.target.style.borderColor = 'var(--border-color)'} />
+                <textarea value={formData.usageNotes} onChange={e => setFormData(prev => ({ ...prev, usageNotes: e.target.value }))} rows={2} placeholder={t9('termLibrary.optional')} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, color: '#1e40af', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} onFocus={e => e.target.style.borderColor = '#1e40af'} onBlur={e => e.target.style.borderColor = 'var(--border-color)'} />
               </div>
             </div>
             <div style={{ padding: '14px 20px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end', gap: 10, background: 'var(--bg-card)', borderRadius: '0 0 16px 16px' }}>

@@ -105,9 +105,7 @@ const DepartmentDashboardPage: React.FC = () => {
 
   // 样式定义
   const styles = {
-    container: {
-      minHeight: '100vh',
-      backgroundColor: 'var(--bg-card)',
+    container: { backgroundColor: 'var(--bg-card)',
       padding: '24px',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     },

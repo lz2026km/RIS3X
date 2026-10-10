@@ -1,10 +1,20 @@
 import { radiomicsApi, type RadiomicsFeature, type RadiomicsResult } from '../../services/api/radiomicsApi'
-import { Card, Table, Button, Space, Tag, Form, Input, Select, message, Empty } from 'antd'
+import {
+  Card,
+  Button,
+  Space,
+  Tag,
+  Form,
+  Input,
+  Select,
+  message,
+  Empty,
+} from "antd";
 import { Activity, Search, RefreshCw, Download, BarChart3 } from 'lucide-react'
 import { Inbox } from 'lucide-react'
 import { useState } from 'react'
 import { t } from '../../i18n/appI18n'
-import { PageContainer } from '../../components/common'
+import { DataTable, PageContainer } from "../../components/common"
 
 export const RadiomicsFeaturePage: React.FC = () => {
   const [instanceId, setInstanceId] = useState('')
@@ -185,7 +195,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
           {Object.entries(groupedFeatures).map(([category, feats]) => (
             <div key={category} style={{ marginBottom: 16 }}>
               <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 13, color: '#2563eb' }}>{category}</div>
-              <Table dataSource={feats} columns={featureColumns} rowKey="name" pagination={false} size="small" scroll={{ x: 'max-content' }} />
+              <DataTable dataSource={feats} columns={featureColumns} rowKey="name" pagination={false} scroll={{ x: 'max-content' }} />
             </div>
           ))}
         </Card>
@@ -193,10 +203,9 @@ export const RadiomicsFeaturePage: React.FC = () => {
 
       {compareResults.length > 0 && (
         <Card size="small" title={t('radiomics.compareResults')} style={{ marginTop: 16 }}>
-          <Table
+          <DataTable
             dataSource={compareResults}
             rowKey="instanceId"
-            size="small"
             pagination={false}
             scroll={{ x: 'max-content' }}
             columns={[

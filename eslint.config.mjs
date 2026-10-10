@@ -178,6 +178,23 @@ export default [
     },
   },
   {
+    // [UI-A v3.0.6.13-0] 页面层统一使用 <DataTable>, 禁止裸 antd <Table>
+    files: ['src/pages/**/*.tsx'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'ExportAllDeclaration',
+          message: 'Avoid `export * from ...` barrels; they pull dead code into the dependency graph. Use named re-exports instead.',
+        },
+        {
+          selector: 'JSXOpeningElement[name.name="Table"]',
+          message: '请使用 components/common 的 <DataTable> (统一密度/空态/加载/分页/列宽/固定列), 禁止裸 antd <Table>。',
+        },
+      ],
+    },
+  },
+  {
     files: ['**/*.test.{ts,tsx}', '**/__tests__/**', '**/test/**', '**/*.stories.{ts,tsx}'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',

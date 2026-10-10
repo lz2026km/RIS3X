@@ -413,7 +413,7 @@ export default function DeviceFaultPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: C.bg, padding: '20px 24px' }}>
+    <div style={{ background: C.bg, padding: '20px 24px' }}>
       {/* 页面标题 */}
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 20, fontWeight: 700, color: C.textDark, margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -468,11 +468,11 @@ export default function DeviceFaultPage() {
                 placeholder={t('deviceFault.searchPlaceholder')}
                 value={searchKeyword}
                 onChange={e => setSearchKeyword(e.target.value)}
-                style={{ width: '100%', padding: '8px 12px 8px 34px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '8px 12px 8px 34px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, boxSizing: 'border-box' }}
               />
             </div>
             <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
-              style={{ padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, color: C.textMid, outline: 'none', cursor: 'pointer', background: C.white }}>
+              style={{ padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, color: C.textMid, cursor: 'pointer', background: C.white }}>
               <option value="全部">{t('deviceFault.filterStatusAll')}</option>
               <option value="待处理">{t('deviceFault.statusPending')}</option>
               <option value="维修中">{t('deviceFault.statusRepairing')}</option>
@@ -480,7 +480,7 @@ export default function DeviceFaultPage() {
               <option value="已完成">{t('deviceFault.statusCompleted')}</option>
             </select>
             <select value={filterPriority} onChange={e => setFilterPriority(e.target.value)}
-              style={{ padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, color: C.textMid, outline: 'none', cursor: 'pointer', background: C.white }}>
+              style={{ padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, color: C.textMid, cursor: 'pointer', background: C.white }}>
               <option value="全部">{t('deviceFault.filterPriorityAll')}</option>
               <option value="紧急">{t('deviceFault.priorityUrgent')}</option>
               <option value="高">{t('deviceFault.priorityHigh')}</option>
@@ -568,7 +568,7 @@ export default function DeviceFaultPage() {
                     <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
                       <select
                         onChange={e => handleAssign(record.id, e.target.value)}
-                        style={{ flex: 1, padding: '6px 8px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12, color: C.textMid, outline: 'none', background: C.white }}>
+                        style={{ flex: 1, padding: '6px 8px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12, color: C.textMid, background: C.white }}>
                         <option value="">{t('deviceFault.selectEngineer')}</option>
                         {ENGINEERS.map(eng => <option key={eng.id} value={eng.name}>{eng.name}</option>)}
                       </select>
@@ -769,7 +769,7 @@ export default function DeviceFaultPage() {
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textMid, display: 'block', marginBottom: 4 }}>{t('deviceFault.labelDevice')}</label>
                 <select value={newFault.deviceId} onChange={e => setNewFault({ ...newFault, deviceId: e.target.value })}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: 'none', boxSizing: 'border-box' }}>
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, boxSizing: 'border-box' }}>
                   <option value="">{t('deviceFault.selectDevice')}</option>
                   {DEVICES.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                 </select>
@@ -778,14 +778,14 @@ export default function DeviceFaultPage() {
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 600, color: C.textMid, display: 'block', marginBottom: 4 }}>{t('deviceFault.labelFaultType')}</label>
                   <select value={newFault.faultType} onChange={e => setNewFault({ ...newFault, faultType: e.target.value })}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: 'none', boxSizing: 'border-box' }}>
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, boxSizing: 'border-box' }}>
                     {['硬件故障', '软件故障', '机械故障', '电气故障', '系统故障'].map(ft => <option key={ft} value={ft}>{ft}</option>)}
                   </select>
                 </div>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 600, color: C.textMid, display: 'block', marginBottom: 4 }}>{t('deviceFault.labelPriority')}</label>
                   <select value={newFault.priority} onChange={e => setNewFault({ ...newFault, priority: e.target.value })}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: 'none', boxSizing: 'border-box' }}>
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, boxSizing: 'border-box' }}>
                     {['紧急', '高', '中', '低'].map(p => <option key={p} value={p}>{p}</option>)}
                   </select>
                 </div>
@@ -794,19 +794,19 @@ export default function DeviceFaultPage() {
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textMid, display: 'block', marginBottom: 4 }}>{t('deviceFault.labelDescription')}</label>
                 <textarea value={newFault.description} onChange={e => setNewFault({ ...newFault, description: e.target.value })}
                   placeholder={t('deviceFault.descriptionPlaceholder')}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: 'none', resize: 'vertical', minHeight: 80, boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, resize: 'vertical', minHeight: 80, boxSizing: 'border-box' }} />
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textMid, display: 'block', marginBottom: 4 }}>{t('deviceFault.labelSymptoms')}</label>
                 <input type="text" value={newFault.faultSymptoms} onChange={e => setNewFault({ ...newFault, faultSymptoms: e.target.value })}
                   placeholder={t('deviceFault.symptomsPlaceholder')}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, boxSizing: 'border-box' }} />
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textMid, display: 'block', marginBottom: 4 }}>{t('deviceFault.labelEstimatedCost')}</label>
                 <input type="number" value={newFault.estimatedCost} onChange={e => setNewFault({ ...newFault, estimatedCost: e.target.value })}
                   placeholder={t('deviceFault.costPlaceholder')}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 13, boxSizing: 'border-box' }} />
               </div>
             </div>
             <div style={{ display: 'flex', gap: 10, marginTop: 24, justifyContent: 'flex-end' }}>

@@ -387,7 +387,7 @@ export default function CriticalValuePage() {
   }
 
   return (
-    <div data-testid="critical-value-page" style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <div data-testid="critical-value-page" style={{ padding: 24, background: 'var(--bg-primary)',}}>
       {loading && <LoadingBanner message={t("criticalValuePage.loading")} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       <style>{'@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.1); } }'}</style>

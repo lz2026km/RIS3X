@@ -639,9 +639,7 @@ export default function ReportDefectLibraryPage() {
                     padding: "5px 8px 5px 26px",
                     border: "1px solid var(--border-color)",
                     borderRadius: 4,
-                    fontSize: 12,
-                    outline: "none",
-                  }}
+                    fontSize: 12, }}
                 />
               </div>
               <select
@@ -1233,9 +1231,7 @@ function DefectFormFields({
     padding: "8px 12px",
     borderRadius: 6,
     border: "1px solid var(--border-color)",
-    fontSize: 12,
-    outline: "none",
-    boxSizing: "border-box",
+    fontSize: 12, boxSizing: "border-box",
   };
   const labelStyle: React.CSSProperties = {
     fontSize: 12,
@@ -1347,6 +1343,4 @@ const selectStyle: React.CSSProperties = {
   padding: "3px 8px",
   border: "1px solid var(--border-color)",
   borderRadius: 4,
-  fontSize: 12,
-  outline: "none",
-};
+  fontSize: 12, };

@@ -78,7 +78,7 @@ const ageFromBirth = (birthDate?: string | null): number => {
 }
 
 const s = {
-  container: { maxWidth: 420, margin: '0 auto', background: 'var(--bg-primary)', minHeight: '100vh', fontFamily: '-apple-system, sans-serif' },
+  container: { maxWidth: 420, margin: '0 auto', background: 'var(--bg-primary)', fontFamily: '-apple-system, sans-serif' },
   header: { background: 'linear-gradient(135deg, #0f766e, #14b8a6)', color: '#fff', padding: '16px 16px 12px' },
   headerTitle: { fontSize: 18, fontWeight: 700 },
   searchBar: { display: 'flex', alignItems: 'center', gap: 8, background: 'var(--bg-card)', borderRadius: 10, padding: '10px 14px', margin: '12px 16px', border: '1px solid var(--border-color)' },
@@ -433,7 +433,7 @@ export default function TechMobileWorkstation() {
 
       <div style={s.searchBar}>
         <Search size={16} color="#94a3b8" />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('techMobile.searchPlaceholder')} style={{ border: 'none', outline: 'none', fontSize: 13, color: '#334155', width: '100%', background: 'transparent' }} />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('techMobile.searchPlaceholder')} style={{ border: 'none', fontSize: 13, color: '#334155', width: '100%', background: 'transparent' }} />
         <Camera size={16} color="#94a3b8" style={{ cursor: 'pointer' }} onClick={handleScan} />
       </div>
 

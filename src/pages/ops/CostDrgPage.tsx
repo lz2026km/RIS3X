@@ -5,12 +5,22 @@
  */
 import { useCallback, useEffect, useState } from 'react'
 import {
-  Alert, Button, Card, Col, Input, message, Row, Space, Table, Tabs, Tag, Typography,
-} from 'antd'
+  Alert,
+  Button,
+  Card,
+  Col,
+  Input,
+  message,
+  Row,
+  Space,
+  Tabs,
+  Tag,
+  Typography,
+} from "antd";
 import { BarChart, Bar, CartesianGrid, Tooltip as RTooltip, XAxis, YAxis } from 'recharts'
 import { BarChart3, DollarSign, FileText, RefreshCw, TrendingUp } from 'lucide-react'
 import { ChartContainer, chartDefaults } from '../../components/charts'
-import { ExportButton, StatCard, StatCardGrid } from '../../components/common'
+import { DataTable, ExportButton, StatCard, StatCardGrid } from "../../components/common"
 import { deviceOpsApi } from '../../services/api/deviceOpsApi'
 import type { CostByExamRow, CostSummary, DrgGroups, ReportDefinition, ReportInstance } from '../../services/api/deviceOpsApi'
 import { t } from '../../i18n/appI18n'
@@ -89,8 +99,8 @@ export default function CostDrgPage() {
       <Row gutter={16}>
         <Col span={12}>
           <Card size="small" title={t('w11Device.cost.byModality')}>
-            <Table
-              rowKey="modality" size="small" loading={loading} pagination={false}
+            <DataTable
+              rowKey="modality" loading={loading} pagination={false}
               dataSource={costSummary?.byModality ?? []}
               columns={[
                 { title: t('w11Device.cost.modality'), dataIndex: 'modality', key: 'modality', width: 90 },
@@ -123,8 +133,8 @@ export default function CostDrgPage() {
 
   const byExamTab = (
     <Card size="small" title={t('w11Device.cost.byExam')}>
-      <Table
-        rowKey="examItem" size="small" loading={loading} scroll={{ x: 'max-content' }} pagination={{ pageSize: 10, showSizeChanger: false }}
+      <DataTable
+        rowKey="examItem" loading={loading} scroll={{ x: 'max-content' }} pagination={{ pageSize: 10, showSizeChanger: false }}
         dataSource={byExam}
         columns={[
           { title: t('w11Device.cost.examItem'), dataIndex: 'examItem', key: 'examItem', ellipsis: true },
@@ -157,8 +167,8 @@ export default function CostDrgPage() {
         <StatCard title={t('w11Device.cost.totalMargin')} value={drg?.totals.margin.margin ?? 0} prefix="¥" color="success" loading={loading} />
       </StatCardGrid>
       <Card size="small" title={t('w11Device.drg.title')} extra={<Text type="secondary">{t('w11Device.drg.baseRate')}: ¥{drg?.baseRate ?? 0}</Text>}>
-        <Table
-          rowKey="drgCode" size="small" loading={loading} scroll={{ x: 'max-content' }} pagination={false}
+        <DataTable
+          rowKey="drgCode" loading={loading} scroll={{ x: 'max-content' }} pagination={false}
           dataSource={drg?.items ?? []}
           columns={[
             { title: t('w11Device.drg.code'), dataIndex: 'drgCode', key: 'code', width: 90 },
@@ -179,8 +189,8 @@ export default function CostDrgPage() {
   const reportsTab = (
     <>
       <Card size="small" title={<Space><FileText size={14} />{t('w11Device.report.title')}</Space>} style={{ marginBottom: 16 }}>
-        <Table
-          rowKey="id" size="small" loading={loading} scroll={{ x: 'max-content' }} pagination={false}
+        <DataTable
+          rowKey="id" loading={loading} scroll={{ x: 'max-content' }} pagination={false}
           dataSource={defs}
           columns={[
             { title: t('w11Device.report.name'), dataIndex: 'name', key: 'name', ellipsis: true },
@@ -196,8 +206,8 @@ export default function CostDrgPage() {
         />
       </Card>
       <Card size="small" title={t('w11Device.report.instances')}>
-        <Table
-          rowKey="id" size="small" loading={loading} scroll={{ x: 'max-content' }} pagination={{ pageSize: 8, showSizeChanger: false }}
+        <DataTable
+          rowKey="id" loading={loading} scroll={{ x: 'max-content' }} pagination={{ pageSize: 8, showSizeChanger: false }}
           dataSource={instances}
           columns={[
             { title: 'ID', dataIndex: 'id', key: 'id', width: 100 },

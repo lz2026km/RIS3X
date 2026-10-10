@@ -297,7 +297,7 @@ export default function DeviceOpsPage() {
   ]
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+    <div style={{ background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><Monitor size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('deviceOps.title')}</span></div>
         <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{t('deviceOps.summary', { count: devices.length, source: dataSource === 'api' ? t('deviceOps.realtime') : t('deviceOps.demo') })}</span>
@@ -330,7 +330,7 @@ export default function DeviceOpsPage() {
           <div style={{ position: 'relative', marginLeft: 'auto' }}>
             <Search size={14} style={{ position: 'absolute', left: 10, top: 9, color: '#6e7681' }} />
             <input placeholder={t('deviceOps.searchPlaceholder')} value={search} onChange={e => setSearch(e.target.value)}
-              style={{ padding: '6px 12px 6px 32px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none', width: 200 }} />
+              style={{ padding: '6px 12px 6px 32px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, width: 200 }} />
           </div>
         </div>
 
@@ -476,15 +476,15 @@ export default function DeviceOpsPage() {
             <div style={{ background: '#0d1117', borderRadius: 6, padding: 12 }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: '#f0f6fc', marginBottom: 10 }}>{t('deviceOps.registerDose')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <input placeholder={t('deviceOps.patientIdPlaceholder')} value={doseForm.patientId} onChange={e => setDoseForm({ ...doseForm, patientId: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none' }} />
-                <input placeholder={t('deviceOps.deviceIdPlaceholder')} value={doseForm.deviceId} onChange={e => setDoseForm({ ...doseForm, deviceId: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none' }} />
+                <input placeholder={t('deviceOps.patientIdPlaceholder')} value={doseForm.patientId} onChange={e => setDoseForm({ ...doseForm, patientId: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13,}} />
+                <input placeholder={t('deviceOps.deviceIdPlaceholder')} value={doseForm.deviceId} onChange={e => setDoseForm({ ...doseForm, deviceId: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13,}} />
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px', gap: 8 }}>
-                  <input type="number" placeholder={t('deviceOps.doseValuePlaceholder')} value={doseForm.doseValue} onChange={e => setDoseForm({ ...doseForm, doseValue: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none' }} />
-                  <select value={doseForm.doseUnit} onChange={e => setDoseForm({ ...doseForm, doseUnit: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none' }}>
+                  <input type="number" placeholder={t('deviceOps.doseValuePlaceholder')} value={doseForm.doseValue} onChange={e => setDoseForm({ ...doseForm, doseValue: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13,}} />
+                  <select value={doseForm.doseUnit} onChange={e => setDoseForm({ ...doseForm, doseUnit: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13,}}>
                     <option>mGy</option><option>mGy·cm</option><option>dGy</option>
                   </select>
                 </div>
-                <select value={doseForm.examType} onChange={e => setDoseForm({ ...doseForm, examType: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none' }}>
+                <select value={doseForm.examType} onChange={e => setDoseForm({ ...doseForm, examType: e.target.value })} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13,}}>
                   <option>CT</option><option>DR</option><option>DSA</option><option>MG</option><option>X-ray</option>
                 </select>
                 <button onClick={() => void handleRecordDose()} disabled={doseSaving} style={{ padding: '8px', borderRadius: 4, border: 'none', cursor: doseSaving ? 'wait' : 'pointer', background: '#22d3ee', color: '#0d1117', fontSize: 13, fontWeight: 600 }}>{doseSaving ? t('deviceOps.submitting') : t('deviceOps.registerDoseBtn')}</button>

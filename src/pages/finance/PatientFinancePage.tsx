@@ -27,7 +27,7 @@ const s = {
   }),
   btn: { padding: '6px 14px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: '#1e40af', color: '#fff' },
   btnSmall: { padding: '4px 10px', borderRadius: 4, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer' },
-  select: { padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)', outline: 'none' },
+  select: { padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, background: 'var(--bg-card)',},
   tab: (active: boolean) => ({
     flex: 1, padding: '10px 0', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer',
     background: active ? 'var(--bg-card)' : 'transparent', color: active ? '#1e40af' : '#64748b',
@@ -362,7 +362,7 @@ export default function PatientFinancePage() {
               <div>
                 <div style={s.label}>{t('patientFinance.patientIdLabel')}</div>
                 <input value={invPatientId} onChange={e => setInvPatientId(e.target.value)} placeholder={t('patientFinance.patientIdPlaceholder')}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, boxSizing: 'border-box',}} />
               </div>
               <div>
                 <div style={s.label}>{t('patientFinance.chargeItemsLabel')}</div>
@@ -381,7 +381,7 @@ export default function PatientFinancePage() {
               <div>
                 <div style={s.label}>{t('patientFinance.discountAmount')}</div>
                 <input type="number" min={0} value={invDiscount} onChange={e => setInvDiscount(Number(e.target.value))}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+                  style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, boxSizing: 'border-box',}} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 8 }}>
                 <button style={{ ...s.btn, background: '#64748b' }} onClick={() => setShowInvoiceModal(false)}>{t('patientFinance.cancel')}</button>

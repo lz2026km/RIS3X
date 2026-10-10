@@ -7,14 +7,26 @@ import { usePagination } from '../../hooks/usePagination';
 import { hl7Api } from '../../services/api/integrationApi';
 import { ConnectionLogEntry, Hl7ArchiveRecord, MllpStatus } from '../../services/api/integrationApi'
 import {
-  Card, Space, Tag, Button, Row, Col, Table, Alert, Spin, Tabs, Select, Empty, message, Badge,
-} from 'antd';
+  Card,
+  Space,
+  Tag,
+  Button,
+  Row,
+  Col,
+  Alert,
+  Spin,
+  Tabs,
+  Select,
+  Empty,
+  message,
+  Badge,
+} from "antd";
 import { Activity, Server, BookOpen, Cpu, Network, Play, Square, RefreshCw } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BellOff } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 
 const POLL_MS = 30_000;
 
@@ -154,8 +166,8 @@ const MllpMonitorPage: React.FC = () => {
 
           <Card size="small" title={<Space><Network size={14} />{t('mllpMon.connectionEvents')}</Space>}>
             {loading ? <Spin /> : logs.length === 0 ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /> : (
-              <Table
-                rowKey="id" size="small" scroll={{ x: 'max-content' }} pagination={logsPagination.pagination}
+              <DataTable
+                rowKey="id" scroll={{ x: 'max-content' }} pagination={logsPagination.pagination}
                 dataSource={logsPagination.pageData}
                 columns={[
                   { title: t('mllpMon.col.event'), dataIndex: 'event', width: 90, render: (v: string) => <Tag color={v === 'error' ? 'red' : v === 'message' ? 'blue' : 'default'}>{EVENT_LABEL[v] ?? v}</Tag> },
@@ -193,8 +205,8 @@ const MllpMonitorPage: React.FC = () => {
                     {loading ? (
                       <div style={{ textAlign: 'center', padding: 32 }}><Spin /></div>
                     ) : archive.length === 0 ? <Empty image={<BellOff size={48} style={{opacity:0.4}}/>} description={t('mllpMon.emptyArchive')} /> : (
-                      <Table
-                        rowKey="id" size="small"
+                      <DataTable
+                        rowKey="id"
                         dataSource={archivePagination.pageData}
                         pagination={archivePagination.pagination}
                         columns={[

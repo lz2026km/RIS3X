@@ -19,7 +19,7 @@ import { t } from '../../i18n/appI18n'
 const svc = getOpsAnalyticsService()
 
 const s: Record<string, React.CSSProperties> = {
-  root: { minHeight: '100vh', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' },
+  root: { background: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' },
   header: { background: 'linear-gradient(135deg,var(--color-primary-800),var(--color-primary-900))', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   headerTitle: { display: 'flex', alignItems: 'center', gap: 12 },
   headerText: { fontSize: 20, fontWeight: 600 },

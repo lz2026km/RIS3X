@@ -538,9 +538,7 @@ export default function AppointmentManagementPage() {
 
   // 样式定义
   const styles = {
-    container: {
-      minHeight: '100vh',
-      backgroundColor: COLORS.background,
+    container: { backgroundColor: COLORS.background,
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     },
     header: {
@@ -626,9 +624,7 @@ export default function AppointmentManagementPage() {
       minWidth: '280px',
     },
     searchInput: {
-      border: 'none',
-      outline: 'none',
-      fontSize: '14px',
+      border: 'none', fontSize: '14px',
       flex: 1,
       backgroundColor: 'transparent',
     },
@@ -638,9 +634,7 @@ export default function AppointmentManagementPage() {
       border: `1px solid ${COLORS.border}`,
       backgroundColor: COLORS.cardBackground,
       fontSize: '14px',
-      cursor: 'pointer',
-      outline: 'none',
-    },
+      cursor: 'pointer', },
     viewToggle: {
       display: 'flex',
       backgroundColor: COLORS.cardBackground,
@@ -775,9 +769,7 @@ export default function AppointmentManagementPage() {
       padding: '10px 12px',
       borderRadius: '8px',
       border: `1px solid ${COLORS.border}`,
-      fontSize: '14px',
-      outline: 'none',
-      boxSizing: 'border-box' as const,
+      fontSize: '14px', boxSizing: 'border-box' as const,
     },
     formRow: {
       display: 'grid',

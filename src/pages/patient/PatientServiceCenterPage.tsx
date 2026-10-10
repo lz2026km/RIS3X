@@ -6,12 +6,27 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  Alert, Button, Card, Col, Descriptions, Empty, Input, InputNumber, List, message,
-  Modal, Row, Select, Space, Table, Tabs, Tag, Typography,
-} from 'antd'
+  Alert,
+  Button,
+  Card,
+  Col,
+  Descriptions,
+  Empty,
+  Input,
+  InputNumber,
+  List,
+  message,
+  Modal,
+  Row,
+  Select,
+  Space,
+  Tabs,
+  Tag,
+  Typography,
+} from "antd";
 import { RefreshCw } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
-import { PageContainer, StatCard, StatCardGrid } from '../../components/common'
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 import {
   wechatApi, paymentApi, notificationChannelApi, satisfactionApi, selfRegistrationApi,
 } from '../../services/api/w12PatientApi'
@@ -431,7 +446,7 @@ export default function PatientServiceCenterPage() {
 
       <Col xs={24} lg={12}>
         <Card size="small" title={t('w12Patient.wechat.subscribe')} style={{ marginBottom: 16 }}>
-          <Table size="small" rowKey="templateId" pagination={false} dataSource={wxConfig?.subscribeTemplates ?? []}
+          <DataTable rowKey="templateId" pagination={false} dataSource={wxConfig?.subscribeTemplates ?? []}
             locale={{ emptyText: <Empty description={t('w12Patient.empty')} /> }}
             columns={[
               { title: t('w12Patient.wechat.templateId'), dataIndex: 'templateId' },
@@ -442,7 +457,7 @@ export default function PatientServiceCenterPage() {
         </Card>
 
         <Card size="small" title={`${t('w12Patient.wechat.logs')} (${wxLogs.length})`} style={{ marginBottom: 16 }}>
-          <Table size="small" rowKey="id" pagination={{ pageSize: 8, showSizeChanger: false }} dataSource={wxLogs}
+          <DataTable rowKey="id" pagination={{ pageSize: 8, showSizeChanger: false }} dataSource={wxLogs}
             locale={{ emptyText: <Empty description={t('w12Patient.empty')} /> }}
             columns={[
               { title: t('w12Patient.wechat.logType'), dataIndex: 'type', width: 90, render: (v: string) => <Tag>{t(`w12Patient.wechat.logType.${v}`)}</Tag> },
@@ -459,7 +474,7 @@ export default function PatientServiceCenterPage() {
           extra={<Button size="small" icon={<RefreshCw size={12} />} loading={wxUsersLoading} onClick={() => void loadWechatUsers()}>{t('w4b.wx.refresh')}</Button>}
         >
           {wxUsersError && <Alert type="warning" showIcon message={wxUsersError} style={{ marginBottom: 8 }} />}
-          <Table size="small" rowKey="openid" loading={wxUsersLoading} pagination={{ pageSize: 8, showSizeChanger: false }} dataSource={wxUsers}
+          <DataTable rowKey="openid" loading={wxUsersLoading} pagination={{ pageSize: 8, showSizeChanger: false }} dataSource={wxUsers}
             locale={{ emptyText: <Empty description={t('w4b.wx.empty')} /> }}
             columns={[
               { title: t('w4b.wx.thNickname'), dataIndex: 'nickname', width: 110 },
@@ -497,7 +512,7 @@ export default function PatientServiceCenterPage() {
       </Card>
 
       <Card size="small" title={t('w12Patient.payment.orders')} style={{ marginBottom: 16 }}>
-        <Table size="small" rowKey="id" pagination={{ pageSize: 8, showSizeChanger: false }} dataSource={orders}
+        <DataTable rowKey="id" pagination={{ pageSize: 8, showSizeChanger: false }} dataSource={orders}
           locale={{ emptyText: <Empty description={t('w12Patient.empty')} /> }}
           columns={[
             { title: t('w12Patient.payment.orderNo'), dataIndex: 'orderNo', width: 150 },
@@ -521,7 +536,7 @@ export default function PatientServiceCenterPage() {
       </Card>
 
       <Card size="small" title={t('w12Patient.payment.reconcile')}>
-        <Table size="small" rowKey="orderNo" pagination={{ pageSize: 6, showSizeChanger: false }} dataSource={reconcile}
+        <DataTable rowKey="orderNo" pagination={{ pageSize: 6, showSizeChanger: false }} dataSource={reconcile}
           locale={{ emptyText: <Empty description={t('w12Patient.empty')} /> }}
           columns={[
             { title: t('w12Patient.payment.orderNo'), dataIndex: 'orderNo', width: 150 },
@@ -574,7 +589,7 @@ export default function PatientServiceCenterPage() {
       </Col>
       <Col xs={24} lg={14}>
         <Card size="small" title={t('w12Patient.nc.templates')} style={{ marginBottom: 16 }}>
-          <Table size="small" rowKey="id" pagination={false} dataSource={ncTemplates}
+          <DataTable rowKey="id" pagination={false} dataSource={ncTemplates}
             locale={{ emptyText: <Empty description={t('w12Patient.empty')} /> }}
             columns={[
               { title: t('w12Patient.nc.templateCode'), dataIndex: 'code', width: 180 },
@@ -584,7 +599,7 @@ export default function PatientServiceCenterPage() {
             ]} />
         </Card>
         <Card size="small" title={`${t('w12Patient.nc.logs')} (${ncLogs.length})`}>
-          <Table size="small" rowKey="id" pagination={{ pageSize: 6, showSizeChanger: false }} dataSource={ncLogs}
+          <DataTable rowKey="id" pagination={{ pageSize: 6, showSizeChanger: false }} dataSource={ncLogs}
             locale={{ emptyText: <Empty description={t('w12Patient.empty')} /> }}
             columns={[
               { title: t('w12Patient.nc.templateName'), dataIndex: 'templateName', width: 130 },
@@ -613,21 +628,21 @@ export default function PatientServiceCenterPage() {
 
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
         <Col xs={24} lg={8}><Card size="small" title={t('w12Patient.sat.byDepartment')}>
-          <Table size="small" rowKey="department" pagination={false} dataSource={satAnalytics?.byDepartment ?? []}
+          <DataTable rowKey="department" pagination={false} dataSource={satAnalytics?.byDepartment ?? []}
             columns={[
               { title: t('w12Patient.sat.department'), dataIndex: 'department' },
               { title: t('w12Patient.sat.responses'), dataIndex: 'responses', width: 80 },
               { title: t('w12Patient.sat.nps'), dataIndex: 'nps', width: 80, render: (v: number) => <Tag color={satNpsLevel(v)}>{v}</Tag> },
             ]} /></Card></Col>
         <Col xs={24} lg={8}><Card size="small" title={t('w12Patient.sat.byModality')}>
-          <Table size="small" rowKey="modality" pagination={false} dataSource={satAnalytics?.byModality ?? []}
+          <DataTable rowKey="modality" pagination={false} dataSource={satAnalytics?.byModality ?? []}
             columns={[
               { title: t('w12Patient.sat.modality'), dataIndex: 'modality' },
               { title: t('w12Patient.sat.responses'), dataIndex: 'responses', width: 80 },
               { title: t('w12Patient.sat.nps'), dataIndex: 'nps', width: 80, render: (v: number) => <Tag color={satNpsLevel(v)}>{v}</Tag> },
             ]} /></Card></Col>
         <Col xs={24} lg={8}><Card size="small" title={t('w12Patient.sat.trend')}>
-          <Table size="small" rowKey="period" pagination={false} dataSource={satAnalytics?.trend ?? []}
+          <DataTable rowKey="period" pagination={false} dataSource={satAnalytics?.trend ?? []}
             columns={[
               { title: t('w12Patient.sat.period'), dataIndex: 'period' },
               { title: t('w12Patient.sat.avgRating'), dataIndex: 'avgRating', width: 90 },
@@ -654,7 +669,7 @@ export default function PatientServiceCenterPage() {
             )} /></Card></Col>
         <Col xs={24} lg={12}><Card size="small" title={t('w12Patient.sat.surveys')}
           extra={<Space><Input value={satTitle} style={{ width: 200 }} onChange={(e) => setSatTitle(e.target.value)} /><Button loading={satBusy} onClick={() => void doCreateSurvey()}>{t('w12Patient.sat.newSurvey')}</Button></Space>}>
-          <Table size="small" rowKey="id" pagination={{ pageSize: 6, showSizeChanger: false }} dataSource={satSurveys}
+          <DataTable rowKey="id" pagination={{ pageSize: 6, showSizeChanger: false }} dataSource={satSurveys}
             locale={{ emptyText: <Empty description={t('w12Patient.empty')} /> }}
             columns={[
               { title: t('w12Patient.sat.surveyTitle'), dataIndex: 'title', ellipsis: true },

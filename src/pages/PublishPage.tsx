@@ -138,7 +138,7 @@ export default function PublishPage() {
   ]
 
   return (
-    <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto', minHeight: '100vh', background: 'var(--bg-card)' }}>
+    <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto', background: 'var(--bg-card)' }}>
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1e40af', margin: 0 }}>
           报告发布管理

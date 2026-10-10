@@ -16,7 +16,6 @@ import {
   Row,
   Col,
   Tag,
-  Table,
   Steps,
   Badge,
   Button,
@@ -43,6 +42,7 @@ import {
 import React, { useState, useMemo, useEffect } from "react";
 import { Inbox } from 'lucide-react'
 import { t } from "../../../i18n/appI18n";
+import { DataTable } from "../../../components/common";
 
 
 const MODALITY_LABELS: Record<string, string> = { fundus_photo: t('eyeRis.modalityFundusPhoto'), oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: t('eyeRis.modalityVisualField'), topography: t('eyeRis.modalityTopography'), pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: t('eyeRis.modalitySlitLamp'), oct_a: 'OCTA', corneal_endothelium: t('eyeRis.modalityCornealEndothelium'), tear_film: t('eyeRis.modalityTearFilm'), fundus_autofluorescence: t('eyeRis.modalityFundusAf') };
@@ -340,10 +340,9 @@ const EyeRisPage: React.FC = () => {
                 { title: t('eyeRis.stepReview'), description: isNarrow ? t('eyeRis.stepReviewDesc') : undefined },
               ]}
             />
-            <Table
+            <DataTable
               dataSource={todayAptsPage}
               rowKey="id"
-              size="small"
               pagination={{
                 ...todayAptsPagination,
                 showSizeChanger: true,
@@ -436,10 +435,9 @@ const EyeRisPage: React.FC = () => {
               </>
             }
           >
-            <Table
+            <DataTable
               dataSource={upcomingAptsPage}
               rowKey="id"
-              size="small"
               pagination={{
                 ...upcomingAptsPagination,
                 showSizeChanger: true,
@@ -500,10 +498,9 @@ const EyeRisPage: React.FC = () => {
               </>
             }
           >
-            <Table
+            <DataTable
               dataSource={followUpsPage}
               rowKey="id"
-              size="small"
               pagination={{
                 ...followUpsPagination,
                 showSizeChanger: true,
@@ -552,10 +549,9 @@ const EyeRisPage: React.FC = () => {
               </>
             }
           >
-            <Table
+            <DataTable
               dataSource={referralsPage}
               rowKey="id"
-              size="small"
               pagination={{
                 ...referralsPagination,
                 showSizeChanger: true,
@@ -621,10 +617,9 @@ const EyeRisPage: React.FC = () => {
               </Button>
             }
           >
-            <Table
+            <DataTable
               dataSource={surgeryAptsPage}
               rowKey="id"
-              size="small"
               pagination={{
                 ...surgeryAptsPagination,
                 showSizeChanger: true,

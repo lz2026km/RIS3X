@@ -5,7 +5,6 @@ import { SrConceptName, SrContentItem, SrDocument, SrSection } from '../../servi
 import { EmptyState } from '../../components/common/EmptyState'
 import {
   Card,
-  Table,
   Tag,
   Space,
   Button,
@@ -22,7 +21,7 @@ import {
   Divider,
   message,
 } from "antd";
-import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import {
   FileText,
   RefreshCw,
@@ -405,12 +404,11 @@ const SrReportPage: React.FC = () => {
       )}
       <Card>
         <Spin spinning={loading}>
-          <Table
+          <DataTable
             rowKey="id"
             dataSource={docPageData}
             columns={columns}
             pagination={docPagination}
-            size="small"
           scroll={{ x: 'max-content' }}
           />
         </Spin>
@@ -635,8 +633,7 @@ const SrReportPage: React.FC = () => {
                 {t("srReport.backfillPrefix")} {backfillData.measurements.length} {t("srReport.backfillItems")} (SR {backfillData.srId} · {backfillData.templateId}){t("srReport.backfillSuffix")}
               </div>
               {backfillData.measurements.length > 0 && (
-                <Table
-                  size="small"
+                <DataTable
                   rowKey={(m, i) => `${m.name}-${m.value}-${i}`}
                   dataSource={backfillData.measurements}
                   columns={[

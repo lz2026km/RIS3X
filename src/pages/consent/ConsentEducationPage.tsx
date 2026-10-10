@@ -3,8 +3,27 @@
 import { usePagination } from '../../hooks/usePagination';
 import { consentEducationApi, type ConsentRecord, type EducationMaterialDto } from '../../services/api/consentEducationApi';
 import { getEducationService, type EducationMaterial } from '../../services/education/EducationService';
-import { Card, Space, Tag, Row, Col, Table, Button, Tabs, Badge, Modal, Form, Input, Select, message, Upload, Spin, Alert, Empty, Descriptions } from 'antd';
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+import {
+  Card,
+  Space,
+  Tag,
+  Row,
+  Col,
+  Button,
+  Tabs,
+  Badge,
+  Modal,
+  Form,
+  Input,
+  Select,
+  message,
+  Upload,
+  Spin,
+  Alert,
+  Empty,
+  Descriptions,
+} from "antd";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import { FileSignature, BookOpen, CheckCircle2, Clock, Download, Send, Eye, Upload as UploadIcon, Plus, RefreshCw, Inbox } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { t } from '../../i18n/appI18n';
@@ -285,7 +304,7 @@ export const ConsentEducationPage: React.FC = () => {
         extra={<Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setConsentModal(true)}>{t('consentEdu.newConsent')}</Button>}
       >
         <Spin spinning={loading}>
-          <Table
+          <DataTable
             dataSource={consentPageData}
             rowKey="id"
             pagination={consentPagination}
@@ -330,7 +349,7 @@ export const ConsentEducationPage: React.FC = () => {
           onChange={setActiveCategory}
           items={[{ key: '全部', label: t('consentEdu.all') }, ...categories.map((c) => ({ key: c, label: c }))]}
         />
-        <Table
+        <DataTable
           dataSource={materialPageData}
           rowKey="id"
           pagination={materialPagination}

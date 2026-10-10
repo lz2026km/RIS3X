@@ -357,9 +357,7 @@ function ErrorFallback({
   return (
     <div
       role="alert"
-      style={{
-        minHeight: "100vh",
-        display: "flex",
+      style={{ display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",

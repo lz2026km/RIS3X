@@ -5,12 +5,24 @@
 import { iheApi } from '../../services/api/integrationApi';
 import { IheStatus } from '../../services/api/integrationApi'
 import {
-  Card, Space, Tag, Table, Button, Row, Col, message, Alert, Spin, Input, Modal, Divider, Descriptions,
-} from 'antd';
+  Card,
+  Space,
+  Tag,
+  Button,
+  Row,
+  Col,
+  message,
+  Alert,
+  Spin,
+  Input,
+  Modal,
+  Divider,
+  Descriptions,
+} from "antd";
 import { Globe, Activity, RefreshCw, ArrowLeftRight, Server, Network, Database, FileSearch, IdCard, CalendarRange } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { t } from '../../i18n/appI18n';
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 
 const IheIntegrationPage: React.FC = () => {
   const [status, setStatus] = useState<IheStatus | null>(null);
@@ -141,9 +153,9 @@ const IheIntegrationPage: React.FC = () => {
             {loading ? (
               <div style={{ textAlign: 'center', padding: 24 }}><Spin /></div>
             ) : (
-              <Table
+              <DataTable
                 dataSource={transactions.map((t, i) => ({ key: i, transaction: t }))}
-                rowKey="key" pagination={false} size="small"
+                rowKey="key" pagination={false}
                 columns={[
                   { title: t('iheInt.colTransaction'), dataIndex: 'transaction', render: (v: string) => <Tag color="blue">{v}</Tag> },
                   { title: t('iheInt.colStandard'), render: (_, r) => <Tag color="purple">{TRANSACTION_STANDARD[r.transaction as string] ?? 'HL7 v2.x'}</Tag> },

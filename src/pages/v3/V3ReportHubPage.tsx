@@ -7,8 +7,19 @@ import {
   v3QualityReportApi, v3PacsApi, v3AnalyticsApi,
 } from '@/services/api/v3Api';
 import type { ReportDto } from '@/types/dto';
-import { Card, Space, Tag, Button, Row, Col, message, Tabs, List, Empty, Table } from 'antd';
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Row,
+  Col,
+  message,
+  Tabs,
+  List,
+  Empty,
+} from "antd";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import {
   Edit3,
   Send,
@@ -153,9 +164,8 @@ export const V3ReportHubPage: React.FC = () => {
                   style={{ marginTop: 16 }}
                   extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadReports(reportPage)}>{t('v3Hub.refresh')}</Button>}
                 >
-                  <Table
+                  <DataTable
                     rowKey={(r) => r.id ?? r.reportId ?? ''}
-                    size="small"
                     loading={reportsLoading}
                     dataSource={reports}
                     pagination={{ current: reportPage, pageSize: REPORT_PAGE_SIZE, total: reportTotal, onChange: setReportPage, showSizeChanger: false }}

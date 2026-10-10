@@ -1,5 +1,17 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { Card, Table, Tag, Space, Modal, Form, Input, Select, message, Empty, Tooltip, Typography } from 'antd'
+import {
+  Card,
+  Tag,
+  Space,
+  Modal,
+  Form,
+  Input,
+  Select,
+  message,
+  Empty,
+  Tooltip,
+  Typography,
+} from "antd";
 import { Cpu, Rocket, StopCircle, PackageX } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
 import { aiMarketplaceApi, type AiModel } from '../../services/api/aiMarketplaceApi'
@@ -133,7 +145,7 @@ const AiMarketplacePage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
       <Space style={{ marginBottom: 16 }} align="center">
         <Cpu size={22} color="#2563eb" />
         <div>
@@ -179,11 +191,10 @@ const AiMarketplacePage: React.FC = () => {
             ]}
           />
         </Space>
-        <Table
+        <DataTable
           rowKey="id"
           dataSource={filtered}
           columns={columns}
-          size="small"
           scroll={{ x: 'max-content' }}
           pagination={{ pageSize: 6, showSizeChanger: false, showTotal: (total) => `${t('w8.aiMarketplace.kpiTotal')}: ${total}` }}
           locale={{ emptyText: <Empty description={t('w8.aiMarketplace.empty')} /> }}
@@ -205,3 +216,5 @@ const AiMarketplacePage: React.FC = () => {
 }
 
 export default AiMarketplacePage
+
+import { DataTable } from "../../components/common";

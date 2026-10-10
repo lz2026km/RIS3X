@@ -2,13 +2,30 @@
 // [v3.0.6.8-81] 修复: 复用 shared constants
 import React, { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
-import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, List, Input, Badge, Modal, Form, DatePicker, Popconfirm, Table } from 'antd';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Select,
+  Row,
+  Col,
+  Statistic,
+  message,
+  List,
+  Input,
+  Badge,
+  Modal,
+  Form,
+  DatePicker,
+  Popconfirm,
+} from "antd";
 import { Activity, Eye, RefreshCw, Plus, Edit3, Trash2, GitCompareArrows } from 'lucide-react';
 import { dentalApi } from '../../services/api/dentalApi';
 import { ErrorBanner } from '../../components/feedback';
 import { MODALITY_LABELS, MODALITY_COLORS } from '../../data/dental/constants';
 import { t } from '../../i18n/appI18n';
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 
 const QUALITY_LABELS: Record<string, string> = { Diagnostic: 'dentalStudies.qualityDiagnostic', Acceptable: 'dentalStudies.qualityAcceptable', Suboptimal: 'dentalStudies.qualitySuboptimal', Reject: 'dentalStudies.qualityReject' };
 const STATUS_LABELS: Record<string, string> = { acquired: 'dentalStudies.statusAcquired', reviewed: 'dentalStudies.statusReviewed', reported: 'dentalStudies.statusReported', archived: 'dentalStudies.statusArchived' };
@@ -315,8 +332,7 @@ export const DentalStudiesPage: React.FC = () => {
               {/* [G005 Wave2B P2] MSW compare 返回 {studyA, studyB, differences} 无 differenceScore → 由差异条目数派生兜底 */}
               <Col span={8}><Card size="small"><Statistic title={t('dentalStudies.difference')} value={String(cmpResult.differenceScore ?? (Array.isArray(cmpResult.differences) ? cmpResult.differences.length : 0))} /></Card></Col>
             </Row>
-            <Table
-              size="small"
+            <DataTable
               rowKey="k"
               pagination={false}
               scroll={{ x: 'max-content' }}

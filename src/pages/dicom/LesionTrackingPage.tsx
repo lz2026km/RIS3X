@@ -3,9 +3,27 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import {
-  Card, Row, Col, Select, Button, Tag, Spin, message, Table, Modal, Form, Input,
-  InputNumber, Drawer, Timeline, Space, Alert, Popconfirm, Descriptions, Typography, Empty,
-} from 'antd'
+  Card,
+  Row,
+  Col,
+  Select,
+  Button,
+  Tag,
+  Spin,
+  message,
+  Modal,
+  Form,
+  Input,
+  InputNumber,
+  Drawer,
+  Timeline,
+  Space,
+  Alert,
+  Popconfirm,
+  Descriptions,
+  Typography,
+  Empty,
+} from "antd";
 import type { ColumnsType } from 'antd/es/table'
 import { DatePicker } from 'antd'
 import dayjs from 'dayjs'
@@ -27,7 +45,7 @@ import {
   type LesionStats,
 } from '../../services/api/lesionTrackingApi'
 import type { PatientDto } from '../../types/dto'
-import { PageContainer, StatCard, StatCardGrid } from '../../components/common'
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 import { t } from '../../i18n/appI18n'
 
 const { Text } = Typography
@@ -441,13 +459,12 @@ const LesionTrackingPage: React.FC = () => {
         title={<span style={{ fontSize: 14, color: '#e2e8f0' }}>{t('lesionTrack.lesionList')}</span>}
       >
         <Spin spinning={loading}>
-          <Table<TrackedLesion>
+          <DataTable<TrackedLesion>
             rowKey="id"
             columns={columns}
             dataSource={lesions}
             pagination={false}
             locale={{ emptyText: <Empty description={t('lesionTrack.emptyLesions')} /> }}
-            size="small"
             scroll={{ x: 900 }}
           />
         </Spin>

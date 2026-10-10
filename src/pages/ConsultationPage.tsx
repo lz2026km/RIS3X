@@ -671,7 +671,7 @@ export default function ConsultationPage() {
   ]
 
   return (
-    <div data-testid="consultation-page" style={{ padding: 24, maxWidth: 1600, margin: '0 auto', background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <div data-testid="consultation-page" style={{ padding: 24, maxWidth: 1600, margin: '0 auto', background: 'var(--bg-card)',}}>
       {/* [v3.0.6.11-88] 已接入真实 API: 后端 consultations.controller 全端点已实现 */}
       <div style={{ background: 'var(--color-success-bg)', color: '#065f46', fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 6, border: '1px solid #a7f3d0', marginBottom: 12 }}>
         {t('consultation.realApiBanner')}</div>
@@ -788,7 +788,7 @@ export default function ConsultationPage() {
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                     placeholder={t('consultation.searchPlaceholder')}
-                    style={{ border: 'none', outline: 'none', fontSize: 13, width: '100%', color: PRIMARY }}
+                    style={{ border: 'none', fontSize: 13, width: '100%', color: PRIMARY }}
                   />
                 </div>
               </div>
@@ -1154,7 +1154,7 @@ export default function ConsultationPage() {
                           onChange={e => setConclusionText(e.target.value)}
                           placeholder={t('consultation.doctorOpinionPlaceholder')}
                           rows={4}
-                          style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontSize: 13, color: PRIMARY, resize: 'vertical', outline: 'none', fontFamily: 'inherit', lineHeight: 1.6, boxSizing: 'border-box' }}
+                          style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontSize: 13, color: PRIMARY, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6, boxSizing: 'border-box' }}
                           onFocus={e => e.target.style.borderColor = ACCENT}
                           onBlur={e => e.target.style.borderColor = BORDER}
                         />
@@ -1168,7 +1168,7 @@ export default function ConsultationPage() {
                           onChange={e => setDiagnosisAdvice(e.target.value)}
                           placeholder={t('consultation.diagnosisAdvicePlaceholder')}
                           rows={3}
-                          style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontSize: 13, color: PRIMARY, resize: 'vertical', outline: 'none', fontFamily: 'inherit', lineHeight: 1.6, boxSizing: 'border-box' }}
+                          style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontSize: 13, color: PRIMARY, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6, boxSizing: 'border-box' }}
                           onFocus={e => e.target.style.borderColor = ACCENT}
                           onBlur={e => e.target.style.borderColor = BORDER}
                         />
@@ -1182,7 +1182,7 @@ export default function ConsultationPage() {
                           onChange={e => setReferenceInfo(e.target.value)}
                           placeholder={t('consultation.referencePlaceholder')}
                           rows={2}
-                          style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontSize: 13, color: PRIMARY, resize: 'vertical', outline: 'none', fontFamily: 'inherit', lineHeight: 1.6, boxSizing: 'border-box' }}
+                          style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontSize: 13, color: PRIMARY, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6, boxSizing: 'border-box' }}
                           onFocus={e => e.target.style.borderColor = ACCENT}
                           onBlur={e => e.target.style.borderColor = BORDER}
                         />
@@ -1752,7 +1752,7 @@ export default function ConsultationPage() {
                       value={(createForm as Record<string, string>)[f.key]}
                       onChange={e => setCreateForm(prev => ({ ...prev, [f.key]: e.target.value }))}
                       placeholder={f.placeholder}
-                      style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: `1px solid ${BORDER}`, fontSize: 12, color: PRIMARY, outline: 'none', boxSizing: 'border-box' }}
+                      style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: `1px solid ${BORDER}`, fontSize: 12, color: PRIMARY, boxSizing: 'border-box' }}
                     />
                   </div>
                 ))}
@@ -1804,7 +1804,7 @@ export default function ConsultationPage() {
                       value={queryByPatientId}
                       onChange={e => setQueryByPatientId(e.target.value)}
                       placeholder={t('consultation.registration.patientIdPlaceholder')}
-                      style={{ flex: 1, padding: '8px 10px', borderRadius: 6, border: `1px solid ${BORDER}`, fontSize: 12, color: PRIMARY, outline: 'none' }}
+                      style={{ flex: 1, padding: '8px 10px', borderRadius: 6, border: `1px solid ${BORDER}`, fontSize: 12, color: PRIMARY,}}
                     />
                     <button onClick={() => void handleQueryByPatient()} disabled={queryLoading} style={{ padding: '8px 18px', background: SUCCESS, color: WHITE, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer', opacity: queryLoading ? 0.6 : 1 }}>
                       {t('consultation.registration.search')}
@@ -1818,7 +1818,7 @@ export default function ConsultationPage() {
                       value={queryByDoctorId}
                       onChange={e => setQueryByDoctorId(e.target.value)}
                       placeholder={t('consultation.registration.doctorIdPlaceholder')}
-                      style={{ flex: 1, padding: '8px 10px', borderRadius: 6, border: `1px solid ${BORDER}`, fontSize: 12, color: PRIMARY, outline: 'none' }}
+                      style={{ flex: 1, padding: '8px 10px', borderRadius: 6, border: `1px solid ${BORDER}`, fontSize: 12, color: PRIMARY,}}
                     />
                     <button onClick={() => void handleQueryByDoctor()} disabled={queryLoading} style={{ padding: '8px 18px', background: SUCCESS, color: WHITE, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer', opacity: queryLoading ? 0.6 : 1 }}>
                       {t('consultation.registration.search')}
@@ -1882,7 +1882,7 @@ export default function ConsultationPage() {
                       setRatingModalData(updated)
                     }}
                     placeholder={`${item.dimension}评语（选填）`}
-                    style={{ width: '100%', padding: '6px 10px', borderRadius: 6, border: `1px solid ${BORDER}`, fontSize: 12, outline: 'none', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '6px 10px', borderRadius: 6, border: `1px solid ${BORDER}`, fontSize: 12, boxSizing: 'border-box' }}
                   />
                 </div>
               ))}
@@ -2217,7 +2217,7 @@ export default function ConsultationPage() {
               value={inviteDoctorIds}
               onChange={e => setInviteDoctorIds(e.target.value)}
               placeholder={t('consultation.invitePlaceholder')}
-              style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontSize: 13, color: PRIMARY, outline: 'none', boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${BORDER}`, fontSize: 13, color: PRIMARY, boxSizing: 'border-box' }}
             />
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>
               <button onClick={() => setShowInviteModal(false)} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
@@ -2256,7 +2256,7 @@ export default function ConsultationPage() {
                   <input
                     value={editForm[f.key] ?? ''}
                     onChange={e => setEditForm(prev => ({ ...prev, [f.key]: e.target.value }))}
-                    style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: `1px solid ${BORDER}`, fontSize: 12, color: PRIMARY, outline: 'none', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: `1px solid ${BORDER}`, fontSize: 12, color: PRIMARY, boxSizing: 'border-box' }}
                   />
                 </div>
               ))}
@@ -2266,7 +2266,7 @@ export default function ConsultationPage() {
                   value={editForm.requestReason ?? ''}
                   onChange={e => setEditForm(prev => ({ ...prev, requestReason: e.target.value }))}
                   rows={3}
-                  style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: `1px solid ${BORDER}`, fontSize: 12, color: PRIMARY, resize: 'vertical', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
+                  style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: `1px solid ${BORDER}`, fontSize: 12, color: PRIMARY, resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }}
                 />
               </div>
             </div>

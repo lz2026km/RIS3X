@@ -17,6 +17,9 @@ export { StatCard, StatCardGrid } from "./StatCard";
 export type { StatCardProps, StatCardVariant } from "./StatCard";
 export { SectionDivider } from "./SectionDivider";
 export type { SectionDividerProps, SectionDividerVariant } from "./SectionDivider";
+// [UI-D v3.0.6.13-0] 页面区块垂直节奏原语
+export { PageSection } from "./PageSection";
+export type { PageSectionProps } from "./PageSection";
 export { TabBar } from "./TabBar";
 export { FilterBar } from "./FilterBar";
 export { PermissionGate } from "./PermissionGate";
@@ -56,6 +59,9 @@ export { THEME_TOKENS, useThemeColors } from "./ThemeTokens";
 export type { ThemeTokens } from "./ThemeTokens";
 export { VirtualTable } from "./VirtualTable";
 export type { VirtualTableProps } from "./VirtualTable";
+// [UI-A v3.0.6.13-0] 统一数据表格 (裸 Table 迁移目标)
+export { DataTable, DEFAULT_TABLE_PAGE_SIZE, TABLE_PAGE_SIZE_OPTIONS } from "./DataTable";
+export type { DataTableProps, TableDensity } from "./DataTable";
 export { EmptyState } from "./EmptyState";
 export type { EmptyStateProps, EmptyStateType } from "./EmptyState";
 export type { StatCardColor, StatCardTrend } from "./StatCard";
@@ -63,22 +69,6 @@ export type { PageHeaderSize, PageHeaderAlign, PageHeaderCrumb } from "./PageHea
 // [v3.0.6.11-103 Wave 5] 放射专属图标集 + 专业主题包
 export * from "../icons/radiologyIcons";
 export type { RadiologyIconProps } from "../icons/radiologyIcons";
-// [UI-2] 统一医疗图标层 (Tabler 封装 + 语义映射)
-export {
-  Icon,
-  MedicalIcon,
-  ICON_SIZES,
-  resolveIconSize,
-  createIcon,
-} from "./Icon";
-export type {
-  IconProps,
-  IconSize,
-  IconSizeValue,
-  MedicalIconName,
-  TablerIconComponent,
-  BoundIconProps,
-} from "./Icon";
 // [UI-3] 统一状态 / 严重度徽标 (antd Tag + statusTokens)
 export { StatusTag } from "./StatusTag";
 export type { StatusTagProps, StatusTagSize } from "./StatusTag";

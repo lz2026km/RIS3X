@@ -26,7 +26,7 @@ const DEFAULT_EGFR_THRESHOLD = 30
 const BLOCKER_CODES = ['NO_CONSENT', 'ALLERGY_POSITIVE', 'EGFR_BELOW_THRESHOLD', 'PREGNANCY']
 
 const panelStyle: CSSProperties = { background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }
-const inputStyle: CSSProperties = { width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }
+const inputStyle: CSSProperties = { width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, marginTop: 4, boxSizing: 'border-box' }
 
 export default function ContrastInjectionWorkstationPage() {
   const [protocols, setProtocols] = useState<InjectionProtocol[]>([])
@@ -310,11 +310,11 @@ export default function ContrastInjectionWorkstationPage() {
   }
 
   if (loading) {
-    return <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>{t('contrastWs.loading')}</div>
+    return <div style={{ background: '#0d1117', color: '#f0f6fc', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>{t('contrastWs.loading')}</div>
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+    <div style={{ background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#0891b2,#164e63)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <Syringe size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('contrastWs.title')}</span>
@@ -341,7 +341,7 @@ export default function ContrastInjectionWorkstationPage() {
           <div style={panelStyle}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>{t('contrastWs.selectProtocol')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <select value={selectedProtocol} onChange={e => { setSelectedProtocol(e.target.value); setCalculatedParams(null) }} style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none' }}>
+              <select value={selectedProtocol} onChange={e => { setSelectedProtocol(e.target.value); setCalculatedParams(null) }} style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13,}}>
                 <option value="">{t('contrastWs.selectProtocolPlaceholder')}</option>
                 {protocols.map(p => <option key={p.id} value={p.id}>{p.name} ({p.contrastName})</option>)}
               </select>

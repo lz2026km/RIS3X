@@ -1,7 +1,14 @@
 // [W6] 已归档报告列表 (只读)
 // 数据源: 复用后端 GET /reports?state=ARCHIVED (ReportStateEnum 含 ARCHIVED), 无独立归档列表页的历史缺口。
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Card, Input, Space, Table, Tag, message } from 'antd'
+import {
+  Button,
+  Card,
+  Input,
+  Space,
+  Tag,
+  message,
+} from "antd";
 import { Archive, RotateCcw, Search } from 'lucide-react'
 import { reportApi, type ListPayload } from '../../services/api/reportApi'
 import { ErrorBanner } from '../../components/feedback'
@@ -97,8 +104,7 @@ export default function ArchivedReportsPage() {
       {loadError && <ErrorBanner message={loadError} onRetry={() => void fetchData(keyword)} retryLabel={t('w9.states.retry')} />}
 
       <Card size="small">
-        <Table<ReportDto>
-          size="small"
+        <DataTable<ReportDto>
           rowKey={(r) => r.id ?? r.reportId}
           loading={loading}
           dataSource={data}
@@ -111,3 +117,5 @@ export default function ArchivedReportsPage() {
     </div>
   )
 }
+
+import { DataTable } from "../../components/common";

@@ -93,7 +93,7 @@ const OrthoSpecialtyPage = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
                 <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', display: 'block', marginBottom: 6 }}>{t('ortho.patientName')}</label>
-                <input value={newStudy.name} onChange={e => setNewStudy({ ...newStudy, name: e.target.value })} placeholder={t('ortho.patientNamePlaceholder')} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                <input value={newStudy.name} onChange={e => setNewStudy({ ...newStudy, name: e.target.value })} placeholder={t('ortho.patientNamePlaceholder')} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' }} />
               </div>
               <div>
                 <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', display: 'block', marginBottom: 6 }}>{t('ortho.joint')}</label>
@@ -153,7 +153,7 @@ const OrthoSpecialtyPage = () => {
             <div style={{ display: 'flex', gap: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-card)', borderRadius: 8, padding: '4px 12px' }}>
                 <Search size={16} color="var(--text-secondary)" />
-                <input placeholder={t('ortho.searchPatient')} value={search} onChange={e => setSearch(e.target.value)} style={{ border: 'none', background: 'transparent', outline: 'none', marginLeft: 8, fontSize: 13, width: 160 }} />
+                <input placeholder={t('ortho.searchPatient')} value={search} onChange={e => setSearch(e.target.value)} style={{ border: 'none', background: 'transparent', marginLeft: 8, fontSize: 13, width: 160 }} />
               </div>
               <select value={jointFilter} onChange={e => setJointFilter(e.target.value)} style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13 }}>
                 <option value="">{t('ortho.allJoints')}</option>

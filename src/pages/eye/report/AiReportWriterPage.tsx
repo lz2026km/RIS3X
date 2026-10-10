@@ -348,7 +348,7 @@ export const AiReportWriterPage: React.FC = () => {
   );
 
   return (
-    <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "100vh" }}>
+    <div style={{ padding: 24, background: "var(--bg-card)",}}>
       <Space style={{ marginBottom: 16 }}>
         <FileText size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('aiReportWriter.title')}</span>

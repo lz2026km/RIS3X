@@ -453,8 +453,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ value, onChange, placeholder }) =
       placeholder={placeholder}
       style={{
         width: '100%', paddingLeft: 34, paddingRight: 12, paddingTop: 8, paddingBottom: 8,
-        border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 13,
-        outline: 'none', boxSizing: 'border-box'
+        border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 13, boxSizing: 'border-box'
       }}
     />
   </div>
@@ -1463,8 +1462,7 @@ export default function PrintManagementPage() {
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setDefaultCopies(Number(e.target.value))}
               style={{
                 width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`,
-                borderRadius: 4, fontSize: 13, outline: 'none'
-              }}
+                borderRadius: 4, fontSize: 13,}}
             >
               {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n} {t("printMgmt.copiesUnit")}</option>)}
             </select>
@@ -1476,8 +1474,7 @@ export default function PrintManagementPage() {
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setDefaultFilmSpec(e.target.value)}
               style={{
                 width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`,
-                borderRadius: 4, fontSize: 13, outline: 'none'
-              }}
+                borderRadius: 4, fontSize: 13,}}
             >
               {filmSpecs.map(spec => <option key={spec.id} value={spec.code}>{spec.name}</option>)}
             </select>
@@ -1939,7 +1936,7 @@ export default function PrintManagementPage() {
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedFilmSpec(e.target.value)}
               style={{
                 width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`,
-                borderRadius: 4, fontSize: 13, outline: 'none', background: 'var(--bg-card)'
+                borderRadius: 4, fontSize: 13, background: 'var(--bg-card)'
               }}
             >
               {FILM_SPEC_OPTIONS.map(opt => (
@@ -1959,7 +1956,7 @@ export default function PrintManagementPage() {
                   placeholder={t("printMgmt.widthExample2")}
                   style={{
                     width: '100%', padding: '6px 10px', border: `1px solid ${C.border}`,
-                    borderRadius: 4, fontSize: 12, outline: 'none', boxSizing: 'border-box'
+                    borderRadius: 4, fontSize: 12, boxSizing: 'border-box'
                   }}
                 />
               </div>
@@ -1972,7 +1969,7 @@ export default function PrintManagementPage() {
                   placeholder={t("printMgmt.heightExample2")}
                   style={{
                     width: '100%', padding: '6px 10px', border: `1px solid ${C.border}`,
-                    borderRadius: 4, fontSize: 12, outline: 'none', boxSizing: 'border-box'
+                    borderRadius: 4, fontSize: 12, boxSizing: 'border-box'
                   }}
                 />
               </div>
@@ -1986,7 +1983,7 @@ export default function PrintManagementPage() {
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedMediumType(e.target.value)}
               style={{
                 width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`,
-                borderRadius: 4, fontSize: 13, outline: 'none', background: 'var(--bg-card)'
+                borderRadius: 4, fontSize: 13, background: 'var(--bg-card)'
               }}
             >
               {MEDIUM_TYPES.map(opt => (
@@ -2002,7 +1999,7 @@ export default function PrintManagementPage() {
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setPrintCopies(Number(e.target.value))}
               style={{
                 width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`,
-                borderRadius: 4, fontSize: 13, outline: 'none', background: 'var(--bg-card)'
+                borderRadius: 4, fontSize: 13, background: 'var(--bg-card)'
               }}
             >
               {[1, 2, 3, 4, 5].map(n => (
@@ -2544,8 +2541,7 @@ export default function PrintManagementPage() {
               <label style={{ fontSize: 12, color: C.textMid, display: 'block', marginBottom: 4 }}>{t("printMgmt.columns")}</label>
               <select style={{
                 width: '100%', padding: '6px 10px', borderRadius: 4, border: `1px solid ${C.border}`,
-                fontSize: 12, outline: 'none'
-              }} value={customCols} onChange={e => setCustomCols(Number(e.target.value))}>
+                fontSize: 12,}} value={customCols} onChange={e => setCustomCols(Number(e.target.value))}>
                 {[1, 2, 3, 4, 5].map(n => <option key={n}>{n}</option>)}
               </select>
             </div>
@@ -2553,8 +2549,7 @@ export default function PrintManagementPage() {
               <label style={{ fontSize: 12, color: C.textMid, display: 'block', marginBottom: 4 }}>{t("printMgmt.rows")}</label>
               <select style={{
                 width: '100%', padding: '6px 10px', borderRadius: 4, border: `1px solid ${C.border}`,
-                fontSize: 12, outline: 'none'
-              }} value={customRows} onChange={e => setCustomRows(Number(e.target.value))}>
+                fontSize: 12,}} value={customRows} onChange={e => setCustomRows(Number(e.target.value))}>
                 {[1, 2, 3, 4, 5].map(n => <option key={n}>{n}</option>)}
               </select>
             </div>
@@ -2774,11 +2769,11 @@ export default function PrintManagementPage() {
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 4 }}>{t("printMgmt.requestCountRequired")}</label>
-                <input type="number" min={1} value={quotaForm.requestedAmount} onChange={e => setQuotaForm({ ...quotaForm, requestedAmount: Number(e.target.value) })} style={{ width: '100%', padding: '9px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+                <input type="number" min={1} value={quotaForm.requestedAmount} onChange={e => setQuotaForm({ ...quotaForm, requestedAmount: Number(e.target.value) })} style={{ width: '100%', padding: '9px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 13, boxSizing: 'border-box',}} />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 4 }}>{t("printMgmt.requestPurposeRequired")}</label>
-                <textarea rows={3} value={quotaForm.reason} onChange={e => setQuotaForm({ ...quotaForm, reason: e.target.value })} placeholder={t("printMgmt.purposeExample")} style={{ width: '100%', padding: '9px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+                <textarea rows={3} value={quotaForm.reason} onChange={e => setQuotaForm({ ...quotaForm, reason: e.target.value })} placeholder={t("printMgmt.purposeExample")} style={{ width: '100%', padding: '9px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 13, boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit' }} />
               </div>
               <div style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>
                 {t("printMgmt.quotaSubmitNote2")}
@@ -3008,7 +3003,7 @@ export default function PrintManagementPage() {
                     onChange={(e) => setField(field.key, e.target.value)}
                     style={{
                       width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`,
-                      borderRadius: 4, fontSize: 13, outline: 'none', boxSizing: 'border-box'
+                      borderRadius: 4, fontSize: 13, boxSizing: 'border-box'
                     }}
                   />
                 ) : (
@@ -3017,7 +3012,7 @@ export default function PrintManagementPage() {
                     onChange={(e) => setField(field.key, e.target.value)}
                     style={{
                       width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`,
-                      borderRadius: 4, fontSize: 13, outline: 'none', boxSizing: 'border-box'
+                      borderRadius: 4, fontSize: 13, boxSizing: 'border-box'
                     }}
                   >
                     {(field.options ?? []).map((opt: any) => (
@@ -3087,13 +3082,13 @@ export default function PrintManagementPage() {
                     type="text"
                     value={presetForm[r.key] ?? ''}
                     onChange={(e) => setF(r.key, e.target.value)}
-                    style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 13, boxSizing: 'border-box' }}
                   />
                 ) : (
                   <select
                     value={presetForm[r.key] ?? r.options?.[0]}
                     onChange={(e) => setF(r.key, e.target.value)}
-                    style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 13, boxSizing: 'border-box' }}
                   >
                     {(r.options ?? []).map(opt => <option key={opt} value={opt}>{opt}</option>)}
                   </select>
@@ -3428,9 +3423,7 @@ export default function PrintManagementPage() {
                   padding: '8px 12px',
                   border: `1px solid ${C.border}`,
                   borderRadius: 4,
-                  fontSize: 13,
-                  outline: 'none',
-                  boxSizing: 'border-box'
+                  fontSize: 13, boxSizing: 'border-box'
                 }}
               />
             </div>
@@ -3446,9 +3439,7 @@ export default function PrintManagementPage() {
                   padding: '8px 12px',
                   border: `1px solid ${C.border}`,
                   borderRadius: 4,
-                  fontSize: 13,
-                  outline: 'none',
-                  background: 'var(--bg-card)'
+                  fontSize: 13, background: 'var(--bg-card)'
                 }}
               >
                 <option value="CT">CT</option>
@@ -3470,9 +3461,7 @@ export default function PrintManagementPage() {
                   padding: '8px 12px',
                   border: `1px solid ${C.border}`,
                   borderRadius: 4,
-                  fontSize: 13,
-                  outline: 'none',
-                  background: 'var(--bg-card)'
+                  fontSize: 13, background: 'var(--bg-card)'
                 }}
               >
                 {[1, 2, 3, 4, 5].map(n => (
@@ -3538,7 +3527,7 @@ export default function PrintManagementPage() {
   ]
 
   return (
-    <div style={{ minHeight: '100vh', background: C.bg, padding: 16 }}>
+    <div style={{ background: C.bg, padding: 16 }}>
       {/* 页面标题 */}
       <PageHeader
         as="h1"

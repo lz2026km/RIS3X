@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { AlertTriangle, ShieldAlert, CheckCircle, Zap, RefreshCw } from "lucide-react";
-import { Button, Input, InputNumber, Select, Table, Tag, message, Space } from "antd";
+import {
+  Button,
+  Input,
+  InputNumber,
+  Select,
+  Tag,
+  message,
+  Space,
+} from "antd";
 import { rdsrApi, type DrlEntry, type DoseAlert, type DrlCheckRecordInput, type DrlCheckResult } from "../../services/api/rdsrApi";
 import { criticalAlertApi } from "../../services/api/criticalAlertApi";
 import { drlRecords } from "./mockData";
@@ -8,6 +16,7 @@ import type { DRLRecord } from "./types";
 import { usePagination } from "../../hooks/usePagination";
 import { ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
+import { DataTable } from "../../components/common";
 
 interface CheckDraft {
   key: string;
@@ -317,11 +326,10 @@ export default function DRLManagement() {
           </div>
           <Button size="small" icon={<RefreshCw size={13} />} onClick={() => { void loadDrls(); void loadAlerts(); }}>{t('drl.refresh')}</Button>
         </div>
-        <Table
+        <DataTable
           rowKey={(r) => `${r.modality}:${r.bodyPart}:${r.ageGroup ?? "adult"}`}
           columns={thresholdColumns}
           dataSource={rows}
-          size="small"
           loading={rowsLoading}
           pagination={false}
           scroll={{ x: "max-content" }}
@@ -351,15 +359,13 @@ export default function DRLManagement() {
           <Button type="primary" icon={<Zap size={13} />} loading={checking} onClick={runCheck}>{t('drl.startCheck')}</Button>
         </Space>
         {checkResult && (
-          <Table scroll={{ x: 'max-content' }}
+          <DataTable scroll={{ x: 'max-content' }}
             rowKey="id"
             columns={checkColumns}
             dataSource={checkResult}
-            size="small"
             style={{ marginTop: 16 }}
             pagination={false}
             locale={{ emptyText: t('drl.noOverLimit') }}
-            rowClassName={(r) => (r.level === "critical" ? "drl-row-critical" : "drl-row-warning")}
           />
         )}
       </div>
@@ -369,11 +375,10 @@ export default function DRLManagement() {
           <ShieldAlert size={16} color="#16a34a" />
           {t('drl.alertHistoryTitle')}
         </div>
-        <Table scroll={{ x: 'max-content' }}
+        <DataTable scroll={{ x: 'max-content' }}
           rowKey="id"
           columns={alertColumns}
           dataSource={alertPageData}
-          size="small"
           loading={alertsLoading}
           pagination={alertPagination}
           locale={{ emptyText: t('drl.noAlerts') }}

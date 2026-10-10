@@ -3,12 +3,23 @@ import { ChartContainer } from '../../components/charts'
 import { oeeApi } from '../../services/api';
 import { OeeDeviceDetail, OeeDeviceMetric, OeePoint, OeeStats } from '../../services/api'
 import OeeOverviewSection from './OeeOverviewSection';
-import { Card, Row, Col, Table, Tag, Button, Space, Spin, Empty, Alert, Select } from 'antd';
+import {
+  Card,
+  Row,
+  Col,
+  Tag,
+  Button,
+  Space,
+  Spin,
+  Empty,
+  Alert,
+  Select,
+} from "antd";
 import { TrendingUp, TrendingDown, Minus, Gauge, Activity, Zap, ShieldCheck, BarChart3, Clock, Inbox, RefreshCw } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import { t } from '../../i18n/appI18n';
-import { StatCard, StatCardGrid } from '../../components/common';
+import { DataTable, StatCard, StatCardGrid } from "../../components/common";
 
 const COLORS = { red: '#ff4d4f', yellow: '#faad14', green: '#52c41a', blue: '#2563eb' };
 
@@ -104,7 +115,7 @@ export const OEEDashboardPage: React.FC = () => {
 
   if (loading && devices.length === 0) {
     return (
-      <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <div style={{ padding: 24, background: 'var(--bg-card)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Spin size="large" description={t('oeePage.loading')} />
       </div>
     );
@@ -112,7 +123,7 @@ export const OEEDashboardPage: React.FC = () => {
 
   if (error) {
     return (
-      <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+      <div style={{ padding: 24, background: 'var(--bg-card)',}}>
         <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <Gauge size={20} color={COLORS.blue} />
@@ -128,7 +139,7 @@ export const OEEDashboardPage: React.FC = () => {
 
   if (devices.length === 0) {
     return (
-      <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+      <div style={{ padding: 24, background: 'var(--bg-card)',}}>
         <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <Gauge size={20} color={COLORS.blue} />
@@ -145,7 +156,7 @@ export const OEEDashboardPage: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
       <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }} wrap>
         <Space>
           <Gauge size={20} color={COLORS.blue} />
@@ -216,8 +227,7 @@ export const OEEDashboardPage: React.FC = () => {
       </Row>
 
       <Card size="small" title={<Space><BarChart3 size={14} color={COLORS.blue} />{t('oeePage.listTitle')}</Space>}>
-        <Table dataSource={sorted} columns={columns} rowKey="id" size="small" pagination={{ current: devicePage, pageSize: 10, total: sorted.length, onChange: setDevicePage, showSizeChanger: false, showTotal: (t) => `共 ${t} 台` }}
-          rowClassName={(r: OeeDeviceMetric) => r.oee < 60 ? 'oee-row-red' : r.oee < 85 ? 'oee-row-yellow' : ''}
+        <DataTable dataSource={sorted} columns={columns} rowKey="id" pagination={{ current: devicePage, pageSize: 10, total: sorted.length, onChange: setDevicePage, showSizeChanger: false, showTotal: (t) => `共 ${t} 台` }}
         scroll={{ x: 'max-content' }}
         />
       </Card>

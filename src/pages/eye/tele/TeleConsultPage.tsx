@@ -21,7 +21,6 @@ import {
   Radio,
   Slider,
   Modal,
-  Table,
 } from "antd";
 import {
   Video,
@@ -47,6 +46,7 @@ import React, { useState, useEffect } from "react";
 import { eyeApi } from "../../../services/api/eyeApi";
 import { ErrorBanner } from "../../../components/feedback";
 import { t } from "../../../i18n/appI18n";
+import { DataTable } from "../../../components/common";
 
 export const TeleConsultPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("tele");
@@ -335,7 +335,7 @@ export const TeleConsultPage: React.FC = () => {
   }, [recording]);
 
   return (
-    <div style={{ padding: 24, background: "var(--bg-card)", minHeight: "100vh" }}>
+    <div style={{ padding: 24, background: "var(--bg-card)",}}>
       <Space style={{ marginBottom: 16 }}>
         <Video size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>
@@ -958,8 +958,7 @@ export const TeleConsultPage: React.FC = () => {
                         description={t("eye.common.noData")}
                       />
                     ) : (
-                      <Table
-                        size="small"
+                      <DataTable
                         rowKey="streamId"
                         dataSource={teleStreams}
                         pagination={{ pageSize: 5, showSizeChanger: false }}
@@ -1141,8 +1140,7 @@ export const TeleConsultPage: React.FC = () => {
                         description={t("eye.common.noData")}
                       />
                     ) : (
-                      <Table
-                        size="small"
+                      <DataTable
                         rowKey="consultId"
                         dataSource={teleConsults}
                         pagination={{ pageSize: 5, showSizeChanger: false }}

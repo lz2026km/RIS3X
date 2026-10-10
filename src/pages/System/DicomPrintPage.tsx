@@ -758,9 +758,7 @@ const DicomPrintPage: React.FC = () => {
                   padding: '8px 12px',
                   border: `1px solid ${C.border}`,
                   borderRadius: 6,
-                  fontSize: 14,
-                  outline: 'none',
-                  boxSizing: 'border-box',
+                  fontSize: 14, boxSizing: 'border-box',
                 }}
                 onFocus={e => (e.target.style.borderColor = C.primary)}
                 onBlur={e => (e.target.style.borderColor = C.border)}
@@ -782,9 +780,7 @@ const DicomPrintPage: React.FC = () => {
                   padding: '8px 12px',
                   border: `1px solid ${C.border}`,
                   borderRadius: 6,
-                  fontSize: 14,
-                  outline: 'none',
-                  fontFamily: 'monospace',
+                  fontSize: 14, fontFamily: 'monospace',
                   boxSizing: 'border-box',
                 }}
                 onFocus={e => (e.target.style.borderColor = C.primary)}
@@ -805,9 +801,7 @@ const DicomPrintPage: React.FC = () => {
                   padding: '8px 12px',
                   border: `1px solid ${C.border}`,
                   borderRadius: 6,
-                  fontSize: 14,
-                  outline: 'none',
-                  background: C.white,
+                  fontSize: 14, background: C.white,
                   boxSizing: 'border-box',
                   cursor: 'pointer',
                 }}
@@ -831,9 +825,7 @@ const DicomPrintPage: React.FC = () => {
                   padding: '8px 12px',
                   border: `1px solid ${C.border}`,
                   borderRadius: 6,
-                  fontSize: 14,
-                  outline: 'none',
-                  background: C.white,
+                  fontSize: 14, background: C.white,
                   boxSizing: 'border-box',
                   cursor: 'pointer',
                 }}
@@ -858,9 +850,7 @@ const DicomPrintPage: React.FC = () => {
                   padding: '8px 12px',
                   border: `1px solid ${C.border}`,
                   borderRadius: 6,
-                  fontSize: 14,
-                  outline: 'none',
-                  background: C.white,
+                  fontSize: 14, background: C.white,
                   boxSizing: 'border-box',
                   cursor: 'pointer',
                 }}
@@ -886,9 +876,7 @@ const DicomPrintPage: React.FC = () => {
                   padding: '8px 12px',
                   border: `1px solid ${C.border}`,
                   borderRadius: 6,
-                  fontSize: 14,
-                  outline: 'none',
-                  boxSizing: 'border-box',
+                  fontSize: 14, boxSizing: 'border-box',
                 }}
                 onFocus={e => (e.target.style.borderColor = C.primary)}
                 onBlur={e => (e.target.style.borderColor = C.border)}
@@ -911,9 +899,7 @@ const DicomPrintPage: React.FC = () => {
                   padding: '8px 12px',
                   border: `1px solid ${C.border}`,
                   borderRadius: 6,
-                  fontSize: 14,
-                  outline: 'none',
-                  boxSizing: 'border-box',
+                  fontSize: 14, boxSizing: 'border-box',
                 }}
                 onFocus={e => (e.target.style.borderColor = C.primary)}
                 onBlur={e => (e.target.style.borderColor = C.border)}

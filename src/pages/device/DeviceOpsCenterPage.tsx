@@ -5,16 +5,32 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  Alert, Button, Card, Col, Descriptions, Drawer, Form, Input, message, Modal, Progress,
-  Row, Select, Space, Statistic, Table, Tabs, Tag, Typography,
-} from 'antd'
+  Alert,
+  Button,
+  Card,
+  Col,
+  Descriptions,
+  Drawer,
+  Form,
+  Input,
+  message,
+  Modal,
+  Progress,
+  Row,
+  Select,
+  Space,
+  Statistic,
+  Tabs,
+  Tag,
+  Typography,
+} from "antd";
 import {
   Activity, AlertTriangle, CheckCircle, ClipboardList, DollarSign, Gauge,
   Package, RefreshCw, ShieldCheck, Wrench,
 } from 'lucide-react'
 import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, Tooltip as RTooltip, XAxis, YAxis } from 'recharts'
 import { ChartContainer, chartDefaults } from '../../components/charts'
-import { ExportButton, StatCard, StatCardGrid } from '../../components/common'
+import { DataTable, ExportButton, StatCard, StatCardGrid } from "../../components/common"
 import { deviceOpsApi } from '../../services/api/deviceOpsApi'
 import type {
   Asset, CalibrationRecord, CalibrationStats, CostSummary, DepreciationResult, DrgGroups,
@@ -272,9 +288,8 @@ export default function DeviceOpsCenterPage() {
       <div style={{ marginBottom: 12 }}>
         <Button type="primary" icon={<ClipboardList size={14} />} onClick={() => setCreateOpen(true)}>{t('w11Device.wo.newWorkOrder')}</Button>
       </div>
-      <Table
+      <DataTable
         rowKey="id"
-        size="small"
         loading={loading}
         dataSource={workOrders}
         columns={woColumns}
@@ -308,7 +323,7 @@ export default function DeviceOpsCenterPage() {
           description={calDue.slice(0, 4).map((c) => `${c.deviceName} · ${c.standard}`).join('；')}
         />
       )}
-      <Table rowKey="id" size="small" loading={loading} dataSource={calibrations} columns={calColumns} scroll={{ x: 'max-content' }} pagination={{ pageSize: 10, showSizeChanger: false }} />
+      <DataTable rowKey="id" loading={loading} dataSource={calibrations} columns={calColumns} scroll={{ x: 'max-content' }} pagination={{ pageSize: 10, showSizeChanger: false }} />
     </>
   )
 
@@ -321,7 +336,7 @@ export default function DeviceOpsCenterPage() {
         <StatCard title={t('w11Device.asset.accumulated')} value={assets.reduce((s, a) => s + a.accumulatedDepreciation, 0)} prefix="¥" loading={loading} color="warning" icon={<DollarSign size={18} />} />
         <StatCard title={t('w11Device.asset.warrantyExpiring')} value={assets.filter((a) => a.warrantyDaysRemaining >= 0 && a.warrantyDaysRemaining <= 90).length} loading={loading} color="error" icon={<AlertTriangle size={18} />} />
       </StatCardGrid>
-      <Table rowKey="id" size="small" loading={loading} dataSource={assets} columns={assetColumns} scroll={{ x: 'max-content' }} pagination={{ pageSize: 10, showSizeChanger: false }} />
+      <DataTable rowKey="id" loading={loading} dataSource={assets} columns={assetColumns} scroll={{ x: 'max-content' }} pagination={{ pageSize: 10, showSizeChanger: false }} />
     </>
   )
 
@@ -376,7 +391,7 @@ export default function DeviceOpsCenterPage() {
           </Card>
         </Col>
       </Row>
-      <Table rowKey="deviceId" size="small" loading={loading} dataSource={oeeList} columns={oeeColumns} scroll={{ x: 'max-content' }} pagination={false} />
+      <DataTable rowKey="deviceId" loading={loading} dataSource={oeeList} columns={oeeColumns} scroll={{ x: 'max-content' }} pagination={false} />
     </>
   )
 
@@ -389,10 +404,10 @@ export default function DeviceOpsCenterPage() {
         <StatCard title={t('w11Device.cost.marginPct')} value={costSummary?.margin.marginPct ?? 0} suffix="%" loading={loading} color="primary" icon={<Gauge size={18} />} />
       </StatCardGrid>
       <Card size="small" title={t('w11Device.cost.byModality')} style={{ marginBottom: 16 }}>
-        <Table rowKey="modality" size="small" loading={loading} dataSource={costSummary?.byModality ?? []} columns={costColumns} pagination={false} scroll={{ x: 'max-content' }} />
+        <DataTable rowKey="modality" loading={loading} dataSource={costSummary?.byModality ?? []} columns={costColumns} pagination={false} scroll={{ x: 'max-content' }} />
       </Card>
       <Card size="small" title={t('w11Device.drg.title')} extra={<Text type="secondary">{t('w11Device.drg.baseRate')}: ¥{drg?.baseRate ?? 0}</Text>}>
-        <Table rowKey="drgCode" size="small" loading={loading} dataSource={drg?.items ?? []} columns={drgColumns} pagination={false} scroll={{ x: 'max-content' }} />
+        <DataTable rowKey="drgCode" loading={loading} dataSource={drg?.items ?? []} columns={drgColumns} pagination={false} scroll={{ x: 'max-content' }} />
       </Card>
     </>
   )
@@ -472,8 +487,8 @@ export default function DeviceOpsCenterPage() {
               <Col span={8}><Statistic title={t('w11Device.asset.residual')} value={schedule.residualValue} prefix="¥" /></Col>
             </Row>
             <Text type="secondary">{t('w11Device.asset.method')}: {t(schedule.method === 'declining' ? 'w11Device.asset.declining' : 'w11Device.asset.straightLine')} · {schedule.usefulLifeMonths} 月 · 首月 {fmtMoney(schedule.firstMonthDepreciation)}</Text>
-            <Table
-              rowKey="month" size="small" style={{ marginTop: 12 }} pagination={{ pageSize: 12, showSizeChanger: false }}
+            <DataTable
+              rowKey="month" style={{ marginTop: 12 }} pagination={{ pageSize: 12, showSizeChanger: false }}
               dataSource={schedule.schedule}
               columns={[
                 { title: t('w11Device.asset.month'), dataIndex: 'month', key: 'month', width: 90 },

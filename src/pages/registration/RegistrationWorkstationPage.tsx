@@ -1,13 +1,28 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  Card, Row, Col, Input, Button, Select, Table, Descriptions, Checkbox, InputNumber,
-  Tag, Space, message, Alert, Divider, Typography, Empty, List,
-} from 'antd'
+  Card,
+  Row,
+  Col,
+  Input,
+  Button,
+  Select,
+  Descriptions,
+  Checkbox,
+  InputNumber,
+  Tag,
+  Space,
+  message,
+  Alert,
+  Divider,
+  Typography,
+  Empty,
+  List,
+} from "antd";
 import {
   ScanLine, UserCheck, CreditCard, ShieldAlert, Siren, ClipboardCheck, FileSignature, RefreshCw,
 } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 import {
   registrationApi,
   type ScanResultDto, type PrepItemDto, type PrepConfirmResultDto,
@@ -541,8 +556,7 @@ const RegistrationWorkstationPage: React.FC = () => {
               >
                 {charge ? (
                   <>
-                    <Table
-                      size="small"
+                    <DataTable
                       rowKey="code"
                       dataSource={charge.items as ChargeItem[]}
                       columns={chargeColumns}

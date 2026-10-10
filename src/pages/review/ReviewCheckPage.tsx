@@ -8,11 +8,22 @@
 //   通过 → POST /reports/:id/transition (REVIEWED); 驳回 → transition (REJECTED)
 //   双签待办 → GET /cosign/pending (cosign.controller)
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Space, Tag, Button, Select, Input, Form, message, Tabs, Modal, Table } from 'antd';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Select,
+  Input,
+  Form,
+  message,
+  Tabs,
+  Modal,
+} from "antd";
 import { CheckCircle2, XCircle, FileSearch, Shield, RefreshCw, ClipboardCheck, FileCheck, PenTool } from 'lucide-react';
 import { reportApi } from '@/services/api/reportApi';
 import { cosignApi } from '@/services/api/reviewApi';
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import { t } from '../../i18n/appI18n';
 
 const { TextArea } = Input;
@@ -163,8 +174,7 @@ export const ReviewCheckPage: React.FC = () => {
               </Space>
             }
           >
-            <Table scroll={{ x: 'max-content' }}
-              size="small"
+            <DataTable scroll={{ x: 'max-content' }}
               dataSource={filteredInitial}
               rowKey={(r) => r.id ?? r.reportId ?? ''}
               pagination={{ current: initialPage, pageSize: PAGE_SIZE, total: filteredInitial.length, onChange: setInitialPage, showSizeChanger: false }}
@@ -200,8 +210,7 @@ export const ReviewCheckPage: React.FC = () => {
               </Space>
             }
           >
-            <Table scroll={{ x: 'max-content' }}
-              size="small"
+            <DataTable scroll={{ x: 'max-content' }}
               dataSource={finalItems}
               rowKey={(r) => r.id ?? r.reportId ?? ''}
               pagination={{ current: finalPage, pageSize: PAGE_SIZE, total: finalItems.length, onChange: setFinalPage, showSizeChanger: false }}
@@ -232,8 +241,7 @@ export const ReviewCheckPage: React.FC = () => {
             size="small"
             extra={<Button icon={<RefreshCw size={12} />} onClick={loadReviews}>{t('reviewCheck.refresh')}</Button>}
           >
-            <Table scroll={{ x: 'max-content' }}
-              size="small"
+            <DataTable scroll={{ x: 'max-content' }}
               dataSource={reviews}
               rowKey={(r) => r.id ?? r.reportId ?? ''}
               pagination={{ current: reviewPage, pageSize: PAGE_SIZE, total: reviews.length, onChange: setReviewPage, showSizeChanger: false }}

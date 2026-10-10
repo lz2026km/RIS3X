@@ -101,7 +101,7 @@ export function SurgeryChecklistPanel({ modality }: { modality?: string }) {
       <select
         value={selected}
         onChange={(e) => setSelected(Number(e.target.value))}
-        style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginBottom: 12 }}
+        style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, marginBottom: 12 }}
       >
         {list.map((c, i) => (
           <option key={c.procedure} value={i}>{c.procedure} · {c.modality}</option>

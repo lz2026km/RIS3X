@@ -4,7 +4,6 @@ import {
   Space,
   Tag,
   Button,
-  Table,
   Tabs,
   Row,
   Col,
@@ -28,6 +27,7 @@ import {
 import { iheApi } from "../../services/api/integrationApi";
 import { usePagination } from "../../hooks/usePagination";
 import { t } from "../../i18n/appI18n";
+import { DataTable } from "../../components/common";
 
 const { TextArea } = Input;
 
@@ -309,7 +309,7 @@ export const PixPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24, background: "var(--bg-primary)", minHeight: "100vh" }}>
+    <div style={{ padding: 24, background: "var(--bg-primary)",}}>
       <Space style={{ marginBottom: 16 }}>
         <Fingerprint size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t("pixPage.title")}</span>
@@ -450,12 +450,11 @@ export const PixPage: React.FC = () => {
                       size="small"
                       title={`${t("pixPage.queryResult")} (${queryResult.count} ${t("pixPage.items")})`}
                     >
-                      <Table scroll={{ x: 'max-content' }}
+                      <DataTable scroll={{ x: 'max-content' }}
                         dataSource={queryPagination.pageData}
                         rowKey={(r) => `${r.assigningAuthority}-${r.patientId}`}
                         pagination={queryPagination.pagination}
                         columns={identitiesColumns}
-                        size="small"
                       />
                       {queryResult.transaction && (
                         <div
@@ -492,7 +491,7 @@ export const PixPage: React.FC = () => {
                   </Button>
                 }
               >
-                <Table scroll={{ x: 'max-content' }}
+                <DataTable scroll={{ x: 'max-content' }}
                   dataSource={mappingsPagination.pageData}
                   rowKey="id"
                   pagination={mappingsPagination.pagination}
@@ -589,11 +588,10 @@ export const PixPage: React.FC = () => {
                       size="small"
                       title={`${t("pixPage.pdqResult")} (${pdqResults.length})`}
                     >
-                      <Table scroll={{ x: 'max-content' }}
+                      <DataTable scroll={{ x: 'max-content' }}
                         dataSource={pdqPagination.pageData}
                         rowKey={(r) => `${r.assigningAuthority}-${r.patientId}`}
                         pagination={pdqPagination.pagination}
-                        size="small"
                         columns={[
                           { title: t("pixPage.patientId"), dataIndex: "patientId" },
                           {

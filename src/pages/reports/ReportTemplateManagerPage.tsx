@@ -2,10 +2,31 @@
 // [W3-2] 报告模板管理: templatesApi 真实 CRUD (列表/新建/编辑/删除) + 分类筛选 + 使用统计 + 智能片段
 import { usePagination } from '@/hooks/usePagination';
 import { templatesApi } from '@/services/api/templatesApi';
-import { Card, Space, Tag, Table, Button, Row, Col, Badge, Typography, Modal, Form, Input, Select, Switch, Popconfirm, message, Alert, Empty, Spin, Segmented, Progress } from 'antd';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Row,
+  Col,
+  Badge,
+  Typography,
+  Modal,
+  Form,
+  Input,
+  Select,
+  Switch,
+  Popconfirm,
+  message,
+  Alert,
+  Empty,
+  Spin,
+  Segmented,
+  Progress,
+} from "antd";
 import { FileText, Copy, Plus, Edit3, Layout, Layers, RefreshCw, Trash2, BarChart3 } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import { t } from '../../i18n/appI18n';
 
 const { TextArea } = Input;
@@ -259,12 +280,11 @@ export const ReportTemplateManagerPage: React.FC = () => {
         title={<Space><FileText size={14} />{t('reportTpl.cardTitle')} <Tag>{templates.length}</Tag></Space>}
       >
         <Spin spinning={loading}>
-          <Table scroll={{ x: 'max-content' }}
+          <DataTable scroll={{ x: 'max-content' }}
             dataSource={templatePageData}
             rowKey="id"
             pagination={templatePagination}
             columns={columns}
-            size="small"
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('reportTpl.noTemplates')} /> }}
          
           />
@@ -272,11 +292,10 @@ export const ReportTemplateManagerPage: React.FC = () => {
       </Card>
       <Card size="small" title={<Space><Layers size={14} />{t('reportTpl.snippets')} <Tag>{snippets.length}</Tag></Space>} style={{ marginTop: 16 }} extra={<Button icon={<Plus size={12} />} onClick={() => setSnippetModal(true)}>{t('reportTpl.createSnippet')}</Button>}>
         <Spin spinning={snippetLoading}>
-          <Table scroll={{ x: 'max-content' }}
+          <DataTable scroll={{ x: 'max-content' }}
             dataSource={snippetPageData}
             rowKey="id"
             pagination={snippetPagination}
-            size="small"
             columns={[
               { title: t('reportTpl.colName'), dataIndex: 'name', key: 'name', width: 240, render: (v: string) => <b>{v}</b> },
               { title: t('reportTpl.colContent'), dataIndex: 'content', key: 'content', width: 320, render: (c: string) => <Typography.Paragraph ellipsis={{ rows: 1 }} style={{ margin: 0, fontSize: 12 }}>{c}</Typography.Paragraph> },

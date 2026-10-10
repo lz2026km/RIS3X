@@ -1,7 +1,11 @@
 // [v3.0.6.11-104 Wave 2D] AI 病例库区块
 // 接入 GET /ai-diagnosis/cases · GET /ai-diagnosis/cases/:model/:id
 import { useCallback, useEffect, useState } from 'react';
-import { Select, Space, Table, Tag } from 'antd';
+import {
+  Select,
+  Space,
+  Tag,
+} from "antd";
 import { BookOpen, Cpu, FileSearch } from 'lucide-react';
 import {
   aiDiagnosisApi,
@@ -151,8 +155,7 @@ export function AiCaseLibrarySection() {
             onRetry={() => caseId && void loadDetail(model, caseId)}
           >
             {detail && (
-              <Table
-                size="small"
+              <DataTable
                 showHeader={false}
                 pagination={false}
                 rowKey={(r) => r.k}

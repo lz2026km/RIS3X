@@ -525,8 +525,7 @@ export default function TemplateCategoryPage() {
                 placeholder={t('tplCategory.searchPlaceholder')}
                 style={{
                   width: '100%', padding: '6px 8px 6px 26px',
-                  border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, outline: 'none',
-                }}
+                  border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, }}
               />
             </div>
           </div>
@@ -762,15 +761,15 @@ export default function TemplateCategoryPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('tplCategory.nameLabel')}</label>
-                <input value={catForm.name} onChange={e => setCatForm({ ...catForm, name: e.target.value })} placeholder={t('tplCategory.namePlaceholder')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+                <input value={catForm.name} onChange={e => setCatForm({ ...catForm, name: e.target.value })} placeholder={t('tplCategory.namePlaceholder')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box',}} />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('tplCategory.descriptionLabel')}</label>
-                <textarea value={catForm.description} onChange={e => setCatForm({ ...catForm, description: e.target.value })} rows={3} placeholder={t('tplCategory.descriptionPlaceholder')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+                <textarea value={catForm.description} onChange={e => setCatForm({ ...catForm, description: e.target.value })} rows={3} placeholder={t('tplCategory.descriptionPlaceholder')} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit' }} />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>{t('tplCategory.sortOrderLabel')}</label>
-                <input type="number" min={1} value={catForm.sortOrder} onChange={e => setCatForm({ ...catForm, sortOrder: Number(e.target.value) })} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+                <input type="number" min={1} value={catForm.sortOrder} onChange={e => setCatForm({ ...catForm, sortOrder: Number(e.target.value) })} style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box',}} />
               </div>
               {categorySource === 'fallback' && (
                 <div style={{ fontSize: 12, padding: '8px 12px', borderRadius: 8, background: '#f59e0b22', color: '#b45309', border: '1px solid #fcd34d' }}>
@@ -801,7 +800,7 @@ export default function TemplateCategoryPage() {
                 <select
                   value={moveTargetId}
                   onChange={e => setMoveTargetId(e.target.value)}
-                  style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none', background: 'var(--bg-card)' }}
+                  style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', background: 'var(--bg-card)' }}
                 >
                   <option value="">{t('tplCategory.moveTopOption')}</option>
                   {realCategories.filter(c => c.id !== moveModal.cat.id).map(c => (

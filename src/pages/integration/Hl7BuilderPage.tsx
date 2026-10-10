@@ -1,6 +1,16 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  Card, Space, Tag, Button, Tabs, Form, Input, Select, DatePicker, Table, Alert, message,
+  Card,
+  Space,
+  Tag,
+  Button,
+  Tabs,
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  Alert,
+  message,
 } from "antd";
 import { Code, Eye, Send, Hammer, FileText, History, RefreshCw } from "lucide-react";
 import { hl7Api } from "../../services/api/integrationApi";
@@ -8,6 +18,7 @@ import { hl7Api as rawHl7Api } from "../../services/api/hl7Api";
 import type { Hl7Report, Hl7ArchiveRecord } from "../../services/api/integrationApi";
 import { usePagination } from "../../hooks/usePagination";
 import { t } from "../../i18n/appI18n";
+import { DataTable } from "../../components/common";
 
 const { RangePicker } = DatePicker;
 
@@ -434,9 +445,8 @@ export const Hl7BuilderPage: React.FC = () => {
         title={<Space><History className="w-4 h-4" /><span>{t('hl7Builder.sendHistory')}</span></Space>}
         extra={<Button size="small" icon={<RefreshCw className="w-3 h-3" />} onClick={fetchHistory}>{t('hl7Builder.refresh')}</Button>}
       >
-        <Table
+        <DataTable
           rowKey="id"
-          size="small"
           loading={historyLoading}
           dataSource={historyPagination.pageData}
           columns={historyColumns}

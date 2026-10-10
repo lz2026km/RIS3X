@@ -292,7 +292,7 @@ export default function TechSchedulePage() {
   }
 
   return (
-    <div data-testid="tech-schedule-page" style={{ minHeight: '100vh', background: C.bg, color: C.text, fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+    <div data-testid="tech-schedule-page" style={{ background: C.bg, color: C.text, fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       {/* ================= 头部 ================= */}
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -654,8 +654,7 @@ const shiftMonth = (month: string, offset: number) => {
 
 const inputStyle: React.CSSProperties = {
   width: '100%', padding: '6px 10px', background: '#0f141b', color: C.text,
-  border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 13, outline: 'none',
-  colorScheme: 'dark',
+  border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 13, colorScheme: 'dark',
 }
 
 const labelStyle: React.CSSProperties = { fontSize: 12, color: C.textMid }

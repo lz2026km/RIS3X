@@ -1,11 +1,30 @@
 // [W3-2] Phase C: 口腔-放射融合 (转诊 CRUD + 统一报告 + 融合查看器) — 真实 API (dentalApi)
 import { usePagination } from '@/hooks/usePagination';
 import { dentalApi } from '@/services/api/dentalApi';
-import { Card, Space, Tag, Button, Table, Row, Col, Tabs, Timeline, Modal, Form, Select, Input, message, Empty, Spin, Alert, Popconfirm, Descriptions } from 'antd';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Row,
+  Col,
+  Tabs,
+  Timeline,
+  Modal,
+  Form,
+  Select,
+  Input,
+  message,
+  Empty,
+  Spin,
+  Alert,
+  Popconfirm,
+  Descriptions,
+} from "antd";
 import { Plus, Send, FileText, Activity as ActivityIcon, RefreshCw, CheckCircle2 } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { t } from '../../i18n/appI18n';
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 
 const { TextArea } = Input;
 
@@ -174,7 +193,7 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
       </StatCardGrid>
       <Card extra={<Button type="primary" icon={<Plus size={12} />} onClick={() => setCreateModal(true)}>{t('dentalRadFusion.createReferral')}</Button>} size="small" title={t('dentalRadFusion.referralList')}>
         <Spin spinning={loading}>
-          <Table
+          <DataTable
             dataSource={referralPageData}
             rowKey="id"
             columns={columns}

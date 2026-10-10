@@ -86,7 +86,7 @@ export default function PatientSafetyGoalsPage() {
   const overallProgress = Math.round(goals.filter(g => g.status === 'on-track' || g.status === 'achieved').length / goals.length * 100)
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+    <div style={{ background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#2563eb,#1d4ed8)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <Target size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('safetyGoals.title')}</span>
@@ -215,7 +215,7 @@ export default function PatientSafetyGoalsPage() {
             <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
                 <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('safetyGoals.goalName')}</label>
-                <input value={newGoal.title} onChange={e => setNewGoal({ ...newGoal, title: e.target.value })} placeholder={t('safetyGoals.goalNamePlaceholder')} style={{ width: '100%', padding: '8px 12px', background: '#0d1117', border: '1px solid #30363d', borderRadius: 6, color: '#f0f6fc', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                <input value={newGoal.title} onChange={e => setNewGoal({ ...newGoal, title: e.target.value })} placeholder={t('safetyGoals.goalNamePlaceholder')} style={{ width: '100%', padding: '8px 12px', background: '#0d1117', border: '1px solid #30363d', borderRadius: 6, color: '#f0f6fc', fontSize: 13, boxSizing: 'border-box' }} />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('safetyGoals.category')}</label>
@@ -226,15 +226,15 @@ export default function PatientSafetyGoalsPage() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('safetyGoals.baseline')}</label>
-                  <input type="number" value={newGoal.baseline} onChange={e => setNewGoal({ ...newGoal, baseline: Number(e.target.value) })} style={{ width: '100%', padding: '8px 12px', background: '#0d1117', border: '1px solid #30363d', borderRadius: 6, color: '#f0f6fc', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                  <input type="number" value={newGoal.baseline} onChange={e => setNewGoal({ ...newGoal, baseline: Number(e.target.value) })} style={{ width: '100%', padding: '8px 12px', background: '#0d1117', border: '1px solid #30363d', borderRadius: 6, color: '#f0f6fc', fontSize: 13, boxSizing: 'border-box' }} />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('safetyGoals.current')}</label>
-                  <input type="number" value={newGoal.current} onChange={e => setNewGoal({ ...newGoal, current: Number(e.target.value) })} style={{ width: '100%', padding: '8px 12px', background: '#0d1117', border: '1px solid #30363d', borderRadius: 6, color: '#f0f6fc', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                  <input type="number" value={newGoal.current} onChange={e => setNewGoal({ ...newGoal, current: Number(e.target.value) })} style={{ width: '100%', padding: '8px 12px', background: '#0d1117', border: '1px solid #30363d', borderRadius: 6, color: '#f0f6fc', fontSize: 13, boxSizing: 'border-box' }} />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('safetyGoals.target')}</label>
-                  <input type="number" value={newGoal.target} onChange={e => setNewGoal({ ...newGoal, target: Number(e.target.value) })} style={{ width: '100%', padding: '8px 12px', background: '#0d1117', border: '1px solid #30363d', borderRadius: 6, color: '#f0f6fc', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                  <input type="number" value={newGoal.target} onChange={e => setNewGoal({ ...newGoal, target: Number(e.target.value) })} style={{ width: '100%', padding: '8px 12px', background: '#0d1117', border: '1px solid #30363d', borderRadius: 6, color: '#f0f6fc', fontSize: 13, boxSizing: 'border-box' }} />
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -246,16 +246,16 @@ export default function PatientSafetyGoalsPage() {
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('safetyGoals.deadline')}</label>
-                  <input type="date" value={newGoal.deadline} onChange={e => setNewGoal({ ...newGoal, deadline: e.target.value })} style={{ width: '100%', padding: '8px 12px', background: '#0d1117', border: '1px solid #30363d', borderRadius: 6, color: '#f0f6fc', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                  <input type="date" value={newGoal.deadline} onChange={e => setNewGoal({ ...newGoal, deadline: e.target.value })} style={{ width: '100%', padding: '8px 12px', background: '#0d1117', border: '1px solid #30363d', borderRadius: 6, color: '#f0f6fc', fontSize: 13, boxSizing: 'border-box' }} />
                 </div>
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('safetyGoals.owner')}</label>
-                <input value={newGoal.owner} onChange={e => setNewGoal({ ...newGoal, owner: e.target.value })} placeholder={t('safetyGoals.ownerPlaceholder')} style={{ width: '100%', padding: '8px 12px', background: '#0d1117', border: '1px solid #30363d', borderRadius: 6, color: '#f0f6fc', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                <input value={newGoal.owner} onChange={e => setNewGoal({ ...newGoal, owner: e.target.value })} placeholder={t('safetyGoals.ownerPlaceholder')} style={{ width: '100%', padding: '8px 12px', background: '#0d1117', border: '1px solid #30363d', borderRadius: 6, color: '#f0f6fc', fontSize: 13, boxSizing: 'border-box' }} />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{t('safetyGoals.description')}</label>
-                <textarea value={newGoal.description} onChange={e => setNewGoal({ ...newGoal, description: e.target.value })} rows={2} placeholder={t('safetyGoals.descriptionPlaceholder')} style={{ width: '100%', padding: '8px 12px', background: '#0d1117', border: '1px solid #30363d', borderRadius: 6, color: '#f0f6fc', fontSize: 13, resize: 'vertical', outline: 'none', boxSizing: 'border-box' }} />
+                <textarea value={newGoal.description} onChange={e => setNewGoal({ ...newGoal, description: e.target.value })} rows={2} placeholder={t('safetyGoals.descriptionPlaceholder')} style={{ width: '100%', padding: '8px 12px', background: '#0d1117', border: '1px solid #30363d', borderRadius: 6, color: '#f0f6fc', fontSize: 13, resize: 'vertical', boxSizing: 'border-box' }} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
                 <button onClick={() => setShowCreateModal(false)} style={{ padding: '8px 20px', background: '#21262d', border: '1px solid #30363d', borderRadius: 6, color: '#8b949e', fontSize: 13, cursor: 'pointer' }}>{t('safetyGoals.cancel')}</button>

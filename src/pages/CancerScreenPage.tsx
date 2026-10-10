@@ -58,8 +58,7 @@ const s: Record<string, React.CSSProperties> = {
   taskToolbar: { display: 'flex', gap: 8, marginBottom: 12 },
   searchInput: {
     flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border-color)',
-    fontSize: 13, outline: 'none',
-  },
+    fontSize: 13, },
   btn: {
     padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)',
     background: 'var(--bg-card)', cursor: 'pointer', fontSize: 13, display: 'flex',
@@ -75,7 +74,7 @@ const s: Record<string, React.CSSProperties> = {
   assessForm: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 },
   formItem: {},
   formLabel: { fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 },
-  formSelect: { width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13, outline: 'none', background: 'var(--bg-card)' },
+  formSelect: { width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13, background: 'var(--bg-card)' },
   riskCard: {
     borderRadius: 12, padding: 20, textAlign: 'center', marginBottom: 16,
     border: '2px solid transparent', cursor: 'pointer', transition: 'all 0.2s',

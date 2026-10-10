@@ -27,7 +27,6 @@ import {
   Form,
   Input,
   Select,
-  Table,
   Switch,
   message,
   Empty,
@@ -37,7 +36,7 @@ import {
   Checkbox,
   Drawer,
   InputNumber,
-} from 'antd'
+} from "antd";
 import type { ColumnsType } from 'antd/es/table'
 import { PageContainer } from '../../components/common/PageContainer'
 import { PageHeader } from '../../components/common/PageHeader'
@@ -653,7 +652,7 @@ export default function ReportRulesPage() {
             label: t('reportRules.tabRules'),
             children: (
               <Card size="small" title={t('reportRules.rulesTitle', { count: rules.length, type: examType })} extra={<Select value={examType} style={{ width: 140 }} options={[{ value: 'ALL', label: t('reportRules.allTypes') }, ...EXAM_TYPE_OPTIONS]} onChange={(v) => setExamType(v)} />}>
-                <Table rowKey="id" size="small" loading={loading} columns={ruleColumns} dataSource={rules} pagination={{ pageSize: 10 }} scroll={{ x: 900 }} />
+                <DataTable rowKey="id" loading={loading} columns={ruleColumns} dataSource={rules} pagination={{ pageSize: 10 }} scroll={{ x: 900 }} />
               </Card>
             ),
           },
@@ -705,7 +704,7 @@ export default function ReportRulesPage() {
                 </Card>
                 <Card size="small" title={t('reportRules.violationResult', { count: result?.violations.length ?? 0 })}>
                   {result && result.violations.length > 0 ? (
-                    <Table rowKey={(v) => v.ruleId} size="small" columns={violationColumns} dataSource={result.violations} pagination={{ pageSize: 8 }} scroll={{ x: 800 }} />
+                    <DataTable rowKey={(v) => v.ruleId} columns={violationColumns} dataSource={result.violations} pagination={{ pageSize: 8 }} scroll={{ x: 800 }} />
                   ) : (
                     <Empty description={result ? t('reportRules.compliant') : t('reportRules.runFirst')} />
                   )}
@@ -718,7 +717,7 @@ export default function ReportRulesPage() {
             label: t('reportRules.tabRulesets'),
             children: (
               <Card size="small" title={t('reportRules.rulesetsTitle', { count: rulesets.length })}>
-                <Table rowKey="id" size="small" columns={rulesetColumns} dataSource={rulesets} pagination={false} />
+                <DataTable rowKey="id" columns={rulesetColumns} dataSource={rulesets} pagination={false} />
               </Card>
             ),
           },
@@ -732,7 +731,7 @@ export default function ReportRulesPage() {
                   title={t('w4a.tiers.listTitle', { count: tiers.length })}
                   extra={<Button type="primary" size="small" icon={<Plus size={14} />} onClick={openTierCreate}>{t('w4a.tiers.newRule')}</Button>}
                 >
-                  <Table rowKey="id" size="small" loading={tierLoading} columns={tierColumns} dataSource={tiers} pagination={{ pageSize: 10 }} scroll={{ x: 900 }} />
+                  <DataTable rowKey="id" loading={tierLoading} columns={tierColumns} dataSource={tiers} pagination={{ pageSize: 10 }} scroll={{ x: 900 }} />
                 </Card>
 
                 <Card size="small" title={t('w4a.tiers.resolveTitle')}>
@@ -788,9 +787,8 @@ export default function ReportRulesPage() {
                       </Space>
                       <div>
                         <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{t('w4a.tiers.steps')}</div>
-                        <Table
+                        <DataTable
                           rowKey="order"
-                          size="small"
                           pagination={false}
                           dataSource={resolveResult.steps}
                           columns={[
@@ -982,3 +980,5 @@ export default function ReportRulesPage() {
     </PageContainer>
   )
 }
+
+import { DataTable } from "../../components/common";

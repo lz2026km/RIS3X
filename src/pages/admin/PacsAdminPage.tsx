@@ -13,14 +13,31 @@ import {
   type PacsConfig,
   type PacsRoute,
 } from '../../services/api/pacsAdminApi'
-import { Card, Table, Button, Tag, Space, Typography, message, Modal, Input, Form, Popconfirm, Alert, Spin, Progress, Tabs, Drawer, Descriptions } from 'antd'
+import {
+  Card,
+  Button,
+  Tag,
+  Space,
+  Typography,
+  message,
+  Modal,
+  Input,
+  Form,
+  Popconfirm,
+  Alert,
+  Spin,
+  Progress,
+  Tabs,
+  Drawer,
+  Descriptions,
+} from "antd";
 import { Server, Wifi, WifiOff, Database, Activity, Plus, RefreshCw, Link2, Trash2, Zap, HardDrive, ListChecks, Archive, FileText, Route, Settings2, Eraser, Edit3, Eye } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 // [G005 2B] 受控分页: 8 张可增长表 (logs 服务端截断 100 条 → 前端分页)
 import { usePagination } from '../../hooks/usePagination'
 import { displayExamStatus } from '../../utils/statusMaps'
 import { t } from '../../i18n/appI18n'
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 
 const formatBytes = (bytes: number) => {
   if (bytes >= 1024 ** 4) return `${(bytes / 1024 ** 4).toFixed(1)} TB`
@@ -384,7 +401,7 @@ const PacsAdminPage: React.FC = () => {
               key: 'nodes', label: <Space size={4}><Server size={13} />{t('pacsAdmin.tabNodes')}</Space>,
               children: (
                 <Card title={`DICOM 节点 (${nodes.length})`} size="small" style={{ marginBottom: 16 }}>
-                  <Table rowKey="id" dataSource={nodePage.pageData} columns={nodeColumns} pagination={nodePage.pagination} size="small" scroll={{ x: 'max-content' }} />
+                  <DataTable rowKey="id" dataSource={nodePage.pageData} columns={nodeColumns} pagination={nodePage.pagination} scroll={{ x: 'max-content' }} />
                 </Card>
               ),
             },
@@ -422,7 +439,7 @@ const PacsAdminPage: React.FC = () => {
                   style={{ marginBottom: 16 }}
                   extra={<Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setServerModal(true)}>{t('pacsAdmin.addServer')}</Button>}
                 >
-                  <Table rowKey="id" dataSource={serverPage.pageData} columns={serverColumns} pagination={serverPage.pagination} size="small" scroll={{ x: 'max-content' }}/>
+                  <DataTable rowKey="id" dataSource={serverPage.pageData} columns={serverColumns} pagination={serverPage.pagination} scroll={{ x: 'max-content' }}/>
                 </Card>
               ),
             },
@@ -430,7 +447,7 @@ const PacsAdminPage: React.FC = () => {
               key: 'worklist', label: <Space size={4}><ListChecks size={13} />{t('pacsAdmin.tabWorklist')}</Space>,
               children: (
                 <Card title={`工作列表条目 (${worklist.length})`} size="small" style={{ marginBottom: 16 }}>
-                  <Table rowKey="id" dataSource={worklistPage.pageData} columns={worklistColumns} pagination={worklistPage.pagination} size="small" scroll={{ x: 'max-content' }} />
+                  <DataTable rowKey="id" dataSource={worklistPage.pageData} columns={worklistColumns} pagination={worklistPage.pagination} scroll={{ x: 'max-content' }} />
                 </Card>
               ),
             },
@@ -438,7 +455,7 @@ const PacsAdminPage: React.FC = () => {
               key: 'archives', label: <Space size={4}><Archive size={13} />{t('pacsAdmin.tabArchives')}</Space>,
               children: (
                 <Card title={`归档记录 (${archives.length})`} size="small" style={{ marginBottom: 16 }}>
-                  <Table rowKey="id" dataSource={archivePage.pageData} columns={archiveColumns} pagination={archivePage.pagination} size="small" scroll={{ x: 'max-content' }} />
+                  <DataTable rowKey="id" dataSource={archivePage.pageData} columns={archiveColumns} pagination={archivePage.pagination} scroll={{ x: 'max-content' }} />
                 </Card>
               ),
             },
@@ -446,7 +463,7 @@ const PacsAdminPage: React.FC = () => {
               key: 'logs', label: <Space size={4}><FileText size={13} />{t('pacsAdmin.tabLogs')}</Space>,
               children: (
                 <Card title={`PACS 操作日志 (${logs.length})`} size="small" style={{ marginBottom: 16 }}>
-                  <Table rowKey="id" dataSource={logPage.pageData} columns={logColumns} pagination={logPage.pagination} size="small" scroll={{ x: 'max-content' }} />
+                  <DataTable rowKey="id" dataSource={logPage.pageData} columns={logColumns} pagination={logPage.pagination} scroll={{ x: 'max-content' }} />
                 </Card>
               ),
             },
@@ -454,7 +471,7 @@ const PacsAdminPage: React.FC = () => {
               key: 'configs', label: <Space size={4}><Settings2 size={13} />{t('pacsAdmin.tabConfigs')}</Space>,
               children: (
                 <Card title={`PACS 配置项 (${configs.length})`} size="small" style={{ marginBottom: 16 }}>
-                  <Table rowKey="key" dataSource={configPage.pageData} columns={configColumns} pagination={configPage.pagination} size="small" scroll={{ x: 'max-content' }} />
+                  <DataTable rowKey="key" dataSource={configPage.pageData} columns={configColumns} pagination={configPage.pagination} scroll={{ x: 'max-content' }} />
                 </Card>
               ),
             },
@@ -462,7 +479,7 @@ const PacsAdminPage: React.FC = () => {
               key: 'associations', label: <Space size={4}><Link2 size={13} />{t('pacsAdmin.tabAssociations')}</Space>,
               children: (
                 <Card title={<Space><Link2 size={14} />{t('pacsAdmin.cardAssociationStatus')}</Space>}>
-                  <Table rowKey="id" dataSource={assocPage.pageData} columns={associationColumns} pagination={assocPage.pagination} size="small" scroll={{ x: 'max-content' }}/>
+                  <DataTable rowKey="id" dataSource={assocPage.pageData} columns={associationColumns} pagination={assocPage.pagination} scroll={{ x: 'max-content' }}/>
                 </Card>
               ),
             },
@@ -470,7 +487,7 @@ const PacsAdminPage: React.FC = () => {
               key: 'routes', label: <Space size={4}><Route size={13} />{t('pacsAdmin.tabRoutes')}</Space>,
               children: (
                 <Card title={`转发路由 (${routes.length})`} size="small" style={{ marginBottom: 16 }}>
-                  <Table rowKey="id" dataSource={routePage.pageData} columns={routeColumns} pagination={routePage.pagination} size="small" scroll={{ x: 'max-content' }} />
+                  <DataTable rowKey="id" dataSource={routePage.pageData} columns={routeColumns} pagination={routePage.pagination} scroll={{ x: 'max-content' }} />
                 </Card>
               ),
             },

@@ -1,11 +1,32 @@
 // [W3-2] 种植计划: dentalApi.listImplantPlans3d 真实列表 + 新建/编辑 + 状态流转 (规划/已批准/已实施)
 import { DentalPageLayout } from './DentalShared';
 import { dentalApi } from '@/services/api/dentalApi';
-import { Card, Tag, Button, Row, Col, List, Modal, Form, Select, Input, InputNumber, message, Empty, Spin, Alert, Space, Popconfirm, Descriptions, Steps, Badge, Table } from 'antd';
+import {
+  Card,
+  Tag,
+  Button,
+  Row,
+  Col,
+  List,
+  Modal,
+  Form,
+  Select,
+  Input,
+  InputNumber,
+  message,
+  Empty,
+  Spin,
+  Alert,
+  Space,
+  Popconfirm,
+  Descriptions,
+  Steps,
+  Badge,
+} from "antd";
 import { Plus, RefreshCw, CheckCircle2, Eye } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { t } from '../../i18n/appI18n';
-import { StatCard, StatCardGrid } from '../../components/common';
+import { DataTable, StatCard, StatCardGrid } from "../../components/common";
 
 const { TextArea } = Input;
 
@@ -179,8 +200,7 @@ export const DentalImplantPlanPage: React.FC = () => {
             extra={<Button size="small" icon={<RefreshCw size={11} />} loading={modelsLoading} onClick={() => void loadModels()} />}
           >
             {modelsError && <Alert type="warning" showIcon message={modelsError} style={{ marginBottom: 8 }} />}
-            <Table
-              size="small"
+            <DataTable
               rowKey={(r: any) => r.id ?? `${r.brand}-${r.model}`}
               loading={modelsLoading}
               dataSource={models}

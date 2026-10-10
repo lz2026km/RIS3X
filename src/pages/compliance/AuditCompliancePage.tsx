@@ -1,10 +1,22 @@
 // [v3.0.6.11-54] Phase 2: 审计合规中心 (真实审计事件 + 筛选 + 详情抽屉)
 import { auditApi, type AuditEventDto, type AuditAggregationDto } from '../../services/api/auditApi';
 import {
-  Card, Space, Tag, Table, Button, Badge, Drawer,
-  Form, Select, Input, message, Descriptions, Alert, Spin, Typography,
-} from 'antd';
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+  Card,
+  Space,
+  Tag,
+  Button,
+  Badge,
+  Drawer,
+  Form,
+  Select,
+  Input,
+  message,
+  Descriptions,
+  Alert,
+  Spin,
+  Typography,
+} from "antd";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import {
   Shield,
   FileSearch,
@@ -168,9 +180,8 @@ export const AuditCompliancePage: React.FC = () => {
           <Form.Item><Button onClick={onReset}>{t('auditComp.reset')}</Button></Form.Item>
         </Form>
         <Spin spinning={loading}>
-          <Table
+          <DataTable
             rowKey="id"
-            size="small"
             dataSource={events}
             columns={columns}
             pagination={{

@@ -46,7 +46,7 @@ export function DeviceFilter({
           placeholder="搜索设备名称/型号/厂商..."
           style={{
             width: '100%', padding: '7px 10px 7px 32px', borderRadius: 8,
-            border: `1px solid ${C.border}`, fontSize: 12, outline: 'none', boxSizing: 'border-box',
+            border: `1px solid ${C.border}`, fontSize: 12, boxSizing: 'border-box',
           }}
         />
       </div>
@@ -62,13 +62,13 @@ export function DeviceFilter({
       </div>
       <select value={filterStatus} onChange={e => onFilterStatusChange(e.target.value)} style={{
         padding: '7px 10px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12,
-        color: C.textMid, outline: 'none', cursor: 'pointer'
+        color: C.textMid, cursor: 'pointer'
       }}>
         {DEVICE_STATUSES.map(s => <option key={s}>{s}</option>)}
       </select>
       <select value={filterMfg} onChange={e => onFilterMfgChange(e.target.value)} style={{
         padding: '7px 10px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12,
-        color: C.textMid, outline: 'none', cursor: 'pointer'
+        color: C.textMid, cursor: 'pointer'
       }}>
         {manufacturers.map(m => <option key={m}>{m}</option>)}
       </select>

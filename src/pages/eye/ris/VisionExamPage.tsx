@@ -5,9 +5,24 @@ import VisionAcuityInput from '@/components/eye/VisionAcuityInput';
 import { usePagination } from '@/hooks/usePagination';
 import { eyeApi } from '@/services/api/eyeApi';
 import { toAllNotations, visionGrade } from '@/services/eye/visionConverter';
-import { Card, Row, Col, Tag, Table, Button, Space, Select, message, Alert, Spin, Empty, Segmented, Popconfirm } from 'antd';
+import {
+  Card,
+  Row,
+  Col,
+  Tag,
+  Button,
+  Space,
+  Select,
+  message,
+  Alert,
+  Spin,
+  Empty,
+  Segmented,
+  Popconfirm,
+} from "antd";
 import { Eye, Save, History, RefreshCw, Trash2 } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
+import { DataTable } from "../../../components/common";
 
 const VISION_GRADE_KEYS: Record<string, string> = {
   '正常': 'w9d.visionGrade.normal', '轻度低下': 'w9d.visionGrade.mild', '中度低下': 'w9d.visionGrade.moderate',
@@ -185,17 +200,16 @@ const VisionExamPage: React.FC = () => {
       </Row>
 
       <Card size="small" title={t('visionExam.conversion')} style={{ marginTop: 12 }} extra={<Button type="primary" size="small" icon={<Save size={12} />} loading={saving} onClick={() => void handleSave()}>{t('visionExam.saveRecord')}</Button>}>
-        <Table rowKey="key" dataSource={data} columns={columns} pagination={false} size="small" bordered scroll={{ x: 'max-content' }}/>
+        <DataTable rowKey="key" dataSource={data} columns={columns} pagination={false} bordered scroll={{ x: 'max-content' }}/>
       </Card>
 
       <Card size="small" title={<Space><History size={14} />{t('visionExam.historyTitle')} <Tag>{records.length}</Tag></Space>} style={{ marginTop: 12 }}>
         <Spin spinning={loading}>
-          <Table
+          <DataTable
             rowKey="id"
             dataSource={recordPageData}
             columns={historyColumns}
             pagination={recordPagination}
-            size="small"
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('visionExam.emptyHistory')} /> }}
           scroll={{ x: 'max-content' }}
           />

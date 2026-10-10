@@ -1124,9 +1124,7 @@ export default function PatientPage() {
                 autoFocus
                 style={{
                   flex: 1,
-                  border: "none",
-                  outline: "none",
-                  fontSize: 15,
+                  border: "none", fontSize: 15,
                   background: "transparent",
                 }}
               />
@@ -2432,9 +2430,7 @@ export default function PatientPage() {
                   borderRadius: 8,
                   fontSize: 12,
                   fontFamily: "monospace",
-                  resize: "vertical",
-                  outline: "none",
-                }}
+                  resize: "vertical", }}
               />
               <div style={{ marginTop: 10 }}>
                 <label

@@ -107,9 +107,7 @@ export default function DoseSearchPanel({
               borderRadius: 6,
               border: "1px solid #e2e8f0",
               fontSize: 12,
-              width: 180,
-              outline: "none",
-            }}
+              width: 180, }}
           />
         </div>
         {view !== "alert" &&
@@ -125,9 +123,7 @@ export default function DoseSearchPanel({
                 borderRadius: 6,
                 border: "1px solid #e2e8f0",
                 fontSize: 12,
-                color: "#334155",
-                outline: "none",
-              }}
+                color: "#334155", }}
             >
               {modalities.map((m) => (
                 <option key={m} value={m}>
@@ -145,9 +141,7 @@ export default function DoseSearchPanel({
               borderRadius: 6,
               border: "1px solid #e2e8f0",
               fontSize: 12,
-              color: "#334155",
-              outline: "none",
-            }}
+              color: "#334155", }}
           >
             <option value="全部">{t("doseTrack.allStatus")}</option>
             <option value="pending">{t("doseTrack.statusPending")}</option>

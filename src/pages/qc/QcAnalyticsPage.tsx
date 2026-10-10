@@ -25,7 +25,23 @@ import {
   Lock,
   Activity,
 } from 'lucide-react'
-import { Button, Tag, Space, Modal, Form, Input, Drawer, Popconfirm, message, Timeline, Empty, Table, Tabs, Radio, Progress, Tooltip as ATooltip } from 'antd'
+import {
+  Button,
+  Tag,
+  Space,
+  Modal,
+  Form,
+  Input,
+  Drawer,
+  Popconfirm,
+  message,
+  Timeline,
+  Empty,
+  Tabs,
+  Radio,
+  Progress,
+  Tooltip as ATooltip,
+} from "antd";
 import type { ColumnsType } from 'antd/es/table'
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, Legend, Cell, ReferenceLine } from 'recharts'
 import { ChartContainer, chartDefaults } from "../../components/charts"
@@ -424,9 +440,8 @@ export default function QcAnalyticsPage() {
               <b>{t('qcAnalytics.deptRankTitle')}</b>
               <span style={{ color: '#94a3b8', fontSize: 12 }}>{t('qcAnalytics.deptRankSub')}</span>
             </Space>
-            <Table<DepartmentRankItem>
+            <DataTable<DepartmentRankItem>
               rowKey="department"
-              size="small"
               columns={deptColumns}
               dataSource={departments}
               pagination={false}
@@ -451,7 +466,7 @@ export default function QcAnalyticsPage() {
                 key: 'defects',
                 label: t('qcAnalytics.tabDefects', { count: defects.length }),
                 children: (
-                  <Table<LoopDefect>
+                  <DataTable<LoopDefect>
                     rowKey="id"
                     loading={loading}
                     columns={defectColumns}
@@ -459,7 +474,6 @@ export default function QcAnalyticsPage() {
                     pagination={{ pageSize: 6, showTotal: (total: number) => t('qcAnalytics.totalDefects', { count: total }) }}
                     scroll={{ x: 960 }}
                     locale={{ emptyText: <Empty description={t('qcAnalytics.emptyDefects')} image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
-                    size="middle"
                   />
                 ),
               },
@@ -467,7 +481,7 @@ export default function QcAnalyticsPage() {
                 key: 'items',
                 label: t('qcAnalytics.tabItems', { count: items.length }),
                 children: (
-                  <Table<RectificationItem>
+                  <DataTable<RectificationItem>
                     rowKey="id"
                     loading={loading}
                     columns={itemColumns}
@@ -475,7 +489,6 @@ export default function QcAnalyticsPage() {
                     pagination={{ pageSize: 6, showTotal: (total: number) => t('qcAnalytics.totalItems', { count: total }) }}
                     scroll={{ x: 1080 }}
                     locale={{ emptyText: <Empty description={t('qcAnalytics.emptyItems')} image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
-                    size="middle"
                   />
                 ),
               },
@@ -701,3 +714,5 @@ const demoFallback = () => {
     loopStats: { total: 2, byStatus: { open: 1, rectifying: 1, rechecking: 0, closed: 0 }, closureRate: 0, avgDaysToClose: 0, avgRecheckRounds: 0, openDefects: 2 } as LoopStats,
   }
 }
+
+import { DataTable } from "../../components/common";

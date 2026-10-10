@@ -355,11 +355,11 @@ function HipaaExportPanel({
 }) {
   const inputStyle = {
     padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)',
-    background: 'var(--bg-card)', color: PRIMARY, fontSize: 12, outline: 'none' as const,
+    background: 'var(--bg-card)', color: PRIMARY, fontSize: 12,
   }
   const selectStyle = {
     padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)',
-    background: 'var(--bg-card)', color: PRIMARY, fontSize: 12, cursor: 'pointer' as const, outline: 'none' as const,
+    background: 'var(--bg-card)', color: PRIMARY, fontSize: 12, cursor: 'pointer' as const,
   }
 
   return (

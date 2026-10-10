@@ -6,8 +6,28 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
-  Card, Table, Button, Tag, Space, Row, Col, Statistic, Modal, Input, message,
-  Descriptions, Form, Select, Radio, Checkbox, Progress, Empty, Spin, Tooltip, Divider, Alert, Avatar,
+  Card,
+  Button,
+  Tag,
+  Space,
+  Row,
+  Col,
+  Statistic,
+  Modal,
+  Input,
+  message,
+  Descriptions,
+  Form,
+  Select,
+  Radio,
+  Checkbox,
+  Progress,
+  Empty,
+  Spin,
+  Tooltip,
+  Divider,
+  Alert,
+  Avatar,
 } from "antd";
 import {
   Users, CheckCircle2, XCircle, RefreshCw, FileText, Plus,
@@ -20,6 +40,7 @@ import {
   type CommitteeMemberDto,
 } from "../../services/api/consultationApi";
 import { t } from "../../i18n/appI18n";
+import { DataTable } from "../../components/common";
 
 const DOCTOR_POOL = [
   { value: "D001", label: "张明远 · 主任医师 · 放射科" },
@@ -324,9 +345,8 @@ const CommitteeRoomPage: React.FC = () => {
               reportIdParam ? <Tag color="blue" icon={<Eye size={10} />}>reportId={reportIdParam}</Tag> : undefined
             }
           >
-            <Table
+            <DataTable
               rowKey="id"
-              size="small"
               loading={loading}
               dataSource={committees}
               columns={columns}

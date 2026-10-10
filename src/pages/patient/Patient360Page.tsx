@@ -3,7 +3,22 @@ import { patientApi } from '../../services/api/patientApi'
 import type { PatientDto } from '../../types/dto'
 import type { PatientSummaryDto, PatientVisitHistoryDto } from '../../services/api/patientApi'
 import { ExamDto } from '../../types/dto'
-import { Card, Descriptions, Tag, Timeline, Table, Collapse, Button, Badge, Spin, Alert, Empty, Divider, Statistic, Row, Col } from 'antd'
+import {
+  Card,
+  Descriptions,
+  Tag,
+  Timeline,
+  Collapse,
+  Button,
+  Badge,
+  Spin,
+  Alert,
+  Empty,
+  Divider,
+  Statistic,
+  Row,
+  Col,
+} from "antd";
 import {
   User,
   Phone,
@@ -23,7 +38,7 @@ import { followupApi, type FollowUpPlan } from '../../services/api/followupApi'
 import { lesionTrackingApi, type TrackedLesion, type LesionStats } from '../../services/api/lesionTrackingApi'
 import { financeApi, type InvoiceDto } from '../../services/api/financeApi'
 import { t } from '../../i18n/appI18n'
-import { PageContainer } from '../../components/common'
+import { DataTable, PageContainer } from "../../components/common"
 
 interface ExamView {
   id: string
@@ -624,7 +639,7 @@ export default function Patient360Page() {
         {criticalExams.length === 0 ? (
           <Empty image={<BellOff size={48} style={{opacity:0.4}}/>} description={t('patient360.noCriticalRecord')} style={{ padding: 16 }} />
         ) : (
-          <Table
+          <DataTable
             dataSource={criticalExams}
             columns={[
               { title: t('patient360.examDate'), dataIndex: 'examDate', key: 'examDate', width: 120 },
@@ -649,7 +664,6 @@ export default function Patient360Page() {
             ]}
             rowKey="id"
             pagination={false}
-            size="small"
           scroll={{ x: 'max-content' }}
           />
         )}
@@ -718,10 +732,9 @@ export default function Patient360Page() {
         {followUps.length === 0 ? (
           <Empty image={<BellOff size={48} style={{ opacity: 0.4 }} />} description={t('patient360.noFollowupPlan')} style={{ padding: 16 }} />
         ) : (
-          <Table
+          <DataTable
             dataSource={followUps}
             rowKey="id"
-            size="small"
             pagination={false}
             scroll={{ x: 'max-content' }}
             columns={[
@@ -860,10 +873,9 @@ export default function Patient360Page() {
               </Col>
             </Row>
             <Divider style={{ margin: '12px 0' }} />
-            <Table
+            <DataTable
               dataSource={invoices}
               rowKey="id"
-              size="small"
               pagination={false}
               scroll={{ x: 'max-content' }}
               columns={[

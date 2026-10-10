@@ -1071,9 +1071,7 @@ export default function EquipmentEfficiencyPage() {
 
   return (
     <div
-      style={{
-        minHeight: '100vh',
-        backgroundColor: C.bg,
+      style={{ backgroundColor: C.bg,
         color: C.textDark,
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         padding: 24,

@@ -2,8 +2,20 @@ import { useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { t as appT } from '../../i18n/appI18n'
 import {
-  Card, Table, Button, Select, InputNumber, Space, Typography, message, Divider, Row, Col, Tag, Alert, Tabs,
-} from 'antd'
+  Card,
+  Button,
+  Select,
+  InputNumber,
+  Space,
+  Typography,
+  message,
+  Divider,
+  Row,
+  Col,
+  Tag,
+  Alert,
+  Tabs,
+} from "antd";
 import { DownloadOutlined, RadarChartOutlined, PlusOutlined, DeleteOutlined, ExperimentOutlined } from '@ant-design/icons'
 import { radiomicsApi, type RadiomicsFeature, type RadiomicsResult } from '../../services/api/radiomicsApi'
 
@@ -227,12 +239,11 @@ export default function RadiomicsPage() {
             </Space>
           }>
             {allFeatures.length > 0 ? (
-              <Table<RadiomicsFeature>
+              <DataTable<RadiomicsFeature>
                 dataSource={allFeatures}
                 columns={featureColumns}
                 rowKey={r => `${r.category}_${r.name}`}
                 pagination={false}
-                size="small"
                 scroll={{ x: 'max-content', y: 360 }}
               />
             ) : (
@@ -254,12 +265,11 @@ export default function RadiomicsPage() {
               key: r.instanceId,
               label: `${t('radiomics:featureTable')} - ${r.instanceId}`,
               children: (
-                <Table<RadiomicsFeature>
+                <DataTable<RadiomicsFeature>
                   dataSource={r.features}
                   columns={featureColumns}
                   rowKey={f => `${f.category}_${f.name}`}
                   pagination={false}
-                  size="small"
                   scroll={{ x: 'max-content' }}
                 />
               ),
@@ -329,3 +339,5 @@ function RadarChart({ config }: { config: any }) {
     </svg>
   )
 }
+
+import { DataTable } from "../../components/common";

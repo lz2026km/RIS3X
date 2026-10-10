@@ -1,6 +1,18 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Card, Space, Tag, Button, Table, Switch, message, Row, Col, Popconfirm, Modal, Input } from 'antd';
-import { StatCard, StatCardGrid } from '../../components/common';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Switch,
+  message,
+  Row,
+  Col,
+  Popconfirm,
+  Modal,
+  Input,
+} from "antd";
+import { DataTable, StatCard, StatCardGrid } from "../../components/common";
 import {
   Server, Shield, Plus, Trash2, Activity, Wifi, Clock, Terminal,
 } from "lucide-react";
@@ -213,8 +225,7 @@ export const MllpConfigPage: React.FC = () => {
               <Button size="small" icon={<Plus className="w-3 h-3" />} onClick={() => setWhitelistModalOpen(true)}>{t('mllp.add')}</Button>
             }
           >
-            <Table
-              size="small"
+            <DataTable
               rowKey="cidr"
               scroll={{ x: 'max-content' }}
               dataSource={(status?.whitelist ?? []).map((c) => ({ cidr: c }))}
@@ -234,8 +245,7 @@ export const MllpConfigPage: React.FC = () => {
       </Row>
 
       <Card size="small" className="shadow-sm" title={<Space><Clock className="w-4 h-4" /><span>{t('mllp.recentLogs')}</span></Space>}>
-        <Table
-          size="small"
+        <DataTable
           rowKey="id"
           loading={loading.logs}
           dataSource={logPageData}

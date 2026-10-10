@@ -172,7 +172,7 @@ export default function SlaPolicyPage() {
   ];
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }} data-testid="sla-policy-page">
+    <div style={{ padding: 24, background: 'var(--bg-card)',}} data-testid="sla-policy-page">
       <header style={{ background: 'linear-gradient(135deg,#dc2626 0%,#f59e0b 100%)', color: '#fff', padding: '14px 24px', borderRadius: 10, marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Clock size={20} />

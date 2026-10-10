@@ -4,12 +4,25 @@ import {
   type FusionV2RegisterResult,
   type FusionV2RenderResult,
 } from '../../services/api/fusionV2Api'
-import { Card, Table, Button, Space, Tag, Form, Input, Select, message, Descriptions, Slider, Empty, Progress } from 'antd'
+import {
+  Card,
+  Button,
+  Space,
+  Tag,
+  Form,
+  Input,
+  Select,
+  message,
+  Descriptions,
+  Slider,
+  Empty,
+  Progress,
+} from "antd";
 import { Layers, Play, Search } from 'lucide-react'
 import { Inbox } from 'lucide-react'
 import { useState } from 'react'
 import { t } from '../../i18n/appI18n'
-import { PageContainer } from '../../components/common'
+import { DataTable, PageContainer } from "../../components/common"
 
 export const FusionManagerPage: React.FC = () => {
   const [patientId, setPatientId] = useState('')
@@ -125,11 +138,10 @@ export const FusionManagerPage: React.FC = () => {
       {series.length > 0 && (
         <>
           <Card size="small" title={t('fusionMgr.availableSeries')} style={{ marginBottom: 16 }}>
-            <Table
+            <DataTable
               dataSource={series}
               rowKey={(_, i) => `${i}`}
               pagination={false}
-              size="small"
               scroll={{ x: 'max-content' }}
               columns={[
                 {

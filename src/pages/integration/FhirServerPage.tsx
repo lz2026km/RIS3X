@@ -1,12 +1,25 @@
 // [v3.0.6.8-61] FHIR Server 集成管理
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Space, Tag, Button, Table, Tabs, message, Input, Descriptions, Modal, Form, Select, Alert } from 'antd';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Tabs,
+  message,
+  Input,
+  Descriptions,
+  Modal,
+  Form,
+  Select,
+  Alert,
+} from "antd";
 import { Globe, Send, Search, RefreshCw, Plus } from 'lucide-react';
 import { fhirApi } from '../../services/api/fhirApi';
 import { api } from '../../services/api/client';
 import { ErrorBanner } from '../../components/feedback';
 import { t } from '../../i18n/appI18n';
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 
 const { TextArea } = Input;
 
@@ -154,7 +167,7 @@ export const FhirServerPage: React.FC = () => {
                 <Button icon={<RefreshCw size={12}/>} loading={loading} onClick={() => void loadResources(resourceType)}>{t('fhirServer.refresh')}</Button>
               </Space>
             } title={t('w9e.fhirServer.resourceTitle', { type: resourceType, count: resources.length })}>
-              <Table dataSource={resources} rowKey="id" pagination={false} loading={loading}
+              <DataTable dataSource={resources} rowKey="id" pagination={false} loading={loading}
                 locale={{ emptyText: t('w7demo.empty') }}
                 columns={[
                   {title:t('fhirServer.colId'), dataIndex:'id'},

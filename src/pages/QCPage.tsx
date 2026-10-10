@@ -836,7 +836,7 @@ export default function QCPage() {
   }
 
   return (
-    <PageTemplate container={false} showHeader={false} testId="qc-page" style={{ padding: 24, maxWidth: 1600, margin: '0 auto', background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <PageTemplate container={false} showHeader={false} testId="qc-page" style={{ padding: 24, maxWidth: 1600, margin: '0 auto', background: 'var(--bg-card)',}}>
       {loading && <LoadingBanner message={t("qcPage.loading")} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* Header */}
@@ -1129,7 +1129,7 @@ export default function QCPage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 12, border: '1px solid var(--border-color)', display: 'flex', gap: 12, alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, background: LIGHT_BG, borderRadius: 8, padding: '8px 12px' }}>
               <Search size={14} color={GRAY} />
-              <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t("qcPage.searchPlaceholder")} style={{ border: 'none', outline: 'none', fontSize: 13, width: '100%', background: 'transparent', color: PRIMARY }} />
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t("qcPage.searchPlaceholder")} style={{ border: 'none', fontSize: 13, width: '100%', background: 'transparent', color: PRIMARY }} />
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
               {[t('qcPage.all'), t("qcPage.excellent"), t("qcPage.good"), t("qcPage.fair"), t("qcPage.poor")].map(s => (
@@ -2976,7 +2976,7 @@ export default function QCPage() {
                 <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('qc.reportTimeoutLabel')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   {editingRules ? (
-                    <input type='number' value={tempRules.reportTimeoutMinutes} onChange={e => setTempRules({ ...tempRules, reportTimeoutMinutes: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13, outline: 'none' }} />
+                    <input type='number' value={tempRules.reportTimeoutMinutes} onChange={e => setTempRules({ ...tempRules, reportTimeoutMinutes: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13,}} />
                   ) : (
                     <div style={{ flex: 1, padding: '8px 12px', background: LIGHT_BG, borderRadius: 8, fontSize: 13, fontWeight: 600, color: PRIMARY }}>{qcRules.reportTimeoutMinutes} {t("qcPage.minutes")}</div>
                   )}
@@ -2987,7 +2987,7 @@ export default function QCPage() {
                 <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('qc.reminderLabel')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   {editingRules ? (
-                    <input type='number' value={tempRules.reminderBeforeMinutes} onChange={e => setTempRules({ ...tempRules, reminderBeforeMinutes: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13, outline: 'none' }} />
+                    <input type='number' value={tempRules.reminderBeforeMinutes} onChange={e => setTempRules({ ...tempRules, reminderBeforeMinutes: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13,}} />
                   ) : (
                     <div style={{ flex: 1, padding: '8px 12px', background: LIGHT_BG, borderRadius: 8, fontSize: 13, fontWeight: 600, color: PRIMARY }}>{qcRules.reminderBeforeMinutes} {t("qcPage.minutes")}</div>
                   )}
@@ -2998,7 +2998,7 @@ export default function QCPage() {
                 <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('qc.autoEscalateLabel')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   {editingRules ? (
-                    <input type='number' value={tempRules.autoEscalateAfterMinutes} onChange={e => setTempRules({ ...tempRules, autoEscalateAfterMinutes: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13, outline: 'none' }} />
+                    <input type='number' value={tempRules.autoEscalateAfterMinutes} onChange={e => setTempRules({ ...tempRules, autoEscalateAfterMinutes: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13,}} />
                   ) : (
                     <div style={{ flex: 1, padding: '8px 12px', background: LIGHT_BG, borderRadius: 8, fontSize: 13, fontWeight: 600, color: PRIMARY }}>{qcRules.autoEscalateAfterMinutes} {t("qcPage.minutes")}</div>
                   )}
@@ -3009,7 +3009,7 @@ export default function QCPage() {
                 <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('qc.dailyQuotaLabel')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   {editingRules ? (
-                    <input type='number' value={tempRules.dailyReviewQuota} onChange={e => setTempRules({ ...tempRules, dailyReviewQuota: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13, outline: 'none' }} />
+                    <input type='number' value={tempRules.dailyReviewQuota} onChange={e => setTempRules({ ...tempRules, dailyReviewQuota: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13,}} />
                   ) : (
                     <div style={{ flex: 1, padding: '8px 12px', background: LIGHT_BG, borderRadius: 8, fontSize: 13, fontWeight: 600, color: PRIMARY }}>{qcRules.dailyReviewQuota} {t("qcPage.reportsPerDoctor")}</div>
                   )}
@@ -3028,7 +3028,7 @@ export default function QCPage() {
                 <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('qc.excellentStandard')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   {editingRules ? (
-                    <input type='number' value={tempRules.imageScoreExcellent} onChange={e => setTempRules({ ...tempRules, imageScoreExcellent: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13, outline: 'none' }} />
+                    <input type='number' value={tempRules.imageScoreExcellent} onChange={e => setTempRules({ ...tempRules, imageScoreExcellent: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13,}} />
                   ) : (
                     <div style={{ flex: 1, padding: '8px 12px', background: LIGHT_BG, borderRadius: 8, fontSize: 13, fontWeight: 600, color: PRIMARY }}>{qcRules.imageScoreExcellent} {t("qcPage.scoreUnit")}</div>
                   )}
@@ -3039,7 +3039,7 @@ export default function QCPage() {
                 <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('qc.goodStandard')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   {editingRules ? (
-                    <input type='number' value={tempRules.imageScoreGood} onChange={e => setTempRules({ ...tempRules, imageScoreGood: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13, outline: 'none' }} />
+                    <input type='number' value={tempRules.imageScoreGood} onChange={e => setTempRules({ ...tempRules, imageScoreGood: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13,}} />
                   ) : (
                     <div style={{ flex: 1, padding: '8px 12px', background: LIGHT_BG, borderRadius: 8, fontSize: 13, fontWeight: 600, color: PRIMARY }}>{qcRules.imageScoreGood} {t("qcPage.scoreUnit")}</div>
                   )}

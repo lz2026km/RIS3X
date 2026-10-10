@@ -1,11 +1,26 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import {
-  Table, Button, Tag, Modal, Select, message, Card, Row, Col,
-  Space, Descriptions, Progress, Typography, Tooltip, Badge, Input, InputNumber, Alert,
-} from 'antd'
+  Button,
+  Tag,
+  Modal,
+  Select,
+  message,
+  Card,
+  Row,
+  Col,
+  Space,
+  Descriptions,
+  Progress,
+  Typography,
+  Tooltip,
+  Badge,
+  Input,
+  InputNumber,
+  Alert,
+} from "antd";
 import { Siren, UserCheck, Clock, AlertTriangle, RefreshCw, Filter, Activity } from 'lucide-react'
 import { triageApi, type TriagePendingItem, type TriageScoreResult, type TriageFactor, type VitalSigns } from '../../services/api/triageApi'
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 import { usePagination } from '../../hooks/usePagination'
 import { t } from '../../i18n/appI18n'
 
@@ -361,7 +376,7 @@ const TriageDashboardPage: React.FC = () => {
           </Space>
         }
       >
-        <Table
+        <DataTable
           dataSource={queuePageData}
           columns={columns}
           rowKey="id"

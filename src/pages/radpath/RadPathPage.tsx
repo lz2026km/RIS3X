@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Card,
-  Table,
   Button,
   Tag,
   Space,
@@ -28,7 +27,7 @@ import {
 } from "../../services/api/radpathApi";
 import { message } from "antd";
 import { ErrorBanner } from "../../components/feedback";
-import { StatCard, StatCardGrid } from "../../components/common";
+import { DataTable, StatCard, StatCardGrid } from "../../components/common";
 import { t } from "../../i18n/appI18n";
 
 const consistencyColor: Record<string, string> = {
@@ -212,13 +211,12 @@ const RadPathPage: React.FC = () => {
           </Space>
         }
       >
-        <Table
+        <DataTable
           dataSource={filteredRecords}
           columns={columns}
           rowKey="id"
           loading={loading}
           pagination={{ current: recordPage, pageSize: 10, total: filteredRecords.length, onChange: setRecordPage, showSizeChanger: false, showTotal: (total) => t('radPath.totalItems', { count: total }) }}
-          size="small"
         scroll={{ x: 'max-content' }}
         />
       </Card>

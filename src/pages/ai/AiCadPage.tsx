@@ -9,11 +9,22 @@ import { aiDiagnosisApi, type AiDiagnosisAccuracyResult, type AiDiagnosisTrendPo
 import { cadApi } from '../../services/api/cadApi'
 import { CadResult } from '../../services/api/cadApi'
 import { EmptyState } from '../../components/common/EmptyState'
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 import AiCaseLibrarySection from './AiCaseLibrarySection'
-import { Space, Tag, Row, Col, Statistic, Tabs, Spin, Alert, Button, Progress, Card,
-  Input, Table,
-} from 'antd'
+import {
+  Space,
+  Tag,
+  Row,
+  Col,
+  Statistic,
+  Tabs,
+  Spin,
+  Alert,
+  Button,
+  Progress,
+  Card,
+  Input,
+} from "antd";
 import {
   Cpu,
   RefreshCw,
@@ -400,7 +411,7 @@ const CadDetectPanel: React.FC = () => {
               <Col span={8}><Statistic title={t('aiCad.maxConfidence')} value={current.findings.length ? Math.max(...current.findings.map(f => f.confidence)) * 100 : 0} precision={1} suffix="%" /></Col>
               <Col span={8}><Statistic title={t('aiCad.detectTime')} value={current.detectedAt.slice(0, 19).replace('T', ' ')} /></Col>
             </Row>
-            <Table scroll={{ x: 'max-content' }} rowKey={(f) => `${f.x}-${f.y}`} size="small" dataSource={current.findings} columns={findingColumns} pagination={false}/>
+            <DataTable scroll={{ x: 'max-content' }} rowKey={(f) => `${f.x}-${f.y}`} dataSource={current.findings} columns={findingColumns} pagination={false}/>
             {current.heatmapUrl && (
               <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
                 {t('aiCad.heatmap')}: <code>{current.heatmapUrl}</code>
@@ -413,9 +424,8 @@ const CadDetectPanel: React.FC = () => {
         {history.length === 0 && !detecting ? (
           <EmptyState description={t('aiCad.noDetect')} />
         ) : (
-          <Table scroll={{ x: 'max-content' }}
+          <DataTable scroll={{ x: 'max-content' }}
             rowKey="instanceId"
-            size="small"
             loading={detecting && history.length === 0}
             dataSource={history}
             pagination={false}
@@ -444,7 +454,7 @@ const CadDetectPanel: React.FC = () => {
                 <span style={{ fontSize: 12, color: '#64748b' }}>{t('aiCad.detectedAt')} {detail.detectedAt.slice(0, 19).replace('T', ' ')}</span>
                 {detail.simulated && <Tag color="gold">{t('aiCad.simulatedFallback')}</Tag>}
               </Space>
-              <Table scroll={{ x: 'max-content' }} rowKey={(f) => `${f.x}-${f.y}`} size="small" dataSource={detail.findings} columns={findingColumns} pagination={false}/>
+              <DataTable scroll={{ x: 'max-content' }} rowKey={(f) => `${f.x}-${f.y}`} dataSource={detail.findings} columns={findingColumns} pagination={false}/>
             </>
           ) : (
             <EmptyState description={t('aiCad.detailHint')} />

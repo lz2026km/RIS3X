@@ -1,7 +1,6 @@
 // [v3.0.6.11-103 Wave 9] 口腔外科管理: KPI 统计 + 状态/搜索筛选 + 真表格(分页/空态) + 新建/编辑/删除/刷新/导出 + i18n + seed 回退
 import React, { useState, useEffect, useMemo } from "react";
 import {
-  Table,
   Tag,
   Button,
   Modal,
@@ -20,6 +19,7 @@ import { t } from "../../i18n/appI18n";
 import { StatCard, StatCardGrid } from "../../components/common/StatCard";
 import { ActionButton } from "../../components/common/ActionButton";
 import { ErrorBanner } from "../../components/feedback";
+import { DataTable } from "../../components/common";
 
 const TYPE = "Surgery";
 const PAGE_SIZE = 10;
@@ -237,9 +237,8 @@ export const DentalSurgeryPage: React.FC = () => {
           createLabel={t("w9.dentalSurgery.create")}
         />
       ) : (
-        <Table
+        <DataTable
           rowKey="id"
-          size="small"
           pagination={{ current: page, pageSize: PAGE_SIZE, total: filtered.length, onChange: setPage, showSizeChanger: false }}
           dataSource={paged}
           columns={[

@@ -1409,9 +1409,7 @@ export default function DataReportCenterPage() {
 
   return (
     <Layout
-      style={{
-        minHeight: '100vh',
-        background: 'var(--bg-card)',
+      style={{ background: 'var(--bg-card)',
         position: fullscreen ? 'fixed' : 'relative',
         inset: fullscreen ? 0 : undefined,
         zIndex: fullscreen ? 1000 : undefined,

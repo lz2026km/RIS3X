@@ -423,7 +423,7 @@ export default function ReportReviewPage() {
               placeholder={t('reportReviewPage.searchPlaceholder')}
               style={{
                 padding: '5px 8px 5px 26px', border: '1px solid var(--border-color)', borderRadius: 4,
-                fontSize: 12, outline: 'none', width: 180,
+                fontSize: 12, width: 180,
               }}
             />
           </div>
@@ -1007,7 +1007,7 @@ const ReviewTaskDetail: React.FC<{
               placeholder={t('reportReviewPage.auditOpinionPlaceholder')}
               style={{
                 width: '100%', padding: 8, border: '1px solid var(--border-color)', borderRadius: 4,
-                fontSize: 12, outline: 'none', resize: 'vertical', fontFamily: 'inherit',
+                fontSize: 12, resize: 'vertical', fontFamily: 'inherit',
               }}
             />
             {/* [v3.0.6.11-103 Wave 12] 快捷退回原因: 一键填充 */}

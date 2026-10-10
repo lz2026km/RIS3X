@@ -688,7 +688,7 @@ const VolumeStudioPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ minHeight: "100vh", background: "#020617", color: "#cbd5e1", padding: 12, display: "flex", flexDirection: "column" }}>
+    <div style={{ background: "#020617", color: "#cbd5e1", padding: 12, display: "flex", flexDirection: "column" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
         <Box size={18} color={BLUE} />
         <span style={{ fontSize: 15, fontWeight: 700 }}>{t("volumeStudioTitle", "多平面重建工作室")}</span>

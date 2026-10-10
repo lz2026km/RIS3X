@@ -476,7 +476,7 @@ const KpiWallPage: React.FC = () => {
   }, [templateName, activeTemplate, activeBlocks, templates])
 
   return (
-    <div style={{ minHeight: '100vh', background: BG, color: '#e2e8f0', position: 'relative' }}>
+    <div style={{ background: BG, color: '#e2e8f0', position: 'relative' }}>
       {/* 顶部 */}
       <div style={{ display: 'flex', alignItems: 'center', padding: '18px 36px', borderBottom: `1px solid ${BORDER}`, background: 'rgba(255,255,255,0.02)' }}>
         <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: 1 }}>

@@ -2534,9 +2534,7 @@ const styles: Record<string, React.CSSProperties> = {
     minWidth: 200,
   },
   searchInput: {
-    border: "none",
-    outline: "none",
-    background: "transparent",
+    border: "none", background: "transparent",
     fontSize: 14,
     color: "var(--text-secondary)",
     width: "100%",
@@ -2547,9 +2545,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "8px 14px",
     fontSize: 14,
     color: "var(--text-secondary)",
-    background: "var(--content-bg)",
-    outline: "none",
-    cursor: "pointer",
+    background: "var(--content-bg)", cursor: "pointer",
   },
   input: {
     width: "100%",
@@ -2558,9 +2554,7 @@ const styles: Record<string, React.CSSProperties> = {
     border: "1px solid var(--border-color)",
     fontSize: 13,
     fontFamily: "inherit",
-    boxSizing: "border-box",
-    outline: "none",
-    background: "var(--content-bg)",
+    boxSizing: "border-box", background: "var(--content-bg)",
     color: "var(--text-primary)",
   },
   cardList: {

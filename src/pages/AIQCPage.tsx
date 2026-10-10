@@ -629,9 +629,7 @@ export default function AIQCPage() {
       padding: 24,
       maxWidth: 1600,
       margin: '0 auto',
-      background: DARK_BG,
-      minHeight: '100vh',
-      color: WHITE,
+      background: DARK_BG, color: WHITE,
     }}>
       {/* [v1.0.4 R4] 升级入口横幅 */}
       <div style={{
@@ -889,9 +887,7 @@ export default function AIQCPage() {
                 border: `1px solid ${DARK_BORDER}`,
                 background: DARK_BG,
                 color: WHITE,
-                fontSize: 13,
-                outline: 'none',
-                boxSizing: 'border-box',
+                fontSize: 13, boxSizing: 'border-box',
               }}
             />
           </div>
@@ -906,9 +902,7 @@ export default function AIQCPage() {
               border: `1px solid ${DARK_BORDER}`,
               background: DARK_BG,
               color: WHITE,
-              fontSize: 13,
-              outline: 'none',
-              cursor: 'pointer',
+              fontSize: 13, cursor: 'pointer',
             }}
           >
             <option value="全部">{t('aiQcPage.allDevices')}</option>
@@ -927,9 +921,7 @@ export default function AIQCPage() {
               border: `1px solid ${DARK_BORDER}`,
               background: DARK_BG,
               color: WHITE,
-              fontSize: 13,
-              outline: 'none',
-              cursor: 'pointer',
+              fontSize: 13, cursor: 'pointer',
             }}
           >
             <option value="全部">{t('aiQcPage.allResults')}</option>
@@ -948,9 +940,7 @@ export default function AIQCPage() {
               border: `1px solid ${DARK_BORDER}`,
               background: DARK_BG,
               color: WHITE,
-              fontSize: 13,
-              outline: 'none',
-              cursor: 'pointer',
+              fontSize: 13, cursor: 'pointer',
             }}
           >
             <option value="全部">{t('aiQcPage.allTechnicians')}</option>
@@ -971,9 +961,7 @@ export default function AIQCPage() {
                 border: `1px solid ${DARK_BORDER}`,
                 background: DARK_BG,
                 color: WHITE,
-                fontSize: 13,
-                outline: 'none',
-              }}
+                fontSize: 13, }}
             />
             <span style={{ color: GRAY }}>{t('aiQcPage.to')}</span>
             <input
@@ -986,9 +974,7 @@ export default function AIQCPage() {
                 border: `1px solid ${DARK_BORDER}`,
                 background: DARK_BG,
                 color: WHITE,
-                fontSize: 13,
-                outline: 'none',
-              }}
+                fontSize: 13, }}
             />
           </div>
         </div>
@@ -1030,9 +1016,7 @@ export default function AIQCPage() {
                 border: `1px solid ${DARK_BORDER}`,
                 background: DARK_BG,
                 color: WHITE,
-                fontSize: 13,
-                outline: 'none',
-              }}
+                fontSize: 13, }}
             />
             <button
               onClick={() => void handleManualAssess()}
@@ -1108,9 +1092,7 @@ export default function AIQCPage() {
                   border: `1px solid ${DARK_BORDER}`,
                   background: DARK_CARD,
                   color: WHITE,
-                  fontSize: 12,
-                  outline: 'none',
-                }}
+                  fontSize: 12, }}
               />
             </label>
           ))}
@@ -1127,9 +1109,7 @@ export default function AIQCPage() {
               border: `1px solid ${DARK_BORDER}`,
               background: DARK_CARD,
               color: WHITE,
-              fontSize: 12,
-              outline: 'none',
-            }}
+              fontSize: 12, }}
           />
           <button
             onClick={() => void handleBatchAssess()}

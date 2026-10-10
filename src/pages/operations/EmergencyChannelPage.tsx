@@ -9,12 +9,29 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-  Card, Table, Switch, Space, Row, Col, Button, Tag, message, Form, Input, Select, Alert,
-  Descriptions, Spin, Modal, InputNumber, Badge, Tooltip, Empty,
-} from 'antd'
+  Card,
+  Switch,
+  Space,
+  Row,
+  Col,
+  Button,
+  Tag,
+  message,
+  Form,
+  Input,
+  Select,
+  Alert,
+  Descriptions,
+  Spin,
+  Modal,
+  InputNumber,
+  Badge,
+  Tooltip,
+  Empty,
+} from "antd";
 import { HeartPulse, Settings, Zap, History, Save, RefreshCw, CheckCircle2, BellRing, AlertTriangle } from 'lucide-react'
 import { emergencyChannelApi, type EmergencyChannelConfigItem, type EmergencyTriggerRecord, type EmergencyChannelType } from '../../services/api/emergencyChannelApi'
-import { StatCard, StatCardGrid } from '../../components/common'
+import { DataTable, StatCard, StatCardGrid } from "../../components/common"
 
 const TRIGGER_TYPES: Array<{ value: string; label: string }> = [
   { value: 'critical-finding', label: '危急值发现' },
@@ -192,9 +209,8 @@ export default function EmergencyChannelPage() {
               </Space>
             </Space>
           </Card>
-          <Table<EmergencyChannelConfigItem>
+          <DataTable<EmergencyChannelConfigItem>
             rowKey="type"
-            size="small"
             pagination={false}
             dataSource={channels}
             locale={{ emptyText: t('noData', '暂无通道') }}
@@ -255,9 +271,8 @@ export default function EmergencyChannelPage() {
           <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void fetchRecords()}>{t('refresh', '刷新')}</Button>
         </Space>}
       >
-        <Table<EmergencyTriggerRecord>
+        <DataTable<EmergencyTriggerRecord>
           rowKey="id"
-          size="small"
           loading={recordsLoading}
           dataSource={records}
           pagination={{ pageSize: 10, showTotal: (total) => `${t('total', '共')} ${total} ${t('records', '条')}` }}

@@ -1112,9 +1112,7 @@ const borderGray = "var(--border-color)";
     <div
       data-testid="appointment-page"
       style={{
-        padding: 0,
-        minHeight: "100vh",
-        background: "var(--bg-card)",
+        padding: 0, background: "var(--bg-card)",
         fontFamily:
           '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
@@ -1682,9 +1680,7 @@ const borderGray = "var(--border-color)";
                         padding: "5px 8px",
                         border: `1px solid ${borderGray}`,
                         borderRadius: 6,
-                        fontSize: 12,
-                        outline: "none",
-                        color: primaryBlue,
+                        fontSize: 12, color: primaryBlue,
                       }}
                     />
                   </div>
@@ -1798,9 +1794,7 @@ const borderGray = "var(--border-color)";
                                 padding: "4px 6px",
                                 border: `1px solid ${borderGray}`,
                                 borderRadius: 4,
-                                fontSize: 12,
-                                outline: "none",
-                                color: primaryBlue,
+                                fontSize: 12, color: primaryBlue,
                                 background: rule.enabled ? whiteBg : "var(--bg-primary)",
                                 boxSizing: "border-box",
                               }}
@@ -1839,9 +1833,7 @@ const borderGray = "var(--border-color)";
                                 padding: "4px 6px",
                                 border: `1px solid ${borderGray}`,
                                 borderRadius: 4,
-                                fontSize: 12,
-                                outline: "none",
-                                color: primaryBlue,
+                                fontSize: 12, color: primaryBlue,
                                 background: rule.enabled ? whiteBg : "var(--bg-primary)",
                                 boxSizing: "border-box",
                               }}
@@ -1880,9 +1872,7 @@ const borderGray = "var(--border-color)";
                                 padding: "4px 6px",
                                 border: `1px solid ${borderGray}`,
                                 borderRadius: 4,
-                                fontSize: 12,
-                                outline: "none",
-                                color: primaryBlue,
+                                fontSize: 12, color: primaryBlue,
                                 background: rule.enabled ? whiteBg : "var(--bg-primary)",
                                 boxSizing: "border-box",
                               }}
@@ -1921,9 +1911,7 @@ const borderGray = "var(--border-color)";
                                 padding: "4px 6px",
                                 border: `1px solid ${borderGray}`,
                                 borderRadius: 4,
-                                fontSize: 12,
-                                outline: "none",
-                                color: primaryBlue,
+                                fontSize: 12, color: primaryBlue,
                                 background: rule.enabled ? whiteBg : "var(--bg-primary)",
                                 boxSizing: "border-box",
                               }}
@@ -1962,9 +1950,7 @@ const borderGray = "var(--border-color)";
                                 padding: "4px 6px",
                                 border: `1px solid ${borderGray}`,
                                 borderRadius: 4,
-                                fontSize: 12,
-                                outline: "none",
-                                color: primaryBlue,
+                                fontSize: 12, color: primaryBlue,
                                 background: rule.enabled ? whiteBg : "var(--bg-primary)",
                                 boxSizing: "border-box",
                               }}

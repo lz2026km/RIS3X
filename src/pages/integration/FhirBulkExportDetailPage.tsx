@@ -1,7 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, Space, Tag, Button, message, Alert, Table, Collapse, Typography, Descriptions, Badge } from 'antd';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  message,
+  Alert,
+  Collapse,
+  Typography,
+  Descriptions,
+  Badge,
+} from "antd";
 import { Globe, Download, Activity, Loader2, Eye, FileText } from 'lucide-react';
 import { t } from '../../i18n/appI18n';
+import { DataTable } from "../../components/common";
 
 interface NdjsonFile {
   type: string;
@@ -99,7 +111,7 @@ export const FhirBulkExportDetailPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
       <Space style={{ marginBottom: 16 }}>
         <Globe size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fhirExport.title')}</span>
@@ -127,7 +139,7 @@ export const FhirBulkExportDetailPage: React.FC = () => {
 
       {status.files && status.files.length > 0 && (
         <Card size="small" title={<Space><FileText size={14} />{t('fhirExport.outputFiles', { count: status.files.length })}</Space>} style={{ marginTop: 16 }}>
-          <Table dataSource={status.files} rowKey="url" pagination={false} columns={ndjsonColumns} size="small" scroll={{ x: 'max-content' }} />
+          <DataTable dataSource={status.files} rowKey="url" pagination={false} columns={ndjsonColumns} scroll={{ x: 'max-content' }} />
 
           <Collapse style={{ marginTop: 12 }} items={status.files.map(f => ({
             key: f.type,

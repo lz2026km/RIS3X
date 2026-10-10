@@ -139,7 +139,7 @@ export const MprViewerPage: React.FC = () => {
   if (loading) return <div style={{ textAlign: 'center', padding: 100 }}><Spin size="large" /></div>;
 
   return (
-    <div style={{ padding: 0, background: '#000', minHeight: '100vh', color: '#fff' }}>
+    <div style={{ padding: 0, background: '#000', color: '#fff' }}>
       {loadError && <ErrorBanner message={loadError} onRetry={() => setReloadTick((n) => n + 1)} retryLabel={t('w9.states.retry')} />}
       {/* Top Bar */}
       <div style={{ background: '#001529', padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

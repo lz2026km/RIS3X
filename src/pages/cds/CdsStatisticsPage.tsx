@@ -81,7 +81,7 @@ export default function CdsStatisticsPage() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: '#0d1117', color: '#8b949e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>
+      <div style={{ background: '#0d1117', color: '#8b949e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>
         {t('cdsStats.loading')}
       </div>
     )
@@ -89,14 +89,14 @@ export default function CdsStatisticsPage() {
 
   if (!overview) {
     return (
-      <div style={{ minHeight: '100vh', background: '#0d1117', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ background: '#0d1117', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <StateView error={loadError ?? t('cdsStats.loadFailed')} onRetry={() => setReloadTick(n => n + 1)} />
       </div>
     )
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+    <div style={{ background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <BarChart3 size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('cdsStats.title')}</span>

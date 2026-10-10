@@ -1,10 +1,25 @@
 // [v3.0.6.11-35] 患者统一门户 - API接入版 · [W8] i18n + 刷新/搜索/分页整改
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Space, Tag, Row, Col, Tabs, Timeline, Table, Spin, message, Empty, Input, Rate, Button, Descriptions } from 'antd';
+import {
+  Card,
+  Space,
+  Tag,
+  Row,
+  Col,
+  Tabs,
+  Timeline,
+  Spin,
+  message,
+  Empty,
+  Input,
+  Rate,
+  Button,
+  Descriptions,
+} from "antd";
 import { User, Calendar, Clock, RefreshCw } from 'lucide-react';
 import { t } from '../../i18n/appI18n';
 import { ActionButton } from '../../components/common/ActionButton';
-import { ExportButton } from '../../components/common';
+import { DataTable, ExportButton } from "../../components/common";
 import { patientPortalApi, type PortalPatientDto, type PortalClinicalDataDto } from '../../services/api/patientPortalApi';
 import { appointmentApi, type AppointmentDto } from '../../services/api/appointmentApi';
 import { paymentApi, satisfactionApi, wechatApi, type PaymentOrderDto, type SurveyDto } from '../../services/api/w12PatientApi';
@@ -168,14 +183,14 @@ export const PatientPortalPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <div style={{ padding: 24, background: 'var(--bg-primary)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Spin size="large" tip={t('w8.patientPortal.loading')} />
       </div>
     );
   }
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
       <Space style={{ marginBottom: 16 }} wrap>
         <User size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('w8.patientPortal.title')}</span>
@@ -208,7 +223,7 @@ export const PatientPortalPage: React.FC = () => {
               <Card size="small" title={<Space><Calendar size={14}/>{t('w8.patientPortal.recentAppointments')}</Space>} extra={
                 <Input.Search allowClear size="small" placeholder={t('w8.patientPortal.searchAppointment')} style={{ width: 200 }} value={keyword} onChange={(e) => setKeyword(e.target.value)} />
               }>
-                <Table dataSource={filteredAppts} rowKey={(r) => r.id || `${r.date}-${r.type}`} pagination={{ pageSize: 5, showSizeChanger: false }} scroll={{ x: 'max-content' }}
+                <DataTable dataSource={filteredAppts} rowKey={(r) => r.id || `${r.date}-${r.type}`} pagination={{ pageSize: 5, showSizeChanger: false }} scroll={{ x: 'max-content' }}
                   locale={{ emptyText: <Empty description={t('w8.patientPortal.emptyAppointments')} /> }}
                   columns={[{title:t('w8.patientPortal.colTime'),dataIndex:'date'},{title:t('w8.patientPortal.colDept'),dataIndex:'dept'},{title:t('w8.patientPortal.colDoctor'),dataIndex:'doctor'},{title:t('w8.patientPortal.colType'),dataIndex:'type'}]} />
               </Card>
@@ -231,7 +246,7 @@ export const PatientPortalPage: React.FC = () => {
           <Row gutter={16}>
             <Col span={14}>
               <Card size="small" title={t('w12Patient.payment.orders')}>
-                <Table dataSource={payOrders} rowKey={(r) => r.id} pagination={{ pageSize: 5, showSizeChanger: false }} scroll={{ x: 'max-content' }}
+                <DataTable dataSource={payOrders} rowKey={(r) => r.id} pagination={{ pageSize: 5, showSizeChanger: false }} scroll={{ x: 'max-content' }}
                   locale={{ emptyText: <Empty description={t('w12Patient.empty')} /> }}
                   columns={[
                     { title: t('w12Patient.payment.orderNo'), dataIndex: 'orderNo' },

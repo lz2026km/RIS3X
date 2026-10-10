@@ -3,11 +3,30 @@
 import { usePagination } from '../../hooks/usePagination';
 import { aiFusionWorkspaceApi, type FusionStudy, type AiInsight } from '../../services/api/aiFusionWorkspaceApi';
 import { fusionApi } from '../../services/api/fusionApi';
-import { Card, Space, Tag, Table, Button, Row, Col, Badge, Progress, List, Tooltip, Segmented, message, Spin, Empty, Alert, Modal, Descriptions, Timeline } from 'antd';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Row,
+  Col,
+  Badge,
+  Progress,
+  List,
+  Tooltip,
+  Segmented,
+  message,
+  Spin,
+  Empty,
+  Alert,
+  Modal,
+  Descriptions,
+  Timeline,
+} from "antd";
 import { Brain, Eye, Activity, Layers, BarChart3, Crosshair, FileText, Image, Share2, Download, Sparkles, RefreshCw, PlayCircle, CheckCircle2, Clock } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { t } from '../../i18n/appI18n';
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 
 function downloadBlob(content: string, filename: string, mime = 'text/csv;charset=utf-8'): void {
   const blob = new Blob(['\uFEFF' + content], { type: mime });
@@ -189,7 +208,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
         title={<Space><FileText size={14} />{t('aiFusion.studies')}</Space>}
         extra={<Space><Button size="small" icon={<Share2 size={12} />} onClick={() => { if (studies.length === 0) { message.warning(t('aiFusion.nothingToExport')); return } downloadBlob(studiesToCSV(studies), `${t('w9d.aiFusion.reportFile')}_${new Date().toISOString().slice(0, 10)}.csv`); message.success(t('w9d.aiFusion.exported', { count: studies.length })) }}>{t('aiFusion.exportReport')}</Button></Space>}
       >
-        <Table
+        <DataTable
           dataSource={studyPageData}
           rowKey="id"
           pagination={studyPagination}

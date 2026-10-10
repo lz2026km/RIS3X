@@ -24,7 +24,7 @@ const s = {
   reportStatusCard: { padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid var(--border-color)', marginBottom: 8 },
   reportStatusBadge: { display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 700 },
   reportBtn: { padding: '6px 10px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center' } as React.CSSProperties,
-  select: { padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, color: PRIMARY, fontWeight: 600, cursor: 'pointer', outline: 'none', fontFamily: 'inherit' } as React.CSSProperties,
+  select: { padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, color: PRIMARY, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' } as React.CSSProperties,
   mprTabs: { display: 'flex', gap: 4, marginBottom: 4 },
   mprTab: { flex: 1, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer', textAlign: 'center' as const, transition: 'all 0.15s' } as React.CSSProperties,
   mprTabActive: { background: PRIMARY, borderColor: PRIMARY, color: '#fff' },
@@ -43,7 +43,7 @@ const s = {
   vrSliderVal: { fontSize: 12, color: PRIMARY, fontWeight: 600, minWidth: 30, textAlign: 'right' as const },
   vrResetBtn: { width: '100%', padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center' } as React.CSSProperties,
   historySearchRow: { display: 'flex', gap: 6, marginBottom: 10 },
-  historySearchInput: { flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, outline: 'none', fontFamily: 'inherit' },
+  historySearchInput: { flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, fontFamily: 'inherit' },
   historySearchBtn: { padding: '6px 10px', borderRadius: 6, border: 'none', background: PRIMARY, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' },
   historyListItem: { display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', marginBottom: 6, cursor: 'pointer', transition: 'all 0.15s' },
   historyListItemSelected: { border: '2px solid #3b82f6', background: 'var(--color-info-bg)' },
@@ -539,7 +539,7 @@ export default function SidebarPanel(props: Props) {
                 <button style={{ ...s.mprTab, flex: 1, ...(externalSearchType === 'patientName' ? s.mprTabActive : {}) }} onClick={() => setExternalSearchType('patientName')}>{t('dc.patientName')}</button>
               </div>
               <div style={{ display: 'flex', gap: 6 }}>
-                <input type="text" placeholder={externalSearchType === 'patientId' ? t('w9d.sidebar.inputPatientId') : t('w9d.sidebar.inputPatientName')} value={externalSearchText} onChange={e => setExternalSearchText(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleExternalSearch()} style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, outline: 'none', fontFamily: 'inherit' }} />
+                <input type="text" placeholder={externalSearchType === 'patientId' ? t('w9d.sidebar.inputPatientId') : t('w9d.sidebar.inputPatientName')} value={externalSearchText} onChange={e => setExternalSearchText(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleExternalSearch()} style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, fontFamily: 'inherit' }} />
                 <button style={{ padding: '6px 12px', borderRadius: 6, border: 'none', background: PRIMARY, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }} onClick={handleExternalSearch}>{t('dcm.search')}</button>
               </div>
             </div>

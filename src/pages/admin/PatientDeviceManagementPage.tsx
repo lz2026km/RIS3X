@@ -1,13 +1,35 @@
 // [v3.0.6.8-46] PR2: 患者 + 设备 CRUD 综合管理页面
 import { deviceApi } from '@/services/api/deviceApi';
 import { patientApi } from '@/services/api/patientApi';
-import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message, Tabs, List, Empty, Statistic, Alert, InputNumber, Modal, Timeline, Table, Descriptions, Avatar } from 'antd';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Select,
+  Input,
+  Form,
+  Row,
+  Col,
+  Divider,
+  message,
+  Tabs,
+  List,
+  Empty,
+  Statistic,
+  Alert,
+  InputNumber,
+  Modal,
+  Timeline,
+  Descriptions,
+  Avatar,
+} from "antd";
 import { User, Box, Plus, Edit3, Wrench, Stethoscope, FileText, History } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { Inbox } from 'lucide-react'
 import { LoadingBanner } from '../../components/feedback'
 import { t } from '../../i18n/appI18n'
-import { PageContainer } from '../../components/common'
+import { DataTable, PageContainer } from "../../components/common"
 
 const { TextArea } = Input;
 
@@ -210,7 +232,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
                     size="small"
                     items={[
                       { key: 'exams', label: <span><Stethoscope size={12} /> {t('patientDevice.exams')} ({patientExams.length})</span>, children: (
-                        <Table size="small" dataSource={patientExams} rowKey="id" pagination={false}
+                        <DataTable dataSource={patientExams} rowKey="id" pagination={false}
                           columns={[
                             { title: t('patientDevice.colId'), dataIndex: 'id' },
                             { title: t('patientDevice.colModality'), dataIndex: 'modality' },

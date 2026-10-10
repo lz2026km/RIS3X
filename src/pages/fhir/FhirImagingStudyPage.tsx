@@ -1,5 +1,19 @@
 import { fhirApi, type FhirImagingStudy } from '../../services/api/fhirApi'
-import { Card, Table, Button, Space, Tag, Form, Input, Select, message, Empty, Modal, Descriptions, Tooltip, Badge } from 'antd'
+import {
+  Card,
+  Button,
+  Space,
+  Tag,
+  Form,
+  Input,
+  Select,
+  message,
+  Empty,
+  Modal,
+  Descriptions,
+  Tooltip,
+  Badge,
+} from "antd";
 import { Layers, Search, RefreshCw, Eye } from 'lucide-react'
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
@@ -118,7 +132,7 @@ export const FhirImagingStudyPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
       <Space style={{ marginBottom: 16 }}>
         <Layers size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fis.title')}</span>
@@ -152,13 +166,12 @@ export const FhirImagingStudyPage: React.FC = () => {
       </Card>
 
       <Card size="small" title={`影像检查列表 (${total})`}>
-        <Table
+        <DataTable
           dataSource={studies.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)}
           columns={columns}
           rowKey="id"
           loading={loading}
           pagination={{ current: page, total, pageSize: PAGE_SIZE, onChange: setPage, showSizeChanger: false }}
-          size="small"
         scroll={{ x: 'max-content' }}
         />
       </Card>
@@ -204,3 +217,5 @@ export const FhirImagingStudyPage: React.FC = () => {
 }
 
 export default FhirImagingStudyPage
+
+import { DataTable } from "../../components/common";

@@ -1,5 +1,18 @@
 import React, { useState, useCallback, useEffect } from 'react'
-import { Card, Space, Select, InputNumber, Button, Typography, Tag, Divider, message, Form, Tabs, Table, Tooltip } from 'antd'
+import {
+  Card,
+  Space,
+  Select,
+  InputNumber,
+  Button,
+  Typography,
+  Tag,
+  Divider,
+  message,
+  Form,
+  Tabs,
+  Tooltip,
+} from "antd";
 import { Sparkles, Cpu, History, FileText } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
 import RadsScoring from '../../components/ai/RadsScoring'
@@ -9,7 +22,7 @@ import { scoreRadsLocally } from '../../services/radsLocalScore'
 import type { RadsType as LocalRadsType } from '../../services/radsLocalScore'
 import { RADS_RULES } from '../../data/radsRules'
 import type { RadsSystem } from '../../data/radsRules'
-import { PageContainer } from '../../components/common'
+import { DataTable, PageContainer } from "../../components/common"
 
 const { Text, Title } = Typography
 
@@ -292,9 +305,8 @@ const AiRadsPage: React.FC = () => {
             title={t('w9d.aiRads.rulesTableTitle', { group: group.name, source: rulesSource === 'api' ? t('w9d.aiRads.backendRules') : t('w9d.aiRads.builtinRules') })}
             style={{ marginTop: 16 }}
           >
-            <Table<RadsRule>
+            <DataTable<RadsRule>
               rowKey="level"
-              size="small"
               dataSource={group.levels}
               pagination={false}
               columns={[

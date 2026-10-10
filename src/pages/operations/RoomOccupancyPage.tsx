@@ -3,11 +3,23 @@
 import { occupancyApi } from '../../services/api';
 import { OccupancyQueueEntry, OccupancyRoom, OccupancyTrendPoint, RoomStatusValue } from '../../services/api'
 import RoomOccupancyExtendedSection from './RoomOccupancyExtendedSection';
-import { Card, Space, Tag, Button, Row, Col, Table, Tooltip, message, Select, Alert, Spin } from 'antd';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Row,
+  Col,
+  Tooltip,
+  message,
+  Select,
+  Alert,
+  Spin,
+} from "antd";
 import { LayoutDashboard, Users, Clock, TrendingUp, AlertTriangle, Circle, RefreshCw } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { t } from '../../i18n/appI18n';
-import { StatCard, StatCardGrid } from '../../components/common';
+import { DataTable, StatCard, StatCardGrid } from "../../components/common";
 
 const STATUS_META: Record<string, { color: string; label: string }> = {
   idle: { color: '#52c41a', label: '空闲' },
@@ -86,14 +98,14 @@ export const RoomOccupancyPage: React.FC = () => {
 
   if (loading && rooms.length === 0) {
     return (
-      <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <div style={{ padding: 24, background: 'var(--bg-card)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Spin size="large" description={t('roomOccupancy.loading')} />
       </div>
     );
   }
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
       <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }} wrap>
         <Space>
           <LayoutDashboard size={20} color="#2563eb" />
@@ -195,7 +207,7 @@ export const RoomOccupancyPage: React.FC = () => {
                   <span style={{ fontSize: 13, fontWeight: 500 }}>{t('roomOccupancy.waitingCount')}: {queue.length} {t('roomOccupancy.people')}</span>
                   <span style={{ marginLeft: 16, fontSize: 13 }}>{t('roomOccupancy.estimatedWait')}: {queue.reduce((s, q) => s + q.estimatedWaitMin, 0)} {t('roomOccupancy.minutes')}</span>
                 </div>
-                <Table dataSource={queue} rowKey="position" size="small" pagination={false} scroll={{ x: 'max-content' }}
+                <DataTable dataSource={queue} rowKey="position" pagination={false} scroll={{ x: 'max-content' }}
                   columns={[
                     { title: '#', dataIndex: 'position', width: 40 },
                     { title: t('roomOccupancy.patient'), dataIndex: 'patientName', ellipsis: true },

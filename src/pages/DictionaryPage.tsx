@@ -37,13 +37,12 @@ const s: Record<string, React.CSSProperties> = {
     borderRadius: 8, padding: '8px 14px', flex: 1, minWidth: 220,
   },
   searchInput: {
-    border: 'none', outline: 'none', background: 'transparent',
+    border: 'none', background: 'transparent',
     fontSize: 14, color: 'var(--text-secondary)', width: '100%',
   },
   select: {
     border: '1px solid var(--border-color)', borderRadius: 8, padding: '9px 14px',
-    fontSize: 13, color: 'var(--text-secondary)', background: 'var(--content-bg)', outline: 'none',
-    cursor: 'pointer', minHeight: 44,
+    fontSize: 13, color: 'var(--text-secondary)', background: 'var(--content-bg)', cursor: 'pointer', minHeight: 44,
   },
   btnPrimary: {
     display: 'flex', alignItems: 'center', gap: 6,
@@ -132,12 +131,12 @@ const s: Record<string, React.CSSProperties> = {
   required: { color: '#dc2626', marginLeft: 2 },
   input: {
     border: '1px solid var(--border-color)', borderRadius: 8, padding: '10px 12px',
-    fontSize: 14, color: 'var(--text-secondary)', outline: 'none', minHeight: 44,
+    fontSize: 14, color: 'var(--text-secondary)', minHeight: 44,
     boxSizing: 'border-box', width: '100%',
   },
   textarea: {
     border: '1px solid var(--border-color)', borderRadius: 8, padding: '10px 12px',
-    fontSize: 14, color: 'var(--text-secondary)', outline: 'none', resize: 'vertical',
+    fontSize: 14, color: 'var(--text-secondary)', resize: 'vertical',
     minHeight: 80, fontFamily: 'inherit', boxSizing: 'border-box', width: '100%',
   },
   btnCancel: {
@@ -1389,7 +1388,7 @@ export default function DictionaryPage() {
   }
 
   return (
-    <div style={{ background: 'var(--bg-card)', minHeight: '100vh', padding: 20, fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
+    <div style={{ background: 'var(--bg-card)', padding: 20, fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
       <div style={s.pageHeader}>
         <PageHeader
           variant="flex"

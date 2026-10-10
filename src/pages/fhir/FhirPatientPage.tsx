@@ -1,5 +1,20 @@
 import { fhirApi, type FhirPatient } from '../../services/api/fhirApi'
-import { Card, Table, Button, Space, Tag, Modal, Form, Input, Select, DatePicker, message, Popconfirm, Descriptions, Empty, Tooltip } from 'antd'
+import {
+  Card,
+  Button,
+  Space,
+  Tag,
+  Modal,
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  message,
+  Popconfirm,
+  Descriptions,
+  Empty,
+  Tooltip,
+} from "antd";
 import { Users, Plus, Edit, Trash, Search, RefreshCw, Eye } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
 import { Inbox } from 'lucide-react'
@@ -205,7 +220,7 @@ export const FhirPatientPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
       <Space style={{ marginBottom: 16 }}>
         <Users size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fhirPatient.title')}</span>
@@ -235,14 +250,13 @@ export const FhirPatientPage: React.FC = () => {
         title={`${t('fhirPatient.patientList')} (${total})`}
         extra={<Button type="primary" icon={<Plus size={14} />} onClick={handleCreate}>{t('fhirPatient.newPatient')}</Button>}
       >
-        <Table
+        <DataTable
           dataSource={patients.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)}
           columns={columns}
           rowKey="id"
           loading={loading}
           onRow={(r) => ({ onClick: () => handleDetail(r), style: { cursor: 'pointer' } })}
           pagination={{ current: page, total, pageSize: PAGE_SIZE, onChange: setPage, showSizeChanger: false }}
-          size="small"
         scroll={{ x: 'max-content' }}
         />
       </Card>
@@ -329,10 +343,9 @@ export const FhirPatientPage: React.FC = () => {
         ) : everythingEntries.length === 0 ? (
           <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('fhirPatient.noRelatedResources')} />
         ) : (
-          <Table
+          <DataTable
             dataSource={pagedEverything}
             rowKey={(r) => `${r.resourceType}-${r.id}`}
-            size="small"
             scroll={{ x: 'max-content' }}
             pagination={everythingPagination}
             columns={[
@@ -349,3 +362,5 @@ export const FhirPatientPage: React.FC = () => {
 }
 
 export default FhirPatientPage
+
+import { DataTable } from "../../components/common";

@@ -4,7 +4,7 @@
 import { dentalApi } from "../../services/api/dentalApi";
 import { ErrorBanner } from "../../components/feedback";
 import { t } from "../../i18n/appI18n";
-import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import {
   Card,
   Space,
@@ -17,7 +17,6 @@ import {
   Empty,
   Badge,
   Tooltip,
-  Table,
   Modal,
   Input,
   InputNumber,
@@ -544,10 +543,9 @@ export const DentalCephPage: React.FC = () => {
               <div style={{ fontSize: 11, color: "var(--text-secondary)", marginBottom: 4 }}>
                 {t("ceph.diagnosis")}{analysis.diagnosis}
               </div>
-              <Table
+              <DataTable
                 dataSource={analysis.measurements}
                 rowKey="key"
-                size="small"
                 pagination={false}
                 columns={[
                   { title: t("ceph.colItem"), dataIndex: "label", width: 100 },
@@ -626,8 +624,7 @@ export const DentalCephPage: React.FC = () => {
               <b>{t("w4b.ceph.analysisCount")}</b>
               <Tag color="blue">{analysisTypes.length}</Tag>
             </Space>
-            <Table
-              size="small"
+            <DataTable
               rowKey="id"
               pagination={false}
               dataSource={analysisTypes}
@@ -661,8 +658,7 @@ export const DentalCephPage: React.FC = () => {
                 {t("w4b.ceph.source")}: {studyLandmarkSource === "saved" ? t("w4b.ceph.sourceSaved") : t("w4b.ceph.sourceDefault")}
               </Tag>
             </Space>
-            <Table
-              size="small"
+            <DataTable
               rowKey="key"
               pagination={false}
               dataSource={Object.entries(studyLandmarks).map(([key, v]) => ({ key, ...v }))}
@@ -678,8 +674,7 @@ export const DentalCephPage: React.FC = () => {
               <b>{t("w4b.ceph.landmarks")} (18)</b>
               <Tag>{Object.keys(globalLandmarks).length}</Tag>
             </Space>
-            <Table
-              size="small"
+            <DataTable
               rowKey="key"
               pagination={false}
               dataSource={Object.entries(globalLandmarks).map(([key, v]) => ({ key, ...v }))}

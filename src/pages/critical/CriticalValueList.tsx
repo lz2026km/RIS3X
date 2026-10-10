@@ -64,12 +64,12 @@ export const FilterBar = ({
     <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, background: 'var(--bg-card)', borderRadius: 8, padding: '8px 14px', border: '1px solid var(--border-color)' }}>
         <Search size={16} style={{ color: '#94a3b8' }} />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('cvList.searchPlaceholder')} style={{ border: 'none', outline: 'none', fontSize: 13, width: '100%', background: 'transparent' }} />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('cvList.searchPlaceholder')} style={{ border: 'none', fontSize: 13, width: '100%', background: 'transparent' }} />
         {search && <X size={14} style={{ color: '#94a3b8', cursor: 'pointer' }} onClick={() => setSearch('')} />}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <Calendar size={14} style={{ color: '#64748b' }} />
-        <input type="date" value={dateRange} onChange={e => setDateRange(e.target.value)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 12, color: 'var(--text-primary)', outline: 'none' }} />
+        <input type="date" value={dateRange} onChange={e => setDateRange(e.target.value)} style={{ border: '1px solid var(--border-color)', borderRadius: 6, padding: '6px 10px', fontSize: 12, color: 'var(--text-primary)',}} />
       </div>
       <button onClick={onOpenSettings} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
         <Settings size={14} />

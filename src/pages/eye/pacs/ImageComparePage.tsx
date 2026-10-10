@@ -1,11 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { Card, Row, Col, Tag, Space, Select, Table, Button, message } from 'antd';
+import {
+  Card,
+  Row,
+  Col,
+  Tag,
+  Space,
+  Select,
+  Button,
+  message,
+} from "antd";
 import { ArrowLeftRight, Eye, TrendingUp, TrendingDown, Trash2 } from "lucide-react";
 
 import { eyeApi } from "@/services/api/eyeApi";
 import { ErrorBanner } from "@/components/feedback";
 import { ActionButton, ExportButton } from "@/components/common";
 import { t } from "../../../i18n/appI18n";
+import { DataTable } from "../../../components/common";
 
 const ImageComparePage: React.FC = () => {
   const [pairIdx, setPairIdx] = useState(0);
@@ -168,10 +178,9 @@ const ImageComparePage: React.FC = () => {
         </Col>
         <Col span={8}>
           <Card size="small" title={t('w9d.imageCompare.compareMeasures')}>
-            <Table
+            <DataTable
               dataSource={pair.measurements}
               rowKey="parameter"
-              size="small"
               pagination={false}
               columns={[
                 { title: t('w9d.imageCompare.colParam'), dataIndex: "parameter", key: "parameter" },

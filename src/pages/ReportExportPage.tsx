@@ -575,7 +575,7 @@ export default function ReportExportPage() {
 // ============================================================
 const selectStyle: React.CSSProperties = {
   padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4,
-  fontSize: 12, outline: 'none', width: '100%',
+  fontSize: 12, width: '100%',
 };
 
 // ============================================================

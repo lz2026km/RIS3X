@@ -5,7 +5,17 @@
  * - 差异指标与后端 imaging-compare 模块像素算法一致 (确定性 seed 派生)
  */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { message, Button, Checkbox, Input, Select, Switch, Tag, Tooltip, Table, Slider } from 'antd'
+import {
+  message,
+  Button,
+  Checkbox,
+  Input,
+  Select,
+  Switch,
+  Tag,
+  Tooltip,
+  Slider,
+} from "antd";
 import {
   Columns2, GitCompare, Layers, Lock, LockOpen, MonitorUp, MousePointerClick, RotateCw, Sun, Trash2, ZoomIn, ZoomOut,
 } from 'lucide-react'
@@ -598,7 +608,7 @@ export default function ImagingComparePage() {
   }
 
   return (
-    <div data-testid="imaging-compare-page" style={{ minHeight: '100vh', background: '#020617', color: '#cbd5e1', padding: 12 }}>
+    <div data-testid="imaging-compare-page" style={{ background: '#020617', color: '#cbd5e1', padding: 12 }}>
       {/* ── 顶栏 ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
         <Columns2 size={18} color={BLUE} />
@@ -914,8 +924,7 @@ export default function ImagingComparePage() {
                 </div>
 
                 {/* 统计表 */}
-                <Table
-                  size="small" pagination={false} rowKey="key"
+                <DataTable pagination={false} rowKey="key"
                   dataSource={[
                     { key: 'mean', name: t('imagingCompare.mean'), a: diffMetrics.meanA.toFixed(1), b: diffMetrics.meanB.toFixed(1), diff: diffMetrics.meanDiff.toFixed(1) },
                     { key: 'variance', name: t('imagingCompare.variance'), a: diffMetrics.varianceA.toFixed(1), b: diffMetrics.varianceB.toFixed(1), diff: diffMetrics.varianceDiff.toFixed(1) },
@@ -944,3 +953,5 @@ export default function ImagingComparePage() {
     </div>
   )
 }
+
+import { DataTable } from "../../components/common";

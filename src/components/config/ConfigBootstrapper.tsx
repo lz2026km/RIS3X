@@ -38,7 +38,7 @@ export const ConfigBootstrapper: React.FC<{ children: ReactNode }> = ({ children
   if (state === "ready") return <>{children}</>;
   if (state === "pending") {
     return (
-      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", background: "#f0f2f5" }}>
+      <div style={{ display: "grid", placeItems: "center", background: "#f0f2f5" }}>
         <Space orientation="vertical" align="center" size={12}>
           <Text type="secondary">正在加载临床配置…</Text>
         </Space>
@@ -50,7 +50,7 @@ export const ConfigBootstrapper: React.FC<{ children: ReactNode }> = ({ children
 
 const ConfigurationErrorPage: React.FC<{ error: Error; onRetry: () => void }> = ({ error, onRetry }) => {
   return (
-    <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", background: "#fff2f0", padding: 24 }}>
+    <div style={{ display: "grid", placeItems: "center", background: "#fff2f0", padding: 24 }}>
       <Result
         status="error"
         icon={<Bug size={48} />}

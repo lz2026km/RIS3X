@@ -225,7 +225,7 @@ const DepartmentOperationsPage = () => {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <div style={s.sectionTitle}><Calendar size={16} color='#0891b2' />{t('deptOps.queueTitle')}</div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <input style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, outline: 'none', width: 200 }} placeholder={t('deptOps.searchPlaceholder')} value={search} onChange={e => setSearch(e.target.value)} />
+            <input style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12, width: 200 }} placeholder={t('deptOps.searchPlaceholder')} value={search} onChange={e => setSearch(e.target.value)} />
             <button style={{ ...s.btn, padding: '6px 12px' }} onClick={() => setShowAddModal(true)}><Plus size={12} /> {t('deptOps.addQueue')}</button>
           </div>
         </div>
@@ -299,7 +299,7 @@ const DepartmentOperationsPage = () => {
             <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
                 <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', display: 'block', marginBottom: 6 }}>{t('deptOps.colPatient')}</label>
-                <input value={newPatient.name} onChange={e => setNewPatient({ ...newPatient, name: e.target.value })} placeholder={t('deptOps.enterPatientName')} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                <input value={newPatient.name} onChange={e => setNewPatient({ ...newPatient, name: e.target.value })} placeholder={t('deptOps.enterPatientName')} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box' }} />
               </div>
               <div>
                 <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', display: 'block', marginBottom: 6 }}>{t('deptOps.colExam')}</label>

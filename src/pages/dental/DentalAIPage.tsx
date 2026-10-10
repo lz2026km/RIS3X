@@ -1,12 +1,29 @@
 // [v3.0.6.8-53] 口腔 AI 辅助诊断页面
 // [v3.0.6.11-60] Batch 3: dentalApi 检测 + AI 检测记录列表 + 结果卡片
 import React, { useCallback, useEffect, useState } from 'react';
-import { Card, Space, Tag, Button, Row, Col, message, Divider, Alert, Tabs, Empty, Modal, Table, Spin, Progress, Badge, Descriptions } from 'antd';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Row,
+  Col,
+  message,
+  Divider,
+  Alert,
+  Tabs,
+  Empty,
+  Modal,
+  Spin,
+  Progress,
+  Badge,
+  Descriptions,
+} from "antd";
 import { Brain, CheckCircle2, Scan, Eye, RefreshCw, History, Sparkles } from 'lucide-react';
 import { dentalApi } from '../../services/api/dentalApi';
 import { usePagination } from '../../hooks/usePagination';
 import { t } from '../../i18n/appI18n';
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 
 interface AiFindingRecord {
   id: string;
@@ -212,7 +229,7 @@ export const DentalAIPage: React.FC = () => {
       {activeTab === 'records' && (
         <Card size="small" title={<Space><History size={14} />{t('dentalAi.recordsTitle')}</Space>}>
           <Spin spinning={listLoading}>
-            <Table
+            <DataTable
               dataSource={findingPageData}
               rowKey="id"
               pagination={findingPagination}

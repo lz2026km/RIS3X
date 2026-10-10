@@ -82,15 +82,15 @@ export const ProcessModal = ({ cv, onConfirm, onCancel }: {
           </div>
           <div style={{ marginBottom: 16 }}>
             <label htmlFor="cv-process-dept" style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t('cvModals.processDept')}</label>
-            <input id="cv-process-dept" type="text" defaultValue={cv.receivingDepartment} placeholder={t('cvModals.inputProcessDept')} aria-label={t('cvModals.processDept')} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+            <input id="cv-process-dept" type="text" defaultValue={cv.receivingDepartment} placeholder={t('cvModals.inputProcessDept')} aria-label={t('cvModals.processDept')} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box' }} />
           </div>
           <div style={{ marginBottom: 16 }}>
             <label htmlFor="cv-process-action" style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t('cvModals.processAction')}</label>
-            <textarea id="cv-process-action" placeholder={t('cvModals.inputProcessAction')} aria-label={t('cvModals.processAction')} rows={3} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13, outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+            <textarea id="cv-process-action" placeholder={t('cvModals.inputProcessAction')} aria-label={t('cvModals.processAction')} rows={3} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13, resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
           </div>
           <div style={{ marginBottom: 16 }}>
             <label htmlFor="cv-process-result" style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t('cvModals.processResult')}</label>
-            <textarea id="cv-process-result" placeholder={t('cvModals.inputProcessResult')} aria-label={t('cvModals.processResult')} rows={2} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13, outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+            <textarea id="cv-process-result" placeholder={t('cvModals.inputProcessResult')} aria-label={t('cvModals.processResult')} rows={2} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13, resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={onCancel} style={footerBtn()}>{t('cvModals.cancel')}</button>
@@ -151,11 +151,11 @@ export const NotifyModal = ({ cv, phone, notes, method, onSetPhone, onSetNotes, 
           </div>
           <div style={{ marginBottom: 16 }}>
             <label htmlFor="cv-notify-phone" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('cvModals.contactPhone')}</label>
-            <input id="cv-notify-phone" type="text" value={phone} onChange={(e) => onSetPhone(e.target.value)} placeholder={t('cvModals.inputContactPhone')} aria-label={t('cvModals.contactPhone')} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
+            <input id="cv-notify-phone" type="text" value={phone} onChange={(e) => onSetPhone(e.target.value)} placeholder={t('cvModals.inputContactPhone')} aria-label={t('cvModals.contactPhone')} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, boxSizing: 'border-box' }} />
           </div>
           <div style={{ marginBottom: 20 }}>
             <label htmlFor="cv-notify-notes" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('cvModals.notifyNotes')}</label>
-            <textarea id="cv-notify-notes" value={notes} onChange={(e) => onSetNotes(e.target.value)} placeholder={t('cvModals.inputNotifyNotes')} aria-label={t('cvModals.notifyNotes')} rows={3} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+            <textarea id="cv-notify-notes" value={notes} onChange={(e) => onSetNotes(e.target.value)} placeholder={t('cvModals.inputNotifyNotes')} aria-label={t('cvModals.notifyNotes')} rows={3} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, resize: 'none', boxSizing: 'border-box' }} />
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={onCancel} style={footerBtn()}>{t('cvModals.cancel')}</button>
@@ -195,7 +195,7 @@ export const VoiceCallModal = ({ cv, phone, onSetPhone, onConfirm, onCancel }: {
         <div style={{ padding: 24 }}>
           <div style={{ marginBottom: 20 }}>
             <label htmlFor="cv-voicecall-phone" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('cvModals.contactPhone')}</label>
-            <input id="cv-voicecall-phone" type="text" value={phone} onChange={(e) => onSetPhone(e.target.value)} placeholder={t('cvModals.inputClinicalPhone')} aria-label={t('cvModals.contactPhone')} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
+            <input id="cv-voicecall-phone" type="text" value={phone} onChange={(e) => onSetPhone(e.target.value)} placeholder={t('cvModals.inputClinicalPhone')} aria-label={t('cvModals.contactPhone')} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, boxSizing: 'border-box' }} />
           </div>
           <div style={{ background: 'var(--color-warning-bg)', borderRadius: 8, padding: '10px 14px', border: '1px solid var(--color-warning-border)', marginBottom: 20 }}>
             <div style={{ fontSize: 12, color: 'var(--color-warning)', lineHeight: 1.6 }}>{t('cvModals.phoneNotifyHint')}</div>
@@ -238,11 +238,11 @@ export const ClinicalReceiptModal = ({ cv, doctor, comment, onSetDoctor, onSetCo
         <div style={{ padding: 24 }}>
           <div style={{ marginBottom: 16 }}>
             <label htmlFor="cv-receipt-doctor" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('cvModals.confirmDoctor')}</label>
-            <input id="cv-receipt-doctor" type="text" value={doctor} onChange={(e) => onSetDoctor(e.target.value)} placeholder={t('cvModals.inputConfirmDoctor')} aria-label={t('cvModals.confirmDoctorAria')} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
+            <input id="cv-receipt-doctor" type="text" value={doctor} onChange={(e) => onSetDoctor(e.target.value)} placeholder={t('cvModals.inputConfirmDoctor')} aria-label={t('cvModals.confirmDoctorAria')} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, boxSizing: 'border-box' }} />
           </div>
           <div style={{ marginBottom: 16 }}>
             <label htmlFor="cv-receipt-comment" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('cvModals.clinicalComment')}</label>
-            <textarea id="cv-receipt-comment" value={comment} onChange={(e) => onSetComment(e.target.value)} placeholder={t('cvModals.inputClinicalComment')} aria-label={t('cvModals.clinicalOpinion')} rows={3} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+            <textarea id="cv-receipt-comment" value={comment} onChange={(e) => onSetComment(e.target.value)} placeholder={t('cvModals.inputClinicalComment')} aria-label={t('cvModals.clinicalOpinion')} rows={3} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, resize: 'none', boxSizing: 'border-box' }} />
           </div>
           <div style={{ marginBottom: 16 }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('cvModals.signatureConfirm')}</div>
@@ -290,15 +290,15 @@ export const EscalateModal = ({ cv, to, dept, reason, onSetTo, onSetDept, onSetR
         <div style={{ padding: 24 }}>
           <div style={{ marginBottom: 16 }}>
             <label htmlFor="cv-escalate-to" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('cvModals.escalateTarget')}</label>
-            <input id="cv-escalate-to" type="text" value={to} onChange={(e) => onSetTo(e.target.value)} placeholder={t('cvModals.inputEscalateTarget')} aria-label={t('cvModals.escalateTargetAria')} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
+            <input id="cv-escalate-to" type="text" value={to} onChange={(e) => onSetTo(e.target.value)} placeholder={t('cvModals.inputEscalateTarget')} aria-label={t('cvModals.escalateTargetAria')} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, boxSizing: 'border-box' }} />
           </div>
           <div style={{ marginBottom: 16 }}>
             <label htmlFor="cv-escalate-dept" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('cvModals.escalateDept')}</label>
-            <input id="cv-escalate-dept" type="text" value={dept} onChange={(e) => onSetDept(e.target.value)} placeholder={t('cvModals.inputEscalateDept')} aria-label={t('cvModals.escalateDept')} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
+            <input id="cv-escalate-dept" type="text" value={dept} onChange={(e) => onSetDept(e.target.value)} placeholder={t('cvModals.inputEscalateDept')} aria-label={t('cvModals.escalateDept')} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, boxSizing: 'border-box' }} />
           </div>
           <div style={{ marginBottom: 16 }}>
             <label htmlFor="cv-escalate-reason" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('cvModals.escalateReason')}</label>
-            <textarea id="cv-escalate-reason" value={reason} onChange={(e) => onSetReason(e.target.value)} placeholder={t('cvModals.inputEscalateReason')} aria-label={t('cvModals.escalateReason')} rows={3} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+            <textarea id="cv-escalate-reason" value={reason} onChange={(e) => onSetReason(e.target.value)} placeholder={t('cvModals.inputEscalateReason')} aria-label={t('cvModals.escalateReason')} rows={3} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 14, resize: 'none', boxSizing: 'border-box' }} />
           </div>
           <div style={{ background: 'var(--color-error-bg)', borderRadius: 8, padding: '10px 14px', border: '1px solid var(--color-error-border)', marginBottom: 20 }}>
             <div style={{ fontSize: 12, color: 'var(--color-error)', lineHeight: 1.6 }}>{t('cvModals.escalateHint')}</div>
@@ -717,13 +717,13 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
               {([['modality', 'cvModals.thDevice'], ['examItem', 'cvModals.thExamItem'], ['resultName', 'cvModals.thIndicator'], ['unit', 'cvModals.thUnit']] as const).map(([key, labelKey]) => (
                 <div key={key}>
                   <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t(labelKey)}</label>
-                  <input value={ruleForm[key]} onChange={e => setRuleForm({ ...ruleForm, [key]: e.target.value })} placeholder={`${t('cvModals.inputPrefix')}${t(labelKey)}`} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+                  <input value={ruleForm[key]} onChange={e => setRuleForm({ ...ruleForm, [key]: e.target.value })} placeholder={`${t('cvModals.inputPrefix')}${t(labelKey)}`} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box',}} />
                 </div>
               ))}
               {([['normalMin', 'cvModals.normalMin'], ['normalMax', 'cvModals.normalMax'], ['criticalMin', 'cvModals.criticalMin'], ['criticalMax', 'cvModals.criticalMax']] as const).map(([key, labelKey]) => (
                 <div key={key}>
                   <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t(labelKey)}</label>
-                  <input value={ruleForm[key]} onChange={e => setRuleForm({ ...ruleForm, [key]: e.target.value })} placeholder={t(labelKey)} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+                  <input value={ruleForm[key]} onChange={e => setRuleForm({ ...ruleForm, [key]: e.target.value })} placeholder={t(labelKey)} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box',}} />
                 </div>
               ))}
             </div>
@@ -748,19 +748,19 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t('cvModals.timeoutTriggerMinutes')}</label>
-                <input type="number" value={escForm.timeoutMinutes} onChange={e => setEscForm({ ...escForm, timeoutMinutes: Number(e.target.value) })} min={5} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+                <input type="number" value={escForm.timeoutMinutes} onChange={e => setEscForm({ ...escForm, timeoutMinutes: Number(e.target.value) })} min={5} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box',}} />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('cvModals.escalateTarget')}</label>
-                <input value={escForm.escalateTo} onChange={e => setEscForm({ ...escForm, escalateTo: e.target.value })} placeholder={t('cvModals.inputEscalateTargetPlain')} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+                <input value={escForm.escalateTo} onChange={e => setEscForm({ ...escForm, escalateTo: e.target.value })} placeholder={t('cvModals.inputEscalateTargetPlain')} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box',}} />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t('cvModals.notifyMethod')}</label>
-                <input value={escForm.escalateMethod} onChange={e => setEscForm({ ...escForm, escalateMethod: e.target.value })} placeholder={t('cvModals.notifyMethodPlaceholder')} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+                <input value={escForm.escalateMethod} onChange={e => setEscForm({ ...escForm, escalateMethod: e.target.value })} placeholder={t('cvModals.notifyMethodPlaceholder')} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box',}} />
               </div>
               <div style={{ gridColumn: '1 / -1' }}>
                 <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{t('cvModals.triggerConditionLabel')}</label>
-                <input value={escForm.triggerCondition} onChange={e => setEscForm({ ...escForm, triggerCondition: e.target.value })} placeholder={t('cvModals.triggerPlaceholder')} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+                <input value={escForm.triggerCondition} onChange={e => setEscForm({ ...escForm, triggerCondition: e.target.value })} placeholder={t('cvModals.triggerPlaceholder')} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box',}} />
               </div>
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>

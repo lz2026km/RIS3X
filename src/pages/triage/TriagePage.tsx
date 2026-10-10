@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
 import {
-  Table,
   Button,
   Tag,
   Modal,
@@ -15,7 +14,7 @@ import {
 } from "antd";
 import { Clock, AlertTriangle, Siren, UserCheck } from "lucide-react";
 import { api } from "../../services/api/client";
-import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import { t } from "../../i18n/appI18n";
 import { usePagination } from "../../hooks/usePagination";
 
@@ -285,7 +284,7 @@ const TriagePage: React.FC = () => {
         <StatCard title={t("triage.unassigned")} value={pendingCount} icon={<UserCheck size={18} />} color="info" />
       </StatCardGrid>
 
-      <Table
+      <DataTable
         dataSource={listPagination.pageData}
         columns={columns}
         rowKey="id"

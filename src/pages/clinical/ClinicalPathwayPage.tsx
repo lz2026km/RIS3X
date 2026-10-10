@@ -1,9 +1,25 @@
 // [v3.0.6.8-70] 临床路径管理
 // [v3.0.6.11-60] Batch 3: clinicalPathwayApi 真实数据 + 启用/暂停 + 步骤时间线
 import { clinicalPathwayApi, type ClinicalPathway, type PathwayPatient, type PathwayStats, type PathwayDefinition } from '../../services/api/clinicalPathwayApi';
-import { Card, Space, Tag, Table, Button, Progress, Steps, Badge, Modal, Form, Input, message, Timeline, Spin, Alert, Empty } from 'antd';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Progress,
+  Steps,
+  Badge,
+  Modal,
+  Form,
+  Input,
+  message,
+  Timeline,
+  Spin,
+  Alert,
+  Empty,
+} from "antd";
 import { Popconfirm } from 'antd'
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import { Route, CheckCircle2, Clock, Users, Activity, Play, PauseCircle, RefreshCw, Plus, Eye } from 'lucide-react';
 import { Forward, LogOut } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react';
@@ -140,11 +156,10 @@ export const ClinicalPathwayPage: React.FC = () => {
       </Spin>
 
       <Card size="small" title={t('clinicalPathway.pathwayDef')} style={{ marginBottom: 16 }}>
-        <Table
+        <DataTable
           dataSource={pathways}
           rowKey="id"
           pagination={false}
-          size="small"
           columns={[
             { title: t('clinicalPathway.colName'), dataIndex: 'name' },
             { title: t('clinicalPathway.colDept'), dataIndex: 'dept', render: (d: string) => <Tag>{d}</Tag> },
@@ -173,11 +188,10 @@ export const ClinicalPathwayPage: React.FC = () => {
         title={`${t('w2Orphans.pathwayDefinitions')} (${t('w2Orphans.definitionCount', { count: definitions.length })})`}
         style={{ marginBottom: 16 }}
       >
-        <Table
+        <DataTable
           dataSource={definitions}
           rowKey="id"
           pagination={false}
-          size="small"
           columns={[
             { title: t('clinicalPathway.colName'), dataIndex: 'name' },
             { title: t('clinicalPathway.colDept'), dataIndex: 'dept', render: (d: string) => <Tag>{d}</Tag> },
@@ -200,11 +214,10 @@ export const ClinicalPathwayPage: React.FC = () => {
         size="small"
         title={t('clinicalPathway.patientTracking')}
       >
-        <Table
+        <DataTable
           dataSource={patientPagination.pageData}
           rowKey="id"
           pagination={patientPagination.pagination}
-          size="small"
           locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('clinicalPathway.noPatients')} /> }}
           columns={[
             { title: t('clinicalPathway.colPatient'), dataIndex: 'patient' },
@@ -301,11 +314,10 @@ export const ClinicalPathwayPage: React.FC = () => {
               <Tag color="blue">{t('w2Orphans.inclusion')}: {definition.inclusion}</Tag>
               <Tag color="red">{t('w2Orphans.exclusion')}: {definition.exclusion}</Tag>
             </Space>
-            <Table
+            <DataTable
               dataSource={definition.steps}
               rowKey="index"
               pagination={false}
-              size="small"
               columns={[
                 { title: t('w2Orphans.stepIndex'), dataIndex: 'index', width: 60 },
                 { title: t('w2Orphans.stepName'), dataIndex: 'name' },

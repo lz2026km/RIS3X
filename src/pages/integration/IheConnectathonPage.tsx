@@ -11,8 +11,19 @@ import type {
 import { usePagination } from "@/hooks/usePagination";
 import { startSession, runTestCase, addStep, endSession, exportReport, presetXdsTestCases, presetPixTestCases, presetPdqvTestCases, presetAtnaTestCases, presetPamTestCases } from '@services/integration/connectathon/IheTesting';
 import { IHE_PROFILES } from "@services/integration/ihe/IheProfiles";
-import { Card, Space, Tag, Button, Table, Empty, Row, Col, Progress, Select, Input } from 'antd';
-import { StatCard, StatCardGrid } from '../../components/common';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Empty,
+  Row,
+  Col,
+  Progress,
+  Select,
+  Input,
+} from "antd";
+import { DataTable, StatCard, StatCardGrid } from "../../components/common";
 import {
   Activity,
   Trophy,
@@ -394,8 +405,7 @@ export const IheConnectathonPage: React.FC = () => {
             {!session || session.testCases.length === 0 ? (
               <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("iheConn.emptyClickLoad")} />
             ) : (
-              <Table
-                size="small"
+              <DataTable
                 rowKey="id"
                 pagination={testCasePagination.pagination}
                 locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("common.empty.noData")} /> }}

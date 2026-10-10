@@ -1790,9 +1790,7 @@ export default function GreenITPage() {
   ]
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: C.background,
+    <div style={{ background: C.background,
       padding: '24px',
     }}>
       {/* 页面标题 */}

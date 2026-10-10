@@ -1,7 +1,19 @@
 import { usePagination } from '../../hooks/usePagination'
 import { t } from '../../i18n/appI18n'
 import { fhirApi, type FhirSubscription } from '../../services/api/fhirApi'
-import { Card, Table, Button, Space, Tag, Modal, Form, Input, Select, message, Popconfirm, Empty } from 'antd'
+import {
+  Card,
+  Button,
+  Space,
+  Tag,
+  Modal,
+  Form,
+  Input,
+  Select,
+  message,
+  Popconfirm,
+  Empty,
+} from "antd";
 import { Bell, Plus, Trash, RefreshCw, Eye } from 'lucide-react'
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
@@ -153,7 +165,7 @@ export const FhirSubscriptionPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
       <Space style={{ marginBottom: 16 }}>
         <Bell size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fhirSub.title')}</span>
@@ -170,13 +182,12 @@ export const FhirSubscriptionPage: React.FC = () => {
           </Space>
         }
       >
-        <Table
+        <DataTable
           dataSource={listPagination.pageData}
           columns={columns}
           rowKey="id"
           loading={loading}
           pagination={listPagination.pagination}
-          size="small"
         scroll={{ x: 'max-content' }}
         />
       </Card>
@@ -242,3 +253,5 @@ export const FhirSubscriptionPage: React.FC = () => {
 }
 
 export default FhirSubscriptionPage
+
+import { DataTable } from "../../components/common";

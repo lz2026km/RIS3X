@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-  Table,
   Tag,
   Button,
   Modal,
@@ -16,7 +15,7 @@ import type { DentalTreatment } from "./DentalShared";
 // [v3.0.6.11-88 Round10] raw fetch → dentalApi.listTreatments/createTreatment (后端 /dental/treatments 真实存在)
 import { dentalApi } from "../../services/api/dentalApi";
 import { ErrorBanner } from "../../components/feedback";
-import { ActionButton } from "../../components/common";
+import { ActionButton, DataTable } from "../../components/common";
 import { t } from "../../i18n/appI18n";
 
 export const DentalRestorativePage: React.FC = () => {
@@ -90,9 +89,8 @@ export const DentalRestorativePage: React.FC = () => {
           createLabel={t("dentalRestorative.createNew")}
         />
       ) : (
-        <Table
+        <DataTable
           rowKey="id"
-          size="small"
           pagination={{ current: page, pageSize: PAGE_SIZE, total, onChange: setPage, showSizeChanger: false }}
           dataSource={treats}
           columns={[

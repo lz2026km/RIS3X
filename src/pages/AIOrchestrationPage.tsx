@@ -13,9 +13,26 @@ import {
   type CreateAiOrchestrationDto,
 } from '../services/api/aiPlatformApi';
 import {
-  Card, Tabs, Table, Button, Tag, Space, Modal, Form, Input, Select, message, Badge,
-  Drawer, Descriptions, Empty, Row, Col, Avatar, Tooltip, Spin,
-} from 'antd';
+  Card,
+  Tabs,
+  Button,
+  Tag,
+  Space,
+  Modal,
+  Form,
+  Input,
+  Select,
+  message,
+  Badge,
+  Drawer,
+  Descriptions,
+  Empty,
+  Row,
+  Col,
+  Avatar,
+  Tooltip,
+  Spin,
+} from "antd";
 import { TableProps } from 'antd'
 import { PageHeader } from '../components/common/PageHeader'
 import { EmptyState } from '../components/common/EmptyState'
@@ -56,6 +73,7 @@ const MODEL_STATUS_META: Record<string, { color: string; label: string }> = {
   UNDEPLOYED: { color: 'orange', label: t('aiOrch.statusUndeployed') },
   FAILED: { color: 'error', label: t('aiOrch.statusFailed') },
 };
+import { DataTable } from "../components/common";
 
 const JOB_STATUS_META: Record<string, { color: string; icon: React.ReactNode; label: string }> = {
   QUEUED: { color: 'default', icon: <Clock size={13} />, label: t('aiOrch.jobQueued') },
@@ -1049,7 +1067,7 @@ export default function AIOrchestrationPage() {
                       <Button type="primary" icon={<Plus size={15} />} onClick={() => setIntegrationOpen(true)}>{t('aiOrch.newIntegration')}</Button>
                     </Space>
                   </div>
-                  <Table
+                  <DataTable
                     dataSource={integrations}
                     columns={integrationColumns}
                     rowKey="id"
@@ -1069,13 +1087,12 @@ export default function AIOrchestrationPage() {
                         {t('aiOrch.newOrch')}
                       </Button>
                     </div>
-                    <Table
+                    <DataTable
                       dataSource={orchestrations}
                       columns={orchestrationColumns}
                       rowKey="id"
                       loading={orchLoading}
                       pagination={{ current: orchPage, pageSize: 8, total: orchestrations.length, onChange: setOrchPage, showSizeChanger: false, showTotal: (total) => t('aiOrch.paginationTotal', { count: total }) }}
-                      size="small"
                       locale={{ emptyText: <EmptyState description={t('aiOrch.emptyOrch')} /> }}
                     scroll={{ x: 'max-content' }}
                     />
@@ -1099,7 +1116,7 @@ export default function AIOrchestrationPage() {
                       {t('aiOrch.triggerInference')}
                     </Button>
                   </div>
-                  <Table
+                  <DataTable
                     dataSource={jobs}
                     columns={jobColumns}
                     rowKey="id"
@@ -1128,7 +1145,7 @@ export default function AIOrchestrationPage() {
                       {t('aiOrch.generateSr')}
                     </Button>
                   </div>
-                  <Table
+                  <DataTable
                     dataSource={srReports}
                     columns={srColumns}
                     rowKey="id"
@@ -1155,7 +1172,7 @@ export default function AIOrchestrationPage() {
                     </Space>
                     <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{t('aiOrch.fusionSupport')}</span>
                   </div>
-                  <Table
+                  <DataTable
                     dataSource={fusionJobs}
                     columns={fusionColumns}
                     rowKey="id"

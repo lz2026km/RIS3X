@@ -12,10 +12,23 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { t as appT } from '../i18n/appI18n'
 import {
-  Card, Table, Space, Tag, Button, Modal, Form, Input, Select, message, Badge,
-  Descriptions, Alert, Row, Col, Empty,
-} from 'antd'
-import { StatCard, StatCardGrid, PageContainer } from '../components/common'
+  Card,
+  Space,
+  Tag,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Select,
+  message,
+  Badge,
+  Descriptions,
+  Alert,
+  Row,
+  Col,
+  Empty,
+} from "antd";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../components/common"
 import { MessageSquare, Plus, RefreshCw, Send, CheckCircle2, XCircle, Eye } from 'lucide-react'
 import {
   clinicalFeedbackApi,
@@ -220,9 +233,8 @@ export default function ClinicalFeedbackPage() {
           <Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setCreateOpen(true)}>{t('feedback.submit', '提交反馈')}</Button>
         </Space>}
       >
-        <Table<ClinicalFeedback>
+        <DataTable<ClinicalFeedback>
           rowKey="id"
-          size="small"
           loading={loading}
           dataSource={items}
           scroll={{ x: 'max-content' }}

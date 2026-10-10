@@ -226,9 +226,7 @@ export default function CvDatabasePage() {
             onChange={(e) => setSearch(e.target.value)}
             style={{
               border: "none",
-              background: "transparent",
-              outline: "none",
-              marginLeft: 8,
+              background: "transparent", marginLeft: 8,
               flex: 1,
               fontSize: 14,
             }}

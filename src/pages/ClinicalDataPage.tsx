@@ -144,9 +144,7 @@ const COLORS = {
 }
 
 const styles = {
-  pageContainer: {
-    minHeight: '100vh',
-    backgroundColor: COLORS.bgGray,
+  pageContainer: { backgroundColor: COLORS.bgGray,
     fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
     fontSize: '14px',
     color: COLORS.textDark,
@@ -319,9 +317,7 @@ const styles = {
     padding: '10px 16px',
     border: `1px solid ${COLORS.border}`,
     borderRadius: '8px',
-    fontSize: '14px',
-    outline: 'none',
-    display: 'flex',
+    fontSize: '14px', display: 'flex',
     alignItems: 'center',
     gap: '8px',
   },
@@ -329,9 +325,7 @@ const styles = {
     padding: '10px 16px',
     border: `1px solid ${COLORS.border}`,
     borderRadius: '8px',
-    fontSize: '14px',
-    outline: 'none',
-    backgroundColor: 'var(--bg-card)',
+    fontSize: '14px', backgroundColor: 'var(--bg-card)',
     minWidth: '120px',
   },
   btn: (color: string) => ({
@@ -365,9 +359,7 @@ const styles = {
     padding: '10px 14px',
     border: `1px solid ${COLORS.border}`,
     borderRadius: '8px',
-    fontSize: '14px',
-    outline: 'none',
-    transition: 'border-color 0.2s',
+    fontSize: '14px', transition: 'border-color 0.2s',
   },
   grid2: {
     display: 'grid',

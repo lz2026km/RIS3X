@@ -8,8 +8,20 @@
  * [G005-P0] 各步骤动作接真 API,闭环统一走 PATCH /criticals/:id state=CLOSED_LOOP
  */
 import React, { useState, useEffect, useCallback } from 'react'
-import { Card, Steps, Button, Tag, Alert, Descriptions, Modal, Input, message, Table, Spin, Empty } from 'antd'
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
+import {
+  Card,
+  Steps,
+  Button,
+  Tag,
+  Alert,
+  Descriptions,
+  Modal,
+  Input,
+  message,
+  Spin,
+  Empty,
+} from "antd";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 import { ShieldAlert, Phone, CheckCircle, FileCheck, Archive, AlertTriangle, RefreshCw, Inbox } from 'lucide-react'
 import { criticalApi } from '../../services/api/criticalApi'
 import { t } from '../../i18n/appI18n'
@@ -231,7 +243,7 @@ export default function CriticalValue5StepPage() {
         ) : data.length === 0 ? (
           <Empty description={t('cv5.empty')} image={<Inbox size={48} color="#94a3b8" />} />
         ) : (
-          <Table dataSource={data} columns={columns} rowKey="id" size="small" pagination={false} scroll={{ x: 'max-content' }}/>
+          <DataTable dataSource={data} columns={columns} rowKey="id" pagination={false} scroll={{ x: 'max-content' }}/>
         )}
       </Card>
 

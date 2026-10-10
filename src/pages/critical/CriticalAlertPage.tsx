@@ -9,11 +9,27 @@ import {
 // [G005 W4B] 危急值升级链 (GET /critical-escalation/chains)
 import { criticalEscalationApi, type EscalationChain } from '../../services/api/criticalEscalationApi'
 import {
-  Card, Table, Button, Tag, Space, Typography, Row, Col, Statistic, message,
-  Modal, Input, Select, Alert, Spin, Badge, Progress, Steps, Radio,
-} from 'antd'
+  Card,
+  Button,
+  Tag,
+  Space,
+  Typography,
+  Row,
+  Col,
+  Statistic,
+  message,
+  Modal,
+  Input,
+  Select,
+  Alert,
+  Spin,
+  Badge,
+  Progress,
+  Steps,
+  Radio,
+} from "antd";
 import { EmptyState } from '../../components/common/EmptyState'
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 import { AlertTriangle, CheckCircle, Bell, ArrowUp, RefreshCw, Clock, Phone, MessageSquare, Search } from 'lucide-react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -416,9 +432,8 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
         ) : chains.length === 0 ? (
           <EmptyState description={tr('w4b.esc.empty')} />
         ) : (
-          <Table
+          <DataTable
             rowKey="id"
-            size="small"
             loading={chainsLoading}
             dataSource={chains}
             pagination={{ pageSize: 8, showSizeChanger: false }}
@@ -449,9 +464,8 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
             {relatedAlerts.length === 0 ? (
               <EmptyState description={t('noRelatedAlerts')} />
             ) : (
-              <Table
+              <DataTable
                 rowKey="id"
-                size="small"
                 dataSource={relatedAlerts}
                 pagination={false}
                 columns={[
@@ -500,7 +514,7 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
           {alerts.length === 0 && !loading ? (
             <EmptyState description={tr('criticalAlert.empty')} />
           ) : (
-            <Table rowKey="id" dataSource={alerts} columns={columns} pagination={{ current: alertPage, pageSize: 10, total: alerts.length, onChange: setAlertPage, showSizeChanger: false, showTotal: (n) => `共 ${n} 条` }} size="small" scroll={{ x: 'max-content' }}/>
+            <DataTable rowKey="id" dataSource={alerts} columns={columns} pagination={{ current: alertPage, pageSize: 10, total: alerts.length, onChange: setAlertPage, showSizeChanger: false, showTotal: (n) => `共 ${n} 条` }} scroll={{ x: 'max-content' }}/>
           )}
         </Spin>
       </Card>
@@ -596,9 +610,8 @@ onClick={() => { setSelected(r); setDetailOpen(true); void refreshDetail(r.id) }
           {logEntries.length === 0 ? (
             <EmptyState description={t('communicationLogEmpty')} />
           ) : (
-            <Table
+            <DataTable
               rowKey="id"
-              size="small"
               dataSource={logEntries}
               pagination={false}
               columns={[

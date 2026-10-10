@@ -9,11 +9,10 @@ import {
   Space,
   Spin,
   Statistic,
-  Table,
   Tag,
   Tooltip,
   Typography,
-} from 'antd'
+} from "antd";
 import type { ColumnsType } from 'antd/es/table'
 import {
   Activity,
@@ -38,7 +37,7 @@ import {
 } from 'recharts'
 import { biApi } from '../../services/api/biApi'
 import { t } from '../../i18n/appI18n'
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 import { ChartContainer } from '../../components/charts'
 import { autoInterval } from '../../utils/chartUtils'
 import type {
@@ -373,12 +372,11 @@ export default function DeptDashboardPage() {
                   <Bar dataKey="rvu" name="RVU" fill="#52c41a" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ChartContainer>
-              <Table scroll={{ x: 'max-content' }}
+              <DataTable scroll={{ x: 'max-content' }}
                 rowKey="doctorName"
                 columns={rvuColumns}
                 dataSource={state.rvu}
                 pagination={false}
-                size="small"
                 style={{ marginTop: 12 }}
               />
             </Card>
@@ -401,12 +399,11 @@ export default function DeptDashboardPage() {
                 />
               }
             >
-              <Table scroll={{ x: 'max-content' }}
+              <DataTable scroll={{ x: 'max-content' }}
                 rowKey="deviceId"
                 columns={oeeColumns}
                 dataSource={state.oeeDevices}
                 pagination={false}
-                size="small"
              
               />
               <div style={{ marginTop: 12 }}>
@@ -473,12 +470,11 @@ export default function DeptDashboardPage() {
                       {t('deptDash.overdueList', { count: state.sla.overdue.length })}
                     </Text>
                   </Space>
-                  <Table scroll={{ x: 'max-content' }}
+                  <DataTable scroll={{ x: 'max-content' }}
                     rowKey="id"
                     columns={slaColumns}
                     dataSource={state.sla.overdue.slice(0, 5)}
                     pagination={false}
-                    size="small"
                   />
                 </div>
               )}

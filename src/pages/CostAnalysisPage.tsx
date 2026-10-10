@@ -234,7 +234,7 @@ export default function CostAnalysisPage() {
     }
   }, [])
 
-  const containerStyle: React.CSSProperties = { minHeight: '100vh', background: 'var(--bg-primary)', color: 'var(--text-primary)', padding: '24px' }
+  const containerStyle: React.CSSProperties = { background: 'var(--bg-primary)', color: 'var(--text-primary)', padding: '24px' }
   const sectionTitleStyle: React.CSSProperties = { fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }
 
   if (loading) return <div role="status" data-testid="cost-loading" style={{ padding: 40, textAlign: 'center', color: 'var(--text-secondary)' }}>{t('costAnalysis.loading')}</div>;

@@ -18,11 +18,11 @@ export interface KioskState {
 
 // ===== Styles =====
 const s = {
-  container: { minHeight: '100vh', background: '#0f172a', color: '#e2e8f0', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', padding: '24px', fontFamily: '-apple-system, sans-serif' },
+  container: { background: '#0f172a', color: '#e2e8f0', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', padding: '24px', fontFamily: '-apple-system, sans-serif' },
   card: { background: '#1e293b', borderRadius: 16, padding: 40, maxWidth: 520, width: '100%', boxShadow: '0 8px 32px rgba(0,0,0,0.4)' },
   title: { fontSize: 28, fontWeight: 700, textAlign: 'center' as const, marginBottom: 8 },
   subtitle: { fontSize: 14, color: '#94a3b8', textAlign: 'center' as const, marginBottom: 32 },
-  input: { width: '100%', padding: '14px 16px', fontSize: 18, background: '#0f172a', border: '1px solid #334155', borderRadius: 10, color: '#f8fafc', textAlign: 'center' as const, letterSpacing: 4, boxSizing: 'border-box' as const, outline: 'none' },
+  input: { width: '100%', padding: '14px 16px', fontSize: 18, background: '#0f172a', border: '1px solid #334155', borderRadius: 10, color: '#f8fafc', textAlign: 'center' as const, letterSpacing: 4, boxSizing: 'border-box' as const,},
   btn: { width: '100%', padding: '14px', fontSize: 16, fontWeight: 600, border: 'none', borderRadius: 10, cursor: 'pointer', transition: 'all 0.2s' },
   label: { fontSize: 13, color: '#94a3b8', marginBottom: 8, display: 'block' },
   value: { fontSize: 16, color: '#f8fafc', fontWeight: 500 },

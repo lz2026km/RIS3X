@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Tag, Button, Space, Input, Table, Badge, Modal, Form, Select, message, Popconfirm } from 'antd';
+import {
+  Tag,
+  Button,
+  Space,
+  Input,
+  Badge,
+  Modal,
+  Form,
+  Select,
+  message,
+  Popconfirm,
+} from "antd";
 import { Image, Search, Eye, Plus, Trash2 } from "lucide-react";
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { eyeApi } from "@/services/api/eyeApi";
@@ -8,6 +19,7 @@ import { ErrorBanner } from "@/components/feedback";
 import { PageContainer, PageHeader } from "@/components/common";
 import { usePagination } from "@/hooks/usePagination";
 import { t } from "../../../i18n/appI18n";
+import { DataTable } from "../../../components/common";
 
 const MODALITY_LABELS: Record<string, string> = {
   oct_a: "w9d.modality.oct_a",  corneal_endothelium: "w9d.modality.corneal_endothelium",  tear_film: "w9d.modality.tear_film",  fundus_autofluorescence: "w9d.modality.fundus_autofluorescence",  fundus_photo: "w9d.modality.fundus_photo",
@@ -238,11 +250,10 @@ const PacsStudyListPage: React.FC = () => {
 
       {loadError && !loading && <ErrorBanner message={loadError} onRetry={() => void loadStudies()} retryLabel={t('w9.states.retry')} />}
 
-      <Table
+      <DataTable
         dataSource={studyPagination.pageData}
         columns={columns}
         rowKey="id"
-        size="small"
         loading={loading}
         locale={{ emptyText: t('w9.states.empty') }}
         pagination={studyPagination.pagination}

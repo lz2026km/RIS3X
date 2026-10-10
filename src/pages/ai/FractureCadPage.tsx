@@ -3,7 +3,6 @@ import type { FractureCadResult } from "../../services/api/fractureCadApi";
 import { useNavigate } from "react-router-dom";
 import {
   Card,
-  Table,
   Tag,
   Space,
   Spin,
@@ -14,7 +13,7 @@ import {
 import { Activity, RefreshCw, Cpu, Eye, Check, X } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import { t } from "../../i18n/appI18n";
-import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 
 const severityColor: Record<string, string> = {
   mild: "green",
@@ -206,12 +205,11 @@ const FractureCadPage: React.FC = () => {
       )}
       <Card>
         <Spin spinning={loading}>
-          <Table
+          <DataTable
             rowKey="id"
             dataSource={results}
             columns={columns}
             pagination={false}
-            size="small"
             rowSelection={{
               selectedRowKeys,
               onChange: (keys) => setSelectedRowKeys(keys),

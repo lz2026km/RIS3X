@@ -859,12 +859,12 @@ export default function DepartmentPage() {
               ].map((f) => (
                 <div key={f.key}>
                   <label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{f.label}</label>
-                  <input type="text" value={addForm[f.key as keyof typeof addForm]} onChange={(e) => setAddForm({ ...addForm, [f.key as keyof typeof addForm]: e.target.value })} placeholder={f.placeholder} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }} />
+                  <input type="text" value={addForm[f.key as keyof typeof addForm]} onChange={(e) => setAddForm({ ...addForm, [f.key as keyof typeof addForm]: e.target.value })} placeholder={f.placeholder} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}} />
                 </div>
               ))}
               <div>
                 <label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t("deptPage.role")}</label>
-                <select value={addForm.role} onChange={(e) => setAddForm({ ...addForm, role: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }}>
+                <select value={addForm.role} onChange={(e) => setAddForm({ ...addForm, role: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}}>
                   {[["physician", t("deptPage.rolePhysician")], ["technician", t("deptPage.roleTechnician")], ["nurse", t("deptPage.roleNurse")], ["director", t("deptPage.roleDirector")], ["vice_director", t("deptPage.roleViceDirector")], ["intern", t("deptPage.roleIntern")]].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
               </div>
@@ -909,12 +909,12 @@ export default function DepartmentPage() {
               ].map((f) => (
                 <div key={f.key}>
                   <label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{f.label}</label>
-                  <input type="text" value={editForm[f.key as keyof typeof editForm]} onChange={(e) => setEditForm({ ...editForm, [f.key as keyof typeof editForm]: e.target.value })} placeholder={f.placeholder} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }} />
+                  <input type="text" value={editForm[f.key as keyof typeof editForm]} onChange={(e) => setEditForm({ ...editForm, [f.key as keyof typeof editForm]: e.target.value })} placeholder={f.placeholder} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}} />
                 </div>
               ))}
               <div>
                 <label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t("deptPage.role")}</label>
-                <select value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }}>
+                <select value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}}>
                   {[["physician", t("deptPage.rolePhysician")], ["technician", t("deptPage.roleTechnician")], ["nurse", t("deptPage.roleNurse")], ["director", t("deptPage.roleDirector")], ["vice_director", t("deptPage.roleViceDirector")], ["intern", t("deptPage.roleIntern")]].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
               </div>
@@ -958,10 +958,10 @@ export default function DepartmentPage() {
             {announceError && <div style={{ padding: "8px 12px", background: C.dangerBg, border: `1px solid ${C.danger}30`, color: C.danger, borderRadius: 6, fontSize: 13, marginBottom: 12 }}>{announceError}</div>}
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t("deptPage.titleRequired")}</label>
-                <input type="text" value={announceForm.title} onChange={(e) => setAnnounceForm({ ...announceForm, title: e.target.value })} placeholder={t("deptPage.announceTitlePlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }} />
+                <input type="text" value={announceForm.title} onChange={(e) => setAnnounceForm({ ...announceForm, title: e.target.value })} placeholder={t("deptPage.announceTitlePlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}} />
               </div>
               <div><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t("deptPage.contentRequired")}</label>
-                <textarea rows={4} value={announceForm.content} onChange={(e) => setAnnounceForm({ ...announceForm, content: e.target.value })} placeholder={t("deptPage.announceContentPlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none", resize: "vertical" }} />
+                <textarea rows={4} value={announceForm.content} onChange={(e) => setAnnounceForm({ ...announceForm, content: e.target.value })} placeholder={t("deptPage.announceContentPlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, resize: "vertical" }} />
               </div>
               <div style={{ display: "flex", gap: 12 }}>
                 <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t("deptPage.category")}</label>
@@ -1007,14 +1007,14 @@ export default function DepartmentPage() {
               </div>
               <div style={{ display: "flex", gap: 12 }}>
                 <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t("deptPage.doctorIdRequired")}</label>
-                  <input type="text" value={onCallForm.doctorId} onChange={(e) => setOnCallForm({ ...onCallForm, doctorId: e.target.value })} placeholder={t("deptPage.doctorIdPlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }} />
+                  <input type="text" value={onCallForm.doctorId} onChange={(e) => setOnCallForm({ ...onCallForm, doctorId: e.target.value })} placeholder={t("deptPage.doctorIdPlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}} />
                 </div>
                 <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t("deptPage.doctorNameRequired")}</label>
-                  <input type="text" value={onCallForm.doctorName} onChange={(e) => setOnCallForm({ ...onCallForm, doctorName: e.target.value })} placeholder={t("deptPage.doctorNamePlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }} />
+                  <input type="text" value={onCallForm.doctorName} onChange={(e) => setOnCallForm({ ...onCallForm, doctorName: e.target.value })} placeholder={t("deptPage.doctorNamePlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}} />
                 </div>
               </div>
               <div><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t("deptPage.role")}</label>
-                <input type="text" value={onCallForm.role} onChange={(e) => setOnCallForm({ ...onCallForm, role: e.target.value })} placeholder={t("deptPage.rolePlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }} />
+                <input type="text" value={onCallForm.role} onChange={(e) => setOnCallForm({ ...onCallForm, role: e.target.value })} placeholder={t("deptPage.rolePlaceholder")} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}} />
               </div>
               <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", marginTop: 8 }}>
                 <button onClick={() => setShowOnCallModal(false)} style={{ padding: "8px 16px", background: C.bgLight, color: C.textMid, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>{t("deptPage.cancel")}</button>

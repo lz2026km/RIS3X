@@ -262,7 +262,7 @@ const QualityManagementPage = () => {
       <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
         <div style={s.sectionTitle}><FileText size={16} color='#7c3aed' />{t('mammoQc.qcRecords')}</div>
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-          <input style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13, outline: 'none' }} placeholder={t('mammoQc.searchPlaceholder')} value={search} onChange={e => setSearch(e.target.value)} />
+          <input style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13,}} placeholder={t('mammoQc.searchPlaceholder')} value={search} onChange={e => setSearch(e.target.value)} />
           <button style={s.btn} onClick={fetchAll}><RefreshCw size={14} /> {t('mammoQc.refresh')}</button>
         </div>
         <DataTable<MammoQcRecord>

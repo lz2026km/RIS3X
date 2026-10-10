@@ -223,7 +223,7 @@ const NeuroSpecialtyPage = () => {
               <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-card)', borderRadius: 8, padding: '4px 12px' }}>
                 <Search size={16} color="var(--text-secondary)" />
                 <input placeholder={t('neuro.searchPatient')} value={search} onChange={e => setSearch(e.target.value)}
-                  style={{ border: 'none', background: 'transparent', outline: 'none', marginLeft: 8, fontSize: 13, width: 160 }} />
+                  style={{ border: 'none', background: 'transparent', marginLeft: 8, fontSize: 13, width: 160 }} />
               </div>
             </div>
           </div>

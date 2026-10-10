@@ -2,7 +2,23 @@ import { t } from '../../i18n/appI18n'
 import { dicomSrApi, type DicomSrTemplate, type DicomSrDocument } from '../../services/api/dicomApi'
 import { encapsulatedPdfApi, type EncapsulatedPdf } from '../../services/api/dicomApi'
 import { srDocumentApi, type SrDocument, type MeasurementTemplate, type MeasurementTemplateCategory } from '../../services/api/srReportApi'
-import { Card, Input, Button, Space, Tag, message, Typography, Descriptions, Spin, Empty, Segmented, Table, Badge, Select, Modal, Divider } from 'antd'
+import {
+  Card,
+  Input,
+  Button,
+  Space,
+  Tag,
+  message,
+  Typography,
+  Descriptions,
+  Spin,
+  Empty,
+  Segmented,
+  Badge,
+  Select,
+  Modal,
+  Divider,
+} from "antd";
 import { FileText, Play, Eye, Copy, Download, FilePlus2, Database, GitBranch, BarChart3, RefreshCcw, Link2, FolderTree, Library, Search } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
 import { Inbox } from 'lucide-react'
@@ -391,7 +407,7 @@ export const DicomSrPage: React.FC = () => {
   const selectedTemplate = templates.find(t => t.id === templateId)
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
     <PageHeader
       icon={<FileText size={20} color="#2563eb" />}
       title={t('dicomSrPage.title')}
@@ -792,8 +808,7 @@ export const DicomSrPage: React.FC = () => {
         {/* 文档明细表 */}
         {srDocs.length > 0 && (
           <div style={{ marginTop: 12 }}>
-            <Table
-              size="small"
+            <DataTable
               dataSource={srDocs.slice(0, 10)}
               rowKey="id"
               pagination={false}
@@ -994,8 +1009,7 @@ export const DicomSrPage: React.FC = () => {
             <Spin size="small" />
           </div>
         ) : mtTemplates.length > 0 ? (
-          <Table
-            size="small"
+          <DataTable
             dataSource={mtTemplates}
             rowKey="id"
             pagination={{ pageSize: 10, showSizeChanger: false }}
@@ -1048,8 +1062,7 @@ export const DicomSrPage: React.FC = () => {
             <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8 }}>
               {t('dicomSr.mtMeasurements') || '测量项'} ({mtDetail.measurements?.length ?? 0})
             </div>
-            <Table
-              size="small"
+            <DataTable
               dataSource={mtDetail.measurements ?? []}
               rowKey={(r) => `${r.code}-${r.meaning}`}
               pagination={false}
@@ -1086,3 +1099,5 @@ export const DicomSrPage: React.FC = () => {
 }
 
 export default DicomSrPage
+
+import { DataTable } from "../../components/common";

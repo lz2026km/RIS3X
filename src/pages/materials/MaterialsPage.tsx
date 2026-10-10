@@ -1,7 +1,23 @@
 // [v3.0.6.8-51] PR7: 眼料 (IOL 库存 + 接触镜库) 综合页面
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, message, Tabs, Alert, InputNumber, Modal, Table, Switch } from 'antd';
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Select,
+  Input,
+  Form,
+  Row,
+  Col,
+  message,
+  Tabs,
+  Alert,
+  InputNumber,
+  Modal,
+  Switch,
+} from "antd";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import { Box, Eye, AlertTriangle, Calendar, Plus, Edit3, Trash2 } from 'lucide-react';
 import { iolApi, contactLensApi } from '@/services/api/materialsApi';
 // [G005 Wave1B] 单条 IOL 库存详情 (getIolInventoryById, GET /eye/iol/inventory/:id)
@@ -235,8 +251,7 @@ export const MaterialsPage: React.FC = () => {
               </Space>
             }
           >
-            <Table
-              size="small"
+            <DataTable
               dataSource={iolPagination.pageData}
               rowKey="id"
               pagination={iolPagination.pagination}
@@ -307,8 +322,7 @@ export const MaterialsPage: React.FC = () => {
               </Space>
             }
           >
-            <Table
-              size="small"
+            <DataTable
               dataSource={lensPagination.pageData}
               rowKey="id"
               pagination={lensPagination.pagination}

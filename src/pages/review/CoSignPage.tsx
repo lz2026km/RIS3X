@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Card,
-  Table,
   Button,
   Tag,
   Space,
@@ -41,7 +40,7 @@ import {
   type CoSignHistoryEntry,
 } from "../../services/api/cosignApi";
 import { useTranslation } from "react-i18next";
-import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import { t } from "../../i18n/appI18n";
 
 const statusColor: Record<string, string> = {
@@ -397,13 +396,12 @@ const CoSignPage: React.FC = () => {
                 </Space>
               ),
               children: (
-                <Table
+                <DataTable
                   dataSource={items}
                   columns={columns}
                   rowKey="id"
                   loading={loading}
                   pagination={{ current: itemPage, pageSize: 10, total: items.length, onChange: setItemPage, showSizeChanger: false, showTotal: (total) => t('coSign.totalCount', { total }) }}
-                  size="small"
                   scroll={{ x: "max-content" }}
                 />
               ),
@@ -417,12 +415,11 @@ const CoSignPage: React.FC = () => {
                 </Space>
               ),
               children: (
-                <Table
+                <DataTable
                   dataSource={history}
                   rowKey="id"
                   loading={historyLoading}
                   pagination={{ current: historyPage, pageSize: 10, total: history.length, onChange: setHistoryPage, showSizeChanger: false, showTotal: (total) => t('coSign.totalCount', { total }) }}
-                  size="small"
                   scroll={{ x: "max-content" }}
                   locale={{ emptyText: v3t("historyEmpty") }}
                   columns={[
@@ -577,10 +574,9 @@ const CoSignPage: React.FC = () => {
           showIcon
           message={t('coSign.rulesHint')}
         />
-        <Table
+        <DataTable
           rowKey="key"
           dataSource={rules}
-          size="small"
           loading={rulesLoading}
           pagination={false}
           scroll={{ x: 'max-content' }}

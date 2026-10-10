@@ -54,9 +54,7 @@ const COLORS = {
 
 const styles = {
   // 页面容器
-  pageContainer: {
-    minHeight: '100vh',
-    backgroundColor: COLORS.bgGray,
+  pageContainer: { backgroundColor: COLORS.bgGray,
     fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
     fontSize: '14px',
     color: COLORS.textDark,
@@ -279,9 +277,7 @@ const styles = {
     padding: '8px 12px',
     borderRadius: '6px',
     border: '1px solid var(--border-color)',
-    fontSize: '13px',
-    outline: 'none',
-    transition: 'border-color 0.2s',
+    fontSize: '13px', transition: 'border-color 0.2s',
   },
   // 模态框
   modal: {
@@ -1162,7 +1158,7 @@ const ScheduledReportsPanel = () => {
             <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('nationalReport.planNameRequired')}</label>
-                <input value={planForm.name} onChange={e => setPlanForm({ ...planForm, name: e.target.value })} placeholder={t('nationalReport.placeholderPlanName')} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                <input value={planForm.name} onChange={e => setPlanForm({ ...planForm, name: e.target.value })} placeholder={t('nationalReport.placeholderPlanName')} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13, boxSizing: 'border-box' }} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div>
@@ -1187,7 +1183,7 @@ const ScheduledReportsPanel = () => {
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 6 }}>{t('nationalReport.recipientsLabel')}</label>
-                  <input value={planForm.recipients} onChange={e => setPlanForm({ ...planForm, recipients: e.target.value })} placeholder={t('nationalReportPage.recipientsPlaceholder')} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                  <input value={planForm.recipients} onChange={e => setPlanForm({ ...planForm, recipients: e.target.value })} placeholder={t('nationalReportPage.recipientsPlaceholder')} style={{ width: '100%', padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 13, boxSizing: 'border-box' }} />
                 </div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>

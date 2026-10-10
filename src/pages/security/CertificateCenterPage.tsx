@@ -1,14 +1,28 @@
 // [G005 W8-Report] 签名与证书中心 — 证书注册表 / CRL / 报告验签
 // 数据源: certificateApi (后端 /report-signing/*, MSW 确定性回退)
 import React, { useCallback, useEffect, useState } from 'react'
-import { Alert, Button, Card, Descriptions, Input, message, Modal, Row, Col, Select, Space, Table, Tag, Typography } from 'antd'
+import {
+  Alert,
+  Button,
+  Card,
+  Descriptions,
+  Input,
+  message,
+  Modal,
+  Row,
+  Col,
+  Select,
+  Space,
+  Tag,
+  Typography,
+} from "antd";
 import type { ColumnsType } from 'antd/es/table'
 import { ShieldCheck, Ban, RefreshCw, BadgeCheck, FileSearch, KeyRound, RotateCw, Search } from 'lucide-react'
 import { certificateApi, type CrlViewDto, type SignatureStatsDto } from '../../services/api/certificateApi'
 import { hsmApi, ocspApi, type OcspResponseDto } from '../../services/api/w13SecurityApi'
 import type { ReportCertificateDto, ReportSignatureVerificationDto } from '../../services/api/reportApi'
 import { LoadingBanner, ErrorBanner } from '../../components/feedback'
-import { StatCard, StatCardGrid } from '../../components/common'
+import { DataTable, StatCard, StatCardGrid } from "../../components/common"
 import { t } from '../../i18n/appI18n'
 
 const { Text } = Typography
@@ -206,7 +220,7 @@ export const CertificateCenterPage: React.FC = () => {
               </Space>
             }
           >
-            {loading ? <LoadingBanner /> : <Table<ReportCertificateDto> rowKey="serial" columns={columns} dataSource={certs} size="small" pagination={{ pageSize: 8, hideOnSinglePage: true }} />}
+            {loading ? <LoadingBanner /> : <DataTable<ReportCertificateDto> rowKey="serial" columns={columns} dataSource={certs} pagination={{ pageSize: 8, hideOnSinglePage: true }} />}
           </Card>
         </Col>
         <Col span={8}>

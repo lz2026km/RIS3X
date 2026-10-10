@@ -752,9 +752,7 @@ export default function FollowUpPage() {
     }
   };
 
-  const pageStyle: React.CSSProperties = {
-    minHeight: '100vh',
-    backgroundColor: 'var(--bg-card)',
+  const pageStyle: React.CSSProperties = { backgroundColor: 'var(--bg-card)',
     padding: '24px'
   };
 

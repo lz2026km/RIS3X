@@ -182,7 +182,7 @@ export default function TermSynonymGraphPage() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder={t('termSyn.searchPlaceholder')}
-                style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, outline: 'none' }}
+                style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12,}}
               />
             </div>
           </div>

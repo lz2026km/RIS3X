@@ -473,7 +473,7 @@ export default function AIReportDraftPage() {
               placeholder={t('aiDraft.historyPlaceholder')}
               style={{
                 width: '100%', padding: 8, border: '1px solid var(--border-color)', borderRadius: 4,
-                fontSize: 12, outline: 'none', resize: 'vertical', fontFamily: 'inherit',
+                fontSize: 12, resize: 'vertical', fontFamily: 'inherit',
               }}
             />
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{t('aiDraft.charCount', { count: clinicalHistory.length })}</div>
@@ -704,7 +704,7 @@ export default function AIReportDraftPage() {
                   rows={5}
                   style={{
                     width: '100%', padding: 8, border: '1px solid var(--border-color)', borderRadius: 4,
-                    fontSize: 12, outline: 'none', resize: 'vertical', fontFamily: 'inherit',
+                    fontSize: 12, resize: 'vertical', fontFamily: 'inherit',
                   }}
                 />
               </div>
@@ -722,7 +722,7 @@ export default function AIReportDraftPage() {
                   rows={2}
                   style={{
                     width: '100%', padding: 8, border: '1px solid var(--border-color)', borderRadius: 4,
-                    fontSize: 12, outline: 'none', resize: 'vertical', fontFamily: 'inherit',
+                    fontSize: 12, resize: 'vertical', fontFamily: 'inherit',
                   }}
                 />
               </div>
@@ -740,7 +740,7 @@ export default function AIReportDraftPage() {
                   rows={2}
                   style={{
                     width: '100%', padding: 8, border: '1px solid var(--border-color)', borderRadius: 4,
-                    fontSize: 12, outline: 'none', resize: 'vertical', fontFamily: 'inherit',
+                    fontSize: 12, resize: 'vertical', fontFamily: 'inherit',
                   }}
                 />
               </div>

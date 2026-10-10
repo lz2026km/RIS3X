@@ -1,5 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { Card, Row, Col, Tag, Table, Tabs, Input, Descriptions, Alert, Space, Badge, Spin, message, Modal, Form } from 'antd';
+import {
+  Card,
+  Row,
+  Col,
+  Tag,
+  Tabs,
+  Input,
+  Descriptions,
+  Alert,
+  Space,
+  Badge,
+  Spin,
+  message,
+  Modal,
+  Form,
+} from "antd";
 import { BookOpen, User } from 'lucide-react';
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { eyeApi } from "@/services/api/eyeApi";
@@ -7,6 +22,7 @@ import { ErrorBanner } from "@/components/feedback";
 import { PageContainer, PageHeader, ActionButton, ExportButton } from "@/components/common";
 import { usePagination } from "@/hooks/usePagination";
 import { t } from "../../../i18n/appI18n";
+import { DataTable } from "../../../components/common";
 
 const EyeEmrPage: React.FC = () => {
   const [emrList, setEmrList] = useState<any[]>([]);
@@ -113,10 +129,9 @@ const EyeEmrPage: React.FC = () => {
       <Row gutter={12}>
         <Col span={6}>
           <Card size="small" title={t('eyeEmr.recordList')}>
-            <Table
+            <DataTable
               dataSource={emrPagination.pageData}
               rowKey="id"
-              size="small"
               pagination={emrPagination.pagination}
               onRow={(r) => ({
                 onClick: () => setSelected(r),

@@ -1,3 +1,33 @@
+## v3.0.6.13-0 (2026-10-10) — 全站表格统一 + 可访问性/外壳整改 + UI 防回退守则
+
+> **目标**: 全面审查并整改"界面排版 / 表格大小 / 美观 / 实用性"
+> **范围**: UI-A（表格）/ UI-B（a11y）/ UI-C（外壳）/ UI-D（节奏原语）/ UI-F（图标）/ UI-G（守则）
+> **验证**: 前端 tsc **0** / vitest **47 文件 831 测试** / 构建成功；3 投诉页 E2E 通过；`guard:ui` 全绿
+
+### UI-A 表格统一（核心）
+- 318 张裸 antd `<Table>`（151 文件）→ 统一 `DataTable`：默认 **compact** 密度、空态 `EmptyState`、加载骨架、分页 `10/20/50/100 + 共 N 条`、`scroll.x` 自适应、数值列右对齐 `tabular-nums`、斑马纹、导出/列显隐/右键
+- `common/index.ts` 补齐 `DataTable` 桶导出；ESLint 禁止 `src/pages` 再出现裸 `<Table>`
+- 尾差修复：`<DataTable<T>>` 泛型标签属性清理、`dataSource` 空值兜底、重复导入合并
+
+### UI-B 可访问性
+- 移除 **394 处 `outline:none`** 焦点抑制，恢复 `:focus-visible` 焦点环
+
+### UI-C 页面外壳
+- 移除 **146 处 `minHeight:'100vh'`**（内容区已滚动导致幽灵滚动条）；`PageContainer`/`PageTemplate` 默认 `minHeight` → `100%`
+
+### UI-D 排版节奏原语
+- 新增 `PageSection`（flex column + gap 令牌，替代散落的 `marginBottom: 16`），已入 `common` 桶导出
+
+### UI-F 图标
+- 统一 lucide：移除死图标层 `common/Icon.tsx`（Tabler 封装，0 引用）及桶导出与 `@tabler/icons-react` 依赖
+- 清理 6 处 emoji/字形图标（▭ ◯ ✎ ★ ⚑ → 语义 lucide 图标）
+
+### UI-G 防回退守则
+- 新增 `scripts/ui-guard.mjs` + `pnpm guard:ui`：裸 antd 表=0、`outline:none`=0、`100vh`=0、乱码=0、硬编码色预算只降不升
+- ESLint 页面层禁止裸 antd `<Table>`
+
+> 说明：原生 HTML `<table>`（136 处）与 hex→令牌全量迁移（13,775 处）、statusTokens 全量采纳为下一批（UI-E/UI-A2）待办，已由 `guard:ui` 冻结预算防止恶化。
+
 ## v3.0.6.12-9 (2026-10-04) — 全站 KPI 统计块统一（图表比例失衡整改）
 
 > **目标**: 消除全站 KPI/统计块"比例失衡、显示不协调/不均匀"——统一为唯一样式组件 + 自适应等高网格

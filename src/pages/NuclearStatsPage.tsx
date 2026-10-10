@@ -509,7 +509,7 @@ export default function NuclearStatsPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: C.background, padding: 24 }}>
+    <div style={{ background: C.background, padding: 24 }}>
       {/* 标题栏 */}
       <div style={{ background: C.white, borderRadius: 12, padding: '20px 24px', marginBottom: 20, borderLeft: `4px solid ${C.accent}` }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

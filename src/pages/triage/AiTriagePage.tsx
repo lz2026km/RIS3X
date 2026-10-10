@@ -1,9 +1,24 @@
 // [W3-2] AI 智能分检: 真实 API (aiTriageApi) + loading/error + 紧急度排序 + 详情
 import { usePagination } from '../../hooks/usePagination'
 import { aiTriageApi, type AiTriageResult } from '../../services/api/aiTriageApi'
-import { Card, Table, Button, Tag, Space, Row, Col, Statistic, Modal, Progress, message, Alert, Empty, Tooltip, Segmented } from 'antd'
+import {
+  Card,
+  Button,
+  Tag,
+  Space,
+  Row,
+  Col,
+  Statistic,
+  Modal,
+  Progress,
+  message,
+  Alert,
+  Empty,
+  Tooltip,
+  Segmented,
+} from "antd";
 import { Bot, AlertTriangle, CheckCircle, Clock, RefreshCw, FileText, Zap, UserCheck, Search } from 'lucide-react'
-import { StatCard, StatCardGrid } from '../../components/common'
+import { DataTable, StatCard, StatCardGrid } from "../../components/common"
 import React, { useState, useEffect, useCallback } from 'react'
 import { t } from '../../i18n/appI18n'
 
@@ -175,13 +190,12 @@ const AiTriagePage: React.FC = () => {
           </Space>
         }
       >
-        <Table
+        <DataTable
           dataSource={triagePageData}
           columns={columns}
           rowKey="examId"
           loading={loading}
           pagination={triagePagination}
-          size="small"
           locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('aiTriage.empty')} /> }}
         scroll={{ x: 'max-content' }}
         />

@@ -217,9 +217,7 @@ export default function CdsManagementPage() {
 
   return (
     <div
-      style={{
-        minHeight: "100vh",
-        background: "#0d1117",
+      style={{ background: "#0d1117",
         color: "#f0f6fc",
         fontSize: 14,
         fontFamily: '"Segoe UI",sans-serif',
@@ -396,9 +394,7 @@ export default function CdsManagementPage() {
                   background: "#161b22",
                   color: "#f0f6fc",
                   fontSize: 13,
-                  width: 240,
-                  outline: "none",
-                }}
+                  width: 240, }}
               />
             </div>
             <button
@@ -575,9 +571,7 @@ export default function CdsManagementPage() {
                     border: "1px solid #30363d",
                     background: "#0d1117",
                     color: "#f0f6fc",
-                    fontSize: 13,
-                    outline: "none",
-                    boxSizing: "border-box",
+                    fontSize: 13, boxSizing: "border-box",
                   }}
                 />
               </div>
@@ -605,9 +599,7 @@ export default function CdsManagementPage() {
                     border: "1px solid #30363d",
                     background: "#0d1117",
                     color: "#f0f6fc",
-                    fontSize: 13,
-                    outline: "none",
-                    boxSizing: "border-box",
+                    fontSize: 13, boxSizing: "border-box",
                   }}
                 />
               </div>
@@ -639,9 +631,7 @@ export default function CdsManagementPage() {
                     border: "1px solid #30363d",
                     background: "#0d1117",
                     color: "#f0f6fc",
-                    fontSize: 13,
-                    outline: "none",
-                    resize: "vertical",
+                    fontSize: 13, resize: "vertical",
                     fontFamily: "inherit",
                     boxSizing: "border-box",
                   }}
@@ -759,7 +749,7 @@ export default function CdsManagementPage() {
                   style={{
                     width: "100%", padding: "8px 12px", borderRadius: 6,
                     border: "1px solid #30363d", background: "#0d1117",
-                    color: "#f0f6fc", fontSize: 13, outline: "none", boxSizing: "border-box",
+                    color: "#f0f6fc", fontSize: 13, boxSizing: "border-box",
                   }}
                 />
               </div>
@@ -772,7 +762,7 @@ export default function CdsManagementPage() {
                   style={{
                     width: "100%", padding: "8px 12px", borderRadius: 6,
                     border: "1px solid #30363d", background: "#0d1117",
-                    color: "#f0f6fc", fontSize: 13, outline: "none", boxSizing: "border-box",
+                    color: "#f0f6fc", fontSize: 13, boxSizing: "border-box",
                   }}
                 />
               </div>

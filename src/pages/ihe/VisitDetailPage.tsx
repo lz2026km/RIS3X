@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Space, Tag, Table, Descriptions, Steps, Divider, message } from 'antd';
+import {
+  Card,
+  Space,
+  Tag,
+  Descriptions,
+  Steps,
+  Divider,
+  message,
+} from "antd";
 import { Activity, Clock, ArrowRight, GitBranch } from 'lucide-react';
 import { iheApi } from '../../services/api/integrationApi';
 import type { VisitState } from '../../services/api/integrationApi';
 import { LoadingBanner, ErrorBanner, AppEmpty } from '../../components/feedback';
-import { ActionButton, ExportButton } from '../../components/common';
+import { ActionButton, DataTable, ExportButton } from "../../components/common";
 import { t } from '../../i18n/appI18n';
 
 const STATE_STEPS = [
@@ -65,7 +73,7 @@ export const VisitDetailPage: React.FC = () => {
   const currentIdx = visit ? (STATE_MAP[visit.status as keyof typeof STATE_MAP] ?? 0) : 0;
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
       <Space style={{ marginBottom: 16 }}>
         <GitBranch size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('visitDetail.title')}</span>
@@ -121,7 +129,7 @@ export const VisitDetailPage: React.FC = () => {
           </Card>
 
           <Card size="small" title={<span><GitBranch size={14} style={{ marginRight: 4 }} />{t('visitDetail.adtMessages')}</span>}>
-            <Table dataSource={visit.adtMessages} rowKey="id" pagination={false} scroll={{ x: 'max-content' }}
+            <DataTable dataSource={visit.adtMessages ?? []} rowKey="id" pagination={false} scroll={{ x: 'max-content' }}
               columns={[
                 { title: t('visitDetail.col.id'), dataIndex: 'id', width: 60 },
                 { title: t('visitDetail.col.messageType'), dataIndex: 'messageType', render: (mt: string) => <Tag color="blue">ADT^{mt}</Tag> },

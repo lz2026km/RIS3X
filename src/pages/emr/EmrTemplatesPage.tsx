@@ -3,13 +3,25 @@
 // [W2-A] 模板接入 templatesApi 实时数据; ICD-11 无独立词典端点 → 标注演示数据
 // [v3.0.6.11-103 Wave 9] KPI 统计 + 刷新按钮 + i18n
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Space, Tag, Button, Table, Select, Input, message, Tabs, Modal, Form, List } from 'antd';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Select,
+  Input,
+  message,
+  Tabs,
+  Modal,
+  Form,
+  List,
+} from "antd";
 import { Plus, Edit3, Copy, FileText } from 'lucide-react';
 import { templatesApi } from '../../services/api/templatesApi';
 import { t } from '../../i18n/appI18n';
 import { StatCard, StatCardGrid } from '../../components/common/StatCard';
 import { ActionButton } from '../../components/common/ActionButton';
-import { PageContainer } from '../../components/common';
+import { DataTable, PageContainer } from "../../components/common";
 
 const {  } = Input;
 
@@ -205,7 +217,7 @@ export const EmrTemplatesPage: React.FC = () => {
                 <Tag color="orange">{t('w9.emrTpl.demoTag')}</Tag>
               </Space>
             } title={`${t('w9.emrTpl.tabIcd')} ${icdResults.length}`}>
-              <Table dataSource={icdResults} rowKey="code" pagination={false}
+              <DataTable dataSource={icdResults} rowKey="code" pagination={false}
                 columns={[
                   {title:'编码',dataIndex:'code',render:(c)=><Tag color="blue">{c}</Tag>},
                   {title:'名称',dataIndex:'name'},

@@ -3,9 +3,25 @@
 import { dentalApi } from '../../services/api/dentalApi';
 import { t } from '../../i18n/appI18n';
 import { DentalPageLayout } from './DentalShared';
-import { Table, Tag, Button, message, Space, Alert, Spin, Modal, Form, Input, InputNumber, Steps, Descriptions, Empty, Progress } from 'antd';
+import {
+  Tag,
+  Button,
+  message,
+  Space,
+  Alert,
+  Spin,
+  Modal,
+  Form,
+  Input,
+  InputNumber,
+  Steps,
+  Descriptions,
+  Empty,
+  Progress,
+} from "antd";
 import { Plus, RefreshCw, Smile, Eye, PlayCircle, CheckCircle2, FolderOpen } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
+import { DataTable } from "../../components/common";
 
 interface OrthoPlan {
   id: string;
@@ -149,7 +165,7 @@ export const DentalOrthoPage: React.FC = () => {
             </Empty>
           </div>
         ) : (
-          <Table
+          <DataTable
             dataSource={plans}
             rowKey="id"
             columns={[
@@ -182,7 +198,6 @@ export const DentalOrthoPage: React.FC = () => {
               },
             ]}
             pagination={false}
-            size="small"
           scroll={{ x: 'max-content' }}
           />
         )}

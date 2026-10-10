@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Card, Row, Col, Tag, Table, Space, Button, Spin } from "antd";
+import {
+  Card,
+  Row,
+  Col,
+  Tag,
+  Space,
+  Button,
+  Spin,
+} from "antd";
 import { Image, Download, ZoomIn, Maximize, Target } from 'lucide-react';
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import MeasurementPanel from "@/components/eye/MeasurementPanel";
@@ -8,6 +16,7 @@ import { eyeApi } from "../../../services/api/eyeApi";
 import { eyePacsApi, type EyeStudyDto, type EyeMeasurementDto, type KeyImageDto, type LesionSegmentationDto, type AiDiagnosisDto } from "../../../services/api/eyePacsApi";
 import { ErrorBanner } from "@/components/feedback";
 import { t } from "../../../i18n/appI18n";
+import { DataTable } from "../../../components/common";
 const modalityLabel = (m?: string) => t(`w9d.modality.${m ?? ''}`);
 
 const FundusViewerPage: React.FC = () => {
@@ -190,10 +199,9 @@ const FundusViewerPage: React.FC = () => {
             />
           </div>
           <Card size="small" title={t('fundusViewer.aiAnnotation')} style={{ marginTop: 8 }}>
-            <Table
+            <DataTable
               dataSource={lesions}
               rowKey="id"
-              size="small"
               pagination={false}
               columns={[
                 {
@@ -270,10 +278,9 @@ const FundusViewerPage: React.FC = () => {
             <AiDiagnosisCard key={d.id} diagnosis={d as any} />
           ))}
           <Card size="small" title={t('fundusViewer.keyImageMarkers')} style={{ marginTop: 8 }}>
-            <Table
+            <DataTable
               dataSource={keyImages}
               rowKey="id"
-              size="small"
               scroll={{ x: 'max-content' }}
               pagination={false}
               columns={[

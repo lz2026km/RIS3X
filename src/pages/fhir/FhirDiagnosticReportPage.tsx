@@ -1,5 +1,18 @@
 import { fhirApi, type FhirDiagnosticReport } from '../../services/api/fhirApi'
-import { Card, Table, Button, Space, Tag, Form, Input, Select, message, Empty, Modal, Descriptions, Tooltip } from 'antd'
+import {
+  Card,
+  Button,
+  Space,
+  Tag,
+  Form,
+  Input,
+  Select,
+  message,
+  Empty,
+  Modal,
+  Descriptions,
+  Tooltip,
+} from "antd";
 import { FileText, Search, RefreshCw, Eye } from 'lucide-react'
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
@@ -113,7 +126,7 @@ export const FhirDiagnosticReportPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
       <Space style={{ marginBottom: 16 }}>
         <FileText size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('fhirReport.title')}</span>
@@ -143,13 +156,12 @@ export const FhirDiagnosticReportPage: React.FC = () => {
       </Card>
 
       <Card size="small" title={t('fhirReport.listTitle', { count: total })}>
-        <Table
+        <DataTable
           dataSource={reports.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)}
           columns={columns}
           rowKey="id"
           loading={loading}
           pagination={{ current: page, total, pageSize: PAGE_SIZE, onChange: setPage, showSizeChanger: false }}
-          size="small"
         scroll={{ x: 'max-content' }}
         />
       </Card>
@@ -185,3 +197,5 @@ export const FhirDiagnosticReportPage: React.FC = () => {
 }
 
 export default FhirDiagnosticReportPage
+
+import { DataTable } from "../../components/common";

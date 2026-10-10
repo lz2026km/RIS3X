@@ -3,7 +3,6 @@ import type { LungCadResult } from "../../services/api/lungCadApi";
 import { useNavigate } from "react-router-dom";
 import {
   Card,
-  Table,
   Button,
   Tag,
   Space,
@@ -27,7 +26,7 @@ import {
 import React, { useState, useEffect, useCallback } from "react";
 import { usePagination } from "../../hooks/usePagination";
 import { t } from "../../i18n/appI18n";
-import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 
 const { Text } = Typography;
 
@@ -268,12 +267,11 @@ const LungCadPage: React.FC = () => {
       )}
       <Card>
         <Spin spinning={loading}>
-          <Table
+          <DataTable
             rowKey="id"
             dataSource={resultPagination.pageData}
             columns={columns}
             pagination={resultPagination.pagination}
-            size="small"
             rowSelection={{
               selectedRowKeys,
               onChange: (keys) => setSelectedRowKeys(keys),
@@ -291,10 +289,9 @@ const LungCadPage: React.FC = () => {
       >
         {selected && (
           <>
-            <Table
+            <DataTable
               rowKey="id"
               dataSource={nodulePagination.pageData}
-              size="small"
               scroll={{ x: 'max-content' }}
               pagination={nodulePagination.pagination}
               columns={[

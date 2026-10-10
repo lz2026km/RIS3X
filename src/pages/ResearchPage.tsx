@@ -257,7 +257,7 @@ function ProjectsTab() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', background: COLORS.bgWhite, border: '1px solid ' + COLORS.border, borderRadius: 12, padding: '8px 12px', gap: 8 }}>
             <Search size={16} color={COLORS.textSecondary} />
-            <input placeholder={t('researchPage.searchProjects')} style={{ border: 'none', outline: 'none', fontSize: 14, width: 240, background: 'transparent' }} />
+            <input placeholder={t('researchPage.searchProjects')} style={{ border: 'none', fontSize: 14, width: 240, background: 'transparent' }} />
           </div>
         </div>
         <button onClick={() => setShowModal(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}><Plus size={16} /> {t('researchPage.newProject')}</button>
@@ -475,7 +475,7 @@ function LabelsTab() {
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', background: COLORS.bgWhite, border: '1px solid ' + COLORS.border, borderRadius: 12, padding: '8px 12px', gap: 8 }}><Search size={16} color={COLORS.textSecondary} /><input placeholder={t('researchPage.searchLabels')} value={searchKeyword} onChange={e => setSearchKeyword(e.target.value)} style={{ border: 'none', outline: 'none', fontSize: 14, width: 180, background: 'transparent' }} /></div>
+          <div style={{ display: 'flex', alignItems: 'center', background: COLORS.bgWhite, border: '1px solid ' + COLORS.border, borderRadius: 12, padding: '8px 12px', gap: 8 }}><Search size={16} color={COLORS.textSecondary} /><input placeholder={t('researchPage.searchLabels')} value={searchKeyword} onChange={e => setSearchKeyword(e.target.value)} style={{ border: 'none', fontSize: 14, width: 180, background: 'transparent' }} /></div>
           <div style={{ display: 'flex', gap: 8 }}>{['', '诊断', '部位', '特征'].map(type => (<button key={type || 'all'} onClick={() => setFilterType(type as LabelType | '')} style={{ padding: '8px 14px', background: filterType === type ? COLORS.primary : COLORS.bgWhite, color: filterType === type ? 'var(--text-inverse)' : COLORS.textSecondary, border: '1px solid ' + (filterType === type ? COLORS.primary : COLORS.border), borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>{type || t('researchPage.resultAll')}</button>))}</div>
         </div>
         <button onClick={() => setShowAddModal(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', background: COLORS.primary, color: 'var(--text-inverse)', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}><Plus size={16} /> {t('researchPage.customLabel')}</button>
@@ -1125,7 +1125,7 @@ export default function ResearchPage() {
   ]
 
   return (
-    <div style={{ padding: 24, background: COLORS.bgGray, minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: COLORS.bgGray,}}>
       {/* [G005 W1-C] 演示数据（后端待实现）: 后端无 /research controller, 接口调用失败时页面展示空态/本地 fallback */}
       <div style={{ background: 'var(--color-warning-bg)', color: 'var(--color-warning-700)', fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 6, border: '1px solid var(--color-warning-border)', marginBottom: 16 }}>
         {t('researchPage.demoBanner')}

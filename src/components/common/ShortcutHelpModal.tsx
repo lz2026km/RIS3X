@@ -152,9 +152,7 @@ export function ShortcutHelpModal({ open, onClose, shortcuts }: ShortcutHelpModa
               placeholder={t("common.search")}
               aria-label={t("common.search")}
               style={{
-                border: "none",
-                outline: "none",
-                background: "transparent",
+                border: "none", background: "transparent",
                 color: "inherit",
                 fontSize: 13,
                 width: 140,

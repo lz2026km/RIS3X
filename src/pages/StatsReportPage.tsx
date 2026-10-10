@@ -103,9 +103,7 @@ const fallbackDateStatsData = [
 // ============ 样式定义 ============
 const styles = {
   // 页面容器
-  pageContainer: {
-    minHeight: '100vh',
-    backgroundColor: COLORS.bgGray,
+  pageContainer: { backgroundColor: COLORS.bgGray,
     fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
     fontSize: '14px',
     color: COLORS.textDark,
@@ -258,16 +256,12 @@ const styles = {
     borderRadius: '6px',
     border: '1px solid var(--border-color)',
     fontSize: '13px',
-    width: '240px',
-    outline: 'none',
-  },
+    width: '240px', },
   selectInput: {
     padding: '8px 12px',
     borderRadius: '6px',
     border: '1px solid var(--border-color)',
-    fontSize: '13px',
-    outline: 'none',
-    backgroundColor: 'var(--bg-card)',
+    fontSize: '13px', backgroundColor: 'var(--bg-card)',
     minWidth: '140px',
   },
   button: {

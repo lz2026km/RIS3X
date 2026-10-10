@@ -62,7 +62,7 @@ const REVIEW_STATE_LABELS: Record<string, string> = {
 }
 
 const s = {
-  container: { maxWidth: 420, margin: '0 auto', background: 'var(--bg-primary)', minHeight: '100vh', fontFamily: '-apple-system, sans-serif' },
+  container: { maxWidth: 420, margin: '0 auto', background: 'var(--bg-primary)', fontFamily: '-apple-system, sans-serif' },
   header: { background: 'linear-gradient(135deg, #1e40af, #2563eb)', color: '#fff', padding: '16px 16px 12px' },
   headerTitle: { fontSize: 18, fontWeight: 700 },
   statsRow: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginTop: 12 },
@@ -259,7 +259,7 @@ export default function DoctorMobileWorkstation() {
 
       <div style={s.searchBar}>
         <Search size={16} color="#94a3b8" />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('docMobile.searchPlaceholder')} style={{ border: 'none', outline: 'none', fontSize: 13, color: 'var(--text-primary)', width: '100%', background: 'transparent' }} />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('docMobile.searchPlaceholder')} style={{ border: 'none', fontSize: 13, color: 'var(--text-primary)', width: '100%', background: 'transparent' }} />
         <Filter size={16} color="#94a3b8" style={{ cursor: 'pointer' }} />
       </div>
 
@@ -466,7 +466,7 @@ export default function DoctorMobileWorkstation() {
                 rows={2}
                 maxLength={200}
                 placeholder={t('docMobile.rejectPlaceholder')}
-                style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13, outline: 'none', resize: 'none', boxSizing: 'border-box', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
+                style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 13, resize: 'none', boxSizing: 'border-box', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
               />
             </div>
             <div style={{ display: 'flex', gap: 10 }}>

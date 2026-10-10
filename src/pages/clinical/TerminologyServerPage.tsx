@@ -3,9 +3,25 @@
 import { snomedApi, type SnomedCode } from '../../services/api/snomedApi';
 import { terminologyApi, type TerminologyMapping, type TerminologySystemStatus, type TerminologyStats } from '../../services/api/terminologyApi';
 import { usePagination } from '../../hooks/usePagination';
-import { Card, Space, Tag, Table, Button, Row, Col, Input, Badge, Alert, Spin, Popconfirm, Modal, Form, message, Empty } from 'antd';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Row,
+  Col,
+  Input,
+  Badge,
+  Alert,
+  Spin,
+  Popconfirm,
+  Modal,
+  Form,
+  message,
+  Empty,
+} from "antd";
 import { EmptyState } from '../../components/common/EmptyState';
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import { BookOpen, Search, Globe, Code, Layers, BookMarked, RefreshCw, Plus, Trash2, Stethoscope } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 // [v3.0.6.11-99 W10C] 本地征象词典（离线兜底检索）: radiologyTerminology.ts
@@ -147,11 +163,10 @@ export const TerminologyServerPage: React.FC = () => {
           <Button size="small" icon={<BookMarked size={12} />} loading={searching} onClick={() => void doEncode()}>{t('terminology.encodeSnomed')}</Button>
           <Button size="small" onClick={() => { setResults([]); setQuery('') }}>{t('terminology.clear')}</Button>
         </Space>
-        <Table scroll={{ x: 'max-content' }}
+        <DataTable scroll={{ x: 'max-content' }}
           dataSource={resultsPage}
           rowKey="conceptId"
           pagination={resultsPagination}
-          size="small"
           locale={{ emptyText: <EmptyState description={t('terminology.searchEmpty')} /> }}
           columns={[
             { title: t('terminology.colConceptId'), dataIndex: 'conceptId', render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span> },
@@ -171,11 +186,10 @@ export const TerminologyServerPage: React.FC = () => {
           {localSigns.length === 0 ? (
             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('terminology.localDictEmpty')} />
           ) : (
-            <Table
+            <DataTable
               dataSource={localSigns}
               rowKey="name"
               pagination={false}
-              size="small"
               columns={[
                 { title: t('terminology.colSign'), dataIndex: 'name', width: 120, render: (v: string) => <Tag color="purple">{v}</Tag> },
                 { title: t('terminology.colEnglish'), dataIndex: 'english', width: 200 },
@@ -195,11 +209,10 @@ export const TerminologyServerPage: React.FC = () => {
             title={<Space><Layers size={14} />{t('terminology.crossMapping')}</Space>}
             extra={<Button size="small" type="primary" icon={<Plus size={12} />} onClick={() => setMappingModal(true)}>{t('terminology.createMapping')}</Button>}
           >
-            <Table scroll={{ x: 'max-content' }}
+            <DataTable scroll={{ x: 'max-content' }}
               dataSource={mappings}
               rowKey="id"
               pagination={false}
-              size="small"
               columns={[
                 { title: t('terminology.colSource'), dataIndex: 'source', render: (s: string, r: TerminologyMapping) => <Tag color="blue">{s} <span style={{ opacity: 0.6 }}>({r.sourceSystem})</span></Tag> },
                 { title: t('terminology.colTarget'), dataIndex: 'target', render: (tgt: string, r: TerminologyMapping) => <Tag color="volcano">{tgt} <span style={{ opacity: 0.6 }}>({r.targetSystem})</span></Tag> },
@@ -220,11 +233,10 @@ export const TerminologyServerPage: React.FC = () => {
         </Col>
         <Col xs={24} md={10}>
           <Card size="small" title={<Space><Globe size={14} />{t('terminology.systemStatus')}</Space>}>
-            <Table scroll={{ x: 'max-content' }}
+            <DataTable scroll={{ x: 'max-content' }}
               dataSource={systems}
               rowKey="system"
               pagination={false}
-              size="small"
               columns={[
                 { title: t('terminology.colSystem'), dataIndex: 'system', render: (s: string) => <Tag color={s === 'SNOMED-CT' ? 'blue' : s === 'ICD-11' ? 'volcano' : s === 'LOINC' ? 'green' : 'purple'}>{s}</Tag> },
                 { title: t('terminology.colVersion'), dataIndex: 'version', ellipsis: true },

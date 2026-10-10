@@ -1,5 +1,19 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { Card, Tabs, Table, Button, Space, Tag, Form, Input, Select, message, Alert, Row, Col, InputNumber } from 'antd'
+import {
+  Card,
+  Tabs,
+  Button,
+  Space,
+  Tag,
+  Form,
+  Input,
+  Select,
+  message,
+  Alert,
+  Row,
+  Col,
+  InputNumber,
+} from "antd";
 import { Archive, Send, RefreshCw, Play, Download, Activity, AlertTriangle, PieChart as PieIcon, TrendingUp } from 'lucide-react'
 import { hl7Api, type Hl7Report, type Hl7OrmOrder, type Hl7DftTransaction, type Hl7ArchiveRecord } from '../../services/api/integrationApi'
 import Hl7AnalyticsSection from './Hl7AnalyticsSection'
@@ -9,7 +23,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts'
 import { ChartContainer, chartDefaults } from '../../components/charts'
-import { PageContainer } from '../../components/common'
+import { DataTable, PageContainer } from "../../components/common"
 
 // ============================================================
 // [G005 v3.0.6.11-99 Wave 10E-1] HL7 监控面板
@@ -244,10 +258,9 @@ function MonitorPanel({ archive, loading }: { archive: Hl7ArchiveRecord[]; loadi
 
       {/* M4. 错误 TOP 消息列表 */}
       <Card size="small" title={<Space><AlertTriangle size={14} />{t('hl7Page.errorTop')}</Space>} style={{ marginTop: 16 }}>
-        <Table
+        <DataTable
           dataSource={errorTop}
           rowKey="messageType"
-          size="small"
           loading={loading}
           pagination={false}
           columns={[
@@ -532,13 +545,12 @@ export const Hl7ManagerPage: React.FC = () => {
       label: <Space><Archive size={14} />{t('hl7Page.tabArchive')}</Space>,
       children: (
         <Card size="small" title={<Space><Archive size={14} />{t('hl7Page.archiveTitle')}{archiveFallback && <Tag color="orange" style={{ fontSize: 10 }}>{t('hl7Page.fallbackTag')}</Tag>}</Space>} extra={<Button icon={<RefreshCw size={14} />} onClick={fetchArchive}>{t('hl7Page.refresh')}</Button>}>
-          <Table
+          <DataTable
             dataSource={archive}
             columns={archiveColumns}
             rowKey="id"
             loading={archiveLoading}
             pagination={{ current: archivePage, pageSize: 10, total: archive.length, onChange: setArchivePage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
-            size="small"
           scroll={{ x: 'max-content' }}
           />
         </Card>

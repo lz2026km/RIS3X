@@ -161,9 +161,7 @@ export function InlineEditCell({
     borderRadius: 6,
     border: `1px solid ${error ? "var(--color-error, #dc2626)" : "var(--color-primary-500, #3b82f6)"}`,
     background: "var(--form-input-bg, #fff)",
-    color: "var(--text-primary, #1e293b)",
-    outline: "none",
-  };
+    color: "var(--text-primary, #1e293b)", };
 
   return (
     <span style={{ display: "inline-flex", flexDirection: "column", gap: 2, width: "100%" }}>

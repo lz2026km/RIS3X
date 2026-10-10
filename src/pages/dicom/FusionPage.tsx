@@ -532,7 +532,7 @@ export default function FusionPage() {
   }
 
   return (
-    <div data-testid="fusion-page" style={{ minHeight: '100vh', background: '#020617', color: '#cbd5e1', padding: 12 }}>
+    <div data-testid="fusion-page" style={{ background: '#020617', color: '#cbd5e1', padding: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
         <Layers size={18} color={BLUE} />
         <span style={{ fontSize: 15, fontWeight: 700 }}>{t('nav.dicomFusion')}</span>

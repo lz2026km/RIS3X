@@ -80,7 +80,7 @@ export default function OfflineReportsPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', fontFamily: '-apple-system, sans-serif' }}>
+    <div style={{ background: 'var(--bg-primary)', fontFamily: '-apple-system, sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg, #1e40af, #2563eb)', color: '#fff', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <FileText size={20} />

@@ -4,8 +4,28 @@ import dayjs from 'dayjs';
 import { dentalApi } from '@/services/api/dentalApi';
 import { ErrorBanner } from '@/components/feedback';
 import { t } from '@/i18n/appI18n';
-import { Card, Space, Tag, Button, Select, Row, Col, message, Tabs, Table, Modal, Form, Input, InputNumber, DatePicker, Badge, Empty, Segmented, Descriptions, Spin } from 'antd';
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Select,
+  Row,
+  Col,
+  message,
+  Tabs,
+  Modal,
+  Form,
+  Input,
+  InputNumber,
+  DatePicker,
+  Badge,
+  Empty,
+  Segmented,
+  Descriptions,
+  Spin,
+} from "antd";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import { Calendar, User, Armchair, Plus, CheckCircle2, Eye } from 'lucide-react';
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect } from 'react';
@@ -192,7 +212,7 @@ export const DentalSchedulePage: React.FC = () => {
         {key:'schedule', label:t('dentalSchedule.tabSchedule'), children:<>
           <Button type="primary" icon={<Plus size={14}/>} style={{marginBottom:8}} onClick={()=>setCreateModal(true)}>{t('dentalSchedule.newAppt')}</Button>
           {filtered.length === 0 ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('dentalSchedule.noApptToday')} /> : (
-            <Table dataSource={pagedFiltered} rowKey="id" size="small" pagination={filteredPagination}
+            <DataTable dataSource={pagedFiltered} rowKey="id" pagination={filteredPagination}
               columns={[
                 {title:t('dentalSchedule.colTime'),dataIndex:'time',width:70,render:(tv:string)=><Tag color="geekblue">{tv}</Tag>,fixed:'left'},
                 {title:t('dentalSchedule.colPatient'),dataIndex:'patientName',width:100},

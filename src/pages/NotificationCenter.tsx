@@ -1582,7 +1582,7 @@ export default function NotificationCenter() {
   }, [])
 
   return (
-    <div data-testid="notification-center-page" style={{ minHeight: '100vh', background: BG, display: 'flex' }}>
+    <div data-testid="notification-center-page" style={{ background: BG, display: 'flex' }}>
       {loading && <LoadingBanner message={t('notification.loading')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* 左侧边栏 */}
@@ -1787,7 +1787,7 @@ export default function NotificationCenter() {
                 value={searchText}
                 onChange={e => setSearchText(e.target.value)}
                 placeholder={t('notification.searchPlaceholder')}
-                style={{ border: 'none', outline: 'none', fontSize: 13, background: 'transparent', width: 200 }}
+                style={{ border: 'none', fontSize: 13, background: 'transparent', width: 200 }}
               />
               {searchText && (
                 <button onClick={() => setSearchText('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
@@ -2094,25 +2094,25 @@ export default function NotificationCenter() {
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>{t('notification.bcTitle')} *</label>
                 <input value={bcForm.title} onChange={e => setBcForm({ ...bcForm, title: e.target.value })} placeholder={t('notification.bcTitlePlaceholder')}
-                  style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+                  style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box',}} />
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>{t('notification.bcContent')} *</label>
                 <textarea rows={3} value={bcForm.content} onChange={e => setBcForm({ ...bcForm, content: e.target.value })} placeholder={t('notification.bcContentPlaceholder')}
-                  style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none', resize: 'vertical' }} />
+                  style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', resize: 'vertical' }} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>{t('notification.bcType')}</label>
                   <select value={bcForm.type} onChange={e => setBcForm({ ...bcForm, type: e.target.value as NotificationDto['type'] })}
-                    style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, background: 'var(--bg-card)', outline: 'none' }}>
+                    style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, background: 'var(--bg-card)',}}>
                     {['CRITICAL', 'REPORT', 'TASK', 'SYSTEM', 'APPOINTMENT'].map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>{t('notification.bcSeverity')}</label>
                   <select value={bcForm.severity ?? 'INFO'} onChange={e => setBcForm({ ...bcForm, severity: e.target.value as NotificationDto['severity'] })}
-                    style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, background: 'var(--bg-card)', outline: 'none' }}>
+                    style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, background: 'var(--bg-card)',}}>
                     {['INFO', 'WARN', 'ERROR', 'CRITICAL'].map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
@@ -2120,7 +2120,7 @@ export default function NotificationCenter() {
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4, display: 'block' }}>{t('notification.bcUsers')}</label>
                 <input value={bcForm.userIds} onChange={e => setBcForm({ ...bcForm, userIds: e.target.value })} placeholder={t('notification.bcUsersPlaceholder')}
-                  style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+                  style={{ width: '100%', padding: '9px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 13, boxSizing: 'border-box',}} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
                 <button onClick={() => setShowBroadcast(false)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: GRAY, fontSize: 13, cursor: 'pointer' }}>{t('notification.cancel')}</button>

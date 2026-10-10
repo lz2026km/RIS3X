@@ -2,7 +2,12 @@
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Code, Search, CheckCircle, FileText, BookOpen, ThumbsUp } from 'lucide-react'
-import { Table, Checkbox, Space, Tag, message } from "antd"
+import {
+  Checkbox,
+  Space,
+  Tag,
+  message,
+} from "antd";
 import { PageContainer } from "../../components/common/PageContainer"
 import { PageHeader } from "../../components/common/PageHeader"
 import { snomedApi, type SnomedCode } from "../../services/api/snomedApi"
@@ -133,8 +138,7 @@ export default function SnomedPage() {
                     {t("confirmAll")}
                   </ActionButton>
                 </div>
-                <Table
-                  size="small"
+                <DataTable
                   rowKey="conceptId"
                   dataSource={codes}
                   pagination={{ pageSize: 8, showSizeChanger: false }}
@@ -211,8 +215,7 @@ export default function SnomedPage() {
             </div>
             <div style={{ marginTop: 12 }}>
               {searchResults.length > 0 && (
-                <Table
-                  size="small"
+                <DataTable
                   rowKey="conceptId"
                   dataSource={searchResults}
                   pagination={{ pageSize: 8, showSizeChanger: false }}
@@ -256,3 +259,5 @@ export default function SnomedPage() {
     </PageContainer>
   )
 }
+
+import { DataTable } from "../../components/common";

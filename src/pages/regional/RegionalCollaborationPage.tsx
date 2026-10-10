@@ -7,8 +7,23 @@
  */
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import {
-  Card, Col, Row, Tag, Space, Button, Select, Input, Table, Spin,
-  Modal, Form, message, Timeline, Badge, Empty, List, Typography,
+  Card,
+  Col,
+  Row,
+  Tag,
+  Space,
+  Button,
+  Select,
+  Input,
+  Spin,
+  Modal,
+  Form,
+  message,
+  Timeline,
+  Badge,
+  Empty,
+  List,
+  Typography,
 } from "antd";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip,
@@ -19,7 +34,7 @@ import {
   Search, BookOpenCheck, ShieldCheck, RefreshCw, Video, PhoneIncoming, CheckCircle2,
 } from "lucide-react";
 import { regionalApi, type InstitutionDto, type CrossInstitutionStudyDto, type AccessRecordDto, type ConsultationRequestDto, type RegionalSiteDto, type RegionalSiteSyncEventDto, type RegionalSiteRoutingRuleDto } from "@/services/api/regionalApi";
-import { StatCard, StatCardGrid } from "../../components/common";
+import { DataTable, StatCard, StatCardGrid } from "../../components/common";
 import { t } from "../../i18n/appI18n";
 
 const { Text } = Typography;
@@ -340,8 +355,7 @@ const RegionalCollaborationPage: React.FC = () => {
             extra={<Button size="small" icon={<RefreshCw size={13} />} onClick={() => void loadAll()}>{t('regionalCollab.refresh')}</Button>}
             style={{ marginBottom: 12 }}
           >
-            <Table
-              size="small"
+            <DataTable
               rowKey="id"
               columns={instColumns}
               dataSource={institutions}
@@ -397,8 +411,7 @@ const RegionalCollaborationPage: React.FC = () => {
             ) : crossResults.length === 0 ? (
               <Empty description={t('regionalCollab.emptyCrossResult')} style={{ padding: 16 }} />
             ) : (
-              <Table
-                size="small"
+              <DataTable
                 rowKey="id"
                 columns={crossColumns}
                 dataSource={crossResults}

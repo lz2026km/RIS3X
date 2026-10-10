@@ -1,6 +1,18 @@
 // [v3.0.6.11-103 Wave 9] 口腔库存管理: KPI 统计 + 搜索筛选 + 真表格(分页/空态) + 新增/详情/入库出库/刷新/导出 + i18n + seed 回退
 import React, { useState, useEffect, useMemo } from 'react';
-import { Table, Tag, Button, Modal, Form, Input, InputNumber, Select, Descriptions, Space, Popconfirm, message } from 'antd';
+import {
+  Tag,
+  Button,
+  Modal,
+  Form,
+  Input,
+  InputNumber,
+  Select,
+  Descriptions,
+  Space,
+  Popconfirm,
+  message,
+} from "antd";
 import { Wallet, Package, AlertTriangle } from 'lucide-react';
 import { DentalPageLayout, EmptyState } from './DentalShared';
 import { dentalApi } from '@/services/api/dentalApi';
@@ -9,6 +21,7 @@ import { t } from '../../i18n/appI18n';
 import { StatCard, StatCardGrid } from '../../components/common/StatCard';
 import { ActionButton } from '../../components/common/ActionButton';
 import { ErrorBanner } from '../../components/feedback';
+import { DataTable } from "../../components/common";
 
 // 确定性 seed 回退 (API 不可用时展示, 与 MSW 字段对齐)
 const SEED_INVENTORY: any[] = [
@@ -211,7 +224,7 @@ export const DentalInventoryPage: React.FC = () => {
       ) : filtered.length === 0 ? (
         <EmptyState tip={t('w9.dentalInv.empty')} onCreate={() => setModalOpen(true)} createLabel={t('w9.dentalInv.create')} />
       ) : (
-        <Table dataSource={pageData} rowKey="id" size="small" pagination={pagination} columns={[
+        <DataTable dataSource={pageData} rowKey="id" pagination={pagination} columns={[
           { title: 'ID', dataIndex: 'id', width: 110 },
           { title: t('w9.dentalInv.name'), dataIndex: 'name' },
           { title: t('w9.dentalInv.category'), dataIndex: 'category', render: (c: string) => <Tag>{c}</Tag> },

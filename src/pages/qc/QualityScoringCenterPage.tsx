@@ -23,7 +23,24 @@ import {
   HardDrive,
   Search,
 } from 'lucide-react'
-import { Button, Tag, Space, Tabs, Select, Input, InputNumber, Table, Modal, Form, Drawer, Progress, Tooltip, Popconfirm, message, Radio, Spin } from 'antd'
+import {
+  Button,
+  Tag,
+  Space,
+  Tabs,
+  Select,
+  Input,
+  InputNumber,
+  Modal,
+  Form,
+  Drawer,
+  Progress,
+  Tooltip,
+  Popconfirm,
+  message,
+  Radio,
+  Spin,
+} from "antd";
 import type { ColumnsType } from 'antd/es/table'
 import { PageContainer } from '../../components/common/PageContainer'
 import { PageHeader } from '../../components/common/PageHeader'
@@ -216,7 +233,7 @@ function RubricTab({ onSource }: { onSource: (s: 'database' | 'seed' | 'demo' | 
         <Tag color="geekblue">{rubric?.standard}</Tag>
       </Space>
 
-      <Table rowKey="key" size="small" columns={dimColumns} dataSource={rubric?.dimensions ?? []} pagination={false} />
+      <DataTable rowKey="key" columns={dimColumns} dataSource={rubric?.dimensions ?? []} pagination={false} />
 
       <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 12, padding: 16 }}>
         <Space style={{ marginBottom: 12 }}>
@@ -373,7 +390,7 @@ function IndicatorsTab({ onSource }: { onSource: (s: 'database' | 'seed' | 'demo
       </Space>
 
       <StateView loading={loading} error={error} empty={!loading && !error && indicators.length === 0} onRetry={load} minHeight={280}>
-        <Table<ComputedIndicator> rowKey="code" size="small" columns={columns} dataSource={indicators} pagination={{ pageSize: 20, showSizeChanger: false }} scroll={{ x: 900 }} />
+        <DataTable<ComputedIndicator> rowKey="code" columns={columns} dataSource={indicators} pagination={{ pageSize: 20, showSizeChanger: false }} scroll={{ x: 900 }} />
       </StateView>
     </div>
   )
@@ -454,7 +471,7 @@ function PdcaTab() {
       </Space>
 
       <StateView loading={loading} error={error} empty={!loading && !error && actions.length === 0} onRetry={load} minHeight={240}>
-        <Table<PdcaAction> rowKey="id" size="small" columns={columns} dataSource={actions} pagination={false} />
+        <DataTable<PdcaAction> rowKey="id" columns={columns} dataSource={actions} pagination={false} />
       </StateView>
 
       <Modal title={t('w9Qc.pdca.createAction')} open={createOpen} onOk={createAction} onCancel={() => setCreateOpen(false)} okText={t('w9Qc.save')}>
@@ -539,7 +556,7 @@ function SamplingTab() {
       </Space>
 
       <StateView loading={loading} error={error} empty={!loading && !error && batches.length === 0} onRetry={load} minHeight={240}>
-        <Table<SamplingBatchView> rowKey="id" size="small" columns={columns} dataSource={batches} pagination={{ pageSize: 10 }} />
+        <DataTable<SamplingBatchView> rowKey="id" columns={columns} dataSource={batches} pagination={{ pageSize: 10 }} />
       </StateView>
 
       <Modal title={t('w9Qc.sampling.createBatch')} open={createOpen} onOk={createBatch} onCancel={() => setCreateOpen(false)} okText={t('w9Qc.save')}>
@@ -560,9 +577,8 @@ function SamplingTab() {
               <Tag>{METHOD_LABELS[detail.method]}</Tag>
               <Tag>{detail.items.length} {t('w9Qc.sampling.items')}</Tag>
             </Space>
-            <Table
+            <DataTable
               rowKey="itemId"
-              size="small"
               pagination={{ pageSize: 10 }}
               dataSource={detail.items}
               columns={[
@@ -668,7 +684,7 @@ function PeerReviewTab() {
       </Space>
 
       <StateView loading={loading} error={error} empty={!loading && !error && filtered.length === 0} onRetry={load} minHeight={240}>
-        <Table<DefectItem> rowKey="id" size="small" columns={columns} dataSource={filtered} pagination={{ pageSize: 15, showSizeChanger: false }} />
+        <DataTable<DefectItem> rowKey="id" columns={columns} dataSource={filtered} pagination={{ pageSize: 15, showSizeChanger: false }} />
       </StateView>
     </div>
   )
@@ -741,7 +757,7 @@ function ReportQcTasksTab() {
       </Space>
 
       <StateView loading={loading} error={error} empty={!loading && !error && tasks.length === 0} onRetry={load} minHeight={240}>
-        <Table<QcTask> rowKey="id" size="small" columns={columns} dataSource={tasks} pagination={{ pageSize: 15, showSizeChanger: false }} scroll={{ x: 1000 }} />
+        <DataTable<QcTask> rowKey="id" columns={columns} dataSource={tasks} pagination={{ pageSize: 15, showSizeChanger: false }} scroll={{ x: 1000 }} />
       </StateView>
     </div>
   )
@@ -837,8 +853,8 @@ function EquipmentTab() {
       <StateView loading={loading} error={error} empty={!loading && !error && filtered.length === 0} onRetry={load} minHeight={240}>
         <Tabs
           items={[
-            { key: 'items', label: t('w9Qc.equipment.tabItems'), children: <Table<PhantomTestItem> rowKey="id" size="small" columns={itemColumns} dataSource={filtered} pagination={{ pageSize: 20, showSizeChanger: false }} /> },
-            { key: 'records', label: t('w9Qc.equipment.tabRecords'), children: <Table<EquipmentQcRecord> rowKey="id" size="small" columns={recordColumns} dataSource={records} pagination={{ pageSize: 15, showSizeChanger: false }} /> },
+            { key: 'items', label: t('w9Qc.equipment.tabItems'), children: <DataTable<PhantomTestItem> rowKey="id" columns={itemColumns} dataSource={filtered} pagination={{ pageSize: 20, showSizeChanger: false }} /> },
+            { key: 'records', label: t('w9Qc.equipment.tabRecords'), children: <DataTable<EquipmentQcRecord> rowKey="id" columns={recordColumns} dataSource={records} pagination={{ pageSize: 15, showSizeChanger: false }} /> },
           ]}
         />
       </StateView>
@@ -858,9 +874,8 @@ function EquipmentTab() {
         {itemDetailLoading ? (
           <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
         ) : itemDetail ? (
-          <Table
+          <DataTable
             rowKey="k"
-            size="small"
             pagination={false}
             showHeader={false}
             columns={[
@@ -883,3 +898,5 @@ function EquipmentTab() {
     </div>
   )
 }
+
+import { DataTable } from "../../components/common";

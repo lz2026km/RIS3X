@@ -3,16 +3,34 @@
 // 数据源: w13SecurityApi (后端 /security、/ocsp、/compliance; MSW 确定性回退)
 import React, { useCallback, useEffect, useState } from 'react'
 import {
-  Alert, Button, Card, Col, Descriptions, Drawer, Input, InputNumber, List, message, Modal,
-  Progress, Row, Select, Space, Spin, Statistic, Table, Tabs, Tag, Typography,
-} from 'antd'
+  Alert,
+  Button,
+  Card,
+  Col,
+  Descriptions,
+  Drawer,
+  Input,
+  InputNumber,
+  List,
+  message,
+  Modal,
+  Progress,
+  Row,
+  Select,
+  Space,
+  Spin,
+  Statistic,
+  Tabs,
+  Tag,
+  Typography,
+} from "antd";
 import type { ColumnsType } from 'antd/es/table'
 import {
   ShieldCheck, RefreshCw, BadgeCheck, KeyRound, Lock, FileCheck2, DatabaseBackup,
   Link2, Plus, RotateCw, Search, PlayCircle, CheckCircle2, AlertTriangle, XCircle,
 } from 'lucide-react'
 import { LoadingBanner, ErrorBanner } from '../../components/feedback'
-import { StatCard, StatCardGrid } from '../../components/common'
+import { DataTable, StatCard, StatCardGrid } from "../../components/common"
 import { t } from '../../i18n/appI18n'
 import {
   auditChainApi, complianceAssessmentApi, drApi, fieldEncryptionApi, hsmApi, ocspApi, raApi, w13CertificateApi,
@@ -228,13 +246,13 @@ const CaTab: React.FC = () => {
 
         <Col span={14}>
           <Card size="small" title={<span><ShieldCheck size={14} /> {t('w13Sec.ca.requests')}</span>}>
-            {loading ? <LoadingBanner /> : <Table<RaCertificateRequestDto> rowKey="id" size="small" dataSource={requests} columns={reqColumns} pagination={{ pageSize: 5, hideOnSinglePage: true }} />}
+            {loading ? <LoadingBanner /> : <DataTable<RaCertificateRequestDto> rowKey="id" dataSource={requests} columns={reqColumns} pagination={{ pageSize: 5, hideOnSinglePage: true }} />}
           </Card>
           <Card size="small" style={{ marginTop: 16 }} title={<span><BadgeCheck size={14} /> {t('w13Sec.ca.certList')}</span>}>
-            {loading ? <LoadingBanner /> : <Table<ReportCertificateDto> rowKey="serial" size="small" dataSource={certs} columns={certColumns} pagination={{ pageSize: 5, hideOnSinglePage: true }} />}
+            {loading ? <LoadingBanner /> : <DataTable<ReportCertificateDto> rowKey="serial" dataSource={certs} columns={certColumns} pagination={{ pageSize: 5, hideOnSinglePage: true }} />}
           </Card>
           <Card size="small" style={{ marginTop: 16 }} title={<span><KeyRound size={14} /> {t('w13Sec.ca.hsm.keys')}</span>}>
-            {loading ? <LoadingBanner /> : <Table<ManagedKeyDto> rowKey="keyId" size="small" dataSource={keys} columns={keyColumns} pagination={{ pageSize: 5, hideOnSinglePage: true }} />}
+            {loading ? <LoadingBanner /> : <DataTable<ManagedKeyDto> rowKey="keyId" dataSource={keys} columns={keyColumns} pagination={{ pageSize: 5, hideOnSinglePage: true }} />}
           </Card>
         </Col>
       </Row>
@@ -327,13 +345,13 @@ const FieldEncryptionTab: React.FC = () => {
             title={t('w13Sec.fe.demo')}
             extra={<Button size="small" type="primary" ghost loading={selfTesting} onClick={() => void handleSelfTest()}>{t('w4b.fe.selftest')}</Button>}
           >
-            {demo ? <Table rowKey="field" size="small" pagination={false} dataSource={demo.samples} columns={demoColumns} /> : <LoadingBanner />}
+            {demo ? <DataTable rowKey="field" pagination={false} dataSource={demo.samples} columns={demoColumns} /> : <LoadingBanner />}
             {selfTestResult && (
               <div style={{ marginTop: 12 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 6 }}>
                   {t('w4b.fe.selftestResult')} · <Tag color="purple">{selfTestResult.algorithm}</Tag>
                 </div>
-                <Table rowKey="field" size="small" pagination={false} dataSource={selfTestResult.samples} columns={demoColumns} />
+                <DataTable rowKey="field" pagination={false} dataSource={selfTestResult.samples} columns={demoColumns} />
               </div>
             )}
           </Card>
@@ -447,7 +465,7 @@ const ComplianceTab: React.FC = () => {
       </Card>
 
       <Card size="small" title={t('w13Sec.cp.controlList')}>
-        <Table<ControlEvaluationDto> rowKey="id" size="small" dataSource={controls} columns={controlColumns} pagination={{ pageSize: 10, hideOnSinglePage: true }} />
+        <DataTable<ControlEvaluationDto> rowKey="id" dataSource={controls} columns={controlColumns} pagination={{ pageSize: 10, hideOnSinglePage: true }} />
       </Card>
     </Space>
   )
@@ -618,18 +636,18 @@ const DrTab: React.FC = () => {
       <Row gutter={16}>
         <Col span={14}>
           <Card size="small" title={t('w13Sec.dr.backupSets')}>
-            <Table<BackupSetDto> rowKey="id" size="small" dataSource={backupSets} columns={backupColumns} pagination={{ pageSize: 5, hideOnSinglePage: true }} />
+            <DataTable<BackupSetDto> rowKey="id" dataSource={backupSets} columns={backupColumns} pagination={{ pageSize: 5, hideOnSinglePage: true }} />
           </Card>
         </Col>
         <Col span={10}>
           <Card size="small" title={t('w13Sec.dr.restorePointsTable')}>
-            <Table<RestorePointDto> rowKey="id" size="small" dataSource={restorePoints} columns={rpColumns} pagination={{ pageSize: 5, hideOnSinglePage: true }} />
+            <DataTable<RestorePointDto> rowKey="id" dataSource={restorePoints} columns={rpColumns} pagination={{ pageSize: 5, hideOnSinglePage: true }} />
           </Card>
         </Col>
       </Row>
 
       <Card size="small" title={t('w13Sec.dr.drills')}>
-        <Table<DrillRecordDto> rowKey="id" size="small" dataSource={drills} columns={drillColumns} pagination={{ pageSize: 5, hideOnSinglePage: true }} />
+        <DataTable<DrillRecordDto> rowKey="id" dataSource={drills} columns={drillColumns} pagination={{ pageSize: 5, hideOnSinglePage: true }} />
       </Card>
 
       {/* [G005 W4B] 演练详情抽屉 (GET /security/dr/drills/:id) */}
@@ -652,9 +670,8 @@ const DrTab: React.FC = () => {
               <Descriptions.Item label={t('w13Sec.dr.col.rpo')}>{`${drillDetail.rpoActualMin}/${drillDetail.rpoTargetMin} min`}</Descriptions.Item>
               <Descriptions.Item label={t('w13Sec.dr.col.at')} span={2}>{drillDetail.finishedAt?.slice(0, 19).replace('T', ' ')}</Descriptions.Item>
             </Descriptions>
-            <Table
+            <DataTable
               rowKey="name"
-              size="small"
               pagination={false}
               dataSource={drillDetail.steps}
               columns={[
@@ -752,7 +769,7 @@ const AuditChainTab: React.FC = () => {
 
       {verification && (
         <Card size="small" title={t('w13Sec.ac.sample')}>
-          <Table rowKey="index" size="small" pagination={false} dataSource={verification.sample} columns={sampleColumns} />
+          <DataTable rowKey="index" pagination={false} dataSource={verification.sample} columns={sampleColumns} />
         </Card>
       )}
     </Space>

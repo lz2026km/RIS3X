@@ -24,12 +24,12 @@ export function FilterBar({ searchPlaceholder = '搜索...', searchValue = '', o
         <div style={{ position: 'relative', flex: '0 0 220px' }}>
           <Search size={13} color="#94a3b8" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)' }} />
           <input value={searchValue} onChange={(e) => onSearchChange(e.target.value)} placeholder={searchPlaceholder}
-            style={{ width: '100%', padding: '7px 10px 7px 32px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, outline: 'none', boxSizing: 'border-box' }} />
+            style={{ width: '100%', padding: '7px 10px 7px 32px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, boxSizing: 'border-box' }} />
         </div>
       )}
       {filters.map((f) => (
         <select key={f.key} value={filterValues[f.key] || ''} onChange={(e) => onFilterChange?.(f.key, e.target.value)}
-          style={{ padding: '7px 10px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, color: '#475569', outline: 'none', cursor: 'pointer' }}>
+          style={{ padding: '7px 10px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, color: '#475569', cursor: 'pointer' }}>
           <option value="">{f.label}</option>
           {f.options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>

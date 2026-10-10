@@ -1,7 +1,14 @@
 import { useState, useCallback, useEffect } from 'react';
 import { DndContext, useDraggable, useDroppable, DragEndEvent } from '@dnd-kit/core';
 import { Layers, Save, Play, Upload, List, History, GripVertical, Plus, CheckCircle2, X } from 'lucide-react';
-import { Table, Button, Tag, message, Modal, Input, Select } from 'antd';
+import {
+  Button,
+  Tag,
+  message,
+  Modal,
+  Input,
+  Select,
+} from "antd";
 import type { ColumnsType } from 'antd/es/table';
 import { canApprove } from '../services/auth/rbacService';
 import { useAuth } from '../hooks/useAuth';
@@ -9,6 +16,7 @@ import { workflowApi } from '../services/api/workflowApi';
 import type { WorkflowDefinitionDto, WorkflowStepDto, ListPayload } from '../services/api/workflowApi';
 import { LoadingBanner, ErrorBanner } from '../components/feedback';
 import { t } from '../i18n/appI18n';
+import { DataTable } from "../components/common";
 
 // [G005 P1] 列表双形状兼容: MSW 裸数组 / 后端 { items, total }
 const toList = <T,>(data: ListPayload<T> | null | undefined): T[] =>
@@ -285,11 +293,11 @@ export default function WorkflowDesignerPage() {
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}><List size={14} />{t('workflowDesigner.stepList')}</div>
             <Button size="small" icon={<Plus size={14} />} onClick={() => setShowNewStep(true)}>{t('workflowDesigner.newStep')}</Button>
           </div>
-          <Table size="small" columns={stepColumns} dataSource={stepList} rowKey="key" pagination={false} scroll={{ x: 'max-content' }}/>
+          <DataTable columns={stepColumns} dataSource={stepList} rowKey="key" pagination={false} scroll={{ x: 'max-content' }}/>
         </div>
       </div>
       <Modal title={t('workflowDesigner.history')} open={showVersion} onCancel={() => setShowVersion(false)} footer={null} width={500}>
-        <Table size="small" columns={[
+        <DataTable columns={[
           { title: t('workflowDesigner.colVersion'), dataIndex: 'version', key: 'version' },
           { title: t('workflowDesigner.colDate'), dataIndex: 'updatedAt', key: 'updatedAt' },
           { title: t('workflowDesigner.colStatus'), dataIndex: 'active', key: 'active', render: (v: boolean) => <Tag color={v ? 'green' : 'default'}>{v ? 'active' : 'inactive'}</Tag> },

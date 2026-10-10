@@ -34,9 +34,7 @@ const inputStyle = (border: string): React.CSSProperties => ({
   padding: '5px 8px',
   border: `1px solid ${border}`,
   borderRadius: 6,
-  fontSize: 12,
-  outline: 'none',
-  color: primaryBlue,
+  fontSize: 12, color: primaryBlue,
   background: whiteBg,
   fontFamily: 'inherit',
 })

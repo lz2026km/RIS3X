@@ -25,7 +25,6 @@ import {
   Form,
   Input,
   Select,
-  Table,
   Slider,
   Switch,
   message,
@@ -36,7 +35,7 @@ import {
   Drawer,
   InputNumber,
   Alert,
-} from 'antd'
+} from "antd";
 import type { ColumnsType } from 'antd/es/table'
 import { PageContainer } from '../../components/common/PageContainer'
 import { PageHeader } from '../../components/common/PageHeader'
@@ -537,7 +536,7 @@ export default function ReportWatermarkPage() {
                     </Button>
                   }
                 >
-                  <Table rowKey="id" size="small" loading={signLoading} columns={signColumns} dataSource={signs} pagination={{ pageSize: 6 }} scroll={{ x: 1000 }} />
+                  <DataTable rowKey="id" loading={signLoading} columns={signColumns} dataSource={signs} pagination={{ pageSize: 6 }} scroll={{ x: 1000 }} />
                 </Card>
               </Space>
             ),
@@ -617,3 +616,5 @@ export default function ReportWatermarkPage() {
     </PageContainer>
   )
 }
+
+import { DataTable } from "../../components/common";

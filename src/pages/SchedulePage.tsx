@@ -1135,7 +1135,7 @@ export default function SchedulePage() {
   }
 
   return (
-    <div data-testid="schedule-page" style={{ minHeight: '100vh', background: C.bg, padding: 20 }}>
+    <div data-testid="schedule-page" style={{ background: C.bg, padding: 20 }}>
       {loading && <LoadingBanner message={t('schedulePage.loading')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* 顶部标题栏 */}
@@ -1297,9 +1297,7 @@ export default function SchedulePage() {
                       border: `1px solid ${C.border}`,
                       borderRadius: 4,
                       fontSize: 13,
-                      width: 160,
-                      outline: 'none',
-                    }}
+                      width: 160, }}
                   />
                 </div>
                 
@@ -1311,9 +1309,7 @@ export default function SchedulePage() {
                     padding: '6px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 4,
-                    fontSize: 13,
-                    outline: 'none',
-                    cursor: 'pointer',
+                    fontSize: 13, cursor: 'pointer',
                   }}
                 >
                   <option value="all">{t('schedulePage.allModalities')}</option>
@@ -1330,9 +1326,7 @@ export default function SchedulePage() {
                     padding: '6px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 4,
-                    fontSize: 13,
-                    outline: 'none',
-                    cursor: 'pointer',
+                    fontSize: 13, cursor: 'pointer',
                   }}
                 >
                   <option value="all">{t('schedulePage.allStaff')}</option>
@@ -2382,9 +2376,7 @@ export default function SchedulePage() {
                     padding: '8px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 6,
-                    fontSize: 13,
-                    outline: 'none',
-                  }}
+                    fontSize: 13, }}
                 >
                   <option value="">{t('w9b.schedule.selectApplicant')}</option>
                   {STAFF_LIST.map(s => (
@@ -2407,9 +2399,7 @@ export default function SchedulePage() {
                     padding: '8px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 6,
-                    fontSize: 13,
-                    outline: 'none',
-                  }}
+                    fontSize: 13, }}
                 />
               </div>
               
@@ -2426,9 +2416,7 @@ export default function SchedulePage() {
                     padding: '8px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 6,
-                    fontSize: 13,
-                    outline: 'none',
-                  }}
+                    fontSize: 13, }}
                 >
                   {Object.entries(SHIFT_CONFIG).map(([key, config]) => (
                     <option key={key} value={key}>{config.label}（{config.time}）</option>
@@ -2453,9 +2441,7 @@ export default function SchedulePage() {
                     padding: '8px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 6,
-                    fontSize: 13,
-                    outline: 'none',
-                  }}
+                    fontSize: 13, }}
                 >
                   <option value="">{t('schedulePage.selectTarget')}</option>
                   {STAFF_LIST.filter(s => s.id !== swapForm.requesterId).map(s => (
@@ -2478,9 +2464,7 @@ export default function SchedulePage() {
                     padding: '8px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 6,
-                    fontSize: 13,
-                    outline: 'none',
-                  }}
+                    fontSize: 13, }}
                 />
               </div>
               
@@ -2497,9 +2481,7 @@ export default function SchedulePage() {
                     padding: '8px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 6,
-                    fontSize: 13,
-                    outline: 'none',
-                  }}
+                    fontSize: 13, }}
                 >
                   {Object.entries(SHIFT_CONFIG).map(([key, config]) => (
                     <option key={key} value={key}>{config.label}（{config.time}）</option>
@@ -2522,9 +2504,7 @@ export default function SchedulePage() {
                     padding: '8px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 6,
-                    fontSize: 13,
-                    outline: 'none',
-                    resize: 'vertical',
+                    fontSize: 13, resize: 'vertical',
                   }}
                 />
               </div>
@@ -2608,9 +2588,7 @@ export default function SchedulePage() {
                     padding: '8px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 6,
-                    fontSize: 13,
-                    outline: 'none',
-                  }}
+                    fontSize: 13, }}
                 />
               </div>
               
@@ -2628,9 +2606,7 @@ export default function SchedulePage() {
                     padding: '8px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 6,
-                    fontSize: 13,
-                    outline: 'none',
-                  }}
+                    fontSize: 13, }}
                 />
               </div>
               
@@ -2646,9 +2622,7 @@ export default function SchedulePage() {
                     padding: '8px 12px',
                     border: `1px solid ${C.border}`,
                     borderRadius: 6,
-                    fontSize: 13,
-                    outline: 'none',
-                  }}
+                    fontSize: 13, }}
                 >
                   <option value="legal">{t('schedulePage.legalHolidays')}</option>
                   <option value="adjustment">{t('schedulePage.adjustmentWorkdays')}</option>
@@ -2708,12 +2682,12 @@ export default function SchedulePage() {
               <div>
                 <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.templateName')}</label>
                 <input type="text" value={templateForm.name} onChange={e => setTemplateForm({ ...templateForm, name: e.target.value })}
-                  placeholder={t('schedulePage.placeholderTemplateName')} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }} />
+                  placeholder={t('schedulePage.placeholderTemplateName')} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}} />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.templateDesc')}</label>
                 <input type="text" value={templateForm.description} onChange={e => setTemplateForm({ ...templateForm, description: e.target.value })}
-                  placeholder={t('schedulePage.placeholderTemplateDesc')} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }} />
+                  placeholder={t('schedulePage.placeholderTemplateDesc')} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}} />
               </div>
               <div style={{ fontSize: 12, color: C.textLight, padding: 8, background: C.bgLight, borderRadius: 6 }}>
                 {t('schedulePage.templateHint')}
@@ -2744,7 +2718,7 @@ export default function SchedulePage() {
               <div>
                 <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveApplicant')}</label>
                 <select value={leaveForm.staffId} onChange={e => setLeaveForm({ ...leaveForm, staffId: e.target.value })}
-                  style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }}>
+                  style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}}>
                   <option value="">{t('schedulePage.selectRequester')}</option>
                   {STAFF_LIST.map(s => (
                     <option key={s.id} value={s.id}>{s.name}（{s.title}）</option>
@@ -2754,7 +2728,7 @@ export default function SchedulePage() {
               <div>
                 <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveType')}</label>
                 <select value={leaveForm.type} onChange={e => setLeaveForm({ ...leaveForm, type: e.target.value as 'annual' | 'sick' | 'personal' })}
-                  style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }}>
+                  style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}}>
                   <option value="annual">{t('schedulePage.annualLeave')}</option>
                   <option value="sick">{t('schedulePage.sickLeave')}</option>
                   <option value="personal">{t('schedulePage.personalLeave')}</option>
@@ -2764,19 +2738,19 @@ export default function SchedulePage() {
                 <div>
                   <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveStartDate')}</label>
                   <input type="date" value={leaveForm.startDate} onChange={e => setLeaveForm({ ...leaveForm, startDate: e.target.value })}
-                    style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }} />
+                    style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}} />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveEndDate')}</label>
                   <input type="date" value={leaveForm.endDate} onChange={e => setLeaveForm({ ...leaveForm, endDate: e.target.value })}
-                    style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }} />
+                    style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}} />
                 </div>
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>{t('schedulePage.leaveReasonLabel')}</label>
                 <textarea value={leaveForm.reason} onChange={e => setLeaveForm({ ...leaveForm, reason: e.target.value })}
                   placeholder={t('schedulePage.placeholderLeaveReason')} rows={3}
-                  style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none', resize: 'vertical' }} />
+                  style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, resize: 'vertical' }} />
               </div>
               <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
                 <button onClick={() => setShowLeaveModal(false)} style={{ padding: '8px 20px', background: C.bgLight, color: C.textMid, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>{t('schedulePage.cancel')}</button>

@@ -7,9 +7,21 @@ import {
   type AdverseEvent, type RiskItem, type AdverseEventTrendItem,
 } from '../../services/api/safetyApi'
 import {
-  Card, Space, Tag, Row, Col, Progress, Table, Badge, List, Segmented, Alert, Button, Empty, Tabs,
-} from 'antd'
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
+  Card,
+  Space,
+  Tag,
+  Row,
+  Col,
+  Progress,
+  Badge,
+  List,
+  Segmented,
+  Alert,
+  Button,
+  Empty,
+  Tabs,
+} from "antd";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 import { Shield, AlertTriangle, Activity, Heart, RefreshCw } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Inbox } from 'lucide-react'
@@ -194,8 +206,8 @@ const PatientSafetyDashboardPage: React.FC = () => {
 
       <Card size="small" title={<Space><Heart size={14} />{t('psd.latestEvents')}</Space>} loading={loading}>
         {events.length === 0 ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('psd.noEvents')} /> : (
-          <Table
-            dataSource={events.slice(0, 10)} rowKey="id" pagination={false} size="small"
+          <DataTable
+            dataSource={events.slice(0, 10)} rowKey="id" pagination={false}
             columns={[
               { title: t('psd.colTime'), dataIndex: 'reportedAt', width: 150, render: (v: string) => new Date(v).toLocaleString('zh-CN') },
               { title: t('psd.colType'), dataIndex: 'eventType', render: (v: string) => <Tag color="blue">{CATEGORY_LABELS[v] ?? v}</Tag> },

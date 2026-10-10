@@ -31,10 +31,10 @@ export default function ReportAdvancedFilter({
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{ fontSize: 12, color: GRAY, fontWeight: 600 }}>质量评分:</span>
             <input type="number" value={qualityScoreFrom} onChange={e => setQualityScoreFrom(Number(e.target.value) || 0)}
-              min={0} max={100} style={{ width: 50, padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 12, outline: 'none', color: '#334155' }} />
+              min={0} max={100} style={{ width: 50, padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 12, color: '#334155' }} />
             <span style={{ fontSize: 12, color: GRAY }}>—</span>
             <input type="number" value={qualityScoreTo} onChange={e => setQualityScoreTo(Number(e.target.value) || 100)}
-              min={0} max={100} style={{ width: 50, padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 12, outline: 'none', color: '#334155' }} />
+              min={0} max={100} style={{ width: 50, padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 12, color: '#334155' }} />
           </div>
           <div style={{ fontSize: 12, color: '#94a3b8' }}>当前筛选: 质量评分 {qualityScoreFrom} ~ {qualityScoreTo}</div>
         </div>

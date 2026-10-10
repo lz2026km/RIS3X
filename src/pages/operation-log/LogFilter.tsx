@@ -33,12 +33,12 @@ const filterBtnStyle = (active: boolean) => ({
 
 const inputStyle = {
   padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0',
-  background: WHITE, color: '#1e40af', fontSize: 12, outline: 'none' as const, width: '100%' as const,
+  background: WHITE, color: '#1e40af', fontSize: 12, width: '100%' as const,
 }
 
 const selectStyle = {
   padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0',
-  background: WHITE, color: '#1e40af', fontSize: 12, cursor: 'pointer' as const, outline: 'none' as const,
+  background: WHITE, color: '#1e40af', fontSize: 12, cursor: 'pointer' as const,
 }
 
 export default function LogFilter({
@@ -88,7 +88,7 @@ export default function LogFilter({
             value={searchText}
             onChange={e => onSearchChange(e.target.value)}
             placeholder="搜索用户 / 目标 / 日志ID..."
-            style={{ border: 'none', outline: 'none', fontSize: 13, width: '100%', background: 'transparent' }}
+            style={{ border: 'none', fontSize: 13, width: '100%', background: 'transparent' }}
           />
           {searchText && (
             <button onClick={() => onSearchChange('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>

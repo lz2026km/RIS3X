@@ -6,11 +6,27 @@ import {
   type DoctorQualification,
 } from '../../services/api/smartRouteApi'
 import {
-  Card, Table, Button, Tag, Space, Switch, InputNumber, Input, Modal, Form, Select,
-  Row, Col, Statistic, Tabs, message, Alert, Progress, Popconfirm,
-} from 'antd'
+  Card,
+  Button,
+  Tag,
+  Space,
+  Switch,
+  InputNumber,
+  Input,
+  Modal,
+  Form,
+  Select,
+  Row,
+  Col,
+  Statistic,
+  Tabs,
+  message,
+  Alert,
+  Progress,
+  Popconfirm,
+} from "antd";
 import { GitBranch, Plus, Edit3, History, RefreshCw, User, GraduationCap, Route, Trash2 } from 'lucide-react'
-import { StatCard, StatCardGrid } from '../../components/common'
+import { DataTable, StatCard, StatCardGrid } from "../../components/common"
 import React, { useState, useEffect, useCallback } from 'react'
 import { workflowApi } from '../../services/api/workflowApi'
 import { t } from '../../i18n/appI18n'
@@ -241,14 +257,14 @@ const SmartRoutingPage: React.FC = () => {
                   </Space>
                 }
               >
-                <Table rowKey="id" dataSource={rules} columns={ruleColumns} loading={loading} pagination={false} size="small" scroll={{ x: 'max-content' }}/>
+                <DataTable rowKey="id" dataSource={rules} columns={ruleColumns} loading={loading} pagination={false} scroll={{ x: 'max-content' }}/>
               </Card>
             ),
           },
           {
             key: 'qualifications',
             label: <span><GraduationCap size={14} /> {t('smartRouting.tabQualifications')}</span>,
-            children: <Card><Table rowKey="doctorId" dataSource={qualifications} columns={qualColumns} loading={loading} pagination={false} size="small" scroll={{ x: 'max-content' }}/></Card>,
+            children: <Card><DataTable rowKey="doctorId" dataSource={qualifications} columns={qualColumns} loading={loading} pagination={false} scroll={{ x: 'max-content' }}/></Card>,
           },
           {
             key: 'assign',
@@ -324,7 +340,7 @@ const SmartRoutingPage: React.FC = () => {
                 )}
 
                 <h4 style={{ margin: '8px 0' }}>{t('smartRouting.assignHistory')}</h4>
-                <Table rowKey="id" dataSource={historyPagination.pageData} columns={historyColumns} pagination={historyPagination.pagination} size="small" scroll={{ x: 'max-content' }}/>
+                <DataTable rowKey="id" dataSource={historyPagination.pageData} columns={historyColumns} pagination={historyPagination.pagination} scroll={{ x: 'max-content' }}/>
               </Card>
             ),
           },

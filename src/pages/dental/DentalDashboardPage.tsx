@@ -2,8 +2,21 @@
 import { dentalApi } from '../../services/api/dentalApi';
 import { DentalPageLayout, EmptyState } from './DentalShared';
 import { t } from '../../i18n/appI18n';
-import { Card, Button, Row, Col, Statistic, Space, Alert, Tag, Spin, Empty, List, Table, message } from 'antd';
-import { StatCard, StatCardGrid } from '../../components/common';
+import {
+  Card,
+  Button,
+  Row,
+  Col,
+  Statistic,
+  Space,
+  Alert,
+  Tag,
+  Spin,
+  Empty,
+  List,
+  message,
+} from "antd";
+import { DataTable, StatCard, StatCardGrid } from "../../components/common";
 import { RefreshCw, Calendar, Users, Scan, TrendingUp, Activity, Stethoscope } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 
@@ -131,10 +144,9 @@ export const DentalDashboardPage: React.FC = () => {
           }}>{t('dentalDash.refresh')}</Button>
         }
       >
-        <Table
+        <DataTable
           dataSource={treatments.slice(0, 8)}
           rowKey="id"
-          size="small"
           pagination={false}
           columns={[
             { title: t('dentalShared.patient'), dataIndex: 'patientName' },

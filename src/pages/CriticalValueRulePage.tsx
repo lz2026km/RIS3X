@@ -402,9 +402,7 @@ export default function CriticalValueRulePage() {
                     padding: "5px 8px 5px 26px",
                     border: "1px solid var(--border-color)",
                     borderRadius: 4,
-                    fontSize: 12,
-                    outline: "none",
-                  }}
+                    fontSize: 12, }}
                 />
               </div>
               <Select
@@ -796,9 +794,7 @@ export default function CriticalValueRulePage() {
                   padding: "8px 12px",
                   borderRadius: 6,
                   border: "1px solid var(--border-color)",
-                  fontSize: 13,
-                  outline: "none",
-                  boxSizing: "border-box",
+                  fontSize: 13, boxSizing: "border-box",
                 }}
               />
             </div>
@@ -841,9 +837,7 @@ export default function CriticalValueRulePage() {
                     padding: "8px 12px",
                     borderRadius: 6,
                     border: "1px solid var(--border-color)",
-                    fontSize: 13,
-                    outline: "none",
-                    boxSizing: "border-box",
+                    fontSize: 13, boxSizing: "border-box",
                   }}
                 />
               </div>
@@ -902,9 +896,7 @@ export default function CriticalValueRulePage() {
                   padding: "8px 12px",
                   borderRadius: 6,
                   border: "1px solid var(--border-color)",
-                  fontSize: 13,
-                  outline: "none",
-                  resize: "vertical",
+                  fontSize: 13, resize: "vertical",
                   fontFamily: "inherit",
                   boxSizing: "border-box",
                 }}

@@ -1,11 +1,27 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Space, Tag, Button, Table, Tabs, Form, Select, Input, message, Alert, Badge, Descriptions, Row, Col } from 'antd';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Tabs,
+  Form,
+  Select,
+  Input,
+  message,
+  Alert,
+  Badge,
+  Descriptions,
+  Row,
+  Col,
+} from "antd";
 import { Send, Activity, History, Wifi, Server } from 'lucide-react';
 import { iheApi } from '../../services/api/integrationApi';
 import type { PamMessagesResponse } from '../../services/api/integrationApi';
 import { usePagination } from '../../hooks/usePagination';
 import { ErrorBanner } from '../../components/feedback';
 import { t } from '../../i18n/appI18n';
+import { DataTable } from "../../components/common";
 
 const MSG_TYPES = ['A01', 'A03', 'A04', 'A05', 'A08', 'A11', 'A13'];
 
@@ -74,7 +90,7 @@ export const PamPage: React.FC = () => {
   }, [messageType, patientId, visitNumber, classCode, assignedLocation]);
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
       <Space style={{ marginBottom: 16 }}>
         <Activity size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('pam.title')}</span>
@@ -135,7 +151,7 @@ export const PamPage: React.FC = () => {
             children: (
               <Card size="small" extra={<Button size="small" icon={<Activity size={12} />} onClick={loadMessages}>{t('pam.refresh')}</Button>}
                 title={t('pam.messageRecords')}>
-                <Table dataSource={msgPageData} rowKey="messageId" pagination={msgPagination} scroll={{ x: 'max-content' }}
+                <DataTable dataSource={msgPageData} rowKey="messageId" pagination={msgPagination} scroll={{ x: 'max-content' }}
                   columns={[
                     { title: t('pam.messageType'), dataIndex: ['message', 'messageType'], render: (mtype: string) => <Tag color="blue">{mtype}</Tag> },
                     { title: t('pam.patientId'), dataIndex: ['message', 'patientId'], width: 140 },

@@ -1,8 +1,23 @@
 // @deprecated [v3.0.6.11-104 Wave 5C] 已嵌入 ReviewCenterPage (/review-center 综合审核枢纽) 作为 Tab; 旧路由 /dual-read redirect 兼容。文件保留供回滚参考。
 import React, { useState, useEffect, useCallback } from 'react'
-import { Card, Table, Button, Tag, Space, Modal, Input, Typography, Row, Col, message, Select, Divider, Alert, Tooltip } from 'antd'
+import {
+  Card,
+  Button,
+  Tag,
+  Space,
+  Modal,
+  Input,
+  Typography,
+  Row,
+  Col,
+  message,
+  Select,
+  Divider,
+  Alert,
+  Tooltip,
+} from "antd";
 import { GitBranch, CheckCircle, AlertTriangle, BarChart3, UserCheck, PenLine, RefreshCw, FileText, ExternalLink } from 'lucide-react'
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 import { dualReadApi, type DualReadAssignment, type DualReadReportLink } from '../../services/api/dualReadApi'
 import { useAuth } from '../../hooks/useAuth'
 import { usePagination } from '../../hooks/usePagination'
@@ -286,7 +301,7 @@ const DualReadPage: React.FC = () => {
         <StatCard title={t('dualRead.pending')} value={assignments.filter(a => a.status === 'both_done').length} icon={<AlertTriangle size={16} />} />
       </StatCardGrid>
       <Card extra={<Button type="primary" icon={<UserCheck size={14} />} loading={actionLoading} onClick={() => setAssignOpen(true)}>{t('dualRead.assignDualRead')}</Button>}>
-        <Table rowKey="id" dataSource={assignPagination.pageData} columns={columns} pagination={assignPagination.pagination} size="small" loading={loading} scroll={{ x: 'max-content' }}/>
+        <DataTable rowKey="id" dataSource={assignPagination.pageData} columns={columns} pagination={assignPagination.pagination} loading={loading} scroll={{ x: 'max-content' }}/>
       </Card>
       {selectedAssignment && (
         <Modal title={`仲裁 - ${selectedAssignment.studyId}`} open={arbitrateOpen} onOk={() => void handleArbitrate()} onCancel={() => setArbitrateOpen(false)} width={700} confirmLoading={actionLoading}>

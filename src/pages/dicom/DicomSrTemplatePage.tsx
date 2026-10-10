@@ -1,6 +1,18 @@
 import { usePagination } from '../../hooks/usePagination'
 import { dicomSrApi, type DicomSrTemplate } from '../../services/api/dicomApi'
-import { Card, Table, Button, Space, Tag, Modal, Form, Input, message, Popconfirm, Empty, Descriptions } from 'antd'
+import {
+  Card,
+  Button,
+  Space,
+  Tag,
+  Modal,
+  Form,
+  Input,
+  message,
+  Popconfirm,
+  Empty,
+  Descriptions,
+} from "antd";
 import { FileText, Plus, Edit, Trash, RefreshCw, Eye } from 'lucide-react'
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
@@ -115,7 +127,7 @@ export const DicomSrTemplatePage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
       <Space style={{ marginBottom: 16 }}>
         <FileText size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('srTpl.title')}</span>
@@ -132,13 +144,12 @@ export const DicomSrTemplatePage: React.FC = () => {
           </Space>
         }
       >
-        <Table
+        <DataTable
           dataSource={listPagination.pageData}
           columns={columns}
           rowKey="id"
           loading={loading}
           pagination={listPagination.pagination}
-          size="small"
         scroll={{ x: 'max-content' }}
         />
       </Card>
@@ -189,3 +200,5 @@ export const DicomSrTemplatePage: React.FC = () => {
 }
 
 export default DicomSrTemplatePage
+
+import { DataTable } from "../../components/common";

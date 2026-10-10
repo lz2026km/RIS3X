@@ -391,7 +391,7 @@ const DicomViewerProPage: React.FC = () => {
   const cellHeight = hanging ? (viewerHeight - (hanging.rows - 1) * 8) / hanging.rows : viewerHeight
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0b1220' }}>
+    <div style={{ background: '#0b1220' }}>
       <ViewerSelector current="pro" />
       <div style={{ padding: '8px 16px', background: '#101a30', borderBottom: '1px solid #1e2b45' }}>
         <Row gutter={[12, 8]} align="middle">

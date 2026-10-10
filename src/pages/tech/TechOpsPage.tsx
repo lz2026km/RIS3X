@@ -86,8 +86,7 @@ const rateColor = (rate: number) => {
 
 const inputStyle: React.CSSProperties = {
   background: 'var(--bg-primary)', color: C.text, border: `1px solid ${C.border}`,
-  borderRadius: 6, padding: '4px 10px', fontSize: 13, outline: 'none',
-}
+  borderRadius: 6, padding: '4px 10px', fontSize: 13, }
 
 // ============================================================
 // 本地演示回退数据 (API 不可用时保证页面可用)
@@ -878,7 +877,7 @@ export default function TechOpsPage() {
   // 渲染 (render* 函数声明在上方, 因函数提升可在此引用)
   // ============================================================
   return (
-    <div data-testid="tech-ops-page" style={{ minHeight: '100vh', background: C.bg, color: C.text, fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+    <div data-testid="tech-ops-page" style={{ background: C.bg, color: C.text, fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       {/* ================= 头部 ================= */}
       <div style={{ background: 'linear-gradient(135deg,var(--color-primary-800),var(--color-primary-950))', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

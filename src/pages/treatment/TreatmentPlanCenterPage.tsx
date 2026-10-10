@@ -1,8 +1,26 @@
 // [W3-2] 跨科室治疗计划中心: treatmentPlanApi 真实 CRUD + 状态流转 + 时间线
 import { usePagination } from '../../hooks/usePagination';
 import { treatmentPlanApi, type TreatmentPlan, type PlanStatus } from '../../services/api/treatmentPlanApi';
-import { Card, Space, Tag, Button, Table, Select, Input, message, Tabs, Modal, Form, Badge, Steps, Popconfirm, Alert, Empty, Spin, Descriptions } from 'antd';
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Select,
+  Input,
+  message,
+  Tabs,
+  Modal,
+  Form,
+  Badge,
+  Steps,
+  Popconfirm,
+  Alert,
+  Empty,
+  Spin,
+  Descriptions,
+} from "antd";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import { Plus, ClipboardList, RefreshCw, PlayCircle, CheckCircle2, Trash2 } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
 import { t } from '../../i18n/appI18n';
@@ -237,7 +255,7 @@ export const TreatmentPlanCenterPage: React.FC = () => {
         { key: 'plans', label: t('treatmentPlan.tabPlans'), children:
           <Card extra={<Space><Button type="primary" icon={<Plus size={12} />} onClick={() => setCreateModal(true)}>{t('treatmentPlan.newPlan')}</Button><Button icon={<RefreshCw size={12} />} onClick={() => void load()}>{t('treatmentPlan.refresh')}</Button></Space>} size="small" title={`${plans.length} ${t('treatmentPlan.itemsUnit')}`}>
             <Spin spinning={loading}>
-              <Table
+              <DataTable
                 dataSource={planPageData}
                 rowKey="id"
                 pagination={planPagination}

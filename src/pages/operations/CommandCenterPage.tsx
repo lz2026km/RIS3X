@@ -96,7 +96,7 @@ export const CommandCenterPage: React.FC = () => {
   const maxTrend = Math.max(1, ...trend.map((tr) => tr.count));
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
       <Space style={{ marginBottom: 16 }}>
         <BarChart3 size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('commandCenter.title')}</span>

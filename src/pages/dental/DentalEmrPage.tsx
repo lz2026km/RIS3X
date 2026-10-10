@@ -1,13 +1,32 @@
 // [v3.0.6.8-94] Phase 4: 口腔 360° 患者视图
 // 对标: 领健·牙医管家 患者档案
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Select, Row, Col, Tabs, Table, List, Timeline, Badge, Descriptions, Avatar, Spin, Button, Modal, Form, Input, message } from 'antd';
+import {
+  Card,
+  Space,
+  Tag,
+  Select,
+  Row,
+  Col,
+  Tabs,
+  List,
+  Timeline,
+  Badge,
+  Descriptions,
+  Avatar,
+  Spin,
+  Button,
+  Modal,
+  Form,
+  Input,
+  message,
+} from "antd";
 import { Activity, Phone, Calendar, Clock, DollarSign, FileText, Pill, AlertTriangle, History, Eye, Plus } from 'lucide-react';
 import { dentalApi } from '../../services/api/dentalApi';
 import { ErrorBanner } from '../../components/feedback';
 import { t } from '../../i18n/appI18n';
 import { usePagination } from '../../hooks/usePagination';
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 
 export const DentalEmrPage: React.FC = () => {
   const [patients, setPatients] = useState([
@@ -246,25 +265,25 @@ export const DentalEmrPage: React.FC = () => {
                 </Descriptions>
                 <Timeline style={{marginTop:16}} items={treatments.slice(0,5).map((tr:any)=>({color:tr.type==='Implant'?'red':tr.type==='Endodontic'?'orange':'blue',children:<><b>{tr.date}</b> {tr.description} <Tag>{tr.type}</Tag> <Tag>¥{tr.cost}</Tag></>}))} />
               </>},
-              {key:'treatments', label:<span><FileText size={12}/>{t('dentalEmr.tabTreatments')} ({treatments.length})</span>, children:<Table dataSource={pagedTreatments} rowKey="id" size="small" pagination={treatmentsPagination}
+              {key:'treatments', label:<span><FileText size={12}/>{t('dentalEmr.tabTreatments')} ({treatments.length})</span>, children:<DataTable dataSource={pagedTreatments} rowKey="id" pagination={treatmentsPagination}
                 columns={[{title:t('dentalEmr.colDate'),dataIndex:'date',width:100},{title:t('dentalEmr.colType'),dataIndex:'type',render:(v:string)=><Tag>{v}</Tag>,width:100},{title:t('dentalEmr.colTooth'),dataIndex:'toothNo',width:60,render:(n:number)=>n?<Tag color="blue">#{n}</Tag>:t('dentalEmr.fullMouth')},{title:t('dentalEmr.colDescription'),dataIndex:'description'},{title:t('dentalEmr.colDentist'),dataIndex:'dentist'},{title:t('dentalEmr.colCost'),dataIndex:'cost',render:(v:number)=>`¥${v}`},{title:t('dentalEmr.colSelfPay'),dataIndex:'patientPaid',render:(v:number)=>`¥${v}`,width:80}]} 
               scroll={{ x: 'max-content' }}/>},
               {key:'appointments', label:<span><Clock size={12}/>{t('dentalEmr.tabAppointments')} ({appts.length})</span>, children:<>
                 <div style={{ marginBottom: 8 }}>
                   <Button size="small" type="primary" icon={<Plus size={12} />} onClick={openApptCreate}>{t("w3b.apptCreate")}</Button>
                 </div>
-                <Table dataSource={pagedAppts} rowKey="id" size="small" pagination={apptsPagination}
+                <DataTable dataSource={pagedAppts} rowKey="id" pagination={apptsPagination}
                 columns={[{title:t('dentalEmr.colDate'),dataIndex:'date'},{title:t('dentalEmr.colTime'),dataIndex:'time'},{title:t('dentalEmr.colType'),dataIndex:'type',render:(v:string)=><Tag>{v}</Tag>},{title:t('dentalEmr.colContent'),dataIndex:'description'},{title:t('dentalEmr.colDentist'),dataIndex:'dentist'},{title:t('dentalEmr.colChair'),dataIndex:'chair'},{title:t('dentalEmr.colStatus'),dataIndex:'status',render:(s:string)=><Badge status={s==='completed'?'success':s==='scheduled'?'processing':'default'} text={({completed:t('dentalEmr.apptCompleted'),scheduled:t('dentalEmr.apptScheduled'),cancelled:t('dentalEmr.apptCancelled')})[s] ?? s} />},{title:t('dentalEmr.colActions'),width:80,render:(_,r:any)=><Button size="small" type="link" onClick={()=>openApptEdit(r)}>{t("w3b.apptEdit")}</Button>}]} 
                 scroll={{ x: 'max-content' }}/>
               </>},
-              {key:'billing', label:<span><DollarSign size={12}/>{t('dentalEmr.tabBilling')} ({bills.length})</span>, children:<Table dataSource={pagedBills} rowKey="id" size="small" pagination={billsPagination}
+              {key:'billing', label:<span><DollarSign size={12}/>{t('dentalEmr.tabBilling')} ({bills.length})</span>, children:<DataTable dataSource={pagedBills} rowKey="id" pagination={billsPagination}
                 columns={[{title:t('dentalEmr.colDate'),dataIndex:'date'},{title:t('dentalEmr.colItems'),dataIndex:'items',render:(i:any[])=><>{i.map((x:any)=><Tag key={x.name}>{x.name}</Tag>)}</>},{title:t('dentalEmr.colTotal'),dataIndex:'total',render:(v:number)=>`¥${v}`},{title:t('dentalEmr.colInsurance'),dataIndex:'insurance',render:(v:number)=>`¥${v}`},{title:t('dentalEmr.colSelfPay'),dataIndex:'selfPay',render:(v:number)=>`¥${v}`},{title:t('dentalEmr.colStatus'),dataIndex:'status',render:(s:string)=><Badge status={s==='paid'?'success':s==='partial'?'warning':'error'} text={({paid:t('dentalEmr.billPaid'),partial:t('dentalEmr.billPartial')})[s] ?? t('dentalEmr.billOverdue')} />}]} 
               scroll={{ x: 'max-content' }}/>},
               {key:'rx', label:<span><Pill size={12}/>{t('dentalEmr.tabRx')} ({scripts.length})</span>, children:<List size="small" dataSource={scripts} renderItem={(rx:any)=><List.Item><List.Item.Meta title={<Space><Tag color="green">{rx.drug}</Tag><span>{rx.dosage}</span></Space>} description={<div style={{fontSize:12,color:'var(--text-secondary)'}}>{rx.date} | {rx.dentist} | {rx.note}</div>} /></List.Item>} />},
               {key:'consents', label:<span><FileText size={12}/>{t('dentalEmr.tabConsents')} ({consents.length})</span>, children:<List size="small" dataSource={consents} renderItem={(c:any)=><List.Item><List.Item.Meta title={<Space><Tag color={c.signed?'green':'orange'}>{c.type}</Tag><Badge status={c.signed?'success':'default'} text={c.signed?t('dentalEmr.consentSigned'):t('dentalEmr.consentPending')} /></Space>} description={<div style={{fontSize:12,color:'var(--text-secondary)'}}>{c.date} | {c.signedBy || '-'} | {c.witness || '-'}</div>} /></List.Item>} />},
               {key:'recalls', label:<span><AlertTriangle size={12}/>{t('dentalEmr.tabRecalls')} ({recalls.length})</span>, children:<List size="small" dataSource={recalls} renderItem={(r:any)=><List.Item><List.Item.Meta title={<Space><Tag>{r.type}</Tag><span>{r.description}</span></Space>} description={<div style={{fontSize:12,color:'var(--text-secondary)'}}>{r.date} | {t('dentalEmr.method')}: {r.method} | <Badge status={r.sent?'success':'default'} text={r.sent?t('dentalEmr.recallSent'):t('dentalEmr.recallPending')} /></div>} /></List.Item>} />},
               {key:'images', label:<span><Eye size={12}/>{t('dentalEmr.tabImages')} ({panoImages.length + periaImages.length + bitewingImages.length})</span>, children:<Spin spinning={imgLoading}>
-                <Table dataSource={pagedImages} rowKey="id" size="small" pagination={imagesPagination}
+                <DataTable dataSource={pagedImages} rowKey="id" pagination={imagesPagination}
                   columns={[{title:t('dentalEmr.colType'),dataIndex:'modality',width:100,render:(m:string)=><Tag color={m==='Panoramic'?'purple':m==='Bitewing'?'cyan':'blue'}>{({Panoramic:t('dentalEmr.modPanoramic'),Periapical:t('dentalEmr.modPeriapical'),Bitewing:t('dentalEmr.modBitewing')})[m] || m}</Tag>},{title:t('dentalEmr.colPatient'),dataIndex:'patientName'},{title:t('dentalEmr.colRegion'),dataIndex:'region',width:80},{title:t('dentalEmr.colAcquisitionDate'),dataIndex:'acquisitionDate',width:110,render:(v:string)=>v?.slice(0,10)},({title:t('dentalEmr.colStatus'),dataIndex:'status',width:90,render:(s:string)=><Badge status={s==='reported'?'success':s==='reviewed'?'processing':'default'} text={({reported:t('dentalEmr.imgReported'),reviewed:t('dentalEmr.imgReviewed')})[s] ?? t('dentalEmr.imgInProgress')} />}),( {title:t('dentalEmr.colThumbnail'),dataIndex:'thumbnail',width:90,render:(url:string)=><a href={url} target="_blank" rel="noreferrer"><Button size="small" type="link">{t('dentalEmr.view')}</Button></a>}),{title:t('dentalEmr.colActions'),width:80,render:(_,r:any)=><Button size="small" type="link" onClick={()=>void openImageDetail(r)}>{t('dentalEmr.detail')}</Button>}]} 
                   scroll={{ x: 'max-content' }}/>
               </Spin>},

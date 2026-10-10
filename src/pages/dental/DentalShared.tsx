@@ -1,10 +1,11 @@
 // [v3.0.6.8-82] 口腔模块共享组件
 import React, { useState } from 'react';
 import { Space, Tag, Empty } from 'antd';
-import { Table, Button, Alert, message, Modal, Descriptions } from 'antd';
+import { Button, Alert, message, Modal, Descriptions } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { Activity, Plus } from 'lucide-react';
 import { t } from '../../i18n/appI18n';
+import { DataTable } from "../../components/common";
 
 export interface DentalHeaderProps {
   title: string;
@@ -102,7 +103,7 @@ export const DentalTreatmentTable: React.FC<{
   showSurface?: boolean;
   showActions?: boolean;
   size?: 'small' | 'middle' | 'large';
-}> = ({ data, showSurface = false, showActions = false, size = 'small' }) => {
+}> = ({ data, showSurface = false, showActions = false }) => {
   const baseColumns: ColumnsType<DentalTreatment> = [
     { title: t('dentalShared.patient'), dataIndex: 'patientName', width: 100 },
     { title: t('dentalShared.toothNo'), dataIndex: 'toothNo', width: 80, render: (n?: number) => n ? <Tag color="blue">#{n}</Tag> : '-' },
@@ -140,7 +141,7 @@ export const DentalTreatmentTable: React.FC<{
       ),
     });
   }
-  return <Table dataSource={data} rowKey="id" columns={baseColumns} pagination={false} size={size} scroll={{ x: 'max-content' }} />;
+  return <DataTable dataSource={data} rowKey="id" columns={baseColumns} pagination={false} scroll={{ x: 'max-content' }} />;
 };
 
 /** 口腔治疗页面通用容器 */
@@ -149,7 +150,7 @@ export const DentalPageLayout: React.FC<{
   alert?: { message: string; type?: 'info' | 'success' | 'warning' | 'error' };
   children?: React.ReactNode;
 }> = ({ header, alert, children }) => (
-  <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+  <div style={{ padding: 24, background: 'var(--bg-card)',}}>
     <DentalPageHeader {...header} />
     {alert && <Alert title={alert.message} type={alert.type || 'info'} showIcon style={{ marginBottom: 12 }} />}
     {children}

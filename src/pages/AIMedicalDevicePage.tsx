@@ -270,7 +270,7 @@ export default function AIMedicalDevicePage() {
   ]
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-info-bg)' }}>
+    <div style={{ background: 'var(--color-info-bg)' }}>
       {/* 蓝色渐变卡片头部 */}
       <div style={{
         background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%)',
@@ -340,7 +340,7 @@ export default function AIMedicalDevicePage() {
                 placeholder={t('aiMedicalDevice.deviceSearchPlaceholder')}
                 style={{
                   width: '100%', padding: '10px 12px 10px 40px', border: '1px solid #dbeafe',
-                  borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box',
+                  borderRadius: 8, fontSize: 13, boxSizing: 'border-box',
                 }}
               />
               {deviceSearch && (
@@ -392,7 +392,7 @@ export default function AIMedicalDevicePage() {
               placeholder={t('aiMedicalDevice.certSearchPlaceholder')}
               style={{
                 width: '100%', padding: '10px 12px 10px 40px', border: '1px solid #dbeafe',
-                borderRadius: 8, fontSize: 13, outline: 'none', transition: 'border-color 0.2s',
+                borderRadius: 8, fontSize: 13, transition: 'border-color 0.2s',
                 boxSizing: 'border-box'
               }}
               onFocus={e => e.target.style.borderColor = '#3b82f6'}

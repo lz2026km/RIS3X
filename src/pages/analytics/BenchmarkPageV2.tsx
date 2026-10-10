@@ -1,13 +1,22 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import dayjs, { type Dayjs } from 'dayjs'
-import { Card, Select, DatePicker, Table, Button, Space, Tag, message, Spin } from 'antd'
+import {
+  Card,
+  Select,
+  DatePicker,
+  Button,
+  Space,
+  Tag,
+  message,
+  Spin,
+} from "antd";
 import { BarChart3, Download, Activity } from 'lucide-react'
 import BenchmarkV2, { type CompareMode, type MetricCode, type Dimension, type ChartType, type BenchmarkCompareData } from '../../components/analytics/BenchmarkV2'
 import type { ColumnsType } from 'antd/es/table'
 import { benchmarkApi } from '../../services/api'
 import { t } from '../../i18n/appI18n'
 import { seededInt, seededUnit } from '../../utils/seededRandom'
-import { StatCard, StatCardGrid } from '../../components/common'
+import { DataTable, StatCard, StatCardGrid } from "../../components/common"
 
 const { RangePicker } = DatePicker
 
@@ -372,12 +381,11 @@ export default function BenchmarkPageV2() {
             </Button>
           }
         >
-          <Table
+          <DataTable
             dataSource={crossSiteData}
             columns={columns}
             rowKey="key"
             pagination={false}
-            size="small"
             bordered
             scroll={{ x: 'max-content' }}
           />

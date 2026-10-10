@@ -220,7 +220,7 @@ const VrPage: React.FC = () => {
   const activeBtnStyle: React.CSSProperties = { ...btnStyle, background: BLUE, borderColor: BLUE, color: '#fff' }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#020617', color: '#cbd5e1', padding: 12 }}>
+    <div style={{ background: '#020617', color: '#cbd5e1', padding: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Box size={18} color={BLUE} />
         <span style={{ fontSize: 15, fontWeight: 700 }}>{t('vr.title')}</span>

@@ -3,7 +3,20 @@
  * 数据源: GET /worklist/retake-stats?from&to&dimension (tech|modality|reason)
  * 视图: 趋势折线 (recharts) + 原因饼图 + 技师/模态热力图 + 维度切换
  */
-import { Alert, Button, Card, Col, Input, Modal, Radio, Row, Space, Table, Tag, Tooltip, message } from 'antd'
+import {
+  Alert,
+  Button,
+  Card,
+  Col,
+  Input,
+  Modal,
+  Radio,
+  Row,
+  Space,
+  Tag,
+  Tooltip,
+  message,
+} from "antd";
 import { BarChart3, Camera, ClipboardCheck, Database, PieChart as PieIcon, RefreshCw, TrendingUp, Wrench } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
@@ -176,7 +189,7 @@ export default function RetakeRateAnalyticsPage() {
   }
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
       <PageHeader
         icon={<BarChart3 size={20} color="#7c3aed" />}
         title={t('retakeAnalytics.title')}
@@ -362,8 +375,7 @@ export default function RetakeRateAnalyticsPage() {
             <Tag color="red">{t('w3d.retake.rejectedStatus')} {stats.approvalSummary.rejected}</Tag>
           </Space>
         )}
-        <Table
-          size="small"
+        <DataTable
           rowKey="id"
           loading={queueLoading}
           dataSource={queue}
@@ -437,3 +449,5 @@ export default function RetakeRateAnalyticsPage() {
     </div>
   )
 }
+
+import { DataTable } from "../../components/common";

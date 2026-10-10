@@ -2170,17 +2170,13 @@ const inputStyle: React.CSSProperties = {
   padding: "4px 8px",
   border: "1px solid var(--border-color)",
   borderRadius: 4,
-  fontSize: 12,
-  outline: "none",
-  minWidth: 100,
+  fontSize: 12, minWidth: 100,
 };
 const selectStyle: React.CSSProperties = {
   padding: "4px 8px",
   border: "1px solid var(--border-color)",
   borderRadius: 4,
-  fontSize: 12,
-  outline: "none",
-  minWidth: 80,
+  fontSize: 12, minWidth: 80,
 };
 
 const MetaField: React.FC<{ label: string; children: React.ReactNode }> = ({
@@ -2872,9 +2868,7 @@ const VisualDesignerBody: React.FC<{
                     padding: "6px 8px",
                     fontSize: 12,
                     lineHeight: 1.6,
-                    resize: "vertical",
-                    outline: "none",
-                    background: "var(--bg-card)",
+                    resize: "vertical", background: "var(--bg-card)",
                     color: "var(--text-primary)",
                   }}
                 />

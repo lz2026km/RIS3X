@@ -1,10 +1,23 @@
 // [v3.0.6.8-49] PR5: CA 签名 + 修订综合页面
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Button, Select, Input, Form, message, Tabs, Alert, Modal, Timeline, Table } from 'antd';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Select,
+  Input,
+  Form,
+  message,
+  Tabs,
+  Alert,
+  Modal,
+  Timeline,
+} from "antd";
 import { Shield, FileSignature, Link2, Edit3, History, Plus, Lock, Stamp, Send } from 'lucide-react';
 import { signApi, amendApi } from '@/services/api/signAmendApi';
 import { LoadingBanner, ErrorBanner, AppEmpty } from '../../components/feedback';
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import { t } from '../../i18n/appI18n';
 
 const { TextArea } = Input;
@@ -230,8 +243,7 @@ export const SignAmendPage: React.FC = () => {
               </Space>
             }
           >
-            <Table
-              size="small"
+            <DataTable
               dataSource={filteredCerts}
               rowKey="id"
               loading={certsLoading}
@@ -302,8 +314,7 @@ export const SignAmendPage: React.FC = () => {
               </Space>
             }
           >
-            <Table
-              size="small"
+            <DataTable
               dataSource={filteredAmends}
               rowKey="id"
               loading={amendsLoading}
@@ -364,8 +375,7 @@ export const SignAmendPage: React.FC = () => {
               </Space>
             }
           >
-            <Table
-              size="small"
+            <DataTable
               rowKey="id"
               loading={supplementLoading}
               dataSource={supplements}

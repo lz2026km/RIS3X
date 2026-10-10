@@ -397,7 +397,7 @@ export default function ReportPhraseBankPage() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder={t('rpb.searchPlaceholder')}
-                style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, outline: 'none' }}
+                style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12,}}
               />
             </div>
           </div>
@@ -484,7 +484,7 @@ export default function ReportPhraseBankPage() {
                   value={editedContent}
                   onChange={e => setEditedContent(e.target.value)}
                   rows={5}
-                  style={{ width: '100%', padding: 8, border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, outline: 'none', resize: 'vertical', fontFamily: 'inherit' }}
+                  style={{ width: '100%', padding: 8, border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, resize: 'vertical', fontFamily: 'inherit' }}
                 />
               </div>
 

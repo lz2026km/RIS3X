@@ -1498,9 +1498,7 @@ const RegionalImagingPage: React.FC = () => {
 
 // Styles
 const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    minHeight: "100vh",
-    background: "var(--bg-primary)",
+  container: { background: "var(--bg-primary)",
     color: "var(--text-primary)",
     padding: "24px",
   },

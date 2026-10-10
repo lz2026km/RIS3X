@@ -379,7 +379,7 @@ export default function CASignaturePage() {
                       value={search}
                       onChange={e => setSearch(e.target.value)}
                       placeholder={t('caSignature.searchPlaceholder')}
-                      style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, outline: 'none' }}
+                      style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12,}}
                     />
                   </div>
                 </div>
@@ -457,7 +457,7 @@ export default function CASignaturePage() {
                     value={reportId}
                     onChange={(e) => setReportId(e.target.value)}
                     placeholder={t('caSignature.reportIdPlaceholder')}
-                    style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 13, boxSizing: 'border-box' }}
                   />
                 </div>
                 <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 16, border: '1px solid var(--border-color)' }}>

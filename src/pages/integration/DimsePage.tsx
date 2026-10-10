@@ -1,9 +1,24 @@
 import React, { useState } from 'react';
-import { Card, Tabs, Table, Button, Form, Input, Select, DatePicker, Upload, message, Tag, Space, Alert, InputNumber } from 'antd';
+import {
+  Card,
+  Tabs,
+  Button,
+  Form,
+  Input,
+  Select,
+  DatePicker,
+  Upload,
+  message,
+  Tag,
+  Space,
+  Alert,
+  InputNumber,
+} from "antd";
 import { UploadOutlined, SendOutlined, SearchOutlined, ForwardOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { api } from '../../services/api/client';
 import { usePagination } from '../../hooks/usePagination';
 import { t } from '../../i18n/appI18n';
+import { DataTable } from "../../components/common";
 
 const { RangePicker } = DatePicker;
 
@@ -135,7 +150,7 @@ export const DimsePage: React.FC = () => {
       label: <Space><SendOutlined />C-ECHO</Space>,
       children: (
         <Card size="small" title={t('dimse.deviceList')}>
-          <Table scroll={{ x: 'max-content' }}
+          <DataTable scroll={{ x: 'max-content' }}
             dataSource={devices}
             rowKey="aeTitle"
             pagination={false}
@@ -176,7 +191,7 @@ export const DimsePage: React.FC = () => {
             </Form>
           </Card>
           <Card size="small" title={t('dimse.worklistEntries')}>
-            <Table scroll={{ x: 'max-content' }} dataSource={mwlPagination.pageData} rowKey={(r, i) => r.accessionNumber || `${i}`} columns={MWL_COLUMNS} loading={mwlLoading} pagination={mwlPagination.pagination}/>
+            <DataTable scroll={{ x: 'max-content' }} dataSource={mwlPagination.pageData} rowKey={(r, i) => r.accessionNumber || `${i}`} columns={MWL_COLUMNS} loading={mwlLoading} pagination={mwlPagination.pagination}/>
           </Card>
         </>
       ),
@@ -195,7 +210,7 @@ export const DimsePage: React.FC = () => {
             <Button icon={<UploadOutlined />} loading={storeLoading} disabled={storeLoading}>{t('dimse.selectDcm')}</Button>
           </Upload>
           <Alert title={t('dimse.uploadHint')} type="info" showIcon style={{ marginTop: 12, marginBottom: 12 }} />
-          <Table scroll={{ x: 'max-content' }} dataSource={storePagination.pageData} rowKey={(r, i) => r.sopInstanceUid || `${i}`} columns={C_STORE_COLUMNS} pagination={storePagination.pagination} />
+          <DataTable scroll={{ x: 'max-content' }} dataSource={storePagination.pageData} rowKey={(r, i) => r.sopInstanceUid || `${i}`} columns={C_STORE_COLUMNS} pagination={storePagination.pagination} />
         </Card>
       ),
     },
@@ -222,7 +237,7 @@ export const DimsePage: React.FC = () => {
             </Form>
           </Card>
           <Card size="small" title={t('dimse.transferRecords')}>
-            <Table scroll={{ x: 'max-content' }} dataSource={movePagination.pageData} rowKey={(r, i) => `${r.studyUid}-${i}`} columns={C_MOVE_COLUMNS} pagination={movePagination.pagination} />
+            <DataTable scroll={{ x: 'max-content' }} dataSource={movePagination.pageData} rowKey={(r, i) => `${r.studyUid}-${i}`} columns={C_MOVE_COLUMNS} pagination={movePagination.pagination} />
           </Card>
         </>
       ),
@@ -230,7 +245,7 @@ export const DimsePage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
       <Space style={{ marginBottom: 16 }}>
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('dimse.title')}</span>
         <Tag color="blue">v3.0</Tag>

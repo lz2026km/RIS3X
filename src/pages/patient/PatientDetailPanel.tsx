@@ -884,7 +884,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                 value={mergeTargetId}
                 onChange={(e) => setMergeTargetId(e.target.value)}
                 placeholder={t('patientDetailPanel.mergeTargetPlaceholder')}
-                style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
+                style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}
               />
               <div style={{ marginTop: 10, padding: 10, background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning-border)', borderRadius: 8, fontSize: 12, color: 'var(--color-warning)', lineHeight: 1.6 }}>
                 {t('patientDetailPanel.mergeWarning', { name: selectedPatient.name })}

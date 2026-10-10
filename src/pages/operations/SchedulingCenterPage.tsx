@@ -3,14 +3,28 @@ import dayjs from 'dayjs';
 import { appointmentApi, type AppointmentDto } from '../../services/api/appointmentApi';
 import { deviceApi } from '../../services/api/deviceApi';
 import {
-  Card, Space, Tag, Button, Table, Calendar, Col, Row, Select,
-  Badge, Modal, Form, DatePicker, message, Alert, Spin, Empty,
-} from 'antd';
+  Card,
+  Space,
+  Tag,
+  Button,
+  Calendar,
+  Col,
+  Row,
+  Select,
+  Badge,
+  Modal,
+  Form,
+  DatePicker,
+  message,
+  Alert,
+  Spin,
+  Empty,
+} from "antd";
 import type { Dayjs } from 'dayjs';
 import { CalendarDays, Clock, Monitor, Users, Plus, RefreshCw } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { t } from '../../i18n/appI18n';
-import { StatCard, StatCardGrid } from '../../components/common';
+import { DataTable, StatCard, StatCardGrid } from "../../components/common";
 
 const STATE_COLOR: Record<string, string> = {
   SCHEDULED: 'blue', CONFIRMED: 'cyan', CHECKED_IN: 'geekblue', IN_PROGRESS: 'orange',
@@ -157,7 +171,7 @@ export const SchedulingCenterPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
       <Space style={{ marginBottom: 16 }}>
         <CalendarDays size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('sch.title')}</span>
@@ -203,7 +217,7 @@ export const SchedulingCenterPage: React.FC = () => {
             {dayAppointments.length === 0 && !loading ? (
               <Empty description={t('sch.noAppointments')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
             ) : (
-              <Table rowKey="id" size="small" dataSource={dayAppointments} columns={columns} pagination={false} scroll={{ x: 'max-content' }}/>
+              <DataTable rowKey="id" dataSource={dayAppointments} columns={columns} pagination={false} scroll={{ x: 'max-content' }}/>
             )}
           </Card>
         </Col>

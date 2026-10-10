@@ -4,7 +4,7 @@
 //  - 标注双向同步: 前端 canvas 绘制 后端标注对象 (measurement-v2 模块)
 //  - 历史版本: 每次更新快照, 支持回滚
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Ruler, Triangle, Circle as CircleIcon, Square, Activity, Trash2, Eye as EyeIcon, EyeOff, FileText, Bone, ScanLine, Route, History, RotateCcw, Link2, PenTool, RefreshCw, HeartPulse, Database, Zap, Repeat2 } from 'lucide-react'
+import { Ruler, ArrowUpRight, Triangle, Circle as CircleIcon, Square, Activity, Trash2, Eye as EyeIcon, EyeOff, FileText, Bone, ScanLine, Route, History, RotateCcw, Link2, PenTool, RefreshCw, HeartPulse, Database, Zap, Repeat2 } from 'lucide-react'
 const RectIcon = Square
 import type { Dispatch, SetStateAction } from 'react'
 import type { MeasureSubMenu, Measurement, RightTab, Tool, MeasureV2Type, Point2D, MeasureV2Record, MeasureV2Version, AnnotationV2Type, AnnotationV2Record, AnnotationV2Version } from './DicomViewerTypes'
@@ -290,7 +290,7 @@ const s = {
   smallBtn: { padding: '3px 8px', borderRadius: 5, border: '1px solid var(--border-color)', background: 'var(--bg-card)', fontSize: 11, fontWeight: 600, cursor: 'pointer', color: '#475569', display: 'flex', alignItems: 'center', gap: 3 } as React.CSSProperties,
   smallBtnPrimary: { background: PRIMARY, borderColor: PRIMARY, color: '#fff' } as React.CSSProperties,
   smallBtnDanger: { background: '#fee2e2', borderColor: '#fecaca', color: '#dc2626' } as React.CSSProperties,
-  input: { flex: 1, padding: '4px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 12, outline: 'none', fontFamily: 'inherit' } as React.CSSProperties,
+  input: { flex: 1, padding: '4px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 12, fontFamily: 'inherit' } as React.CSSProperties,
   versionItem: { display: 'flex', alignItems: 'center', gap: 6, padding: '4px 8px', background: 'var(--bg-primary)', borderRadius: 6, marginBottom: 4, fontSize: 11 } as React.CSSProperties,
   annItem: { display: 'flex', alignItems: 'center', gap: 6, padding: '5px 8px', background: 'var(--bg-primary)', borderRadius: 6, marginBottom: 4, border: '1px solid var(--border-color)', fontSize: 11 } as React.CSSProperties,
 }
@@ -845,7 +845,7 @@ export default function MeasurementPanel(props: Props) {
           {(Object.keys(ANN_TYPE_LABEL) as AnnotationV2Type[]).map(ty => (
             <button key={ty} style={{ ...s.v2ToolBtn, minWidth: 48, padding: '4px 2px', ...(annType === ty ? s.v2ToolBtnActive : {}) }}
               onClick={() => { setAnnType(annType === ty ? null : ty); setAnnDraft([]) }}>
-              {ty === 'text' ? 'T' : ty === 'arrow' ? '' : ty === 'rect' ? '▭' : ty === 'ellipse' ? '◯' : '✎'}
+              {ty === 'text' ? 'T' : ty === 'arrow' ? <ArrowUpRight size={11} /> : ty === 'rect' ? <Square size={11} /> : ty === 'ellipse' ? <CircleIcon size={11} /> : <PenTool size={11} />}
               {t(ANN_TYPE_LABEL[ty])}
             </button>
           ))}
@@ -876,7 +876,7 @@ export default function MeasurementPanel(props: Props) {
                   <span style={{ fontWeight: 700, color: '#1e293b' }}>{a.text || t(ANN_TYPE_LABEL[a.type])}</span>
                   <span style={{ color: '#94a3b8', marginLeft: 4 }}>{t(ANN_TYPE_LABEL[a.type])} · {a.pixelPoints.length}{t('measPanel.points')}{a.measurementId ? ' · ' : ''}</span>
                 </span>
-                <button style={{ ...s.smallBtn, padding: '1px 6px' }} title={t('measPanel.editAnnTitle')} onClick={() => startEditAnn(a)}>✎</button>
+                <button style={{ ...s.smallBtn, padding: '1px 6px' }} title={t('measPanel.editAnnTitle')} onClick={() => startEditAnn(a)}><PenTool size={10} /></button>
                 <button style={{ ...s.smallBtn, padding: '1px 6px' }} title={t('measPanel.linkAnnTitle')} onClick={() => void linkAnnToMeasurement(a.id)}><Link2 size={10} /></button>
                 <button style={{ ...s.smallBtn, padding: '1px 6px' }} onClick={() => void openAnnVersions(a.id)}><History size={10} /></button>
                 <button style={{ ...s.smallBtn, padding: '1px 6px', ...s.smallBtnDanger }} onClick={() => void removeAnnotation(a.id)}><Trash2 size={10} /></button>

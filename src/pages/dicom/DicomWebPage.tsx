@@ -5,8 +5,20 @@
 import WadoRsViewer from '../../components/dicom/WadoRsViewer'
 import { dicomWebApi, type DicomWebCapabilities, type DicomWebStudy } from '../../services/api/dicomApi'
 import {
-  Card, Input, Select, Upload, Button, message, Typography, Space, Divider, Table, Tag, Alert, Spin, Modal,
-} from 'antd'
+  Card,
+  Input,
+  Select,
+  Upload,
+  Button,
+  message,
+  Typography,
+  Space,
+  Divider,
+  Tag,
+  Alert,
+  Spin,
+  Modal,
+} from "antd";
 import { EmptyState } from '../../components/common/EmptyState'
 import { RefreshCw, Upload as UploadIcon, Search, Eye, Download } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
@@ -164,7 +176,7 @@ export default function DicomWebPage() {
         ) : studies.length === 0 ? (
           <EmptyState description={t('dw.noResults')} />
         ) : (
-          <Table rowKey="studyInstanceUID" size="small" dataSource={studies} columns={columns} pagination={{ current: studyPage, pageSize: 10, total: studies.length, onChange: setStudyPage, showSizeChanger: false, showTotal: (n) => t('w9d.dicomWeb.totalCount', { n }) }} scroll={{ x: 900 }} />
+          <DataTable rowKey="studyInstanceUID" dataSource={studies} columns={columns} pagination={{ current: studyPage, pageSize: 10, total: studies.length, onChange: setStudyPage, showSizeChanger: false, showTotal: (n) => t('w9d.dicomWeb.totalCount', { n }) }} scroll={{ x: 900 }} />
         )}
       </Card>
 
@@ -199,3 +211,5 @@ export default function DicomWebPage() {
     </div>
   )
 }
+
+import { DataTable } from "../../components/common";

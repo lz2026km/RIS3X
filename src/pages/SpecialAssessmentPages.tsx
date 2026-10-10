@@ -155,8 +155,7 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
                   onChange={e => setValues({ ...values, [item.key]: e.target.value })}
                   style={{
                     width: '100%', padding: '6px 10px',
-                    border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, outline: 'none',
-                  }}
+                    border: '1px solid var(--border-color)', borderRadius: 4, fontSize: 12, }}
                 />
               )}
               {item.type === 'boolean' && (

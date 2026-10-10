@@ -3,7 +3,6 @@ import type { CardiacAiResult } from "../../services/api/cardiacAiApi";
 import { useNavigate } from "react-router-dom";
 import {
   Card,
-  Table,
   Tag,
   Space,
   Spin,
@@ -14,7 +13,7 @@ import {
 import { HeartPulse, RefreshCw, Cpu, Eye, Check, X } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import { t } from "../../i18n/appI18n";
-import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 
 const cadRadsColor: Record<string, string> = {
   "0": "green",
@@ -227,12 +226,11 @@ const CardiacAiPage: React.FC = () => {
       )}
       <Card>
         <Spin spinning={loading}>
-          <Table
+          <DataTable
             rowKey="id"
             dataSource={results}
             columns={columns}
             pagination={false}
-            size="small"
             rowSelection={{
               selectedRowKeys,
               onChange: (keys) => setSelectedRowKeys(keys),

@@ -1,10 +1,26 @@
 // [v3.0.6.8-37] PR 4: 8 亚专科纵深
 // 对标: Medisoft mediSIGHT 8 亚专科模块
 // 5 专科量表 + 接触镜 + 低视力
-import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message, Empty, Alert, InputNumber, Radio, Table } from 'antd';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Select,
+  Input,
+  Form,
+  Row,
+  Col,
+  Divider,
+  message,
+  Empty,
+  Alert,
+  InputNumber,
+  Radio,
+} from "antd";
 import { Eye, Activity, Compass, Layers, Zap, Glasses, Accessibility, Save, History } from 'lucide-react';
 import { Inbox } from 'lucide-react'
-import { StatCard, StatCardGrid } from '../../../components/common'
+import { DataTable, StatCard, StatCardGrid } from "../../../components/common"
 // [v3.0.6.11-88 Round10] 接触镜验配走 API 层 (后端 POST /eye/contact-lens/fitting)
 import { eyeApi } from '../../../services/api/eyeApi'
 import { t } from '../../../i18n/appI18n'
@@ -58,8 +74,7 @@ const SubRecordHistory: React.FC<{
       ) : records.length === 0 ? (
         <Empty description={t('eye.common.noData')} image={<Inbox size={40} style={{ opacity: 0.4 }} />} />
       ) : (
-        <Table
-          size="small"
+        <DataTable
           rowKey={(r: any) => r.id}
           dataSource={records.slice(0, 5)}
           pagination={false}
@@ -97,7 +112,7 @@ export const StrabismusPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
       <Space style={{ marginBottom: 16 }}>
         <Eye size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('eyeSub.strabismusTitle')}</span>
@@ -183,7 +198,7 @@ export const NeuroOphthalmologyPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
       <Space style={{ marginBottom: 16 }}>
         <Activity size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('eyeSub.neuroTitle')}</span>
@@ -260,7 +275,7 @@ export const OcularOncologyPage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
       <Space style={{ marginBottom: 16 }}>
         <Compass size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('eyeSub.oncologyTitle')}</span>
@@ -317,7 +332,7 @@ export const CorneaPage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
       <Space style={{ marginBottom: 16 }}>
         <Layers size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('eyeSub.corneaTitle')}</span>
@@ -374,7 +389,7 @@ export const ContactLensFittingPage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
       <Space style={{ marginBottom: 16 }}>
         <Glasses size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('eyeSub.lensTitle')}</span>
@@ -447,7 +462,7 @@ export const LowVisionPage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
       <Space style={{ marginBottom: 16 }}>
         <Accessibility size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('eyeSub.lowVisionTitle')}</span>
@@ -524,7 +539,7 @@ export const CataractPage: React.FC = () => {
   };
   const gradeColor = (g: number) => g >= 3 ? '#ff4d4f' : g >= 2 ? '#faad14' : '#52c41a';
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
       <Space style={{ marginBottom: 16 }}>
         <Eye size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('eyeSub.cataractTitle')}</span>
@@ -597,7 +612,7 @@ export const RefractivePage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
       <Space style={{ marginBottom: 16 }}>
         <Zap size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('eyeSub.refractiveTitle')}</span>

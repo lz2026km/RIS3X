@@ -2,8 +2,27 @@
 // 对标: 领健·牙医管家
 // [G005 Wave1B] 收敛 7 处裸 fetch 双通道 → 仅走 dentalApi (后端 /dental/billing/* 真实), 失败走现有回退标注
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Table, InputNumber, Modal, List, Badge, Progress, Divider, Form, Input } from 'antd';
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+import {
+  Card,
+  Space,
+  Tag,
+  Button,
+  Select,
+  Row,
+  Col,
+  Statistic,
+  message,
+  Tabs,
+  InputNumber,
+  Modal,
+  List,
+  Badge,
+  Progress,
+  Divider,
+  Form,
+  Input,
+} from "antd";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import { DollarSign, FileText, XCircle, Printer, Calculator, Plus } from 'lucide-react';
 import { wechatPay } from '../../services/wechatPay';
 import { dentalApi } from '../../services/api/dentalApi';
@@ -245,7 +264,7 @@ export const DentalBillingPage: React.FC = () => {
               <Col span={8}>
                 <Card size="small" title={t('dentalBilling.feeItemSelect')}>
                   <Select showSearch placeholder={t('dentalBilling.searchItemPlaceholder')} style={{width:'100%',marginBottom:8}} options={catalog.map((c:any)=>({value:c.code,label:`${c.name} ¥${c.unitPrice}`}))} />
-                  <Table dataSource={pagedCatalog} rowKey="code" size="small" pagination={catalogPagination} scroll={{ x: 'max-content' }}
+                  <DataTable dataSource={pagedCatalog} rowKey="code" pagination={catalogPagination} scroll={{ x: 'max-content' }}
                     columns={[{title:t('dentalBilling.colItem'),dataIndex:'name',width:140},{title:t('dentalBilling.colPrice'),dataIndex:'unitPrice',render:(v:number)=>`¥${v}`},{title:t('dentalBilling.colInsurance'),dataIndex:'insuranceType',render:(v:string)=><Tag color={v==='甲类'?'green':v==='乙类'?'blue':'red'}>{v}</Tag>},{title:'',render:(_,r:any)=><Button size="small" icon={<Plus size={14}/>} onClick={()=>setNewInvoice({...newInvoice,items:[...newInvoice.items,{...r,qty:1}]})} aria-label={t('dentalBilling.addItem')} />}]} />
                 </Card>
               </Col>
@@ -294,7 +313,7 @@ export const DentalBillingPage: React.FC = () => {
               </Col>
             </Row>
           </>},
-          {key:'invoices', label:t('dentalBilling.tabInvoices'), children:<Table dataSource={pagedInvoices} rowKey="id" size="small" pagination={invoicesPagination}
+          {key:'invoices', label:t('dentalBilling.tabInvoices'), children:<DataTable dataSource={pagedInvoices} rowKey="id" pagination={invoicesPagination}
             columns={[
               {title:t('dentalBilling.colInvoiceNo'),dataIndex:'id',width:180},{title:t('dentalBilling.colDate'),dataIndex:'date',width:100},
               {title:t('dentalBilling.colItem'),dataIndex:'items',render:(items:any[])=><>{items.map((i:any)=><Tag key={i.code}>{i.name}</Tag>)}</>},

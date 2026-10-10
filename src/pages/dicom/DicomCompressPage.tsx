@@ -21,7 +21,6 @@ import {
   Select,
   Button,
   Progress,
-  Table,
   Row,
   Col,
   Typography,
@@ -39,7 +38,7 @@ import {
 } from "antd";
 import { BarChart3, File, FlaskConical, Inbox, Maximize2, RotateCw, Repeat2, Shrink, Trash2, Upload, Zap } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from "react";
-import { PageContainer, StatCard, StatCardGrid } from "../../components/common";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import { t } from "../../i18n/appI18n";
 
 const { Title, Text } = Typography;
@@ -1068,11 +1067,10 @@ export default function DicomCompressPage() {
           </StatCardGrid>
         )}
         {tasks.length > 0 ? (
-          <Table
+          <DataTable
             dataSource={taskPageData}
             columns={taskColumns}
             rowKey="id"
-            size="small"
             pagination={taskPagination}
           scroll={{ x: 'max-content' }}
           />
@@ -1105,7 +1103,7 @@ export default function DicomCompressPage() {
                 <div style={{ height: 60 }} />
               </Spin>
             ) : compareRows.length > 0 ? (
-              <Table dataSource={compareRows} columns={compareColumns} rowKey="key" pagination={false} size="small" scroll={{ x: 'max-content' }}/>
+              <DataTable dataSource={compareRows} columns={compareColumns} rowKey="key" pagination={false} scroll={{ x: 'max-content' }}/>
             ) : (
               <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t("compressV2.compareEmptyHint")} />
             )}
@@ -1129,11 +1127,11 @@ export default function DicomCompressPage() {
                 <Text strong style={{ display: "block", marginBottom: 8 }}>
                   {t("compressV2.thByAlgo")}
                 </Text>
-                <Table dataSource={ratios.byAlgorithm} columns={ratioColumns} rowKey={r => r.algorithm} pagination={false} size="small" scroll={{ x: 'max-content' }}/>
+                <DataTable dataSource={ratios.byAlgorithm} columns={ratioColumns} rowKey={r => r.algorithm} pagination={false} scroll={{ x: 'max-content' }}/>
                 <Text strong style={{ display: "block", margin: "16px 0 8px" }}>
                   {t("compressV2.thByModality")}
                 </Text>
-                <Table dataSource={ratios.byModality} columns={ratioModalityColumns} rowKey={r => `${r.modality}:${r.algorithm}`} pagination={false} size="small" scroll={{ x: 'max-content' }}/>
+                <DataTable dataSource={ratios.byModality} columns={ratioModalityColumns} rowKey={r => `${r.modality}:${r.algorithm}`} pagination={false} scroll={{ x: 'max-content' }}/>
               </>
             ) : (
               <Empty image={<BarChart3 size={48} style={{opacity:0.4}}/>} description={t("compressV2.noStats")} />

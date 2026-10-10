@@ -95,7 +95,7 @@ export default function AnnotationOverlay(props: Props) {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
             <span style={{ fontSize: 12, color: '#64748b' }}>{t('w9d.annotation.fontSize')}</span>
-            <input type="number" min={8} max={48} value={activeAnnotationFontSize} onChange={e => setActiveAnnotationFontSize(Number(e.target.value))} style={{ flex: 1, padding: '4px 6px', borderRadius: 4, border: '1px solid #cbd5e1', fontSize: 12, outline: 'none', width: 50 }} />
+            <input type="number" min={8} max={48} value={activeAnnotationFontSize} onChange={e => setActiveAnnotationFontSize(Number(e.target.value))} style={{ flex: 1, padding: '4px 6px', borderRadius: 4, border: '1px solid #cbd5e1', fontSize: 12, width: 50 }} />
           </div>
           <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4, marginTop: 8 }}>{t('w9d.annotation.addedAnnotations', { count: annotations.length })}</div>
           <div style={{ maxHeight: 150, overflowY: 'auto' }}>

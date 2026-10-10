@@ -451,8 +451,7 @@ export default function KeywordCheckPage() {
 // ============================================================
 const selectStyle: React.CSSProperties = {
   padding: '4px 8px', border: '1px solid var(--border-color)', borderRadius: 4,
-  fontSize: 12, outline: 'none',
-};
+  fontSize: 12, };
 
 // ============================================================
 // 规则统计卡

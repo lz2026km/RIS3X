@@ -107,8 +107,7 @@ export const EmailSendDialog: React.FC<EmailSendDialogProps> = ({ open, onClose,
 };
 
 const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, outline: 'none',
-};
+  width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 13, };
 const btnPrimary: React.CSSProperties = {
   flex: 1, padding: '8px 16px', border: 'none', borderRadius: 6, background: '#2563eb', color: '#fff',
   fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center',

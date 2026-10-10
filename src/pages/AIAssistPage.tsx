@@ -147,7 +147,7 @@ const AIAssistPage: React.FC = () => {
   const allText = draft ? draft.sections.map((s) => `【${s.heading}】\n${s.content}`).join('\n\n') : ''
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
       <Space style={{ marginBottom: 16 }}>
         <Sparkles size={20} color="#7c3aed" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('aiAssist.title')}</span>

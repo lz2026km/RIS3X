@@ -305,9 +305,7 @@ function ZoneEditor({ section, html, locked, unlockPending, readOnly, onChange, 
             padding: '10px 14px',
             fontSize: 14,
             lineHeight: 1.8,
-            fontFamily: 'SimSun, serif',
-            outline: 'none',
-            background: editable ? '#fff' : '#f8fafc',
+            fontFamily: 'SimSun, serif', background: editable ? '#fff' : '#f8fafc',
             color: editable ? '#0f172a' : '#475569',
           }}
         />
@@ -323,7 +321,7 @@ function ZoneEditor({ section, html, locked, unlockPending, readOnly, onChange, 
                 value={macroFilter}
                 onChange={(e) => setMacroFilter(e.target.value)}
                 placeholder={t('w17.sr.macroFilter')}
-                style={{ flex: 1, padding: '3px 8px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, outline: 'none' }}
+                style={{ flex: 1, padding: '3px 8px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12,}}
               />
             </div>
             {filteredMacros.map((m) => (

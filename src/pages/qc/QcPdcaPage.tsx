@@ -22,7 +22,20 @@ import {
   HardDrive,
   History,
 } from 'lucide-react'
-import { Button, Tag, Space, Modal, Form, Input, Select, Drawer, Popconfirm, message, Timeline, Empty, Table } from 'antd'
+import {
+  Button,
+  Tag,
+  Space,
+  Modal,
+  Form,
+  Input,
+  Select,
+  Drawer,
+  Popconfirm,
+  message,
+  Timeline,
+  Empty,
+} from "antd";
 import type { ColumnsType } from 'antd/es/table'
 import { PageContainer } from "../../components/common/PageContainer"
 import { PageHeader } from "../../components/common/PageHeader"
@@ -446,7 +459,7 @@ export default function QcPdcaPage() {
           </div>
         )}
 
-        <Table<PdcaCycle>
+        <DataTable<PdcaCycle>
           rowKey="id"
           loading={loading}
           columns={columns}
@@ -454,7 +467,6 @@ export default function QcPdcaPage() {
           pagination={{ pageSize: 8, showTotal: (total) => t('qcPdca.totalCycles', { total }) }}
           scroll={{ x: 1080 }}
           locale={{ emptyText: <Empty description={t('qcPdca.emptyCycles')} /> }}
-          size="middle"
         />
       </div>
 
@@ -683,3 +695,5 @@ const demoStats = (cycles: PdcaCycle[]): PdcaStats => {
   }
   return { total: cycles.length, byPhase, byCategory, completionRate: Math.round((completed / cycles.length) * 1000) / 10, avgDurationDays: 45, inProgress: cycles.length - completed }
 }
+
+import { DataTable } from "../../components/common";

@@ -9,10 +9,26 @@ import {
   type CreateComplianceDocInput,
 } from '../../services/api/complianceDocsApi';
 import {
-  Alert, Button, Card, Col, DatePicker, Descriptions, Drawer, Form, Input, Modal,
-  Popconfirm, Row, Select, Space, Spin, Table, Tag, Typography, message,
-} from 'antd';
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common';
+  Alert,
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Descriptions,
+  Drawer,
+  Form,
+  Input,
+  Modal,
+  Popconfirm,
+  Row,
+  Select,
+  Space,
+  Spin,
+  Tag,
+  Typography,
+  message,
+} from "antd";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import { Search, FilePlus2, RefreshCw, FileText, ScrollText, Send, Archive, Eye, Pencil, Trash2 } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { t } from '../../i18n/appI18n';
@@ -290,7 +306,7 @@ export const ComplianceDocsPage: React.FC = () => {
 
       <Card>
         <Spin spinning={loading}>
-          <Table
+          <DataTable
             rowKey="id" columns={columns} dataSource={docsPageData}
             pagination={docsPagination}
           scroll={{ x: 'max-content' }}

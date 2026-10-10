@@ -6,8 +6,22 @@
  */
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
-  Card, Table, Button, Modal, Form, Input, InputNumber, Select, Radio, Switch, Tag, Space, message, Popconfirm, Typography, Alert,
-} from 'antd'
+  Card,
+  Button,
+  Modal,
+  Form,
+  Input,
+  InputNumber,
+  Select,
+  Radio,
+  Switch,
+  Tag,
+  Space,
+  message,
+  Popconfirm,
+  Typography,
+  Alert,
+} from "antd";
 import { Plus, RefreshCw, LayoutGrid, Search, Sparkles, Trash2, MonitorPlay } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { hangingApi, type HangingProtocol, type HangingMatchResult, type HangingLayout } from '../../services/api/hangingApi'
@@ -230,7 +244,7 @@ const HangingProtocolPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
       <Space style={{ marginBottom: 16 }} align="center">
         <LayoutGrid size={20} color="#2563eb" />
         <Title level={4} style={{ margin: 0 }}>{t('hangProto.title')}</Title>
@@ -273,12 +287,11 @@ const HangingProtocolPage: React.FC = () => {
           </Space>
         }
       >
-        <Table
+        <DataTable
           rowKey="id"
           loading={loading}
           dataSource={protocolPageData}
           columns={columns}
-          size="middle"
           pagination={protocolPagination}
         scroll={{ x: 'max-content' }}
         />
@@ -405,3 +418,5 @@ const HangingProtocolPage: React.FC = () => {
 }
 
 export default HangingProtocolPage
+
+import { DataTable } from "../../components/common";

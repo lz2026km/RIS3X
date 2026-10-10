@@ -2,7 +2,6 @@ import { stowRsApi } from "../../services/api/stowRsApi";
 import { StowRsStoredInstance } from '../../services/api/stowRsApi'
 import {
   Card,
-  Table,
   Tag,
   Space,
   Button,
@@ -12,7 +11,7 @@ import {
   Alert,
   Typography,
 } from "antd";
-import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import { UploadCloud, CheckCircle, Database, RefreshCw } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import { t } from "../../i18n/appI18n";
@@ -154,12 +153,11 @@ const StowRsPage: React.FC = () => {
         }
       >
         <Spin spinning={loading}>
-          <Table
+          <DataTable
             rowKey="id"
             dataSource={instances}
             columns={columns}
             pagination={false}
-            size="small"
           scroll={{ x: 'max-content' }}
           />
         </Spin>

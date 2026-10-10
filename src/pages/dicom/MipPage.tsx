@@ -132,7 +132,7 @@ const MipPage: React.FC = () => {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#020617', color: '#cbd5e1', padding: 12 }}>
+    <div style={{ background: '#020617', color: '#cbd5e1', padding: 12 }}>
       {loadError && <ErrorBanner message={loadError} />}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Layers size={18} color={BLUE} />

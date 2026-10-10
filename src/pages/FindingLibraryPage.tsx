@@ -1772,9 +1772,7 @@ export default function FindingLibraryPage() {
                   padding: '8px 10px 8px 32px',
                   border: `1px solid ${COLORS.border}`,
                   borderRadius: 8,
-                  fontSize: 12,
-                  outline: 'none',
-                  color: COLORS.text,
+                  fontSize: 12, color: COLORS.text,
                   background: COLORS.background,
                   boxSizing: 'border-box',
                 }}

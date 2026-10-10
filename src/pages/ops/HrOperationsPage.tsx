@@ -145,7 +145,7 @@ export default function HrOperationsPage() {
   ]
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
+    <div style={{ background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><Users size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>{t('hrOps.title')}</span></div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -191,7 +191,7 @@ export default function HrOperationsPage() {
               <div style={{ position: 'relative', marginLeft: 'auto' }}>
                 <Search size={14} style={{ position: 'absolute', left: 10, top: 9, color: '#6e7681' }} />
                 <input placeholder={t('hrOps.searchName')} value={search} onChange={e => setSearch(e.target.value)}
-                  style={{ padding: '6px 12px 6px 32px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, outline: 'none', width: 180 }} />
+                  style={{ padding: '6px 12px 6px 32px', borderRadius: 6, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 13, width: 180 }} />
               </div>
             </div>
 

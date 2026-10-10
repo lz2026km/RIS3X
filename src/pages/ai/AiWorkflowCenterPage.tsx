@@ -10,7 +10,6 @@ import {
   Row,
   Select,
   Space,
-  Table,
   Tabs,
   Tag,
   Tooltip,
@@ -507,9 +506,8 @@ const ReviewTab: React.FC = () => {
       </StatCardGrid>
 
       <Card size="small" title={t("w4ai.review.perModel")}>
-        <Table
+        <DataTable
           rowKey="modelId"
-          size="small"
           pagination={false}
           scroll={{ x: "max-content" }}
           dataSource={stats}
@@ -755,9 +753,8 @@ const QcTab: React.FC = () => {
           </Space>
         }
       >
-        <Table
+        <DataTable
           rowKey="id"
-          size="small"
           pagination={false}
           scroll={{ x: "max-content" }}
           dataSource={checks}
@@ -774,9 +771,8 @@ const QcTab: React.FC = () => {
           </Space>
         }
       >
-        <Table
+        <DataTable
           rowKey="id"
-          size="small"
           pagination={false}
           scroll={{ x: "max-content" }}
           dataSource={drift}
@@ -793,9 +789,8 @@ const QcTab: React.FC = () => {
           </Space>
         }
       >
-        <Table
+        <DataTable
           rowKey="id"
-          size="small"
           pagination={false}
           scroll={{ x: "max-content" }}
           dataSource={errors}

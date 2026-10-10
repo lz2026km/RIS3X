@@ -3,7 +3,6 @@ import { wadoRsApi } from "../../services/api/wadoRsApi";
 import { WadoRsSeries, WadoRsStudy } from '../../services/api/wadoRsApi'
 import {
   Card,
-  Table,
   Tag,
   Space,
   Button,
@@ -15,7 +14,7 @@ import {
   Modal,
   List,
 } from "antd";
-import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 import { Globe, Search, Download, RefreshCw, Loader2, Database } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import { t } from "../../i18n/appI18n";
@@ -201,12 +200,11 @@ const WadoRsPage: React.FC = () => {
       )}
       <Card>
         <Spin spinning={loading}>
-          <Table
+          <DataTable
             rowKey="studyInstanceUid"
             dataSource={filteredPagination.pageData}
             columns={columns}
             pagination={filteredPagination.pagination}
-            size="small"
           scroll={{ x: 'max-content' }}
           />
         </Spin>

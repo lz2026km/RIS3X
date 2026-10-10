@@ -91,9 +91,7 @@ const input: React.CSSProperties = {
   borderRadius: 6,
   border: "1px solid #e2e8f0",
   fontSize: 12,
-  color: "#334155",
-  outline: "none",
-  width: "100%",
+  color: "#334155", width: "100%",
   boxSizing: "border-box",
 };
 

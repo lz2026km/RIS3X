@@ -184,9 +184,7 @@ export const TransferToFollowUpModal = ({
                 padding: "10px 14px",
                 borderRadius: 8,
                 border: "1px solid var(--border-color)",
-                fontSize: 14,
-                outline: "none",
-                boxSizing: "border-box",
+                fontSize: 14, boxSizing: "border-box",
               }}
             />
           </div>

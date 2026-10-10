@@ -485,7 +485,7 @@ export default function PatientMobileApp() {
           value={phoneInput}
           onChange={e => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 11))}
           placeholder={t('mobileApp.phonePlaceholder')}
-          style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, background: 'transparent' }}
+          style={{ flex: 1, border: 'none', fontSize: 14, background: 'transparent' }}
           inputMode="numeric"
         />
       </div>
@@ -495,7 +495,7 @@ export default function PatientMobileApp() {
           value={smsCode}
           onChange={e => setSmsCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
           placeholder={t('mobileApp.smsPlaceholder')}
-          style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, background: 'transparent' }}
+          style={{ flex: 1, border: 'none', fontSize: 14, background: 'transparent' }}
           inputMode="numeric"
         />
         <button

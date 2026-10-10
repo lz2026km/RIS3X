@@ -118,14 +118,14 @@ export default function AppointmentCalendar(props: Props) {
           )}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Filter size={14} style={{ color: textGray }} />
-            <select value={selectedDevice} onChange={e => setSelectedDevice(e.target.value)} style={{ padding: '5px 10px', border: `1px solid ${borderGray}`, borderRadius: 6, fontSize: 12, color: primaryBlue, background: whiteBg, cursor: 'pointer', outline: 'none' }}>
+            <select value={selectedDevice} onChange={e => setSelectedDevice(e.target.value)} style={{ padding: '5px 10px', border: `1px solid ${borderGray}`, borderRadius: 6, fontSize: 12, color: primaryBlue, background: whiteBg, cursor: 'pointer',}}>
               <option value="all">全部设备</option>
               {initialModalityDevices.filter((d: any) => d.status !== '维护中').map((d: any) => <option key={d.id} value={d.id}>{d.name.split('（')[0]} · {d.modality}</option>)}
             </select>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--bg-card)', border: `1px solid ${borderGray}`, borderRadius: 6, padding: '4px 10px' }}>
             <Search size={13} style={{ color: textGray }} />
-            <input type="text" placeholder="搜索患者/电话/项目…" value={searchKeyword} onChange={e => setSearchKeyword(e.target.value)} style={{ border: 'none', background: 'transparent', fontSize: 12, outline: 'none', color: primaryBlue, width: 140 }} />
+            <input type="text" placeholder="搜索患者/电话/项目…" value={searchKeyword} onChange={e => setSearchKeyword(e.target.value)} style={{ border: 'none', background: 'transparent', fontSize: 12, color: primaryBlue, width: 140 }} />
           </div>
         </div>
       </div>

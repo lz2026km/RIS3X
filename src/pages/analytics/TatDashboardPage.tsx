@@ -4,7 +4,6 @@ import {
   Row,
   Col,
   Select,
-  Table,
   Tag,
   Spin,
   Progress,
@@ -31,7 +30,7 @@ import {
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Inbox } from 'lucide-react'
 import { t } from "../../i18n/appI18n";
-import { StatCard, StatCardGrid, PageContainer } from "../../components/common";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common";
 
 interface ModalityTatRow {
   modality: string;
@@ -675,11 +674,10 @@ export default function TatDashboardPage() {
               </Space>
             }
           >
-            <Table
+            <DataTable
               columns={columns}
               dataSource={filteredModalityRows}
               rowKey="modality"
-              size="small"
               pagination={false}
               scroll={{ x: 700 }}
               locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={t('tatDashboard.noData')} /> }}
@@ -752,8 +750,7 @@ export default function TatDashboardPage() {
                   </div>
                 </div>
                 <div style={{ overflowX: "auto" }}>
-                  <Table
-                    size="small"
+                  <DataTable
                     rowKey={(_, i) => String(i ?? 0)}
                     dataSource={drillRows}
                     pagination={false}

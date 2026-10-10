@@ -1,5 +1,18 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Card, Row, Col, Tag, Table, Tabs, Space, Progress, Badge, Button, Input, Modal, message } from 'antd';
+import {
+  Card,
+  Row,
+  Col,
+  Tag,
+  Tabs,
+  Space,
+  Progress,
+  Badge,
+  Button,
+  Input,
+  Modal,
+  message,
+} from "antd";
 import {
   LineChart,
   Line,
@@ -18,6 +31,7 @@ import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { usePagination } from "@/hooks/usePagination";
 import { eyeApi } from "@/services/api/eyeApi";
 import { t } from "../../../i18n/appI18n";
+import { DataTable } from "../../../components/common";
 
 const DAY_KEYS = ['w9d.weekday.mon', 'w9d.weekday.tue', 'w9d.weekday.wed', 'w9d.weekday.thu', 'w9d.weekday.fri', 'w9d.weekday.sat', 'w9d.weekday.sun'];
 const ACCEPTANCE_TREND_DATA = [
@@ -326,10 +340,9 @@ const EyeAiPage: React.FC = () => {
                 key: "models",
                 label: t('w9d.eyeAi.modelMgmtTab', { count: aiModels.length }),
                 children: (
-                  <Table
+                  <DataTable
                     dataSource={modelsPagination.pageData}
                     rowKey="id"
-                    size="small"
                     pagination={modelsPagination.pagination}
                     columns={[
                       {
@@ -425,8 +438,7 @@ const EyeAiPage: React.FC = () => {
                   <Row gutter={12}>
                     <Col span={8}>
                       <Card size="small" title={<span>{t('eyeAi.diseaseDistributionTitle')} <Tag color={distSource === 'api' ? 'green' : 'orange'} style={{ fontSize: 10 }}>{distSource === 'api' ? 'API' : t('eyeAi.demo')}</Tag></span>}>
-                        <Table
-                          size="small"
+                        <DataTable
                           scroll={{ x: 'max-content' }}
                           pagination={distPagination.pagination}
                           dataSource={distPagination.pageData}

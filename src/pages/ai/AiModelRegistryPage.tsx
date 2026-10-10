@@ -9,7 +9,6 @@ import {
   Progress,
   Select,
   Space,
-  Table,
   Tag,
   Typography,
   message,
@@ -549,9 +548,8 @@ const AiModelRegistryPage: React.FC = () => {
                 options={versionOptions(compareModel.versions)}
               />
             </Space>
-            <Table
+            <DataTable
               rowKey="key"
-              size="small"
               pagination={false}
               dataSource={compareRows}
               columns={[
@@ -641,9 +639,8 @@ const AiModelRegistryPage: React.FC = () => {
                 <ShieldCheck size={15} color="#2563eb" />
                 <Text strong>{t("w4ai.detail.metrics")}</Text>
               </Space>
-              <Table
+              <DataTable
                 rowKey="key"
-                size="small"
                 pagination={false}
                 dataSource={METRIC_ROWS.map((row) => ({
                   key: row.key,
@@ -662,9 +659,8 @@ const AiModelRegistryPage: React.FC = () => {
                 <Cpu size={15} color="#2563eb" />
                 <Text strong>{t("w4ai.detail.versionHistory")}</Text>
               </Space>
-              <Table
+              <DataTable
                 rowKey="version"
-                size="small"
                 pagination={false}
                 dataSource={detailModel.versions}
                 columns={[

@@ -35,9 +35,6 @@ importers:
       '@sentry/react':
         specifier: ^8.40.0
         version: 8.55.2(react@18.3.1)
-      '@tabler/icons-react':
-        specifier: ^3.48.0
-        version: 3.48.0(react@18.3.1)
       '@tiptap/extension-character-count':
         specifier: ^3.26.1
         version: 3.27.1(@tiptap/extensions@3.27.1(@tiptap/core@3.27.1(@tiptap/pm@3.27.1))(@tiptap/pm@3.27.1))
@@ -2605,14 +2602,6 @@ packages:
     resolution: {integrity: sha512-99rgLEjf7iwfSEmdqlHkSG3AyLcK0sfExcr0jnc6rLiAkBhzuIsvcHjjUwkR210SOCgXqBPW0ZA6uhnuyppHLw==}
     peerDependencies:
       storybook: ^8.2.0 || ^8.3.0-0 || ^8.4.0-0 || ^8.5.0-0 || ^8.6.0-0
-
-  '@tabler/icons-react@3.48.0':
-    resolution: {integrity: sha512-OCeAlpaWHEMV+EsgdVeGQ3YuKfmfnThZhc++CaZ/ujYzi5+/DONDQlX4OGvH1ikYhIfmc0grI4otJgHy7QAvng==}
-    peerDependencies:
-      react: '>= 16'
-
-  '@tabler/icons@3.48.0':
-    resolution: {integrity: sha512-lQk06gVHNVBnJp0UOgtth54mcZBJM7rdYKsAxKOProj1bbSAx+/xiuOWfHlyvgdL3M+Y+I0HINrjHa3ygp8eXQ==}
 
   '@testing-library/dom@10.4.0':
     resolution: {integrity: sha512-pemlzrSESWbdAloYml3bAJMEfNh1Z7EduzqPKprCH5S341frlpYnUEW0H72dLxa6IsYr+mPno20GiSm+h9dEdQ==}
@@ -10294,13 +10283,6 @@ snapshots:
   '@storybook/theming@8.4.7(storybook@8.4.7(prettier@3.9.4))':
     dependencies:
       storybook: 8.4.7(prettier@3.9.4)
-
-  '@tabler/icons-react@3.48.0(react@18.3.1)':
-    dependencies:
-      '@tabler/icons': 3.48.0
-      react: 18.3.1
-
-  '@tabler/icons@3.48.0': {}
 
   '@testing-library/dom@10.4.0':
     dependencies:

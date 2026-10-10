@@ -11,7 +11,6 @@ import {
   Select,
   Space,
   Spin,
-  Table,
   Tag,
 } from "antd";
 import {
@@ -44,6 +43,7 @@ import {
   type StenosisSeverity,
   type StrokeResult,
 } from "../../services/ai/quantEngine";
+import { DataTable } from "../../components/common";
 
 const isEn = (): boolean => getCurrentLocale() === "en-US";
 
@@ -201,9 +201,8 @@ const CoronaryPanel: React.FC<{ r: CoronaryResult }> = ({ r }) => {
       </div>
 
       <Card size="small" title={t("w3quant.coronary.vessels")}>
-        <Table
+        <DataTable
           rowKey="vessel"
-          size="small"
           pagination={false}
           dataSource={r.vessels}
           columns={[
@@ -243,9 +242,8 @@ const CoronaryPanel: React.FC<{ r: CoronaryResult }> = ({ r }) => {
       </Card>
 
       <Card size="small" title={t("w3quant.coronary.segments")}>
-        <Table
+        <DataTable
           rowKey="id"
-          size="small"
           pagination={false}
           scroll={{ x: "max-content" }}
           dataSource={r.segments}
@@ -440,9 +438,8 @@ const CarotidPanel: React.FC<{ r: CarotidResult }> = ({ r }) => (
       </Row>
     </div>
     <Card size="small" title={t("w3quant.carotid.willis")}>
-      <Table
+      <DataTable
         rowKey="id"
-        size="small"
         pagination={false}
         dataSource={r.vessels}
         columns={[
@@ -610,9 +607,8 @@ const NodulePanel: React.FC<{ r: NoduleResult }> = ({ r }) => {
         </Space>
       </Card>
       <Card size="small" title={t("w3quant.nodule.list")}>
-        <Table
+        <DataTable
           rowKey="id"
-          size="small"
           pagination={false}
           scroll={{ x: "max-content" }}
           dataSource={r.nodules}
@@ -689,9 +685,8 @@ const BreastPanel: React.FC<{ r: BreastResult }> = ({ r }) => (
       {r.lesions.length === 0 ? (
         <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("w3quant.breast.noLesions")} />
       ) : (
-        <Table
+        <DataTable
           rowKey="id"
-          size="small"
           pagination={false}
           dataSource={r.lesions}
           columns={[
@@ -776,9 +771,8 @@ const SpineQctPanel: React.FC<{ r: SpineQctResult }> = ({ r }) => (
       </Row>
     </div>
     <Card size="small" title={t("w3quant.spine.levels")}>
-      <Table
+      <DataTable
         rowKey="level"
-        size="small"
         pagination={false}
         dataSource={r.levels}
         columns={[

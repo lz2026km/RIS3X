@@ -585,8 +585,7 @@ export default function CollaborationPage() {
                         placeholder={`回复 @${comment.authorName}...`}
                         style={{
                           flex: 1, padding: '4px 6px', border: '1px solid var(--border-color)',
-                          borderRadius: 3, fontSize: 12, outline: 'none',
-                        }}
+                          borderRadius: 3, fontSize: 12, }}
                       />
                       <button
                         onClick={() => void handleReplyComment(comment.id)}
@@ -620,7 +619,7 @@ export default function CollaborationPage() {
               rows={2}
               style={{
                 width: '100%', padding: 6, border: '1px solid var(--border-color)', borderRadius: 4,
-                fontSize: 12, outline: 'none', resize: 'none', fontFamily: 'inherit',
+                fontSize: 12, resize: 'none', fontFamily: 'inherit',
                 marginBottom: 4,
               }}
             />

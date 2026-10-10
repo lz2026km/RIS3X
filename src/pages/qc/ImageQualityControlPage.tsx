@@ -6,8 +6,22 @@ import { DEVICE_MASTER, DEVICES_BY_MODALITY } from '../../data/master'
 import { qcImageAiApi, type QcImageAiResult, type QcImageAiStatsV2 } from '../../services/api/qcImageAiApi'
 import { RETAKE_REASON_OPTIONS, worklistApi } from '../../services/api/worklistApi'
 import {
-  Card, Row, Col, Statistic, Tag, Alert, Button, Spin, Table, Input, Select, Space, message, Progress, Modal, type TableProps,
-} from 'antd'
+  Card,
+  Row,
+  Col,
+  Statistic,
+  Tag,
+  Alert,
+  Button,
+  Spin,
+  Input,
+  Select,
+  Space,
+  message,
+  Progress,
+  Modal,
+  type TableProps,
+} from "antd";
 import { Camera, Activity, AlertTriangle, CheckCircle, ScanLine, RefreshCw, XCircle } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { PageHeader } from '../../components/common/PageHeader'
@@ -189,7 +203,7 @@ export default function ImageQualityControlPage() {
   ]
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
       <PageHeader
         icon={<Camera size={20} color="#3b82f6" />}
         title={t('imageQualityControl.title')}
@@ -265,7 +279,7 @@ export default function ImageQualityControlPage() {
             ) : results.length === 0 ? (
               <EmptyState description={t('imageQualityControl.noScoreRecords')} />
             ) : (
-              <Table rowKey="id" size="small" dataSource={results} columns={columns} pagination={{ current: resultPage, pageSize: 8, total: results.length, onChange: setResultPage, showSizeChanger: false, showTotal: (total) => t('imageQualityControl.totalItems', { total }) }} scroll={{ x: 900 }} />
+              <DataTable rowKey="id" dataSource={results} columns={columns} pagination={{ current: resultPage, pageSize: 8, total: results.length, onChange: setResultPage, showSizeChanger: false, showTotal: (total) => t('imageQualityControl.totalItems', { total }) }} scroll={{ x: 900 }} />
             )}
           </Card>
         </Col>
@@ -332,3 +346,5 @@ export default function ImageQualityControlPage() {
     </div>
   )
 }
+
+import { DataTable } from "../../components/common";

@@ -125,7 +125,7 @@ export default function DepartmentStaffList({
         <div style={panelHeaderStyle}><span>{t("deptStaff.title")}</span><span style={{ fontSize: 12, color: C.textLight }}>{t("deptStaff.memberCount", { count: filteredStaff.length })}</span></div>
         <div style={{ padding: 12 }}>
           <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-            <input type="text" placeholder={t("deptStaff.searchPlaceholder")} value={searchKeyword} onChange={(e) => setSearchKeyword(e.target.value)} style={{ flex: 1, padding: "6px 10px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: "none" }} />
+            <input type="text" placeholder={t("deptStaff.searchPlaceholder")} value={searchKeyword} onChange={(e) => setSearchKeyword(e.target.value)} style={{ flex: 1, padding: "6px 10px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13,}} />
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 12 }}>
             {roleFilters.map((f) => (

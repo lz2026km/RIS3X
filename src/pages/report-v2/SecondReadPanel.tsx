@@ -1,8 +1,22 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import {
-  Card, Table, Button, Tag, Space, Modal, Input, Typography, Row, Col, Statistic,
-  message, Alert, Select, Progress, Badge, Empty,
-} from 'antd'
+  Card,
+  Button,
+  Tag,
+  Space,
+  Modal,
+  Input,
+  Typography,
+  Row,
+  Col,
+  Statistic,
+  message,
+  Alert,
+  Select,
+  Progress,
+  Badge,
+  Empty,
+} from "antd";
 import {
   ShieldAlert, CheckCircle, XCircle, FileText, ClipboardCheck,
   Activity, FilePlus2,
@@ -14,7 +28,7 @@ import {
   type SecondReadStatsData,
   type SecondReadSeverity,
 } from '../../services/api/aiSecondReadApi'
-import { StatCard, StatCardGrid } from '../../components/common'
+import { DataTable, StatCard, StatCardGrid } from "../../components/common"
 import { useAuth } from '../../hooks/useAuth'
 import { t } from '../../i18n/appI18n'
 
@@ -194,8 +208,8 @@ const SecondReadPanel: React.FC = () => {
           <StatCard title={t('secondRead.statOpenRisk')} value={stats?.openRiskItems ?? 0} color="error" />
           <StatCard title={t('secondRead.statAppended')} value={stats?.appendedCount ?? 0} icon={<FilePlus2 size={15} />} />
         </StatCardGrid>
-        <Table
-          rowKey="id" dataSource={results} columns={columns} size="small" loading={loading}
+        <DataTable
+          rowKey="id" dataSource={results} columns={columns} loading={loading}
           pagination={{ pageSize: 8 }} scroll={{ x: 'max-content' }}
         />
       </Card>

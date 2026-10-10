@@ -6,8 +6,28 @@ import {
   type XdsDocumentEntry,
   type XdsDocumentDetail,
 } from '../../services/api/integrationApi'
-import { Card, Tabs, Button, Space, Tag, message, Descriptions, Empty, Row, Col, Drawer, Form, Input, Alert, Popconfirm, Table, Select, Modal, Spin, Typography } from 'antd'
-import { StatCard, StatCardGrid, PageContainer } from '../../components/common'
+import {
+  Card,
+  Tabs,
+  Button,
+  Space,
+  Tag,
+  message,
+  Descriptions,
+  Empty,
+  Row,
+  Col,
+  Drawer,
+  Form,
+  Input,
+  Alert,
+  Popconfirm,
+  Select,
+  Modal,
+  Spin,
+  Typography,
+} from "antd";
+import { DataTable, PageContainer, StatCard, StatCardGrid } from "../../components/common"
 import { Network, Activity, Users, Fingerprint, Globe, Edit3, RotateCcw, Save, RefreshCw, Send, Search, UploadCloud, Database, Download, Eye } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
 import { Inbox } from 'lucide-react'
@@ -548,9 +568,8 @@ export const IheManagerPage: React.FC = () => {
               title={<Space>{t('w10Interop.xds.documents')}<Tag>{xdsDocs.length}</Tag></Space>}
               extra={<Button size="small" icon={<Download size={12} />} disabled={xdsSelected.length === 0} loading={xdsLoading} onClick={handleXdsRetrieve}>{t('w10Interop.xds.retrieveBtn')}</Button>}
             >
-              <Table<XdsDocumentEntry>
+              <DataTable<XdsDocumentEntry>
                 rowKey="uniqueId"
-                size="small"
                 loading={xdsLoading}
                 dataSource={xdsDocs}
                 columns={xdsColumns}
@@ -595,9 +614,8 @@ export const IheManagerPage: React.FC = () => {
             )}
           </Card>
           <Card size="small" title={<Space>{t('w10Interop.xca.documents')}<Tag>{xcaDocs.length}</Tag></Space>}>
-            <Table<XdsDocumentEntry>
+            <DataTable<XdsDocumentEntry>
               rowKey="uniqueId"
-              size="small"
               loading={xcaLoading}
               dataSource={xcaDocs}
               columns={xdsColumns}

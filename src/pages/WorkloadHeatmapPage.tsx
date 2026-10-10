@@ -159,7 +159,7 @@ export default function WorkloadHeatmapPage() {
   const avgTime = workload.length > 0 ? Math.round(workload.reduce((s, d) => s + (d.avgTime ?? 0), 0) / workload.length) : 0
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-card)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-card)',}}>
       <header style={{ background: 'linear-gradient(135deg,#0891b2 0%,#06b6d4 100%)', color: '#fff', padding: '14px 24px', borderRadius: 10, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <BarChart3 size={20} />

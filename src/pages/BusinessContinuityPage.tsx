@@ -4,14 +4,24 @@
  * [W3-A] 影像设备状态接入 deviceApi 真实数据; 数据库副本 REPLICAS 仍为静态演示 (failover.ts)
  */
 import { useEffect, useState } from "react";
-import { Card, Col, Row, Table, Tag, Space, Typography, Timeline, Badge, Alert } from 'antd';
+import {
+  Card,
+  Col,
+  Row,
+  Tag,
+  Space,
+  Typography,
+  Timeline,
+  Badge,
+  Alert,
+} from "antd";
 import { Shield, Database, Activity, RefreshCw, CheckCircle, AlertTriangle, XCircle, Monitor } from 'lucide-react';
 import { syncEngine, type SyncQueueItem, type ConflictResolution } from "../services/offline";
 import { REPLICAS, type DbReplica } from "../services/failover";
 import { deviceApi, type DeviceDto } from "./../services/api/deviceApi";
 import { usePagination } from "../hooks/usePagination";
 import { LoadingBanner } from "../components/feedback";
-import { ActionButton, ExportButton, StatCard, StatCardGrid } from "../components/common";
+import { ActionButton, DataTable, ExportButton, StatCard, StatCardGrid } from "../components/common";
 import { t } from "../i18n/appI18n";
 
 const {  Text } = Typography;
@@ -163,10 +173,9 @@ export default function BusinessContinuityPage() {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={12}>
           <Card title={<Space><Database size={16} />{t("businessContinuity.dbReplicas")} ({replicas.length})<Badge count={replicas.filter(r => r.status === "healthy").length} status="success" /><Tag color="orange">{t("businessContinuity.staticDemoData")}</Tag></Space>}>
-            <Table scroll={{ x: 'max-content' }}
+            <DataTable scroll={{ x: 'max-content' }}
               dataSource={replicas}
               rowKey="id"
-              size="small"
               pagination={false}
               columns={[
                 { title: t("businessContinuity.replicaId"), dataIndex: "id", key: "id", width: 130 },
@@ -219,10 +228,9 @@ export default function BusinessContinuityPage() {
       </StatCardGrid>
 
       <Card title={<Space><Monitor size={16} />{t("businessContinuity.imagingDeviceStatus")} ({devices.length})<Tag color="green">{t("businessContinuity.realDataSource")}</Tag></Space>} style={{ marginBottom: 16 }}>
-        <Table scroll={{ x: 'max-content' }}
+        <DataTable scroll={{ x: 'max-content' }}
           dataSource={devicePagination.pageData}
           rowKey="id"
-          size="small"
           pagination={devicePagination.pagination}
           columns={[
             { title: t("businessContinuity.deviceCode"), dataIndex: "code", key: "code", width: 110 },
@@ -238,10 +246,9 @@ export default function BusinessContinuityPage() {
       </Card>
 
       <Card title={<Space><Activity size={16} />{t("businessContinuity.syncQueue")} ({queue.length})</Space>}>
-        <Table scroll={{ x: 'max-content' }}
+        <DataTable scroll={{ x: 'max-content' }}
           dataSource={queuePagination.pageData}
           rowKey="id"
-          size="small"
           pagination={queuePagination.pagination}
           columns={[
             { title: t("businessContinuity.queueId"), dataIndex: "id", key: "id", width: 100 },

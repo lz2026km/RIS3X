@@ -362,15 +362,12 @@ function AETitleConfigPanel() {
                 {editingId === ae.id ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                     <input value={editForm.aeTitle} onChange={e => setEditForm(f => ({ ...f, aeTitle: e.target.value }))} style={{
-                      padding: '4px 8px', borderRadius: 6, border: `1px solid ${C.accent}`, fontSize: 12, outline: 'none'
-                    }} />
+                      padding: '4px 8px', borderRadius: 6, border: `1px solid ${C.accent}`, fontSize: 12,}} />
                     <div style={{ display: 'flex', gap: 4 }}>
                       <input value={editForm.ip} onChange={e => setEditForm(f => ({ ...f, ip: e.target.value }))} style={{
-                        flex: 1, padding: '4px 8px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12, outline: 'none'
-                      }} />
+                        flex: 1, padding: '4px 8px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12,}} />
                       <input type="number" value={editForm.port} onChange={e => setEditForm(f => ({ ...f, port: Number(e.target.value) }))} style={{
-                        width: 60, padding: '4px 8px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12, outline: 'none'
-                      }} />
+                        width: 60, padding: '4px 8px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12,}} />
                     </div>
                     <div style={{ display: 'flex', gap: 4 }}>
                       <ActionButton action="save" size="compact" onClick={() => handleSave(ae.id)}>{t('devicePage.save')}</ActionButton>
@@ -1755,7 +1752,7 @@ export default function DevicePage() {
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.planDateRequired')}</label>
                 <input type="date" value={maintForm.planDate} onChange={e => setMaintForm(f => ({ ...f, planDate: e.target.value }))} style={{
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
-                  fontSize: 12, color: C.textDark, outline: 'none', boxSizing: 'border-box'
+                  fontSize: 12, color: C.textDark, boxSizing: 'border-box'
                 }} />
               </div>
               <div>
@@ -1777,21 +1774,21 @@ export default function DevicePage() {
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.maintContent')}</label>
                 <textarea value={maintForm.content} onChange={e => setMaintForm(f => ({ ...f, content: e.target.value }))} placeholder={t('devicePage.placeholderContent')} style={{
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
-                  fontSize: 12, color: C.textDark, outline: 'none', minHeight: 60, resize: 'vertical', boxSizing: 'border-box'
+                  fontSize: 12, color: C.textDark, minHeight: 60, resize: 'vertical', boxSizing: 'border-box'
                 }} />
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.estCost')}</label>
                 <input type="number" value={maintForm.estimatedCost} onChange={e => setMaintForm(f => ({ ...f, estimatedCost: e.target.value }))} placeholder={t('devicePage.placeholderCost')} style={{
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
-                  fontSize: 12, color: C.textDark, outline: 'none', boxSizing: 'border-box'
+                  fontSize: 12, color: C.textDark, boxSizing: 'border-box'
                 }} />
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.assignee')}</label>
                 <input value={maintForm.assignee} onChange={e => setMaintForm(f => ({ ...f, assignee: e.target.value }))} placeholder={t('devicePage.placeholderAssignee')} style={{
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
-                  fontSize: 12, color: C.textDark, outline: 'none', boxSizing: 'border-box'
+                  fontSize: 12, color: C.textDark, boxSizing: 'border-box'
                 }} />
               </div>
             </div>
@@ -1841,21 +1838,21 @@ export default function DevicePage() {
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.deviceNameRequired')}</label>
                 <input value={deviceForm.name} onChange={e => setDeviceForm(f => ({ ...f, name: e.target.value }))} placeholder={t('devicePage.placeholderDeviceName')} style={{
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
-                  fontSize: 12, color: C.textDark, outline: 'none', boxSizing: 'border-box'
+                  fontSize: 12, color: C.textDark, boxSizing: 'border-box'
                 }} />
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.modelMfg')}</label>
                 <input value={deviceForm.model} onChange={e => setDeviceForm(f => ({ ...f, model: e.target.value }))} placeholder={t('devicePage.placeholderModel')} style={{
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
-                  fontSize: 12, color: C.textDark, outline: 'none', boxSizing: 'border-box'
+                  fontSize: 12, color: C.textDark, boxSizing: 'border-box'
                 }} />
               </div>
               <div>
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.deptLocation')}</label>
                 <input value={deviceForm.dept} onChange={e => setDeviceForm(f => ({ ...f, dept: e.target.value }))} placeholder={t('devicePage.placeholderDept')} style={{
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
-                  fontSize: 12, color: C.textDark, outline: 'none', boxSizing: 'border-box'
+                  fontSize: 12, color: C.textDark, boxSizing: 'border-box'
                 }} />
               </div>
               <div>
@@ -1871,7 +1868,7 @@ export default function DevicePage() {
                 <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>{t('devicePage.status')}</label>
                 <input value={t('devicePage.idleDefault')} disabled style={{
                   width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
-                  fontSize: 12, color: C.textLight, outline: 'none', boxSizing: 'border-box', background: 'var(--bg-primary)'
+                  fontSize: 12, color: C.textLight, boxSizing: 'border-box', background: 'var(--bg-primary)'
                 }} />
               </div>
             </div>
@@ -1889,7 +1886,7 @@ export default function DevicePage() {
   // 渲染入口
   // ============================================================
   return (
-    <PageTemplate container={false} showHeader={false} testId="device-page" style={{ padding: '0 24px 24px', minHeight: '100vh', background: C.bg }}>
+    <PageTemplate container={false} showHeader={false} testId="device-page" style={{ padding: '0 24px 24px', background: C.bg }}>
       {loading && (
         <div style={{ padding: 8, margin: 12, background: 'var(--color-info-bg)', color: '#1e40af', borderRadius: 6, fontSize: 13 }}>
           {t('devicePage.loadingStats')}

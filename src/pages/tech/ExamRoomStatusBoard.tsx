@@ -113,7 +113,7 @@ export default function ExamRoomStatusBoard() {
   }, [rooms])
 
   return (
-    <div style={{ padding: 24, background: 'var(--bg-primary)', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: 'var(--bg-primary)',}}>
       <PageHeader
         icon={<Monitor size={20} color="#3b82f6" />}
         title={t('examRoom.title')}
